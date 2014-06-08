@@ -30,8 +30,10 @@ public class WeatherManagerBase {
 	public int dim;
 	
 	//storms
-	private List<StormObject> listStormObject = new ArrayList<StormObject>();
-	public HashMap<Long, StormObject> lookupStormObjects = new HashMap<Long, StormObject>();
+	private List<StormObject> listStormObjects = new ArrayList<StormObject>();
+	public HashMap<Long, StormObject> lookupStormObjectsByID = new HashMap<Long, StormObject>();
+	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<Integer, ArrayList<StormObject>>();
+	//private ArrayList<ArrayList<StormObject>> listStormObjectsByLayer = new ArrayList<ArrayList<StormObject>>();
 	
 	//volcanos
 	private List<VolcanoObject> listVolcanoes = new ArrayList<VolcanoObject>();
@@ -42,6 +44,38 @@ public class WeatherManagerBase {
 	
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
+		lookupStormObjectsByLayer.put(0, new ArrayList<StormObject>());
+		lookupStormObjectsByLayer.put(1, new ArrayList<StormObject>());
+		lookupStormObjectsByLayer.put(2, new ArrayList<StormObject>());
+	}
+	
+	public void reset() {
+		for (int i = 0; i < getStormObjects().size(); i++) {
+			StormObject so = getStormObjects().get(i);
+			
+			so.reset();
+		}
+		
+		getStormObjects().clear();
+		lookupStormObjectsByID.clear();
+		try {
+			lookupStormObjectsByLayer.get(0).clear();
+			lookupStormObjectsByLayer.get(1).clear();
+			lookupStormObjectsByLayer.get(2).clear();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		for (int i = 0; i < getVolcanoObjects().size(); i++) {
+			VolcanoObject vo = getVolcanoObjects().get(i);
+			
+			vo.reset();
+		}
+		
+		getVolcanoObjects().clear();
+		lookupVolcanoes.clear();
+		
+		windMan.reset();
 	}
 	
 	public World getWorld() {
@@ -49,25 +83,51 @@ public class WeatherManagerBase {
 	}
 	
 	public void tick() {
-		
+		World world = getWorld();
+		if (world != null) {
+			//tick storms
+			for (int i = 0; i < getStormObjects().size(); i++) {
+				getStormObjects().get(i).tick();
+			}
+						
+			//tick volcanos
+			for (int i = 0; i < getVolcanoObjects().size(); i++) {
+				getVolcanoObjects().get(i).tick();
+			}
+
+			//tick wind
+			windMan.tick();
+		}
 	}
 	
 	public List<StormObject> getStormObjects() {
-		return listStormObject;
+		return listStormObjects;
+	}
+	
+	public List<StormObject> getStormObjectsByLayer(int layer) {
+		return lookupStormObjectsByLayer.get(layer);
 	}
 	
 	public void addStormObject(StormObject so) {
-		listStormObject.add(so);
-		lookupStormObjects.put(so.ID, so);
+		if (!lookupStormObjectsByID.containsKey(so.ID)) {
+			listStormObjects.add(so);
+			lookupStormObjectsByID.put(so.ID, so);
+			lookupStormObjectsByLayer.get(so.layer).add(so);
+		} else {
+			Weather.dbg("Weather2 WARNING!!! Client received new storm create for an ID that is already active! design bug");
+		}
 	}
 	
 	public void removeStormObject(long ID) {
-		StormObject so = lookupStormObjects.get(ID);
+		StormObject so = lookupStormObjectsByID.get(ID);
 		
 		if (so != null) {
 			so.setDead();
-			listStormObject.remove(so);
-			lookupStormObjects.remove(ID);
+			listStormObjects.remove(so);
+			lookupStormObjectsByID.remove(ID);
+			lookupStormObjectsByLayer.get(so.layer).remove(so);
+		} else {
+			Weather.dbg("error looking up storm ID on server: " + ID + " - lookup count: " + lookupStormObjectsByID.size() + " - last used ID: " + StormObject.lastUsedStormID);
 		}
 	}
 	
@@ -75,9 +135,13 @@ public class WeatherManagerBase {
 		return listVolcanoes;
 	}
 	
-	public void addStormObject(VolcanoObject so) {
-		listVolcanoes.add(so);
-		lookupVolcanoes.put(so.ID, so);
+	public void addVolcanoObject(VolcanoObject so) {
+		if (!lookupVolcanoes.containsKey(so.ID)) {
+			listVolcanoes.add(so);
+			lookupVolcanoes.put(so.ID, so);
+		} else {
+			Weather.dbg("Weather2 WARNING!!! Client received new volcano create for an ID that is already active! design bug");
+		}
 	}
 	
 	public void removeVolcanoObject(long ID) {
@@ -92,7 +156,15 @@ public class WeatherManagerBase {
 		}
 	}
 	
-	public StormObject getClosestStorm(Vec3 parPos, double maxDist) {
+	public StormObject getClosestStormAny(Vec3 parPos, double maxDist) {
+		return getClosestStorm(parPos, maxDist, -1, true);
+	}
+	
+	public StormObject getClosestStorm(Vec3 parPos, double maxDist, int severityFlagMin) {
+		return getClosestStorm(parPos, maxDist, severityFlagMin, false);
+	}
+	
+	public StormObject getClosestStorm(Vec3 parPos, double maxDist, int severityFlagMin, boolean orRain) {
 		
 		StormObject closestStorm = null;
 		double closestDist = 9999999;
@@ -100,9 +172,14 @@ public class WeatherManagerBase {
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			StormObject storm = getStormObjects().get(i);
 			double dist = storm.pos.distanceTo(parPos);
-			if (dist < closestDist && dist <= maxDist && storm.state >= StormObject.STATE_RAIN) {
-				closestStorm = storm;
-				closestDist = dist;
+			/*if (getWorld().isRemote) {
+				System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
+			}*/
+			if (dist < closestDist && dist <= maxDist) {
+				if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.attrib_tornado_severity >= severityFlagMin)) {
+					closestStorm = storm;
+					closestDist = dist;
+				}
 			}
 		}
 		
@@ -192,8 +269,13 @@ public class WeatherManagerBase {
 				ex.printStackTrace();
 			}
 			//to.initAITree();
-			listVolcanoes.add(to);
-			lookupVolcanoes.put(to.ID, to);
+			addVolcanoObject(to);
+			
+			//THIS LINE NEEDS REFINING FOR PLAYERS WHO JOIN AFTER THE FACT!!!
+			((WeatherManagerServer)(this)).syncVolcanoNew(to);
+			
+			//listVolcanoes.add(to);
+			//lookupVolcanoes.put(to.ID, to);
 			to.initPost();
 		}
 	}

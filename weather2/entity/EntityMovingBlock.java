@@ -2,8 +2,8 @@ package weather2.entity;
 
 import java.util.List;
 
-import weather2.WeatherUtil;
 import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtil;
 import weather2.weathersystem.storm.StormObject;
 
 import net.minecraft.block.Block;
@@ -507,7 +507,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     public void setDead()
     {
     	if (!worldObj.isRemote) {
-    		if (owner != null) {
+    		if (owner != null && owner.tornadoHelper != null) {
     			--owner.tornadoHelper.blockCount;
     			
     	        if (owner.tornadoHelper.blockCount < 0)

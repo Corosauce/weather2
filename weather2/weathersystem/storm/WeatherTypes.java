@@ -32,53 +32,79 @@ public class WeatherTypes {
         sConf.type = 0;
         sConf.grabsBlocks = false;
         weatherEntTypes.add(sConf);
+        
         //F1 tornado
         sConf = new WeatherEntityConfig();
         sConf.tornadoInitialSpeed = 0.2F;
         sConf.tornadoPullRate = 0.04F;
         sConf.tornadoLiftRate = 0.05F;
         sConf.relTornadoSize = -20;
-        sConf.tornadoBaseSize = 3;
+        //sConf.tornadoBaseSize = 3;
         sConf.tornadoWidthScale = 1.5F;
-        sConf.grabDist = 100D;
+        //sConf.grabDist = 100D;
         weatherEntTypes.add(sConf);
-        //F3 tornado
+        
+        //F2 tornado
         sConf = new WeatherEntityConfig();
         sConf.tornadoInitialSpeed = 0.2F;
         sConf.tornadoPullRate = 0.04F;
         sConf.tornadoLiftRate = 0.05F;
-        sConf.relTornadoSize = -50;
-        sConf.tornadoBaseSize = 10;
+        sConf.relTornadoSize = -30;
+        //sConf.tornadoBaseSize = 6;
+        sConf.tornadoWidthScale = 1.5F;
+        //sConf.grabDist = 100D;
+        weatherEntTypes.add(sConf);
+        
+        //F3 tornado
+        sConf = new WeatherEntityConfig();
+        //sConf.tornadoInitialSpeed = 0.2F;
+        sConf.tornadoPullRate = 0.04F;
+        sConf.tornadoLiftRate = 0.05F;
+        sConf.relTornadoSize = -40;
+        //sConf.tornadoBaseSize = 10;
         sConf.tornadoWidthScale = 1.9F;
         weatherEntTypes.add(sConf);
+        
+        //F4 tornado
+        sConf = new WeatherEntityConfig();
+        //sConf.tornadoInitialSpeed = 0.2F;
+        sConf.tornadoPullRate = 0.04F;
+        sConf.tornadoLiftRate = 0.05F;
+        sConf.relTornadoSize = -50;
+        //sConf.tornadoBaseSize = 10;
+        sConf.tornadoWidthScale = 1.9F;
+        weatherEntTypes.add(sConf);
+        
         //F5 tornado
         sConf = new WeatherEntityConfig();
-        sConf.tornadoInitialSpeed = 0.15F;
+        //sConf.tornadoInitialSpeed = 0.15F;
         sConf.tornadoPullRate = 0.04F;
         sConf.tornadoLiftRate = 0.04F;
-        sConf.relTornadoSize = 95;
-        sConf.tornadoBaseSize = 25;
+        sConf.relTornadoSize = -60;
+        //sConf.tornadoBaseSize = 25;
         sConf.tornadoWidthScale = 2.5F;
         weatherEntTypes.add(sConf);
+        
         //F6
         sConf = new WeatherEntityConfig();
-        sConf.tornadoInitialSpeed = 0.15F;
+        //sConf.tornadoInitialSpeed = 0.15F;
         sConf.tornadoPullRate = 0.15F;
         sConf.tornadoLiftRate = 0.04F;
-        sConf.relTornadoSize = 95;
-        sConf.tornadoBaseSize = 95;
+        sConf.relTornadoSize = -95;
+        //sConf.tornadoBaseSize = 95;
         sConf.tornadoWidthScale = 3.5F;
         weatherEntTypes.add(sConf);
+        
         //Hurricane
-        sConf = new WeatherEntityConfig();
-        sConf.tornadoInitialSpeed = 0.15F;
+        /*sConf = new WeatherEntityConfig();
+        //sConf.tornadoInitialSpeed = 0.15F;
         sConf.tornadoPullRate = 0.15F;
         sConf.tornadoLiftRate = 0.04F;
-        sConf.relTornadoSize = 95;
-        sConf.tornadoBaseSize = 155;
+        sConf.relTornadoSize = -105;
+        //sConf.tornadoBaseSize = 155;
         sConf.tornadoWidthScale = 3.5F;
-        sConf.tornadoTime = 4500;
+        //sConf.tornadoTime = 4500;
         sConf.type = 2;
-        weatherEntTypes.add(sConf);
+        weatherEntTypes.add(sConf);*/
 	}
 }

@@ -13,7 +13,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import weather2.Weather;
-import weather2.WeatherUtil;
+import weather2.util.WeatherUtil;
 import weather2.weathersystem.WeatherManagerBase;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -69,7 +69,15 @@ public class VolcanoObject {
 	public int step = 0;
 	
 	//state 3
+	public int stepsBuildupMax = 20;
 	
+	//state 4
+	public int ticksToErupt = 20*30;//20*60*2;
+	public int ticksPerformedErupt = 0;
+	
+	//state 4
+	public int ticksToCooldown = 20*30;//20*60*5; //this should ideally be larger than maxSize so it can full cooldown (does 1 y layer per 1 processRateDelay)
+	public int ticksPerformedCooldown = 0;
 	
 	
 	//public static int STATE_FORMING = 0;
@@ -91,6 +99,11 @@ public class VolcanoObject {
 	
 	public void resetEruption() {
 		step = 0;
+		ticksPerformedErupt = 0;
+		ticksPerformedCooldown = 0;
+		state = 2;
+		ticksPerformedErupt = 0;
+		ticksPerformedCooldown = 0;
 	}
 	
 	public void readFromNBT(NBTTagCompound data)
@@ -108,6 +121,10 @@ public class VolcanoObject {
 		curHeight = data.getInteger("curHeight");
 		topBlockID = data.getInteger("topBlockID");
 		startYPos = data.getInteger("startYPos");
+		
+		step = data.getInteger("step");
+		ticksPerformedErupt = data.getInteger("ticksPerformedErupt");
+		ticksPerformedCooldown = data.getInteger("ticksPerformedCooldown");
 		
     }
 	
@@ -129,6 +146,10 @@ public class VolcanoObject {
 		data.setInteger("curHeight", curHeight);
 		data.setInteger("topBlockID", topBlockID);
 		data.setInteger("startYPos", startYPos);
+		
+		data.setInteger("step", step);
+		data.setInteger("ticksPerformedErupt", ticksPerformedErupt);
+		data.setInteger("ticksPerformedCooldown", ticksPerformedCooldown);
     }
 	
 	//receiver method
@@ -139,6 +160,8 @@ public class VolcanoObject {
 		pos = Vec3.createVectorHelper(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
 		size = parNBT.getInteger("size");
 		maxSize = parNBT.getInteger("maxSize");
+		
+		state = parNBT.getInteger("state");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -152,6 +175,8 @@ public class VolcanoObject {
 		data.setLong("ID", ID);
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);
+		
+		data.setInteger("state", state);
 		
 		return data;
 	}
@@ -220,7 +245,10 @@ public class VolcanoObject {
 							
 							//skip derpy top layer
 							if (yy != startYPos + curHeight) {
-								world.setBlock(posX, yy, posZ, blockID);
+								int idScan = world.getBlockId(posX, yy, posZ);
+								if (idScan == 0 || idScan == Block.waterMoving.blockID || idScan == Block.waterStill.blockID) {
+									world.setBlock(posX, yy, posZ, blockID);
+								}
 							}
 						}
 					}
@@ -266,18 +294,26 @@ public class VolcanoObject {
 								
 								int blockID = topBlockID;
 								
-								//skip top layers
-								if (yy != curHeight) {
-									world.setBlock(posX, startYPos+yy, posZ, blockID);
-								}
+								Random rand = new Random();
 								
-								//handle growth under expanded area
-								int underY = startYPos+yy-1;
-								int underBlockID = world.getBlockId(posX, underY, posZ);
-								while (underBlockID == 0 && underY > 1) {
-									world.setBlock(posX, underY, posZ, Block.dirt.blockID);
-									underY--;
-									underBlockID = world.getBlockId(posX, underY, posZ);
+								//some random chance of placing a block here
+								if (rand.nextInt(4) == 0) {
+								
+									//skip top layers
+									if (yy != curHeight) {
+										if (world.getBlockId(posX, startYPos+yy, posZ) == 0) {
+											world.setBlock(posX, startYPos+yy, posZ, blockID);
+										}
+									}
+									
+									//handle growth under expanded area
+									int underY = startYPos+yy-1;
+									int underBlockID = world.getBlockId(posX, underY, posZ);
+									while ((underBlockID == 0 || underBlockID == Block.waterMoving.blockID || underBlockID == Block.waterStill.blockID) && underY > 1) {
+										world.setBlock(posX, underY, posZ, Block.dirt.blockID);
+										underY--;
+										underBlockID = world.getBlockId(posX, underY, posZ);
+									}
 								}
 							}
 							
@@ -305,6 +341,7 @@ public class VolcanoObject {
 						world.setBlock(posX, posY, posZ+1, Block.lavaMoving.blockID);
 						world.setBlock(posX, posY, posZ-1, Block.lavaMoving.blockID);
 					} else {
+						step = 0;
 						state++;
 					}
 					
@@ -313,15 +350,90 @@ public class VolcanoObject {
 				}
 				
 			} else if (state == 3) {
-				state++;
+				
+				//slowly increase smoking particles here
+				if (this.manager.getWorld().getTotalWorldTime() % processRateDelay == 0) {
+					step++;
+					if (step > stepsBuildupMax) {
+						step = 0;
+						state++;	
+					}
+				}
+				
 			} else if (state == 4) {
-				state++;
+				
+				
+				
+				if (ticksPerformedErupt == 0) {
+					
+					Weather.dbg("volcano " + ID + " is erupting");
+					
+					for (int i = 0; i < 3; i++) {
+						int posX = (int)Math.floor((pos.xCoord));
+						int posY = (int)Math.floor((startYPos)) + maxSize + i;
+						int posZ = (int)Math.floor((pos.zCoord));
+						
+						int blockID = Block.lavaMoving.blockID;
+						
+						world.setBlock(posX, posY, posZ, blockID);
+						world.setBlock(posX+1, posY, posZ, blockID);
+						world.setBlock(posX-1, posY, posZ, blockID);
+						world.setBlock(posX, posY, posZ+1, blockID);
+						world.setBlock(posX, posY, posZ-1, blockID);
+						world.setBlock(posX+1, posY, posZ+1, blockID);
+						world.setBlock(posX-1, posY, posZ-1, blockID);
+						world.setBlock(posX-1, posY, posZ+1, blockID);
+						world.setBlock(posX+1, posY, posZ-1, blockID);
+					}
+				}
+				
+				ticksPerformedErupt++;
+				if (ticksPerformedErupt > ticksToErupt) {
+					state++;
+				}
+				
 			} else if (state == 5) {
-				state++;
+				
+				if (ticksPerformedCooldown == 0) {
+					Weather.dbg("volcano " + ID + " is cooling");
+				}
+				
+				if (ticksPerformedCooldown % processRateDelay == 0) {
+					int posX = (int)Math.floor((pos.xCoord));
+					int posY = (int)Math.floor((startYPos)) + maxSize - step + 2;
+					int posZ = (int)Math.floor((pos.zCoord));
+					
+					int blockID = Block.stone.blockID;
+					
+					world.setBlock(posX, posY, posZ, blockID);
+					world.setBlock(posX+1, posY, posZ, blockID);
+					world.setBlock(posX-1, posY, posZ, blockID);
+					world.setBlock(posX, posY, posZ+1, blockID);
+					world.setBlock(posX, posY, posZ-1, blockID);
+					world.setBlock(posX+1, posY, posZ+1, blockID);
+					world.setBlock(posX-1, posY, posZ-1, blockID);
+					world.setBlock(posX-1, posY, posZ+1, blockID);
+					world.setBlock(posX+1, posY, posZ-1, blockID);
+					
+					step++;
+				}
+				
+				ticksPerformedCooldown++;
+				if (ticksPerformedCooldown > ticksToCooldown) {
+					state++;
+				}
+				
 			} else if (state == 6) {
-				manager.removeVolcanoObject(ID);
+				
+				Weather.dbg("volcano " + ID + " has reset!");
+				
+				//go to step 2
+				resetEruption();
+				//manager.removeVolcanoObject(ID);
+				
 			}
 			
+			//manager.getVolcanoObjects().clear();
 			
 		}
 		
@@ -329,6 +441,9 @@ public class VolcanoObject {
 	
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
+		
+		//Weather.dbg("ticking client volcano " + ID + " - " + state);
+		
 		if (particleBehaviors == null) {
 			particleBehaviors = new ParticleBehaviors(Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
@@ -339,19 +454,21 @@ public class VolcanoObject {
 		}
 		
 		int delay = 1;
-		int loopSize = 5;
+		int loopSize = 1;
 		Random rand = new Random();
 		
 		//temo
-		if (this.manager.getWorld().getTotalWorldTime() % delay == 0) {
-			for (int i = 0; i < loopSize; i++) {
-				if (listParticlesSmoke.size() < size) {
-					double spawnRad = size/4;
-					EntityRotFX particle = spawnFogParticle(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), pos.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
-					listParticlesSmoke.add(particle);
+		//if (state == 3 || state == 4) {
+			if (this.manager.getWorld().getTotalWorldTime() % delay == 0) {
+				for (int i = 0; i < loopSize; i++) {
+					if (listParticlesSmoke.size() < 500) {
+						double spawnRad = size/48;
+						EntityRotFX particle = spawnSmokeParticle(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), pos.yCoord + size + 2, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+						listParticlesSmoke.add(particle);
+					}
 				}
 			}
-		}
+		//}
 		
 		delay = 1;
 		loopSize = 2;
@@ -369,7 +486,7 @@ public class VolcanoObject {
 		        
 				double speed = 0.4D + (rand.nextDouble() * 1D * 0.01D);
 				double distt = 300D;
-				double curDist = ent.getDistance(pos.xCoord, ent.posY, pos.zCoord);
+				double curDist = ent.getDistance(pos.xCoord, staticYPos, pos.zCoord);
 				
 				double vecX = ent.posX - pos.xCoord;
 		        double vecZ = ent.posZ - pos.zCoord;
@@ -414,7 +531,7 @@ public class VolcanoObject {
 		        	
 		        }*/
 		        
-		        if (ent.posY < pos.yCoord) {
+		        /*if (ent.posY < staticYPos) {
 	        		ent.motionY += 0.1D;
 	        	} else {
 	        		ent.motionY -= 0.1D;
@@ -423,7 +540,7 @@ public class VolcanoObject {
 		        if (curSpeed < 3D) {
 		        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
 			        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
-		        }
+		        }*/
 		        
 		        
 		        
@@ -441,22 +558,35 @@ public class VolcanoObject {
 	}
 	
 	@SideOnly(Side.CLIENT)
-    public EntityRotFX spawnFogParticle(double x, double y, double z) {
+    public EntityRotFX spawnSmokeParticle(double x, double y, double z) {
     	double speed = 0D;
 		Random rand = new Random();
     	EntityRotFX entityfx = particleBehaviors.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, ParticleRegistry.cloud256, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed);
     	particleBehaviors.initParticle(entityfx);
+    	particleBehaviors.setParticleRandoms(entityfx, true, true);
+    	particleBehaviors.setParticleFire(entityfx);
 		//lock y
 		//entityfx.spawnY = (float) entityfx.posY;
 		//entityfx.spawnY = ((int)200 - 5) + rand.nextFloat() * 5;
 		entityfx.noClip = true;
     	entityfx.callUpdatePB = false;
-    	entityfx.setMaxAge(500 + rand.nextInt(200));
+    	entityfx.setMaxAge(400 + rand.nextInt(200));
+    	entityfx.particleScale = 50;
+    	
+    	float randFloat = (rand.nextFloat() * 0.6F);
+		float baseBright = 0.1F;
+		float finalBright = Math.min(1F, baseBright+randFloat);
+		entityfx.setRBGColorF(finalBright, finalBright, finalBright);
+    	
 		ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
 		//entityfx.spawnAsWeatherEffect();
 		particleBehaviors.particles.add(entityfx);
 		return entityfx;
     }
+	
+	public void reset() {
+		setDead();
+	}
 	
 	public void setDead() {
 		Weather.dbg("volcano... killed? NO ONE KILLS A VOLCANO!");

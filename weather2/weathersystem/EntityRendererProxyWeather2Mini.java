@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import weather2.ClientTickHandler;
+import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -36,9 +37,6 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     
     private static final ResourceLocation resRain = new ResourceLocation("textures/environment/rain.png");
     private static final ResourceLocation resSnow = new ResourceLocation("textures/environment/snow.png");
-    
-    public float curRainStr = 0F;
-    public float curRainStrTarget = 0F;
 
     public EntityRendererProxyWeather2Mini(Minecraft var1)
     {
@@ -79,7 +77,7 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     protected void renderRainSnow(float par1)
     {
     	
-    	boolean overrideOn = ConfigMisc.proxyRenderOverrideEnabled && ConfigMisc.takeControlOfGlobalRain;
+    	boolean overrideOn = ConfigMisc.Misc_proxyRenderOverrideEnabled && ConfigMisc.Misc_takeControlOfGlobalRain;
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);
@@ -89,49 +87,15 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     		Minecraft mc = FMLClientHandler.instance().getClient();
     		EntityPlayer entP = mc.thePlayer;
     		if (entP != null) {
-		    	double maxStormDist = 512 / 4 * 3;
-    			Vec3 plPos = Vec3.createVectorHelper(entP.posX, StormObject.staticYPos, entP.posZ);
-    		    StormObject storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist); 
-    		    //System.out.println("storm found? " + storm != null);
-    		    
-    		    boolean closeEnough = false;
-    		    double stormDist = 9999;
-    		    
-    		    //evaluate if storms size is big enough to over over player
-    		    if (storm != null) {
-    		    	stormDist = storm.pos.distanceTo(plPos);
-    		    	//System.out.println("storm dist: " + stormDist);
-    		    	if (storm.size > stormDist) {
-    		    		closeEnough = true;
-    		    	}
-    		    }
-    		    
-    		    if (closeEnough) {
-        		    
-        		    double stormIntensity = (storm.size - stormDist) / storm.size;
-        		    //System.out.println("intensity: " + stormIntensity);
-    		    	mc.theWorld.getWorldInfo().setRaining(true);
-    		    	mc.theWorld.getWorldInfo().setThundering(true);
-    		    	curRainStrTarget = (float) stormIntensity;
-    		    	//mc.theWorld.thunderingStrength = (float) stormIntensity;
-    		    } else {
-    		    	mc.theWorld.getWorldInfo().setRaining(false);
-    		    	mc.theWorld.getWorldInfo().setThundering(false);
-    		    	curRainStrTarget = 0;
-    		    	//mc.theWorld.setRainStrength(0);
-    		    	//mc.theWorld.thunderingStrength = 0;
-    		    }
-    		    
-    		    if (curRainStr > curRainStrTarget) {
-    		    	curRainStr -= 0.001F;
-    		    } else if (curRainStr < curRainStrTarget) {
-    		    	curRainStr += 0.001F;
-    		    }
+    			//convert to absolute (positive) value for old effects
+    			float curRainStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP));
 
 		    	mc.theWorld.setRainStrength(curRainStr);
     		}
     		
-    		super.renderRainSnow(par1);
+    		if (!ConfigMisc.Particle_RainSnow) {
+    			super.renderRainSnow(par1);
+    		}
     		
     	}
     }

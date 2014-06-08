@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.world.World;
+import weather2.client.SceneEnhancer;
+import weather2.client.gui.GuiEZConfig;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.EntityRendererProxyWeather2Mini;
 import weather2.weathersystem.WeatherManagerClient;
@@ -21,6 +23,14 @@ public class ClientTickHandler implements ITickHandler
 	public static World lastWorld;
 	
 	public static WeatherManagerClient weatherManager;
+	public SceneEnhancer sceneEnhancer;
+	
+	public boolean hasOpenedConfig = false;
+	
+	public ClientTickHandler() {
+		sceneEnhancer = new SceneEnhancer();
+		(new Thread(sceneEnhancer, "Weather2 Scene Enhancer")).start();
+	}
 	
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {}
@@ -76,7 +86,7 @@ public class ClientTickHandler implements ITickHandler
         Minecraft mc = FMLClientHandler.instance().getClient();
         World world = mc.theWorld;
         
-        if (ConfigMisc.proxyRenderOverrideEnabled) {
+        if (ConfigMisc.Misc_proxyRenderOverrideEnabled) {
         	if (!(mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
         		EntityRendererProxyWeather2Mini temp = new EntityRendererProxyWeather2Mini(mc);
 		        mc.entityRenderer = temp;
@@ -94,6 +104,22 @@ public class ClientTickHandler implements ITickHandler
         
         if (world != null) {
         	weatherManager.tick();
+        	
+        	sceneEnhancer.tickClient();
+            
+            if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.dimensionId == 0) {
+            	mc.gameSettings.clouds = false;
+            }
+
+            if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
+	            String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
+	            
+	            if (msg.equals("/weather2 config")) {
+	            	mc.ingameGUI.getChatGUI().getSentMessages().remove(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
+	            	mc.displayGuiScreen(new GuiEZConfig());
+	            }
+            }
+            //mc.ingameGUI.getChatGUI().getSentMessages().get(0);
         }
     }
     

@@ -1,13 +1,12 @@
 package weather2;
 
-import CoroUtil.util.CoroUtilFile;
-
 import modconfig.ConfigMod;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import weather2.config.ConfigMisc;
+import weather2.player.PlayerData;
+import CoroUtil.util.CoroUtilFile;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
@@ -17,9 +16,10 @@ import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.GameRegistry;
 
 @NetworkMod(channels = { "WeatherData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
-@Mod(modid = "weather2", name="weather2", version="v2.0")
+@Mod(modid = "weather2", name="weather2", version="v2.1.0")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )
@@ -47,7 +47,7 @@ public class Weather {
     {
     	proxy.init();
     	MinecraftForge.EVENT_BUS.register(new Weather2EventHandler());
-    	//TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
+    	GameRegistry.registerPlayerTracker(new WeatherPlayerTracker());
     	
     }
     
@@ -64,6 +64,7 @@ public class Weather {
     @Mod.EventHandler
     public void serverStop(FMLServerStoppedEvent event) {
     	writeOutData(true);
+    	resetStates();
     	
     	initProperNeededForWorld = true;
     }
@@ -74,23 +75,28 @@ public class Weather {
     		initProperNeededForWorld = false;
 	    	CoroUtilFile.getWorldFolderName();
 	    	
-	    	if (ServerTickHandler.lookupDimToWeatherMan.get(0) == null) {
-	    		ServerTickHandler.addWorldToWeather(0);
-	    	}
-	    	
-	    	ServerTickHandler.lookupDimToWeatherMan.get(0).readFromFile();
+	    	ServerTickHandler.initialize();
     	}
+    }
+    
+    public static void resetStates() {
+    	ServerTickHandler.reset();
     }
     
     public static void writeOutData(boolean unloadInstances) {
     	//write out overworld only, because only dim with volcanos planned
-    	ServerTickHandler.lookupDimToWeatherMan.get(0).writeToFile();
+    	try {
+    		ServerTickHandler.lookupDimToWeatherMan.get(0).writeToFile();
+    		PlayerData.writeAllPlayerNBT(unloadInstances);
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
     }
 	
 	public static void dbg(Object obj) {
-		//if (ZAConfig.debugConsole) {
+		if (ConfigMisc.consoleDebug) {
 			System.out.println(obj);
-		//}
+		}
 	}
 
 }
