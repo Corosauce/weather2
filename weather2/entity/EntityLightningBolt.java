@@ -35,7 +35,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     private int boltLivingTime;
 
     public int fireLifeTime = ConfigMisc.Lightning_lifetimeOfFire;
-    public int fireChance = ConfigMisc.Lightning_rateOfFire;
+    public int fireChance = ConfigMisc.Lightning_OddsTo1OfFire;
     
     public EntityLightningBolt(World par1World, double par2, double par4, double par6)
     {
@@ -49,7 +49,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
         
         
         
-        if (!par1World.isRemote && rand.nextInt(fireChance) == 0 && par1World.getGameRules().getGameRuleBooleanValue("doFireTick") && par1World.difficultySetting >= 2 && par1World.doChunksNearChunkExist(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6), 10))
+        if (!par1World.isRemote && (fireChance == 0 || rand.nextInt(fireChance) == 0) && par1World.getGameRules().getGameRuleBooleanValue("doFireTick") && par1World.difficultySetting >= 2 && par1World.doChunksNearChunkExist(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6), 10))
         {
             int i = MathHelper.floor_double(par2);
             int j = MathHelper.floor_double(par4);

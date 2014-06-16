@@ -58,7 +58,7 @@ public class TornadoHelper {
         //startDissipate();
         
         //tornado profile changing from storm data
-        int sizeChange = 5;
+        int sizeChange = 10;
         if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F5) {
         	tornadoBaseSize = sizeChange * 5;
         } else if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F4) {

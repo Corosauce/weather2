@@ -10,6 +10,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.componentAI.ICoroAI;
 import CoroUtil.entity.EntityThrowableUsefull;
 import cpw.mods.fml.relauncher.Side;
@@ -18,7 +19,7 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
 import extendedrenderer.particle.entity.EntityRotFX;
 
-public class EntityIceBall extends EntityThrowableUsefull
+public class EntityIceBall extends EntityThrowableUsefull implements IWindHandler
 {
 	public int ticksInAir;
 	
@@ -212,5 +213,15 @@ public class EntityIceBall extends EntityThrowableUsefull
 			//System.out.println("client: " + posX);
 			hasDeathTicked = true;
 		}
+	}
+
+	@Override
+	public float getWindWeight() {
+		return 400;
+	}
+
+	@Override
+	public int getParticleDecayExtra() {
+		return 0;
 	}
 }

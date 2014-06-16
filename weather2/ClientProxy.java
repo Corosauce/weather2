@@ -1,5 +1,6 @@
 package weather2;
 
+import CoroUtil.render.RenderNull;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
@@ -23,7 +24,6 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import extendedrenderer.render.RenderNull;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {

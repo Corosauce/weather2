@@ -64,15 +64,11 @@ public class TileEntityWeatherMachine extends TileEntity
     				if (manager != null) {
     					StormObject so = new StormObject(manager);
     					so.initFirstTime();
-    					so.pos = Vec3.createVectorHelper(xCoord, yCoord, zCoord);
+    					so.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
     					so.layer = 0;
     					so.userSpawnedFor = "" + xCoord + yCoord + zCoord;
     					
-    					if (weatherType == 0) {
-    						so.levelTemperature = -40;
-    						so.levelWater = 1000;
-    						so.attrib_precipitation = true;
-    					}
+    					
     					
     					manager.addStormObject(so);
     					manager.syncStormNew(so);
@@ -83,10 +79,15 @@ public class TileEntityWeatherMachine extends TileEntity
     		
     		if (lastTickStormObject != null && !lastTickStormObject.isDead) {
     			if (lockStormHere) {
-					lastTickStormObject.pos = Vec3.createVectorHelper(xCoord, yCoord, zCoord);
+					lastTickStormObject.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
 				}
 				
 				lastTickStormObject.size = weatherSize;
+				if (weatherType == 0) {
+					lastTickStormObject.levelTemperature = -40;
+					lastTickStormObject.levelWater = 1000;
+					lastTickStormObject.attrib_precipitation = true;
+				}
 			}
     	}
     }

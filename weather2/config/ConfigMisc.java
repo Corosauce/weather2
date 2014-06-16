@@ -53,6 +53,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Storm_Rain_WaterBuildUp = 150;
 	public static double Storm_TemperatureAdjustRate = 0.1D;
 	public static double Storm_Deadly_MinIntensity = 5.3D;
+	public static int Storm_HailPerTick = 20;
 	
 	//per player storm settings
 	public static int Player_Storm_Deadly_OddsTo1 = 30;
@@ -64,7 +65,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Cloud_Formation_MinDistBetweenSpawned = 256;
 	
 	//lightning
-	public static int Lightning_rateOfFire = 5;
+	public static int Lightning_OddsTo1OfFire = 5;
 	public static int Lightning_lifetimeOfFire = 3;
 	
 	//snow
@@ -75,7 +76,7 @@ public class ConfigMisc implements IConfigCategory {
 	
 	//particles
 	public static boolean Wind_Particle_leafs = true;
-	public static double Wind_Particle_leaf_rate = 1D;
+	public static double Wind_Particle_effect_rate = 1D;
 	public static boolean Wind_Particle_air = true;
 	public static boolean Wind_Particle_sand = true;//not used since 1.3.2
 	public static boolean Wind_Particle_waterfall = true;
@@ -83,6 +84,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Wind_Particle_fire = true;
 	public static int Thread_Particle_Process_Delay = 400;
 	public static boolean Particle_RainSnow = true;
+	public static boolean Particle_VanillaAndWeatherOnly = false;
 	
 	//sound
 	public static double volWindScale = 0.05D;

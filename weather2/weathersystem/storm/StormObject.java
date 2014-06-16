@@ -185,8 +185,10 @@ public class StormObject {
 		float temp = bgb.getFloatTemperature();
 		
 		//initial setting, more apparent than gradual adjustments
-		levelTemperature = getTemperatureMCToWeatherSys(bgb.getFloatTemperature());
-		levelWater = 0;
+		if (naturallySpawned) {
+			levelTemperature = getTemperatureMCToWeatherSys(bgb.getFloatTemperature());
+		}
+		//levelWater = 0;
 		levelWindMomentum = 0;
 		
 		//Weather.dbg("initialize temp to: " + levelTemperature + " - biome: " + bgb.biomeName);
@@ -467,18 +469,26 @@ public class StormObject {
 		
 		float cloudSpeedAmp = 5F;
 		
-		cloudSpeedAmp /= ((float)attrib_tornado_severity+1F);
+		
 		
 		float finalSpeed = getAdjustedSpeed() * cloudSpeedAmp;
 		
-		if (finalSpeed > 0.3F) {
-			finalSpeed = 0.3F;
+		if (attrib_tornado_severity > 0) {
+			
+			finalSpeed = 0.5F;
+			finalSpeed /= ((float)attrib_tornado_severity+1F);
+			
+			//Weather.dbg("storm speed: " + finalSpeed);
+		}
+		
+		if (finalSpeed > 0.5F) {
+			finalSpeed = 0.5F;
 		}
 		
 		if (attrib_tornado_severity > 0) {
-			if (finalSpeed > 0.1F) {
+			/*if (finalSpeed > 0.1F) {
 				finalSpeed = 0.1F;
-			}
+			}*/
 			//Weather.dbg("storm speed: " + finalSpeed);
 		}
 		
@@ -518,9 +528,13 @@ public class StormObject {
 			}
 		}
 		
+		if (!naturallySpawned && state == 4) {
+			//Weather.dbg("hueee " + attrib_precipitation + " - " + state);
+		}
+		
 		if (attrib_precipitation && state >= STATE_HAIL) {
 			//if (rand.nextInt(1) == 0) {
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < ConfigMisc.Storm_HailPerTick; i++) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
 				if (world.checkChunksExist(x, static_YPos_layer0, z, x, static_YPos_layer0, z) && (world.getClosestPlayer(x, 50, z, 80) != null)) {
@@ -625,7 +639,7 @@ public class StormObject {
 			            
 			            
 			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z)) {
+			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Block.snow.canPlaceBlockAt(world, xxx + x, setBlockHeight, zzz + z)) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 			            	boolean perform = false;
 			            	int id = world.getBlockId(xxx + x, setBlockHeight, zzz + z);
@@ -762,9 +776,9 @@ public class StormObject {
 		World world = manager.getWorld();
 		
         BiomeGenBase biomegenbase = world.getBiomeGenForCoords(par1, par3);
-        //float f = biomegenbase.getFloatTemperature();
+        float f = biomegenbase.getFloatTemperature();
 
-        if (levelTemperature > 0/*f > 0.15F*/)
+        if ((!naturallySpawned && levelTemperature > 0) || (naturallySpawned && biomegenbase.getFloatTemperature() > 0.15F))
         {
             return false;
         }
@@ -938,7 +952,7 @@ public class StormObject {
 					}
 				} else {
 					if (levelStormIntensityCur > 0) {
-						levelStormIntensityCur -= (levelStormIntensityRate * 0.3F);
+						levelStormIntensityCur -= (levelStormIntensityRate * 0.5F);
 					
 						Weather.dbg("storm ID: " + this.ID + " - dying at intensity: " + levelStormIntensityCur);
 						
@@ -1040,6 +1054,9 @@ public class StormObject {
 	}
 	
 	public void updateStormFlags() {
+		
+		boolean flagDbg = true;
+		
 		if (levelStormIntensityCur >= 9) {
 			attrib_hurricane = true;
 		} else if (levelStormIntensityCur >= 9) {
@@ -1073,6 +1090,10 @@ public class StormObject {
 			state = this.STATE_NORMAL;
 		} else {
 			setNoStorm();
+		}
+		
+		if (!naturallySpawned) {
+			if (flagDbg) Weather.dbg("flags updated for " + ID + ", state: " + state);
 		}
 		
 		//TEEEEEEEESSSSSSSSTTTTTTTTTTTTTT
@@ -1222,7 +1243,7 @@ public class StormObject {
 							listParticlesFunnel.add(particle);
 						}
 					} else {
-						Weather.dbg("particles maxed");
+						//Weather.dbg("particles maxed");
 					}
 				}
 			}
@@ -1231,6 +1252,9 @@ public class StormObject {
 		for (int i = 0; i < listParticlesFunnel.size(); i++) {
 			EntityRotFX ent = listParticlesFunnel.get(i);
 			if (ent.isDead) {
+				listParticlesFunnel.remove(ent);
+			} else if (ent.posY > pos.yCoord) {
+				ent.setDead();
 				listParticlesFunnel.remove(ent);
 			} else {
 				 double var16 = this.pos.xCoord - ent.posX;

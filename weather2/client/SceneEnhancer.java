@@ -261,25 +261,31 @@ public class SceneEnhancer implements Runnable {
 			
 			float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 			
+			float maxPrecip = 0.5F;
+			
 			/*if (entP.worldObj.getTotalWorldTime() % 20 == 0) {
 				Weather.dbg("curRainStr: " + curRainStr);
+			}*/
+			
+			/*if (curPrecipVal < 0) {
+				Weather.dbg("curPrecipVal: " + curPrecipVal);
 			}*/
 			
 			int precipitationHeight = entP.worldObj.getPrecipitationHeight(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
 			
 			BiomeGenBase biomegenbase = entP.worldObj.getBiomeGenForCoords(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
 
-            if (biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow())
+            if (/*true*/biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow())
             {
 			
 				float temperature = biomegenbase.getFloatTemperature();
 	            double d3;
 	            float f10;
 	
-	            if (curPrecipVal > 0/*entP.worldObj.getWorldChunkManager().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F*/) {
+	            if (/*curPrecipVal > 0*/entP.worldObj.getWorldChunkManager().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
 	            	
 	            	//now absolute it for ez math
-	            	curPrecipVal = Math.abs(curPrecipVal);
+	            	curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
 	            	
 	            	//rain
 					if (curPrecipVal > 0 && entP.worldObj.canLightningStrikeAt(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.boundingBox.minY), MathHelper.floor_double(entP.posZ))) {
@@ -298,7 +304,7 @@ public class SceneEnhancer implements Runnable {
 	            } else {
 	            	
 	            	//now absolute it for ez math
-	            	curPrecipVal = Math.abs(curPrecipVal);
+	            	curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
 	            	
 	            	//snow
 	            	if (curPrecipVal > 0) {
@@ -486,7 +492,7 @@ public class SceneEnhancer implements Runnable {
 
         float lastBlockCount = lastTickFoundBlocks;
         
-        float particleCreationRate = (float) ConfigMisc.Wind_Particle_leaf_rate;
+        float particleCreationRate = (float) ConfigMisc.Wind_Particle_effect_rate;
         
         //TEST OVERRIDE
         //uh = (lastBlockCount / 30) + 1;
@@ -900,6 +906,17 @@ public class SceneEnhancer implements Runnable {
                 for (int i = 0; i < WeatherUtilParticle.fxLayers[layer].size(); i++)
                 {
                     Entity entity1 = (Entity)WeatherUtilParticle.fxLayers[layer].get(i);
+                    
+                    if (ConfigMisc.Particle_VanillaAndWeatherOnly) {
+                    	String className = entity1.getClass().getName();
+                    	if (className.contains("net.minecraft.") || className.contains("weather2.")) {
+                    		
+                    	} else {
+                    		continue;
+                    	}
+                    	
+                    	//Weather.dbg("process: " + className);
+                    }
 
                     if ((world.getHeightValue((int)(entity1.posX + 0.5F), (int)(entity1.posZ + 0.5F)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
                     {
