@@ -100,7 +100,7 @@ public class SceneEnhancer implements Runnable {
 	public void tickClient() {
 		if (!WeatherUtil.isPaused()) {
 			tryParticleSpawning();
-			tickParticleRain();
+			tickParticlePrecipitation();
 			
 			Minecraft mc = FMLClientHandler.instance().getClient();
 			tryWind(mc.theWorld);
@@ -299,7 +299,7 @@ public class SceneEnhancer implements Runnable {
 		WeatherUtilSound.getSoundSystem();
 	}
 	
-	public void tickParticleRain() {
+	public void tickParticlePrecipitation() {
 		
 		if (ConfigMisc.Particle_RainSnow) {
 			EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
@@ -336,7 +336,9 @@ public class SceneEnhancer implements Runnable {
 	            	//rain
 					if (curPrecipVal > 0 && entP.worldObj.canLightningStrikeAt(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.boundingBox.minY), MathHelper.floor_double(entP.posZ))) {
 						
-						for (int i = 0; i < curPrecipVal * 20F; i++) {
+						//Weather.dbg("rate: " + curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate);
+						
+						for (int i = 0; i < curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
 							int spawnAreaSize = 15;
 							EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
 							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
@@ -356,7 +358,9 @@ public class SceneEnhancer implements Runnable {
 	            	//snow
 	            	if (curPrecipVal > 0) {
 	            		
-						for (int i = 0; i < curPrecipVal * 5F; i++) {
+	            		//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
+	            		
+						for (int i = 0; i < curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
 							int spawnAreaSize = 50;
 							int spawnAbove = 10;
 							EntityFallingSnowFX ent = new EntityFallingSnowFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + spawnAbove, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 5.5D, 6);

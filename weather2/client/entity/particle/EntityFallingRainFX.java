@@ -2,6 +2,7 @@ package weather2.client.entity.particle;
 
 import java.awt.Color;
 
+import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilParticle;
 
 import CoroUtil.api.weather.WindHandler;
@@ -115,6 +116,8 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
         var1.setColorRGBA_F(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, 0.5F);
         
         int rainDrops = 5 + ((Math.max(0, severityOfRainRate-1)) * 5);
+        
+        //rainDrops *= ConfigMisc.Particle_Precipitation_effect_rate;
         
         for (int i = 0; i < Math.min(rainDrops, WeatherUtilParticle.maxRainDrops); i++) {
 	        float var13 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)var2 - interpPosX);

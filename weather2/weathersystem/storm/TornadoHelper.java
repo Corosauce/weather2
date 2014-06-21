@@ -51,9 +51,9 @@ public class TornadoHelper {
 	public int getTornadoBaseSize() {
         int sizeChange = 10;
 		if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE5) {
-        	return sizeChange * 7;
+        	return sizeChange * 9;
         } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE4) {
-        	return sizeChange * 6;
+        	return sizeChange * 7;
         } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE3) {
         	return sizeChange * 5;
         } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE2) {
@@ -78,6 +78,10 @@ public class TornadoHelper {
         
         //tornado profile changing from storm data
         tornadoBaseSize = getTornadoBaseSize();
+        
+        if (storm.stormType == storm.TYPE_WATER) {
+        	tornadoBaseSize *= 3;
+        }
         
         //Weather.dbg("getTornadoBaseSize: " + tornadoBaseSize + " - " + storm.levelCurIntensityStage);
         
@@ -125,7 +129,7 @@ public class TornadoHelper {
 	                    break;
 	                }
 	
-	                for (int k = 0; k < 5 + ii; k++)
+	                for (int k = 0; k < 5 + ii + ((storm.levelCurIntensityStage+1 - storm.levelStormIntensityFormingStartVal) * 5); k++)
 	                {
 	                    //for (int k = 0; k < mod_EntMover.tornadoBaseSize/2+(ii/2); k++) {
 	                    //for (int l = 0; l < mod_EntMover.tornadoBaseSize/2+(ii/2); l++) {
@@ -508,6 +512,9 @@ public class TornadoHelper {
         //close sounds
         int far = 200;
         int close = 120;
+        if (storm.stormType == storm.TYPE_WATER) {
+        	close = 200;
+        }
         Vec3 plPos = Vec3.createVectorHelper(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         
         double distToPlayer = this.storm.posGround.distanceTo(plPos);
@@ -551,7 +558,7 @@ public class TornadoHelper {
             //tryPlaySound(snd_dmg_close[0], 0);
             if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.thePlayer, volScaleClose);
 
-            if (storm.levelCurIntensityStage >= storm.STATE_FORMING/*getStorm().type == getStorm().TYPE_TORNADO*/)
+            if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND/*getStorm().type == getStorm().TYPE_TORNADO*/)
             {
                 tryPlaySound(WeatherUtilSound.snd_dmg_close, 0, mc.thePlayer, volScaleClose);
             }

@@ -101,6 +101,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Thread_Particle_Process_Delay = 400;
 	public static boolean Particle_RainSnow = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;
+	public static double Particle_Precipitation_effect_rate = 1D;
 	
 	//sound
 	public static double volWindScale = 0.05D;
@@ -117,10 +118,10 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Block_weatherMachineID = 1904;
 	
 	//dimension settings
-	public static String Dimension_List_Weather = "0";
-	public static String Dimension_List_Clouds = "0";
-	public static String Dimension_List_Storms = "0";
-	public static String Dimension_List_WindEffects = "0";
+	public static String Dimension_List_Weather = "0,-127";
+	public static String Dimension_List_Clouds = "0,-127";
+	public static String Dimension_List_Storms = "0,-127";
+	public static String Dimension_List_WindEffects = "0,-127";
 
 	public ConfigMisc() {
 		

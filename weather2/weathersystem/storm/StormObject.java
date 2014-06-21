@@ -357,25 +357,25 @@ public class StormObject {
 					tickClient();
 				}
 				
-				if (isTornadoFormingOrGreater()) {
+				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					tornadoHelper.tick(manager.getWorld());
 				}
 				
 				if (levelCurIntensityStage >= STATE_HIGHWIND) {
 					if (manager.getWorld().isRemote) {
-						tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater());
+						tornadoHelper.soundUpdates(true, true);
 			        }
 				}
 			}
 		} else {
 
-			if (isTornadoFormingOrGreater()) {
+			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 				tornadoHelper.tick(manager.getWorld());
 			}
 			
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
 				if (manager.getWorld().isRemote) {
-					tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater());
+					tornadoHelper.soundUpdates(true, true);
 		        }
 			}
 			
@@ -841,7 +841,7 @@ public class StormObject {
 		int levelWaterSpendRate = ConfigMisc.Storm_Rain_WaterSpendRate;
 		int randomChanceOfWaterBuildFromWater = ConfigMisc.Storm_Rain_WaterBuildUpOddsTo1FromSource;
 		int randomChanceOfWaterBuildFromNothing = ConfigMisc.Storm_Rain_WaterBuildUpOddsTo1FromNothing;
-		int randomChanceOfRain = ConfigMisc.Player_Storm_Rain_OddsTo1;
+		//int randomChanceOfRain = ConfigMisc.Player_Storm_Rain_OddsTo1;
 		
 		boolean isInOcean = false;
 		
@@ -909,7 +909,7 @@ public class StormObject {
 				}
 			} else {
 				if (levelWater >= levelWaterStartRaining) {
-					if (rand.nextInt(randomChanceOfRain) == 0) {
+					if (ConfigMisc.Player_Storm_Rain_OddsTo1 != -1 && rand.nextInt(ConfigMisc.Player_Storm_Rain_OddsTo1) == 0) {
 						setPrecipitating(true);
 						Weather.dbg("starting raining for: " + ID);
 					}
@@ -1332,9 +1332,13 @@ public class StormObject {
 		
 		//ground effects
 		if (levelCurIntensityStage >= STATE_HIGHWIND) {
-			for (int i = 0; i < 3/*loopSize/2*/; i++) {
-				if (listParticlesGround.size() < 150/*size + extraSpawning*/) {
+			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
+				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
+					
+					if (stormType == TYPE_WATER) {
+						spawnRad = size*3;
+					}
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
@@ -1629,7 +1633,14 @@ public class StormObject {
 		        
 		        angle += 85;
 		        
-		        ent.particleScale = (float) Math.min(60, curDist * 2F);
+		        int maxParticleSize = 60;
+		        
+		        if (stormType == TYPE_WATER) {
+		        	maxParticleSize = 150;
+		        	speed /= 5D;
+				}
+		        
+		        ent.particleScale = (float) Math.min(maxParticleSize, curDist * 2F);
 		        
 		        if (curDist < 20) {
 		        	ent.setDead();
@@ -1637,7 +1648,7 @@ public class StormObject {
 
 	        	double var16 = this.pos.xCoord - ent.posX;
                 double var18 = this.pos.zCoord - ent.posZ;
-		        ent.rotationYaw += 5;//(float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
+		        //ent.rotationYaw += 5;//(float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
                 ent.rotationPitch = 0;//-20F - (ent.entityId % 10);
                 
                 if (curSpeed < speed * 20D) {

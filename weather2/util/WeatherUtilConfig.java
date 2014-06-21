@@ -25,14 +25,21 @@ public class WeatherUtilConfig {
 	
 	public static int CMD_BTN_PERF_STORM = 2;
 	public static int CMD_BTN_PERF_NATURE = 3;
+	public static int CMD_BTN_PERF_PRECIPRATE = 12;
+	
 	public static int CMD_BTN_COMP_STORM = 4;
 	public static int CMD_BTN_COMP_LOCK = 5;
 	public static int CMD_BTN_COMP_PARTICLEPRECIP = 6;
 	public static int CMD_BTN_COMP_SNOWFALLBLOCKS = 7;
 	public static int CMD_BTN_COMP_LEAFFALLBLOCKS = 8;
+	public static int CMD_BTN_COMP_PARTICLESNOMODS = 13;
+	
 	public static int CMD_BTN_PREF_RATEOFSTORM = 9;
+	public static int CMD_BTN_PREF_CHANCEOFSTORM = 14;
 	public static int CMD_BTN_PREF_CHANCEOFRAIN = 10;
 	public static int CMD_BTN_PREF_BLOCKDESTRUCTION = 11;
+	
+	public static int CMD_BTN_HIGHEST_ID = 14;
 
 	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
 	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
@@ -56,12 +63,16 @@ public class WeatherUtilConfig {
 		listSettingsClient.add(CMD_BTN_PERF_STORM);
 		listSettingsClient.add(CMD_BTN_PERF_NATURE);
 		listSettingsClient.add(CMD_BTN_COMP_PARTICLEPRECIP);
+		listSettingsClient.add(CMD_BTN_PERF_PRECIPRATE);
+		listSettingsClient.add(CMD_BTN_COMP_PARTICLESNOMODS);
+		
 		
 		listSettingsServer.add(CMD_BTN_COMP_STORM);
 		listSettingsServer.add(CMD_BTN_COMP_LOCK);
 		listSettingsServer.add(CMD_BTN_COMP_SNOWFALLBLOCKS);
 		listSettingsServer.add(CMD_BTN_COMP_LEAFFALLBLOCKS);
 		listSettingsServer.add(CMD_BTN_PREF_RATEOFSTORM);
+		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFSTORM);
 		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFRAIN);
 		listSettingsServer.add(CMD_BTN_PREF_BLOCKDESTRUCTION);
 	}
@@ -101,6 +112,24 @@ public class WeatherUtilConfig {
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_NATURE)).equalsIgnoreCase("none")) {
 					ConfigMisc.Wind_Particle_effect_rate = 0.0F;
 				}
+			}
+			
+			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_PRECIPRATE)) {
+				//ConfigMisc.Particle_RainSnow = true;
+				if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("high")) {
+					ConfigMisc.Particle_Precipitation_effect_rate = 1D;
+				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("medium")) {
+					ConfigMisc.Particle_Precipitation_effect_rate = 0.7D;
+				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("low")) {
+					ConfigMisc.Particle_Precipitation_effect_rate = 0.3D;
+				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("none")) {
+					ConfigMisc.Particle_Precipitation_effect_rate = 0D;
+					//ConfigMisc.Particle_RainSnow = false;
+				}
+			}
+			
+			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)) {
+				ConfigMisc.Particle_VanillaAndWeatherOnly = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)).equalsIgnoreCase("on");
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -159,6 +188,32 @@ public class WeatherUtilConfig {
 				
 			}
 			
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)) {
+				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("high")) {
+					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 30;
+				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("medium")) {
+					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 45;
+				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("low")) {
+					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 60;
+				}
+			}
+			
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)) {
+				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("high")) {
+					ConfigMisc.Player_Storm_Rain_OddsTo1 = 150;
+				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("medium")) {
+					ConfigMisc.Player_Storm_Rain_OddsTo1 = 300;
+				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("low")) {
+					ConfigMisc.Player_Storm_Rain_OddsTo1 = 450;
+				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("none")) {
+					ConfigMisc.Player_Storm_Rain_OddsTo1 = -1;
+				}
+			}
+			
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_BLOCKDESTRUCTION)) {
+				ConfigMisc.Storm_Tornado_grabBlocks = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_BLOCKDESTRUCTION)).equalsIgnoreCase("on");
+			}
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -177,7 +232,7 @@ public class WeatherUtilConfig {
 	}*/
 	
 	public static void nbtReceiveClientData(NBTTagCompound parNBT) {
-		for (int i = 0; i <= CMD_BTN_PREF_BLOCKDESTRUCTION; i++) {
+		for (int i = 0; i <= CMD_BTN_HIGHEST_ID; i++) {
 			if (parNBT.hasKey("btn_" + i)) {
 				nbtServerData.setInteger("btn_" + i, parNBT.getInteger("btn_" + i));
 			}

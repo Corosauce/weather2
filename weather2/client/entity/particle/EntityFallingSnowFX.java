@@ -2,6 +2,7 @@ package weather2.client.entity.particle;
 
 import java.awt.Color;
 
+import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilParticle;
 
 import CoroUtil.api.weather.WindHandler;
@@ -126,6 +127,8 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
         }*/
         
         int rainDrops = 5 + ((Math.max(0, severityOfRainRate-1)) * 5);
+        
+        //rainDrops *= ConfigMisc.Particle_Precipitation_effect_rate;
         
         for (int i = 0; i < Math.min(rainDrops, WeatherUtilParticle.maxRainDrops); i++) {
 	        float var13 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)var2 - interpPosX);
