@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import weather2.CommonProxy;
 import weather2.config.ConfigMisc;
 import cpw.mods.fml.client.FMLClientHandler;
 
@@ -82,6 +83,10 @@ public class WeatherUtil {
             	if (id == Block.dirt.blockID || id == Block.grass.blockID || id == Block.sand.blockID || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
             		result = false;
             	}
+            }
+            
+            if (id == CommonProxy.blockWeatherMachine.blockID) {
+            	result = false;
             }
             
             return result;

@@ -1,22 +1,13 @@
 package weather2.block;
 
-import weather2.ClientTickHandler;
-import weather2.ServerTickHandler;
-import weather2.Weather;
-import weather2.api.WindReader;
-import weather2.config.ConfigMisc;
-import weather2.util.WeatherUtilSound;
-import weather2.weathersystem.WeatherManagerServer;
-import weather2.weathersystem.storm.StormObject;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
+import java.util.Random;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import weather2.ServerTickHandler;
+import weather2.weathersystem.WeatherManagerServer;
+import weather2.weathersystem.storm.StormObject;
 
 public class TileEntityWeatherMachine extends TileEntity
 {
@@ -32,8 +23,8 @@ public class TileEntityWeatherMachine extends TileEntity
 	 * 
 	 */
 	
-	//0 = snow, 1 = rain, 2 = deadly storm
-	public int weatherType = 0;
+	//0 = snow (no, dont use anymore), 1 = rain, 2 = F1 tornado, 3 = stage 1 cyclone
+	public int weatherType = 1;
 	//0 = lightning, 1 = F1, 2 = F2, etc (snow would use this to increase snow rate maaaaaaaybbbeeeeee, needs more vars in StormObject)
 	public int weatherIntensity = 0;
 	//0 = uhh
@@ -45,12 +36,21 @@ public class TileEntityWeatherMachine extends TileEntity
 	
 	public StormObject lastTickStormObject = null;
 
+	public void cycleWeatherType() {
+		weatherType++;
+		if (weatherType > 3) {
+			weatherType = 1; //skip snow
+		}
+	}
+	
     public void updateEntity()
     {
     	if (!worldObj.isRemote) {
     		
     		//TEMP
-    		weatherSize = 40;
+    		weatherSize = 100;
+    		
+    		//weatherType = 3;
     		
     		if (worldObj.getTotalWorldTime() % 40 == 0) {
     			
@@ -67,7 +67,7 @@ public class TileEntityWeatherMachine extends TileEntity
     					so.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
     					so.layer = 0;
     					so.userSpawnedFor = "" + xCoord + yCoord + zCoord;
-    					so.canSnowFromCloudTemperature = true;
+    					//so.canSnowFromCloudTemperature = true;
     					so.naturallySpawned = false;
     					
     					
@@ -79,15 +79,38 @@ public class TileEntityWeatherMachine extends TileEntity
     		}
     		
     		if (lastTickStormObject != null && !lastTickStormObject.isDead) {
+    			
+    			Random rand = new Random();
+    			
     			if (lockStormHere) {
+					//lastTickStormObject.pos = Vec3.createVectorHelper(xCoord + rand.nextFloat() - rand.nextFloat(), StormObject.layers.get(0), zCoord + rand.nextFloat() - rand.nextFloat());
 					lastTickStormObject.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
 				}
 				
 				lastTickStormObject.size = weatherSize;
+				
+
+				lastTickStormObject.levelWater = 1000;
+				lastTickStormObject.attrib_precipitation = true;
+				lastTickStormObject.hasStormPeaked = false;
+				lastTickStormObject.levelCurStagesIntensity = 0.9F;
+				
+				//defaults
+				lastTickStormObject.levelCurIntensityStage = StormObject.STATE_NORMAL;
+				lastTickStormObject.stormType = StormObject.TYPE_LAND;
+				
 				if (weatherType == 0) {
 					lastTickStormObject.levelTemperature = -40;
-					lastTickStormObject.levelWater = 1000;
-					lastTickStormObject.attrib_precipitation = true;
+				} else if (weatherType == 1) {
+					lastTickStormObject.levelTemperature = 40;
+				} else if (weatherType == 2) {
+					lastTickStormObject.levelTemperature = 40;
+					lastTickStormObject.stormType = StormObject.TYPE_LAND;
+					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
+				} else if (weatherType == 3) {
+					lastTickStormObject.levelTemperature = 40;
+					lastTickStormObject.stormType = StormObject.TYPE_WATER;
+					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
 				}
 			}
     	}

@@ -79,6 +79,8 @@ public class WeatherManagerBase {
 		lookupVolcanoes.clear();
 		
 		windMan.reset();
+		
+		StormObject.lastUsedStormID = 0;
 	}
 	
 	public World getWorld() {
@@ -96,7 +98,10 @@ public class WeatherManagerBase {
 					((WeatherManagerServer)this).syncStormRemove(so);
 					removeStormObject(so.ID);
 				} else {
-					so.tick();
+					//not sure why i need null manager check, it should be marked dead before thats null..... ugh
+					if (!so.isDead/* && so.manager != null*/) {
+						so.tick();
+					}
 				}
 			}
 						

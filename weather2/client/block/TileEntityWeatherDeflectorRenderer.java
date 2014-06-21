@@ -14,7 +14,7 @@ import weather2.block.TileEntityWeatherMachine;
 import weather2.weathersystem.storm.StormObject;
 import extendedrenderer.ExtendedRenderer;
 
-public class TileEntityWeatherMachineRenderer extends TileEntitySpecialRenderer
+public class TileEntityWeatherDeflectorRenderer extends TileEntitySpecialRenderer
 {
     public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8) {
     	

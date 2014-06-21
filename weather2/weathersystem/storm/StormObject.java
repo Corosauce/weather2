@@ -363,7 +363,7 @@ public class StormObject {
 				
 				if (levelCurIntensityStage >= STATE_HIGHWIND) {
 					if (manager.getWorld().isRemote) {
-						tornadoHelper.soundUpdates(true, true);
+						tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 			        }
 				}
 			}
@@ -375,7 +375,7 @@ public class StormObject {
 			
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
 				if (manager.getWorld().isRemote) {
-					tornadoHelper.soundUpdates(true, true);
+					tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 		        }
 			}
 			
@@ -544,7 +544,7 @@ public class StormObject {
 		}
 		
 		//dont forget, this doesnt account for storm size, so small storms have high concentration of hail, as it grows, it appears to lessen in rate
-		if (isPrecipitating() && levelCurIntensityStage >= STATE_HAIL && stormType == TYPE_LAND) {
+		if (isPrecipitating() && levelCurIntensityStage == STATE_HAIL && stormType == TYPE_LAND) {
 			//if (rand.nextInt(1) == 0) {
 			for (int i = 0; i < Math.max(1, ConfigMisc.Storm_HailPerTick * (size/maxSize)); i++) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
@@ -1420,6 +1420,8 @@ public class StormObject {
 							
 							float baseBright = 0.3F;
 							float randFloat = (rand.nextFloat() * 0.6F);
+							
+							particle.rotationYaw = rand.nextInt(360);
 							
 							float finalBright = Math.min(1F, baseBright+randFloat);
 							particle.setRBGColorF(finalBright, finalBright, finalBright);

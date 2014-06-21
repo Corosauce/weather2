@@ -92,7 +92,7 @@ public class GuiEZConfig extends GuiScreen {
 
 		Weather.dbg("EZGUI constructor");
 		
-		if (MinecraftServer.getServer().isSinglePlayer()) {
+		if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isSinglePlayer()) {
 			canPlayerChangeServerSettings = true;
 		}
 		
@@ -285,23 +285,21 @@ public class GuiEZConfig extends GuiScreen {
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS));
 			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_COMP_PARTICLESNOMODS)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_PARTICLESNOMODS)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_PARTICLESNOMODS));
 			
-			if (!canPlayerChangeServerSettings) {
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_STORM)).enabled = false;
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).enabled = false;
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)).enabled = false;
-			}
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_STORM)).enabled = canPlayerChangeServerSettings;
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).enabled = canPlayerChangeServerSettings;
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)).enabled = canPlayerChangeServerSettings;
+			
 		} else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM));
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM));
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN));
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION));
 			
-			if (!canPlayerChangeServerSettings) {
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)).enabled = false;
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)).enabled = false;
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).enabled = false;
-				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).enabled = false;
-			}
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)).enabled = canPlayerChangeServerSettings;
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)).enabled = canPlayerChangeServerSettings;
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).enabled = canPlayerChangeServerSettings;
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).enabled = canPlayerChangeServerSettings;
+			
 		}
 		
 		
@@ -378,12 +376,12 @@ public class GuiEZConfig extends GuiScreen {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
         } else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_STORMSWHEN, 0));
-        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_LOCK, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_LOCK, 1));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_LOCK, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_LOCK, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_PARTICLEPRECIP, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*3, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_PARTICLESNOMODS, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*4, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 0));
         } else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
-        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_CHANCE, 3));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_CHANCE, 1));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*3, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));

@@ -1,15 +1,18 @@
 package weather2;
 
-import CoroUtil.render.RenderNull;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
 import weather2.block.TileEntityTSiren;
+import weather2.block.TileEntityWeatherDeflector;
 import weather2.block.TileEntityWeatherForecast;
+import weather2.block.TileEntityWeatherMachine;
 import weather2.block.TileEntityWindVane;
 import weather2.client.block.TileEntityTSirenRenderer;
+import weather2.client.block.TileEntityWeatherDeflectorRenderer;
 import weather2.client.block.TileEntityWeatherForecastRenderer;
+import weather2.client.block.TileEntityWeatherMachineRenderer;
 import weather2.client.block.TileEntityWindVaneRenderer;
 import weather2.client.entity.RenderFlyingBlock;
 import weather2.client.entity.RenderLightningBolt;
@@ -19,6 +22,7 @@ import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtilSound;
+import CoroUtil.render.RenderNull;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
@@ -54,6 +58,8 @@ public class ClientProxy extends CommonProxy
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTSiren.class, new TileEntityTSirenRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWindVane.class, new TileEntityWindVaneRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWeatherForecast.class, new TileEntityWeatherForecastRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWeatherMachine.class, new TileEntityWeatherMachineRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWeatherDeflector.class, new TileEntityWeatherDeflectorRenderer());
     }
     
     private static void addMapping(Class<? extends Entity> entityClass, Render render) {

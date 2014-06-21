@@ -116,6 +116,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Block_windVaneID = 1902;
 	public static int Block_weatherForecastID = 1903;
 	public static int Block_weatherMachineID = 1904;
+	public static int Block_weatherDeflectorID = 1905;
 	
 	//dimension settings
 	public static String Dimension_List_Weather = "0,-127";
