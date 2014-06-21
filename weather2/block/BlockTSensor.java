@@ -45,7 +45,7 @@ public class BlockTSensor extends Block
     	
     	WeatherManagerServer wms = ServerTickHandler.lookupDimToWeatherMan.get(var1.provider.dimensionId);
     	if (wms != null) {
-    		StormObject so = wms.getClosestStorm(Vec3.createVectorHelper(var2, var3, var4), ConfigMisc.sensorActivateDistance, StormObject.ATTRIB_FORMINGTORNADO);
+    		StormObject so = wms.getClosestStorm(Vec3.createVectorHelper(var2, var3, var4), ConfigMisc.sensorActivateDistance, StormObject.STATE_FORMING);
     		if (so != null/* && so.attrib_tornado_severity > 0*/) {
     			enable = true;
     		}

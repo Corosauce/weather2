@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import weather2.entity.EntityMovingBlock;
+import weather2.util.WeatherUtilParticle;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -55,10 +56,8 @@ public class RenderFlyingBlock extends Render
         this.bindEntityTexture(var1);
         //this.loadTexture("/terrain.png");
         World var11 = var1.worldObj;
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glRotatef((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
-        GL11.glRotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
-        GL11.glRotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+        //GL11.glDisable(GL11.GL_LIGHTING);
+        
         RenderBlocks rb = new RenderBlocks(var1.worldObj);
         GL11.glScalef(size, size, size);
         //Tessellator tess = Tessellator.instance;
@@ -67,11 +66,29 @@ public class RenderFlyingBlock extends Render
         //renderBlock = Block.netherrack;
         if (var1 instanceof EntityMovingBlock) {
         	Block dynamicRenderBlock = Block.blocksList[((EntityMovingBlock) var1).tile];
+        	GL11.glRotatef((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+            GL11.glRotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+            GL11.glRotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
         	rb.setRenderBoundsFromBlock(dynamicRenderBlock);
 	        rb.renderBlockAsItem(dynamicRenderBlock, 0, 0.8F);
         } else {
+        	//the real one
 	        rb.setRenderBoundsFromBlock(renderBlock);
 	        rb.renderBlockAsItem(renderBlock, 0, 0.8F);
+	        
+	        //the fake ones
+        	for (int i = 0; i < Math.min(4, WeatherUtilParticle.maxRainDrops); i++) {
+        		GL11.glPushMatrix();
+        		GL11.glTranslatef((float)WeatherUtilParticle.rainPositions[i].xCoord * 3F, (float)WeatherUtilParticle.rainPositions[i].yCoord * 3F, (float)WeatherUtilParticle.rainPositions[i].zCoord * 3F);
+        		GL11.glRotatef((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+                GL11.glRotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+        		rb.setRenderBoundsFromBlock(renderBlock);
+    	        rb.renderBlockAsItem(renderBlock, 0, 0.8F);
+        		//GL11.glTranslatef((float)-WeatherUtilParticle.rainPositions[i].xCoord, (float)-WeatherUtilParticle.rainPositions[i].yCoord, (float)-WeatherUtilParticle.rainPositions[i].zCoord);
+        		GL11.glPopMatrix();
+        	}
+        	
         }
         
         GL11.glEnable(GL11.GL_FOG);

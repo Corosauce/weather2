@@ -3,7 +3,9 @@ package weather2.config;
 import java.io.File;
 
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilConfig;
 
+import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
 
 
@@ -13,13 +15,20 @@ public class ConfigMisc implements IConfigCategory {
 	
 	//misc
 	public static boolean Misc_proxyRenderOverrideEnabled = true;
-	public static boolean Misc_takeControlOfGlobalRain = true;
+	//public static boolean Misc_takeControlOfGlobalRain = true;
 	public static boolean Misc_windOn = true;
 	public static int Misc_simBoxRadiusCutoff = 1024;
 	public static int Misc_simBoxRadiusSpawn = 1024;
 	public static boolean Misc_ForceVanillaCloudsOff = true;
 	public static int Misc_AutoDataSaveIntervalInTicks = 20*60*30;
 	public static boolean consoleDebug = false;
+	
+	//Weather
+	@ConfigComment("If true, lets server side do vanilla weather rules, weather2 will only make storms when server side says 'rain' is on")
+	public static boolean overcastMode = false;
+	@ConfigComment("Used if overcastMode is off, 1 = lock weather on, 0 = lock weather off, -1 = dont lock anything, let server do whatever")
+	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
+	public static boolean preventServerThunderstorms = true;
 	
 	//tornado
 	public static boolean Storm_Tornado_grabPlayer = true;
@@ -53,7 +62,11 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Storm_Rain_WaterBuildUp = 150;
 	public static double Storm_TemperatureAdjustRate = 0.1D;
 	public static double Storm_Deadly_MinIntensity = 5.3D;
-	public static int Storm_HailPerTick = 20;
+	public static int Storm_HailPerTick = 10;
+	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
+	public static int Storm_OddsTo1OfProgressionBase = 15;
+	public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
+	public static int Storm_ParticleSpawnDelay = 0;
 	
 	//per player storm settings
 	public static int Player_Storm_Deadly_OddsTo1 = 30;
@@ -63,13 +76,15 @@ public class ConfigMisc implements IConfigCategory {
 	//clouds
 	public static int Cloud_ParticleSpawnDelay = 0;
 	public static int Cloud_Formation_MinDistBetweenSpawned = 256;
+	public static boolean Cloud_Layer1_Enable = false;
 	
 	//lightning
-	public static int Lightning_OddsTo1OfFire = 5;
+	public static int Lightning_OddsTo1OfFire = 20;
 	public static int Lightning_lifetimeOfFire = 3;
 	
 	//snow
-	public static boolean Snow_ExtraPileUp = true;
+	public static boolean Snow_PerformSnowfall = false;
+	public static boolean Snow_ExtraPileUp = false;
 	public static int Snow_RarityOfBuildup = 64;
 	public static int Snow_MaxBlockBuildupHeight = 3;
 	public static boolean Snow_SmoothOutPlacement = false;
@@ -82,6 +97,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
 	public static boolean Wind_Particle_fire = true;
+	public static boolean Wind_NoWindEvents = true;
 	public static int Thread_Particle_Process_Delay = 400;
 	public static boolean Particle_RainSnow = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;
@@ -89,6 +105,7 @@ public class ConfigMisc implements IConfigCategory {
 	//sound
 	public static double volWindScale = 0.05D;
 	public static double volWaterfallScale = 0.5D;
+	public static double volWindTreesScale = 0.5D;
 	
 	//blocks
 	public static double sirenActivateDistance = 256D;
@@ -98,6 +115,12 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Block_windVaneID = 1902;
 	public static int Block_weatherForecastID = 1903;
 	public static int Block_weatherMachineID = 1904;
+	
+	//dimension settings
+	public static String Dimension_List_Weather = "0";
+	public static String Dimension_List_Clouds = "0";
+	public static String Dimension_List_Storms = "0";
+	public static String Dimension_List_WindEffects = "0";
 
 	public ConfigMisc() {
 		
@@ -116,6 +139,7 @@ public class ConfigMisc implements IConfigCategory {
 	@Override
 	public void hookUpdatedValues() {
 		WeatherUtil.doBlockList();
+		WeatherUtilConfig.processLists();
 	}
 
 }

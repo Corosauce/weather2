@@ -24,11 +24,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import weather2.Weather;
+import weather2.client.entity.RenderCubeCloud;
+import weather2.client.entity.RenderFlyingBlock;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilConfig;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
@@ -58,6 +61,8 @@ public class StormObject {
 	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
 	@SideOnly(Side.CLIENT)
+	public List<EntityRotFX> listParticlesGround;
+	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesFunnel;
 	@SideOnly(Side.CLIENT)
 	public ParticleBehaviorFog particleBehaviorFog;
@@ -66,7 +71,7 @@ public class StormObject {
 	
 	//public WeatherEntityConfig conf = WeatherTypes.weatherEntTypes.get(1);
 	//this was pulled over from weather1 i believe
-	public int curWeatherType = 1; //NEEDS SYNCING
+	//public int curWeatherType = 1; //NEEDS SYNCING
 	
 	//basic info
 	public static int static_YPos_layer0 = 200;
@@ -95,13 +100,35 @@ public class StormObject {
 	public int levelWaterStartRaining = 100;
 	
 	//storm data, used when its determined a storm will happen from cloud front collisions
-	public float levelStormIntensityMax = 0; //calculated from colliding warm and cold fronts, used to determine how crazy a storm _will_ get
-	public float levelStormIntensityCur = 0; //since we want storms to build up to a climax still, this will start from 0 and peak to levelStormIntensityMax
-	public boolean isRealStorm = false;
+	//public float levelStormIntensityMax = 0; //calculated from colliding warm and cold fronts, used to determine how crazy a storm _will_ get
+	
+	//revision, ints for each stage of intensity, and a float for the intensity of THAT current stage
+	public int levelCurIntensityStage = 0; //since we want storms to build up to a climax still, this will start from 0 and peak to levelStormIntensityMax
+	public float levelCurStagesIntensity = 0;
+	//public boolean isRealStorm = false;
 	public boolean hasStormPeaked = false;
 	
+	public int maxIntensityStage = STATE_STAGE5;
+	
+	//used to mark difference between land and water based storms
+	public int stormType = TYPE_LAND;
+	public static int TYPE_LAND = 0; //for tornados
+	public static int TYPE_WATER = 1; //for tropical cyclones / hurricanes
+	
+	//used to mark intensity stages
+	public static int STATE_NORMAL = 0; //probably unused!
+	public static int STATE_THUNDER = 1;
+	public static int STATE_HIGHWIND = 2;
+	public static int STATE_HAIL = 3;
+	public static int STATE_FORMING = 4; //forming tornado for land, for water... stage 0 or something?
+	public static int STATE_STAGE1 = 5; //these are for both tornados (land) and tropical cyclones (water)
+	public static int STATE_STAGE2 = 6;
+	public static int STATE_STAGE3 = 7;
+	public static int STATE_STAGE4 = 8;
+	public static int STATE_STAGE5 = 9; //counts as hurricane for water
+	
 	//helper val, adjust with flags method
-	public static float levelStormIntensityFormingStartVal = 4;
+	public static float levelStormIntensityFormingStartVal = STATE_FORMING;
 	
 	
 	//spin speed for potential tornado formations, should go up with intensity increase;
@@ -110,49 +137,21 @@ public class StormObject {
 	//PENDING REVISION \\ - use based on levelStormIntensityCur ???
 	
 	//states that combine all lesser states
-	public int state = STATE_NORMAL;
-	public static int STATE_NORMAL = 0; //no spin
-	//public static int STATE_RAIN = 1; //no spin
-	public static int STATE_THUNDER = 2; //no spin
-	public static int STATE_SPINNING = 3; //does spin
-	public static int STATE_HAIL = 4; //does spin
+	//public int state = STATE_NORMAL;
+	
 	
 	//used for sure, rain is dependant on water level values
 	public boolean attrib_precipitation = false;
 	
-	//attributes that can happen independantly - revise maybe
-	
-	public boolean attrib_highwind = false;
-	//public boolean attrib_tornado = false;
-	public boolean attrib_hurricane = false;
-	//F1 - F5 severity states (changes size and damage radius of tornado)
-	public int attrib_tornado_severity = 0;
-	public static int ATTRIB_FORMINGTORNADO = 1; //the tornado version of forming, not cloud forming
-	public static int ATTRIB_F1 = 2;
-	public static int ATTRIB_F2 = 3;
-	public static int ATTRIB_F3 = 4;
-	public static int ATTRIB_F4 = 5;
-	public static int ATTRIB_F5 = 6;
-	
-	//PENDING REVISION //
-	
-	//TORNADO RIPPING REVISIONS:
-	//dont carve into ground, just rip up exposed stuff
-	//replace grass with dirt
-	//F1 doesnt rip logs, just leaves
-	//only F2 and higher rips up trees
-	
 	//copied from EntTornado
-	
 	//buildup var - unused in new system currently, but might be needed for touchdown effect
-	public float strength = 100;
 	
 	//unused tornado scale, always 1F
 	public float scale = 1F;
+	public float strength = 100;
+	public int maxHeight = 60;
 	
 	public int currentTopYBlock = -1;
-	
-	public int maxHeight = 60;
 	
 	public TornadoHelper tornadoHelper = new TornadoHelper(this);
 	
@@ -164,7 +163,15 @@ public class StormObject {
     public Vec3 posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
     
     public boolean naturallySpawned = true;
+    public boolean canSnowFromCloudTemperature = false;
+    public boolean alwaysProgresses = false;
     public boolean isDead = false;
+    
+    //to let client know server is raining (since we override client side raining state for render changes)
+    //public boolean overCastModeAndRaining = false;
+    
+    @SideOnly(Side.CLIENT)
+    public RenderCubeCloud renderBlock;
 	
 	public StormObject(WeatherManagerBase parManager) {
 		manager = parManager;
@@ -172,6 +179,8 @@ public class StormObject {
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
 			listParticlesFunnel = new ArrayList<EntityRotFX>();
+			listParticlesGround = new ArrayList<EntityRotFX>();
+			renderBlock = new RenderCubeCloud();
 		}
 	}
 	
@@ -193,92 +202,40 @@ public class StormObject {
 		
 		//Weather.dbg("initialize temp to: " + levelTemperature + " - biome: " + bgb.biomeName);
 		
-		//defaults are 0.5
 		
-		/*
-		
-		0.5  - ocean
-		0.5  - river
-		0.5  - sky (end)
-		
-		0.8  - plains
-		2.0  - desert
-		0.2  - extreme hills
-		0.7  - forest
-		0.05 - taiga
-		0.8  - swampland
-		2.0  - hell
-		
-		0.0  - frozen river
-		0.0  - frozen ocean
-		0.0  - ice plains
-		0.0  - ice mountains
-		0.2  - mushroom island
-		0.9  - mushroom island shore
-		
-		0.8  - beach
-		2.0  - desert hills
-		0.7  - forest hills
-		0.05 - taiga hills
-		0.2  - extreme hills edge
-		1.2  - jungle
-		1.2  - jungle hills
-		
-		
-		reorganized temperatures:
-		
-		0.0
-		---
-		frozen river
-		frozen ocean
-		ice plains
-		ice mountains
-		
-		0.05
-		---
-		taiga
-		taiga hills
-		
-		0.2
-		---
-		extreme hills
-		extreme hills edge
-		mushroom island
-		
-		0.5 (default val)
-		---
-		ocean
-		river
-		sky (end)
-		
-		0.7
-		---
-		forest
-		forest hills
-		
-		0.8
-		---
-		plains
-		swampland
-		beach (we might not have to ignore beach, value seems sane)
-		
-		0.9
-		---
-		mushroom island shore
-		
-		1.2
-		---
-		jungle
-		jungle hills
-		
-		2.0
-		---
-		desert
-		desert hills
-		hell
-		
-		*/
 		 
+	}
+	
+	public boolean isPrecipitating() {
+		return attrib_precipitation;
+	}
+	
+	public void setPrecipitating(boolean parVal) {
+		attrib_precipitation = parVal;
+	}
+	
+	public boolean isRealStorm() {
+		return levelCurIntensityStage > STATE_NORMAL;
+	}
+	
+	public boolean isTornadoFormingOrGreater() {
+		return stormType == TYPE_LAND && levelCurIntensityStage >= STATE_FORMING;
+	}
+	
+	public boolean isCycloneFormingOrGreater() {
+		return stormType == TYPE_WATER && levelCurIntensityStage >= STATE_FORMING;
+	}
+	
+	public boolean isSpinning() {
+		return levelCurIntensityStage >= STATE_HIGHWIND;
+	}
+	
+	public boolean isTropicalCyclone() {
+		return levelCurIntensityStage >= STATE_STAGE1;
+	}
+	
+	public boolean isHurricane() {
+		return levelCurIntensityStage >= STATE_STAGE5;
 	}
 	
 	//not used yet
@@ -302,13 +259,13 @@ public class StormObject {
 		size = parNBT.getInteger("size");
 		maxSize = parNBT.getInteger("maxSize");
 		
-		state = parNBT.getInteger("state");
+		//state = parNBT.getInteger("state");
 		
-		attrib_tornado_severity = parNBT.getInteger("attrib_tornado_severity");
+		//attrib_tornado_severity = parNBT.getInteger("attrib_tornado_severity");
 		
-		attrib_highwind = parNBT.getBoolean("attrib_highwind");
+		//attrib_highwind = parNBT.getBoolean("attrib_highwind");
 		//attrib_tornado = parNBT.getBoolean("attrib_tornado");
-		attrib_hurricane = parNBT.getBoolean("attrib_hurricane");
+		//attrib_hurricane = parNBT.getBoolean("attrib_hurricane");
 		attrib_precipitation = parNBT.getBoolean("attrib_rain");
 		
 		currentTopYBlock = parNBT.getInteger("currentTopYBlock");
@@ -318,11 +275,19 @@ public class StormObject {
 		
 		layer = parNBT.getInteger("layer");
 		
-		curWeatherType = parNBT.getInteger("curWeatherType");
+		//curWeatherType = parNBT.getInteger("curWeatherType");
 		
 		//formingStrength = parNBT.getFloat("formingStrength");
 		
-		levelStormIntensityCur = parNBT.getFloat("levelStormIntensityCur");
+		levelCurIntensityStage = parNBT.getInteger("levelCurIntensityStage");
+		levelCurStagesIntensity = parNBT.getFloat("levelCurStagesIntensity");
+		stormType = parNBT.getInteger("stormType");
+		
+		hasStormPeaked = parNBT.getBoolean("hasStormPeaked");
+		
+		//overCastModeAndRaining = parNBT.getBoolean("overCastModeAndRaining");
+		
+		isDead = parNBT.getBoolean("isDead");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -337,13 +302,13 @@ public class StormObject {
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);
 		
-		data.setInteger("state", state);
+		//data.setInteger("state", state);
 		
-		data.setInteger("attrib_tornado_severity", attrib_tornado_severity);
+		//data.setInteger("attrib_tornado_severity", attrib_tornado_severity);
 		
-		data.setBoolean("attrib_highwind", attrib_highwind);
+		//data.setBoolean("attrib_highwind", attrib_highwind);
 		//data.setBoolean("attrib_tornado", attrib_tornado);
-		data.setBoolean("attrib_hurricane", attrib_hurricane);
+		//data.setBoolean("attrib_hurricane", attrib_hurricane);
 		data.setBoolean("attrib_rain", attrib_precipitation);
 		
 		data.setInteger("currentTopYBlock", currentTopYBlock);
@@ -353,13 +318,29 @@ public class StormObject {
 		
 		data.setInteger("layer", layer);
 		
-		data.setInteger("curWeatherType", curWeatherType);
+		//data.setInteger("curWeatherType", curWeatherType);
 		
 		//data.setFloat("formingStrength", formingStrength);
 		
-		data.setFloat("levelStormIntensityCur", levelStormIntensityCur);
+		data.setInteger("levelCurIntensityStage", levelCurIntensityStage);
+		data.setFloat("levelCurStagesIntensity", levelCurStagesIntensity);
+		data.setInteger("stormType", stormType);
+		
+		data.setBoolean("hasStormPeaked", hasStormPeaked);
+		
+		//data.setBoolean("overCastModeAndRaining", overCastModeAndRaining);
+		
+		data.setBoolean("isDead", isDead);
 		
 		return data;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void tickRender(float partialTick) {
+		//renderBlock.doRenderClouds(this, 0, 0, 0, 0, partialTick);
+		if (layer == 1) {
+			renderBlock.doRenderClouds(this, pos.xCoord, pos.yCoord, pos.zCoord, 0, partialTick);
+		}
 	}
 	
 	public void tick() {
@@ -372,10 +353,32 @@ public class StormObject {
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (side == Side.CLIENT) {
 			if (!WeatherUtil.isPaused()) {
-				tickClient();
+				if (layer == 0) {
+					tickClient();
+				}
+				
+				if (isTornadoFormingOrGreater()) {
+					tornadoHelper.tick(manager.getWorld());
+				}
+				
+				if (levelCurIntensityStage >= STATE_HIGHWIND) {
+					if (manager.getWorld().isRemote) {
+						tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater());
+			        }
+				}
 			}
 		} else {
 
+			if (isTornadoFormingOrGreater()) {
+				tornadoHelper.tick(manager.getWorld());
+			}
+			
+			if (levelCurIntensityStage >= STATE_HIGHWIND) {
+				if (manager.getWorld().isRemote) {
+					tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater());
+		        }
+			}
+			
 			//debug \\
 			
 			//maxSize = 200;
@@ -402,32 +405,38 @@ public class StormObject {
 			
 			if (layer == 0) {
 				tickWeatherEvents();
-				tickCloudProgression();
+				tickProgression();
 				tickSnowFall();
 			}
+			
+			//overCastModeAndRaining = ConfigMisc.overcastMode && manager.getWorld().isRaining();
 	        
 		}
 		
-        //sync X Y Z, Y gets changed below
-        posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord);
-
-        if (levelStormIntensityCur >= StormObject.levelStormIntensityFormingStartVal) {
-        	if (levelStormIntensityCur >= StormObject.levelStormIntensityFormingStartVal + 1) {
-        		formingStrength = 1;
-        		posBaseFormationPos.yCoord = posGround.yCoord;
-        	} else {
-		        float val = levelStormIntensityCur - StormObject.levelStormIntensityFormingStartVal;
-		        formingStrength = val;
-		        double yDiff = pos.yCoord - posGround.yCoord;
-		        posBaseFormationPos.yCoord = pos.yCoord - (yDiff * formingStrength);
-        	}
-        } else {
-        	formingStrength = 0;
-        	posBaseFormationPos.yCoord = pos.yCoord;
-        }
-        
-		if (attrib_tornado_severity >= ATTRIB_FORMINGTORNADO) {
-			tornadoHelper.tick(manager.getWorld());
+		if (layer == 0) {
+	        //sync X Y Z, Y gets changed below
+	        posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord);
+	
+	        if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal) {
+	        	if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal + 1) {
+	        		formingStrength = 1;
+	        		posBaseFormationPos.yCoord = posGround.yCoord;
+	        	} else {
+	        		
+	        		//make it so storms touchdown at 0.5F intensity instead of 1 then instantly start going back up, keeps them down for a full 1F worth of intensity val
+	        		float intensityAdj = Math.min(1F, levelCurStagesIntensity * 2F);
+	        		
+			        float val = (levelCurIntensityStage + intensityAdj) - StormObject.levelStormIntensityFormingStartVal;
+			        formingStrength = val;
+			        double yDiff = pos.yCoord - posGround.yCoord;
+			        posBaseFormationPos.yCoord = pos.yCoord - (yDiff * formingStrength);
+	        	}
+	        } else {
+	        	formingStrength = 0;
+	        	posBaseFormationPos.yCoord = pos.yCoord;
+	        }
+	        
+			
 		}
 		
 	}
@@ -467,29 +476,35 @@ public class StormObject {
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
 		
-		float cloudSpeedAmp = 5F;
+		float cloudSpeedAmp = 0.2F;
 		
 		
 		
 		float finalSpeed = getAdjustedSpeed() * cloudSpeedAmp;
 		
-		if (attrib_tornado_severity > 0) {
-			
-			finalSpeed = 0.5F;
-			finalSpeed /= ((float)attrib_tornado_severity+1F);
-			
-			//Weather.dbg("storm speed: " + finalSpeed);
+		if (levelCurIntensityStage >= STATE_FORMING) {
+			finalSpeed = 0.2F;
+		} else if (levelCurIntensityStage >= STATE_THUNDER) {
+			finalSpeed = 0.05F;
 		}
 		
-		if (finalSpeed > 0.5F) {
-			finalSpeed = 0.5F;
+		if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
+			finalSpeed /= ((float)(levelCurIntensityStage-levelStormIntensityFormingStartVal+1F));
 		}
 		
-		if (attrib_tornado_severity > 0) {
-			/*if (finalSpeed > 0.1F) {
-				finalSpeed = 0.1F;
-			}*/
-			//Weather.dbg("storm speed: " + finalSpeed);
+		if (finalSpeed < 0.03F) {
+			finalSpeed = 0.03F;
+		}
+		
+		if (finalSpeed > 0.3F) {
+			finalSpeed = 0.3F;
+		}
+		
+		if (manager.getWorld().getTotalWorldTime() % 100 == 0 && levelCurIntensityStage >= STATE_FORMING) {
+			
+			//finalSpeed = 0.5F;
+			
+			//Weather.dbg("storm ID: " + this.ID + ", stage: " + levelCurIntensityStage + ", storm speed: " + finalSpeed);
 		}
 		
 		
@@ -515,8 +530,8 @@ public class StormObject {
 		
 		currentTopYBlock = world.getHeightValue(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
-		if (state >= STATE_THUNDER) {
-			if (rand.nextInt((int)Math.max(1, ConfigMisc.Storm_LightningStrikeBaseValueOddsTo1 - (levelStormIntensityCur * 10))) == 0) {
+		if (levelCurIntensityStage >= STATE_THUNDER) {
+			if (rand.nextInt((int)Math.max(1, ConfigMisc.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
 				int y = world.getPrecipitationHeight(x, z);
@@ -528,13 +543,10 @@ public class StormObject {
 			}
 		}
 		
-		if (!naturallySpawned && state == 4) {
-			//Weather.dbg("hueee " + attrib_precipitation + " - " + state);
-		}
-		
-		if (attrib_precipitation && state >= STATE_HAIL) {
+		//dont forget, this doesnt account for storm size, so small storms have high concentration of hail, as it grows, it appears to lessen in rate
+		if (isPrecipitating() && levelCurIntensityStage >= STATE_HAIL && stormType == TYPE_LAND) {
 			//if (rand.nextInt(1) == 0) {
-			for (int i = 0; i < ConfigMisc.Storm_HailPerTick; i++) {
+			for (int i = 0; i < Math.max(1, ConfigMisc.Storm_HailPerTick * (size/maxSize)); i++) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
 				if (world.checkChunksExist(x, static_YPos_layer0, z, x, static_YPos_layer0, z) && (world.getClosestPlayer(x, 50, z, 80) != null)) {
@@ -558,7 +570,9 @@ public class StormObject {
 	
 	public void tickSnowFall() {
 		
-		if (!attrib_precipitation) return;
+		if (!ConfigMisc.Snow_PerformSnowfall) return;
+		
+		if (!isPrecipitating()) return;
 		
 		World world = manager.getWorld();
 		
@@ -778,7 +792,7 @@ public class StormObject {
         BiomeGenBase biomegenbase = world.getBiomeGenForCoords(par1, par3);
         float f = biomegenbase.getFloatTemperature();
 
-        if ((!naturallySpawned && levelTemperature > 0) || (naturallySpawned && biomegenbase.getFloatTemperature() > 0.15F))
+        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && biomegenbase.getFloatTemperature() > 0.15F))
         {
             return false;
         }
@@ -799,7 +813,7 @@ public class StormObject {
         }
     }
 	
-	public void tickCloudProgression() {
+	public void tickProgression() {
 		World world = manager.getWorld();
 		
 		//storm progression, heavy WIP
@@ -829,6 +843,8 @@ public class StormObject {
 		int randomChanceOfWaterBuildFromNothing = ConfigMisc.Storm_Rain_WaterBuildUpOddsTo1FromNothing;
 		int randomChanceOfRain = ConfigMisc.Player_Storm_Rain_OddsTo1;
 		
+		boolean isInOcean = false;
+		
 		if (world.getTotalWorldTime() % ConfigMisc.Storm_AllTypes_TickRateDelay == 0) {
 			
 			NBTTagCompound playerNBT = PlayerData.getPlayerNBT(userSpawnedFor);
@@ -837,6 +853,8 @@ public class StormObject {
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
 			BiomeGenBase bgb = world.getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
+			
+			isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
 			
 			//temperature scan
 			float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature());
@@ -850,12 +868,12 @@ public class StormObject {
 			
 			Random rand = new Random();
 			
-			if (!attrib_precipitation && rand.nextInt(randomChanceOfWaterBuildFromNothing) == 0) {
+			if (!isPrecipitating() && rand.nextInt(randomChanceOfWaterBuildFromNothing) == 0) {
 				performBuildup = true;
 			}
 			
 			//water scan - dont build up if raining already
-			if (!performBuildup && !attrib_precipitation && rand.nextInt(randomChanceOfWaterBuildFromWater) == 0) {
+			if (!performBuildup && !isPrecipitating() && rand.nextInt(randomChanceOfWaterBuildFromWater) == 0) {
 				int blockID = world.getBlockId(MathHelper.floor_double(pos.xCoord), currentTopYBlock-1, MathHelper.floor_double(pos.zCoord));
 				if (blockID != 0) {
 					Block block = Block.blocksList[blockID];
@@ -876,108 +894,170 @@ public class StormObject {
 			}
 			
 			//water values adjust when raining
-			if (attrib_precipitation) {
+			if (isPrecipitating()) {
 				levelWater -= levelWaterSpendRate;
+				
+				//TEMP!!!
+				/*System.out.println("TEMP!!!");
+				levelWater = 0;*/
 				
 				if (levelWater < 0) levelWater = 0;
 				
 				if (levelWater <= 0) {
-					attrib_precipitation = false;
+					setPrecipitating(false);
 					Weather.dbg("ending raining for: " + ID);
 				}
 			} else {
 				if (levelWater >= levelWaterStartRaining) {
 					if (rand.nextInt(randomChanceOfRain) == 0) {
-						attrib_precipitation = true;
+						setPrecipitating(true);
 						Weather.dbg("starting raining for: " + ID);
 					}
 				}
 			}
 			
-			if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-				int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
-				int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
-				
-				if (rand.nextInt(randomChanceOfCollide) == 0) {
-					for (int i = 0; i < manager.getStormObjects().size(); i++) {
-						StormObject so = manager.getStormObjects().get(i);
+			//actual storm formation chance
+			
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.dimensionId) && ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
+				if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+					int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
+					int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
+					
+					if (isInOcean && rand.nextInt(ConfigMisc.Storm_OddsTo1OfOceanBasedStorm) == 0) {
+						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
 						
-						boolean startStorm = false;
+						if (entP != null) {
+							initRealStorm(entP, null);
+						} else {
+							initRealStorm(null, null);
+						}
 						
-						if (so.ID != this.ID && so.levelStormIntensityCur <= 0) {
-							if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
-								if (this.levelTemperature < 0) {
-									if (so.levelTemperature > 0) {
-									}
-								} else if (this.levelTemperature > 0) {
-									if (so.levelTemperature < 0) {
-										startStorm = true;
+						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+					} else if (rand.nextInt(randomChanceOfCollide) == 0) {
+						for (int i = 0; i < manager.getStormObjects().size(); i++) {
+							StormObject so = manager.getStormObjects().get(i);
+							
+							boolean startStorm = false;
+							
+							if (so.ID != this.ID && so.levelCurIntensityStage <= 0) {
+								if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
+									if (this.levelTemperature < 0) {
+										if (so.levelTemperature > 0) {
+											startStorm = true;
+										}
+									} else if (this.levelTemperature > 0) {
+										if (so.levelTemperature < 0) {
+											startStorm = true;
+										}
 									}
 								}
 							}
-						}
-						
-						if (startStorm) {
 							
-							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
-							
-							//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
-							EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
-							
-							if (entP != null) {
-								initRealStorm(entP, so);
-							} else {
-								initRealStorm(null, so);
-								//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
-								//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
+							if (startStorm) {
+								
+								//Weather.dbg("start storm!");
+								
+								playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+								
+								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
+								EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+								
+								if (entP != null) {
+									initRealStorm(entP, so);
+								} else {
+									initRealStorm(null, so);
+									//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
+									//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
+								}
+								
+								break;
 							}
-							
-							break;
 						}
 					}
 				}
 			}
 			
-			if (isRealStorm) {
-				float levelStormIntensityRate = 0.1F;
+			if (isRealStorm()) {
 				
-				if (!hasStormPeaked) {
-					levelStormIntensityCur += levelStormIntensityRate;
-					
-					Weather.dbg("storm ID: " + this.ID + " - growing at intensity: " + levelStormIntensityCur);
-					
-					if (levelStormIntensityCur > levelStormIntensityMax) {
-						Weather.dbg("storm peaked at: " + levelStormIntensityMax);
+				//force storms to die if its no longer raining while overcast mode is active
+				if (ConfigMisc.overcastMode) {
+					if (!manager.getWorld().isRaining()) {
 						hasStormPeaked = true;
-					}
-				} else {
-					if (levelStormIntensityCur > 0) {
-						levelStormIntensityCur -= (levelStormIntensityRate * 0.5F);
-					
-						Weather.dbg("storm ID: " + this.ID + " - dying at intensity: " + levelStormIntensityCur);
-						
-						if (levelStormIntensityCur < 0) {
-							levelStormIntensityCur = 0;
-							
-							//maybe unneeded here
-							setNoStorm();
-						}
-					} else {
-						
 					}
 				}
 				
+				//force rain on while real storm and not dying
+				if (!hasStormPeaked) {
+					levelWater = levelWaterStartRaining;
+					setPrecipitating(true);
+				}
+				
+				float levelStormIntensityRate = 0.02F;
+				float minIntensityToProgress = 0.6F;
+				int oddsTo1OfIntensityProgressionBase = ConfigMisc.Storm_OddsTo1OfProgressionBase;
+				
+				//speed up forming and greater progression
+				if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
+					levelStormIntensityRate *= 3;
+					oddsTo1OfIntensityProgressionBase /= 3;
+				}
+
+				int oddsTo1OfIntensityProgression = oddsTo1OfIntensityProgressionBase + (levelCurIntensityStage * ConfigMisc.Storm_OddsTo1OfProgressionStageMultiplier);
+				
+				if (!hasStormPeaked) {
+					
+					levelCurStagesIntensity += levelStormIntensityRate;
+					
+					if (levelCurIntensityStage < maxIntensityStage) {
+						if (levelCurStagesIntensity >= minIntensityToProgress) {
+							//Weather.dbg("storm ID: " + this.ID + " trying to hit next stage");
+							if (alwaysProgresses || rand.nextInt(oddsTo1OfIntensityProgression) == 0) {
+								stageNext();
+								Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage);
+								//mark is tropical cyclone if needed! and never unmark it!
+								if (isInOcean) {
+									if (levelCurIntensityStage >= STATE_FORMING) {
+										Weather.dbg("storm ID: " + this.ID + " marked as tropical cyclone!");
+										stormType = TYPE_WATER;
+									}
+								}
+							}
+						}
+					}
+					
+					
+					//Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage + " at intensity: " + levelCurStagesIntensity);
+					
+					if (levelCurStagesIntensity >= 1F) {
+						Weather.dbg("storm peaked at: " + levelCurIntensityStage);
+						hasStormPeaked = true;
+					}
+				} else {
+					
+					levelCurStagesIntensity -= levelStormIntensityRate * 0.3F;
+					
+					if (levelCurStagesIntensity <= 0) {
+						stagePrev();
+						Weather.dbg("storm ID: " + this.ID + " - dying, stage: " + levelCurIntensityStage);
+						if (levelCurIntensityStage <= 0) {
+							setNoStorm();
+						}
+					}
+					
+					
+				}
+				
 				//levelStormIntensityCur value ranges and what they influence
-				//0 - 1+ = rain - thunderstorm
-				//1 - 2+ = thunderstorm - high wind (and more rain???)
-				//2 - 3+ = high wind - hail
-				//3 - 4+ = hail - tornado forming
-				//4 - 5+ = tornado forming - F1 tornado
-				//5 - 6+ = F1 - F2
-				//6 - 7+ = F2 - F3
-				//7 - 8+ = F3 - F4
-				//8 - 9+ = F4 - F5
-				//9 - 10+ = F5 - hurricane ??? (perhaps hurricanes spawn differently, like over ocean only, and sustain when hitting land for a bit)
+				//revised to remove rain and factor in tropical storm / hurricane
+				//1 = thunderstorm (and more rain???)
+				//2 = high wind
+				//3 = hail
+				//4 = tornado forming OR tropical cyclone (forming?) - logic splits off here where its marked as hurricane if its over water
+				//5 = F1 OR TC 2
+				//6 = F2 OR TC 3
+				//7 = F3 OR TC 4
+				//8 = F4 OR TC 5
+				//9 = F5 OR hurricane ??? (perhaps hurricanes spawn differently, like over ocean only, and sustain when hitting land for a bit)
 				
 				//what about tropical storm? that is a mini hurricane, perhaps also ocean based
 				
@@ -990,33 +1070,73 @@ public class StormObject {
 				//it might be a good idea to make something else determine increase from high winds to tornado and higher
 				//using temperatures is a little unstable at such a large range of variation....
 				
-				updateStormFlags();
+				//updateStormFlags();
+				//curWeatherType = Math.min(WeatherTypes.weatherEntTypes.size()-1, Math.max(1, levelCurIntensityStage - 1));
 			}
 			
 			
 		}
 	}
 	
+	public WeatherEntityConfig getWeatherEntityConfigForStorm() {
+		//default spout
+		WeatherEntityConfig weatherConfig = WeatherTypes.weatherEntTypes.get(0);
+		if (levelCurIntensityStage >= STATE_STAGE5) {
+			weatherConfig = WeatherTypes.weatherEntTypes.get(5);
+		} else if (levelCurIntensityStage >= STATE_STAGE4) {
+			weatherConfig = WeatherTypes.weatherEntTypes.get(4);
+		} else if (levelCurIntensityStage >= STATE_STAGE3) {
+			weatherConfig = WeatherTypes.weatherEntTypes.get(3);
+		} else if (levelCurIntensityStage >= STATE_STAGE2) {
+			weatherConfig = WeatherTypes.weatherEntTypes.get(2);
+		} else if (levelCurIntensityStage >= STATE_STAGE1) {
+			weatherConfig = WeatherTypes.weatherEntTypes.get(1);
+		} else if (levelCurIntensityStage >= STATE_FORMING) {
+			weatherConfig = WeatherTypes.weatherEntTypes.get(0);
+		}
+		return weatherConfig;
+	}
+	
+	public void stageNext() {
+		levelCurIntensityStage++;
+		levelCurStagesIntensity = 0F;
+		if (ConfigMisc.Storm_Tornado_aimAtPlayerOnSpawn) {
+			if (!hasStormPeaked && levelCurIntensityStage == STATE_FORMING) {
+				aimStormAtClosestOrProvidedPlayer(null);
+			}
+		}
+	}
+	
+	public void stagePrev() {
+		levelCurIntensityStage--;
+		levelCurStagesIntensity = 1F;
+	}
+	
 	public void initRealStorm(EntityPlayer entP, StormObject stormToAbsorb) {
 		
+		//new way of storm progression
+		levelCurIntensityStage = STATE_THUNDER;
 		
-		isRealStorm = true;
+		
+		//isRealStorm = true;
 		float diff = 4;
 		if (stormToAbsorb != null) {
 			diff = this.levelTemperature - stormToAbsorb.levelTemperature;
 		}
 		if (naturallySpawned) {
 			this.levelWater = this.levelWaterStartRaining * 2;
-			this.levelStormIntensityMax = (float) (diff * ConfigMisc.Storm_IntensityAmplifier);
+			/*this.levelStormIntensityMax = (float) (diff * ConfigMisc.Storm_IntensityAmplifier);
 			if (levelStormIntensityMax < ConfigMisc.Storm_Deadly_MinIntensity) {
 				levelStormIntensityMax = (float)ConfigMisc.Storm_Deadly_MinIntensity;
-			}
+			}*/
 		}
 		this.attrib_precipitation = true;
 
 		if (stormToAbsorb != null) {
-			Weather.dbg("stormfront collision happened between ID " + this.ID + " and " + stormToAbsorb.ID + " - intensity max: " + levelStormIntensityMax);
+			Weather.dbg("stormfront collision happened between ID " + this.ID + " and " + stormToAbsorb.ID);
 			manager.removeStormObject(stormToAbsorb.ID);
+		} else {
+			Weather.dbg("ocean storm happened, ID " + this.ID);
 		}
 		
 		if (ConfigMisc.Storm_Tornado_aimAtPlayerOnSpawn) {
@@ -1053,23 +1173,23 @@ public class StormObject {
 		}
 	}
 	
-	public void updateStormFlags() {
+	/*public void updateStormFlags() {
 		
 		boolean flagDbg = true;
 		
-		if (levelStormIntensityCur >= 9) {
+		if (levelCurIntensityStage >= 9) {
 			attrib_hurricane = true;
-		} else if (levelStormIntensityCur >= 9) {
+		} else if (levelCurIntensityStage >= 9) {
 			attrib_tornado_severity = ATTRIB_F5;
-		} else if (levelStormIntensityCur >= 8) {
+		} else if (levelCurIntensityStage >= 8) {
 			attrib_tornado_severity = ATTRIB_F4;
-		} else if (levelStormIntensityCur >= 7) {
+		} else if (levelCurIntensityStage >= 7) {
 			attrib_tornado_severity = ATTRIB_F3;
-		} else if (levelStormIntensityCur >= 6) {
+		} else if (levelCurIntensityStage >= 6) {
 			attrib_tornado_severity = ATTRIB_F2;
-		} else if (levelStormIntensityCur >= 5) {
+		} else if (levelCurIntensityStage >= 5) {
 			attrib_tornado_severity = ATTRIB_F1;
-		} else if (levelStormIntensityCur >= 4) {
+		} else if (levelCurIntensityStage >= 4) {
 			//once again aim the storm back at player after forming if it overshot them, to solve some taking too long to buildup and passing over them >:D
 			if (ConfigMisc.Storm_Tornado_aimAtPlayerOnSpawn) {
 				if (!hasStormPeaked && attrib_tornado_severity != ATTRIB_FORMINGTORNADO) {
@@ -1078,13 +1198,13 @@ public class StormObject {
 			}
 			attrib_tornado_severity = ATTRIB_FORMINGTORNADO;
 			state = this.STATE_SPINNING;
-		} else if (levelStormIntensityCur >= 3) {
+		} else if (levelCurIntensityStage >= 3) {
 			state = this.STATE_HAIL;
-		} else if (levelStormIntensityCur >= 2) {
+		} else if (levelCurIntensityStage >= 2) {
 			attrib_highwind = true;
-		} else if (levelStormIntensityCur >= 1) {
+		} else if (levelCurIntensityStage >= 1) {
 			state = this.STATE_THUNDER;
-		} else if (levelStormIntensityCur > 0) {
+		} else if (levelCurIntensityStage > 0) {
 			//already added rain when combining storms - but what about commands?
 			attrib_precipitation = true;
 			state = this.STATE_NORMAL;
@@ -1100,15 +1220,13 @@ public class StormObject {
 		//aimStormAtClosestOrProvidedPlayer(null);
 		
 		curWeatherType = Math.min(WeatherTypes.weatherEntTypes.size()-1, Math.max(1, attrib_tornado_severity - 1));
-	}
+	}*/
 	
 	//FYI rain doesnt count as storm
 	public void setNoStorm() {
 		Weather.dbg("storm ID: " + this.ID + " - ended storm event");
-		state = this.STATE_NORMAL;
-		attrib_highwind = false;
-		attrib_tornado_severity = 0;
-		isRealStorm = false;
+		levelCurIntensityStage = STATE_NORMAL;
+		levelCurStagesIntensity = 0;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -1126,14 +1244,23 @@ public class StormObject {
 		
 		spinSpeed = 0.02D;
 		double spinSpeedMax = 0.4D;
-		if (attrib_hurricane) {
-			spinSpeed = spinSpeedMax * 0.4D;
-		} else if (attrib_tornado_severity > 0) {
+		/*if (isHurricane()) {
+			spinSpeed = spinSpeedMax * 1.2D;
+			Weather.dbg("spin speed: " + spinSpeed);
+		} else */if (isCycloneFormingOrGreater()) {
+			spinSpeed = spinSpeedMax * 0.00D + ((levelCurIntensityStage-levelStormIntensityFormingStartVal+1) * spinSpeedMax * 0.2D);
+			//Weather.dbg("spin speed: " + spinSpeed);
+		} else if (isTornadoFormingOrGreater()) {
 			spinSpeed = spinSpeedMax * 0.2D;
-		} else if (attrib_highwind) {
-			spinSpeed = spinSpeedMax * 0.1D;
-		} else {
+		} else if (levelCurIntensityStage >= STATE_HIGHWIND) {
 			spinSpeed = spinSpeedMax * 0.05D;
+		} else {
+			spinSpeed = spinSpeedMax * 0.02D;
+		}
+		
+		//bonus!
+		if (isHurricane()) {
+			spinSpeed += 0.1D;
 		}
 		
 		if (size == 0) size = 1;
@@ -1142,9 +1269,28 @@ public class StormObject {
 		
 		int extraSpawning = 0;
 		
-		if (state >= STATE_SPINNING) {
+		if (isSpinning()) {
 			loopSize += 4;
 			extraSpawning = 300;
+		}
+		
+		//adjust particle creation rate for upper tropical cyclone work
+		if (stormType == TYPE_WATER) {
+			if (levelCurIntensityStage >= STATE_STAGE5) {
+				loopSize = 10;
+				extraSpawning = 800;
+			} else if (levelCurIntensityStage >= STATE_STAGE4) {
+				loopSize = 8;
+				extraSpawning = 700;
+			} else if (levelCurIntensityStage >= STATE_STAGE3) {
+				loopSize = 6;
+				extraSpawning = 500; 
+			} else if (levelCurIntensityStage >= STATE_STAGE2) {
+				loopSize = 4;
+				extraSpawning = 400;
+			} else {
+				extraSpawning = 300;
+			}
 		}
 		
 		//Weather.dbg("size: " + size + " - delay: " + delay); 
@@ -1164,6 +1310,8 @@ public class StormObject {
 						spawnRad = size * 5;
 					}
 					
+					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
+					
 					Vec3 tryPos = Vec3.createVectorHelper(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 2);
@@ -1182,24 +1330,58 @@ public class StormObject {
 			}
 		}
 		
+		//ground effects
+		if (levelCurIntensityStage >= STATE_HIGHWIND) {
+			for (int i = 0; i < 3/*loopSize/2*/; i++) {
+				if (listParticlesGround.size() < 150/*size + extraSpawning*/) {
+					double spawnRad = size/4*3;
+					
+					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
+					
+					Vec3 tryPos = Vec3.createVectorHelper(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
+						int groundY = manager.getWorld().getHeightValue((int)tryPos.xCoord, (int)tryPos.zCoord);
+						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 2);
+						
+						particle.particleScale = 100;
+						particle.rotationYaw = rand.nextInt(360);
+						
+						listParticlesGround.add(particle);
+						
+						//Weather.dbg("ground fog!");
+						
+				    	/*if (layer == 0) {
+				    		particle.particleScale = 500;
+				    	} else {
+				    		particle.particleScale = 2000;
+				    	}*/
+						
+						//listParticlesCloud.add(particle);
+					}
+				}
+				
+				
+			}
+		}
+		
 		delay = 1;
 		loopSize = 2;
 		
 		double spawnRad = size/48;
 		
-		if (curWeatherType+1 >= ATTRIB_F5) {
+		if (levelCurIntensityStage >= STATE_STAGE5) {
 			spawnRad = 200;
 			loopSize = 10;
 			sizeMaxFunnelParticles = 1200;
-		} else if (curWeatherType+1 >= ATTRIB_F4) {
+		} else if (levelCurIntensityStage >= STATE_STAGE4) {
 			spawnRad = 150;
 			loopSize = 8;
 			sizeMaxFunnelParticles = 1000;
-		} else if (curWeatherType+1 >= ATTRIB_F3) {
+		} else if (levelCurIntensityStage >= STATE_STAGE3) {
 			spawnRad = 100;
 			loopSize = 6;
 			sizeMaxFunnelParticles = 800; 
-		} else if (curWeatherType+1 >= ATTRIB_F2) {
+		} else if (levelCurIntensityStage >= STATE_STAGE2) {
 			spawnRad = 50;
 			loopSize = 4;
 			sizeMaxFunnelParticles = 600;
@@ -1208,8 +1390,8 @@ public class StormObject {
 		}
 		
 		//spawn funnel
-		if (attrib_tornado_severity != 0) {
-			if (this.manager.getWorld().getTotalWorldTime() % delay == 0) {
+		if (isTornadoFormingOrGreater()) {
+			if (this.manager.getWorld().getTotalWorldTime() % (delay + ConfigMisc.Storm_ParticleSpawnDelay) == 0) {
 				for (int i = 0; i < loopSize; i++) {
 					//temp comment out
 					//if (attrib_tornado_severity > 0) {
@@ -1230,7 +1412,7 @@ public class StormObject {
 							EntityRotFX particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 3);
 							
 							//move these to a damn profile damnit!
-							particle.setMaxAge(150 + (curWeatherType * 100) + rand.nextInt(100));
+							particle.setMaxAge(150 + ((levelCurIntensityStage-1) * 100) + rand.nextInt(100));
 							
 							float baseBright = 0.3F;
 							float randFloat = (rand.nextFloat() * 0.6F);
@@ -1285,10 +1467,17 @@ public class StormObject {
 		        
 		        float extraDropCalc = 0;
 		        if (curDist < 200 && ent.entityId % 20 < 5) {
+			        //cyclone and hurricane dropdown modifications here
 		        	extraDropCalc = ((ent.entityId % 20) * dropDownRange);
+		        	if (isCycloneFormingOrGreater()) {
+		        		extraDropCalc = ((ent.entityId % 20) * dropDownRange * 5F);
+		        		//Weather.dbg("extraDropCalc: " + extraDropCalc);
+		        	}
 		        }
+		        
+		        
 				
-				if (state >= STATE_SPINNING) {
+				if (isSpinning()) {
 					double speed = spinSpeed + (rand.nextDouble() * 0.01D);
 					double distt = size;//300D;
 					
@@ -1313,9 +1502,24 @@ public class StormObject {
 			        	//speed = 1D;
 			        }
 			        
-			        //keep some near always
+			        //keep some near always - this is the lower formation part
 			        if (ent.entityId % 20 < 5) {
-			        	angle += 30 + ((ent.entityId % 5) * 4);
+			        	if (levelCurIntensityStage >= STATE_FORMING) {
+			        		if (stormType == TYPE_WATER) {
+			        			angle += 40 + ((ent.entityId % 5) * 4);
+			        			if (curDist > 150 + ((levelCurIntensityStage-levelStormIntensityFormingStartVal+1) * 30)) {
+			        				angle += 10;
+			        			}
+			        		} else {
+			        			angle += 30 + ((ent.entityId % 5) * 4);
+			        		}
+			        		
+			        	} else {
+			        		//make a wider spinning lower area of cloud, for high wind
+			        		if (curDist > 150) {
+			        			angle += 50 + ((ent.entityId % 5) * 4);
+			        		}
+			        	}
 			        	
 			        	double var16 = this.pos.xCoord - ent.posX;
 		                double var18 = this.pos.zCoord - ent.posZ;
@@ -1381,12 +1585,18 @@ public class StormObject {
 		        	}
 				}
 		        
-		        if (ent.motionY < -0.15F) {
-		        	ent.motionY = -0.15F;
+				float dropDownSpeedMax = 0.15F;
+				
+				if (isCycloneFormingOrGreater()) {
+					dropDownSpeedMax = 0.9F;
+				}
+				
+		        if (ent.motionY < -dropDownSpeedMax) {
+		        	ent.motionY = -dropDownSpeedMax;
 		        }
 		        
-		        if (ent.motionY > 0.15F) {
-		        	ent.motionY = 0.15F;
+		        if (ent.motionY > dropDownSpeedMax) {
+		        	ent.motionY = dropDownSpeedMax;
 		        }
 		        
 		        //double distToGround = ent.worldObj.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
@@ -1399,6 +1609,44 @@ public class StormObject {
 			}*/
 		}
 		
+		for (int i = 0; i < listParticlesGround.size(); i++) {
+			EntityRotFX ent = listParticlesGround.get(i);
+			
+			double curDist = ent.getDistance(pos.xCoord, ent.posY, pos.zCoord);
+			
+			if (ent.isDead) {
+				listParticlesGround.remove(ent);
+			} else {
+				double curSpeed = Math.sqrt(ent.motionX * ent.motionX + ent.motionY * ent.motionY + ent.motionZ * ent.motionZ);
+			
+				double speed = Math.max(0.2F, 5F * spinSpeed) + (rand.nextDouble() * 0.01D);
+				double distt = size;//300D;
+				
+				
+				double vecX = ent.posX - pos.xCoord;
+		        double vecZ = ent.posZ - pos.zCoord;
+		        float angle = (float)(Math.atan2(vecZ, vecX) * 180.0D / Math.PI);
+		        
+		        angle += 85;
+		        
+		        ent.particleScale = (float) Math.min(60, curDist * 2F);
+		        
+		        if (curDist < 20) {
+		        	ent.setDead();
+		        }
+
+	        	double var16 = this.pos.xCoord - ent.posX;
+                double var18 = this.pos.zCoord - ent.posZ;
+		        ent.rotationYaw += 5;//(float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
+                ent.rotationPitch = 0;//-20F - (ent.entityId % 10);
+                
+                if (curSpeed < speed * 20D) {
+		        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
+			        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+		        }
+			}
+		}
+		
 		//System.out.println("size: " + listParticlesCloud.size());
 	}
 	
@@ -1409,7 +1657,7 @@ public class StormObject {
 	public float getAdjustedAngle() {
 		float angle = manager.windMan.getWindAngleForClouds();
 		
-		float angleAdjust = Math.max(45, 45F * levelTemperature * 0.2F);
+		float angleAdjust = Math.max(10, Math.min(45, 45F * levelTemperature * 0.2F));
 		float targetYaw = 0;
 		
 		//coldfronts go south to 0, warmfronts go north to 180
@@ -1428,7 +1676,7 @@ public class StormObject {
 			if (bestMove < 0) angle += angleAdjust;
 		}
 		
-		//Weather.dbg(manager.windMan.getWindAngleForClouds() + " - final angle: " + angle);
+		//Weather.dbg("ID: " + ID + " - " + manager.windMan.getWindAngleForClouds() + " - final angle: " + angle);
 		
 		return angle;
 	}
@@ -1437,7 +1685,7 @@ public class StormObject {
 		
 		StormObject entT = this;
 		StormObject entity = this;
-		WeatherEntityConfig conf = WeatherTypes.weatherEntTypes.get(curWeatherType);
+		WeatherEntityConfig conf = getWeatherEntityConfigForStorm();//WeatherTypes.weatherEntTypes.get(curWeatherType);
 		
 		Random rand = new Random();
 		
@@ -1445,7 +1693,7 @@ public class StormObject {
     		entT = (EntTornado) entity;
     	}*/
     
-    	boolean forTornado = entT != null;
+    	boolean forTornado = true;//entT != null;
     	
         //ConfigTornado.Storm_Tornado_height;
         double radius = 10D;
@@ -1598,7 +1846,7 @@ public class StormObject {
         }
         
         //if player and not spout
-        if (entity1 instanceof EntityPlayer && curWeatherType != 0) {
+        if (entity1 instanceof EntityPlayer && conf.type != 0) {
         	//System.out.println("grab: " + f5);
         	if (entity1.onGround) {
         		f5 *= 10.5F;
@@ -1606,7 +1854,7 @@ public class StormObject {
         		f5 *= 5F;
         	}
         	//if (entity1.worldObj.rand.nextInt(2) == 0) entity1.onGround = false;
-        } else if (entity1 instanceof EntityLivingBase && curWeatherType != 0) {
+        } else if (entity1 instanceof EntityLivingBase && conf.type != 0) {
         	f5 *= 1.5F;
         }
 
@@ -1685,14 +1933,14 @@ public class StormObject {
 	    	
     	}
     	
-    	if (state == STATE_NORMAL) {
+    	if (levelCurIntensityStage == STATE_NORMAL) {
     		entityfx.setMaxAge(300 + rand.nextInt(100));
     	} else {
     		entityfx.setMaxAge((size/2) + rand.nextInt(100));
     	}
     	
 		//pieces that move down with funnel need render order shift, also only for relevant storm formations
-		if (entityfx.entityId % 20 < 5 && state >= STATE_SPINNING) {
+		if (entityfx.entityId % 20 < 5 && isSpinning()) {
 			entityfx.renderOrder = 3;
 			
 			entityfx.setMaxAge((size) + rand.nextInt(100));
@@ -1700,9 +1948,11 @@ public class StormObject {
     	
     	float randFloat = (rand.nextFloat() * 0.6F);
 		float baseBright = 0.7F;
-		if (state > STATE_NORMAL) {
+		if (levelCurIntensityStage > STATE_NORMAL) {
 			baseBright = 0.2F;
 		} else if (attrib_precipitation) {
+			baseBright = 0.2F;
+		} else if (manager.isVanillaRainActiveOnServer) {
 			baseBright = 0.2F;
 		} else {
 			float adj = Math.min(1F, levelWater / levelWaterStartRaining) * 0.6F;
@@ -1743,7 +1993,7 @@ public class StormObject {
 		isDead = true;
 		
 		//cleanup memory
-		if (manager.getWorld().isRemote) {
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT/*manager.getWorld().isRemote*/) {
 			cleanupClient();
 		}
 		
@@ -1752,7 +2002,7 @@ public class StormObject {
 	
 	public void cleanup() {
 		manager = null;
-		tornadoHelper.storm = null;
+		if (tornadoHelper != null) tornadoHelper.storm = null;
 		tornadoHelper = null;
 	}
 	
@@ -1779,4 +2029,92 @@ public class StormObject {
 		manager.getWorld().weatherEffects.add(parEnt);
 		((WeatherManagerServer)manager).syncLightningNew(parEnt);
 	}
+	
+	//notes moved to bottom\\
+	
+	//defaults are 0.5
+	
+	/*
+	
+	0.5  - ocean
+	0.5  - river
+	0.5  - sky (end)
+	
+	0.8  - plains
+	2.0  - desert
+	0.2  - extreme hills
+	0.7  - forest
+	0.05 - taiga
+	0.8  - swampland
+	2.0  - hell
+	
+	0.0  - frozen river
+	0.0  - frozen ocean
+	0.0  - ice plains
+	0.0  - ice mountains
+	0.2  - mushroom island
+	0.9  - mushroom island shore
+	
+	0.8  - beach
+	2.0  - desert hills
+	0.7  - forest hills
+	0.05 - taiga hills
+	0.2  - extreme hills edge
+	1.2  - jungle
+	1.2  - jungle hills
+	
+	
+	reorganized temperatures:
+	
+	0.0
+	---
+	frozen river
+	frozen ocean
+	ice plains
+	ice mountains
+	
+	0.05
+	---
+	taiga
+	taiga hills
+	
+	0.2
+	---
+	extreme hills
+	extreme hills edge
+	mushroom island
+	
+	0.5 (default val)
+	---
+	ocean
+	river
+	sky (end)
+	
+	0.7
+	---
+	forest
+	forest hills
+	
+	0.8
+	---
+	plains
+	swampland
+	beach (we might not have to ignore beach, value seems sane)
+	
+	0.9
+	---
+	mushroom island shore
+	
+	1.2
+	---
+	jungle
+	jungle hills
+	
+	2.0
+	---
+	desert
+	desert hills
+	hell
+	
+	*/
 }

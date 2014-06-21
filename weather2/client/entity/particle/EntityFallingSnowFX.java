@@ -125,7 +125,7 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
         	WeatherUtilParticle.rainPositions[i] = Vec3.createVectorHelper((rand.nextFloat() * range) - (range/2), (rand.nextFloat() * range/16) - (range/32), (rand.nextFloat() * range) - (range/2));
         }*/
         
-        int rainDrops = 10 + ((severityOfRainRate-1) * 10);
+        int rainDrops = 5 + ((Math.max(0, severityOfRainRate-1)) * 5);
         
         for (int i = 0; i < Math.min(rainDrops, WeatherUtilParticle.maxRainDrops); i++) {
 	        float var13 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)var2 - interpPosX);
@@ -169,6 +169,8 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
         this.lastTickPosY = this.posY;
         this.lastTickPosZ = this.posZ;
 
+        //System.out.println("this.worldObj.getHeightValue((int)Math.floor(posX), (int)Math.floor(posZ)): " + this.worldObj.getHeightValue((int)Math.floor(posX), (int)Math.floor(posZ)));
+        
         if (this.particleAge++ >= this.particleMaxAge || this.onGround || this.isInWater() || posY+this.motionY < this.worldObj.getHeightValue((int)Math.floor(posX), (int)Math.floor(posZ)))
         {
             this.setDead();

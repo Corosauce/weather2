@@ -38,12 +38,12 @@ public class WindManager {
 	//global
 	public float windAngleGlobal = 0;
 	public float windSpeedGlobal = 0;
-	public float windSpeedGlobalChangeRate = 0.1F;
+	public float windSpeedGlobalChangeRate = 0.05F;
 	public int windSpeedGlobalRandChangeTimer = 0;
 	public int windSpeedGlobalRandChangeDelay = 10;
 	
 	//generic?
-	public float windSpeedMin = 0.2F;
+	public float windSpeedMin = 0.01F;
 	public float windSpeedMax = 1F;
 	
 	//events - design derp, we're making this client side, so its set based on closest storm to the client side player
@@ -59,6 +59,11 @@ public class WindManager {
 	//public float directionBeforeGust = 0;
 	public int windGustEventTimeRand = 60;
 	public float chanceOfWindGustEvent = 0.5F;
+	
+	public int lowWindTimer = 0;
+	public int lowWindTimerEnableAmountBase = 20*60*2;
+	public int lowWindTimerEnableAmountRnd = 20*60*10;
+	public int lowWindOddsTo1 = 20*200;
 	
 	public WindManager(WeatherManagerBase parManager) {
 		manager = parManager;
@@ -83,7 +88,11 @@ public class WindManager {
 	}
 	
 	public float getWindSpeedForEvents() {
-		return windSpeedEvent;
+		if (windTimeEvent > 0) {
+			return windSpeedEvent;
+		} else {
+			return 0;
+		}
 	}
 	
 	public float getWindSpeedForGusts() {
@@ -141,6 +150,9 @@ public class WindManager {
 		//windAngleGlobal = 90;
 		//windSpeedMin = 0.2F;
 		//windAngleGlobal = 180;
+		//lowWindOddsTo1 = 20*200;
+		//lowWindTimer = 0;
+		//windSpeedGlobalChangeRate = 0.05F;
 		
 		if (!ConfigMisc.Misc_windOn) {
 			windSpeedGlobal = 0;
@@ -153,11 +165,29 @@ public class WindManager {
 				//WIND SPEED\\
 				
 				//global random wind speed change
-				if (windSpeedGlobalRandChangeTimer-- <= 0)
-	            {
-					windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate) - (windSpeedGlobalChangeRate / 2);
-					windSpeedGlobalRandChangeTimer = windSpeedGlobalRandChangeDelay;
-	            }
+				
+				if (ConfigMisc.Wind_NoWindEvents) {
+					lowWindTimer = 0;
+				}
+				
+				if (lowWindTimer <= 0) {
+					if (windSpeedGlobalRandChangeTimer-- <= 0)
+		            {
+						windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate) - (windSpeedGlobalChangeRate / 2);
+						windSpeedGlobalRandChangeTimer = windSpeedGlobalRandChangeDelay;
+		            }
+					if (!ConfigMisc.Wind_NoWindEvents) {
+						if (rand.nextInt(lowWindOddsTo1) == 0) {
+							lowWindTimer = lowWindTimerEnableAmountBase + rand.nextInt(lowWindTimerEnableAmountRnd);
+							Weather.dbg("no wind event, for ticks: " + lowWindTimer);
+						}
+					}
+				} else {
+					lowWindTimer--;
+					windSpeedGlobal -= 0.01F;
+				}
+				
+				
 				
 				//enforce mins and maxs of wind speed
 				if (windSpeedGlobal < windSpeedMin)
@@ -202,7 +232,7 @@ public class WindManager {
 	            float randGustWindFactor = 1F;
 				
 	            //gust data
-	            if (this.windTimeGust == 0)
+	            if (this.windTimeGust == 0 && lowWindTimer <= 0)
 	            {
 	                if (chanceOfWindGustEvent > 0F)
 	                {
@@ -251,9 +281,9 @@ public class WindManager {
 		//event data
 		if (entP != null) {
 	        if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
-	        	StormObject so = manager.getClosestStorm(Vec3.createVectorHelper(entP.posX, StormObject.layers.get(0), entP.posZ), 256, StormObject.ATTRIB_FORMINGTORNADO);
+	        	StormObject so = manager.getClosestStorm(Vec3.createVectorHelper(entP.posX, StormObject.layers.get(0), entP.posZ), 256, StormObject.STATE_HIGHWIND);
 	        	
-	        	//FIX SO IT DOESNT COUNT RAINSTORMS!
+	        	//FIX SO IT DOESNT COUNT RAINSTORMS! - i did?
 	        	if (so != null) {
 	        		
 	        		setWindTimeEvent(80);

@@ -21,6 +21,7 @@ import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilConfig;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -50,6 +51,7 @@ public class CommonProxy implements IGuiHandler
     	TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
     	
     	WeatherUtil.doBlockList();
+    	WeatherUtilConfig.processLists();
     	
     	addMapping(EntityIceBall.class, "Weather Hail", 0, 128, 5, true);
     	addMapping(EntityMovingBlock.class, "Moving Block", 1, 128, 5, true);

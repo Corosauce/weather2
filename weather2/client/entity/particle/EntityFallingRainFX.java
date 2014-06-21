@@ -114,7 +114,7 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
         
         var1.setColorRGBA_F(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, 0.5F);
         
-        int rainDrops = 5 + ((severityOfRainRate-1) * 10);
+        int rainDrops = 5 + ((Math.max(0, severityOfRainRate-1)) * 5);
         
         for (int i = 0; i < Math.min(rainDrops, WeatherUtilParticle.maxRainDrops); i++) {
 	        float var13 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)var2 - interpPosX);

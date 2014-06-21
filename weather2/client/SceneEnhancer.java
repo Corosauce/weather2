@@ -21,11 +21,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import weather2.ClientTickHandler;
 import weather2.Weather;
+import weather2.api.WindReader;
 import weather2.client.entity.particle.EntityFallingRainFX;
 import weather2.client.entity.particle.EntityFallingSnowFX;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilConfig;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilParticle;
 import weather2.util.WeatherUtilSound;
@@ -34,6 +36,7 @@ import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.OldUtil;
 import CoroUtil.api.weather.WindHandler;
+import CoroUtil.util.ChunkCoordinatesBlock;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -64,11 +67,18 @@ public class SceneEnhancer implements Runnable {
     public static long lastTickAmbient;
     
     //consider caching somehow without desyncing or overflowing
-    public static ArrayList<ChunkCoordinates> soundLocations = new ArrayList();
-    public static HashMap<ChunkCoordinates, Long> soundTimeLocations = new HashMap();
+    //WE USE 0 TO MARK WATER, 1 TO MARK LEAVES
+    public static ArrayList<ChunkCoordinatesBlock> soundLocations = new ArrayList();
+    public static HashMap<ChunkCoordinatesBlock, Long> soundTimeLocations = new HashMap();
     
-    public static float curRainStr = 0F;
-    public static float curRainStrTarget = 0F;
+    public static int SOUNDMARKER_WATER = 0;
+    public static int SOUNDMARKER_LEAVES = 1;
+    
+    public static float curPrecipStr = 0F;
+    public static float curPrecipStrTarget = 0F;
+    
+    public static float curOvercastStr = 0F;
+    public static float curOvercastStrTarget = 0F;
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -106,7 +116,7 @@ public class SceneEnhancer implements Runnable {
 			reset();
 		}
 		
-		if (mc.theWorld != null && mc.thePlayer != null) {
+		if (mc.theWorld != null && mc.thePlayer != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.theWorld.provider.dimensionId)) {
 			profileSurroundings();
 			tryAmbientSounds();
 		}
@@ -137,7 +147,7 @@ public class SceneEnhancer implements Runnable {
             //trim out distant sound locations, also update last time played
             for (int i = 0; i < soundLocations.size(); i++) {
             	
-            	ChunkCoordinates cCor = soundLocations.get(i);
+            	ChunkCoordinatesBlock cCor = soundLocations.get(i);
             	
             	if (Math.sqrt(cCor.getDistanceSquared(curX, curY, curZ)) > size) {
             		soundLocations.remove(i--);
@@ -148,7 +158,7 @@ public class SceneEnhancer implements Runnable {
 
                     Block block = Block.blocksList[id];
                     
-                    if (block == null || block.blockMaterial != Material.water) {
+                    if (block == null || (block.blockMaterial != Material.water && block.blockMaterial != Material.leaves)) {
                     	soundLocations.remove(i);
                 		soundTimeLocations.remove(cCor);
                     } else {
@@ -163,9 +173,31 @@ public class SceneEnhancer implements Runnable {
 	            		
 	            		//System.out.println(Math.sqrt(cCor.getDistanceSquared(curX, curY, curZ)));
 						if (lastPlayTime < System.currentTimeMillis()) {
-							soundTimeLocations.put(cCor, System.currentTimeMillis() + 2500 + rand.nextInt(50));
-							mc.sndManager.playSound(Weather.modID + ":waterfall", cCor.posX, cCor.posY, cCor.posZ, (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F));
-							//System.out.println("play waterfall at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ);
+							if (cCor.blockID == SOUNDMARKER_WATER) {
+								soundTimeLocations.put(cCor, System.currentTimeMillis() + 2500 + rand.nextInt(50));
+								mc.sndManager.playSound(Weather.modID + ":waterfall", cCor.posX, cCor.posY, cCor.posZ, (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F));
+								//System.out.println("play waterfall at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ);
+							} else if (cCor.blockID == SOUNDMARKER_LEAVES) {
+								
+									
+								float windSpeed = WindReader.getWindSpeed(mc.theWorld, Vec3.createVectorHelper(cCor.posX, cCor.posY, cCor.posZ), WindReader.WindType.EVENT);
+								if (windSpeed > 0.2F) {
+									soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
+									mc.sndManager.playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 4F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
+									//System.out.println("play leaves sound at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ + " - windSpeed: " + windSpeed);
+								} else {
+									windSpeed = WindReader.getWindSpeed(mc.theWorld, Vec3.createVectorHelper(cCor.posX, cCor.posY, cCor.posZ));
+									//if (windSpeed > 0.3F) {
+									if (mc.theWorld.rand.nextInt(15) == 0) {
+										soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
+										mc.sndManager.playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
+									}
+										//System.out.println("play leaves sound at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ + " - windSpeed: " + windSpeed);
+									//}
+								}
+									
+								
+							}
 							
 						} else {
 							//System.out.println("still waiting, diff: " + (lastPlayTime - System.currentTimeMillis()));
@@ -221,11 +253,24 @@ public class SceneEnhancer implements Runnable {
                                 		}
                         				
                         				if (!proxFail) {
-                        					soundLocations.add(new ChunkCoordinates(xx, bottomY, zz));
+                        					soundLocations.add(new ChunkCoordinatesBlock(xx, bottomY, zz, SOUNDMARKER_WATER, 0));
                         					//System.out.println("add waterfall");
                         				}
                         			}
                             	}
+                            } else if (ConfigMisc.volWindTreesScale > 0 && ((block.blockMaterial == Material.leaves))) {
+                            	boolean proxFail = false;
+                				for (int j = 0; j < soundLocations.size(); j++) {
+                        			if (Math.sqrt(soundLocations.get(j).getDistanceSquared(xx, yy, zz)) < 15) {
+                        				proxFail = true;
+                        				break;
+                        			}
+                        		}
+                				
+                				if (!proxFail) {
+                					soundLocations.add(new ChunkCoordinatesBlock(xx, yy, zz, SOUNDMARKER_LEAVES, 0));
+                					//System.out.println("add leaves sound location");
+                				}
                             }
                         }
                     }
@@ -267,15 +312,14 @@ public class SceneEnhancer implements Runnable {
 				Weather.dbg("curRainStr: " + curRainStr);
 			}*/
 			
-			/*if (curPrecipVal < 0) {
-				Weather.dbg("curPrecipVal: " + curPrecipVal);
-			}*/
+			//Weather.dbg("curPrecipVal: " + curPrecipVal * 100F);
+			
 			
 			int precipitationHeight = entP.worldObj.getPrecipitationHeight(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
 			
 			BiomeGenBase biomegenbase = entP.worldObj.getBiomeGenForCoords(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
 
-            if (/*true*/biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow())
+            if (true/* || biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow()*/)
             {
 			
 				float temperature = biomegenbase.getFloatTemperature();
@@ -287,8 +331,11 @@ public class SceneEnhancer implements Runnable {
 	            	//now absolute it for ez math
 	            	curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
 	            	
+	            	//Weather.dbg("precip: " + curPrecipVal);
+	            	
 	            	//rain
 					if (curPrecipVal > 0 && entP.worldObj.canLightningStrikeAt(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.boundingBox.minY), MathHelper.floor_double(entP.posZ))) {
+						
 						for (int i = 0; i < curPrecipVal * 20F; i++) {
 							int spawnAreaSize = 15;
 							EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
@@ -308,6 +355,7 @@ public class SceneEnhancer implements Runnable {
 	            	
 	            	//snow
 	            	if (curPrecipVal > 0) {
+	            		
 						for (int i = 0; i < curPrecipVal * 5F; i++) {
 							int spawnAreaSize = 50;
 							int spawnAbove = 10;
@@ -326,37 +374,67 @@ public class SceneEnhancer implements Runnable {
 		}
 	}
 	
-	//returns in negatives for snow now! closer to 0 = less of that effect
 	public static float getRainStrengthAndControlVisuals(EntityPlayer entP) {
+		return getRainStrengthAndControlVisuals(entP, false);
+	}
+	
+	//returns in negatives for snow now! closer to 0 = less of that effect
+	public static float getRainStrengthAndControlVisuals(EntityPlayer entP, boolean forOvercast) {
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		
 		double maxStormDist = 512 / 4 * 3;
 		Vec3 plPos = Vec3.createVectorHelper(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
-	    StormObject storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.ATTRIB_FORMINGTORNADO, true); 
-	    //System.out.println("storm found? " + storm != null);
+		StormObject storm = null;
+		
+		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
+		
+		if (forOvercast) {
+			//storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_THUNDER, true);
+		} else {
+			//storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
+			
+			/*if (storm != null) {
+				System.out.println("storm found? " + storm);
+				System.out.println("storm water: " + storm.levelWater);
+			}*/
+		}
+		
+	    
 	    
 	    boolean closeEnough = false;
 	    double stormDist = 9999;
 	    float tempAdj = 1F;
+
+    	float sizeToUse = 0;
+	    
+	    float overcastModeMinPrecip = 0.2F;
 	    
 	    //evaluate if storms size is big enough to over over player
 	    if (storm != null) {
+	    	
+	    	sizeToUse = storm.size;
+	    	//extend overcast effect, using x2 for now since we cant cancel sound and ground particles, originally was 4x, then 3x, change to that for 1.7 if lex made change
+	    	if (forOvercast) {
+	    		sizeToUse *= 1F;
+	    	}
+	    	
 	    	stormDist = storm.pos.distanceTo(plPos);
 	    	//System.out.println("storm dist: " + stormDist);
-	    	if (storm.size > stormDist) {
+	    	if (sizeToUse > stormDist) {
 	    		closeEnough = true;
 	    	}
 	    }
 	    
 	    if (closeEnough) {
+	    	
 		    
-		    double stormIntensity = (storm.size - stormDist) / storm.size;
+		    double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
 		    
 		    tempAdj = storm.levelTemperature > 0 ? 1F : -1F;
 		    
 		    //limit plain rain clouds to light intensity
-		    if (storm.attrib_tornado_severity == 0) {
+		    if (storm.levelCurIntensityStage == StormObject.STATE_NORMAL) {
 		    	if (stormIntensity > 0.3) stormIntensity = 0.3;
 		    }
 		    
@@ -367,23 +445,99 @@ public class SceneEnhancer implements Runnable {
 		    //System.out.println("intensity: " + stormIntensity);
 	    	mc.theWorld.getWorldInfo().setRaining(true);
 	    	mc.theWorld.getWorldInfo().setThundering(true);
-	    	curRainStrTarget = (float) stormIntensity;
+	    	if (forOvercast) {
+	    		curOvercastStrTarget = (float) stormIntensity;
+	    	} else {
+	    		curPrecipStrTarget = (float) stormIntensity;
+	    	}
 	    	//mc.theWorld.thunderingStrength = (float) stormIntensity;
 	    } else {
-	    	mc.theWorld.getWorldInfo().setRaining(false);
-	    	mc.theWorld.getWorldInfo().setThundering(false);
-	    	curRainStrTarget = 0;
+	    	if (!ConfigMisc.overcastMode) {
+		    	mc.theWorld.getWorldInfo().setRaining(false);
+		    	mc.theWorld.getWorldInfo().setThundering(false);
+		    	
+		    	if (forOvercast) {
+		    		curOvercastStrTarget = 0;
+		    	} else {
+		    		curPrecipStrTarget = 0;
+		    	}
+	    	} else {
+	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+	    			mc.theWorld.getWorldInfo().setRaining(true);
+			    	mc.theWorld.getWorldInfo().setThundering(true);
+			    	
+			    	if (forOvercast) {
+			    		curOvercastStrTarget = overcastModeMinPrecip;
+			    	} else {
+			    		curPrecipStrTarget = overcastModeMinPrecip;
+			    	}
+	    		} else {
+	    			if (forOvercast) {
+			    		curOvercastStrTarget = 0;
+			    	} else {
+			    		curPrecipStrTarget = 0;
+			    	}
+	    		}
+	    		
+	    		
+	    	}
+	    	
 	    	//mc.theWorld.setRainStrength(0);
 	    	//mc.theWorld.thunderingStrength = 0;
 	    }
 	    
-	    if (curRainStr > curRainStrTarget) {
-	    	curRainStr -= 0.001F;
-	    } else if (curRainStr < curRainStrTarget) {
-	    	curRainStr += 0.001F;
+	    if (forOvercast) {
+	    	
+	    	/*if (ConfigMisc.overcastMode) {
+	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+	    			if (curOvercastStrTarget < overcastModeMinPrecip) {
+	    				curOvercastStrTarget = overcastModeMinPrecip;
+	    			}
+	    		}
+	    	}*/
+	    	
+	    	//mc.theWorld.setRainStrength(curOvercastStr);
+	    	
+	    	if (curOvercastStr > curOvercastStrTarget) {
+	    		curOvercastStr -= 0.001F;
+		    } else if (curOvercastStr < curOvercastStrTarget) {
+		    	curOvercastStr += 0.001F;
+		    }
+	    	
+	    	if (curOvercastStr < 0.0001 && curOvercastStr > -0.0001F) {
+	    		curOvercastStr = 0;
+	    	}
+	    	
+	    	return curOvercastStr * tempAdj;
+	    } else {
+	    	
+	    	/*if (ConfigMisc.overcastMode) {
+	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+	    			if (curPrecipStrTarget < overcastModeMinPrecip) {
+	    				curPrecipStrTarget = overcastModeMinPrecip;
+	    			}
+	    		}
+	    	}*/
+	    	
+	    	//mc.theWorld.setRainStrength(curPrecipStr);
+	    	
+	    	if (curPrecipStr > curPrecipStrTarget) {
+		    	curPrecipStr -= 0.001F;
+		    } else if (curPrecipStr < curPrecipStrTarget) {
+		    	curPrecipStr += 0.001F;
+		    }
+	    	
+	    	if (curPrecipStr < 0.0001 && curPrecipStr > -0.0001F) {
+	    		curPrecipStr = 0;
+	    	}
+	    	
+	    	//Weather.dbg("curPrecipStr: " + curPrecipStr);
+	    	
+	    	return curPrecipStr * tempAdj;
 	    }
 	    
-	    return curRainStr * tempAdj;
+	    
+	    
 	}
 	
 	public synchronized void tryParticleSpawning()

@@ -10,6 +10,7 @@ public class SoundLoader {
 		
 		//registerSound(event.manager, WeatherMod.modID + ":tornado/destruction.ogg");
 		registerSound(event.manager, Weather.modID + ":waterfall.ogg");
+		registerSound(event.manager, Weather.modID + ":wind_calmfade.ogg");
 		registerStreaming(event.manager, Weather.modID + ":tornado/destruction_0_.ogg");
 		registerStreaming(event.manager, Weather.modID + ":tornado/destruction_1_.ogg");
 		registerStreaming(event.manager, Weather.modID + ":tornado/destruction_2_.ogg");

@@ -1,5 +1,7 @@
 package weather2;
 
+import java.util.List;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,7 +22,7 @@ public class CommandWeather2 extends CommandBase {
 	@Override
 	public void processCommand(ICommandSender var1, String[] var2) {
 		
-		String helpMsgStorm = "Syntax: storm create <rain/thunder/hail/F1>... example: storm create F1";
+		String helpMsgStorm = "Syntax: storm create <rain/thunder/wind/hail/F0/F1/F2/F3/F4/F5/C0/C1/C2/C3/C4/C5/hurricane> <Optional: alwaysProgress>... example: storm create F1 alwaysProgress ... eg2: storm killall";
 		
 		try {
 			if(var1 instanceof EntityPlayerMP)
@@ -45,104 +47,105 @@ public class CommandWeather2 extends CommandBase {
 						}
 					}
 				} else if (var2[0].equals("storm")) {
-					if (var2[1].equals("create")) {
+					if (var2[1].equalsIgnoreCase("killAll")) {
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
+						var1.sendChatToPlayer(new ChatMessageComponent().addText("killing all storms"));
+						List<StormObject> listStorms = wm.getStormObjects();
+						for (int i = 0; i < listStorms.size(); i++) {
+							StormObject so = listStorms.get(i);
+							Weather.dbg("force killing storm ID: " + so.ID);
+							so.setDead();
+							/*wm.syncStormRemove(so);
+							wm.removeStormObject(so.ID);
+							*/
+						}
+					} else if (var2[1].equals("create")) {
 						if (var2.length > 2) {
-							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(0);
+							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
 							StormObject so = new StormObject(wm);
 							so.layer = 0;
 							so.userSpawnedFor = player.username;
 							so.naturallySpawned = false;
 							so.levelTemperature = 0.1F;
 							so.pos = Vec3.createVectorHelper(player.posX, StormObject.layers.get(so.layer), player.posZ);
-							if (var2[2].equals("rain")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-							} else if (var2[2].equalsIgnoreCase("thunder")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 1.9F;
-								so.levelStormIntensityCur = 1F;
-							} else if (var2[2].equalsIgnoreCase("hail")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 3.9F;
-								so.levelStormIntensityCur = 3F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_HAIL;
-							} else if (var2[2].equalsIgnoreCase("F5")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 9.9F;
-								so.levelStormIntensityCur = 5F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_SPINNING;
-								
-								so.initRealStorm(null, null);
-							} else if (var2[2].equalsIgnoreCase("F4")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 8.9F;
-								so.levelStormIntensityCur = 5F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_SPINNING;
-								
-								so.initRealStorm(null, null);
-							} else if (var2[2].equalsIgnoreCase("F3")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 7.9F;
-								so.levelStormIntensityCur = 5F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_SPINNING;
-								
-								so.initRealStorm(null, null);
-							} else if (var2[2].equalsIgnoreCase("F2")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 6.9F;
-								so.levelStormIntensityCur = 5F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_SPINNING;
-								
-								so.initRealStorm(null, null);
-							} else if (var2[2].equalsIgnoreCase("F1")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 5.9F;
-								so.levelStormIntensityCur = 5F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_SPINNING;
-								
-								so.initRealStorm(null, null);
-							} else if (var2[2].equalsIgnoreCase("full")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 10F;
-								so.levelStormIntensityCur = 0F;
-								//so.attrib_rain = true;
-								so.state = StormObject.STATE_NORMAL;
-								
-								so.initRealStorm(null, null);
-							} else if (var2[2].equalsIgnoreCase("test")) {
-								so.levelWater = so.levelWaterStartRaining * 2;
-								so.isRealStorm = true;
-								so.levelStormIntensityMax = 10F;
-								so.levelStormIntensityCur = 4F;
-								so.attrib_precipitation = true;
-								so.state = StormObject.STATE_NORMAL;
-								
+
+							so.levelWater = so.levelWaterStartRaining * 2;
+							so.attrib_precipitation = true;
+							
+							if (!var2[2].equals("rain")) {
 								so.initRealStorm(null, null);
 							}
+							
+							if (var2[2].equals("rain")) {
+								
+							} else if (var2[2].equalsIgnoreCase("thunder") || var2[2].equalsIgnoreCase("lightning")) {
+								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
+							} else if (var2[2].equalsIgnoreCase("wind")) {
+								so.levelCurIntensityStage = StormObject.STATE_HIGHWIND;
+							} else if (var2[2].equalsIgnoreCase("hail")) {
+								so.levelCurIntensityStage = StormObject.STATE_HAIL;
+							} else if (var2[2].equalsIgnoreCase("F5")) {
+								so.levelCurIntensityStage = StormObject.STATE_STAGE5;
+							} else if (var2[2].equalsIgnoreCase("F4")) {
+								so.levelCurIntensityStage = StormObject.STATE_STAGE4;
+							} else if (var2[2].equalsIgnoreCase("F3")) {
+								so.levelCurIntensityStage = StormObject.STATE_STAGE3;
+							} else if (var2[2].equalsIgnoreCase("F2")) {
+								so.levelCurIntensityStage = StormObject.STATE_STAGE2;
+							} else if (var2[2].equalsIgnoreCase("F1")) {
+								so.levelCurIntensityStage = StormObject.STATE_STAGE1;
+							} else if (var2[2].equalsIgnoreCase("F0")) {
+								so.levelCurIntensityStage = StormObject.STATE_FORMING;
+							} else if (var2[2].equalsIgnoreCase("C0")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_FORMING;
+							} else if (var2[2].equalsIgnoreCase("C1")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_STAGE1;
+							} else if (var2[2].equalsIgnoreCase("C2")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_STAGE2;
+							} else if (var2[2].equalsIgnoreCase("C3")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_STAGE3;
+							} else if (var2[2].equalsIgnoreCase("C4")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_STAGE4;
+							} else if (var2[2].equalsIgnoreCase("C5") || var2[2].equalsIgnoreCase("hurricane")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_STAGE5;
+							} else if (var2[2].equalsIgnoreCase("hurricane")) {
+								so.stormType = StormObject.TYPE_WATER;
+								so.levelCurIntensityStage = StormObject.STATE_STAGE5;
+							} else if (var2[2].equalsIgnoreCase("full")) {
+								//needs code to somehow guarantee it will build to max stage
+								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
+								so.alwaysProgresses = true;
+							} else if (var2[2].equalsIgnoreCase("test")) {
+								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
+							}
+							
+							if (var2.length > 3) {
+								if (var2[3].contains("Progress") || var2[3].contains("progress")) {
+									so.alwaysProgresses = true;
+								}
+							}
+							
 							so.initFirstTime();
 							wm.addStormObject(so);
 							wm.syncStormNew(so);
 							
-							var1.sendChatToPlayer(new ChatMessageComponent().addText("storm created"));
+							var1.sendChatToPlayer(new ChatMessageComponent().addText("storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : "")));
 						} else {
 							var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
 						}
 					} else if (var2[1].equals("help")) {
 						var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
+					} else {
+						var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
 					}
+				} else {
+					var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
 				}
 			}
 		} catch (Exception ex) {

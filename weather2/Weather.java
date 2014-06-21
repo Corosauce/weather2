@@ -5,6 +5,7 @@ import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import weather2.config.ConfigMisc;
 import weather2.player.PlayerData;
+import weather2.util.WeatherUtilConfig;
 import CoroUtil.util.CoroUtilFile;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -18,7 +19,7 @@ import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-@NetworkMod(channels = { "WeatherData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
+@NetworkMod(channels = { "WeatherData", "EZGuiData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
 @Mod(modid = "weather2", name="weather2", version="v2.2.0")
 public class Weather {
 	
@@ -40,6 +41,7 @@ public class Weather {
     public void preInit(FMLPreInitializationEvent event)
     {
     	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
+    	WeatherUtilConfig.nbtLoadDataAll();
     }
     
     @Init
@@ -88,6 +90,10 @@ public class Weather {
     	try {
     		ServerTickHandler.lookupDimToWeatherMan.get(0).writeToFile();
     		PlayerData.writeAllPlayerNBT(unloadInstances);
+    		//doesnt cover all needs, client connected to server needs this called from gui close too
+    		//maybe dont call this from here so client connected to server doesnt override what a client wants his 'server' settings to be in his singleplayer world
+    		//factoring in we dont do per world settings for this
+    		//WeatherUtilConfig.nbtSaveDataAll();
     	} catch (Exception ex) {
     		ex.printStackTrace();
     	}

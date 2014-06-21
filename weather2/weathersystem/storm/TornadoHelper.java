@@ -48,6 +48,25 @@ public class TornadoHelper {
 		storm = parStorm;
 	}
 	
+	public int getTornadoBaseSize() {
+        int sizeChange = 10;
+		if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE5) {
+        	return sizeChange * 7;
+        } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE4) {
+        	return sizeChange * 6;
+        } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE3) {
+        	return sizeChange * 5;
+        } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE2) {
+        	return sizeChange * 4;
+        } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE1) {
+        	return sizeChange * 3;
+        } else if (storm.levelCurIntensityStage >= StormObject.STATE_FORMING) {
+        	return sizeChange * 1;
+        } else {
+        	return 5;
+        }
+	}
+	
 	public void tick(World parWorld) {
 		boolean seesLight = false;
         tickGrabCount = 0;
@@ -58,24 +77,13 @@ public class TornadoHelper {
         //startDissipate();
         
         //tornado profile changing from storm data
-        int sizeChange = 10;
-        if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F5) {
-        	tornadoBaseSize = sizeChange * 5;
-        } else if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F4) {
-        	tornadoBaseSize = sizeChange * 4;
-        } else if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F3) {
-        	tornadoBaseSize = sizeChange * 3;
-        } else if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F2) {
-        	tornadoBaseSize = sizeChange * 2;
-        } else if (storm.attrib_tornado_severity >= StormObject.ATTRIB_F1) {
-        	tornadoBaseSize = sizeChange * 1;
-        } else {
-        	tornadoBaseSize = 5;
-        }
+        tornadoBaseSize = getTornadoBaseSize();
         
-        if (parWorld.isRemote) {
+        //Weather.dbg("getTornadoBaseSize: " + tornadoBaseSize + " - " + storm.levelCurIntensityStage);
+        
+        /*if (parWorld.isRemote) {
         	soundUpdates();
-        }
+        }*/
         
         forceRotate(parWorld);
         
@@ -487,7 +495,7 @@ public class TornadoHelper {
     }
     
     @SideOnly(Side.CLIENT)
-    public void soundUpdates()
+    public void soundUpdates(boolean playFarSound, boolean playNearSound)
     {
     	
     	Minecraft mc = FMLClientHandler.instance().getClient();
@@ -538,12 +546,12 @@ public class TornadoHelper {
 
         if (distToPlayer < far)
         {
-            tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.thePlayer, volScaleFar);
+            if (playFarSound) tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.thePlayer, volScaleFar);
             //tryPlaySound(snd_dmg_close[0], 0);
             //tryPlaySound(snd_dmg_close[0], 0);
-            tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.thePlayer, volScaleClose);
+            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.thePlayer, volScaleClose);
 
-            if (storm.attrib_tornado_severity >= storm.ATTRIB_F1/*getStorm().type == getStorm().TYPE_TORNADO*/)
+            if (storm.levelCurIntensityStage >= storm.STATE_FORMING/*getStorm().type == getStorm().TYPE_TORNADO*/)
             {
                 tryPlaySound(WeatherUtilSound.snd_dmg_close, 0, mc.thePlayer, volScaleClose);
             }

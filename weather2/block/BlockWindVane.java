@@ -14,7 +14,7 @@ public class BlockWindVane extends BlockContainer
 {
     public BlockWindVane(int var1)
     {
-        super(var1, Material.clay);
+        super(var1, Material.circuits);
     	setBlockBounds(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
     }
     

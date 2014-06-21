@@ -7,6 +7,7 @@ import java.util.HashMap;
 import combat.RPGMod;
 
 import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 
@@ -102,7 +103,7 @@ public class ServerTickHandler implements ITickHandler
         	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.dimensionId)) {
         		
         		//temp overworld only! - not so temp anymore?
-        		if (worlds[i].provider.dimensionId  == 0) {
+        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.dimensionId)) {
         			addWorldToWeather(worlds[i].provider.dimensionId);
         		}
         	}

@@ -1,6 +1,7 @@
 package weather2.client.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,22 +13,30 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+
 import weather2.Weather;
 import weather2.client.gui.elements.GuiButtonBoolean;
+import weather2.client.gui.elements.GuiButtonCycle;
+import weather2.util.WeatherUtilConfig;
 
 import CoroUtil.packet.PacketHelper;
 
 public class GuiEZConfig extends GuiScreen {
 
-	//TileEntitySession tEnt;
+	//slightly different from ZC subgui with its main gui, this one we shouldnt need to show the main gui, just auto select first subgui, Performance
+	//treat the subguis as tabs, clicking one auto saves data from that opened gui and switches to the tab they clicked, save & close always visible and always closes gui
 	
-	//see paper notes for most of design, random extras here
-	//game state: NONE/LOBBY/ACTIVE
+	//given that all buttons dont exist at same time, we have to build nbtSendCache as pieces of it come in, and sync as much of it as we can
+	//this will REQUIRE server side to check if a tag exists before applying it
+	
+	//populate 
 	
 	public int xCenter;
 	public int yCenter;
@@ -41,12 +50,12 @@ public class GuiEZConfig extends GuiScreen {
     
     public ResourceLocation resGUI = new ResourceLocation(Weather.modID + ":textures/gui/gui512.png");
     
-    public String guiCur = "main";
-	public String guiPrev = "";
+    public String guiCur = GUI_SUBGUI_PERFORMANCE;
+	//public String guiPrev = "";
 	
 	//Elements
-	public HashMap<String, GuiButton> buttonsLookup = new HashMap<String, GuiButton>();
-	public HashMap<Integer, String> buttonsLookupInt = new HashMap<Integer, String>();
+	public HashMap<Integer, GuiButton> buttonsLookup = new HashMap<Integer, GuiButton>();
+	//public HashMap<Integer, String> buttonsLookupInt = new HashMap<Integer, String>(); //shouldnt need, just use const button ids -> button
 	//public GuiTextField textboxWorldName;
 	public NBTTagCompound nbtSendCache = new NBTTagCompound();
 	
@@ -54,15 +63,17 @@ public class GuiEZConfig extends GuiScreen {
 	public static int CMD_CLOSE = 0;
 	
 	//subguis
-	public static int CMD_SUBGUI_WAVE = 40;
-	public static int CMD_SUBGUI_ITEMS = 41;
-	public static String GUI_SUBGUI_WAVE = "wave";
-	public static String GUI_SUBGUI_ITEMS = "items";
+	public static int CMD_SUBGUI_PERFORMANCE = 40;
+	public static int CMD_SUBGUI_COMPATIBILITY = 41;
+	public static int CMD_SUBGUI_PREFERENCE = 42;
+	public static int CMD_SUBGUI_DIMENSIONS = 43;
+	public static String GUI_SUBGUI_PERFORMANCE = "Performance";
+	public static String GUI_SUBGUI_COMPATIBILITY = "Compatibility";
+	public static String GUI_SUBGUI_PREFERENCE = "Preference";
+	public static String GUI_SUBGUI_DIMENSIONS = "Dimensions";
 	
 	//other elements
-	public static int CMD_BOOL_CUSTOMLIGHTING = 2;
-	public static int CMD_BOOL_CUSTOMTIME = 3;
-	public static int CMD_BOOL_SHOWSKY = 4;
+	//see WeatherUtilConfig for button id entries
 	
 	//public static String BOOL_CUSTOMLIGHTING = "ya";
 	
@@ -73,23 +84,44 @@ public class GuiEZConfig extends GuiScreen {
 
     /** The Y size of the inventory window in pixels. */
     protected int ySize = 166;
+    
+    public boolean canPlayerChangeServerSettings = false;
 	
 	public GuiEZConfig () {
 		super();
-		nbtSendCache.setCompoundTag("mapData", new NBTTagCompound());
+
+		Weather.dbg("EZGUI constructor");
+		
+		if (MinecraftServer.getServer().isSinglePlayer()) {
+			canPlayerChangeServerSettings = true;
+		}
+		
+		//only sync request on initial gui open
+        NBTTagCompound data = new NBTTagCompound();
+        data.setString("command", "syncRequest");
+        PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("EZGuiData", data));
+		
+        //prep send cache
+		nbtSendCache.setCompoundTag("guiData", new NBTTagCompound());
+	}
+	
+	@Override
+	public boolean doesGuiPauseGame() {
+		return false;
 	}
 	
 	@Override
 	public void onGuiClosed() {
-		// TODO Auto-generated method stub
 		super.onGuiClosed();
+		
+		WeatherUtilConfig.processNBTToModConfigClient();
 		//a fix for container using gui opening on client side that doesnt need slot manip - might not have been needed, below was doing initGui on main gui close
-		Minecraft.getMinecraft().thePlayer.openContainer = Minecraft.getMinecraft().thePlayer.inventoryContainer;
+		//Minecraft.getMinecraft().thePlayer.openContainer = Minecraft.getMinecraft().thePlayer.inventoryContainer;
 	}
 	
-	public void addButton(String lookupName, GuiButton btn) {
-		buttonsLookup.put(lookupName, btn);
-		buttonsLookupInt.put(btn.id, lookupName);
+	public void addButton(GuiButton btn) {
+		buttonsLookup.put(btn.id, btn);
+		//buttonsLookupInt.put(, lookupName);
 		buttonList.add(btn);
 	}
 	
@@ -101,7 +133,7 @@ public class GuiEZConfig extends GuiScreen {
 	public void resetGuiElements() {
 		buttonList.clear();
 		buttonsLookup.clear();
-		buttonsLookupInt.clear();
+		//buttonsLookupInt.clear();
 		/*textBoxes.clear();
 		textBoxesLookup.clear();*/
 	}
@@ -119,55 +151,45 @@ public class GuiEZConfig extends GuiScreen {
 			textBoxes.get(i).drawTextBox();
 		}*/
 		
-		int yEleSize = 20;
+		int yEleSize = 24;
 		
-		this.drawString(this.fontRenderer, "ZC Level Configuration" + (guiCur.equals("main") ? "" : " - SubGUI: " + guiCur), xStart+7, yStart-9, 16777215);
+		this.drawString(this.fontRenderer, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
 		
-		if (guiCur.equals("main")) {
-			String vals = "";
-			World world = Minecraft.getMinecraft().theWorld;
-			if (world != null) {
-				for (int i = 0; i < 16; i++) {
-					try {
-						vals += (i != 0 ? "," : "") + String.valueOf(world.provider.lightBrightnessTable[i]).substring(0, 3);
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-			this.drawString(this.fontRenderer, "Custom Lighting", xStart+7, yStart+8, 16777215);
+		int yStart2 = yStart + 34;
+		
+		int xOP = 260;
+		String op = "For OP/Singleplayer";
+		
+		//this.drawString(this.fontRenderer, "Server vals = OPs only", xStart+260, yStart+12, 16777215);
+		
+		this.drawString(this.fontRenderer, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
+		
+		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
+			this.drawString(this.fontRenderer, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, "Nature effects", xStart+7, yStart2+8+yEleSize*1, 16777215);
+		} else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
+			this.drawString(this.fontRenderer, "Storms when", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, "Lock vanilla weather", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, "Particle precipitation", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRenderer, "Extra snowfall blocks", xStart+7, yStart2+8+yEleSize*3, 16777215);
+
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
+		} else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
+			this.drawString(this.fontRenderer, "Rate of storms per each player", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, "Chance of rain", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, "Block destruction", xStart+7, yStart2+8+yEleSize*2, 16777215);
 			
-			//this.drawString(this.fontRenderer, "Current Vals 0-15: " + vals, xStart+5, yStart+6+40, 16777215);
-			
-			this.drawString(this.fontRenderer, "Lock sky: ", xStart+7, yStart+8+yEleSize*2, 16777215);
-			
-			//subguis
-			//this.drawString(this.fontRenderer, "Wave ", xStart+7, yStart+8+130, 16777215);
-		} else if (guiCur.equals("wave")) {
-			
-			int x2 = 90;
-			int x3 = 180;
-			int x4 = 270;
-			
-			this.drawString(this.fontRenderer, "Default Mob", xStart+7, yStart+8, 16777215);
-			
-			this.drawString(this.fontRenderer, "Starting count", xStart+7, yStart+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRenderer, "Count multiplier", xStart+7+x2, yStart+8+yEleSize*2, 16777215);
-			
-			this.drawString(this.fontRenderer, "Starting health", xStart+7, yStart+8+yEleSize*4, 16777215);
-			this.drawString(this.fontRenderer, "Health multiplier", xStart+7+x2, yStart+8+yEleSize*4, 16777215);
-			
-			this.drawString(this.fontRenderer, "Starting speed", xStart+7, yStart+8+yEleSize*6, 16777215);
-			this.drawString(this.fontRenderer, "Random speed", xStart+7+x2, yStart+8+yEleSize*6, 16777215);
-			this.drawString(this.fontRenderer, "Speed multiplier", xStart+7+x3, yStart+8+yEleSize*6, 16777215);
-			this.drawString(this.fontRenderer, "Speed max", xStart+7+x4, yStart+8+yEleSize*6, 16777215);
-			
-			this.drawString(this.fontRenderer, "Move Lead Dist", xStart+7, yStart+8+yEleSize*8, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*2, 16777215);
 		}
 	}
 	
 	@Override
 	public void drawScreen(int par1, int par2, float par3) {
+		drawBackground(0);
 		super.drawScreen(par1, par2, par3);
 	}
 	
@@ -181,7 +203,7 @@ public class GuiEZConfig extends GuiScreen {
 				gtf.textboxKeyTyped(par1, par2);
 				String newVal = gtf.getText();
 				//SET YOUR NBT STUFF HERE!!!! DATA IS LOST ONCE THEY HIT BACK!
-				nbtSendCache.getCompoundTag("mapData").setString(gtf.name, newVal);
+				nbtSendCache.getCompoundTag("guiData").setString(gtf.name, newVal);
 			}
 		}*/
 	}
@@ -203,14 +225,71 @@ public class GuiEZConfig extends GuiScreen {
 			textBoxes.get(i).updateCursorCounter();
 		}*/
 		
+		if (WeatherUtilConfig.nbtClientCache.getBoolean("markUpdated")) {
+			Weather.dbg("EZGUI client markUpdated detected");
+			WeatherUtilConfig.nbtClientCache.setBoolean("markUpdated", false);
+			updateGuiElements();
+		}
+		
+		if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
+			if (((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_STORM)).getIndex() == 1) {
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).enabled = false;
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).setIndex(2);
+			} else {
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).enabled = true;
+			}
+		}
+		
 		/*if (LevelConfig.nbtInfoClientMapConfig.getBoolean("markUpdated")) {
 			LevelConfig.nbtInfoClientMapConfig.setBoolean("markUpdated", false);
 			updateGuiElements();
 		}*/
 	}
 	
+	/*public NBTTagCompound nbtConvertGUIDataToNBT() {
+		NBTTagCompound data = new NBTTagCompound();
+		
+		return data;
+	}*/
+	
 	public void updateGuiElements() {
-		//System.out.println("updateGuiElements");
+		System.out.println("updateGuiElements");
+		
+		canPlayerChangeServerSettings = WeatherUtilConfig.nbtClientCache.getBoolean("isPlayerOP");
+		
+		NBTTagCompound serverDataCache = WeatherUtilConfig.nbtClientCache.getCompoundTag("data");
+		
+		if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
+			//Weather.dbg("WeatherUtilConfig.nbtClientCache: " + serverDataCache);
+			//Weather.dbg("test val check: " + serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_STORM));
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_COMP_STORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_STORM)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_STORM));
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_COMP_LOCK)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_LOCK));
+			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_COMP_PARTICLEPRECIP)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_PARTICLEPRECIP)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_PARTICLEPRECIP));
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS));
+			
+			if (!canPlayerChangeServerSettings) {
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_STORM)).enabled = false;
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).enabled = false;
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS)).enabled = false;
+			}
+			
+		} else if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
+			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_STORM)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM));
+			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_NATURE)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_NATURE));
+		} else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM));
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN));
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION));
+			
+			if (!canPlayerChangeServerSettings) {
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)).enabled = false;
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).enabled = false;
+				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).enabled = false;
+			}
+		}
+		
+		
+		
 		/*if (guiCur.equals("main")) {
 			//custom lighting
 			((GuiButtonBoolean)buttonsLookup.get(LevelConfig.nbtStrCustomLightingUse)).setBoolean(LevelConfig.nbtInfoClientMapConfig.getBoolean(LevelConfig.nbtStrCustomLightingUse));
@@ -260,16 +339,39 @@ public class GuiEZConfig extends GuiScreen {
         int yStartPadded = yStart + guiPadding - 1;
         
         int btnWidth = 80;
+        int btnWidthAndPadding = 84;
         int btnWidthBool = 50;
         int btnHeight = 20;
         int btnHeightAndPadding = 24;
         int padding = 1;
         int btnSpacing = 22;
         
+        int xStartPadded2 = xStartPadded + 168;
+        int yStartPadded2 = yStartPadded + 30;
+        
+        addButton(new GuiSmallButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
+        
+        addButton(new GuiButton(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
+        addButton(new GuiButton(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
+        addButton(new GuiButton(CMD_SUBGUI_PREFERENCE, xStartPadded+btnWidthAndPadding*2, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PREFERENCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PREFERENCE));
+        addButton(new GuiButton(CMD_SUBGUI_DIMENSIONS, xStartPadded+btnWidthAndPadding*3, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_DIMENSIONS) ? "\u00A7" + '2' : "") + GUI_SUBGUI_DIMENSIONS));
+        
+        if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 0));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_NATURE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
+        } else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_STORMSWHEN, 0));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_LOCK, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_LOCK, 1));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_PARTICLEPRECIP, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_SNOWFALLBLOCKS, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*3, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 0));
+        } else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_CHANCE, 3));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
+        }
+        
         if (guiCur.equals("main")) {
-        	addButton("close", new GuiSmallButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
-        } else {
-        	addButton("close", new GuiSmallButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Back"));
+	        
         }
         
         /*if (guiCur.equals("main")) {
@@ -296,9 +398,10 @@ public class GuiEZConfig extends GuiScreen {
         	addTextBox(LevelConfig.nbtStrWaveMoveLeadDist, new GuiTextFieldZC(LevelConfig.nbtStrWaveMoveLeadDist, this.fontRenderer, xStartPadded, yStartPadded+btnHeight*9-8, 60, 20));
         }*/
         
-        //NBTTagCompound data = new NBTTagCompound();
-        nbtSendCache.setBoolean("sync", true);
-        PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("MapConfig", nbtSendCache));
+        //used to request sync here, but it now must be on initial gui open, so to not lose previous cache
+        
+        //this sets our 'defaults' that the server provides
+        //what about the client ones though?!?!?!?!?
         updateGuiElements();
     }
 	
@@ -311,15 +414,33 @@ public class GuiEZConfig extends GuiScreen {
 		//current plan is to only send packet on gui close, covers all bases?
 		//- due to subguis... element data might get lost..... but no...... its put in nbt send cache, so thats ok now?
 		
-		if (var1 instanceof GuiButtonBoolean) {
-        	((GuiButtonBoolean) var1).setBooleanToggle();
-            nbtSendCache.getCompoundTag("mapData").setBoolean(buttonsLookupInt.get(var1.id), ((GuiButtonBoolean) var1).getBoolean());
-        }
+		if (WeatherUtilConfig.listSettingsServer.contains(var1.id)) {
+			if (var1 instanceof GuiButtonBoolean) {
+	        	((GuiButtonBoolean) var1).setBooleanToggle();
+	            nbtSendCache.getCompoundTag("guiData").setInteger("btn_" + var1.id, ((GuiButtonBoolean) var1).getBoolean() ? 1 : 0);
+	        }
+			
+			if (var1 instanceof GuiButtonCycle) {
+	        	((GuiButtonCycle) var1).cycleIndex();
+	            nbtSendCache.getCompoundTag("guiData").setInteger("btn_" + var1.id, ((GuiButtonCycle) var1).getIndex());
+	        }
+		} else if (WeatherUtilConfig.listSettingsClient.contains(var1.id)) {
+			if (var1 instanceof GuiButtonCycle) {
+	        	((GuiButtonCycle) var1).cycleIndex();
+	        	WeatherUtilConfig.nbtClientData.setInteger("btn_" + var1.id, ((GuiButtonCycle) var1).getIndex());
+	        }
+		}
 		
-		if (var1.id == CMD_SUBGUI_WAVE/* || */) {
-        	guiPrev = guiCur;
-        	if (var1.id == CMD_SUBGUI_WAVE) {
-        		guiCur = GUI_SUBGUI_WAVE;
+		if (var1.id == CMD_SUBGUI_PERFORMANCE || var1.id == CMD_SUBGUI_COMPATIBILITY || var1.id == CMD_SUBGUI_PREFERENCE || var1.id == CMD_SUBGUI_DIMENSIONS) {
+        	//guiPrev = guiCur;
+        	if (var1.id == CMD_SUBGUI_PERFORMANCE) {
+        		guiCur = GUI_SUBGUI_PERFORMANCE;
+        	} else if (var1.id == CMD_SUBGUI_COMPATIBILITY) {
+        		guiCur = GUI_SUBGUI_COMPATIBILITY;
+        	} else if (var1.id == CMD_SUBGUI_PREFERENCE) {
+        		guiCur = GUI_SUBGUI_PREFERENCE;
+        	} else if (var1.id == CMD_SUBGUI_DIMENSIONS) {
+        		guiCur = GUI_SUBGUI_DIMENSIONS;
         	}
         	initGui();
         } else {
@@ -327,14 +448,16 @@ public class GuiEZConfig extends GuiScreen {
         }
         
         if (var1.id == CMD_CLOSE) {
-        	if (guiCur.equals("main")) {
+        	sendPacket = true;
+        	mc.thePlayer.closeScreen();
+        	/*if (guiCur.equals("main")) {
         		sendPacket = true;
         		//mc.displayGuiScreen(null);
         		mc.thePlayer.closeScreen();
-        	} else if (guiCur.equals(GUI_SUBGUI_WAVE)/* || */) {
+        	} else if (guiCur.equals(GUI_SUBGUI_PERFORMANCE) || guiCur.equals(GUI_SUBGUI_COMPATIBILITY) || guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
         		guiCur = guiPrev;
         		initGui();
-            }
+            }*/
         	
         }
         
@@ -343,9 +466,10 @@ public class GuiEZConfig extends GuiScreen {
     		//String username = "";
             //if (mc.thePlayer != null) username = mc.thePlayer.username;
             //nbtSendCache.setString("username", username); //irrelevant, overriden server side for safety
-            nbtSendCache.setInteger("cmdID", var1.id);
-            nbtSendCache.setString("guiCur", guiForPacket);
-        	PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("MapConfig", nbtSendCache));
+        	nbtSendCache.setString("command", "applySettings");
+            //nbtSendCache.setInteger("cmdID", var1.id);
+            //nbtSendCache.setString("guiCur", guiForPacket);
+        	PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("EZGuiData", nbtSendCache));
         }
     }
 	

@@ -67,7 +67,8 @@ public class TileEntityWeatherMachine extends TileEntity
     					so.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
     					so.layer = 0;
     					so.userSpawnedFor = "" + xCoord + yCoord + zCoord;
-    					
+    					so.canSnowFromCloudTemperature = true;
+    					so.naturallySpawned = false;
     					
     					
     					manager.addStormObject(so);

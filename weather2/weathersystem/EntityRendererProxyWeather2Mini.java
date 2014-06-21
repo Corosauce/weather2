@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import weather2.ClientTickHandler;
+import weather2.Weather;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
@@ -77,7 +78,7 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     protected void renderRainSnow(float par1)
     {
     	
-    	boolean overrideOn = ConfigMisc.Misc_proxyRenderOverrideEnabled && ConfigMisc.Misc_takeControlOfGlobalRain;
+    	boolean overrideOn = ConfigMisc.Misc_proxyRenderOverrideEnabled/* && ConfigMisc.Misc_takeControlOfGlobalRain*/;
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);
@@ -88,14 +89,22 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     		EntityPlayer entP = mc.thePlayer;
     		if (entP != null) {
     			//convert to absolute (positive) value for old effects
-    			float curRainStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP));
+    			float curRainStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP, true));
 
     			//convert to abs for snow being rain
     			curRainStr = Math.abs(curRainStr);
     			
-		    	mc.theWorld.setRainStrength(curRainStr);
+    			//Weather.dbg("curRainStr: " + curRainStr);
+    			
+    			//if (!ConfigMisc.overcastMode) {
+    				mc.theWorld.setRainStrength(curRainStr);
+    			//}
+		    	
+		    	//TEMP
+		    	//mc.theWorld.setRainStrength(0.5F);
     		}
     		
+    		//note, the overcast effect change will effect vanilla non particle rain distance too, particle rain for life!
     		if (!ConfigMisc.Particle_RainSnow) {
     			super.renderRainSnow(par1);
     		}

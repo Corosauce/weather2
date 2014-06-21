@@ -42,6 +42,9 @@ public class WeatherManagerBase {
 	//wind
 	public WindManager windMan = new WindManager(this);
 	
+	//for client only
+	public boolean isVanillaRainActiveOnServer = false;
+	
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
 		lookupStormObjectsByLayer.put(0, new ArrayList<StormObject>());
@@ -86,8 +89,15 @@ public class WeatherManagerBase {
 		World world = getWorld();
 		if (world != null) {
 			//tick storms
-			for (int i = 0; i < getStormObjects().size(); i++) {
-				getStormObjects().get(i).tick();
+			List<StormObject> list = getStormObjects();
+			for (int i = 0; i < list.size(); i++) {
+				StormObject so = list.get(i);
+				if (this instanceof WeatherManagerServer && so.isDead) {
+					((WeatherManagerServer)this).syncStormRemove(so);
+					removeStormObject(so.ID);
+				} else {
+					so.tick();
+				}
 			}
 						
 			//tick volcanos
@@ -97,6 +107,16 @@ public class WeatherManagerBase {
 
 			//tick wind
 			windMan.tick();
+		}
+	}
+	
+	public void tickRender(float partialTick) {
+		World world = getWorld();
+		if (world != null) {
+			//tick storms
+			for (int i = 0; i < getStormObjects().size(); i++) {
+				getStormObjects().get(i).tickRender(partialTick);
+			}
 		}
 	}
 	
@@ -171,12 +191,13 @@ public class WeatherManagerBase {
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			StormObject storm = getStormObjects().get(i);
+			if (storm.isDead) continue;
 			double dist = storm.pos.distanceTo(parPos);
 			/*if (getWorld().isRemote) {
 				System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
 			}*/
 			if (dist < closestDist && dist <= maxDist) {
-				if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.attrib_tornado_severity >= severityFlagMin)) {
+				if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
 					closestStorm = storm;
 					closestDist = dist;
 				}

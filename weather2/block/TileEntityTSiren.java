@@ -36,7 +36,7 @@ public class TileEntityTSiren extends TileEntity
     	
     	if (this.lastPlayTime < System.currentTimeMillis())
         {
-    		StormObject so = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(xCoord, yCoord, zCoord), ConfigMisc.sirenActivateDistance, StormObject.ATTRIB_FORMINGTORNADO);
+    		StormObject so = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(xCoord, yCoord, zCoord), ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
 
             if (so != null)
             {

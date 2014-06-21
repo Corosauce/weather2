@@ -12,6 +12,7 @@ import weather2.Weather;
 import weather2.WeatherPacketHelper;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityLightningBolt;
+import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
@@ -41,22 +42,36 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		
 		if (world != null) {
 			
-			//move to config
-			boolean forceWeatherOverride = ConfigMisc.Misc_takeControlOfGlobalRain;
+			if (!ConfigMisc.overcastMode) {
+				if (ConfigMisc.lockServerWeatherMode != -1) {
+					world.getWorldInfo().setRaining(ConfigMisc.lockServerWeatherMode == 1);
+			    	world.getWorldInfo().setThundering(ConfigMisc.lockServerWeatherMode == 1);
+				}
+			}
 			
-			if (forceWeatherOverride) {
-				world.getWorldInfo().setRaining(false);
-		    	world.getWorldInfo().setThundering(false);
+			if (ConfigMisc.preventServerThunderstorms) {
+				world.getWorldInfo().setThundering(false);
+			}
+			
+			//if (ConfigMisc.overcastMode) {
+				if (world.getTotalWorldTime() % 400 == 0) {
+					isVanillaRainActiveOnServer = getWorld().isRaining();
+					syncWeatherVanilla();
+				}
+			//}
+			
+			if (world.getTotalWorldTime() % 400 == 0) {
+				//Weather.dbg("for dim: " + world.provider.dimensionId + " - is server dimension raining?: " + world.isRaining() + " time: " + world.getWorldInfo().getRainTime());
 			}
 			
 			//sync storms
 			
-				for (int i = 0; i < getStormObjects().size(); i++) {
-					StormObject so = getStormObjects().get(i);
-					if (world.getTotalWorldTime() % ((so.attrib_tornado_severity > 0 || so.state >= StormObject.STATE_SPINNING) ? 2 : 40) == 0) {
-						syncStormUpdate(so);
-					}
+			for (int i = 0; i < getStormObjects().size(); i++) {
+				StormObject so = getStormObjects().get(i);
+				if (world.getTotalWorldTime() % ((so.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) ? 2 : 40) == 0) {
+					syncStormUpdate(so);
 				}
+			}
 			
 			
 			//sync volcanos
@@ -75,11 +90,12 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			getVolcanoObjects().clear();
 			
 			//sim box work
-			if (world.getTotalWorldTime() % 20 == 0) {
+			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.dimensionId) && world.getTotalWorldTime() % 20 == 0) {
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					StormObject so = getStormObjects().get(i);
 					EntityPlayer closestPlayer = world.getClosestPlayer(so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
 					
+					//isDead check is done in WeatherManagerBase
 					if (closestPlayer == null) {
 						syncStormRemove(so);
 						removeStormObject(so.ID);
@@ -94,13 +110,17 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					
 					//Weather.dbg("getStormObjects().size(): " + getStormObjects().size());
 					
-					if (getStormObjects().size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
+					if (getStormObjectsByLayer(0).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (rand.nextInt(5) == 0) {
 							trySpawnNearPlayerForLayer(entP, 0);
 						}
-						/*if (rand.nextInt(5) == 0) {
-							trySpawnNearPlayerForLayer(entP, 1);
-						}*/
+					}
+					if (getStormObjectsByLayer(1).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
+						if (ConfigMisc.Cloud_Layer1_Enable) {
+							if (rand.nextInt(5) == 0) {
+								trySpawnNearPlayerForLayer(entP, 1);
+							}
+						}
 					}
 				}
 			}
@@ -244,6 +264,14 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncVolcanoRemove(VolcanoObject parStorm) {
 		
+	}
+	
+	public void syncWeatherVanilla() {
+		
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("command", "syncWeatherUpdate");
+		data.setBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
+		PacketDispatcher.sendPacketToAllInDimension(WeatherPacketHelper.createPacketForServerToClientSerialization("WeatherData", data), getWorld().provider.dimensionId);
 	}
 	
 }

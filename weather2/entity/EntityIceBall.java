@@ -2,7 +2,6 @@ package weather2.entity;
 
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
@@ -15,9 +14,6 @@ import CoroUtil.componentAI.ICoroAI;
 import CoroUtil.entity.EntityThrowableUsefull;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import extendedrenderer.particle.ParticleRegistry;
-import extendedrenderer.particle.behavior.ParticleBehaviors;
-import extendedrenderer.particle.entity.EntityRotFX;
 
 public class EntityIceBall extends EntityThrowableUsefull implements IWindHandler
 {
@@ -188,6 +184,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		
 		
 		if (!worldObj.isRemote) {
+			worldObj.playSoundEffect(posX, posY, posZ, "step.stone", 3F, 5F);//0.2F + worldObj.rand.nextFloat() * 0.1F);
 			setDead();
 			//System.out.println("server: " + posX);
 		} else {
@@ -217,7 +214,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 
 	@Override
 	public float getWindWeight() {
-		return 400;
+		return 4;
 	}
 
 	@Override

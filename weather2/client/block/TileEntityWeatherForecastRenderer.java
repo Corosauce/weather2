@@ -40,21 +40,44 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.worldObj, pos, WindReader.WindType.DOMINANT);
     	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.worldObj, pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
     	
+    	String progression = "";
+    	
     	if (so != null) {
-    		if (so.attrib_tornado_severity >= StormObject.ATTRIB_F5 + 1) {
+    		
+    		progression = "Growing ";
+    		if (so.hasStormPeaked) {
+    			progression = "Dying ";
+    		}
+    		
+    		if (so.levelCurIntensityStage >= StormObject.STATE_STAGE5 + 1) {
     			descSeverity = "????";
-    		} else if (so.attrib_tornado_severity >= StormObject.ATTRIB_F5) {
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_STAGE5) {
     			descSeverity = "F5 Tornado";
-    		} else if (so.attrib_tornado_severity >= StormObject.ATTRIB_F4) {
+    			if (so.stormType == StormObject.TYPE_WATER) descSeverity = "Hurricane";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_STAGE4) {
     			descSeverity = "F4 Tornado";
-    		} else if (so.attrib_tornado_severity >= StormObject.ATTRIB_F3) {
+    			if (so.stormType == StormObject.TYPE_WATER) descSeverity = "Tropical Cyclone Stage 4";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_STAGE3) {
     			descSeverity = "F3 Tornado";
-    		} else if (so.attrib_tornado_severity >= StormObject.ATTRIB_F2) {
+    			if (so.stormType == StormObject.TYPE_WATER) descSeverity = "Tropical Cyclone Stage 3";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_STAGE2) {
     			descSeverity = "F2 Tornado";
-    		} else if (so.attrib_tornado_severity >= StormObject.ATTRIB_F1) {
+    			if (so.stormType == StormObject.TYPE_WATER) descSeverity = "Tropical Cyclone Stage 2";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_STAGE1) {
     			descSeverity = "F1 Tornado";
-    		} else if (so.attrib_tornado_severity >= StormObject.ATTRIB_FORMINGTORNADO) {
-    			descSeverity = "Forming Tornado";
+    			if (so.stormType == StormObject.TYPE_WATER) descSeverity = "Tropical Cyclone Stage 1";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_FORMING) {
+    			descSeverity = "Sign of Tornado";
+    			if (so.stormType == StormObject.TYPE_WATER) descSeverity = "Sign of Tropical Cyclone";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_HAIL) {
+    			descSeverity = "Hailstorm";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
+    			descSeverity = "High wind";
+    		} else if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
+    			descSeverity = "Thunderstorm";
+    		} else if (so.attrib_precipitation) {
+    			descSeverity = "Rainstorm";
+    			progression = "";
     		}
     		
     		Vec3 posXZ = Vec3.createVectorHelper(tEnt.xCoord, so.pos.yCoord, tEnt.zCoord);
@@ -62,11 +85,15 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     		descDist = "" + (int)posXZ.distanceTo(so.pos);
     	}
     	
-    	renderLivingLabel("closest storm type: " + descSeverity, var2, var4 + 2F - 0.1F, var6, 1, RenderManager.instance.playerViewY);
-    	renderLivingLabel("closest storm dist: " + descDist, var2, var4 + 2F - 0.2F, var6, 1, RenderManager.instance.playerViewY);
-    	renderLivingLabel(descWindAngleCloud, var2, var4 + 2F - 0.3F, var6, 1, RenderManager.instance.playerViewY);
-    	renderLivingLabel(descWindAngle, var2, var4 + 2F - 0.4F, var6, 1, RenderManager.instance.playerViewY);
-    	renderLivingLabel(descWindSpeed, var2, var4 + 2F - 0.5F, var6, 1, RenderManager.instance.playerViewY);
+    	int index = 1;
+    	
+    	renderLivingLabel("closest storm type: " + progression + descSeverity, var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
+    	renderLivingLabel("closest storm dist: " + descDist, var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
+    	if (so != null) renderLivingLabel("closest storm intensity: " + ((int)(so.levelCurStagesIntensity * 100F) / 100F), var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
+    	if (so != null) renderLivingLabel("closest storm water level: " + (so.attrib_precipitation ? so.levelWater : 0), var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
+    	renderLivingLabel(descWindAngleCloud, var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
+    	renderLivingLabel(descWindAngle, var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
+    	renderLivingLabel(descWindSpeed, var2, var4 + 2F - 0.1F * index++, var6, 1, RenderManager.instance.playerViewY);
     	
     }
     

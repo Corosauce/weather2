@@ -132,6 +132,13 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			ent.rotationPitch = 0.0F;
 			ent.entityId = nbt.getInteger("entityID");
 			getWorld().addWeatherEffect(ent);
+		} else if (command.equals("syncWeatherUpdate")) {
+			//Weather.dbg("updating client side wind");
+			
+			//NBTTagCompound nbt = parNBT.getCompoundTag("data");
+			isVanillaRainActiveOnServer = parNBT.getBoolean("isVanillaRainActiveOnServer");
+			
+			//windMan.nbtSyncFromServer(nbt);
 		}
 	}
 	
