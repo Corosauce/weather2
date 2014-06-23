@@ -95,12 +95,40 @@ public class WeatherManagerBase {
 			for (int i = 0; i < list.size(); i++) {
 				StormObject so = list.get(i);
 				if (this instanceof WeatherManagerServer && so.isDead) {
-					((WeatherManagerServer)this).syncStormRemove(so);
 					removeStormObject(so.ID);
+					((WeatherManagerServer)this).syncStormRemove(so);
 				} else {
-					//not sure why i need null manager check, it should be marked dead before thats null..... ugh
-					if (!so.isDead/* && so.manager != null*/) {
-						so.tick();
+					
+					if (this instanceof WeatherManagerClient && so.ticksSinceLastPacketReceived > 20*60) {
+						Weather.dbg("WARNING!!! - detected no packets received in last 60 seconds for storm ID: " + so.ID + " this is an ongoing bug, force removing storm on client side");
+						removeStormObject(so.ID);
+						
+						//if it failed still
+						if (!so.isDead) {
+							for (int ii = 0; ii < listStormObjects.size(); ii++) {
+								StormObject so2 = listStormObjects.get(ii);
+								if (so2 == so) {
+									Weather.dbg("second attempt removal via list iteration");
+									so2.setDead();
+									listStormObjects.remove(so2);
+									lookupStormObjectsByID.remove(so2.ID);
+									lookupStormObjectsByLayer.get(so2.layer).remove(so2);
+								}	
+							}
+							
+						}
+					} else {
+					
+						if (!so.isDead) {
+							so.tick();
+						} else {
+							if (this instanceof WeatherManagerClient) {
+								Weather.dbg("WARNING!!! - detected isDead storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly removed via main channels");
+								removeStormObject(so.ID);
+							}
+							//Weather.dbg("client storm is dead and still in list, bug?");
+						}
+						
 					}
 				}
 			}
@@ -152,7 +180,7 @@ public class WeatherManagerBase {
 			lookupStormObjectsByID.remove(ID);
 			lookupStormObjectsByLayer.get(so.layer).remove(so);
 		} else {
-			Weather.dbg("error looking up storm ID on server: " + ID + " - lookup count: " + lookupStormObjectsByID.size() + " - last used ID: " + StormObject.lastUsedStormID);
+			Weather.dbg("error looking up storm ID on server for removal: " + ID + " - lookup count: " + lookupStormObjectsByID.size() + " - last used ID: " + StormObject.lastUsedStormID);
 		}
 	}
 	
@@ -210,6 +238,21 @@ public class WeatherManagerBase {
 		}
 		
 		return closestStorm;
+	}
+	
+	public List<StormObject> getStormsAround(Vec3 parPos, double maxDist) {
+		List<StormObject> storms = new ArrayList<StormObject>();
+		
+		for (int i = 0; i < getStormObjects().size(); i++) {
+			StormObject storm = getStormObjects().get(i);
+			if (storm.isDead) continue;
+			
+			if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
+				storms.add(storm);
+			}
+		}
+		
+		return storms;
 	}
 	
 	public void writeToFile() {

@@ -97,8 +97,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					
 					//isDead check is done in WeatherManagerBase
 					if (closestPlayer == null) {
-						syncStormRemove(so);
 						removeStormObject(so.ID);
+						syncStormRemove(so);
 					}
 				}
 
@@ -234,6 +234,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("command", "syncStormRemove");
 		data.setCompoundTag("data", parStorm.nbtSyncForClient());
+		//fix for client having broken states
+		data.getCompoundTag("data").setBoolean("isDead", true);
 		PacketDispatcher.sendPacketToAllInDimension(WeatherPacketHelper.createPacketForServerToClientSerialization("WeatherData", data), getWorld().provider.dimensionId);
 	}
 	

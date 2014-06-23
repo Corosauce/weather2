@@ -44,7 +44,7 @@ public class RenderFlyingBlock extends Render
         
         int age = var1.ticksExisted * 5;
         
-        float size = 0.7F;// - (age * 0.03F);
+        float size = 0.3F;// - (age * 0.03F);
         
         if (size < 0) size = 0;
         

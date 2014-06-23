@@ -166,7 +166,7 @@ public class WindManager {
 				
 				//global random wind speed change
 				
-				if (ConfigMisc.Wind_NoWindEvents) {
+				if (!ConfigMisc.Wind_NoWindEvents) {
 					lowWindTimer = 0;
 				}
 				
@@ -176,7 +176,7 @@ public class WindManager {
 						windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate) - (windSpeedGlobalChangeRate / 2);
 						windSpeedGlobalRandChangeTimer = windSpeedGlobalRandChangeDelay;
 		            }
-					if (!ConfigMisc.Wind_NoWindEvents) {
+					if (ConfigMisc.Wind_NoWindEvents) {
 						if (rand.nextInt(lowWindOddsTo1) == 0) {
 							lowWindTimer = lowWindTimerEnableAmountBase + rand.nextInt(lowWindTimerEnableAmountRnd);
 							Weather.dbg("no wind event, for ticks: " + lowWindTimer);

@@ -172,6 +172,9 @@ public class StormObject {
     
     @SideOnly(Side.CLIENT)
     public RenderCubeCloud renderBlock;
+    
+    //there is an issue with rainstorms sometimes never going away, this is a patch to mend the underlying issue i cant find yet
+    public long ticksSinceLastPacketReceived = 0;
 	
 	public StormObject(WeatherManagerBase parManager) {
 		manager = parManager;
@@ -288,6 +291,8 @@ public class StormObject {
 		//overCastModeAndRaining = parNBT.getBoolean("overCastModeAndRaining");
 		
 		isDead = parNBT.getBoolean("isDead");
+		
+		ticksSinceLastPacketReceived = 0;//manager.getWorld().getTotalWorldTime();
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -353,6 +358,9 @@ public class StormObject {
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (side == Side.CLIENT) {
 			if (!WeatherUtil.isPaused()) {
+				
+				ticksSinceLastPacketReceived++;
+				
 				if (layer == 0) {
 					tickClient();
 				}
@@ -1008,7 +1016,7 @@ public class StormObject {
 					
 					levelCurStagesIntensity += levelStormIntensityRate;
 					
-					if (levelCurIntensityStage < maxIntensityStage) {
+					if (levelCurIntensityStage < maxIntensityStage && (!ConfigMisc.Storm_NoTornadosOrCyclones || levelCurIntensityStage < STATE_FORMING-1)) {
 						if (levelCurStagesIntensity >= minIntensityToProgress) {
 							//Weather.dbg("storm ID: " + this.ID + " trying to hit next stage");
 							if (alwaysProgresses || rand.nextInt(oddsTo1OfIntensityProgression) == 0) {
@@ -1135,6 +1143,7 @@ public class StormObject {
 		if (stormToAbsorb != null) {
 			Weather.dbg("stormfront collision happened between ID " + this.ID + " and " + stormToAbsorb.ID);
 			manager.removeStormObject(stormToAbsorb.ID);
+			((WeatherManagerServer)manager).syncStormRemove(stormToAbsorb);
 		} else {
 			Weather.dbg("ocean storm happened, ID " + this.ID);
 		}

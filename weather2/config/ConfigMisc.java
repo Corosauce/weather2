@@ -45,6 +45,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Storm_Tornado_RefinedGrabRules = true;
 	public static boolean Storm_Tornado_aimAtPlayerOnSpawn = true;
 	public static int Storm_Tornado_aimAtPlayerAngleVariance = 5;
+	public static boolean Storm_NoTornadosOrCyclones = false;
 	
 	//storm
 	public static boolean Storm_FlyingBlocksHurt = true;
@@ -67,6 +68,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Storm_OddsTo1OfProgressionBase = 15;
 	public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
 	public static int Storm_ParticleSpawnDelay = 0;
+	
 	
 	//per player storm settings
 	public static int Player_Storm_Deadly_OddsTo1 = 30;
@@ -117,6 +119,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Block_weatherForecastID = 1903;
 	public static int Block_weatherMachineID = 1904;
 	public static int Block_weatherDeflectorID = 1905;
+	public static boolean Block_WeatherMachineNoTornadosOrCyclones = false;
 	
 	//dimension settings
 	public static String Dimension_List_Weather = "0,-127";

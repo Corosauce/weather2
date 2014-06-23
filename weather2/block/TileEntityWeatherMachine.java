@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import weather2.ServerTickHandler;
+import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 
@@ -41,6 +42,26 @@ public class TileEntityWeatherMachine extends TileEntity
 		if (weatherType > 3) {
 			weatherType = 1; //skip snow
 		}
+		if (ConfigMisc.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
+			//only one option, force to 1
+			weatherType = 1;
+		}
+	}
+	
+	@Override
+	public void invalidate() {
+		super.invalidate();
+		
+		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.dimensionId);
+		if (wm != null) {
+    		//StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
+    		
+    		if (lastTickStormObject != null) {
+			
+				wm.removeStormObject(lastTickStormObject.ID);
+    			wm.syncStormRemove(lastTickStormObject);
+			}
+    	}
 	}
 	
     public void updateEntity()

@@ -1,20 +1,13 @@
 package weather2.block;
 
-import weather2.ClientTickHandler;
-import weather2.Weather;
-import weather2.api.WindReader;
-import weather2.config.ConfigMisc;
-import weather2.util.WeatherUtilSound;
-import weather2.weathersystem.storm.StormObject;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import weather2.ClientTickHandler;
+import weather2.weathersystem.storm.StormObject;
 
 public class TileEntityWeatherForecast extends TileEntity
 {
@@ -31,12 +24,16 @@ public class TileEntityWeatherForecast extends TileEntity
 	public float smoothSpeedAdj = 0.1F;
 	
 	public StormObject lastTickStormObject = null;
+	
+	public List<StormObject> storms = new ArrayList<StormObject>();
 
     public void updateEntity()
     {
     	if (worldObj.isRemote) {
-    		if (worldObj.getTotalWorldTime() % 40 == 0) {
+    		if (worldObj.getTotalWorldTime() % 200 == 0) {
     			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), 1024, StormObject.STATE_THUNDER, true);
+    			
+    			storms = ClientTickHandler.weatherManager.getStormsAround(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), 1024);
     		}
     	}
     }

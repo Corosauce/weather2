@@ -3,6 +3,7 @@ package weather2;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Icon;
 import net.minecraftforge.common.MinecraftForge;
 import weather2.block.TileEntityTSiren;
 import weather2.block.TileEntityWeatherDeflector;
@@ -32,6 +33,12 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ClientProxy extends CommonProxy
 {
 
+	public static Icon radarIconRain;
+	public static Icon radarIconLightning;
+	public static Icon radarIconWind;
+	public static Icon radarIconHail;
+	public static Icon radarIconTornado;
+	public static Icon radarIconCyclone;
 	
     public ClientProxy()
     {
