@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import weather2.ClientTickHandler;
+import weather2.map.MapHandler;
 import weather2.weathersystem.storm.StormObject;
 
 public class TileEntityWeatherForecast extends TileEntity
@@ -26,6 +27,8 @@ public class TileEntityWeatherForecast extends TileEntity
 	public StormObject lastTickStormObject = null;
 	
 	public List<StormObject> storms = new ArrayList<StormObject>();
+	
+	public MapHandler mapHandler;
 
     public void updateEntity()
     {
@@ -35,6 +38,11 @@ public class TileEntityWeatherForecast extends TileEntity
     			
     			storms = ClientTickHandler.weatherManager.getStormsAround(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), 1024);
     		}
+    	} else {
+    		/*if (mapHandler == null) {
+    			mapHandler = new MapHandler(this);
+    		}
+    		mapHandler.tick();*/
     	}
     }
 

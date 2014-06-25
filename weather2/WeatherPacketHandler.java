@@ -58,6 +58,8 @@ public class WeatherPacketHandler implements IPacketHandler
 		        		sendNBT.setBoolean("markUpdated", true);
 		        		sendNBT.setBoolean("isPlayerOP", MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(((EntityPlayer)player).username));
 		        		sendNBT.setCompoundTag("data", WeatherUtilConfig.nbtServerData);
+		        		sendNBT.setCompoundTag("dimListing", WeatherUtilConfig.createNBTDimensionListing());
+		        		
 		        		PacketDispatcher.sendPacketToPlayer(WeatherPacketHelper.createPacketForServerToClientSerialization("EZGuiData", sendNBT), player);
 		        	} else if (command.equals("applySettings")) {
 		        		if (MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(((EntityPlayer)player).username)) {

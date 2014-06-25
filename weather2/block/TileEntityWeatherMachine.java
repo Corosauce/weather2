@@ -39,12 +39,12 @@ public class TileEntityWeatherMachine extends TileEntity
 
 	public void cycleWeatherType() {
 		weatherType++;
-		if (weatherType > 3) {
-			weatherType = 1; //skip snow
-		}
+		int maxID = 6;
 		if (ConfigMisc.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
-			//only one option, force to 1
-			weatherType = 1;
+			maxID = 4;
+		}
+		if (weatherType > maxID) {
+			weatherType = 1; //skip snow
 		}
 	}
 	
@@ -119,17 +119,24 @@ public class TileEntityWeatherMachine extends TileEntity
 				//defaults
 				lastTickStormObject.levelCurIntensityStage = StormObject.STATE_NORMAL;
 				lastTickStormObject.stormType = StormObject.TYPE_LAND;
+				lastTickStormObject.levelTemperature = 40;
 				
 				if (weatherType == 0) {
 					lastTickStormObject.levelTemperature = -40;
 				} else if (weatherType == 1) {
-					lastTickStormObject.levelTemperature = 40;
 				} else if (weatherType == 2) {
-					lastTickStormObject.levelTemperature = 40;
+					lastTickStormObject.stormType = StormObject.TYPE_LAND;
+					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_THUNDER;
+				} else if (weatherType == 3) {
+					lastTickStormObject.stormType = StormObject.TYPE_LAND;
+					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_HIGHWIND;
+				} else if (weatherType == 4) {
+					lastTickStormObject.stormType = StormObject.TYPE_LAND;
+					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_HAIL;
+				} else if (weatherType == 5) {
 					lastTickStormObject.stormType = StormObject.TYPE_LAND;
 					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
-				} else if (weatherType == 3) {
-					lastTickStormObject.levelTemperature = 40;
+				} else if (weatherType == 6) {
 					lastTickStormObject.stormType = StormObject.TYPE_WATER;
 					lastTickStormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
 				}
@@ -140,11 +147,13 @@ public class TileEntityWeatherMachine extends TileEntity
     public void writeToNBT(NBTTagCompound var1)
     {
         super.writeToNBT(var1);
+        var1.setInteger("weatherType", weatherType);
     }
 
     public void readFromNBT(NBTTagCompound var1)
     {
         super.readFromNBT(var1);
+        weatherType = var1.getInteger("weatherType");
 
     }
 }

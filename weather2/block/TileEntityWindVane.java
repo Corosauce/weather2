@@ -4,6 +4,7 @@ import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.api.WindReader;
 import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
 import weather2.weathersystem.storm.StormObject;
 import net.minecraft.client.Minecraft;
@@ -30,51 +31,60 @@ public class TileEntityWindVane extends TileEntity
 	
 	public float smoothAngleAdj = 0.1F;
 	public float smoothSpeedAdj = 0.1F;
+	
+	public boolean isOutsideCached = false;
 
     public void updateEntity()
     {
     	if (worldObj.isRemote) {
-    		//x1 * y2 - y1 * x2 cross product to get optimal turn angle, errr i have angle and target angle, not positions...
     		
-    		//smoothAngle = 0;
-    		//smoothAngleRotationalVel = 0;
-    		//smoothAngleRotationalVelAccel = 0;
+    		if (worldObj.getTotalWorldTime() % 40 == 0) {
+    			isOutsideCached = WeatherUtilEntity.isPosOutside(worldObj, Vec3.createVectorHelper(xCoord+0.5F, yCoord+0.5F, zCoord+0.5F));
+    		}
     		
-    		float targetAngle = WindReader.getWindAngle(worldObj, Vec3.createVectorHelper(xCoord, yCoord, zCoord));
-    		float windSpeed = WindReader.getWindSpeed(worldObj, Vec3.createVectorHelper(xCoord, yCoord, zCoord));
-    		
-    		//System.out.println("targetAngle: " + targetAngle);
-    		
-    		if (smoothAngle > 180) smoothAngle-=360;
-    		if (smoothAngle < -180) smoothAngle+=360;
-    		
-    		float bestMove = MathHelper.wrapAngleTo180_float(targetAngle - smoothAngle);
-    		
-    		float diff = ((targetAngle + 360 + 180) - (smoothAngle + 360 + 180));
-    		
-    		smoothAngleAdj = windSpeed;//0.2F;
-    		
-    		if (Math.abs(bestMove) < 180/* - (angleAdjust * 2)*/) {
-    			float realAdj = smoothAngleAdj;//Math.max(smoothAngleAdj, Math.abs(bestMove));
-    			
-    			if (realAdj * 2 > windSpeed) {
-	    			if (bestMove > 0) smoothAngleRotationalVelAccel -= realAdj;
-	    			if (bestMove < 0) smoothAngleRotationalVelAccel += realAdj;
-    			}
-    			
-    			if (smoothAngleRotationalVelAccel > 0.3 || smoothAngleRotationalVelAccel < -0.3) {
-    				smoothAngle += smoothAngleRotationalVelAccel;
-    			} else {
-    				//smoothAngleRotationalVelAccel *= 0.9F;
-    			}
-    			
-    			//smoothAngle += smoothAngleRotationalVelAccel;
-    			
-    			smoothAngleRotationalVelAccel *= 0.80F;
-    			
-    			//System.out.println("diff: " + diff);
-    			
-    			//System.out.println("smoothAngle: " + smoothAngle + " - smoothAngleRotationalVel: " + smoothAngleRotationalVel + " - smoothAngleRotationalVelAccel: " + smoothAngleRotationalVelAccel);
+    		if (isOutsideCached) {
+	    		//x1 * y2 - y1 * x2 cross product to get optimal turn angle, errr i have angle and target angle, not positions...
+	    		
+	    		//smoothAngle = 0;
+	    		//smoothAngleRotationalVel = 0;
+	    		//smoothAngleRotationalVelAccel = 0;
+	    		
+	    		float targetAngle = WindReader.getWindAngle(worldObj, Vec3.createVectorHelper(xCoord, yCoord, zCoord));
+	    		float windSpeed = WindReader.getWindSpeed(worldObj, Vec3.createVectorHelper(xCoord, yCoord, zCoord));
+	    		
+	    		//System.out.println("targetAngle: " + targetAngle);
+	    		
+	    		if (smoothAngle > 180) smoothAngle-=360;
+	    		if (smoothAngle < -180) smoothAngle+=360;
+	    		
+	    		float bestMove = MathHelper.wrapAngleTo180_float(targetAngle - smoothAngle);
+	    		
+	    		float diff = ((targetAngle + 360 + 180) - (smoothAngle + 360 + 180));
+	    		
+	    		smoothAngleAdj = windSpeed;//0.2F;
+	    		
+	    		if (Math.abs(bestMove) < 180/* - (angleAdjust * 2)*/) {
+	    			float realAdj = smoothAngleAdj;//Math.max(smoothAngleAdj, Math.abs(bestMove));
+	    			
+	    			if (realAdj * 2 > windSpeed) {
+		    			if (bestMove > 0) smoothAngleRotationalVelAccel -= realAdj;
+		    			if (bestMove < 0) smoothAngleRotationalVelAccel += realAdj;
+	    			}
+	    			
+	    			if (smoothAngleRotationalVelAccel > 0.3 || smoothAngleRotationalVelAccel < -0.3) {
+	    				smoothAngle += smoothAngleRotationalVelAccel;
+	    			} else {
+	    				//smoothAngleRotationalVelAccel *= 0.9F;
+	    			}
+	    			
+	    			//smoothAngle += smoothAngleRotationalVelAccel;
+	    			
+	    			smoothAngleRotationalVelAccel *= 0.80F;
+	    			
+	    			//System.out.println("diff: " + diff);
+	    			
+	    			//System.out.println("smoothAngle: " + smoothAngle + " - smoothAngleRotationalVel: " + smoothAngleRotationalVel + " - smoothAngleRotationalVelAccel: " + smoothAngleRotationalVelAccel);
+	    		}
     		}
     	}
     }

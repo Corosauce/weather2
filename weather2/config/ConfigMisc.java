@@ -46,6 +46,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Storm_Tornado_aimAtPlayerOnSpawn = true;
 	public static int Storm_Tornado_aimAtPlayerAngleVariance = 5;
 	public static boolean Storm_NoTornadosOrCyclones = false;
+	public static int Storm_OddsTo1OfHighWindWaterSpout = 150;
 	
 	//storm
 	public static boolean Storm_FlyingBlocksHurt = true;

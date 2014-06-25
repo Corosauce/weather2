@@ -1,5 +1,8 @@
 package weather2.block;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
@@ -10,22 +13,30 @@ import weather2.weathersystem.storm.StormObject;
 
 public class TileEntityWeatherDeflector extends TileEntity
 {
-	public int deflectorRadius = 100;
+	public int deflectorRadius = 150;
 
     public void updateEntity()
     {
+    	
     	if (!worldObj.isRemote) {
     		
     		if (worldObj.getTotalWorldTime() % 100 == 0) {
     			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.dimensionId);
     			if (wm != null) {
-		    		StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
+		    		//StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
 		    		
-		    		if (lastTickStormObject != null) {
-	    			
-	    				wm.removeStormObject(lastTickStormObject.ID);
-		    			wm.syncStormRemove(lastTickStormObject);
-	    			}
+		    		List<StormObject> storms = ClientTickHandler.weatherManager.getStormsAround(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius);
+		    		
+		    		for (int i = 0; i < storms.size(); i++) {
+		    			StormObject storm = storms.get(i);
+		    			
+		    			if (storm != null) {
+		    				wm.removeStormObject(storm.ID);
+			    			wm.syncStormRemove(storm);
+		    			}
+		    		}
+		    		
+		    		
 		    	}
     		}
     	}

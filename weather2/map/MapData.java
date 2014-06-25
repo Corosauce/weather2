@@ -33,6 +33,9 @@ public class MapData extends WorldSavedData
      */
     private Map playersHashMap = new HashMap();
     public Map playersVisibleOnMap = new LinkedHashMap();
+    
+    //new
+    public MapInfo mapInfo;
 
     public MapData(String par1Str)
     {
@@ -217,10 +220,13 @@ public class MapData extends WorldSavedData
     /**
      * Get byte array of packet data to send to players on map for updating map data
      */
-    public byte[] getUpdatePacketData(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
+    public byte[] getUpdatePacketData(World par2World)
     {
-        MapInfo mapinfo = (MapInfo)this.playersHashMap.get(par3EntityPlayer);
-        return mapinfo == null ? null : mapinfo.getPlayersOnMap(par1ItemStack);
+        //MapInfo mapinfo = (MapInfo)this.playersHashMap.get(par3EntityPlayer);
+    	
+    	//rewrite this to do better non insane packet methods
+    	
+        return null;//mapInfo == null ? null : mapInfo.getPlayersOnMap(par1ItemStack);
     }
 
     /**

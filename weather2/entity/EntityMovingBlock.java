@@ -517,6 +517,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     		}
 	        
     	}
+    	
+    	owner = null;
 
         super.setDead();
     }

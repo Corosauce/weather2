@@ -118,7 +118,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					if (getStormObjectsByLayer(1).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (ConfigMisc.Cloud_Layer1_Enable) {
 							if (rand.nextInt(5) == 0) {
-								trySpawnNearPlayerForLayer(entP, 1);
+								//trySpawnNearPlayerForLayer(entP, 1);
 							}
 						}
 					}

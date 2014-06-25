@@ -137,6 +137,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             
             GL11.glPopMatrix();
     		
+            renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, RenderManager.instance.playerViewY);
+            
     		for (int i = 0; i < tEnt.storms.size(); i++) {
     			
     			StormObject storm = tEnt.storms.get(i);
@@ -247,6 +249,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         int borderSize = 2;
         
         GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
     	
         //if (var10 <= (float)par9)
         //{

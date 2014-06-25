@@ -2,7 +2,9 @@ package weather2.client.gui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -13,6 +15,8 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -67,6 +71,8 @@ public class GuiEZConfig extends GuiScreen {
 	public static int CMD_SUBGUI_COMPATIBILITY = 41;
 	public static int CMD_SUBGUI_PREFERENCE = 42;
 	public static int CMD_SUBGUI_DIMENSIONS = 43;
+	public static int CMD_BUTTON_DIMENSIONS_PREV = 44;
+	public static int CMD_BUTTON_DIMENSIONS_NEXT = 45;
 	public static String GUI_SUBGUI_PERFORMANCE = "Performance";
 	public static String GUI_SUBGUI_COMPATIBILITY = "Compatibility";
 	public static String GUI_SUBGUI_PREFERENCE = "Preference";
@@ -86,6 +92,14 @@ public class GuiEZConfig extends GuiScreen {
     protected int ySize = 166;
     
     public boolean canPlayerChangeServerSettings = false;
+    
+    public int curDimListPage = 0;
+    public int curDimListCountPerPage = 4;
+    public int optionsPerDim = 4;
+    public int btnDimIndexStart = 50;
+    
+    public List<Integer> listDimIDs = new ArrayList<Integer>();
+    public List<String> listDimNames = new ArrayList<String>();
 	
 	public GuiEZConfig () {
 		super();
@@ -152,6 +166,7 @@ public class GuiEZConfig extends GuiScreen {
 		}*/
 		
 		int yEleSize = 24;
+		int yEleSize2 = 44;
 		
 		this.drawString(this.fontRenderer, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
 		
@@ -183,14 +198,35 @@ public class GuiEZConfig extends GuiScreen {
 			this.drawString(this.fontRenderer, "Chance of storms", xStart+7, yStart2+8+yEleSize*1, 16777215);
 			this.drawString(this.fontRenderer, "Chance of rain", xStart+7, yStart2+8+yEleSize*2, 16777215);
 			this.drawString(this.fontRenderer, "Block destruction", xStart+7, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, "Tornados and Cyclones", xStart+7, yStart2+8+yEleSize*4, 16777215);
 			
 			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
 			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
 			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*2, 16777215);
 			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*4, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
-			this.drawString(this.fontRenderer, "Not done yet! Just use /config and find the Dimension listings, ", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRenderer, "then add the dimension ID", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			//this.drawString(this.fontRenderer, "Not done yet! Just use /config and find the Dimension listings, ", xStart+7, yStart2+8, 16777215);
+			//this.drawString(this.fontRenderer, "then add the dimension ID", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			
+			
+			
+			
+			try {
+				for (int i = 0; i < curDimListCountPerPage; i++) {
+					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
+						this.drawString(this.fontRenderer, "\u00A7" + '6' + listDimNames.get(curDimListPage*curDimListCountPerPage + i), xStart+7, yStart2+8+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Weather: ", xStart+7, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Clouds: ", xStart+100, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Storms: ", xStart+186, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Effects: ", xStart+270, yStart2+28+yEleSize2*i, 16777215);
+					}
+				}
+				
+				this.drawString(this.fontRenderer, "Page " + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+108, yStart2+194, 16777215);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 	
@@ -250,6 +286,34 @@ public class GuiEZConfig extends GuiScreen {
 			} else {
 				((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_COMP_LOCK)).enabled = true;
 			}
+		} else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
+			
+			try {
+				for (int i = 0; i < curDimListCountPerPage; i++) {
+					boolean show = false;
+					int startIndex = this.btnDimIndexStart + (curDimListCountPerPage*i);
+					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
+						show = true;						
+					}
+					
+					//this should be after the values are updated from nbt!
+					if (show) {
+						boolean enabled = true;
+						if (((GuiButtonCycle)buttonsLookup.get(startIndex + 0)).getIndex() == 0) {
+							enabled = false;
+						}
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 1)).enabled = enabled;
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 2)).enabled = enabled;
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 3)).enabled = enabled;
+					}
+				}
+			} catch (Exception ex) {
+				//Weather.dbg("error");
+				ex.printStackTrace();
+			}
+			
+			
+			
 		}
 		
 		/*if (LevelConfig.nbtInfoClientMapConfig.getBoolean("markUpdated")) {
@@ -265,11 +329,24 @@ public class GuiEZConfig extends GuiScreen {
 	}*/
 	
 	public void updateGuiElements() {
-		System.out.println("updateGuiElements");
+		Weather.dbg("updateGuiElements");
 		
 		canPlayerChangeServerSettings = WeatherUtilConfig.nbtClientCache.getBoolean("isPlayerOP");
 		
 		NBTTagCompound serverDataCache = WeatherUtilConfig.nbtClientCache.getCompoundTag("data");
+		
+		NBTTagCompound dimData = WeatherUtilConfig.nbtClientCache.getCompoundTag("dimListing");
+		
+		Iterator it = dimData.getTags().iterator();
+		
+		listDimIDs.clear();
+		listDimNames.clear();
+		
+		while (it.hasNext()) {
+			NBTTagString tag = (NBTTagString) it.next();
+			listDimIDs.add(Integer.parseInt(tag.getName()));
+			listDimNames.add(tag.data);
+		}
 		
 		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
 			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_STORM)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM));
@@ -294,11 +371,37 @@ public class GuiEZConfig extends GuiScreen {
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM));
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN));
 			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION));
+			if (serverDataCache.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PREF_TORNADOANDCYCLONES)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_TORNADOANDCYCLONES)).setIndex(serverDataCache.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PREF_TORNADOANDCYCLONES));
 			
 			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_RATEOFSTORM)).enabled = canPlayerChangeServerSettings;
 			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM)).enabled = canPlayerChangeServerSettings;
 			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN)).enabled = canPlayerChangeServerSettings;
 			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION)).enabled = canPlayerChangeServerSettings;
+			((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PREF_TORNADOANDCYCLONES)).enabled = canPlayerChangeServerSettings;
+			
+		} else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
+			
+			try {
+				for (int i = 0; i < curDimListCountPerPage; i++) {
+					boolean show = false;
+					int startIndex = this.btnDimIndexStart + (curDimListCountPerPage*i);
+					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
+						show = true;						
+					}
+					
+					Weather.dbg("page: " + curDimListPage + " - index: " + startIndex);
+					
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 0)).drawButton = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 1)).drawButton = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 2)).drawButton = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 3)).drawButton = show;
+				}
+			} catch (Exception ex) {
+				//Weather.dbg("error");
+				ex.printStackTrace();
+			}
+			
+			
 			
 		}
 		
@@ -359,9 +462,14 @@ public class GuiEZConfig extends GuiScreen {
         int btnHeightAndPadding = 24;
         int padding = 1;
         int btnSpacing = 22;
+        int yEleSize2 = 44;
         
         int xStartPadded2 = xStartPadded + 168;
         int yStartPadded2 = yStartPadded + 30;
+        int yStartPadded3 = yStartPadded2 + 20;
+        
+        int btnDimIndex = btnDimIndexStart;
+        
         
         addButton(new GuiSmallButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
         
@@ -385,6 +493,17 @@ public class GuiEZConfig extends GuiScreen {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFSTORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_CHANCEOFRAIN, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*3, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_TORNADOANDCYCLONES, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*4, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
+        } else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
+        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_PREV, xStartPadded, yStart + ySize - guiPadding - btnHeight, 80, 20, "Prev Page"));
+        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_NEXT, xStartPadded+btnWidthAndPadding*2, yStart + ySize - guiPadding - btnHeight, 80, 20, "Next Page"));
+        	
+        	for (int i = 0; i < curDimListCountPerPage; i++) {
+	        	addButton(new GuiButtonCycle(btnDimIndex++, xStartPadded + 46, yStartPadded3+yEleSize2*i, 40, 20, WeatherUtilConfig.LIST_TOGGLE, 1));
+	        	addButton(new GuiButtonCycle(btnDimIndex++, xStartPadded + 132, yStartPadded3+yEleSize2*i, 40, 20, WeatherUtilConfig.LIST_TOGGLE, 1));
+	        	addButton(new GuiButtonCycle(btnDimIndex++, xStartPadded + 218, yStartPadded3+yEleSize2*i, 40, 20, WeatherUtilConfig.LIST_TOGGLE, 1));
+	        	addButton(new GuiButtonCycle(btnDimIndex++, xStartPadded + 306, yStartPadded3+yEleSize2*i, 40, 20, WeatherUtilConfig.LIST_TOGGLE, 1));
+        	}
         }
         
         if (guiCur.equals("main")) {
@@ -446,9 +565,7 @@ public class GuiEZConfig extends GuiScreen {
 	        	((GuiButtonCycle) var1).cycleIndex();
 	        	WeatherUtilConfig.nbtClientData.setInteger("btn_" + var1.id, ((GuiButtonCycle) var1).getIndex());
 	        }
-		}
-		
-		if (var1.id == CMD_SUBGUI_PERFORMANCE || var1.id == CMD_SUBGUI_COMPATIBILITY || var1.id == CMD_SUBGUI_PREFERENCE || var1.id == CMD_SUBGUI_DIMENSIONS) {
+		} else if (var1.id == CMD_SUBGUI_PERFORMANCE || var1.id == CMD_SUBGUI_COMPATIBILITY || var1.id == CMD_SUBGUI_PREFERENCE || var1.id == CMD_SUBGUI_DIMENSIONS) {
         	//guiPrev = guiCur;
         	if (var1.id == CMD_SUBGUI_PERFORMANCE) {
         		guiCur = GUI_SUBGUI_PERFORMANCE;
@@ -460,11 +577,15 @@ public class GuiEZConfig extends GuiScreen {
         		guiCur = GUI_SUBGUI_DIMENSIONS;
         	}
         	initGui();
-        } else {
-        	
-        }
-        
-        if (var1.id == CMD_CLOSE) {
+        } else if (var1.id == CMD_BUTTON_DIMENSIONS_PREV) {
+			curDimListPage--;
+			if (curDimListPage < 0) curDimListPage = 0;
+			initGui();
+		} else if (var1.id == CMD_BUTTON_DIMENSIONS_NEXT) {
+			curDimListPage++;
+			if (curDimListPage > listDimIDs.size() / curDimListCountPerPage) curDimListPage--;
+			initGui();
+		} else if (var1.id == CMD_CLOSE) {
         	sendPacket = true;
         	mc.thePlayer.closeScreen();
         	WeatherUtilConfig.processNBTToModConfigClient();
@@ -477,6 +598,18 @@ public class GuiEZConfig extends GuiScreen {
         		initGui();
             }*/
         	
+        } else {
+        	//at this point the remaining Ids not covered should be the dimension feature enable buttons
+        	
+        	try {
+        		Weather.dbg(((var1.id-btnDimIndexStart) % 4) + " - " + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage));
+        		((GuiButtonCycle) var1).cycleIndex();
+        		nbtSendCache.getCompoundTag("guiData").setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
+        		
+        		Weather.dbg("nbtSendCache: " + nbtSendCache);
+        	} catch (Exception ex) {
+        		ex.printStackTrace();
+        	}
         }
         
         if (sendPacket) {

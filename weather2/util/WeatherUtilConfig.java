@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import CoroUtil.util.CoroUtilFile;
-
 import modconfig.ConfigMod;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import CoroUtil.util.CoroUtilFile;
 
 public class WeatherUtilConfig {
 
@@ -38,8 +38,9 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PREF_CHANCEOFSTORM = 14;
 	public static int CMD_BTN_PREF_CHANCEOFRAIN = 10;
 	public static int CMD_BTN_PREF_BLOCKDESTRUCTION = 11;
+	public static int CMD_BTN_PREF_TORNADOANDCYCLONES = 15;
 	
-	public static int CMD_BTN_HIGHEST_ID = 14;
+	public static int CMD_BTN_HIGHEST_ID = 15;
 
 	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
 	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
@@ -75,6 +76,7 @@ public class WeatherUtilConfig {
 		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFSTORM);
 		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFRAIN);
 		listSettingsServer.add(CMD_BTN_PREF_BLOCKDESTRUCTION);
+		listSettingsServer.add(CMD_BTN_PREF_TORNADOANDCYCLONES);
 	}
 	
 	//client should call this on detecting a close/save of GUI
@@ -214,6 +216,10 @@ public class WeatherUtilConfig {
 				ConfigMisc.Storm_Tornado_grabBlocks = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_BLOCKDESTRUCTION)).equalsIgnoreCase("on");
 			}
 			
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)) {
+				ConfigMisc.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
+			}
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -266,6 +272,18 @@ public class WeatherUtilConfig {
 	
 	public static void nbtLoadDataServer() {
 		nbtServerData = nbtReadNBTFromDisk(false);
+	}
+	
+	public static NBTTagCompound createNBTDimensionListing() {
+		NBTTagCompound data = new NBTTagCompound();
+		
+		World[] worlds = DimensionManager.getWorlds();
+		
+		for (int i = 0; i < worlds.length; i++) {
+			data.setString("" + worlds[i].provider.dimensionId, worlds[i].provider.getDimensionName());
+		}
+		
+		return data;
 	}
 	
 	public static void processLists() {

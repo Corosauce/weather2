@@ -13,6 +13,7 @@ import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -128,8 +129,16 @@ public class TornadoHelper {
 	                {
 	                    break;
 	                }
+	                
+	                
+	                int extraTry = (int) ((storm.levelCurIntensityStage+1 - storm.levelStormIntensityFormingStartVal) * 5);
+	                int loopAmount = 5 + ii + extraTry;
+	                
+	                if (storm.stormType == StormObject.TYPE_WATER) {
+	                	loopAmount = 1 + ii/2;
+	                }
 	
-	                for (int k = 0; k < 5 + ii + ((storm.levelCurIntensityStage+1 - storm.levelStormIntensityFormingStartVal) * 5); k++)
+	                for (int k = 0; k < loopAmount; k++)
 	                {
 	                    //for (int k = 0; k < mod_EntMover.tornadoBaseSize/2+(ii/2); k++) {
 	                    //for (int l = 0; l < mod_EntMover.tornadoBaseSize/2+(ii/2); l++) {
@@ -415,20 +424,32 @@ public class TornadoHelper {
                             foundEnt = true;
                         } else {
                         	if (entity1 instanceof EntityPlayer) {
-                        		if (entity1.worldObj.canBlockSeeTheSky((int)entity1.posX, (int)entity1.posY, (int)entity1.posZ) || 
-                        				/*OldUtil.canVecSeeCoords(entity1, entity.posX, entity.posY + 20, entity.posZ) || 
-                        				OldUtil.canVecSeeCoords(entity1, entity.posX, entity.posY + 50, entity.posZ) ||
-                        				OldUtil.canVecSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ) */
-                        				OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)) {
-                        			storm.spinEntity(entity1);
-                        			//spin(entity, conf, entity1);
-                                    foundEnt = true;
+                        		//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
+                        		//actually we need to still change its motion var, otherwise weird things happen
+                        		//if (entity1.worldObj.isRemote) {
+	                        		if (WeatherUtilEntity.isEntityOutside(entity1)) {
+	                        			//Weather.dbg("entity1.motionY: " + entity1.motionY);
+	                        			storm.spinEntity(entity1);
+	                        			//spin(entity, conf, entity1);
+	                                    foundEnt = true;
+	                                    
+	                                    //Weather.dbg("spin player! client side?: " + entity1.worldObj.isRemote);
+	                        			
+	                        		}
+                        		//} else {
                         			
-                        		}
-                        	} else if (entity1 instanceof EntityLivingBase && OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
-                        		storm.spinEntity(entity1);
-                        		//spin(entity, conf, entity1);
-                                foundEnt = true;
+                        			//this should match the amount in spinEntity
+                        			/*if (entity1.motionY > -0.8) {
+                                        entity1.fallDistance = 0F;
+                                    }*/
+                        		//}
+                        	} else if (entity1 instanceof EntityLivingBase && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
+                        		//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
+                        		//if (!entity1.worldObj.isRemote) {
+	                        		storm.spinEntity(entity1);
+	                        		//spin(entity, conf, entity1);
+	                                foundEnt = true;
+                        		//}
                         	}
                         }
                     }

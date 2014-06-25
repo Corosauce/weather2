@@ -22,7 +22,7 @@ public class CommandWeather2 extends CommandBase {
 	@Override
 	public void processCommand(ICommandSender var1, String[] var2) {
 		
-		String helpMsgStorm = "Syntax: storm create <rain/thunder/wind/hail/F0/F1/F2/F3/F4/F5/C0/C1/C2/C3/C4/C5/hurricane> <Optional: alwaysProgress>... example: storm create F1 alwaysProgress ... eg2: storm killall";
+		String helpMsgStorm = "Syntax: storm create <rain/thunder/wind/spout/hail/F0/F1/F2/F3/F4/F5/C0/C1/C2/C3/C4/C5/hurricane> <Optional: alwaysProgress>... example: storm create F1 alwaysProgress ... eg2: storm killall";
 		
 		try {
 			if(var1 instanceof EntityPlayerMP)
@@ -59,7 +59,7 @@ public class CommandWeather2 extends CommandBase {
 							wm.removeStormObject(so.ID);
 							*/
 						}
-					} else if (var2[1].equals("create")) {
+					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
 						if (var2.length > 2) {
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
 							StormObject so = new StormObject(wm);
@@ -82,6 +82,9 @@ public class CommandWeather2 extends CommandBase {
 								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
 							} else if (var2[2].equalsIgnoreCase("wind")) {
 								so.levelCurIntensityStage = StormObject.STATE_HIGHWIND;
+							} else if (var2[2].equalsIgnoreCase("spout")) {
+								so.levelCurIntensityStage = StormObject.STATE_HIGHWIND;
+								so.attrib_waterSpout = true;
 							} else if (var2[2].equalsIgnoreCase("hail")) {
 								so.levelCurIntensityStage = StormObject.STATE_HAIL;
 							} else if (var2[2].equalsIgnoreCase("F5")) {

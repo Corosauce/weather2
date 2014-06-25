@@ -1003,7 +1003,7 @@ public class SceneEnhancer implements Runnable {
 
                         
                         
-                        if ((world.getHeightValue((int)(entity1.posX + 0.5F), (int)(entity1.posZ + 0.5F)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
+                        if ((world.getHeightValue(MathHelper.floor_double(entity1.posX), MathHelper.floor_double(entity1.posZ)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
                         {
                             if ((entity1 instanceof EntityFlameFX))
                             {
@@ -1076,7 +1076,7 @@ public class SceneEnhancer implements Runnable {
                     	//Weather.dbg("process: " + className);
                     }
 
-                    if ((world.getHeightValue((int)(entity1.posX + 0.5F), (int)(entity1.posZ + 0.5F)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
+                    if ((world.getHeightValue(MathHelper.floor_double(entity1.posX), MathHelper.floor_double(entity1.posZ)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
                     {
                         if ((entity1 instanceof EntityFlameFX))
                         {

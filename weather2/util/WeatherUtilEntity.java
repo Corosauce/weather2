@@ -11,7 +11,10 @@ import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.item.Item;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import weather2.ClientTickHandler;
+import weather2.Weather;
 import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
@@ -125,7 +128,8 @@ public class WeatherUtilEntity {
             //System.out.println(age);
             if (forTornado) {
             	//System.out.println(1.0F + ((c_CoroWeatherUtil.getEntityAge((EntityLivingBase)entity1) + 150) / 50));
-            	return 1.2F + ((airTime) / 400);
+            	//Weather.dbg("airTime: " + airTime);
+            	return 0.5F + (((float)airTime) / 800F);
             } else {
             	return 500.0F + (entity1.onGround ? 2.0F : 0.0F) + ((airTime) / 400);
             }
@@ -164,4 +168,47 @@ public class WeatherUtilEntity {
         return ent.worldObj.clip(Vec3.createVectorHelper(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ), Vec3.createVectorHelper(startX, ent.posY + (double)ent.getEyeHeight(), startZ)) == null;
         //return true;
     }
+	
+	public static boolean isEntityOutside(Entity parEnt) {
+		return isEntityOutside(parEnt, false);
+	}
+	
+	public static boolean isEntityOutside(Entity parEnt, boolean cheapCheck) {
+		return isPosOutside(parEnt.worldObj, Vec3.createVectorHelper(parEnt.posX, parEnt.posY, parEnt.posZ), cheapCheck);
+	}
+	
+	public static boolean isPosOutside(World parWorld, Vec3 parPos) {
+		return isPosOutside(parWorld, parPos, false);
+	}
+	
+	public static boolean isPosOutside(World parWorld, Vec3 parPos, boolean cheapCheck) {
+		int rangeCheck = 5;
+		int yOffset = 1;
+		
+		if (parWorld.getHeightValue(MathHelper.floor_double(parPos.xCoord), MathHelper.floor_double(parPos.zCoord)) < parPos.yCoord+1) return true;
+		
+		if (cheapCheck) return false;
+		
+		Vec3 vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.NORTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.NORTH.offsetZ*rangeCheck);
+		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		
+		vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.SOUTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.SOUTH.offsetZ*rangeCheck);
+		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		
+		vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.EAST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.EAST.offsetZ*rangeCheck);
+		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		
+		vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.WEST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.WEST.offsetZ*rangeCheck);
+		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		
+		return false;
+	}
+	
+	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
+		boolean dirNorth = parWorld.clip(parPos, parCheckPos) == null;
+		if (dirNorth) {
+			if (parWorld.getHeightValue(MathHelper.floor_double(parCheckPos.xCoord), MathHelper.floor_double(parCheckPos.zCoord)) < parCheckPos.yCoord) return true;
+		}
+		return false;
+	}
 }

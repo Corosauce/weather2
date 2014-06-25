@@ -53,8 +53,14 @@ public class BlockWeatherMachine extends BlockContainer
 	    		((TileEntityWeatherMachine) tEnt).cycleWeatherType();
 	    		String msg = "rain";
 	    		if (((TileEntityWeatherMachine) tEnt).weatherType == 2) {
-	    			msg = "F1 tornado";
+	    			msg = "Lightning";
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 3) {
+	    			msg = "High wind";
+	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 4) {
+	    			msg = "Hail";
+	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 5) {
+	    			msg = "F1 tornado";
+	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 6) {
 	    			msg = "Stage 1 Tropical Cyclone";
 	    		}
 	    		par5EntityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("Weather Machine set to " + msg));

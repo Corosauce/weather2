@@ -48,7 +48,7 @@ public class WeatherTypes {
         sConf = new WeatherEntityConfig();
         sConf.tornadoInitialSpeed = 0.2F;
         sConf.tornadoPullRate = 0.04F;
-        sConf.tornadoLiftRate = 0.05F;
+        sConf.tornadoLiftRate = 0.06F;
         sConf.relTornadoSize = -30;
         //sConf.tornadoBaseSize = 6;
         sConf.tornadoWidthScale = 1.5F;
@@ -59,7 +59,7 @@ public class WeatherTypes {
         sConf = new WeatherEntityConfig();
         //sConf.tornadoInitialSpeed = 0.2F;
         sConf.tornadoPullRate = 0.04F;
-        sConf.tornadoLiftRate = 0.05F;
+        sConf.tornadoLiftRate = 0.07F;
         sConf.relTornadoSize = -40;
         //sConf.tornadoBaseSize = 10;
         sConf.tornadoWidthScale = 1.9F;
@@ -69,7 +69,7 @@ public class WeatherTypes {
         sConf = new WeatherEntityConfig();
         //sConf.tornadoInitialSpeed = 0.2F;
         sConf.tornadoPullRate = 0.04F;
-        sConf.tornadoLiftRate = 0.05F;
+        sConf.tornadoLiftRate = 0.08F;
         sConf.relTornadoSize = -50;
         //sConf.tornadoBaseSize = 10;
         sConf.tornadoWidthScale = 1.9F;
@@ -79,7 +79,7 @@ public class WeatherTypes {
         sConf = new WeatherEntityConfig();
         //sConf.tornadoInitialSpeed = 0.15F;
         sConf.tornadoPullRate = 0.04F;
-        sConf.tornadoLiftRate = 0.04F;
+        sConf.tornadoLiftRate = 0.09F;
         sConf.relTornadoSize = -60;
         //sConf.tornadoBaseSize = 25;
         sConf.tornadoWidthScale = 2.5F;
@@ -89,7 +89,7 @@ public class WeatherTypes {
         sConf = new WeatherEntityConfig();
         //sConf.tornadoInitialSpeed = 0.15F;
         sConf.tornadoPullRate = 0.15F;
-        sConf.tornadoLiftRate = 0.04F;
+        sConf.tornadoLiftRate = 0.10F;
         sConf.relTornadoSize = -95;
         //sConf.tornadoBaseSize = 95;
         sConf.tornadoWidthScale = 3.5F;
