@@ -7,12 +7,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import weather2.block.BlockAnemometer;
 import weather2.block.BlockTSensor;
 import weather2.block.BlockTSiren;
 import weather2.block.BlockWeatherDeflector;
 import weather2.block.BlockWeatherForecast;
 import weather2.block.BlockWeatherMachine;
 import weather2.block.BlockWindVane;
+import weather2.block.TileEntityAnemometer;
 import weather2.block.TileEntityTSiren;
 import weather2.block.TileEntityWeatherDeflector;
 import weather2.block.TileEntityWeatherForecast;
@@ -37,6 +39,7 @@ public class CommonProxy implements IGuiHandler
 	public static Block blockTSensor;
 	public static Block blockTSiren;
 	public static Block blockWindVane;
+	public static Block blockAnemometer;
 	public static Block blockWeatherForecast;
 	public static Block blockWeatherMachine;
 	public static Block blockWeatherDeflector;
@@ -66,6 +69,7 @@ public class CommonProxy implements IGuiHandler
     	addBlock(blockWeatherForecast = (new BlockWeatherForecast(ConfigMisc.Block_weatherForecastID)), TileEntityWeatherForecast.class, "WeatherForecast", "Weather Forecast");
     	addBlock(blockWeatherMachine = (new BlockWeatherMachine(ConfigMisc.Block_weatherMachineID)), TileEntityWeatherMachine.class, "WeatherMachine", "Weather Machine (right click to cycle)");
     	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector(ConfigMisc.Block_weatherDeflectorID)), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
+    	addBlock(blockAnemometer = (new BlockAnemometer(ConfigMisc.Block_anemometer)), TileEntityAnemometer.class, "Anemometer", "Anemometer");
         
     	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Item.redstone, 'I', Item.ingotGold, 'X', Item.ingotIron});
     	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Item.redstone, 'I', blockTSensor, 'X', Item.ingotIron});

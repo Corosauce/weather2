@@ -5,11 +5,13 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Icon;
 import net.minecraftforge.common.MinecraftForge;
+import weather2.block.TileEntityAnemometer;
 import weather2.block.TileEntityTSiren;
 import weather2.block.TileEntityWeatherDeflector;
 import weather2.block.TileEntityWeatherForecast;
 import weather2.block.TileEntityWeatherMachine;
 import weather2.block.TileEntityWindVane;
+import weather2.client.block.TileEntityAnemometerRenderer;
 import weather2.client.block.TileEntityTSirenRenderer;
 import weather2.client.block.TileEntityWeatherDeflectorRenderer;
 import weather2.client.block.TileEntityWeatherForecastRenderer;
@@ -67,6 +69,7 @@ public class ClientProxy extends CommonProxy
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWeatherForecast.class, new TileEntityWeatherForecastRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWeatherMachine.class, new TileEntityWeatherMachineRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWeatherDeflector.class, new TileEntityWeatherDeflectorRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityAnemometer.class, new TileEntityAnemometerRenderer());
     }
     
     private static void addMapping(Class<? extends Entity> entityClass, Render render) {

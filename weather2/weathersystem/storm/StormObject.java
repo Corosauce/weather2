@@ -1460,7 +1460,7 @@ public class StormObject {
 							
 							float finalBright = Math.min(1F, baseBright+randFloat);
 							
-							
+							//highwind aka spout in this current code location
 							if (levelCurIntensityStage == STATE_HIGHWIND) {
 								particle.particleScale = 150;
 								particle.setRBGColorF(finalBright-0.2F, finalBright-0.2F, finalBright);
@@ -1492,6 +1492,16 @@ public class StormObject {
                  ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
                  ent.rotationYaw += ent.entityId % 90;
                  ent.rotationPitch = -30F;
+                 
+                 //fade spout blue to grey
+                 if (levelCurIntensityStage == STATE_HIGHWIND) {
+                	 int fadingDistStart = 30;
+                	 if (ent.posY > posGround.yCoord + fadingDistStart) {
+		                 float maxVal = ent.getBlueColorF();
+		                 float fadeRate = 0.002F;
+		                 ent.setRBGColorF(Math.min(maxVal, ent.getRedColorF()+fadeRate), Math.min(maxVal, ent.getGreenColorF()+fadeRate), maxVal);
+                	 }
+                 }
                  
                  spinEntity(ent);
 			}

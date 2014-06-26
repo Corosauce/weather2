@@ -125,14 +125,20 @@ public class ClientTickHandler implements ITickHandler
         	init(world);
         }
         
-        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.dimensionId)) {
+        if (world != null) {
         	weatherManager.tick();
+        	
+        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.dimensionId == 0) {
+            	mc.gameSettings.clouds = false;
+            }
+        }
+        
+        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.dimensionId)) {
+        	//weatherManager.tick();
         	
         	sceneEnhancer.tickClient();
             
-            if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.dimensionId == 0) {
-            	mc.gameSettings.clouds = false;
-            }
+            
         }
         
         if (world != null) {

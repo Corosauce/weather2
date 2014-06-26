@@ -20,7 +20,7 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 @NetworkMod(channels = { "WeatherData", "EZGuiData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
-@Mod(modid = "weather2", name="weather2", version="v2.2.1")
+@Mod(modid = "weather2", name="weather2", version="v2.3")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )

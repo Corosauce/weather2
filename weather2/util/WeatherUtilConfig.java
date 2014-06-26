@@ -5,13 +5,18 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import modconfig.ConfigMod;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+
+import org.apache.commons.lang3.StringUtils;
+
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import CoroUtil.util.CoroUtilFile;
@@ -133,6 +138,36 @@ public class WeatherUtilConfig {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)) {
 				ConfigMisc.Particle_VanillaAndWeatherOnly = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)).equalsIgnoreCase("on");
 			}
+			
+			NBTTagCompound nbtDims = nbtClientData.getCompoundTag("dimData");
+			Iterator it = nbtDims.getTags().iterator();
+			
+			Weather.dbg("before cl: " + listDimensionsWindEffects);
+			
+			while (it.hasNext()) {
+				NBTTagInt tag = (NBTTagInt) it.next();
+				String[] vals = tag.getName().split("_");
+				
+				if (vals[2].equals("3")) {
+					int dimID = Integer.parseInt(vals[1]);
+					if (tag.data == 0) {
+						//if off			
+						if (listDimensionsWindEffects.contains(dimID)) {
+							listDimensionsWindEffects.remove((Object)dimID);
+						}
+					} else {
+						//if on
+						if (!listDimensionsWindEffects.contains(dimID)) {
+							listDimensionsWindEffects.add(dimID);
+						}
+					}					
+				}
+			}
+			
+			Weather.dbg("after cl: " + listDimensionsWindEffects);
+			
+			processListsReverse();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -220,6 +255,75 @@ public class WeatherUtilConfig {
 				ConfigMisc.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
 			}
 			
+			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
+			Iterator it = nbtDims.getTags().iterator();
+			
+			Weather.dbg("before: " + listDimensionsWeather);
+			
+			while (it.hasNext()) {
+				NBTTagInt tag = (NBTTagInt) it.next();
+				String[] vals = tag.getName().split("_");
+				//if weather
+				if (vals[2].equals("0")) {
+					int dimID = Integer.parseInt(vals[1]);
+					if (tag.data == 0) {
+						//if off			
+						if (listDimensionsWeather.contains(dimID)) {
+							listDimensionsWeather.remove(dimID);
+						}
+					} else {
+						//if on
+						if (!listDimensionsWeather.contains(dimID)) {
+							listDimensionsWeather.add(dimID);
+						}
+					}					
+				} else if (vals[2].equals("1")) {
+					int dimID = Integer.parseInt(vals[1]);
+					if (tag.data == 0) {
+						//if off			
+						if (listDimensionsClouds.contains(dimID)) {
+							listDimensionsClouds.remove(dimID);
+						}
+					} else {
+						//if on
+						if (!listDimensionsClouds.contains(dimID)) {
+							listDimensionsClouds.add(dimID);
+						}
+					}					
+				} else if (vals[2].equals("2")) {
+					int dimID = Integer.parseInt(vals[1]);
+					if (tag.data == 0) {
+						//if off			
+						if (listDimensionsStorms.contains(dimID)) {
+							listDimensionsStorms.remove(dimID);
+						}
+					} else {
+						//if on
+						if (!listDimensionsStorms.contains(dimID)) {
+							listDimensionsStorms.add(dimID);
+						}
+					}					
+				}/* else if (vals[2].equals("3")) {
+					int dimID = Integer.parseInt(vals[1]);
+					if (tag.data == 0) {
+						//if off			
+						if (listDimensionsWindEffects.contains(dimID)) {
+							listDimensionsWindEffects.remove(dimID);
+						}
+					} else {
+						//if on
+						if (!listDimensionsWindEffects.contains(dimID)) {
+							listDimensionsWindEffects.add(dimID);
+						}
+					}					
+				}*/
+				Weather.dbg("dim: " + vals[1] + " - setting ID: " + vals[2] + " - data: " + tag.data);
+			}
+			
+			Weather.dbg("after: " + listDimensionsWeather);
+			
+			processListsReverse();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -243,6 +347,9 @@ public class WeatherUtilConfig {
 				nbtServerData.setInteger("btn_" + i, parNBT.getInteger("btn_" + i));
 			}
 		}
+		
+		//also add dimension feature config, its iterated over
+		nbtServerData.setCompoundTag("dimData", parNBT.getCompoundTag("dimData"));
 		
 		processNBTToModConfigServer();
 	}
@@ -280,7 +387,18 @@ public class WeatherUtilConfig {
 		World[] worlds = DimensionManager.getWorlds();
 		
 		for (int i = 0; i < worlds.length; i++) {
-			data.setString("" + worlds[i].provider.dimensionId, worlds[i].provider.getDimensionName());
+			NBTTagCompound nbtDim = new NBTTagCompound();
+			int dimID = worlds[i].provider.dimensionId;
+			nbtDim.setInteger("ID", dimID); //maybe redundant if we name tag as dimID too
+			nbtDim.setString("name", worlds[i].provider.getDimensionName());
+			nbtDim.setBoolean("weather", listDimensionsWeather.contains(dimID));
+			nbtDim.setBoolean("clouds", listDimensionsClouds.contains(dimID));
+			nbtDim.setBoolean("storms", listDimensionsStorms.contains(dimID));
+			
+			//PROCESS ME ELSEWHERE!!! - must be done in EZGUI post receiving of this data because client still needs this server created dimension listing first
+			//nbtDim.setBoolean("effects", listDimensionsWindEffects.contains(dimID));
+			data.setCompoundTag("" + dimID, nbtDim);
+			///data.setString("" + worlds[i].provider.dimensionId, worlds[i].provider.getDimensionName());
 		}
 		
 		return data;
@@ -291,6 +409,13 @@ public class WeatherUtilConfig {
 		listDimensionsClouds = parseList(ConfigMisc.Dimension_List_Clouds);
 		listDimensionsStorms = parseList(ConfigMisc.Dimension_List_Storms);
 		listDimensionsWindEffects = parseList(ConfigMisc.Dimension_List_WindEffects);
+	}
+	
+	public static void processListsReverse() {
+		ConfigMisc.Dimension_List_Weather = StringUtils.join(listDimensionsWeather, " ");
+		ConfigMisc.Dimension_List_Clouds = StringUtils.join(listDimensionsClouds, " ");
+		ConfigMisc.Dimension_List_Storms = StringUtils.join(listDimensionsStorms, " ");
+		ConfigMisc.Dimension_List_WindEffects = StringUtils.join(listDimensionsWindEffects, " ");
 	}
 	
 	public static List<Integer> parseList(String parData) {
@@ -305,7 +430,7 @@ public class WeatherUtilConfig {
 				arrInt[i] = -999999; //set to -999999, hope no dimension id of this exists
 			}
 		}
-		return Arrays.asList(arrInt);
+		return new ArrayList(Arrays.asList(arrInt));
 	}
 	
 	public static void nbtWriteNBTToDisk(NBTTagCompound parData, boolean saveForClient) {

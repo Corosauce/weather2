@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import modconfig.gui.GuiConfigEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -65,6 +66,7 @@ public class GuiEZConfig extends GuiScreen {
 	
 	//config commands for gui/packet handler - might only be needed in gui since it just sets data on server side
 	public static int CMD_CLOSE = 0;
+	public static int CMD_ADVANCED = 99;
 	
 	//subguis
 	public static int CMD_SUBGUI_PERFORMANCE = 40;
@@ -100,6 +102,10 @@ public class GuiEZConfig extends GuiScreen {
     
     public List<Integer> listDimIDs = new ArrayList<Integer>();
     public List<String> listDimNames = new ArrayList<String>();
+    public List<Boolean> listSettingWeather = new ArrayList<Boolean>();
+    public List<Boolean> listSettingClouds = new ArrayList<Boolean>();
+    public List<Boolean> listSettingStorms = new ArrayList<Boolean>();
+    public List<Boolean> listSettingEffects = new ArrayList<Boolean>();
 	
 	public GuiEZConfig () {
 		super();
@@ -223,7 +229,7 @@ public class GuiEZConfig extends GuiScreen {
 					}
 				}
 				
-				this.drawString(this.fontRenderer, "Page " + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+108, yStart2+194, 16777215);
+				this.drawString(this.fontRenderer, "" + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+80, yStart2+194, 16777215);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -293,7 +299,7 @@ public class GuiEZConfig extends GuiScreen {
 					boolean show = false;
 					int startIndex = this.btnDimIndexStart + (curDimListCountPerPage*i);
 					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
-						show = true;						
+						show = true;
 					}
 					
 					//this should be after the values are updated from nbt!
@@ -337,16 +343,34 @@ public class GuiEZConfig extends GuiScreen {
 		
 		NBTTagCompound dimData = WeatherUtilConfig.nbtClientCache.getCompoundTag("dimListing");
 		
-		Iterator it = dimData.getTags().iterator();
-		
 		listDimIDs.clear();
 		listDimNames.clear();
+		listSettingWeather.clear();
+		listSettingStorms.clear();
+		listSettingClouds.clear();
+		listSettingEffects.clear();
+		
+		Iterator it = dimData.getTags().iterator();
 		
 		while (it.hasNext()) {
-			NBTTagString tag = (NBTTagString) it.next();
-			listDimIDs.add(Integer.parseInt(tag.getName()));
-			listDimNames.add(tag.data);
+			NBTTagCompound tag = (NBTTagCompound) it.next();
+			//NBTTagString tag = (NBTTagString) it.next();
+			//listDimIDs.add(Integer.parseInt(tag.getName()));
+			listDimIDs.add(tag.getInteger("ID"));//Integer.parseInt(tag.getName()));
+			listDimNames.add(tag.getString("name"));
+			listSettingWeather.add(tag.getBoolean("weather"));
+			listSettingStorms.add(tag.getBoolean("storms"));
+			listSettingClouds.add(tag.getBoolean("clouds"));
+			listSettingEffects.add(WeatherUtilConfig.listDimensionsWindEffects.contains(tag.getInteger("ID")));
 		}
+		
+		//done a little differently
+		/*NBTTagCompound dimDataClient = WeatherUtilConfig.nbtClientData.getCompoundTag("dimData");
+		
+		while (it.hasNext()) {
+			NBTTagCompound tag = (NBTTagCompound) it.next();
+			listSettingEffects.add(tag.getBoolean("effects"));
+		}*/
 		
 		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
 			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_STORM)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM));
@@ -386,7 +410,14 @@ public class GuiEZConfig extends GuiScreen {
 					boolean show = false;
 					int startIndex = this.btnDimIndexStart + (curDimListCountPerPage*i);
 					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
-						show = true;						
+						show = true;
+						
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 0)).setIndex(listSettingWeather.get(curDimListPage*curDimListCountPerPage + i) ? 1 : 0);
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 1)).setIndex(listSettingClouds.get(curDimListPage*curDimListCountPerPage + i) ? 1 : 0);
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 2)).setIndex(listSettingStorms.get(curDimListPage*curDimListCountPerPage + i) ? 1 : 0);
+						
+						//shouldnt this be client side?
+						((GuiButtonCycle)buttonsLookup.get(startIndex + 3)).setIndex(listSettingEffects.get(curDimListPage*curDimListCountPerPage + i) ? 1 : 0);
 					}
 					
 					Weather.dbg("page: " + curDimListPage + " - index: " + startIndex);
@@ -472,6 +503,7 @@ public class GuiEZConfig extends GuiScreen {
         
         
         addButton(new GuiSmallButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
+        addButton(new GuiSmallButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
         
         addButton(new GuiButton(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
         addButton(new GuiButton(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
@@ -495,8 +527,8 @@ public class GuiEZConfig extends GuiScreen {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_BLOCKDESTRUCTION, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*3, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_TORNADOANDCYCLONES, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*4, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
         } else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
-        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_PREV, xStartPadded, yStart + ySize - guiPadding - btnHeight, 80, 20, "Prev Page"));
-        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_NEXT, xStartPadded+btnWidthAndPadding*2, yStart + ySize - guiPadding - btnHeight, 80, 20, "Next Page"));
+        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_PREV, xStartPadded, yStart + ySize - guiPadding - btnHeight, 60, 20, "Prev Page"));
+        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_NEXT, xStartPadded+20+btnWidthAndPadding*1, yStart + ySize - guiPadding - btnHeight, 60, 20, "Next Page"));
         	
         	for (int i = 0; i < curDimListCountPerPage; i++) {
 	        	addButton(new GuiButtonCycle(btnDimIndex++, xStartPadded + 46, yStartPadded3+yEleSize2*i, 40, 20, WeatherUtilConfig.LIST_TOGGLE, 1));
@@ -597,16 +629,28 @@ public class GuiEZConfig extends GuiScreen {
         		guiCur = guiPrev;
         		initGui();
             }*/
-        	
+		} else if (var1.id == CMD_ADVANCED) {
+			Minecraft.getMinecraft().displayGuiScreen(new GuiConfigEditor());
         } else {
         	//at this point the remaining Ids not covered should be the dimension feature enable buttons
         	
         	try {
-        		Weather.dbg(((var1.id-btnDimIndexStart) % 4) + " - " + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage));
-        		((GuiButtonCycle) var1).cycleIndex();
-        		nbtSendCache.getCompoundTag("guiData").setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
-        		
-        		Weather.dbg("nbtSendCache: " + nbtSendCache);
+        		//if clicking effects dimension listing button
+        		if ((var1.id-btnDimIndexStart) % 4 == 3) {
+        			((GuiButtonCycle) var1).cycleIndex();
+        			NBTTagCompound nbtDims = WeatherUtilConfig.nbtClientData.getCompoundTag("dimData");
+        			nbtDims.setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
+        			WeatherUtilConfig.nbtClientData.setCompoundTag("dimData", nbtDims);
+        			Weather.dbg("nbtClientData: " + WeatherUtilConfig.nbtClientData);
+        		} else { //if server button
+	        		Weather.dbg(((var1.id-btnDimIndexStart) % 4) + " - " + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage));
+	        		((GuiButtonCycle) var1).cycleIndex();
+	        		NBTTagCompound nbtDims = nbtSendCache.getCompoundTag("guiData").getCompoundTag("dimData");
+	        		nbtDims.setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
+	        		
+	        		nbtSendCache.getCompoundTag("guiData").setCompoundTag("dimData", nbtDims);
+	        		Weather.dbg("nbtSendCache: " + nbtSendCache);
+        		}
         	} catch (Exception ex) {
         		ex.printStackTrace();
         	}

@@ -120,6 +120,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Block_weatherForecastID = 1903;
 	public static int Block_weatherMachineID = 1904;
 	public static int Block_weatherDeflectorID = 1905;
+	public static int Block_anemometer = 1906;
 	public static boolean Block_WeatherMachineNoTornadosOrCyclones = false;
 	
 	//dimension settings

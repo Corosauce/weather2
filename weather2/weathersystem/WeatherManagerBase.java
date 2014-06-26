@@ -99,7 +99,7 @@ public class WeatherManagerBase {
 					((WeatherManagerServer)this).syncStormRemove(so);
 				} else {
 					
-					if (this instanceof WeatherManagerClient && so.ticksSinceLastPacketReceived > 20*60) {
+					if (getWorld().isRemote && so.ticksSinceLastPacketReceived > 20*60) {
 						Weather.dbg("WARNING!!! - detected no packets received in last 60 seconds for storm ID: " + so.ID + " this is an ongoing bug, force removing storm on client side");
 						removeStormObject(so.ID);
 						
@@ -122,7 +122,7 @@ public class WeatherManagerBase {
 						if (!so.isDead) {
 							so.tick();
 						} else {
-							if (this instanceof WeatherManagerClient) {
+							if (getWorld().isRemote) {
 								Weather.dbg("WARNING!!! - detected isDead storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly removed via main channels");
 								removeStormObject(so.ID);
 							}
