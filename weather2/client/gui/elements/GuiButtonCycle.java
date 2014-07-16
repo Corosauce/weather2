@@ -33,7 +33,7 @@ public class GuiButtonCycle extends GuiButton
         this.width = 20;
         this.height = 20;
         this.enabled = true;
-        this.drawButton = true;
+        this.visible = true;
         this.id = par1;
         this.xPosition = par2;
         this.yPosition = par3;
@@ -89,13 +89,13 @@ public class GuiButtonCycle extends GuiButton
      */
     public void drawButton(Minecraft par1Minecraft, int par2, int par3)
     {
-        if (this.drawButton)
+        if (this.visible)
         {
             FontRenderer fontrenderer = par1Minecraft.fontRenderer;
             par1Minecraft.getTextureManager().bindTexture(buttonTextures);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.field_82253_i = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
-            int k = this.getHoverState(this.field_82253_i);
+            this.field_146123_n = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+            int k = this.getHoverState(this.field_146123_n);
             this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + k * 20, this.width / 2, this.height);
             this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
             this.mouseDragged(par1Minecraft, par2, par3);
@@ -105,7 +105,7 @@ public class GuiButtonCycle extends GuiButton
             {
                 l = -6250336;
             }
-            else if (this.field_82253_i)
+            else if (this.field_146123_n)
             {
                 l = 16777120;
             }
@@ -139,6 +139,6 @@ public class GuiButtonCycle extends GuiButton
      */
     public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3)
     {
-        return /*this.enabled && */this.drawButton && par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+        return /*this.enabled && */this.visible && par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
     }
 }

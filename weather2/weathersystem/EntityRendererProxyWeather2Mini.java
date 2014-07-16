@@ -3,22 +3,20 @@ package weather2.weathersystem;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.src.EntityRendererProxy;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-import weather2.ClientTickHandler;
-import weather2.Weather;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
-import weather2.weathersystem.storm.StormObject;
+import weather2.util.WeatherUtil;
 import cpw.mods.fml.client.FMLClientHandler;
 
-public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
+public class EntityRendererProxyWeather2Mini extends EntityRenderer
 {
     private Minecraft mc;
     private Random random = new Random();
@@ -39,9 +37,9 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     private static final ResourceLocation resRain = new ResourceLocation("textures/environment/rain.png");
     private static final ResourceLocation resSnow = new ResourceLocation("textures/environment/snow.png");
 
-    public EntityRendererProxyWeather2Mini(Minecraft var1)
+    public EntityRendererProxyWeather2Mini(Minecraft var1, IResourceManager resMan)
     {
-        super(var1);
+        super(var1, resMan);
         this.mc = var1;
         rendererUpdateCount = 0;
     }
@@ -70,8 +68,7 @@ public class EntityRendererProxyWeather2Mini extends EntityRendererProxy
     }*/
     
     public boolean isPaused() {
-    	if (FMLClientHandler.instance().getClient().getIntegratedServer() != null && FMLClientHandler.instance().getClient().getIntegratedServer().getServerListeningThread() != null && FMLClientHandler.instance().getClient().getIntegratedServer().getServerListeningThread().isGamePaused()) return true;
-    	return false;
+    	return WeatherUtil.isPaused();
     }
 
     @Override

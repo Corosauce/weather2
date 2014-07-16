@@ -14,6 +14,7 @@ import net.minecraft.client.particle.EntityFlameFX;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
@@ -37,6 +38,7 @@ import weather2.weathersystem.wind.WindManager;
 import CoroUtil.OldUtil;
 import CoroUtil.api.weather.WindHandler;
 import CoroUtil.util.ChunkCoordinatesBlock;
+import CoroUtil.util.CoroUtilBlock;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -71,8 +73,8 @@ public class SceneEnhancer implements Runnable {
     public static ArrayList<ChunkCoordinatesBlock> soundLocations = new ArrayList();
     public static HashMap<ChunkCoordinatesBlock, Long> soundTimeLocations = new HashMap();
     
-    public static int SOUNDMARKER_WATER = 0;
-    public static int SOUNDMARKER_LEAVES = 1;
+    public static Block SOUNDMARKER_WATER = Blocks.water;
+    public static Block SOUNDMARKER_LEAVES = Blocks.leaves;
     
     public static float curPrecipStr = 0F;
     public static float curPrecipStrTarget = 0F;
@@ -154,11 +156,10 @@ public class SceneEnhancer implements Runnable {
             		soundTimeLocations.remove(cCor);
             		//System.out.println("trim out soundlocation");
             	} else {
-            		int id = getBlockId(worldRef, cCor.posX, cCor.posY, cCor.posZ);
 
-                    Block block = Block.blocksList[id];
+                    Block block = getBlock(worldRef, cCor.posX, cCor.posY, cCor.posZ);//Block.blocksList[id];
                     
-                    if (block == null || (block.blockMaterial != Material.water && block.blockMaterial != Material.leaves)) {
+                    if (block == null || (block.getMaterial() != Material.water && block.getMaterial() != Material.leaves)) {
                     	soundLocations.remove(i);
                 		soundTimeLocations.remove(cCor);
                     } else {
@@ -173,24 +174,27 @@ public class SceneEnhancer implements Runnable {
 	            		
 	            		//System.out.println(Math.sqrt(cCor.getDistanceSquared(curX, curY, curZ)));
 						if (lastPlayTime < System.currentTimeMillis()) {
-							if (cCor.blockID == SOUNDMARKER_WATER) {
+							if (cCor.block == SOUNDMARKER_WATER) {
 								soundTimeLocations.put(cCor, System.currentTimeMillis() + 2500 + rand.nextInt(50));
-								mc.sndManager.playSound(Weather.modID + ":waterfall", cCor.posX, cCor.posY, cCor.posZ, (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F));
-								//System.out.println("play waterfall at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ);
-							} else if (cCor.blockID == SOUNDMARKER_LEAVES) {
+								//mc.getSoundHandler().playSound(Weather.modID + ":waterfall", cCor.posX, cCor.posY, cCor.posZ, (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F));
+								mc.theWorld.playSound(cCor.posX, cCor.posY, cCor.posZ, Weather.modID + ":env.waterfall", (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F), false);
+								System.out.println("play waterfall at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ);
+							} else if (cCor.block == SOUNDMARKER_LEAVES) {
 								
 									
 								float windSpeed = WindReader.getWindSpeed(mc.theWorld, Vec3.createVectorHelper(cCor.posX, cCor.posY, cCor.posZ), WindReader.WindType.EVENT);
 								if (windSpeed > 0.2F) {
 									soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
-									mc.sndManager.playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 4F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
+									//mc.getSoundHandler().playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 4F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
+									mc.theWorld.playSound(cCor.posX, cCor.posY, cCor.posZ, Weather.modID + ":env.wind_calmfade", (float)(windSpeed * 4F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F), false);
 									//System.out.println("play leaves sound at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ + " - windSpeed: " + windSpeed);
 								} else {
 									windSpeed = WindReader.getWindSpeed(mc.theWorld, Vec3.createVectorHelper(cCor.posX, cCor.posY, cCor.posZ));
 									//if (windSpeed > 0.3F) {
 									if (mc.theWorld.rand.nextInt(15) == 0) {
 										soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
-										mc.sndManager.playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
+										//mc.getSoundHandler().playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
+										mc.theWorld.playSound(cCor.posX, cCor.posY, cCor.posZ, Weather.modID + ":env.wind_calmfade", (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F), false);
 									}
 										//System.out.println("play leaves sound at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ + " - windSpeed: " + windSpeed);
 									//}
@@ -212,14 +216,12 @@ public class SceneEnhancer implements Runnable {
                 {
                     for (int zz = curZ - hsize; zz < curZ + hsize; zz++)
                     {
-                        int id = getBlockId(worldRef, xx, yy, zz);
-
-                        Block block = Block.blocksList[id];
+                        Block block = getBlock(worldRef, xx, yy, zz);
                         
                         if (block != null) {
                         	
                         	//Waterfall
-                        	if (ConfigMisc.Wind_Particle_waterfall && ((block.blockMaterial == Material.water))) {
+                        	if (ConfigMisc.Wind_Particle_waterfall && ((block.getMaterial() == Material.water))) {
                             	
                             	int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
@@ -229,8 +231,8 @@ public class SceneEnhancer implements Runnable {
                             		
                             		//this scans to bottom till not water, kinda overkill? owell lets keep it, and also add rule if index > 4 (waterfall height of 4)
                             		while (yy-index > 0) {
-                            			int id2 = getBlockId(worldRef, xx, yy-index, zz);
-                            			if (Block.blocksList[id2] != null && !(Block.blocksList[id2].blockMaterial == Material.water)) {
+                            			Block id2 = getBlock(worldRef, xx, yy-index, zz);
+                            			if (id2 != null && !(id2.getMaterial() == Material.water)) {
                             				break;
                             			}
                             			index++;
@@ -239,11 +241,10 @@ public class SceneEnhancer implements Runnable {
                             		bottomY = yy-index+1;
                             		
                             		//check if +10 from here is water with right meta too
-                            		int id2 = getBlockId(worldRef, xx, bottomY+10, zz);
                             		int meta2 = getBlockMetadata(worldRef, xx, bottomY+10, zz);
-                            		Block block2 = Block.blocksList[id2];
+                            		Block block2 = getBlock(worldRef, xx, bottomY+10, zz);;
                             		
-                        			if (index >= 4 && (block2 != null && block2.blockMaterial == Material.water && (meta2 & 8) != 0)) {
+                        			if (index >= 4 && (block2 != null && block2.getMaterial() == Material.water && (meta2 & 8) != 0)) {
                         				boolean proxFail = false;
                         				for (int j = 0; j < soundLocations.size(); j++) {
                                 			if (Math.sqrt(soundLocations.get(j).getDistanceSquared(xx, bottomY, zz)) < 5) {
@@ -258,7 +259,7 @@ public class SceneEnhancer implements Runnable {
                         				}
                         			}
                             	}
-                            } else if (ConfigMisc.volWindTreesScale > 0 && ((block.blockMaterial == Material.leaves))) {
+                            } else if (ConfigMisc.volWindTreesScale > 0 && ((block.getMaterial() == Material.leaves))) {
                             	boolean proxFail = false;
                 				for (int j = 0; j < soundLocations.size(); j++) {
                         			if (Math.sqrt(soundLocations.get(j).getDistanceSquared(xx, yy, zz)) < 15) {
@@ -296,7 +297,7 @@ public class SceneEnhancer implements Runnable {
 		lastWorldDetected.weatherEffects.clear();
 		
 		WeatherUtilParticle.getFXLayers();
-		WeatherUtilSound.getSoundSystem();
+		//WeatherUtilSound.getSoundSystem();
 	}
 	
 	public void tickParticlePrecipitation() {
@@ -322,7 +323,7 @@ public class SceneEnhancer implements Runnable {
             if (true/* || biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow()*/)
             {
 			
-				float temperature = biomegenbase.getFloatTemperature();
+				float temperature = biomegenbase.getFloatTemperature(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posY), MathHelper.floor_double(entP.posZ));
 	            double d3;
 	            float f10;
 	
@@ -390,6 +391,8 @@ public class SceneEnhancer implements Runnable {
 		double maxStormDist = 512 / 4 * 3;
 		Vec3 plPos = Vec3.createVectorHelper(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
 		StormObject storm = null;
+		
+		ClientTickHandler.checkClientWeather();
 		
 		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
 		
@@ -624,9 +627,9 @@ public class SceneEnhancer implements Runnable {
         float windStr = manager.windMan.getWindSpeedForPriority();//(weatherMan.wind.strength <= 1F ? weatherMan.wind.strength : 1F);
 
         if (mc.objectMouseOver != null) {
-        	int id = mc.theWorld.getBlockId(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ);
+        	Block id = mc.theWorld.getBlock(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ);
         	//System.out.println(mc.theWorld.getBlockId(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ));
-        	if (id > 0 && Block.blocksList[id].blockMaterial == Material.wood) {
+        	if (CoroUtilBlock.isAir(id) && id.getMaterial() == Material.wood) {
         		float var5 = 0;
 
         		var5 = (Float)OldUtil.getPrivateValueSRGMCP(PlayerControllerMP.class, (PlayerControllerMP)mc.playerController, OldUtil.refl_curBlockDamageMP_obf, OldUtil.refl_curBlockDamageMP_mcp);
@@ -701,13 +704,11 @@ public class SceneEnhancer implements Runnable {
                 {
                         //for (int i = 0; i < p_blocks_leaf.size(); i++)
                         //{
-                            int id = getBlockId(worldRef, xx, yy, zz);
-
-                            Block block = Block.blocksList[id];
+                            Block block = getBlock(worldRef, xx, yy, zz);
                             
-                            //if (block != null && block.blockMaterial == Material.leaves)
+                            //if (block != null && block.getMaterial() == Material.leaves)
                             
-                            if (/*id == ((Block)p_blocks_leaf.get(i)).blockID*/block != null && (block.blockMaterial == Material.leaves || block.blockMaterial == Material.vine))
+                            if (/*id == ((Block)p_blocks_leaf.get(i)).blockID*/block != null && (block.getMaterial() == Material.leaves || block.getMaterial() == Material.vine))
                             {
                             	
                             	lastTickFoundBlocks++;
@@ -715,11 +716,11 @@ public class SceneEnhancer implements Runnable {
                             	if (/*true || */worldRef.rand.nextInt(spawnRate) == 0)
                                 {
                             		//bottom of tree check || air beside vine check
-	                                if (ConfigMisc.Wind_Particle_leafs && (getBlockId(worldRef, xx, yy - 1, zz) == 0 || getBlockId(worldRef, xx - 1, yy, zz) == 0))
+	                                if (ConfigMisc.Wind_Particle_leafs && (CoroUtilBlock.isAir(getBlock(worldRef, xx, yy - 1, zz)) || CoroUtilBlock.isAir(getBlock(worldRef, xx - 1, yy, zz))))
 	                                {
 	                                	
-	                                    EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, id, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
-	                                    var31.particleGravity = 0.1F;
+	                                    EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
+	                                    var31.setGravity(0.1F);
 	                                    //WeatherUtil.setParticleGravity((EntityFX)var31, 0.1F);
 	
 	                                    /*for (int ii = 0; ii < 10; ii++)
@@ -750,25 +751,25 @@ public class SceneEnhancer implements Runnable {
 	                                }
                                 }
                             }
-                            else if (ConfigMisc.Wind_Particle_waterfall && player.getDistance(xx,  yy, zz) < 16 && (block != null && block.blockMaterial == Material.water)) {
+                            else if (ConfigMisc.Wind_Particle_waterfall && player.getDistance(xx,  yy, zz) < 16 && (block != null && block.getMaterial() == Material.water)) {
                             	
                             	int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
                             		lastTickFoundBlocks += 70; //adding more to adjust for the rate 1 waterfall block spits out particles
                             		int chance = (int)(1+(((float)BlockCountRate)/120F));
                             		
-                            		int id2 = getBlockId(worldRef, xx, yy-1, zz);
+                            		Block block2 = getBlock(worldRef, xx, yy-1, zz);
                             		int meta2 = getBlockMetadata(worldRef, xx, yy-1, zz);
-                            		int id3 = getBlockId(worldRef, xx, yy+10, zz);
-                            		Block block2 = Block.blocksList[id2];
-                            		Block block3 = Block.blocksList[id3];
+                            		Block block3 = getBlock(worldRef, xx, yy+10, zz);
+                            		//Block block2 = Block.blocksList[id2];
+                            		//Block block3 = Block.blocksList[id3];
                             		
-                            		//if ((block2 == null || block2.blockMaterial != Material.water) && (block3 != null && block3.blockMaterial == Material.water)) {
+                            		//if ((block2 == null || block2.getMaterial() != Material.water) && (block3 != null && block3.getMaterial() == Material.water)) {
                             			//chance /= 3;
                             			
                             		//}
                             		//System.out.println("woot! " + chance);
-                                	if ((((block2 == null || block2.blockMaterial != Material.water) || (meta2 & 8) == 0) && (block3 != null && block3.blockMaterial == Material.water)) || worldRef.rand.nextInt(chance) == 0) {
+                                	if ((((block2 == null || block2.getMaterial() != Material.water) || (meta2 & 8) == 0) && (block3 != null && block3.getMaterial() == Material.water)) || worldRef.rand.nextInt(chance) == 0) {
                             		
 	                            		float range = 0.5F;
 	                            		
@@ -781,7 +782,7 @@ public class SceneEnhancer implements Runnable {
                                 	
 	                            		
 	                            		
-                            			if (((block2 == null || block2.blockMaterial != Material.water) || (meta2 & 8) == 0) && (block3 != null && block3.blockMaterial == Material.water)) {
+                            			if (((block2 == null || block2.getMaterial() != Material.water) || (meta2 & 8) == 0) && (block3 != null && block3.getMaterial() == Material.water)) {
                             				
                             				range = 2F;
                             				float speed = 0.2F;
@@ -820,7 +821,7 @@ public class SceneEnhancer implements Runnable {
                                 	}
                             	}
                             	
-                            }else if (ConfigMisc.Wind_Particle_fire && (block != null && block.blockID == Block.fire.blockID/*block.blockMaterial == Material.fire*/)) {
+                            } else if (ConfigMisc.Wind_Particle_fire && (block != null && block == Blocks.fire/*block.getMaterial() == Material.fire*/)) {
                             	lastTickFoundBlocks++;
                             	
                             	//
@@ -836,10 +837,10 @@ public class SceneEnhancer implements Runnable {
                         			//pm.particles.add(entityfx);
                             	}
                             }
-                            else if (false && id == 0)
+                            else if (false && CoroUtilBlock.isAir(block))
                             {
                             	
-                            	float temp = worldRef.getBiomeGenForCoords(xx, zz).getFloatTemperature();
+                            	float temp = worldRef.getBiomeGenForCoords(xx, zz).getFloatTemperature(xx, yy, zz);
                             	
                             	//System.out.println(temp);
                             	
@@ -1236,20 +1237,20 @@ public class SceneEnhancer implements Runnable {
 	
 	//Thread safe functions
     @SideOnly(Side.CLIENT)
-    private static int getBlockId(World parWorld, int x, int y, int z)
+    private static Block getBlock(World parWorld, int x, int y, int z)
     {
         try
         {
             if (!parWorld.checkChunksExist(x, 0, z , x, 128, z))
             {
-                return 10;
+                return null;
             }
 
-            return parWorld.getBlockId(x, y, z);
+            return parWorld.getBlock(x, y, z);
         }
         catch (Exception ex)
         {
-            return 10;
+            return null;
         }
     }
     

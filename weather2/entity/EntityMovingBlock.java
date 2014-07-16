@@ -1,16 +1,18 @@
 package weather2.entity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.List;
 
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.storm.StormObject;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -19,15 +21,17 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import CoroUtil.util.CoroUtilBlock;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 
 public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnData
 {
-    public int tile;
+    public Block tile;
     public static final int falling = 0;
     public static final int grabbed = 1;
     public int mode;
@@ -54,12 +58,12 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         super(var1);
         this.mode = 1;
         this.age = 0;
-        this.tile = 0;
+        this.tile = null;
         this.noCollision = true;
         this.gravityDelay = 60;
     }
 
-    public EntityMovingBlock(World var1, int var2, int var3, int var4, int var5, StormObject parOwner)
+    public EntityMovingBlock(World var1, int var2, int var3, int var4, Block var5, StormObject parOwner)
     {
         super(var1);
         this.mode = 1;
@@ -78,8 +82,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosX = (double)((float)var2 + 0.5F);
         this.prevPosY = (double)((float)var3 + 0.5F);
         this.prevPosZ = (double)((float)var4 + 0.5F);
-        this.material = Block.blocksList[this.tile].blockMaterial;
-        this.tileentity = var1.getBlockTileEntity(var2, var3, var4);
+        this.material = tile.getMaterial();
+        this.tileentity = var1.getTileEntity(var2, var3, var4);
         this.metadata = var1.getBlockMetadata(var2, var3, var4);
 
         owner = parOwner;
@@ -87,7 +91,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         if (this.tileentity != null)
         {
             //var1.setBlockTileEntity(var2, var3, var4, ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(var1));
-            var1.setBlock(var2, var3, var4, 0, 0, 2);
+            var1.setBlock(var2, var3, var4, Blocks.air, 0, 2);
         }
     }
 
@@ -122,7 +126,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 			}
     	}
     	
-        if (this.tile == 0)
+        if (CoroUtilBlock.isAir(this.tile))
         {
             this.setDead();
         }
@@ -141,7 +145,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
                 if (this.tileentity == null && ConfigMisc.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigMisc.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
                 {
-                    this.tile = Block.fire.blockID;
+                    this.tile = Blocks.fire;
                 }
             }
 
@@ -183,7 +187,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             }*/
             Vec3 var1 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
             Vec3 var2 = Vec3.createVectorHelper(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
-            MovingObjectPosition var3 = this.worldObj.clip(var1, var2);
+            MovingObjectPosition var3 = this.worldObj.rayTraceBlocks(var1, var2);
             var2 = Vec3.createVectorHelper(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
 
             if (var3 != null)
@@ -236,23 +240,20 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                             var10.setFire(15);
                         }
 
-                        if (this.tile == 81)
+                        if (this.tile == Blocks.cactus)
                         {
                             var10.attackEntityFrom(DamageSource.causeThrownDamage(this, this), 1);
                         }
-                        else if (this.tile != 88 && this.tile != 70 && this.tile != 72)
+                        else if (this.material == Material.lava)
                         {
-                            if (this.material == Material.lava)
-                            {
-                                var10.setFire(15);
-                            }
+                        	var10.setFire(15);
                         }
                         else
                         {
                             var9 = MathHelper.floor_double(this.posX);
                             var11 = MathHelper.floor_double(this.posY);
                             int var12 = MathHelper.floor_double(this.posZ);
-                            Block.blocksList[this.tile].onEntityCollidedWithBlock(this.worldObj, var9, var11, var12, var10);
+                            tile.onEntityCollidedWithBlock(this.worldObj, var9, var11, var12, var10);
                         }
                     }
 
@@ -397,18 +398,13 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     
     public boolean canEntityBeSeen(Entity par1Entity)
     {
-        return this.worldObj.clip(this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), this.worldObj.getWorldVec3Pool().getVecFromPool(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
+        return this.worldObj.rayTraceBlocks(this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), this.worldObj.getWorldVec3Pool().getVecFromPool(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
     private void blockify(int var1, int var2, int var3, int var4)
     {
         this.setDead();
-        int var5 = this.worldObj.getBlockId(var1, var2, var3);
-
-        if (var5 != 0)
-        {
-            ;
-        }
+        Block var5 = this.worldObj.getBlock(var1, var2, var3);
 
         if (this.tileentity != null || this.type != 0 || ConfigMisc.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigMisc.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {
@@ -441,7 +437,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                 //Block.blocksList[this.tile].onBlockPlacedBy(this.worldObj, var1, var2, var3, var4, this);
                 if (this.tileentity != null)
                 {
-                    this.worldObj.setBlockTileEntity(var1, var2, var3, this.tileentity);
+                    this.worldObj.setTileEntity(var1, var2, var3, this.tileentity);
                 }
             }
         }
@@ -455,7 +451,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void writeEntityToNBT(NBTTagCompound var1)
     {
-        var1.setByte("Tile", (byte)this.tile);
+        var1.setString("Tile", Block.blockRegistry.getNameForObject(tile));
         var1.setByte("Metadata", (byte)this.metadata);
         var1.setInteger("blocktype", type);
         NBTTagCompound var2 = new NBTTagCompound();
@@ -465,7 +461,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             this.tileentity.writeToNBT(var2);
         }
 
-        var1.setCompoundTag("TileEntity", var2);
+        var1.setTag("TileEntity", var2);
         
         
     }
@@ -473,14 +469,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void readEntityFromNBT(NBTTagCompound var1)
     {
-        this.tile = var1.getByte("Tile") & 255;
+        this.tile = (Block)Block.blockRegistry.getObject(var1.getString("Tile"));
         this.metadata = var1.getByte("Metadata") & 15;
         this.type = var1.getInteger("blocktype");
         this.tileentity = null;
 
-        if (Block.blocksList[this.tile] instanceof BlockContainer)
+        if (this.tile instanceof BlockContainer)
         {
-            this.tileentity = ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(this.worldObj);
+            this.tileentity = ((BlockContainer)this.tile).createNewTileEntity(worldObj, metadata);
             NBTTagCompound var2 = var1.getCompoundTag("TileEntity");
             this.tileentity.readFromNBT(var2);
         }
@@ -524,16 +520,16 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    public void writeSpawnData(ByteArrayDataOutput data)
+    public void writeSpawnData(ByteBuf data)
     {
-        data.writeInt(tile);
+    	ByteBufUtils.writeUTF8String(data, Block.blockRegistry.getNameForObject(tile));
         data.writeInt(metadata);
     }
 
     @Override
-    public void readSpawnData(ByteArrayDataInput data)
+    public void readSpawnData(ByteBuf data)
     {
-        tile = data.readInt();
+    	tile = (Block)Block.blockRegistry.getObject(ByteBufUtils.readUTF8String(data));
         metadata = data.readInt();
     }
 }

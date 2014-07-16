@@ -3,14 +3,18 @@ package weather2.entity;
 import java.util.List;
 import java.util.Random;
 
+import CoroUtil.util.CoroUtilBlock;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityWeatherEffect;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import weather2.config.ConfigMisc;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -49,15 +53,15 @@ public class EntityLightningBolt extends EntityWeatherEffect
         
         
         
-        if (!par1World.isRemote && (fireChance == 0 || rand.nextInt(fireChance) == 0) && par1World.getGameRules().getGameRuleBooleanValue("doFireTick") && par1World.difficultySetting >= 2 && par1World.doChunksNearChunkExist(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6), 10))
+        if (!par1World.isRemote && (fireChance == 0 || rand.nextInt(fireChance) == 0) && par1World.getGameRules().getGameRuleBooleanValue("doFireTick") && (par1World.difficultySetting == EnumDifficulty.NORMAL || par1World.difficultySetting == EnumDifficulty.HARD) && par1World.doChunksNearChunkExist(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6), 10))
         {
             int i = MathHelper.floor_double(par2);
             int j = MathHelper.floor_double(par4);
             int k = MathHelper.floor_double(par6);
 
-            if (par1World.getBlockId(i, j, k) == 0 && Block.fire.canPlaceBlockAt(par1World, i, j, k))
+            if (CoroUtilBlock.isAir(par1World.getBlock(i, j, k)) && Blocks.fire.canPlaceBlockAt(par1World, i, j, k))
             {
-                par1World.setBlock(i, j, k, Block.fire.blockID, fireLifeTime, 3);
+                par1World.setBlock(i, j, k, Blocks.fire, fireLifeTime, 3);
             }
 
             for (i = 0; i < 4; ++i)
@@ -66,9 +70,9 @@ public class EntityLightningBolt extends EntityWeatherEffect
                 k = MathHelper.floor_double(par4) + this.rand.nextInt(3) - 1;
                 int l = MathHelper.floor_double(par6) + this.rand.nextInt(3) - 1;
 
-                if (par1World.getBlockId(j, k, l) == 0 && Block.fire.canPlaceBlockAt(par1World, j, k, l))
+                if (CoroUtilBlock.isAir(par1World.getBlock(j, k, l)) && Blocks.fire.canPlaceBlockAt(par1World, j, k, l))
                 {
-                    par1World.setBlock(j, k, l, Block.fire.blockID, fireLifeTime, 3);
+                    par1World.setBlock(j, k, l, Blocks.fire, fireLifeTime, 3);
                 }
             }
         }
@@ -112,9 +116,9 @@ public class EntityLightningBolt extends EntityWeatherEffect
                     int j = MathHelper.floor_double(this.posY);
                     int k = MathHelper.floor_double(this.posZ);
 
-                    if (this.worldObj.getBlockId(i, j, k) == 0 && Block.fire.canPlaceBlockAt(this.worldObj, i, j, k))
+                    if (CoroUtilBlock.isAir(worldObj.getBlock(i, j, k)) && Blocks.fire.canPlaceBlockAt(worldObj, i, j, k))
                     {
-                        this.worldObj.setBlock(i, j, k, Block.fire.blockID, fireLifeTime, 3);
+                    	worldObj.setBlock(i, j, k, Blocks.fire, fireLifeTime, 3);
                     }
                 }
             }

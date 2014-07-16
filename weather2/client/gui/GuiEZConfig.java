@@ -11,7 +11,6 @@ import modconfig.gui.GuiConfigEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiSmallButton;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -119,10 +118,12 @@ public class GuiEZConfig extends GuiScreen {
 		//only sync request on initial gui open
         NBTTagCompound data = new NBTTagCompound();
         data.setString("command", "syncRequest");
-        PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("EZGuiData", data));
+        data.setString("packetCommand", "EZGuiData");
+        Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+        //PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("EZGuiData", data));
 		
         //prep send cache
-		nbtSendCache.setCompoundTag("guiData", new NBTTagCompound());
+		nbtSendCache.setTag("guiData", new NBTTagCompound());
 	}
 	
 	@Override
@@ -174,7 +175,7 @@ public class GuiEZConfig extends GuiScreen {
 		int yEleSize = 24;
 		int yEleSize2 = 44;
 		
-		this.drawString(this.fontRenderer, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
+		this.drawString(this.fontRendererObj, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
 		
 		int yStart2 = yStart + 34;
 		
@@ -183,34 +184,34 @@ public class GuiEZConfig extends GuiScreen {
 		
 		//this.drawString(this.fontRenderer, "Server vals = OPs only", xStart+260, yStart+12, 16777215);
 		
-		this.drawString(this.fontRenderer, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
+		this.drawString(this.fontRendererObj, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
 		
 		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
-			this.drawString(this.fontRenderer, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRenderer, "Nature effects", xStart+7, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRenderer, "Particle precipitation rate", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRendererObj, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRendererObj, "Nature effects", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRendererObj, "Particle precipitation rate", xStart+7, yStart2+8+yEleSize*2, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
-			this.drawString(this.fontRenderer, "Storms when", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRenderer, "Lock vanilla weather", xStart+7, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRenderer, "Particle precipitation", xStart+7, yStart2+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRenderer, "Extra snowfall blocks", xStart+7, yStart2+8+yEleSize*3, 16777215);
-			this.drawString(this.fontRenderer, "Wind only for vanilla particles", xStart+7, yStart2+8+yEleSize*4, 16777215);
+			this.drawString(this.fontRendererObj, "Storms when", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRendererObj, "Lock vanilla weather", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRendererObj, "Particle precipitation", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRendererObj, "Extra snowfall blocks", xStart+7, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRendererObj, "Wind only for vanilla particles", xStart+7, yStart2+8+yEleSize*4, 16777215);
 
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
-			this.drawString(this.fontRenderer, "Rate of storms per each player", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRenderer, "Chance of storms", xStart+7, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRenderer, "Chance of rain", xStart+7, yStart2+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRenderer, "Block destruction", xStart+7, yStart2+8+yEleSize*3, 16777215);
-			this.drawString(this.fontRenderer, "Tornados and Cyclones", xStart+7, yStart2+8+yEleSize*4, 16777215);
+			this.drawString(this.fontRendererObj, "Rate of storms per each player", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRendererObj, "Chance of storms", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRendererObj, "Chance of rain", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRendererObj, "Block destruction", xStart+7, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRendererObj, "Tornados and Cyclones", xStart+7, yStart2+8+yEleSize*4, 16777215);
 			
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
-			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*4, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*4, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
 			//this.drawString(this.fontRenderer, "Not done yet! Just use /config and find the Dimension listings, ", xStart+7, yStart2+8, 16777215);
 			//this.drawString(this.fontRenderer, "then add the dimension ID", xStart+7, yStart2+8+yEleSize*1, 16777215);
@@ -221,15 +222,15 @@ public class GuiEZConfig extends GuiScreen {
 			try {
 				for (int i = 0; i < curDimListCountPerPage; i++) {
 					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
-						this.drawString(this.fontRenderer, "\u00A7" + '6' + listDimNames.get(curDimListPage*curDimListCountPerPage + i), xStart+7, yStart2+8+yEleSize2*i, 16777215);
-						this.drawString(this.fontRenderer, "Weather: ", xStart+7, yStart2+28+yEleSize2*i, 16777215);
-						this.drawString(this.fontRenderer, "Clouds: ", xStart+100, yStart2+28+yEleSize2*i, 16777215);
-						this.drawString(this.fontRenderer, "Storms: ", xStart+186, yStart2+28+yEleSize2*i, 16777215);
-						this.drawString(this.fontRenderer, "Effects: ", xStart+270, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRendererObj, "\u00A7" + '6' + listDimNames.get(curDimListPage*curDimListCountPerPage + i), xStart+7, yStart2+8+yEleSize2*i, 16777215);
+						this.drawString(this.fontRendererObj, "Weather: ", xStart+7, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRendererObj, "Clouds: ", xStart+100, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRendererObj, "Storms: ", xStart+186, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRendererObj, "Effects: ", xStart+270, yStart2+28+yEleSize2*i, 16777215);
 					}
 				}
 				
-				this.drawString(this.fontRenderer, "" + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+80, yStart2+194, 16777215);
+				this.drawString(this.fontRendererObj, "" + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+80, yStart2+194, 16777215);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -350,10 +351,10 @@ public class GuiEZConfig extends GuiScreen {
 		listSettingClouds.clear();
 		listSettingEffects.clear();
 		
-		Iterator it = dimData.getTags().iterator();
-		
-		while (it.hasNext()) {
-			NBTTagCompound tag = (NBTTagCompound) it.next();
+		 Iterator it = dimData.func_150296_c().iterator();
+         while (it.hasNext()) {
+         	String tagName = (String) it.next();
+         	NBTTagCompound tag = dimData.getCompoundTag(tagName);
 			//NBTTagString tag = (NBTTagString) it.next();
 			//listDimIDs.add(Integer.parseInt(tag.getName()));
 			listDimIDs.add(tag.getInteger("ID"));//Integer.parseInt(tag.getName()));
@@ -422,10 +423,10 @@ public class GuiEZConfig extends GuiScreen {
 					
 					Weather.dbg("page: " + curDimListPage + " - index: " + startIndex);
 					
-					((GuiButtonCycle)buttonsLookup.get(startIndex + 0)).drawButton = show;
-					((GuiButtonCycle)buttonsLookup.get(startIndex + 1)).drawButton = show;
-					((GuiButtonCycle)buttonsLookup.get(startIndex + 2)).drawButton = show;
-					((GuiButtonCycle)buttonsLookup.get(startIndex + 3)).drawButton = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 0)).visible = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 1)).visible = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 2)).visible = show;
+					((GuiButtonCycle)buttonsLookup.get(startIndex + 3)).visible = show;
 				}
 			} catch (Exception ex) {
 				//Weather.dbg("error");
@@ -502,8 +503,8 @@ public class GuiEZConfig extends GuiScreen {
         int btnDimIndex = btnDimIndexStart;
         
         
-        addButton(new GuiSmallButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
-        addButton(new GuiSmallButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
+        addButton(new GuiButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
+        addButton(new GuiButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
         
         addButton(new GuiButton(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
         addButton(new GuiButton(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
@@ -640,7 +641,7 @@ public class GuiEZConfig extends GuiScreen {
         			((GuiButtonCycle) var1).cycleIndex();
         			NBTTagCompound nbtDims = WeatherUtilConfig.nbtClientData.getCompoundTag("dimData");
         			nbtDims.setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
-        			WeatherUtilConfig.nbtClientData.setCompoundTag("dimData", nbtDims);
+        			WeatherUtilConfig.nbtClientData.setTag("dimData", nbtDims);
         			Weather.dbg("nbtClientData: " + WeatherUtilConfig.nbtClientData);
         		} else { //if server button
 	        		Weather.dbg(((var1.id-btnDimIndexStart) % 4) + " - " + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage));
@@ -648,7 +649,7 @@ public class GuiEZConfig extends GuiScreen {
 	        		NBTTagCompound nbtDims = nbtSendCache.getCompoundTag("guiData").getCompoundTag("dimData");
 	        		nbtDims.setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
 	        		
-	        		nbtSendCache.getCompoundTag("guiData").setCompoundTag("dimData", nbtDims);
+	        		nbtSendCache.getCompoundTag("guiData").setTag("dimData", nbtDims);
 	        		Weather.dbg("nbtSendCache: " + nbtSendCache);
         		}
         	} catch (Exception ex) {
@@ -662,9 +663,12 @@ public class GuiEZConfig extends GuiScreen {
             //if (mc.thePlayer != null) username = mc.thePlayer.username;
             //nbtSendCache.setString("username", username); //irrelevant, overriden server side for safety
         	nbtSendCache.setString("command", "applySettings");
+        	nbtSendCache.setString("packetCommand", "EZGuiData");
             //nbtSendCache.setInteger("cmdID", var1.id);
             //nbtSendCache.setString("guiCur", guiForPacket);
-        	PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("EZGuiData", nbtSendCache));
+        	Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(nbtSendCache, Weather.eventChannelName));
+        	//Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(nbtSendCache, "EZGuiData"));
+        	//PacketHelper.sendClientPacket(PacketHelper.getNBTPacket(nbtSendCache, "EZGuiData"));
         }
     }
 	

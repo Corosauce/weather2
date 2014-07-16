@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityFlying;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -71,7 +72,7 @@ public class RenderCubeCloud extends Render
         //tess.setColorOpaque_F(255, 255, 255);
         //renderBlock = Block.netherrack;
         
-        Block renderBlock = Block.ice;
+        Block renderBlock = Blocks.ice;
         
     	//the real one
         rb.setRenderBoundsFromBlock(renderBlock);

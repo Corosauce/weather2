@@ -1,9 +1,9 @@
 package weather2;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Icon;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.IIcon;
 import net.minecraftforge.common.MinecraftForge;
 import weather2.block.TileEntityAnemometer;
 import weather2.block.TileEntityTSiren;
@@ -28,23 +28,24 @@ import weather2.util.WeatherUtilSound;
 import CoroUtil.render.RenderNull;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
 
-	public static Icon radarIconRain;
-	public static Icon radarIconLightning;
-	public static Icon radarIconWind;
-	public static Icon radarIconHail;
-	public static Icon radarIconTornado;
-	public static Icon radarIconCyclone;
+	public static IIcon radarIconRain;
+	public static IIcon radarIconLightning;
+	public static IIcon radarIconWind;
+	public static IIcon radarIconHail;
+	public static IIcon radarIconTornado;
+	public static IIcon radarIconCyclone;
+	
+	public static ClientTickHandler clientTickHandler;
 	
     public ClientProxy()
     {
-        
+        clientTickHandler = new ClientTickHandler();
     }
 
     @Override
@@ -54,11 +55,11 @@ public class ClientProxy extends CommonProxy
     	
     	WeatherUtilSound.init();
     	
-    	MinecraftForge.EVENT_BUS.register(new SoundLoader());
+    	//MinecraftForge.EVENT_BUS.register(new SoundLoader());
     	
-    	TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
+    	//TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
         
-        addMapping(EntityIceBall.class, new RenderFlyingBlock(Block.ice));
+        addMapping(EntityIceBall.class, new RenderFlyingBlock(Blocks.ice));
         addMapping(EntityMovingBlock.class, new RenderFlyingBlock(null));
         addMapping(EntityLightningBolt.class, new RenderLightningBolt());
         addMapping(EntityFallingRainFX.class, new RenderNull());

@@ -19,7 +19,7 @@ public class TileEntityTSiren extends TileEntity
 {
     public long lastPlayTime = 0L;
     public long lastVolUpdate = 0L;
-    public int soundID = -1;
+    //public int soundID = -1;
     public int lineBeingEdited = -1;
 
     public void updateEntity()
@@ -43,27 +43,8 @@ public class TileEntityTSiren extends TileEntity
             	//if (so.attrib_tornado_severity > 0) {
             		//Weather.dbg("soooooouuuunnnnddddddd");
 	                this.lastPlayTime = System.currentTimeMillis() + 13000L;
-	                this.soundID = WeatherUtilSound.playMovingSound(Weather.modID + ":tornado.siren", (float)mc.thePlayer.posX, (float)mc.thePlayer.posY, (float)mc.thePlayer.posZ, 1.0F, 1.0F);
+	                /*this.soundID = */WeatherUtilSound.playNonMovingSound(Vec3.createVectorHelper(xCoord, yCoord, zCoord), Weather.modID + ":streaming.siren", 1.0F, 1.0F, 120);
             	//}
-            }
-        }
-
-        if (this.lastVolUpdate < System.currentTimeMillis())
-        {
-            this.lastVolUpdate = System.currentTimeMillis() + 100L;
-            Entity pl = mc.thePlayer;
-
-            if (pl != null)
-            {
-                float var3 = (float)((120.0D - (double)MathHelper.sqrt_double(this.getDistanceFrom(pl.posX, pl.posY, pl.posZ))) / 120.0D);
-
-                if (var3 < 0.0F)
-                {
-                    var3 = 0.0F;
-                }
-
-                String var2 = "sound_" + this.soundID;
-                WeatherUtilSound.setVolume(var2, var3);
             }
         }
     }

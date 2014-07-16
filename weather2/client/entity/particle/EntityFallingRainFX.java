@@ -2,15 +2,11 @@ package weather2.client.entity.particle;
 
 import java.awt.Color;
 
-import weather2.config.ConfigMisc;
-import weather2.util.WeatherUtilParticle;
-
-import CoroUtil.api.weather.WindHandler;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.src.ModLoader;
 import net.minecraft.world.World;
+import weather2.util.WeatherUtilParticle;
+import CoroUtil.api.weather.WindHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.particle.entity.EntityRotFX;

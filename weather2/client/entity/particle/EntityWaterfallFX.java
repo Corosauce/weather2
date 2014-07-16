@@ -2,13 +2,13 @@ package weather2.client.entity.particle;
 
 import java.awt.Color;
 
-import CoroUtil.api.weather.WindHandler;
-
-import net.minecraft.block.BlockFluid;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.src.ModLoader;
 import net.minecraft.world.World;
+import CoroUtil.api.weather.WindHandler;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -84,7 +84,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         float var14 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)var2 - interpPosY);
         float var15 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)var2 - interpPosZ);
         float var16 = this.getBrightness(var2) * this.brightness;
-        var16 = (1F + ModLoader.getMinecraftInstance().gameSettings.gammaSetting) - (this.worldObj.calculateSkylightSubtracted(var2) * 0.13F);
+        var16 = (1F + FMLClientHandler.instance().getClient().gameSettings.gammaSetting) - (this.worldObj.calculateSkylightSubtracted(var2) * 0.13F);
         
         
         
@@ -124,16 +124,16 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         //this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         
-        int id = this.worldObj.getBlockId((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
+        Block id = this.worldObj.getBlock((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         //int id2 = this.worldObj.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
         
         
         
         int meta = 0;
         
-        if (id == 9 || id == 8) {
+        if (id.getMaterial() == Material.water/*id == 9 || id == 8*/) {
         	
-        	Double dir = BlockFluid.getFlowDirection(worldObj, (int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ), Material.water);
+        	Double dir = BlockLiquid.getFlowDirection(worldObj, (int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ), Material.water);
         	
         	if (dir != -1000) {
             	//System.out.println("uhhhh: " + dir);
@@ -194,7 +194,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         //System.out.println("adjusted height: " + height);
         
-        if ((id == 9 || id == 8) && motionY > 0F && this.posY > ((int)Math.floor(this.posY)) + height) {
+        if ((id.getMaterial() == Material.water) && motionY > 0F && this.posY > ((int)Math.floor(this.posY)) + height) {
         	//System.out.println("meta: " + meta);
         	//this.posY = ((int)Math.floor(this.posY)) + height;
         	//this.setPosition(posX, posY, posZ);

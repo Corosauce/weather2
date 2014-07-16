@@ -5,15 +5,16 @@ import java.util.Random;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.world.World;
+import CoroUtil.util.CoroUtil;
 
 public class BlockWeatherMachine extends BlockContainer
 {
     public BlockWeatherMachine(int var1)
     {
-        super(var1, Material.clay);
+        super(Material.clay);
     }
 
     public int tickRate()
@@ -24,7 +25,7 @@ public class BlockWeatherMachine extends BlockContainer
     public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
 
     @Override
-    public TileEntity createNewTileEntity(World var1)
+    public TileEntity createNewTileEntity(World var1, int meta)
     {
         return new TileEntityWeatherMachine();
     }
@@ -47,7 +48,7 @@ public class BlockWeatherMachine extends BlockContainer
     		float par8, float par9) {
     	
     	if (!par1World.isRemote) {
-	    	TileEntity tEnt = par1World.getBlockTileEntity(par2, par3, par4);
+	    	TileEntity tEnt = par1World.getTileEntity(par2, par3, par4);
 	    	
 	    	if (tEnt instanceof TileEntityWeatherMachine) {
 	    		((TileEntityWeatherMachine) tEnt).cycleWeatherType();
@@ -63,7 +64,7 @@ public class BlockWeatherMachine extends BlockContainer
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 6) {
 	    			msg = "Stage 1 Tropical Cyclone";
 	    		}
-	    		par5EntityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("Weather Machine set to " + msg));
+	    		CoroUtil.sendPlayerMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
 	    		return true;
 	    	}
     	}

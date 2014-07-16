@@ -6,13 +6,12 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 
 import org.lwjgl.opengl.GL11;
 
 import weather2.ClientProxy;
-import weather2.CommonProxy;
 import weather2.api.WindReader;
 import weather2.block.TileEntityWeatherForecast;
 import weather2.weathersystem.storm.StormObject;
@@ -35,9 +34,9 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	
     	String descSeverity = "";
     	String descDist = "";
-    	String descWindAngleCloud = "Wind Angle Clouds: " + (int)WindReader.getWindAngle(var1.worldObj, pos, WindReader.WindType.CLOUD);
-    	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.worldObj, pos, WindReader.WindType.DOMINANT);
-    	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.worldObj, pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
+    	String descWindAngleCloud = "Wind Angle Clouds: " + (int)WindReader.getWindAngle(var1.getWorldObj(), pos, WindReader.WindType.CLOUD);
+    	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.getWorldObj(), pos, WindReader.WindType.DOMINANT);
+    	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorldObj(), pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
     	
     	String progression = "";
     	
@@ -195,7 +194,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	
     }
     
-    public void renderIcon(double par3, double par5, double par7, int width, int height, float angle, Icon parIcon) {
+    public void renderIcon(double par3, double par5, double par7, int width, int height, float angle, IIcon parIcon) {
     	
     	float var12 = 0.6F;
         float var13 = 0.016666668F * var12;

@@ -11,7 +11,7 @@ public class BlockWeatherDeflector extends BlockContainer
 {
     public BlockWeatherDeflector(int var1)
     {
-        super(var1, Material.clay);
+        super( Material.clay);
     }
 
     public int tickRate()
@@ -22,7 +22,7 @@ public class BlockWeatherDeflector extends BlockContainer
     public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
 
     @Override
-    public TileEntity createNewTileEntity(World var1)
+    public TileEntity createNewTileEntity(World var1, int meta)
     {
         return new TileEntityWeatherDeflector();
     }

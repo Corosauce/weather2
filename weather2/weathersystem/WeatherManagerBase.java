@@ -99,7 +99,7 @@ public class WeatherManagerBase {
 					((WeatherManagerServer)this).syncStormRemove(so);
 				} else {
 					
-					if (getWorld().isRemote && so.ticksSinceLastPacketReceived > 20*60) {
+					/*if (getWorld().isRemote && so.ticksSinceLastPacketReceived > 20*60) {
 						Weather.dbg("WARNING!!! - detected no packets received in last 60 seconds for storm ID: " + so.ID + " this is an ongoing bug, force removing storm on client side");
 						removeStormObject(so.ID);
 						
@@ -117,7 +117,7 @@ public class WeatherManagerBase {
 							}
 							
 						}
-					} else {
+					} else {*/
 					
 						if (!so.isDead) {
 							so.tick();
@@ -129,7 +129,7 @@ public class WeatherManagerBase {
 							//Weather.dbg("client storm is dead and still in list, bug?");
 						}
 						
-					}
+					//}
 				}
 			}
 						
@@ -262,9 +262,9 @@ public class WeatherManagerBase {
 			VolcanoObject td = listVolcanoes.get(i);
 			NBTTagCompound teamNBT = new NBTTagCompound();
 			td.writeToNBT(teamNBT);
-			listVolcanoesNBT.setCompoundTag("volcano_" + td.ID, teamNBT);
+			listVolcanoesNBT.setTag("volcano_" + td.ID, teamNBT);
 		}
-		mainNBT.setCompoundTag("volcanoData", listVolcanoesNBT);
+		mainNBT.setTag("volcanoData", listVolcanoesNBT);
 		mainNBT.setLong("lastUsedID", VolcanoObject.lastUsedID);
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
@@ -325,11 +325,14 @@ public class WeatherManagerBase {
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedID");
 		
 		NBTTagCompound teamDataList = rtsNBT.getCompoundTag("volcanoData");
-		Collection teamDataListCl = teamDataList.getTags();
-		Iterator it = teamDataListCl.iterator();
+		//Collection teamDataListCl = teamDataList.getTags();
+		//Iterator it = teamDataListCl.iterator();
+		
+		Iterator it = teamDataList.func_150296_c().iterator();
 		
 		while (it.hasNext()) {
-			NBTTagCompound teamData = (NBTTagCompound)it.next();
+			String tagName = (String) it.next();
+			NBTTagCompound teamData = (NBTTagCompound)rtsNBT.getCompoundTag(tagName);
 			
 			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0)/*-1, -1, null*/);
 			try {

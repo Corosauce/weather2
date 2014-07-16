@@ -6,11 +6,12 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.Vec3;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.CoroUtil;
+import CoroUtil.util.CoroUtilEntity;
 
 public class CommandWeather2 extends CommandBase {
 
@@ -41,15 +42,15 @@ public class CommandWeather2 extends CommandBase {
 							
 							wm.syncVolcanoNew(vo);
 							
-							var1.sendChatToPlayer(new ChatMessageComponent().addText("volcano created"));
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "volcano created");
 						} else {
-							var1.sendChatToPlayer(new ChatMessageComponent().addText("can only make volcanos on main overworld"));
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "can only make volcanos on main overworld");
 						}
 					}
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
 						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
-						var1.sendChatToPlayer(new ChatMessageComponent().addText("killing all storms"));
+						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "killing all storms");
 						List<StormObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
 							StormObject so = listStorms.get(i);
@@ -64,7 +65,7 @@ public class CommandWeather2 extends CommandBase {
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
 							StormObject so = new StormObject(wm);
 							so.layer = 0;
-							so.userSpawnedFor = player.username;
+							so.userSpawnedFor = CoroUtilEntity.getName(player);
 							so.naturallySpawned = false;
 							so.levelTemperature = 0.1F;
 							so.pos = Vec3.createVectorHelper(player.posX, StormObject.layers.get(so.layer), player.posZ);
@@ -138,22 +139,22 @@ public class CommandWeather2 extends CommandBase {
 							wm.addStormObject(so);
 							wm.syncStormNew(so);
 							
-							var1.sendChatToPlayer(new ChatMessageComponent().addText("storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : "")));
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : ""));
 						} else {
-							var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 						}
 					} else if (var2[1].equals("help")) {
-						var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
+						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 					} else {
-						var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
+						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 					}
 				} else {
-					var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
+					CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 				}
 			}
 		} catch (Exception ex) {
 			System.out.println("Exception handling Weather2 command");
-			var1.sendChatToPlayer(new ChatMessageComponent().addText(helpMsgStorm));
+			CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 			ex.printStackTrace();
 		}
 		

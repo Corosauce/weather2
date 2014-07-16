@@ -2,6 +2,7 @@ package weather2.config;
 
 import java.io.File;
 
+import weather2.Weather;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
 
@@ -51,7 +52,6 @@ public class ConfigMisc implements IConfigCategory {
 	//storm
 	public static boolean Storm_FlyingBlocksHurt = true;
 	public static int Storm_MaxPerPlayerPerLayer = 20;
-	public static double Storm_IntensityAmplifier = 4;
 	public static int Storm_Deadly_CollideDistance = 128;
 	public static int Storm_LightningStrikeBaseValueOddsTo1 = 200;
 	public static boolean Storm_NoRainVisual = false;
@@ -80,6 +80,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Cloud_ParticleSpawnDelay = 0;
 	public static int Cloud_Formation_MinDistBetweenSpawned = 256;
 	public static boolean Cloud_Layer1_Enable = false;
+	public static int Cloud_Layer0_Height = 200;
 	
 	//lightning
 	public static int Lightning_OddsTo1OfFire = 20;
@@ -145,6 +146,7 @@ public class ConfigMisc implements IConfigCategory {
 
 	@Override
 	public void hookUpdatedValues() {
+		//Weather.dbg("block list processing disabled");
 		WeatherUtil.doBlockList();
 		WeatherUtilConfig.processLists();
 	}

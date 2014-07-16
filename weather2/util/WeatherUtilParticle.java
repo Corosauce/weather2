@@ -4,10 +4,12 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Random;
 
+import CoroUtil.OldUtil;
+
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
-import net.minecraft.src.ModLoader;
 import net.minecraft.util.Vec3;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -42,13 +44,13 @@ public class WeatherUtilParticle {
     //weather2: not sure what will happen to this in 1.7, copied over for convinience
     public static int getParticleAge(EntityFX ent)
     {
-        return ent.particleAge;
+        return (Integer) OldUtil.getPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge");
     }
 
     //weather2: not sure what will happen to this in 1.7, copied over for convinience
     public static void setParticleAge(EntityFX ent, int val)
     {
-        ent.particleAge = val;
+        OldUtil.setPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge", val);
     }
 
     @SideOnly(Side.CLIENT)
@@ -61,7 +63,7 @@ public class WeatherUtilParticle {
         {
             field = (EffectRenderer.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (List[])field.get(ModLoader.getMinecraftInstance().effectRenderer);
+            fxLayers = (List[])field.get(FMLClientHandler.instance().getClient().effectRenderer);
         }
         catch (Exception ex)
         {
@@ -71,7 +73,7 @@ public class WeatherUtilParticle {
             {
                 field = (EffectRenderer.class).getDeclaredField("fxLayers");
                 field.setAccessible(true);
-                fxLayers = (List[])field.get(ModLoader.getMinecraftInstance().effectRenderer);
+                fxLayers = (List[])field.get(FMLClientHandler.instance().getClient().effectRenderer);
             }
             catch (Exception ex2)
             {

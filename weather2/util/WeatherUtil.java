@@ -1,12 +1,15 @@
 package weather2.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockTallGrass;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import weather2.CommonProxy;
@@ -15,21 +18,21 @@ import cpw.mods.fml.client.FMLClientHandler;
 
 public class WeatherUtil {
 
-	public static HashMap<Integer, Boolean> blockIDToUseMapping = new HashMap<Integer, Boolean>();
+	public static HashMap<Block, Boolean> blockIDToUseMapping = new HashMap<Block, Boolean>();
 	
     public static boolean isPaused() {
-    	if (FMLClientHandler.instance().getClient().getIntegratedServer() != null && FMLClientHandler.instance().getClient().getIntegratedServer().getServerListeningThread() != null && FMLClientHandler.instance().getClient().getIntegratedServer().getServerListeningThread().isGamePaused()) return true;
+    	if (FMLClientHandler.instance().getClient().isGamePaused()) return true;
     	return false;
     }
     
     //Terrain grabbing
-    public static boolean shouldGrabBlock(World parWorld, int id)
+    public static boolean shouldGrabBlock(World parWorld, Block id)
     {
         try
         {
-        	ItemStack itemStr = new ItemStack(Item.axeDiamond);
+        	ItemStack itemStr = new ItemStack(Items.diamond_axe);
 
-            Block block = Block.blocksList[id];
+            Block block = id;
             
         	boolean result = true;
             if (ConfigMisc.Storm_Tornado_GrabCond_StrengthGrabbing)
@@ -43,15 +46,15 @@ public class WeatherUtil {
                 	return result; //force return false to prevent unchecked future code outside scope
                 } else {
 
-	                float strVsBlock = block.getBlockHardness(parWorld, 0, 0, 0) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
+	                float strVsBlock = block.getBlockHardness(parWorld, 0, 0, 0) - (((itemStr.func_150997_a(block) - 1) / 4F));
 	
 	                //System.out.println(strVsBlock);
-	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.blockMaterial == Material.wood) || block.blockMaterial == Material.cloth || block.blockMaterial == Material.plants || block instanceof BlockTallGrass)
+	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
 	                {
 	                    /*if (block.blockMaterial == Material.water) {
 	                    	return false;
 	                    }*/
-	                    if (!safetyCheck(block.blockID))
+	                    if (!safetyCheck(block))
 	                    {
 	                    	result = false;
 	                    }
@@ -80,12 +83,12 @@ public class WeatherUtil {
             }
             
             if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-            	if (id == Block.dirt.blockID || id == Block.grass.blockID || id == Block.sand.blockID || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+            	if (id == Blocks.dirt || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
             		result = false;
             	}
             }
             
-            if (id == CommonProxy.blockWeatherMachine.blockID) {
+            if (id == CommonProxy.blockWeatherMachine) {
             	result = false;
             }
             
@@ -98,9 +101,9 @@ public class WeatherUtil {
         }
     }
     
-    public static boolean safetyCheck(int id)
+    public static boolean safetyCheck(Block id)
     {
-        if (id != Block.bedrock.blockID && id != Block.wood.blockID && id != Block.chest.blockID && id != Block.jukebox.blockID/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
+        if (id != Blocks.bedrock && id != Blocks.log && id != Blocks.chest && id != Blocks.jukebox/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
         {
             return true;
         }
@@ -110,7 +113,7 @@ public class WeatherUtil {
         }
     }
     
-    public static boolean shouldRemoveBlock(int blockID)
+    public static boolean shouldRemoveBlock(Block blockID)
     {
         /*if (tryFinite)
         {
@@ -143,7 +146,7 @@ public class WeatherUtil {
         }*/
 
         //water no
-        if (blockID == Block.waterMoving.blockID || blockID == Block.waterStill.blockID)
+        if (blockID.getMaterial() == Material.water)
         {
             return false;
         }
@@ -151,7 +154,7 @@ public class WeatherUtil {
         return true;
     }
     
-    public static boolean isOceanBlock(int blockID)
+    public static boolean isOceanBlock(Block blockID)
     {
         /*if (tryFinite)
         {
@@ -172,11 +175,11 @@ public class WeatherUtil {
         return false;
     }
     
-    public static boolean isSolidBlock(int id)
+    public static boolean isSolidBlock(Block id)
     {
-        return (id == Block.stone.blockID ||
-                id == Block.cobblestone.blockID ||
-                id == Block.sandStone.blockID);
+        return (id == Blocks.stone ||
+                id == Blocks.cobblestone ||
+                id == Blocks.sandstone);
     }
 	
     public static void doBlockList()
@@ -184,50 +187,36 @@ public class WeatherUtil {
         blockIDToUseMapping.clear();
         //System.out.println("Blacklist: ");
         String[] splEnts = ConfigMisc.Storm_Tornado_GrabList.split(",");
-        int[] blocks = new int[splEnts.length];
+        //int[] blocks = new int[splEnts.length];
 
-        if (splEnts.length > 1) {
+        if (splEnts.length > 0) {
 	        for (int i = 0; i < splEnts.length; i++)
 	        {
 	            splEnts[i] = splEnts[i].trim();
-	            blocks[i] = Integer.valueOf(splEnts[i]);
+	            //blocks[i] = Integer.valueOf(splEnts[i]);
 	            //System.out.println(splEnts[i]);
 	        }
         }
 
         //HashMap hashmap = null;
         //System.out.println("?!?!" + Block.blocksList.length);
-        blockIDToUseMapping.put(0, false);
+        blockIDToUseMapping.put(Blocks.air, false);
 
-        for (int i = 1; i < Block.blocksList.length; i++)
-        {
-            //System.out.println(i);
-            //Object o = i$.next();
-            //String s = (String)o;
-
-            /*Class class1 = (Class)hashmap.get(o);
-            try
-            {
-              class1.getDeclaredConstructor(new Class[] { EntityList.class }); } catch (Throwable throwable1) {
-              	blockIDToUseMapping.put(class1, false);//continue;
-            }*/
-
-            //if ((!Modifier.isAbstract(class1.getModifiers())))
-            //{
-            //SettingBoolean settingboolean = new SettingBoolean("mobarrow_" + s, Boolean.valueOf(true));
-            //mod_Arrows303.Settings.append(settingboolean);
-            //widgetclassictwocolumn.add(new WidgetBoolean(settingboolean, s));
-            //mobSettings.put(s, settingboolean);
-            //if ((IMob.class.isAssignableFrom(class1))) {
-            if (Block.blocksList[i] != null)
+        Set set = Block.blockRegistry.getKeys();
+        Iterator it = set.iterator();
+        while (it.hasNext()) {
+        	String tagName = (String) it.next();
+        	Block block = (Block) Block.blockRegistry.getObject(tagName);
+        	
+        	if (block != null)
             {
                 boolean foundEnt = false;
 
-                for (int j = 0; j < blocks.length; j++)
+                for (int j = 0; j < splEnts.length; j++)
                 {
-                    int uh = blocks[j];
+                    Block blockEntry = (Block)Block.blockRegistry.getObject(splEnts[j]);
 
-                    if (uh == i)
+                    if (blockEntry != null)
                     {
                         foundEnt = true;
                         //blackList.append(s + " ");
@@ -237,23 +226,15 @@ public class WeatherUtil {
                 }
 
                 //entList.append(s + " ");
-                blockIDToUseMapping.put(Block.blocksList[i].blockID, foundEnt);
+                if (foundEnt) {
+                	blockIDToUseMapping.put(block, foundEnt);
+                }
             }
             else
             {
-                blockIDToUseMapping.put(i, false);
+                blockIDToUseMapping.put(block, false);
             }
-
-            /*} else {
-              //non mobs
-              blockIDToUseMapping.put(class1, false);
-            }*/
-            //System.out.println("hmmmm? " + s);
-            //}
         }
-
-        //System.out.println(entList.toString());
-        //System.out.println(blackList.toString());
     }
     
     

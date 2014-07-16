@@ -130,7 +130,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			ent.serverPosZ = posZS;
 			ent.rotationYaw = 0.0F;
 			ent.rotationPitch = 0.0F;
-			ent.entityId = nbt.getInteger("entityID");
+			ent.setEntityId(nbt.getInteger("entityID"));
 			getWorld().addWeatherEffect(ent);
 		} else if (command.equals("syncWeatherUpdate")) {
 			//Weather.dbg("updating client side wind");

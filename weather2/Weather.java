@@ -1,26 +1,25 @@
 package weather2;
 
 import modconfig.ConfigMod;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import weather2.config.ConfigMisc;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import CoroUtil.util.CoroUtilFile;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.Init;
-import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.network.FMLEventChannel;
+import cpw.mods.fml.common.network.NetworkRegistry;
 
-@NetworkMod(channels = { "WeatherData", "EZGuiData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
-@Mod(modid = "weather2", name="weather2", version="v2.3")
+//@NetworkMod(channels = { "WeatherData", "EZGuiData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
+@Mod(modid = "weather2", name="weather2", version="v2.3.3")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )
@@ -37,19 +36,24 @@ public class Weather {
     
     public static boolean initProperNeededForWorld = true;
     
-    @PreInit
+    public static String eventChannelName = "weather2";
+	public static final FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(eventChannelName);
+    
+	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+    	eventChannel.register(new EventHandlerPacket());
+    	MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
+    	FMLCommonHandler.instance().bus().register(new EventHandlerFML());
+		
     	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
     	WeatherUtilConfig.nbtLoadDataAll();
     }
     
-    @Init
+	@Mod.EventHandler
     public void load(FMLInitializationEvent event)
     {
     	proxy.init();
-    	MinecraftForge.EVENT_BUS.register(new Weather2EventHandler());
-    	GameRegistry.registerPlayerTracker(new WeatherPlayerTracker());
     	
     }
     

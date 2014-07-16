@@ -140,17 +140,19 @@ public class WeatherUtilConfig {
 			}
 			
 			NBTTagCompound nbtDims = nbtClientData.getCompoundTag("dimData");
-			Iterator it = nbtDims.getTags().iterator();
+			//Iterator it = nbtDims.getTags().iterator();
 			
 			Weather.dbg("before cl: " + listDimensionsWindEffects);
 			
+			Iterator it = nbtDims.func_150296_c().iterator();
 			while (it.hasNext()) {
-				NBTTagInt tag = (NBTTagInt) it.next();
-				String[] vals = tag.getName().split("_");
+			 	String tagName = (String) it.next();
+			 	NBTTagInt entry = (NBTTagInt) nbtDims.getTag(tagName);
+				String[] vals = tagName.split("_");
 				
 				if (vals[2].equals("3")) {
 					int dimID = Integer.parseInt(vals[1]);
-					if (tag.data == 0) {
+					if (entry.func_150287_d() == 0) {
 						//if off			
 						if (listDimensionsWindEffects.contains(dimID)) {
 							listDimensionsWindEffects.remove((Object)dimID);
@@ -256,17 +258,19 @@ public class WeatherUtilConfig {
 			}
 			
 			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
-			Iterator it = nbtDims.getTags().iterator();
+			//Iterator it = nbtDims.getTags().iterator();
 			
 			Weather.dbg("before: " + listDimensionsWeather);
 			
+			Iterator it = nbtDims.func_150296_c().iterator();
 			while (it.hasNext()) {
-				NBTTagInt tag = (NBTTagInt) it.next();
-				String[] vals = tag.getName().split("_");
+			 	String tagName = (String) it.next();
+			 	NBTTagInt entry = (NBTTagInt) nbtDims.getTag(tagName);
+				String[] vals = tagName.split("_");
 				//if weather
 				if (vals[2].equals("0")) {
 					int dimID = Integer.parseInt(vals[1]);
-					if (tag.data == 0) {
+					if (entry.func_150287_d() == 0) {
 						//if off			
 						if (listDimensionsWeather.contains(dimID)) {
 							listDimensionsWeather.remove(dimID);
@@ -279,7 +283,7 @@ public class WeatherUtilConfig {
 					}					
 				} else if (vals[2].equals("1")) {
 					int dimID = Integer.parseInt(vals[1]);
-					if (tag.data == 0) {
+					if (entry.func_150287_d() == 0) {
 						//if off			
 						if (listDimensionsClouds.contains(dimID)) {
 							listDimensionsClouds.remove(dimID);
@@ -292,7 +296,7 @@ public class WeatherUtilConfig {
 					}					
 				} else if (vals[2].equals("2")) {
 					int dimID = Integer.parseInt(vals[1]);
-					if (tag.data == 0) {
+					if (entry.func_150287_d() == 0) {
 						//if off			
 						if (listDimensionsStorms.contains(dimID)) {
 							listDimensionsStorms.remove(dimID);
@@ -317,7 +321,7 @@ public class WeatherUtilConfig {
 						}
 					}					
 				}*/
-				Weather.dbg("dim: " + vals[1] + " - setting ID: " + vals[2] + " - data: " + tag.data);
+				Weather.dbg("dim: " + vals[1] + " - setting ID: " + vals[2] + " - data: " + entry.func_150287_d());
 			}
 			
 			Weather.dbg("after: " + listDimensionsWeather);
@@ -349,7 +353,7 @@ public class WeatherUtilConfig {
 		}
 		
 		//also add dimension feature config, its iterated over
-		nbtServerData.setCompoundTag("dimData", parNBT.getCompoundTag("dimData"));
+		nbtServerData.setTag("dimData", parNBT.getCompoundTag("dimData"));
 		
 		processNBTToModConfigServer();
 	}
@@ -397,7 +401,7 @@ public class WeatherUtilConfig {
 			
 			//PROCESS ME ELSEWHERE!!! - must be done in EZGUI post receiving of this data because client still needs this server created dimension listing first
 			//nbtDim.setBoolean("effects", listDimensionsWindEffects.contains(dimID));
-			data.setCompoundTag("" + dimID, nbtDim);
+			data.setTag("" + dimID, nbtDim);
 			///data.setString("" + worlds[i].provider.dimensionId, worlds[i].provider.getDimensionName());
 		}
 		

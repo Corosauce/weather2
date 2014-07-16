@@ -25,7 +25,7 @@ public class TileEntityWeatherDeflector extends TileEntity
     			if (wm != null) {
 		    		//StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
 		    		
-		    		List<StormObject> storms = ClientTickHandler.weatherManager.getStormsAround(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius);
+		    		List<StormObject> storms = wm.getStormsAround(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius);
 		    		
 		    		for (int i = 0; i < storms.size(); i++) {
 		    			StormObject storm = storms.get(i);

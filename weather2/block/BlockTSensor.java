@@ -9,6 +9,7 @@ import weather2.weathersystem.storm.StormObject;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -17,7 +18,7 @@ public class BlockTSensor extends Block
 {
     public BlockTSensor(int var1)
     {
-        super(var1, Material.clay);
+        super(Material.clay);
         this.setTickRandomly(true);
     }
 
@@ -65,11 +66,11 @@ public class BlockTSensor extends Block
         } else {
            var1.setBlockMetadataWithNotify(var2, var3, var4, 0);
         }*/
-        var1.notifyBlocksOfNeighborChange(var2, var3 - 1, var4, this.blockID);
-        var1.notifyBlocksOfNeighborChange(var2, var3 + 1, var4, this.blockID);
-        var1.notifyBlocksOfNeighborChange(var2, var3, var4, this.blockID);
+        var1.notifyBlocksOfNeighborChange(var2, var3 - 1, var4, this);
+        var1.notifyBlocksOfNeighborChange(var2, var3 + 1, var4, this);
+        var1.notifyBlocksOfNeighborChange(var2, var3, var4, this);
         var1.markBlockRangeForRenderUpdate(var2, var3, var4, var2, var3, var4);
-        var1.scheduleBlockUpdate(var2, var3, var4, this.blockID, this.tickRate(var1));
+        var1.scheduleBlockUpdate(var2, var3, var4, this, this.tickRate(var1));
     }
 
     @Override
@@ -88,5 +89,17 @@ public class BlockTSensor extends Block
     public boolean canProvidePower()
     {
         return true;
+    }
+    
+    @Override
+    public boolean onBlockActivated(World p_149727_1_, int p_149727_2_,
+    		int p_149727_3_, int p_149727_4_, EntityPlayer p_149727_5_,
+    		int p_149727_6_, float p_149727_7_, float p_149727_8_,
+    		float p_149727_9_) {
+    	p_149727_5_.setPosition(p_149727_2_ + 0.5F, p_149727_3_ + 1.5F, p_149727_4_ + 0.5F);
+    	p_149727_5_.getEntityData().setBoolean("inBedCustom", true);
+    	return super.onBlockActivated(p_149727_1_, p_149727_2_, p_149727_3_,
+    			p_149727_4_, p_149727_5_, p_149727_6_, p_149727_7_, p_149727_8_,
+    			p_149727_9_);
     }
 }

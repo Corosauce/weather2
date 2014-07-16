@@ -2,9 +2,6 @@ package weather2;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.EnumSet;
-
-import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -12,8 +9,10 @@ import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.util.MouseHelper;
 import net.minecraft.world.World;
+
+import org.lwjgl.input.Mouse;
+
 import weather2.client.SceneEnhancer;
 import weather2.client.gui.GuiEZConfig;
 import weather2.config.ConfigMisc;
@@ -21,64 +20,28 @@ import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.EntityRendererProxyWeather2Mini;
 import weather2.weathersystem.WeatherManagerClient;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-public class ClientTickHandler implements ITickHandler
+public class ClientTickHandler
 {
 	
 	public static World lastWorld;
 	
 	public static WeatherManagerClient weatherManager;
-	public SceneEnhancer sceneEnhancer;
+	public static SceneEnhancer sceneEnhancer;
 	
 	public boolean hasOpenedConfig = false;
 	
 	public GuiButton configButton;
 	
 	public ClientTickHandler() {
-		sceneEnhancer = new SceneEnhancer();
-		(new Thread(sceneEnhancer, "Weather2 Scene Enhancer")).start();
+		//this constructor gets called multiple times when created from proxy, this prevents multiple inits
+		if (sceneEnhancer == null) {
+			sceneEnhancer = new SceneEnhancer();
+			(new Thread(sceneEnhancer, "Weather2 Scene Enhancer")).start();
+		}
 	}
-	
-    @Override
-    public void tickStart(EnumSet<TickType> type, Object... tickData) {}
-
-    @Override
-    public void tickEnd(EnumSet<TickType> type, Object... tickData)
-    {
-        if (type.equals(EnumSet.of(TickType.RENDER)))
-        {
-            onRenderScreenTick();
-        }
-        else if (type.equals(EnumSet.of(TickType.CLIENT)))
-        {
-            GuiScreen guiscreen = Minecraft.getMinecraft().currentScreen;
-
-            if (guiscreen != null)
-            {
-                onTickInGUI(guiscreen);
-            }
-            else
-            {
-                
-            }
-            
-            onTickInGame();
-        }
-    }
-
-    @Override
-    public EnumSet<TickType> ticks()
-    {
-        return EnumSet.of(TickType.RENDER, TickType.CLIENT);
-    }
-
-    @Override
-    public String getLabel()
-    {
-        return null;
-    }
 
     public void onRenderScreenTick()
     {
@@ -112,12 +75,12 @@ public class ClientTickHandler implements ITickHandler
         
         if (ConfigMisc.Misc_proxyRenderOverrideEnabled) {
         	if (!(mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
-        		EntityRendererProxyWeather2Mini temp = new EntityRendererProxyWeather2Mini(mc);
+        		EntityRendererProxyWeather2Mini temp = new EntityRendererProxyWeather2Mini(mc, mc.getResourceManager());
 		        mc.entityRenderer = temp;
         	}
     	} else {
     		if ((mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
-    			mc.entityRenderer = new EntityRenderer(mc);
+    			mc.entityRenderer = new EntityRenderer(mc, mc.getResourceManager());
     		}
     	}
         
@@ -151,6 +114,16 @@ public class ClientTickHandler implements ITickHandler
 	            }
             }
         }
+    }
+	
+    public static void checkClientWeather() {
+    	try {
+    		if (ClientTickHandler.weatherManager == null) {
+    			ClientTickHandler.init(FMLClientHandler.instance().getClient().theWorld);
+        	}
+    	} catch (Exception ex) {
+    		Weather.dbg("Warning, Weather2 client received packet before it was ready to use, and failed to init client weather due to null world");
+    	}
     }
     
     public static void init(World world) {

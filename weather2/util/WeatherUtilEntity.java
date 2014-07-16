@@ -8,13 +8,13 @@ import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFishHook;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import weather2.ClientTickHandler;
-import weather2.Weather;
 import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
@@ -66,12 +66,12 @@ public class WeatherUtilEntity {
             
             int extraWeight = 0;
             
-            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].itemID == Item.plateIron.itemID)
+            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.iron_chestplate)
             {
             	extraWeight = 2;
             }
 
-            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].itemID == Item.plateDiamond.itemID)
+            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.diamond_chestplate)
             {
             	extraWeight = 4;
             }
@@ -165,7 +165,7 @@ public class WeatherUtilEntity {
             boolean bool = true;
         }
 
-        return ent.worldObj.clip(Vec3.createVectorHelper(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ), Vec3.createVectorHelper(startX, ent.posY + (double)ent.getEyeHeight(), startZ)) == null;
+        return ent.worldObj.rayTraceBlocks(Vec3.createVectorHelper(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ), Vec3.createVectorHelper(startX, ent.posY + (double)ent.getEyeHeight(), startZ)) == null;
         //return true;
     }
 	
@@ -205,7 +205,7 @@ public class WeatherUtilEntity {
 	}
 	
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
-		boolean dirNorth = parWorld.clip(parPos, parCheckPos) == null;
+		boolean dirNorth = parWorld.rayTraceBlocks(parPos, parCheckPos) == null;
 		if (dirNorth) {
 			if (parWorld.getHeightValue(MathHelper.floor_double(parCheckPos.xCoord), MathHelper.floor_double(parCheckPos.zCoord)) < parCheckPos.yCoord) return true;
 		}

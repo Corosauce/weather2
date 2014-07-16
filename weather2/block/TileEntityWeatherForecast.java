@@ -7,7 +7,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import weather2.ClientTickHandler;
-import weather2.map.MapHandler;
 import weather2.weathersystem.storm.StormObject;
 
 public class TileEntityWeatherForecast extends TileEntity
@@ -28,7 +27,7 @@ public class TileEntityWeatherForecast extends TileEntity
 	
 	public List<StormObject> storms = new ArrayList<StormObject>();
 	
-	public MapHandler mapHandler;
+	//public MapHandler mapHandler;
 
     public void updateEntity()
     {

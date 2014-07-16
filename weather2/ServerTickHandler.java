@@ -1,27 +1,20 @@
 package weather2;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 
-import combat.RPGMod;
-
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
-
-import net.minecraft.command.ServerCommandManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.relauncher.Side;
 
-public class ServerTickHandler implements ITickHandler
+public class ServerTickHandler
 {   
 	//Used for easy iteration, could be replaced
     public static ArrayList<WeatherManagerServer> listWeatherMans;
@@ -33,46 +26,14 @@ public class ServerTickHandler implements ITickHandler
     
 	public static NBTTagCompound worldNBT = new NBTTagCompound(); 
 	
-    public ServerTickHandler() {
+    static {
     	
     	listWeatherMans = new ArrayList();
     	lookupDimToWeatherMan = new HashMap<Integer, WeatherManagerServer>();
     	
     }
-
-    @Override
-	public void tickStart(EnumSet<TickType> type, Object... tickData) {
-		if (type.equals(EnumSet.of(TickType.WORLDLOAD))) {
-        	World world = (World)tickData[0];
-        	if (world.provider.dimensionId == 0) {
-        		Weather.initTry();
-        	}
-        }
-	}
-
-    @Override
-    public void tickEnd(EnumSet<TickType> type, Object... tickData)
-    {
-        if (type.equals(EnumSet.of(TickType.SERVER)))
-        {
-            onTickInGame();
-        }
-    }
-
-    @Override
-    public EnumSet<TickType> ticks()
-    {
-        return EnumSet.of(TickType.SERVER, TickType.WORLDLOAD);
-    }
-
-    @Override
-    public String getLabel()
-    {
-        return "Weather2 server ticker";
-    }
     
-
-    public void onTickInGame()
+    public static void onTickInGame()
     {
     	
         if (FMLCommonHandler.instance() == null || FMLCommonHandler.instance().getMinecraftServerInstance() == null)
@@ -139,7 +100,7 @@ public class ServerTickHandler implements ITickHandler
     	wm.readFromFile();
     }
     
-    public static void playerJoinedServerSyncFull(EntityPlayer entP) {
+    public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
 		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.dimensionId);
 		if (wm != null) {
 			wm.playerJoinedServerSyncFull(entP);
