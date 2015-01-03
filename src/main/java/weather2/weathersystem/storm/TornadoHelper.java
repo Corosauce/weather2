@@ -112,7 +112,7 @@ public class TornadoHelper {
             BiomeGenBase bgb = parWorld.getBiomeGenForCoords(MathHelper.floor_double(storm.pos.xCoord), MathHelper.floor_double(storm.pos.zCoord));
         	
             //prevent grabbing in high areas (hills)
-        	if (bgb.rootHeight + bgb.heightVariation <= 0.7) {
+        	if (bgb != null && bgb.rootHeight + bgb.heightVariation <= 0.7) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -396,7 +396,7 @@ public class TornadoHelper {
     	//canEntityBeSeen commented out till replaced with coord one, might cause issues
     	
         double dist = grabDist;
-        AxisAlignedBB aabb = AxisAlignedBB.getAABBPool().getAABB(storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord, storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord);
+        AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord, storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord);
         List list = parWorld.getEntitiesWithinAABB(Entity.class, aabb.expand(dist, this.storm.maxHeight * 3, dist));
         boolean foundEnt = false;
         int killCount = 0;

@@ -2,6 +2,7 @@ package weather2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,6 +14,8 @@ import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.event.FMLInterModComms;
+import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage;
 
 public class ServerTickHandler
 {   
@@ -74,6 +77,44 @@ public class ServerTickHandler
         	if (wms != null) {
         		lookupDimToWeatherMan.get(worlds[i].provider.dimensionId).tick();
         	}
+        }
+        
+        boolean testRainRequest = false;
+        if (testRainRequest) {
+        	
+        	List<IMCMessage> listMsgs = new ArrayList<IMCMessage>();
+	    	listMsgs = FMLInterModComms.fetchRuntimeMessages(Weather.modID);
+	    	for (int i = 0; i < listMsgs.size(); i++) {
+	    		
+	    		System.out.println("Weather2 side: " + listMsgs.get(i).key + " - modID: " + listMsgs.get(i).getSender() + " - source: " + listMsgs.get(i).toString() + " - " + listMsgs.get(i).getNBTValue());
+	    		
+	    		if (listMsgs.get(i).key.equals("weather.raining")) {
+
+	    			NBTTagCompound nbt = listMsgs.get(i).getNBTValue();
+	    			
+	    			String replyMod = nbt.getString("replymod");
+					nbt.setBoolean("isRaining", true);
+					
+					FMLInterModComms.sendRuntimeMessage(replyMod, replyMod, "weather.raining", nbt);
+	    			
+	    		}
+	    	}
+        	
+        }
+        
+        
+        boolean debugIMC = false;
+        if (debugIMC) {
+	        try {
+		    	List<IMCMessage> listMsgs = new ArrayList<IMCMessage>();
+		    	listMsgs = FMLInterModComms.fetchRuntimeMessages(Weather.modID);
+		    	for (int i = 0; i < listMsgs.size(); i++) {
+		    		
+		    		//System.out.println(listMsgs.get(i).key + " - modID: " + listMsgs.get(i).getSender() + " - source: " + listMsgs.get(i).toString() + " - " + listMsgs.get(i).getNBTValue());
+		    	}
+	    	} catch (Exception ex) {
+	    		ex.printStackTrace();
+	    	}
         }
     }
     

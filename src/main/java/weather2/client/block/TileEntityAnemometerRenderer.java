@@ -29,7 +29,10 @@ public class TileEntityAnemometerRenderer extends TileEntitySpecialRenderer
     	//TEMP
     	//model = new ModelWindVane();
     	
-
+    	//SAVE FOR FUTURE ISSUES
+    	//custom forcing max brightness
+    	//val i: Int = 15728880
+    	//OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (i % 65536).asInstanceOf[Float] / 1F, (i / 65536).asInstanceOf[Float] / 1F)
 		
 		//if (((TileEntityAnemometer)var1).smoothAngle > 180) ((TileEntityAnemometer)var1).smoothAngle -= 360;
 		//if (((TileEntityAnemometer)var1).smoothAnglePrev > 180) ((TileEntityAnemometer)var1).smoothAnglePrev -= 360;

@@ -25,6 +25,7 @@ public class EventHandlerFML {
 	public void tickServer(ServerTickEvent event) {
 		
 		if (event.phase == Phase.START) {
+			//System.out.println("tick weather2");
 			ServerTickHandler.onTickInGame();
 		}
 		

@@ -67,7 +67,7 @@ public class EventHandlerPacket {
 			
 			String packetCommand = nbt.getString("packetCommand");
 			
-			System.out.println("Weather2 packet command from client: " + packetCommand);
+			Weather.dbg("Weather2 packet command from client: " + packetCommand);
 			
 			if (packetCommand.equals("EZGuiData")) {
 				String command = nbt.getString("command");
@@ -80,14 +80,14 @@ public class EventHandlerPacket {
 	        		sendNBT.setString("packetCommand", "EZGuiData");
 	        		sendNBT.setString("command", "syncUpdate");
 	        		sendNBT.setBoolean("markUpdated", true);
-	        		sendNBT.setBoolean("isPlayerOP", MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(CoroUtilEntity.getName((entP))));
+	        		sendNBT.setBoolean("isPlayerOP", MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().func_152596_g(entP.getGameProfile()));
 	        		sendNBT.setTag("data", WeatherUtilConfig.nbtServerData);
 	        		sendNBT.setTag("dimListing", WeatherUtilConfig.createNBTDimensionListing());
 	        		
 	        		Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(sendNBT, Weather.eventChannelName), entP);
 	        		//PacketDispatcher.sendPacketToPlayer(WeatherPacketHelper.createPacketForServerToClientSerialization("EZGuiData", sendNBT), player);
 	        	} else if (command.equals("applySettings")) {
-	        		if (MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(CoroUtilEntity.getName(((EntityPlayer)entP)))) {
+	        		if (MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().func_152596_g(entP.getGameProfile())) {
 	        			WeatherUtilConfig.nbtReceiveClientData(nbt.getCompoundTag("guiData"));
 	        		}
 	        	}

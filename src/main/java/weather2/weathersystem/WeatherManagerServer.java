@@ -2,6 +2,8 @@ package weather2.weathersystem;
 
 import java.util.Random;
 
+import cpw.mods.fml.common.event.FMLInterModComms;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -86,8 +88,13 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				syncWindUpdate(windMan);
 			}
 			
+			//IMC
+			if (world.getTotalWorldTime() % 60 == 0) {
+				nbtStormsForIMC();
+			}
+			
 			//temp
-			getVolcanoObjects().clear();
+			//getVolcanoObjects().clear();
 			
 			//sim box work
 			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.dimensionId) && world.getTotalWorldTime() % 20 == 0) {
@@ -185,6 +192,26 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 	}
 	
+	//populate data with rain storms and deadly storms
+	public void nbtStormsForIMC() {
+		NBTTagCompound data = new NBTTagCompound();
+		
+		for (int i = 0; i < getStormObjects().size(); i++) {
+			StormObject so = getStormObjects().get(i);
+			
+			if (so.levelCurIntensityStage > 0 || so.attrib_precipitation) {
+				NBTTagCompound nbtStorm = so.nbtForIMC();
+				
+				data.setTag("storm_" + so.ID, nbtStorm);
+			}
+			
+		}
+		
+		if (!data.hasNoTags()) {
+			FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.storms", data);
+		}
+	}
+	
 	public void syncLightningNew(EntityLightningBolt parEnt) {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("packetCommand", "WeatherData");
@@ -196,6 +223,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		nbt.setInteger("entityID", parEnt.getEntityId());
 		data.setTag("data", nbt);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.dimensionId);
+		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.lightning", data);
 	}
 	
 	public void syncWindUpdate(WindManager parManager) {
@@ -205,6 +233,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.setString("command", "syncWindUpdate");
 		data.setTag("data", parManager.nbtSyncForClient());
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.dimensionId);
+		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.wind", data);
 	}
 
 	public void syncStormNew(StormObject parStorm) {

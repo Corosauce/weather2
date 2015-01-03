@@ -216,7 +216,7 @@ public class WeatherUtil {
                 {
                     Block blockEntry = (Block)Block.blockRegistry.getObject(splEnts[j]);
 
-                    if (blockEntry != null)
+                    if (blockEntry != null && block == blockEntry)
                     {
                         foundEnt = true;
                         //blackList.append(s + " ");
@@ -225,14 +225,18 @@ public class WeatherUtil {
                     }
                 }
 
+                blockIDToUseMapping.put(block, foundEnt);
+                
                 //entList.append(s + " ");
-                if (foundEnt) {
+                /*if (foundEnt) {
                 	blockIDToUseMapping.put(block, foundEnt);
-                }
+                } else {
+                	blockIDToUseMapping.put(block, false);
+                }*/
             }
             else
             {
-                blockIDToUseMapping.put(block, false);
+                //blockIDToUseMapping.put(block, false);
             }
         }
     }

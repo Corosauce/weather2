@@ -197,7 +197,11 @@ public class StormObject {
 		BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
 
 		
-		float temp = bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord));
+		float temp = 1;
+		
+		if (bgb != null) {
+			temp = bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord));
+		}
 		
 		//initial setting, more apparent than gradual adjustments
 		if (naturallySpawned) {
@@ -343,6 +347,11 @@ public class StormObject {
 		data.setBoolean("isDead", isDead);
 		
 		return data;
+	}
+	
+	public NBTTagCompound nbtForIMC() {
+		//we basically need all the same data minus a few soooo whatever
+		return nbtSyncForClient();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -635,6 +644,12 @@ public class StormObject {
 		            int x = chunkX * 16;
 		            int z = chunkZ * 16;
 		            //world.theProfiler.startSection("getChunk");
+		            
+		            //afterthought, for weather 2.3.7
+		            if (!world.getChunkProvider().chunkExists(xx, zz)) {
+		            	continue;
+		            }
+		            
 		            Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
 		            //world.moodSoundAndLightCheck(k, l, chunk);
 		            //world.theProfiler.endStartSection("tickChunk");
@@ -650,7 +665,7 @@ public class StormObject {
 		            
 		            int i2;
 		            
-					if (world.getChunkProvider().chunkExists(xx, zz) && world.provider.canDoRainSnowIce(chunk) && (ConfigMisc.Snow_RarityOfBuildup == 0 || world.rand.nextInt(ConfigMisc.Snow_RarityOfBuildup) == 0))
+					if (world.provider.canDoRainSnowIce(chunk) && (ConfigMisc.Snow_RarityOfBuildup == 0 || world.rand.nextInt(ConfigMisc.Snow_RarityOfBuildup) == 0))
 			        {
 			            updateLCG = updateLCG * 3 + 1013904223;
 			            i1 = updateLCG >> 2;
@@ -809,6 +824,9 @@ public class StormObject {
 		World world = manager.getWorld();
 		
         BiomeGenBase biomegenbase = world.getBiomeGenForCoords(par1, par3);
+        
+        if (biomegenbase == null) return false;
+        
         float f = biomegenbase.getFloatTemperature(par1, par2, par3);
 
         if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && biomegenbase.getFloatTemperature(par1, par2, par3) > 0.15F))
@@ -874,14 +892,17 @@ public class StormObject {
 			
 			BiomeGenBase bgb = world.getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
 			
-			isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
-			
 			//temperature scan
-			float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord)));
-			if (levelTemperature > biomeTempAdj) {
-				levelTemperature -= tempAdjustRate;
-			} else {
-				levelTemperature += tempAdjustRate;
+			if (bgb != null) {
+				
+				isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
+				
+				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord)));
+				if (levelTemperature > biomeTempAdj) {
+					levelTemperature -= tempAdjustRate;
+				} else {
+					levelTemperature += tempAdjustRate;
+				}
 			}
 			
 			boolean performBuildup = false;
@@ -906,7 +927,7 @@ public class StormObject {
 					performBuildup = true;
 				}
 				
-				if (!performBuildup && (isInOcean || bgb.biomeName.contains("Swamp") || bgb.biomeName.contains("Jungle") || bgb.biomeName.contains("River"))) {
+				if (!performBuildup && bgb != null && (isInOcean || bgb.biomeName.contains("Swamp") || bgb.biomeName.contains("Jungle") || bgb.biomeName.contains("River"))) {
 					performBuildup = true;
 				}
 			}
@@ -949,7 +970,17 @@ public class StormObject {
 					int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
 					int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
 					
-					if (isInOcean && rand.nextInt(ConfigMisc.Storm_OddsTo1OfOceanBasedStorm) == 0) {
+					if (isInOcean && (ConfigMisc.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
+						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+						
+						if (entP != null) {
+							initRealStorm(entP, null);
+						} else {
+							initRealStorm(null, null);
+						}
+						
+						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+					} else if (!isInOcean && ConfigMisc.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfLandBasedStorm) == 0) {
 						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
 						
 						if (entP != null) {

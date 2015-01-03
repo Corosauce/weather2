@@ -1,5 +1,8 @@
 package weather2.client.gui.elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -10,25 +13,23 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiButtonBoolean extends GuiButton
+public class GuiButtonCycle extends GuiButton
 {
     
     /*public int texID = 0;
     public static final ResourceLocation resGUI = new ResourceLocation(ZombieCraftMod.modID + ":textures/gui/zceditgui.png");*/
 
-	boolean boolState = false;
+	public List<String> listDescEntries = new ArrayList<String>();
+	public int index = 0;
+	
+	/*boolean boolState = false;
 	
 	String strEnabled = "";
-	String strDisabled = "";
-	
-    public GuiButtonBoolean(int par1, int par2, int par3, String str, String parDisabled/*, int texID*/)
-    {
-        this(par1, par2, par3, 20, 20, str, parDisabled);
-    }
+	String strDisabled = "";*/
 
-    public GuiButtonBoolean(int par1, int par2, int par3, int par4, int par5, String str, String parDisabled/*, int texID*/)
+    public GuiButtonCycle(int par1, int par2, int par3, int par4, int par5, List<String> parEntries, int parDefaultIndex)
     {
-    	super(par1, par2, par3, par4, par5, str);
+    	super(par1, par2, par3, par4, par5, "unused");
         this.width = 20;
         this.height = 20;
         this.enabled = true;
@@ -38,29 +39,36 @@ public class GuiButtonBoolean extends GuiButton
         this.yPosition = par3;
         this.width = par4;
         this.height = par5;
-        this.displayString = str;
-        strEnabled = str;
-        strDisabled = parDisabled;
-        /*this.texID = texID;*/
+        this.displayString = "unused";
+        this.listDescEntries = parEntries;
+        this.index = parDefaultIndex;
     }
     
-    public void setBooleanToggle() {
-    	setBoolean(!getBoolean());
+    public void cycleIndex() {
+    	if (!enabled) return;
+    	index++;
+    	if (index >= listDescEntries.size()) {
+    		index = 0;
+    	}
     }
     
-    public boolean getBoolean() {
-    	return boolState;
+    public int getIndex() {
+    	return index;
     }
     
-    public void setBoolean(boolean val) {
-    	boolState = val;
+    public void setIndex(int parIndex) {
+    	index = parIndex;
+    }
+    
+    public String getDisplayString() {
+    	return listDescEntries.get(index);
     }
 
     /**
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
      */
-    protected int getHoverState(boolean par1)
+    public int getHoverState(boolean par1)
     {
         byte var2 = 1;
 
@@ -103,11 +111,13 @@ public class GuiButtonBoolean extends GuiButton
             }
             String str = "";
             
-            if (boolState) {
+            str = getDisplayString();
+            
+            /*if (boolState) {
             	str = "\u00A7" + '2' + strEnabled;
             } else {
             	str = "\u00A7" + 'c' + strDisabled;
-            }
+            }*/
             
             this.drawCenteredString(fontrenderer, str, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
         }

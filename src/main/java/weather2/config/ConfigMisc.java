@@ -37,7 +37,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Storm_Tornado_GrabCond_StrengthGrabbing = true;
 	public static boolean Storm_Tornado_GrabCond_List = false;
 	public static boolean Storm_Tornado_GrabListBlacklistMode = false;
-	public static String Storm_Tornado_GrabList = "";
+	public static String Storm_Tornado_GrabList = "planks, leaves";
 	public static int Storm_Tornado_maxBlocksPerStorm = 200;
 	public static int Storm_Tornado_maxBlocksGrabbedPerTick = 5;
 	public static int Storm_Tornado_rarityOfDisintegrate = 15;
@@ -66,6 +66,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static double Storm_Deadly_MinIntensity = 5.3D;
 	public static int Storm_HailPerTick = 10;
 	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
+	public static int Storm_OddsTo1OfLandBasedStorm = -1;
 	public static int Storm_OddsTo1OfProgressionBase = 15;
 	public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
 	public static int Storm_ParticleSpawnDelay = 0;

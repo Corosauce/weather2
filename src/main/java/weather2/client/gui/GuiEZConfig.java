@@ -470,7 +470,7 @@ public class GuiEZConfig extends GuiScreen {
 		
 		xSize = 372;
     	ySize = 250;
-		ScaledResolution var8 = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+		ScaledResolution var8 = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         int scaledWidth = var8.getScaledWidth();
         int scaledHeight = var8.getScaledHeight();
         
