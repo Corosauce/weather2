@@ -24,6 +24,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
+import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.client.entity.RenderCubeCloud;
 import weather2.config.ConfigMisc;
@@ -179,6 +180,8 @@ public class StormObject {
     //there is an issue with rainstorms sometimes never going away, this is a patch to mend the underlying issue i cant find yet
     public long ticksSinceLastPacketReceived = 0;
 	
+    //public static long lastStormFormed = 0;
+    
 	public StormObject(WeatherManagerBase parManager) {
 		manager = parManager;
 		
@@ -965,8 +968,26 @@ public class StormObject {
 			
 			//actual storm formation chance
 			
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.dimensionId) && ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
-				if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.dimensionId);
+			
+			boolean tryFormStorm = false;
+			
+			if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
+				if (ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
+					if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+						tryFormStorm = true;
+					}
+				}
+			} else {
+				if (ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
+					if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+						tryFormStorm = true;
+					}
+				}
+			}
+			
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.dimensionId) && tryFormStorm) {
+				//if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
 					int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
 					int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
 					
@@ -979,7 +1000,11 @@ public class StormObject {
 							initRealStorm(null, null);
 						}
 						
-						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+						if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
+							wm.lastStormFormed = world.getTotalWorldTime();
+						} else {
+							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+						}
 					} else if (!isInOcean && ConfigMisc.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfLandBasedStorm) == 0) {
 						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
 						
@@ -989,7 +1014,11 @@ public class StormObject {
 							initRealStorm(null, null);
 						}
 						
-						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+						if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
+							wm.lastStormFormed = world.getTotalWorldTime();
+						} else {
+							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+						}
 					} else if (rand.nextInt(randomChanceOfCollide) == 0) {
 						for (int i = 0; i < manager.getStormObjects().size(); i++) {
 							StormObject so = manager.getStormObjects().get(i);
@@ -1031,7 +1060,7 @@ public class StormObject {
 							}
 						}
 					}
-				}
+				//}
 			}
 			
 			if (isRealStorm()) {

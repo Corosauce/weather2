@@ -22,6 +22,7 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
     public void worldRender(RenderWorldLastEvent event)
     {
+		ClientTickHandler.checkClientWeather();
 		ClientTickHandler.weatherManager.tickRender(event.partialTicks);
     }
 	

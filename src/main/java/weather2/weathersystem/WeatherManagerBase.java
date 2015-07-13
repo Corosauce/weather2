@@ -45,6 +45,8 @@ public class WeatherManagerBase {
 	//for client only
 	public boolean isVanillaRainActiveOnServer = false;
 	
+	public long lastStormFormed = 0;
+	
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
 		lookupStormObjectsByLayer.put(0, new ArrayList<StormObject>());
@@ -267,6 +269,8 @@ public class WeatherManagerBase {
 		mainNBT.setTag("volcanoData", listVolcanoesNBT);
 		mainNBT.setLong("lastUsedID", VolcanoObject.lastUsedID);
 		
+		mainNBT.setLong("lastStormFormed", lastStormFormed);
+		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
 		
 		try {
@@ -321,6 +325,8 @@ public class WeatherManagerBase {
 				System.out.println("WARNING! Error loading backup file VolcanoData_BACKUP0.dat, nothing loaded");
 			}
 		}
+		
+		lastStormFormed = rtsNBT.getLong("lastStormFormed");
 		
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedID");
 		

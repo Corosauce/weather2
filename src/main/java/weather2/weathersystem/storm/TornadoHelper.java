@@ -68,6 +68,9 @@ public class TornadoHelper {
 	}
 	
 	public void tick(World parWorld) {
+		
+		if (storm == null) return;
+		
 		boolean seesLight = false;
         tickGrabCount = 0;
         removeCount = 0;
@@ -160,7 +163,11 @@ public class TornadoHelper {
 	                    int tryX = (int)storm.pos.xCoord + rand.nextInt(tornadoBaseSize + (ii)) - ((tornadoBaseSize / 2) + (ii / 2));
 	                    int tryZ = (int)storm.pos.zCoord + rand.nextInt(tornadoBaseSize + (ii)) - ((tornadoBaseSize / 2) + (ii / 2));
 	
-	                    if (tryRipCount < tryRipMax)
+	                    double d0 = storm.pos.xCoord - tryX;
+	                    double d2 = storm.pos.zCoord - tryZ;
+	                    double dist = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
+	                    
+	                    if (dist < tornadoBaseSize/2 + ii/2 && tryRipCount < tryRipMax)
 	                    {
 	                    	
 	                    	
@@ -209,11 +216,17 @@ public class TornadoHelper {
 	            {*/
 	                for (int k = 0; k < 10; k++)
 	                {
-	                    int tryX = (int)storm.pos.xCoord + rand.nextInt(40) - 20;
+	                	int randSize = 40;
+	                	
+	                    int tryX = (int)storm.pos.xCoord + rand.nextInt(randSize) - 20;
 	                    int tryY = (int)spawnYOffset - 2 + rand.nextInt(8);
-	                    int tryZ = (int)storm.pos.zCoord + rand.nextInt(40) - 20;
+	                    int tryZ = (int)storm.pos.zCoord + rand.nextInt(randSize) - 20;
 	
-	                    if (tryRipCount < tryRipMax)
+	                    double d0 = storm.pos.xCoord - tryX;
+	                    double d2 = storm.pos.zCoord - tryZ;
+	                    double dist = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
+	                    
+	                    if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax)
 	                    {
 	                        Block blockID = parWorld.getBlock(tryX, tryY, tryZ);
 	
@@ -296,19 +309,7 @@ public class TornadoHelper {
                  parWorld.getBlockId(tryX,tryY+1,tryZ-1) == 0)*/
            )
         {
-            if (WeatherUtil.shouldRemoveBlock(blockID))
-            {
-                removeCount++;
-
-                if (notify)
-                {
-                    parWorld.setBlock(tryX, tryY, tryZ, Blocks.air, 0, 3);
-                }
-                else
-                {
-                    parWorld.setBlock(tryX, tryY, tryZ, Blocks.air, 0, 0);
-                }
-            }
+            
 
             if (parWorld.getChunkProvider().chunkExists((int)storm.pos.xCoord / 16, (int)storm.pos.zCoord / 16) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigMisc.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigMisc.Storm_Tornado_maxBlocksGrabbedPerTick)
             {
@@ -372,6 +373,20 @@ public class TornadoHelper {
 
                     //break snow effect goes here
                     //mc.effectRenderer.addBlockDestroyEffects(tryX,tryY,tryZ, blockID, 0);
+                }
+            }
+            
+            if (WeatherUtil.shouldRemoveBlock(blockID))
+            {
+                removeCount++;
+
+                if (notify)
+                {
+                    parWorld.setBlock(tryX, tryY, tryZ, Blocks.air, 0, 3);
+                }
+                else
+                {
+                    parWorld.setBlock(tryX, tryY, tryZ, Blocks.air, 0, 0);
                 }
             }
         }

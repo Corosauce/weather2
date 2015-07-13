@@ -36,6 +36,8 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Storm_Tornado_grabBlocks = true;
 	public static boolean Storm_Tornado_GrabCond_StrengthGrabbing = true;
 	public static boolean Storm_Tornado_GrabCond_List = false;
+	public static boolean Storm_Tornado_GrabCond_List_PartialMatches = false;
+	//public static boolean Storm_Tornado_GrabCond_List_TrimSpaces = true;
 	public static boolean Storm_Tornado_GrabListBlacklistMode = false;
 	public static String Storm_Tornado_GrabList = "planks, leaves";
 	public static int Storm_Tornado_maxBlocksPerStorm = 200;
@@ -63,7 +65,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Storm_Rain_WaterBuildUpOddsTo1FromNothing = 100;
 	public static int Storm_Rain_WaterBuildUp = 150;
 	public static double Storm_TemperatureAdjustRate = 0.1D;
-	public static double Storm_Deadly_MinIntensity = 5.3D;
+	//public static double Storm_Deadly_MinIntensity = 5.3D;
 	public static int Storm_HailPerTick = 10;
 	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
 	public static int Storm_OddsTo1OfLandBasedStorm = -1;
@@ -76,6 +78,11 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Player_Storm_Deadly_OddsTo1 = 30;
 	public static int Player_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3; //3 mc days
 	public static int Player_Storm_Rain_OddsTo1 = 150;
+	
+	//per server storm settings
+	public static boolean Server_Storm_Deadly_UseGlobalRate = false;
+	public static int Server_Storm_Deadly_OddsTo1 = 30;
+	public static int Server_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3;
 	
 	//clouds
 	public static int Cloud_ParticleSpawnDelay = 0;

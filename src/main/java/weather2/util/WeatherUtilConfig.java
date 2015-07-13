@@ -230,10 +230,13 @@ public class WeatherUtilConfig {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)) {
 				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("high")) {
 					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 30;
+					ConfigMisc.Server_Storm_Deadly_OddsTo1 = 30;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("medium")) {
 					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 45;
+					ConfigMisc.Server_Storm_Deadly_OddsTo1 = 45;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("low")) {
 					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 60;
+					ConfigMisc.Server_Storm_Deadly_OddsTo1 = 60;
 				}
 			}
 			

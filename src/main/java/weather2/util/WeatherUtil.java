@@ -35,57 +35,65 @@ public class WeatherUtil {
             Block block = id;
             
         	boolean result = true;
-            if (ConfigMisc.Storm_Tornado_GrabCond_StrengthGrabbing)
-            {
-                float strMin = 0.0F;
-                float strMax = 0.74F;
-
-                if (block == null)
-                {
-                	result = false;
-                	return result; //force return false to prevent unchecked future code outside scope
-                } else {
-
-	                float strVsBlock = block.getBlockHardness(parWorld, 0, 0, 0) - (((itemStr.func_150997_a(block) - 1) / 4F));
-	
-	                //System.out.println(strVsBlock);
-	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
-	                {
-	                    /*if (block.blockMaterial == Material.water) {
-	                    	return false;
-	                    }*/
-	                    if (!safetyCheck(block))
-	                    {
-	                    	result = false;
-	                    }
-	                } else {
-	                	result = false;
-	                }
-	
-	                
-                }
-            }
             
             if (ConfigMisc.Storm_Tornado_GrabCond_List)
             {
-                if (!ConfigMisc.Storm_Tornado_GrabListBlacklistMode)
+            	try {
+
+                    if (!ConfigMisc.Storm_Tornado_GrabListBlacklistMode)
+                    {
+                        if (!((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
+                        	result = false;
+                        }
+                    }
+                    else
+                    {
+                        if (((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
+                        	result = false;
+                        }
+                    }
+				} catch (Exception e) {
+					//sometimes NPEs, just assume false if so
+					result = false;
+				}
+            } else {
+
+                if (ConfigMisc.Storm_Tornado_GrabCond_StrengthGrabbing)
                 {
-                    if (!((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
+                    float strMin = 0.0F;
+                    float strMax = 0.74F;
+
+                    if (block == null)
+                    {
                     	result = false;
+                    	return result; //force return false to prevent unchecked future code outside scope
+                    } else {
+
+    	                float strVsBlock = block.getBlockHardness(parWorld, 0, 0, 0) - (((itemStr.func_150997_a(block) - 1) / 4F));
+    	
+    	                //System.out.println(strVsBlock);
+    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
+    	                {
+    	                    /*if (block.blockMaterial == Material.water) {
+    	                    	return false;
+    	                    }*/
+    	                    if (!safetyCheck(block))
+    	                    {
+    	                    	result = false;
+    	                    }
+    	                } else {
+    	                	result = false;
+    	                }
+    	
+    	                
                     }
                 }
-                else
-                {
-                    if (((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
-                    	result = false;
-                    }
+                
+                if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
+                	if (id == Blocks.dirt || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                		result = false;
+                	}
                 }
-            }
-            
-            if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-            	if (id == Blocks.dirt || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
-            		result = false;
-            	}
             }
             
             if (id == CommonProxy.blockWeatherMachine) {
@@ -192,11 +200,14 @@ public class WeatherUtil {
         if (splEnts.length > 0) {
 	        for (int i = 0; i < splEnts.length; i++)
 	        {
-	            splEnts[i] = splEnts[i].trim();
+	        	splEnts[i] = splEnts[i].trim();
 	            //blocks[i] = Integer.valueOf(splEnts[i]);
 	            //System.out.println(splEnts[i]);
 	        }
         }
+        
+        boolean dbgShow = false;
+        String dbg = "block list: ";
 
         //HashMap hashmap = null;
         //System.out.println("?!?!" + Block.blocksList.length);
@@ -206,7 +217,9 @@ public class WeatherUtil {
         Iterator it = set.iterator();
         while (it.hasNext()) {
         	String tagName = (String) it.next();
+        	
         	Block block = (Block) Block.blockRegistry.getObject(tagName);
+        	if (dbgShow) System.out.println("??? " + Block.blockRegistry.getNameForObject(block));
         	
         	if (block != null)
             {
@@ -214,15 +227,24 @@ public class WeatherUtil {
 
                 for (int j = 0; j < splEnts.length; j++)
                 {
-                    Block blockEntry = (Block)Block.blockRegistry.getObject(splEnts[j]);
-
-                    if (blockEntry != null && block == blockEntry)
-                    {
-                        foundEnt = true;
-                        //blackList.append(s + " ");
-                        //System.out.println("adding to list: " + blocks[j]);
-                        break;
-                    }
+                	if (ConfigMisc.Storm_Tornado_GrabCond_List_PartialMatches) {
+                		if (tagName.contains(splEnts[j])) {
+                			dbg += Block.blockRegistry.getNameForObject(block) + ", ";
+                			foundEnt = true;
+                			break;
+                		}
+                	} else {
+	                    Block blockEntry = (Block)Block.blockRegistry.getObject(splEnts[j]);
+	
+	                    if (blockEntry != null && block == blockEntry)
+	                    {
+	                        foundEnt = true;
+	                        dbg += Block.blockRegistry.getNameForObject(block) + ", ";
+	                        //blackList.append(s + " ");
+	                        //System.out.println("adding to list: " + blocks[j]);
+	                        break;
+	                    }
+                	}
                 }
 
                 blockIDToUseMapping.put(block, foundEnt);
@@ -238,6 +260,11 @@ public class WeatherUtil {
             {
                 //blockIDToUseMapping.put(block, false);
             }
+        	
+        }
+        
+        if (dbgShow) {
+        	System.out.println(dbg);
         }
     }
     
