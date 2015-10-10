@@ -269,6 +269,7 @@ public class WeatherManagerBase {
 		mainNBT.setTag("volcanoData", listVolcanoesNBT);
 		mainNBT.setLong("lastUsedID", VolcanoObject.lastUsedID);
 		
+		//TODO: separate this into its own multi dimensional saved data, atm this is overworld only!!!
 		mainNBT.setLong("lastStormFormed", lastStormFormed);
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;

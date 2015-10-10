@@ -217,12 +217,15 @@ public class WeatherUtilConfig {
 				int numDays = nbtServerData.getInteger("btn_" + CMD_BTN_PREF_RATEOFSTORM);
 				if (numDays == 0) {
 					ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks = 12000;
+					ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks = 12000;
 				} else if (numDays == 11) {
 					//potentially remove the 'never' clause from here in favor of the dimension specific disabling of 'storms' which is already used in code
 					//for now consider this a second layer of rules to the storm creation process, probably not a user friendly idea
 					ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks = -1;
+					ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks = -1;
 				} else {
 					ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks = 24000*numDays;
+					ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks = 24000*numDays;
 				}
 				
 			}

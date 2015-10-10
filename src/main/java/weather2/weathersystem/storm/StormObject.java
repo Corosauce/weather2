@@ -1079,7 +1079,7 @@ public class StormObject {
 				}
 				
 				if ((levelCurIntensityStage == STATE_HIGHWIND || levelCurIntensityStage == STATE_HAIL) && isOverWater) {
-					if (rand.nextInt(ConfigMisc.Storm_OddsTo1OfHighWindWaterSpout) == 0) {
+					if (ConfigMisc.Storm_OddsTo1OfHighWindWaterSpout != 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfHighWindWaterSpout) == 0) {
 						attrib_waterSpout = true;
 					}
 				} else {
