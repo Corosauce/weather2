@@ -251,16 +251,14 @@ public class StormObject {
 		return levelCurIntensityStage >= STATE_STAGE5;
 	}
 	
-	//not used yet
 	public void readFromNBT(NBTTagCompound var1)
     {
-		
+		nbtSyncFromServer(var1);
     }
 	
-	//not used yet
-	public void writeToNBT(NBTTagCompound var1)
+	public NBTTagCompound writeToNBT()
     {
-		
+		return nbtSyncForClient();
     }
 	
 	//receiver method

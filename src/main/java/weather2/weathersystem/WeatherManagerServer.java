@@ -42,6 +42,11 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		
 		World world = getWorld();
 		
+		//wrap back to ID 0 just in case someone manages to hit 9223372036854775807 O_o
+		if (StormObject.lastUsedStormID >= Long.MAX_VALUE) {
+			StormObject.lastUsedStormID = 0;
+		}
+		
 		if (world != null) {
 			
 			if (!ConfigMisc.overcastMode) {
@@ -67,6 +72,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 			
 			//sync storms
+			
+			//System.out.println("getStormObjects().size(): " + getStormObjects().size());
 			
 			for (int i = 0; i < getStormObjects().size(); i++) {
 				StormObject so = getStormObjects().get(i);

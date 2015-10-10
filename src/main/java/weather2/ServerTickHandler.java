@@ -66,7 +66,6 @@ public class ServerTickHandler
         for (int i = 0; i < worlds.length; i++) {
         	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.dimensionId)) {
         		
-        		//temp overworld only! - not so temp anymore?
         		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.dimensionId)) {
         			addWorldToWeather(worlds[i].provider.dimensionId);
         		}
@@ -138,7 +137,9 @@ public class ServerTickHandler
 	    	lookupDimToWeatherMan.remove(dim);
     	}
     	
-    	wm.readFromFile();
+    	
+    	//wm.readFromFile();
+    	wm.writeToFile();
     }
     
     public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
@@ -153,7 +154,8 @@ public class ServerTickHandler
     		ServerTickHandler.addWorldToWeather(0);
     	}
     	
-    	ServerTickHandler.lookupDimToWeatherMan.get(0).readFromFile();
+    	//redundant
+    	//ServerTickHandler.lookupDimToWeatherMan.get(0).readFromFile();
     }
     
     public static void reset() {

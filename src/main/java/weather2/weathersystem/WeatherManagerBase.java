@@ -267,9 +267,17 @@ public class WeatherManagerBase {
 			listVolcanoesNBT.setTag("volcano_" + td.ID, teamNBT);
 		}
 		mainNBT.setTag("volcanoData", listVolcanoesNBT);
-		mainNBT.setLong("lastUsedID", VolcanoObject.lastUsedID);
+		mainNBT.setLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);
 		
-		//TODO: separate this into its own multi dimensional saved data, atm this is overworld only!!!
+		NBTTagCompound listStormsNBT = new NBTTagCompound();
+		for (int i = 0; i < listStormObjects.size(); i++) {
+			StormObject obj = listStormObjects.get(i);
+			NBTTagCompound objNBT = obj.writeToNBT();
+			listStormsNBT.setTag("storm_" + obj.ID, objNBT);
+		}
+		mainNBT.setTag("stormData", listStormsNBT);
+		mainNBT.setLong("lastUsedIDStorm", StormObject.lastUsedStormID);
+		
 		mainNBT.setLong("lastStormFormed", lastStormFormed);
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
@@ -277,7 +285,7 @@ public class WeatherManagerBase {
 		try {
 			//Write out to file
 			if (!(new File(saveFolder).exists())) (new File(saveFolder)).mkdirs();
-			FileOutputStream fos = new FileOutputStream(saveFolder + "VolcanoData.dat");
+			FileOutputStream fos = new FileOutputStream(saveFolder + "WeatherData_" + dim + ".dat");
 	    	CompressedStreamTools.writeCompressed(mainNBT, fos);
 	    	fos.close();
 		} catch (Exception ex) { ex.printStackTrace(); }
@@ -292,8 +300,8 @@ public class WeatherManagerBase {
 		boolean readFail = false;
 		
 		try {
-			if ((new File(saveFolder + "VolcanoData.dat")).exists()) {
-				rtsNBT = CompressedStreamTools.readCompressed(new FileInputStream(saveFolder + "VolcanoData.dat"));
+			if ((new File(saveFolder + "WeatherData_" + dim + ".dat")).exists()) {
+				rtsNBT = CompressedStreamTools.readCompressed(new FileInputStream(saveFolder + "WeatherData_" + dim + ".dat"));
 			} else {
 				//readFail = true; - first run, no point
 			}
@@ -305,41 +313,40 @@ public class WeatherManagerBase {
 		//If reading file was ok, make a backup and shift names for second backup
 		if (!readFail) {
 			try {
-				File tmp = (new File(saveFolder + "VolcanoData_BACKUP0.dat"));
-				if (tmp.exists()) FileUtils.copyFile(tmp, (new File(saveFolder + "VolcanoData_BACKUP1.dat")));
-				if ((new File(saveFolder + "VolcanoData.dat").exists())) FileUtils.copyFile((new File(saveFolder + "VolcanoData.dat")), (new File(saveFolder + "VolcanoData_BACKUP0.dat")));
+				File tmp = (new File(saveFolder + "WeatherData_" + dim + "_BACKUP0.dat"));
+				if (tmp.exists()) FileUtils.copyFile(tmp, (new File(saveFolder + "WeatherData_" + dim + "_BACKUP1.dat")));
+				if ((new File(saveFolder + "WeatherData_" + dim + ".dat").exists())) FileUtils.copyFile((new File(saveFolder + "WeatherData_" + dim + ".dat")), (new File(saveFolder + "WeatherData_" + dim + "_BACKUP0.dat")));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			
 		} else {
-			System.out.println("WARNING! Weather2 File: VolcanoData.dat failed to load, automatically restoring to backup from previous game run");
+			System.out.println("WARNING! Weather2 File: WeatherData.dat failed to load, automatically restoring to backup from previous game run");
 			try {
 				//auto restore from most recent backup
-				if ((new File(saveFolder + "VolcanoData_BACKUP0.dat")).exists()) {
-					rtsNBT = CompressedStreamTools.readCompressed(new FileInputStream(saveFolder + "VolcanoData_BACKUP0.dat"));
+				if ((new File(saveFolder + "WeatherData_" + dim + "_BACKUP0.dat")).exists()) {
+					rtsNBT = CompressedStreamTools.readCompressed(new FileInputStream(saveFolder + "WeatherData_" + dim + "_BACKUP0.dat"));
 				} else {
-					System.out.println("WARNING! Failed to find backup file VolcanoData_BACKUP0.dat, nothing loaded");
+					System.out.println("WARNING! Failed to find backup file WeatherData_BACKUP0.dat, nothing loaded");
 				}
 			} catch (Exception ex) { 
 				ex.printStackTrace();
-				System.out.println("WARNING! Error loading backup file VolcanoData_BACKUP0.dat, nothing loaded");
+				System.out.println("WARNING! Error loading backup file WeatherData_BACKUP0.dat, nothing loaded");
 			}
 		}
 		
 		lastStormFormed = rtsNBT.getLong("lastStormFormed");
 		
-		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedID");
+		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
+		StormObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
 		
-		NBTTagCompound teamDataList = rtsNBT.getCompoundTag("volcanoData");
-		//Collection teamDataListCl = teamDataList.getTags();
-		//Iterator it = teamDataListCl.iterator();
+		NBTTagCompound nbtVolcanoes = rtsNBT.getCompoundTag("volcanoData");
 		
-		Iterator it = teamDataList.func_150296_c().iterator();
+		Iterator it = nbtVolcanoes.func_150296_c().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			NBTTagCompound teamData = (NBTTagCompound)rtsNBT.getCompoundTag(tagName);
+			NBTTagCompound teamData = (NBTTagCompound)nbtVolcanoes.getCompoundTag(tagName);
 			
 			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0)/*-1, -1, null*/);
 			try {
@@ -355,7 +362,39 @@ public class WeatherManagerBase {
 			
 			//listVolcanoes.add(to);
 			//lookupVolcanoes.put(to.ID, to);
+			
 			to.initPost();
 		}
+		
+		NBTTagCompound nbtStorms = rtsNBT.getCompoundTag("stormData");
+		
+		it = nbtStorms.func_150296_c().iterator();
+		
+		while (it.hasNext()) {
+			String tagName = (String) it.next();
+			NBTTagCompound teamData = (NBTTagCompound)nbtStorms.getCompoundTag(tagName);
+			
+			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
+				StormObject to = new StormObject(ServerTickHandler.lookupDimToWeatherMan.get(dim)/*-1, -1, null*/);
+				try {
+					to.readFromNBT(teamData);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				addStormObject(to);
+				
+				//THIS LINE NEEDS REFINING FOR PLAYERS WHO JOIN AFTER THE FACT!!!
+				((WeatherManagerServer)(this)).syncStormNew(to);
+			} else {
+				System.out.println("WARNING: trying to load storm objects for missing dimension: " + dim);
+			}
+			
+			//listVolcanoes.add(to);
+			//lookupVolcanoes.put(to.ID, to);
+			
+			//to.initPost();
+		}
+		
+		
 	}
 }
