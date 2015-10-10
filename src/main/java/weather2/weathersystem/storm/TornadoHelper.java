@@ -422,13 +422,11 @@ public class TornadoHelper {
             {
                 Entity entity1 = (Entity)list.get(i);
 
-                if (/*(entity1 instanceof EntityLivingBase || entity1 instanceof EntityItem || entity1 instanceof MovingBlock) && */(!(entity1 instanceof EntityPlayer) || ConfigMisc.Storm_Tornado_grabPlayer)/* && entity1 != entity*/)
+                if ((!(entity1 instanceof EntityPlayer) || ConfigMisc.Storm_Tornado_grabPlayer))
                 {
-                	/*if (parWorld.isRemote) {
-                		if (entity1 instanceof EntityPlayer) {
-                			System.out.println("client grab try: " + storm.posGround + " - " + getDistanceXZ(storm.posGround, entity1.posX, entity1.posY, entity1.posZ));
-                		}
-                	}*/
+                	if (!(entity1 instanceof EntityPlayer) && ConfigMisc.Storm_Tornado_grabPlayersOnly) {
+                		continue;
+                	}
                     if (getDistanceXZ(storm.posBaseFormationPos, entity1.posX, entity1.posY, entity1.posZ) < dist)
                     {
                         if ((entity1 instanceof EntityMovingBlock && !((EntityMovingBlock)entity1).collideFalling)/* || canEntityBeSeen(entity, entity1)*/)
