@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -693,7 +694,7 @@ public class StormObject {
 			            	boolean perform = false;
 			            	Block id = world.getBlock(xxx + x, setBlockHeight, zzz + z);
 			            	int meta = 0;
-			            	if (id == Blocks.snow) {
+			            	if (id.getMaterial() == Material.snow) {
 			            		if (ConfigMisc.Snow_ExtraPileUp) {
 				            		meta = world.getBlockMetadata(xxx + x, setBlockHeight, zzz + z);
 				            		if (meta < snowMetaMax) {
@@ -705,7 +706,7 @@ public class StormObject {
 				            				int originalSetBlockHeight = setBlockHeight;
 				            				for (i = 0; i < ConfigMisc.Snow_MaxBlockBuildupHeight; i++) {
 				            					Block checkID = world.getBlock(xxx + x, originalSetBlockHeight + i, zzz + z);
-				            					if (checkID == Blocks.snow) {
+				            					if (checkID.getMaterial() == Material.snow) {
 				            						meta = world.getBlockMetadata(xxx + x, originalSetBlockHeight + i, zzz + z);
 				            						if (meta < snowMetaMax) {
 				            							setBlockHeight = originalSetBlockHeight + i;
@@ -759,7 +760,7 @@ public class StormObject {
 			            	}
 			            	
 			            	if (perform) {
-			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, Blocks.snow, meta, 3);
+			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, id, meta, 3);
 			            	}
 			            }
 			        }
