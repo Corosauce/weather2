@@ -255,11 +255,25 @@ public class StormObject {
 	public void readFromNBT(NBTTagCompound var1)
     {
 		nbtSyncFromServer(var1);
+		
+		motion = Vec3.createVectorHelper(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
+		angleIsOverridden = var1.getBoolean("angleIsOverridden");
+		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
 	
 	public NBTTagCompound writeToNBT()
     {
-		return nbtSyncForClient();
+		
+		NBTTagCompound nbt = nbtSyncForClient();
+		
+		nbt.setDouble("vecX", motion.xCoord);
+		nbt.setDouble("vecY", motion.yCoord);
+		nbt.setDouble("vecZ", motion.zCoord);
+		nbt.setBoolean("angleIsOverridden", angleIsOverridden);
+		nbt.setFloat("angleMovementTornadoOverride", angleMovementTornadoOverride);
+		
+		
+		return nbt;
     }
 	
 	//receiver method
