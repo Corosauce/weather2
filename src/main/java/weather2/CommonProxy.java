@@ -2,12 +2,15 @@ package weather2;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.LanguageRegistry;
 import weather2.block.BlockAnemometer;
 import weather2.block.BlockTSensor;
 import weather2.block.BlockTSiren;
@@ -27,10 +30,6 @@ import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
-import cpw.mods.fml.common.network.IGuiHandler;
-import cpw.mods.fml.common.registry.EntityRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public class CommonProxy implements IGuiHandler
 {

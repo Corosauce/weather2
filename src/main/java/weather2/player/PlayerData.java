@@ -7,12 +7,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import weather2.Weather;
-
-import CoroUtil.util.CoroUtilFile;
-
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import weather2.Weather;
+import CoroUtil.util.CoroUtilFile;
 
 public class PlayerData {
 

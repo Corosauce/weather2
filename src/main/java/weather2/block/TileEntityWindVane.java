@@ -1,22 +1,14 @@
 package weather2.block;
 
-import weather2.ClientTickHandler;
-import weather2.Weather;
-import weather2.api.WindReader;
-import weather2.config.ConfigMisc;
-import weather2.util.WeatherUtilEntity;
-import weather2.util.WeatherUtilSound;
-import weather2.weathersystem.storm.StormObject;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.api.WindReader;
+import weather2.util.WeatherUtilEntity;
 
 public class TileEntityWindVane extends TileEntity
 {

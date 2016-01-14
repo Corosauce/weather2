@@ -5,14 +5,14 @@ import java.util.Random;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class WindManager {
 
@@ -281,7 +281,7 @@ public class WindManager {
 		//event data
 		if (entP != null) {
 	        if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
-	        	StormObject so = manager.getClosestStorm(Vec3.createVectorHelper(entP.posX, StormObject.layers.get(0), entP.posZ), 256, StormObject.STATE_HIGHWIND);
+	        	StormObject so = manager.getClosestStorm(new Vec3(entP.posX, StormObject.layers.get(0), entP.posZ), 256, StormObject.STATE_HIGHWIND);
 	        	
 	        	//FIX SO IT DOESNT COUNT RAINSTORMS! - i did?
 	        	if (so != null) {

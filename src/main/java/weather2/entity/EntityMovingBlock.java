@@ -4,9 +4,6 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.List;
 
-import weather2.config.ConfigMisc;
-import weather2.util.WeatherUtil;
-import weather2.weathersystem.storm.StormObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -21,13 +18,12 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtil;
+import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.CoroUtilBlock;
-
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-
-import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 
 public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnData
 {
@@ -185,14 +181,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             /*if(this.fire > 0) {
                --this.fire;
             }*/
-            Vec3 var1 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-            Vec3 var2 = Vec3.createVectorHelper(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
+            Vec3 var1 = new Vec3(this.posX, this.posY, this.posZ);
+            Vec3 var2 = new Vec3(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
             MovingObjectPosition var3 = this.worldObj.rayTraceBlocks(var1, var2);
-            var2 = Vec3.createVectorHelper(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
+            var2 = new Vec3(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
 
             if (var3 != null)
             {
-                var2 = Vec3.createVectorHelper(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
+                var2 = new Vec3(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
             }
 
             Entity var4 = null;
@@ -398,7 +394,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     
     public boolean canEntityBeSeen(Entity par1Entity)
     {
-        return this.worldObj.rayTraceBlocks(Vec3.createVectorHelper(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), Vec3.createVectorHelper(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
+        return this.worldObj.rayTraceBlocks(new Vec3(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
     private void blockify(int var1, int var2, int var3, int var4)

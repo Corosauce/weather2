@@ -32,10 +32,10 @@ public class CommandWeather2 extends CommandBase {
 				
 				if (var2[0].equals("volcano")) {
 					if (var2[1].equals("create")) {
-						if (player.worldObj.provider.dimensionId == 0) {
+						if (player.worldObj.provider.getDimensionId() == 0) {
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(0);
 							VolcanoObject vo = new VolcanoObject(wm);
-							vo.pos = Vec3.createVectorHelper(player.posX, player.posY, player.posZ);
+							vo.pos = new Vec3(player.posX, player.posY, player.posZ);
 							vo.initFirstTime();
 							wm.addVolcanoObject(vo);
 							vo.initPost();
@@ -49,7 +49,7 @@ public class CommandWeather2 extends CommandBase {
 					}
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
-						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimensionId());
 						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "killing all storms");
 						List<StormObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
@@ -62,13 +62,13 @@ public class CommandWeather2 extends CommandBase {
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
 						if (var2.length > 2) {
-							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.dimensionId);
+							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimensionId());
 							StormObject so = new StormObject(wm);
 							so.layer = 0;
 							so.userSpawnedFor = CoroUtilEntity.getName(player);
 							so.naturallySpawned = false;
 							so.levelTemperature = 0.1F;
-							so.pos = Vec3.createVectorHelper(player.posX, StormObject.layers.get(so.layer), player.posZ);
+							so.pos = new Vec3(player.posX, StormObject.layers.get(so.layer), player.posZ);
 
 							so.levelWater = so.levelWaterStartRaining * 2;
 							so.attrib_precipitation = true;

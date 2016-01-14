@@ -15,11 +15,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.api.WindReader;
@@ -31,7 +33,6 @@ import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilParticle;
-import weather2.util.WeatherUtilSound;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
@@ -39,9 +40,6 @@ import CoroUtil.OldUtil;
 import CoroUtil.api.weather.WindHandler;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
@@ -120,7 +118,7 @@ public class SceneEnhancer implements Runnable {
 			reset();
 		}
 		
-		if (mc.theWorld != null && mc.thePlayer != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.theWorld.provider.dimensionId)) {
+		if (mc.theWorld != null && mc.thePlayer != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.theWorld.provider.getDimensionId())) {
 			profileSurroundings();
 			tryAmbientSounds();
 		}
@@ -181,14 +179,14 @@ public class SceneEnhancer implements Runnable {
 								} else if (cCor.block == SOUNDMARKER_LEAVES) {
 									
 										
-									float windSpeed = WindReader.getWindSpeed(mc.theWorld, Vec3.createVectorHelper(cCor.posX, cCor.posY, cCor.posZ), WindReader.WindType.EVENT);
+									float windSpeed = WindReader.getWindSpeed(mc.theWorld, new Vec3(cCor.posX, cCor.posY, cCor.posZ), WindReader.WindType.EVENT);
 									if (windSpeed > 0.2F) {
 										soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
 										//mc.getSoundHandler().playSound(Weather.modID + ":wind_calmfade", cCor.posX, cCor.posY, cCor.posZ, (float)(windSpeed * 4F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
 										mc.theWorld.playSound(cCor.posX, cCor.posY, cCor.posZ, Weather.modID + ":env.wind_calmfade", (float)(windSpeed * 4F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F), false);
 										//System.out.println("play leaves sound at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ + " - windSpeed: " + windSpeed);
 									} else {
-										windSpeed = WindReader.getWindSpeed(mc.theWorld, Vec3.createVectorHelper(cCor.posX, cCor.posY, cCor.posZ));
+										windSpeed = WindReader.getWindSpeed(mc.theWorld, new Vec3(cCor.posX, cCor.posY, cCor.posZ));
 										//if (windSpeed > 0.3F) {
 										if (mc.theWorld.rand.nextInt(15) == 0) {
 											soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
@@ -418,7 +416,7 @@ public class SceneEnhancer implements Runnable {
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		
 		double maxStormDist = 512 / 4 * 3;
-		Vec3 plPos = Vec3.createVectorHelper(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
+		Vec3 plPos = new Vec3(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
 		StormObject storm = null;
 		
 		ClientTickHandler.checkClientWeather();

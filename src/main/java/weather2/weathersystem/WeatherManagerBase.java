@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -342,7 +341,7 @@ public class WeatherManagerBase {
 		
 		NBTTagCompound nbtVolcanoes = rtsNBT.getCompoundTag("volcanoData");
 		
-		Iterator it = nbtVolcanoes.func_150296_c().iterator();
+		Iterator it = nbtVolcanoes.getKeySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
@@ -368,7 +367,7 @@ public class WeatherManagerBase {
 		
 		NBTTagCompound nbtStorms = rtsNBT.getCompoundTag("stormData");
 		
-		it = nbtStorms.func_150296_c().iterator();
+		it = nbtStorms.getKeySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();

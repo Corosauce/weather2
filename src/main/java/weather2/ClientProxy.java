@@ -1,10 +1,14 @@
 package weather2;
 
+import CoroUtil.render.RenderNull;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.IIcon;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.block.TileEntityAnemometer;
 import weather2.block.TileEntityTSiren;
 import weather2.block.TileEntityWeatherDeflector;
@@ -25,11 +29,6 @@ import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtilSound;
-import CoroUtil.render.RenderNull;
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
@@ -62,8 +61,8 @@ public class ClientProxy extends CommonProxy
         addMapping(EntityIceBall.class, new RenderFlyingBlock(Blocks.ice));
         addMapping(EntityMovingBlock.class, new RenderFlyingBlock(null));
         addMapping(EntityLightningBolt.class, new RenderLightningBolt());
-        addMapping(EntityFallingRainFX.class, new RenderNull());
-        addMapping(EntityFallingSnowFX.class, new RenderNull());
+        addMapping(EntityFallingRainFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));
+        addMapping(EntityFallingSnowFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));
         
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTSiren.class, new TileEntityTSirenRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWindVane.class, new TileEntityWindVaneRenderer());

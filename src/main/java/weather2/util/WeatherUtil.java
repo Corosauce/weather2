@@ -11,10 +11,11 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.CommonProxy;
 import weather2.config.ConfigMisc;
-import cpw.mods.fml.client.FMLClientHandler;
 
 public class WeatherUtil {
 
@@ -69,7 +70,7 @@ public class WeatherUtil {
                     	return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
-    	                float strVsBlock = block.getBlockHardness(parWorld, 0, 0, 0) - (((itemStr.func_150997_a(block) - 1) / 4F));
+    	                float strVsBlock = block.getBlockHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
     	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)

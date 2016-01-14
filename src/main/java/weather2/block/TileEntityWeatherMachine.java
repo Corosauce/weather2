@@ -52,7 +52,7 @@ public class TileEntityWeatherMachine extends TileEntity
 	public void invalidate() {
 		super.invalidate();
 		
-		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.dimensionId);
+		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimensionId());
 		if (wm != null) {
     		//StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
     		
@@ -80,7 +80,7 @@ public class TileEntityWeatherMachine extends TileEntity
     			}
     			
     			if (lastTickStormObject == null) {
-    				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.dimensionId);
+    				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimensionId());
     				
     				if (manager != null) {
     					StormObject so = new StormObject(manager);

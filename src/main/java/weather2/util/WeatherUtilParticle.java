@@ -4,14 +4,13 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Random;
 
-import CoroUtil.OldUtil;
-
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.util.Vec3;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import CoroUtil.OldUtil;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.EntityTexFX;
 
@@ -37,7 +36,7 @@ public class WeatherUtilParticle {
         float range = 20F;
         
         for (int i = 0; i < maxRainDrops; i++) {
-        	rainPositions[i] = Vec3.createVectorHelper((rand.nextFloat() * range) - (range/2), (rand.nextFloat() * range/16) - (range/32), (rand.nextFloat() * range) - (range/2));
+        	rainPositions[i] = new Vec3((rand.nextFloat() * range) - (range/2), (rand.nextFloat() * range/16) - (range/32), (rand.nextFloat() * range) - (range/2));
         }
     }
     

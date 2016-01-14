@@ -6,11 +6,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import CoroUtil.api.weather.WindHandler;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.particle.entity.EntityRotFX;
 @SideOnly(Side.CLIENT)
 public class EntityWaterfallFX extends EntityRotFX implements WindHandler
@@ -124,7 +125,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         //this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         
-        Block id = this.worldObj.getBlock((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
+        Block id = this.worldObj.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getBlock();
         //int id2 = this.worldObj.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
         
         
@@ -133,7 +134,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         if (id.getMaterial() == Material.water/*id == 9 || id == 8*/) {
         	
-        	Double dir = BlockLiquid.getFlowDirection(worldObj, (int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ), Material.water);
+        	Double dir = BlockLiquid.getFlowDirection(worldObj, new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ)), Material.water);
         	
         	if (dir != -1000) {
             	//System.out.println("uhhhh: " + dir);

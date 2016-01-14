@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -14,7 +15,6 @@ import org.lwjgl.opengl.GL13;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtil;
-import cpw.mods.fml.client.FMLClientHandler;
 
 public class EntityRendererProxyWeather2Mini extends EntityRenderer
 {

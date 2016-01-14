@@ -1,12 +1,10 @@
 package weather2.block;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
-import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
@@ -21,7 +19,7 @@ public class TileEntityWeatherDeflector extends TileEntity
     	if (!worldObj.isRemote) {
     		
     		if (worldObj.getTotalWorldTime() % 100 == 0) {
-    			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.dimensionId);
+    			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimensionId());
     			if (wm != null) {
 		    		//StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
 		    		

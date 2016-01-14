@@ -2,12 +2,10 @@ package weather2.config;
 
 import java.io.File;
 
-import weather2.Weather;
-import weather2.util.WeatherUtil;
-import weather2.util.WeatherUtilConfig;
-
 import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
+import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilConfig;
 
 
 public class ConfigMisc implements IConfigCategory {

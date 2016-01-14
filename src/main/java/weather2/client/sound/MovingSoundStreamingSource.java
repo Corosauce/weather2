@@ -5,8 +5,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.weathersystem.storm.StormObject;
-import cpw.mods.fml.client.FMLClientHandler;
 
 public class MovingSoundStreamingSource extends MovingSound {
 
@@ -53,10 +53,10 @@ public class MovingSoundStreamingSource extends MovingSound {
     	}
     	
     	if (storm != null) {
-    		realSource = Vec3.createVectorHelper(this.storm.posGround.xCoord, this.storm.posGround.yCoord, this.storm.posGround.zCoord);
+    		realSource = new Vec3(this.storm.posGround.xCoord, this.storm.posGround.yCoord, this.storm.posGround.zCoord);
     	}
     	
-    	float var3 = (float)((cutOffRange - (double)MathHelper.sqrt_double(getDistanceFrom(realSource, Vec3.createVectorHelper(entP.posX, entP.posY, entP.posZ)))) / cutOffRange);
+    	float var3 = (float)((cutOffRange - (double)MathHelper.sqrt_double(getDistanceFrom(realSource, new Vec3(entP.posX, entP.posY, entP.posZ)))) / cutOffRange);
 
         if (var3 < 0.0F)
         {

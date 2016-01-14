@@ -1,8 +1,6 @@
 package weather2.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,24 +11,17 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-
+import CoroUtil.packet.PacketHelper;
 import weather2.Weather;
 import weather2.client.gui.elements.GuiButtonBoolean;
 import weather2.client.gui.elements.GuiButtonCycle;
 import weather2.util.WeatherUtilConfig;
-
-import CoroUtil.packet.PacketHelper;
 
 public class GuiEZConfig extends GuiScreen {
 
@@ -351,7 +342,7 @@ public class GuiEZConfig extends GuiScreen {
 		listSettingClouds.clear();
 		listSettingEffects.clear();
 		
-		 Iterator it = dimData.func_150296_c().iterator();
+		 Iterator it = dimData.getKeySet().iterator();
          while (it.hasNext()) {
          	String tagName = (String) it.next();
          	NBTTagCompound tag = dimData.getCompoundTag(tagName);

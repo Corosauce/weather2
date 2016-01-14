@@ -25,6 +25,9 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.client.entity.RenderCubeCloud;
@@ -40,9 +43,6 @@ import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.CoroUtilEntity;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
@@ -83,9 +83,9 @@ public class StormObject {
 	public static int static_YPos_layer2 = 500;
 	public static List<Integer> layers = new ArrayList<Integer>(Arrays.asList(static_YPos_layer0, static_YPos_layer1, static_YPos_layer2));
 	public int layer = 0;
-	public Vec3 pos = Vec3.createVectorHelper(0, static_YPos_layer0, 0);
-	public Vec3 posGround = Vec3.createVectorHelper(0, 0, 0);
-	public Vec3 motion = Vec3.createVectorHelper(0, 0, 0);
+	public Vec3 pos = new Vec3(0, static_YPos_layer0, 0);
+	public Vec3 posGround = new Vec3(0, 0, 0);
+	public Vec3 motion = new Vec3(0, 0, 0);
 	
 	public boolean angleIsOverridden = false;
 	public float angleMovementTornadoOverride = 0;
@@ -165,7 +165,7 @@ public class StormObject {
     
     public float formingStrength = 0; //for transition from 0 (in clouds) to 1 (touch down)
     
-    public Vec3 posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
+    public Vec3 posBaseFormationPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
     
     public boolean naturallySpawned = true;
     public boolean canSnowFromCloudTemperature = false;
@@ -256,7 +256,7 @@ public class StormObject {
     {
 		nbtSyncFromServer(var1);
 		
-		motion = Vec3.createVectorHelper(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
+		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
@@ -281,7 +281,7 @@ public class StormObject {
 		ID = parNBT.getLong("ID");
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
-		pos = Vec3.createVectorHelper(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
+		pos = new Vec3(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
 		size = parNBT.getInteger("size");
 		maxSize = parNBT.getInteger("maxSize");
 		
@@ -382,7 +382,7 @@ public class StormObject {
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
-		posGround = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord);
+		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
 		posGround.yCoord = currentTopYBlock;
 		
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
@@ -453,7 +453,7 @@ public class StormObject {
 		
 		if (layer == 0) {
 	        //sync X Y Z, Y gets changed below
-	        posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord);
+	        posBaseFormationPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
 	
 	        if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal) {
 	        	if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal + 1) {
@@ -981,7 +981,7 @@ public class StormObject {
 			
 			//actual storm formation chance
 			
-			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.dimensionId);
+			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimensionId());
 			
 			boolean tryFormStorm = false;
 			
@@ -999,7 +999,7 @@ public class StormObject {
 				}
 			}
 			
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.dimensionId) && tryFormStorm) {
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimensionId()) && tryFormStorm) {
 				//if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
 					int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
 					int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
@@ -1354,7 +1354,7 @@ public class StormObject {
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
 		if (particleBehaviorFog == null) {
-			particleBehaviorFog = new ParticleBehaviorFog(Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord));
+			particleBehaviorFog = new ParticleBehaviorFog(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
 			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof GuiIngameMenu)) {
@@ -1419,7 +1419,7 @@ public class StormObject {
 		
 		Random rand = new Random();
 		
-		Vec3 playerAdjPos = Vec3.createVectorHelper(entP.posX, pos.yCoord, entP.posZ);
+		Vec3 playerAdjPos = new Vec3(entP.posX, pos.yCoord, entP.posZ);
 		double maxSpawnDistFromPlayer = 512;
 		
 		//spawn clouds
@@ -1434,7 +1434,7 @@ public class StormObject {
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
-					Vec3 tryPos = Vec3.createVectorHelper(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 2);
 						
@@ -1464,7 +1464,7 @@ public class StormObject {
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
-					Vec3 tryPos = Vec3.createVectorHelper(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						int groundY = manager.getWorld().getHeightValue((int)tryPos.xCoord, (int)tryPos.zCoord);
 						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 2);
@@ -1534,7 +1534,7 @@ public class StormObject {
 					if (listParticlesFunnel.size() < sizeMaxFunnelParticles) {
 						
 						
-						Vec3 tryPos = Vec3.createVectorHelper(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), pos.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+						Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), pos.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 						//int y = entP.worldObj.getPrecipitationHeight((int)tryPos.xCoord, (int)tryPos.zCoord);
 						
 						if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {

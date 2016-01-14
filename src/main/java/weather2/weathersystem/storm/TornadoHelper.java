@@ -14,6 +14,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityMovingBlock;
@@ -21,9 +24,6 @@ import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
 import CoroUtil.util.CoroUtilBlock;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class TornadoHelper {
 	
@@ -548,7 +548,7 @@ public class TornadoHelper {
         if (storm.stormType == storm.TYPE_WATER) {
         	close = 200;
         }
-        Vec3 plPos = Vec3.createVectorHelper(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
+        Vec3 plPos = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         
         double distToPlayer = this.storm.posGround.distanceTo(plPos);
         

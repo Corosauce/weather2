@@ -9,11 +9,9 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import weather2.ClientTickHandler;
 import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
@@ -165,7 +163,7 @@ public class WeatherUtilEntity {
             boolean bool = true;
         }
 
-        return ent.worldObj.rayTraceBlocks(Vec3.createVectorHelper(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ), Vec3.createVectorHelper(startX, ent.posY + (double)ent.getEyeHeight(), startZ)) == null;
+        return ent.worldObj.rayTraceBlocks(new Vec3(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ), new Vec3(startX, ent.posY + (double)ent.getEyeHeight(), startZ)) == null;
         //return true;
     }
 	
@@ -174,7 +172,7 @@ public class WeatherUtilEntity {
 	}
 	
 	public static boolean isEntityOutside(Entity parEnt, boolean cheapCheck) {
-		return isPosOutside(parEnt.worldObj, Vec3.createVectorHelper(parEnt.posX, parEnt.posY, parEnt.posZ), cheapCheck);
+		return isPosOutside(parEnt.worldObj, new Vec3(parEnt.posX, parEnt.posY, parEnt.posZ), cheapCheck);
 	}
 	
 	public static boolean isPosOutside(World parWorld, Vec3 parPos) {
@@ -189,16 +187,16 @@ public class WeatherUtilEntity {
 		
 		if (cheapCheck) return false;
 		
-		Vec3 vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.NORTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.NORTH.offsetZ*rangeCheck);
+		Vec3 vecTry = new Vec3(parPos.xCoord + ForgeDirection.NORTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.NORTH.offsetZ*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.SOUTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.SOUTH.offsetZ*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + ForgeDirection.SOUTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.SOUTH.offsetZ*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.EAST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.EAST.offsetZ*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + ForgeDirection.EAST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.EAST.offsetZ*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = Vec3.createVectorHelper(parPos.xCoord + ForgeDirection.WEST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.WEST.offsetZ*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + ForgeDirection.WEST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.WEST.offsetZ*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
 		return false;

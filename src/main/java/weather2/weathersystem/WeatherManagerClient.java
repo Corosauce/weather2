@@ -1,15 +1,15 @@
 package weather2.weathersystem;
 
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class WeatherManagerClient extends WeatherManagerBase {

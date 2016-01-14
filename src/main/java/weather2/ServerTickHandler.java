@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage;
 
 public class ServerTickHandler
 {   
@@ -64,17 +63,17 @@ public class ServerTickHandler
         //add use of CSV of supported dimensions here once feature is added, for now just overworld
         
         for (int i = 0; i < worlds.length; i++) {
-        	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.dimensionId)) {
+        	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.getDimensionId())) {
         		
-        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.dimensionId)) {
-        			addWorldToWeather(worlds[i].provider.dimensionId);
+        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.getDimensionId())) {
+        			addWorldToWeather(worlds[i].provider.getDimensionId());
         		}
         	}
         	
         	//tick it
-        	WeatherManagerServer wms = lookupDimToWeatherMan.get(worlds[i].provider.dimensionId);
+        	WeatherManagerServer wms = lookupDimToWeatherMan.get(worlds[i].provider.getDimensionId());
         	if (wms != null) {
-        		lookupDimToWeatherMan.get(worlds[i].provider.dimensionId).tick();
+        		lookupDimToWeatherMan.get(worlds[i].provider.getDimensionId()).tick();
         	}
         }
         
@@ -143,7 +142,7 @@ public class ServerTickHandler
     }
     
     public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
-		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.dimensionId);
+		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimensionId());
 		if (wm != null) {
 			wm.playerJoinedServerSyncFull(entP);
 		}

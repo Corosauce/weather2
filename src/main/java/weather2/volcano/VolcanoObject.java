@@ -4,24 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import CoroUtil.util.CoroUtilBlock;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.WeatherManagerBase;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import CoroUtil.util.CoroUtilBlock;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
@@ -45,7 +43,7 @@ public class VolcanoObject {
 	
 	//basic info
 	public static int staticYPos = 200;
-	public Vec3 pos = Vec3.createVectorHelper(0, staticYPos, 0);
+	public Vec3 pos = new Vec3(0, staticYPos, 0);
 
 	//public boolean isGrowing = true;
 	public int processRateDelay = 20; //make configurable
@@ -114,7 +112,7 @@ public class VolcanoObject {
     {
 		ID = data.getLong("ID");
 		
-		pos = Vec3.createVectorHelper(data.getInteger("posX"), data.getInteger("posY"), data.getInteger("posZ"));
+		pos = new Vec3(data.getInteger("posX"), data.getInteger("posY"), data.getInteger("posZ"));
 		size = data.getInteger("size");
 		maxSize = data.getInteger("maxSize");
 		
@@ -163,7 +161,7 @@ public class VolcanoObject {
 		ID = parNBT.getLong("ID");
 		Weather.dbg("VolcanoObject " + ID + " receiving sync");
 		
-		pos = Vec3.createVectorHelper(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
+		pos = new Vec3(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
 		size = parNBT.getInteger("size");
 		maxSize = parNBT.getInteger("maxSize");
 		
@@ -235,7 +233,7 @@ public class VolcanoObject {
 						
 						for (double angle = 0; angle <= 360; angle += res) {
 							
-							Vec3 vec = Vec3.createVectorHelper(vecX, 0, vecZ);
+							Vec3 vec = new Vec3(vecX, 0, vecZ);
 							vec.rotateAroundY((float)angle);
 							
 							int posX = (int)Math.floor((pos.xCoord)+vec.xCoord+0.5);
@@ -292,7 +290,7 @@ public class VolcanoObject {
 							
 							for (double angle = 0; angle <= 360; angle += res) {
 								
-								Vec3 vec = Vec3.createVectorHelper(vecX, 0, vecZ);
+								Vec3 vec = new Vec3(vecX, 0, vecZ);
 								vec.rotateAroundY((float)angle);
 								
 								int posX = (int)Math.floor((pos.xCoord)+vec.xCoord+0.5);
@@ -451,7 +449,7 @@ public class VolcanoObject {
 		//Weather.dbg("ticking client volcano " + ID + " - " + state);
 		
 		if (particleBehaviors == null) {
-			particleBehaviors = new ParticleBehaviors(Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord));
+			particleBehaviors = new ParticleBehaviors(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
 			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof GuiIngameMenu)) {

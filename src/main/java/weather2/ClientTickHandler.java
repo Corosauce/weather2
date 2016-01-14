@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.lwjgl.input.Mouse;
 
@@ -19,9 +20,6 @@ import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.EntityRendererProxyWeather2Mini;
 import weather2.weathersystem.WeatherManagerClient;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ClientTickHandler
 {
@@ -91,12 +89,12 @@ public class ClientTickHandler
         if (world != null) {
         	weatherManager.tick();
         	
-        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.dimensionId == 0) {
+        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimensionId() == 0) {
             	mc.gameSettings.clouds = false;
             }
         }
         
-        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.dimensionId)) {
+        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimensionId())) {
         	//weatherManager.tick();
         	
         	sceneEnhancer.tickClient();
@@ -129,7 +127,7 @@ public class ClientTickHandler
     public static void init(World world) {
     	Weather.dbg("Initializing WeatherManagerClient for client world");
     	lastWorld = world;
-    	weatherManager = new WeatherManagerClient(world.provider.dimensionId);
+    	weatherManager = new WeatherManagerClient(world.provider.getDimensionId());
     }
 
     static void getField(Field field, Object newValue) throws Exception

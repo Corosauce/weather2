@@ -5,10 +5,10 @@ import java.awt.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.util.WeatherUtilParticle;
 import CoroUtil.api.weather.WindHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import extendedrenderer.particle.entity.EntityRotFX;
 @SideOnly(Side.CLIENT)
 public class EntityFallingSnowFX extends EntityRotFX implements WindHandler

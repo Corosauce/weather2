@@ -2,11 +2,11 @@ package weather2.api;
 
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerBase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class WindReader {
 	
@@ -46,7 +46,7 @@ public class WindReader {
 		if (parWorld.isRemote) {
 			wMan = getWeatherManagerClient();
 		} else {
-			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.dimensionId);
+			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimensionId());
 		}
 		
 		if (wMan != null) {
@@ -75,7 +75,7 @@ public class WindReader {
 		if (parWorld.isRemote) {
 			wMan = getWeatherManagerClient();
 		} else {
-			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.dimensionId);
+			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimensionId());
 		}
 		
 		if (wMan != null) {

@@ -2,7 +2,6 @@ package weather2.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -12,19 +11,14 @@ import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.SoundCategory;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.audio.SoundManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import paulscode.sound.SoundSystem;
 import weather2.client.sound.MovingSoundStreamingSource;
 import weather2.weathersystem.storm.StormObject;
-import CoroUtil.OldUtil;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class WeatherUtilSound {
 	
