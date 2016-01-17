@@ -19,7 +19,7 @@ public class TileEntityAnemometerRenderer extends TileEntitySpecialRenderer
 		model = new ModelAnemometer();
 	}
 	
-    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8) {
+    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8, int what) {
     	
     	
     	
@@ -84,7 +84,7 @@ public class TileEntityAnemometerRenderer extends TileEntitySpecialRenderer
     	//GL11.glDisable(GL11.GL_LIGHTING);
     	
     	//GL11.glColor4f(1F, 1F, 1F, 1F);
-    	Tessellator tessellator = Tessellator.instance;
+    	Tessellator tessellator = Tessellator.getInstance();
     	//tessellator.setBrightness(9999999);
 
     	//tessellator.setBrightness(var1.getBlockType().getMixedBrightnessForBlock(var1.worldObj, MathHelper.floor_double(var2), MathHelper.floor_double(var4), MathHelper.floor_double(var6)));

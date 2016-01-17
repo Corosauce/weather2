@@ -151,7 +151,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	//only flash sky if player is within 256 blocks of lightning
     	if (mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(this) < 256) {
-    		this.worldObj.lastLightningBolt = 2;
+    		this.worldObj.setLastLightningBolt(2);
     	}
     }
 
