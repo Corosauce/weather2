@@ -197,7 +197,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (this.age > this.gravityDelay / 4)
             {
-                var5 = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ));
+                var5 = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ));
             }
 
             double var6 = 0.0D;
@@ -255,7 +255,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                     }
 
                     float var16 = 0.3F;
-                    AxisAlignedBB var19 = var10.boundingBox.expand((double)var16, (double)var16, (double)var16);
+                    AxisAlignedBB var19 = var10.getEntityBoundingBox().expand((double)var16, (double)var16, (double)var16);
                     MovingObjectPosition var13 = var19.calculateIntercept(var1, var2);
 
                     if (var13 != null)
@@ -278,9 +278,9 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (var3 != null && var3.entityHit == null && this.mode == 0)
             {
-                var8 = var3.blockX;
-                int var17 = var3.blockY;
-                var9 = var3.blockZ;
+                var8 = var3.getBlockPos().getX();
+                int var17 = var3.getBlockPos().getY();
+                var9 = var3.getBlockPos().getZ();
 
                 if (var3.sideHit == 0)
                 {

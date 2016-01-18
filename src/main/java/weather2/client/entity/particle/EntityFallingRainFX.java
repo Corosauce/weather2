@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -157,7 +158,7 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
         this.lastTickPosY = this.posY;
         this.lastTickPosZ = this.posZ;
 
-        if (this.particleAge++ >= this.particleMaxAge || this.onGround || this.isInWater() || posY+this.motionY < this.worldObj.getHeightValue((int)Math.floor(posX), (int)Math.floor(posZ)))
+        if (this.particleAge++ >= this.particleMaxAge || this.onGround || this.isInWater() || posY+this.motionY < this.worldObj.getHeight(new BlockPos((int)Math.floor(posX), 0, (int)Math.floor(posZ))).getY())
         {
             this.setDead();
         }

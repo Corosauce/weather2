@@ -45,7 +45,7 @@ public class ClientTickHandler
     {
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	if (mc.currentScreen instanceof GuiIngameMenu) {
-    		ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+    		ScaledResolution scaledresolution = new ScaledResolution(mc);
             int i = scaledresolution.getScaledWidth();
             int j = scaledresolution.getScaledHeight();
     		int k = Mouse.getX() * i / mc.displayWidth;

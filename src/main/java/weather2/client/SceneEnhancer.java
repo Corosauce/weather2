@@ -346,12 +346,12 @@ public class SceneEnhancer implements Runnable {
 			
 			int precipitationHeight = entP.worldObj.getPrecipitationHeight(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
 			
-			BiomeGenBase biomegenbase = entP.worldObj.getBiomeGenForCoords(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
+			BiomeGenBase biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
             if (/*true*/biomegenbase != null/* || biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow()*/)
             {
 			
-				float temperature = biomegenbase.getFloatTemperature(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posY), MathHelper.floor_double(entP.posZ));
+				float temperature = biomegenbase.getFloatTemperature(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posY), MathHelper.floor_double(entP.posZ)));
 	            double d3;
 	            float f10;
 	
@@ -363,7 +363,7 @@ public class SceneEnhancer implements Runnable {
 	            	//Weather.dbg("precip: " + curPrecipVal);
 	            	
 	            	//rain
-					if (curPrecipVal > 0 && entP.worldObj.canLightningStrikeAt(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.boundingBox.minY), MathHelper.floor_double(entP.posZ))) {
+					if (curPrecipVal > 0 && entP.worldObj.canLightningStrikeAt(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ))) {
 						
 						//Weather.dbg("rate: " + curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate);
 						
@@ -655,7 +655,7 @@ public class SceneEnhancer implements Runnable {
         float windStr = manager.windMan.getWindSpeedForPriority();//(weatherMan.wind.strength <= 1F ? weatherMan.wind.strength : 1F);
 
         if (mc.objectMouseOver != null) {
-        	Block id = mc.theWorld.getBlockState(new BlockPos(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ)).getBlock();
+        	Block id = mc.theWorld.getBlockState(new BlockPos(mc.objectMouseOver.getBlockPos().getX(), mc.objectMouseOver.getBlockPos().getY(), mc.objectMouseOver.getBlockPos().getZ())).getBlock();
         	//System.out.println(mc.theWorld.getBlockStateId(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ));
         	if (CoroUtilBlock.isAir(id) && id.getMaterial() == Material.wood) {
         		float var5 = 0;
@@ -869,7 +869,7 @@ public class SceneEnhancer implements Runnable {
                             {
                             	
                             	//null check biome in future if used
-                            	float temp = worldRef.getBiomeGenForCoords(xx, zz).getFloatTemperature(xx, yy, zz);
+                            	float temp = worldRef.getBiomeGenForCoords(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
                             	
                             	//System.out.println(temp);
                             	
@@ -1033,7 +1033,7 @@ public class SceneEnhancer implements Runnable {
 
                         
                         
-                        if ((world.getHeightValue(MathHelper.floor_double(entity1.posX), MathHelper.floor_double(entity1.posZ)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
+                        if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.posX), 0, MathHelper.floor_double(entity1.posZ))).getY() - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
                         {
                             if ((entity1 instanceof EntityFlameFX))
                             {
@@ -1106,7 +1106,7 @@ public class SceneEnhancer implements Runnable {
                     	//Weather.dbg("process: " + className);
                     }
 
-                    if ((world.getHeightValue(MathHelper.floor_double(entity1.posX), MathHelper.floor_double(entity1.posZ)) - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
+                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.posX), 0, MathHelper.floor_double(entity1.posZ))).getY() - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
                     {
                         if ((entity1 instanceof EntityFlameFX))
                         {

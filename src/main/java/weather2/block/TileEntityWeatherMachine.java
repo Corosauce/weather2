@@ -54,7 +54,7 @@ public class TileEntityWeatherMachine extends TileEntity
 		
 		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimensionId());
 		if (wm != null) {
-    		//StormObject lastTickStormObject = wm.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
+    		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
     		
     		if (lastTickStormObject != null) {
 			
@@ -85,7 +85,7 @@ public class TileEntityWeatherMachine extends TileEntity
     				if (manager != null) {
     					StormObject so = new StormObject(manager);
     					so.initFirstTime();
-    					so.pos = Vec3.createVectorHelper(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
+    					so.pos = new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
     					so.layer = 0;
     					so.userSpawnedFor = "" + getPos().getX() + getPos().getY() + getPos().getZ();
     					//so.canSnowFromCloudTemperature = true;
@@ -104,8 +104,8 @@ public class TileEntityWeatherMachine extends TileEntity
     			Random rand = new Random();
     			
     			if (lockStormHere) {
-					//lastTickStormObject.pos = Vec3.createVectorHelper(xCoord + rand.nextFloat() - rand.nextFloat(), StormObject.layers.get(0), zCoord + rand.nextFloat() - rand.nextFloat());
-					lastTickStormObject.pos = Vec3.createVectorHelper(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
+					//lastTickStormObject.pos = new Vec3(xCoord + rand.nextFloat() - rand.nextFloat(), StormObject.layers.get(0), zCoord + rand.nextFloat() - rand.nextFloat());
+					lastTickStormObject.pos = new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
 				}
 				
 				lastTickStormObject.size = weatherSize;

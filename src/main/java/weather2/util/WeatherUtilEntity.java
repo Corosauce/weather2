@@ -9,6 +9,8 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.Items;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -183,20 +185,20 @@ public class WeatherUtilEntity {
 		int rangeCheck = 5;
 		int yOffset = 1;
 		
-		if (parWorld.getHeightValue(MathHelper.floor_double(parPos.xCoord), MathHelper.floor_double(parPos.zCoord)) < parPos.yCoord+1) return true;
+		if (parWorld.getHeight(new BlockPos(MathHelper.floor_double(parPos.xCoord), 0, MathHelper.floor_double(parPos.zCoord))).getY() < parPos.yCoord+1) return true;
 		
 		if (cheapCheck) return false;
 		
-		Vec3 vecTry = new Vec3(parPos.xCoord + ForgeDirection.NORTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.NORTH.offsetZ*rangeCheck);
+		Vec3 vecTry = new Vec3(parPos.xCoord + EnumFacing.NORTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.NORTH.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + ForgeDirection.SOUTH.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.SOUTH.offsetZ*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + EnumFacing.SOUTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.SOUTH.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + ForgeDirection.EAST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.EAST.offsetZ*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + EnumFacing.EAST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.EAST.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + ForgeDirection.WEST.offsetX*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + ForgeDirection.WEST.offsetZ*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + EnumFacing.WEST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.WEST.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
 		return false;
@@ -205,7 +207,7 @@ public class WeatherUtilEntity {
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
 		boolean dirNorth = parWorld.rayTraceBlocks(parPos, parCheckPos) == null;
 		if (dirNorth) {
-			if (parWorld.getHeightValue(MathHelper.floor_double(parCheckPos.xCoord), MathHelper.floor_double(parCheckPos.zCoord)) < parCheckPos.yCoord) return true;
+			if (parWorld.getHeight(new BlockPos(MathHelper.floor_double(parCheckPos.xCoord), 0, MathHelper.floor_double(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
 		}
 		return false;
 	}

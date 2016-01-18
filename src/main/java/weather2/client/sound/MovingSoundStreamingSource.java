@@ -20,7 +20,7 @@ public class MovingSoundStreamingSource extends MovingSound {
         super(parRes);
         this.repeat = false;
         this.volume = parVolume;
-        this.field_147663_c = parPitch;
+        this.pitch = parPitch;
         cutOffRange = parCutOffRange;
         realSource = parPos;
         
@@ -35,7 +35,7 @@ public class MovingSoundStreamingSource extends MovingSound {
         this.storm = parStorm;
         this.repeat = false;
         this.volume = parVolume;
-        this.field_147663_c = parPitch;
+        this.pitch = parPitch;
         cutOffRange = parCutOffRange;
         
         //sync position

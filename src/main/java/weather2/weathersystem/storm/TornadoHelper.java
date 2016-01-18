@@ -113,10 +113,10 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            BiomeGenBase bgb = parWorld.getBiomeGenForCoords(MathHelper.floor_double(storm.pos.xCoord), MathHelper.floor_double(storm.pos.zCoord));
+            BiomeGenBase bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
         	
             //prevent grabbing in high areas (hills)
-        	if (bgb != null && bgb.rootHeight + bgb.heightVariation <= 0.7) {
+        	if (bgb != null && bgb.minHeight + bgb.maxHeight <= 0.7) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -294,11 +294,11 @@ public class TornadoHelper {
 
         //System.out.println(parWorld.getHeightValue(tryX, tryZ));
         if (( /*(canGrab(blockID)) &&blockID != 0 ||*/
-                ((parWorld.getHeightValue(tryX, tryZ) - 1 == tryY) ||
-                        parWorld.getHeightValue(tryX + 1, tryZ) - 1 < tryY ||
-                        parWorld.getHeightValue(tryX, tryZ + 1) - 1 < tryY ||
-                        parWorld.getHeightValue(tryX - 1, tryZ) - 1 < tryY ||
-                        parWorld.getHeightValue(tryX, tryZ - 1) - 1 < tryY))
+                ((parWorld.getHeight(new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
+                        parWorld.getHeight(new BlockPos(tryX + 1, 0, tryZ)).getY() - 1 < tryY ||
+                        parWorld.getHeight(new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
+                        parWorld.getHeight(new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
+                        parWorld.getHeight(new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))
                 /*(parWorld.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
                  parWorld.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
                  parWorld.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||

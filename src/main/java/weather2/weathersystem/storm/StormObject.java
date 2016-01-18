@@ -10,6 +10,7 @@ import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.entity.Entity;
@@ -31,7 +32,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ServerTickHandler;
 import weather2.Weather;
-import weather2.client.entity.RenderCubeCloud;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
@@ -199,13 +199,13 @@ public class StormObject {
 	public void initFirstTime() {
 		ID = StormObject.lastUsedStormID++;
 		
-		BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
+		BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 
 		
 		float temp = 1;
 		
 		if (bgb != null) {
-			temp = bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord));
+			temp = bgb.getFloatTemperature(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord)));
 		}
 		
 		//initial setting, more apparent than gradual adjustments
@@ -573,13 +573,13 @@ public class StormObject {
 		Random rand = new Random();
 		World world = manager.getWorld();
 		
-		currentTopYBlock = world.getHeightValue(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
+		currentTopYBlock = world.getHeight(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord))).getY();
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER) {
 			if (rand.nextInt((int)Math.max(1, ConfigMisc.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
-				int y = world.getPrecipitationHeight(x, z);
+				int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
 				if (world.checkChunksExist(x, y, z, x, y, z)) {
 					//if (world.canLightningStrikeAt(x, y, z)) {
 						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z));
@@ -700,18 +700,19 @@ public class StormObject {
 			            
 			            int snowMetaMax = 7; //snow loops past 6 for some reason
 			            
-			            setBlockHeight = world.getPrecipitationHeight(xxx + x, zzz + z);
+			            setBlockHeight = world.getPrecipitationHeight(new BlockPos(xxx + x, 0, zzz + z)).getY();
 			            
 			            
 			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.snow.canPlaceBlockAt(world, xxx + x, setBlockHeight, zzz + z)) {
+			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.snow.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 			            	boolean perform = false;
 			            	Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
 			            	int meta = 0;
 			            	if (id.getMaterial() == Material.snow) {
 			            		if (ConfigMisc.Snow_ExtraPileUp) {
-				            		meta = world.getBlockStateMetadata(xxx + x, setBlockHeight, zzz + z);
+			            			IBlockState state = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z));
+				            		meta = state.getBlock().getMetaFromState(state);
 				            		if (meta < snowMetaMax) {
 				            			perform = true;
 					            		meta += 1;
@@ -722,7 +723,8 @@ public class StormObject {
 				            				for (i = 0; i < ConfigMisc.Snow_MaxBlockBuildupHeight; i++) {
 				            					Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
 				            					if (checkID.getMaterial() == Material.snow) {
-				            						meta = world.getBlockStateMetadata(xxx + x, originalSetBlockHeight + i, zzz + z);
+				            						IBlockState state2 = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z));
+				            						meta = state2.getBlock().getMetaFromState(state2);
 				            						if (meta < snowMetaMax) {
 				            							setBlockHeight = originalSetBlockHeight + i;
 				    			            			perform = true;
@@ -840,19 +842,19 @@ public class StormObject {
     {
 		World world = manager.getWorld();
 		
-        BiomeGenBase biomegenbase = world.getBiomeGenForCoords(par1, par3);
+        BiomeGenBase biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
         
         if (biomegenbase == null) return false;
         
-        float f = biomegenbase.getFloatTemperature(par1, par2, par3);
+        float f = biomegenbase.getFloatTemperature(new BlockPos(par1, par2, par3));
 
-        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && biomegenbase.getFloatTemperature(par1, par2, par3) > 0.15F))
+        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && biomegenbase.getFloatTemperature(new BlockPos(par1, par2, par3)) > 0.15F))
         {
             return false;
         }
         else
         {
-            if (par2 >= 0 && par2 < 256 && world.getSavedLightValue(EnumSkyBlock.Block, par1, par2, par3) < 10)
+            if (par2 >= 0 && par2 < 256 && world.getSavedLightValue(EnumSkyBlock.BLOCK, par1, par2, par3) < 10)
             {
                 Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
@@ -907,14 +909,14 @@ public class StormObject {
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
-			BiomeGenBase bgb = world.getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
+			BiomeGenBase bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 			
 			//temperature scan
 			if (bgb != null) {
 				
 				isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
 				
-				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord)));
+				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord))));
 				if (levelTemperature > biomeTempAdj) {
 					levelTemperature -= tempAdjustRate;
 				} else {
@@ -930,7 +932,7 @@ public class StormObject {
 				performBuildup = true;
 			}
 			
-			Block blockID = world.getBlockState(MathHelper.floor_double(pos.xCoord), currentTopYBlock-1, MathHelper.floor_double(pos.zCoord));
+			Block blockID = world.getBlockState(new BlockPos(MathHelper.floor_double(pos.xCoord), currentTopYBlock-1, MathHelper.floor_double(pos.zCoord))).getBlock();
 			if (!CoroUtilBlock.isAir(blockID)) {
 				//Block block = Block.blocksList[blockID];
 				if (blockID.getMaterial() instanceof MaterialLiquid) {
@@ -1467,7 +1469,7 @@ public class StormObject {
 					
 					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
-						int groundY = manager.getWorld().getHeightValue((int)tryPos.xCoord, (int)tryPos.zCoord);
+						int groundY = manager.getWorld().getHeight(new BlockPos((int)tryPos.xCoord, 0, (int)tryPos.zCoord)).getY();
 						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 2);
 						
 						particle.setScale(100);

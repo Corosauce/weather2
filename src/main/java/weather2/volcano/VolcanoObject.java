@@ -213,13 +213,13 @@ public class VolcanoObject {
 				pos.xCoord = Math.floor(pos.xCoord);
 				pos.zCoord = Math.floor(pos.zCoord);
 				
-				pos.yCoord = world.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
+				pos.yCoord = world.getHeight(new BlockPos((int)pos.xCoord, 0, (int)pos.zCoord)).getY();
 				startYPos = (int) pos.yCoord;
 				
-				topBlockID = world.getBlockState(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord));
+				topBlockID = world.getBlockState(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord))).getBlock();
 				
 				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, (int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord, 0)) {
-					topBlockID = world.getBlockState((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord);
+					topBlockID = world.getBlockState(new BlockPos((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord)).getBlock();
 				}
 				
 				for (int yy = startYPos + curHeight; yy > 2; yy--) {
@@ -306,7 +306,7 @@ public class VolcanoObject {
 								
 									//skip top layers
 									if (yy != curHeight) {
-										if (CoroUtilBlock.isAir(world.getBlockState(posX, startYPos+yy, posZ))) {
+										if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(posX, startYPos+yy, posZ)).getBlock())) {
 											world.setBlockState(new BlockPos(posX, startYPos+yy, posZ), blockID.getDefaultState());
 										}
 									}

@@ -1,5 +1,6 @@
 package weather2.client.block;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -89,14 +90,14 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	float yOffset = 2.5F;
     	
     	//if (oldMode) {
-	    	renderLivingLabel("particles: " + particleCount, x, y + yOffset, z, 0, 200, 40, RenderManager.instance.playerViewY);
-	    	//renderLivingLabel("closest storm type: " + progression + descSeverity, x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
-	    	//renderLivingLabel("closest storm dist: " + descDist, x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
-	    	//if (so != null) renderLivingLabel("closest storm intensity: " + ((int)(so.levelCurStagesIntensity * 100F) / 100F), x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
-	    	//if (so != null) renderLivingLabel("closest storm water level: " + (so.attrib_precipitation ? so.levelWater : 0), x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
-	    	renderLivingLabel(descWindAngleCloud, x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
-	    	renderLivingLabel(descWindAngle, x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
-	    	renderLivingLabel(descWindSpeed, x, y + yOffset - 0.1F * index++, z, 1, RenderManager.instance.playerViewY);
+	    	renderLivingLabel("particles: " + particleCount, x, y + yOffset, z, 0, 200, 40, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//renderLivingLabel("closest storm type: " + progression + descSeverity, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//renderLivingLabel("closest storm dist: " + descDist, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//if (so != null) renderLivingLabel("closest storm intensity: " + ((int)(so.levelCurStagesIntensity * 100F) / 100F), x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//if (so != null) renderLivingLabel("closest storm water level: " + (so.attrib_precipitation ? so.levelWater : 0), x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	renderLivingLabel(descWindAngleCloud, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	renderLivingLabel(descWindAngle, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	renderLivingLabel(descWindSpeed, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
     	//} else {
     		
     		float sizeSimBoxDiameter = 2048;
@@ -104,7 +105,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     		
     		//GL11.glTranslatef((float)x + 0.5F, (float)y, (float)var6 + 0.5F);
     		
-    		//renderLivingLabel("x", x, y + 1.4F, z, 1, 10, 10, RenderManager.instance.playerViewY);
+    		//renderLivingLabel("x", x, y + 1.4F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
     		
     		GL11.glPushMatrix();
     		
@@ -135,7 +136,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             
             GL11.glPopMatrix();
     		
-            renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, RenderManager.instance.playerViewY);
+            renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
             
     		for (int i = 0; i < tEnt.storms.size(); i++) {
     			
@@ -156,31 +157,31 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
                 
                 if (storm.levelCurIntensityStage >= StormObject.STATE_FORMING) {
                 	if (storm.stormType == StormObject.TYPE_WATER) {
-                		renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconCyclone);
-                		renderLivingLabel("C" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 15, 5, RenderManager.instance.playerViewY);
+                		renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconCyclone);
+                		renderLivingLabel("C" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 15, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 	} else {
-                		renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconTornado);
-                		renderLivingLabel("F" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 12, 5, RenderManager.instance.playerViewY);
+                		renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconTornado);
+                		renderLivingLabel("F" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 12, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 	}
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_HAIL) {
-                	renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconHail);
-                	renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconWind);
+                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconHail);
+                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
-                	renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconLightning);
-                	renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconWind);
+                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
+                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
-                    renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconLightning);
+                    renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
                 } else {
-                	renderIcon(x, y + 1.4F, z, 16, 16, RenderManager.instance.playerViewY, ClientProxy.radarIconRain);
+                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconRain);
                 }
                 
                 if (storm.hasStormPeaked && (storm.levelCurIntensityStage > storm.STATE_NORMAL)) {
-                	renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, RenderManager.instance.playerViewY);
+                	renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 } else {
-                	renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, RenderManager.instance.playerViewY);
+                	renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 }
                 
-            	//renderLivingLabel("r", x, y + 1.4F, z, 1, 10, 10, RenderManager.instance.playerViewY);
+            	//renderLivingLabel("r", x, y + 1.4F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 
                 GL11.glTranslated(-posRenderOffset.xCoord, 0, -posRenderOffset.zCoord);
                 
@@ -214,7 +215,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         
         var14.startDrawingQuads();
         
-        RenderManager.instance.renderEngine.bindTexture(TextureMap.locationItemsTexture);
+        Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.locationItemsTexture);
         
         float f6 = parIcon.getMinU();
         float f7 = parIcon.getMaxU();
@@ -251,14 +252,14 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	
         //if (var10 <= (float)par9)
         //{
-            FontRenderer var11 = RenderManager.instance.getFontRenderer();
+            FontRenderer var11 = Minecraft.getMinecraft().getRenderManager().getFontRenderer();
             float var12 = 0.6F;
             float var13 = 0.016666668F * var12;
             GL11.glPushMatrix();
             GL11.glTranslatef((float)par3 + 0.5F, (float)par5, (float)par7 + 0.5F);
             GL11.glNormal3f(0.0F, 1.0F, 0.0F);
             GL11.glRotatef(-angle, 0.0F, 1.0F, 0.0F);
-            //GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
+            //GL11.glRotatef(Minecraft.getMinecraft().getRenderManager().playerViewX, 1.0F, 0.0F, 0.0F);
             GL11.glScalef(-var13, -var13, var13);
             GL11.glDisable(GL11.GL_LIGHTING);
             
@@ -274,7 +275,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 	            var14.startDrawingQuads();
 	            //int width = var11.getStringWidth(par2Str) / 2;
 	            
-	            /*RenderManager.instance.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+	            /*Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 	            
 	            Icon particleIcon = CommonProxy.blockWeatherDeflector.getBlockTextureFromSide(0);
 	            

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import modconfig.gui.GuiConfigEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -17,11 +16,11 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import CoroUtil.packet.PacketHelper;
 import weather2.Weather;
 import weather2.client.gui.elements.GuiButtonBoolean;
 import weather2.client.gui.elements.GuiButtonCycle;
 import weather2.util.WeatherUtilConfig;
+import CoroUtil.packet.PacketHelper;
 
 public class GuiEZConfig extends GuiScreen {
 
@@ -461,7 +460,7 @@ public class GuiEZConfig extends GuiScreen {
 		
 		xSize = 372;
     	ySize = 250;
-		ScaledResolution var8 = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+		ScaledResolution var8 = new ScaledResolution(mc);
         int scaledWidth = var8.getScaledWidth();
         int scaledHeight = var8.getScaledHeight();
         

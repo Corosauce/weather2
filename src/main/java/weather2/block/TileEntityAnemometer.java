@@ -31,7 +31,7 @@ public class TileEntityAnemometer extends TileEntity
     	if (worldObj.isRemote) {
     		
     		if (worldObj.getTotalWorldTime() % 40 == 0) {
-    			isOutsideCached = WeatherUtilEntity.isPosOutside(worldObj, Vec3.createVectorHelper(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
+    			isOutsideCached = WeatherUtilEntity.isPosOutside(worldObj, new Vec3(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
     		}
     		
     		if (isOutsideCached) {
@@ -41,8 +41,8 @@ public class TileEntityAnemometer extends TileEntity
 	    		//smoothAngleRotationalVel = 0;
 	    		//smoothAngleRotationalVelAccel = 0;
 	    		
-	    		float targetAngle = WindReader.getWindAngle(worldObj, Vec3.createVectorHelper(getPos().getX(), getPos().getY(), getPos().getZ()));
-	    		float windSpeed = WindReader.getWindSpeed(worldObj, Vec3.createVectorHelper(getPos().getX(), getPos().getY(), getPos().getZ()));
+	    		float targetAngle = WindReader.getWindAngle(worldObj, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
+	    		float windSpeed = WindReader.getWindSpeed(worldObj, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
 	    		
 	    		smoothAngleRotationalVel += windSpeed * 1F;
 	    		

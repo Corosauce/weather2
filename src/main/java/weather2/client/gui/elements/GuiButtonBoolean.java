@@ -82,11 +82,11 @@ public class GuiButtonBoolean extends GuiButton
     {
         if (this.visible)
         {
-            FontRenderer fontrenderer = par1Minecraft.fontRenderer;
+            FontRenderer fontrenderer = par1Minecraft.fontRendererObj;
             par1Minecraft.getTextureManager().bindTexture(buttonTextures);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.field_146123_n = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
-            int k = this.getHoverState(this.field_146123_n);
+            this.hovered = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+            int k = this.getHoverState(this.hovered);
             this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + k * 20, this.width / 2, this.height);
             this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
             this.mouseDragged(par1Minecraft, par2, par3);
@@ -96,7 +96,7 @@ public class GuiButtonBoolean extends GuiButton
             {
                 l = -6250336;
             }
-            else if (this.field_146123_n)
+            else if (this.hovered)
             {
                 l = 16777120;
             }
