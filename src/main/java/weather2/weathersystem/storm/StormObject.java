@@ -18,6 +18,7 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -706,11 +707,11 @@ public class StormObject {
 			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.snow.canPlaceBlockAt(world, xxx + x, setBlockHeight, zzz + z)) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 			            	boolean perform = false;
-			            	Block id = world.getBlock(xxx + x, setBlockHeight, zzz + z);
+			            	Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
 			            	int meta = 0;
 			            	if (id.getMaterial() == Material.snow) {
 			            		if (ConfigMisc.Snow_ExtraPileUp) {
-				            		meta = world.getBlockMetadata(xxx + x, setBlockHeight, zzz + z);
+				            		meta = world.getBlockStateMetadata(xxx + x, setBlockHeight, zzz + z);
 				            		if (meta < snowMetaMax) {
 				            			perform = true;
 					            		meta += 1;
@@ -719,9 +720,9 @@ public class StormObject {
 				            				int i;
 				            				int originalSetBlockHeight = setBlockHeight;
 				            				for (i = 0; i < ConfigMisc.Snow_MaxBlockBuildupHeight; i++) {
-				            					Block checkID = world.getBlock(xxx + x, originalSetBlockHeight + i, zzz + z);
+				            					Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
 				            					if (checkID.getMaterial() == Material.snow) {
-				            						meta = world.getBlockMetadata(xxx + x, originalSetBlockHeight + i, zzz + z);
+				            						meta = world.getBlockStateMetadata(xxx + x, originalSetBlockHeight + i, zzz + z);
 				            						if (meta < snowMetaMax) {
 				            							setBlockHeight = originalSetBlockHeight + i;
 				    			            			perform = true;
@@ -774,7 +775,7 @@ public class StormObject {
 			            	}
 			            	
 			            	if (perform) {
-			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, id, meta, 3);
+			            		world.setBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z), id.getStateFromMeta(meta), 3);
 			            	}
 			            }
 			        }
@@ -808,10 +809,10 @@ public class StormObject {
 		int metaToSet = 0;
 		
 		World world = manager.getWorld();
-		Block checkID = world.getBlock(x, y, z);
+		Block checkID = world.getBlockState(new BlockPos(x, y, z)).getBlock();
 		//check for starting with no snow
 		if (CoroUtilBlock.isAir(checkID)) {
-			Block checkID2 = world.getBlock(x, y-1, z);
+			Block checkID2 = world.getBlockState(new BlockPos(x, y-1, z)).getBlock();
 			//make sure somethings underneath it - we shouldnt need to check deeper because we spread out while meta of snow is halfway, before it can start a second pile
 			if (CoroUtilBlock.isAir(checkID2)) {
 				//Weather.dbg("1");
@@ -822,7 +823,7 @@ public class StormObject {
 				return new ChunkCoordinatesBlock(x, y, z, Blocks.air, 0);
 			}
 		} else if (checkID == Blocks.snow) {
-			int checkMeta = world.getBlockMetadata(x, y, z);
+			int checkMeta = world.getBlockStateMetadata(x, y, z);
 			//if detected snow is shorter, return with detected meta val!
 			//adjusting to <=
 			if (checkMeta < sourceMeta) {
@@ -853,8 +854,8 @@ public class StormObject {
         {
             if (par2 >= 0 && par2 < 256 && world.getSavedLightValue(EnumSkyBlock.Block, par1, par2, par3) < 10)
             {
-                Block l = world.getBlock(par1, par2 - 1, par3);
-                Block i1 = world.getBlock(par1, par2, par3);
+                Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
+                Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
 
                 if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.snow)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ice && l.getMaterial().blocksMovement())
                 {
@@ -929,7 +930,7 @@ public class StormObject {
 				performBuildup = true;
 			}
 			
-			Block blockID = world.getBlock(MathHelper.floor_double(pos.xCoord), currentTopYBlock-1, MathHelper.floor_double(pos.zCoord));
+			Block blockID = world.getBlockState(MathHelper.floor_double(pos.xCoord), currentTopYBlock-1, MathHelper.floor_double(pos.zCoord));
 			if (!CoroUtilBlock.isAir(blockID)) {
 				//Block block = Block.blocksList[blockID];
 				if (blockID.getMaterial() instanceof MaterialLiquid) {

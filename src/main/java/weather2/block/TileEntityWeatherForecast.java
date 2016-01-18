@@ -33,9 +33,9 @@ public class TileEntityWeatherForecast extends TileEntity
     {
     	if (worldObj.isRemote) {
     		if (worldObj.getTotalWorldTime() % 200 == 0) {
-    			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), 1024, StormObject.STATE_THUNDER, true);
+    			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024, StormObject.STATE_THUNDER, true);
     			
-    			storms = ClientTickHandler.weatherManager.getStormsAround(Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord), 1024);
+    			storms = ClientTickHandler.weatherManager.getStormsAround(Vec3.createVectorHelper(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024);
     		}
     	} else {
     		/*if (mapHandler == null) {

@@ -31,7 +31,7 @@ public class TileEntityWindVane extends TileEntity
     	if (worldObj.isRemote) {
     		
     		if (worldObj.getTotalWorldTime() % 40 == 0) {
-    			isOutsideCached = WeatherUtilEntity.isPosOutside(worldObj, Vec3.createVectorHelper(xCoord+0.5F, yCoord+0.5F, zCoord+0.5F));
+    			isOutsideCached = WeatherUtilEntity.isPosOutside(worldObj, new Vec3(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
     		}
     		
     		if (isOutsideCached) {
@@ -41,8 +41,8 @@ public class TileEntityWindVane extends TileEntity
 	    		//smoothAngleRotationalVel = 0;
 	    		//smoothAngleRotationalVelAccel = 0;
 	    		
-	    		float targetAngle = WindReader.getWindAngle(worldObj, Vec3.createVectorHelper(xCoord, yCoord, zCoord));
-	    		float windSpeed = WindReader.getWindSpeed(worldObj, Vec3.createVectorHelper(xCoord, yCoord, zCoord));
+	    		float targetAngle = WindReader.getWindAngle(worldObj, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
+	    		float windSpeed = WindReader.getWindSpeed(worldObj, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
 	    		
 	    		//System.out.println("targetAngle: " + targetAngle);
 	    		
@@ -84,7 +84,7 @@ public class TileEntityWindVane extends TileEntity
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
-    	return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 3, zCoord + 1);
+    	return new AxisAlignedBB(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 3, getPos().getZ() + 1);
     }
 
     public void writeToNBT(NBTTagCompound var1)

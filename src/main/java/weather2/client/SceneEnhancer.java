@@ -15,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -654,8 +655,8 @@ public class SceneEnhancer implements Runnable {
         float windStr = manager.windMan.getWindSpeedForPriority();//(weatherMan.wind.strength <= 1F ? weatherMan.wind.strength : 1F);
 
         if (mc.objectMouseOver != null) {
-        	Block id = mc.theWorld.getBlock(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ);
-        	//System.out.println(mc.theWorld.getBlockId(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ));
+        	Block id = mc.theWorld.getBlockState(new BlockPos(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ)).getBlock();
+        	//System.out.println(mc.theWorld.getBlockStateId(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ));
         	if (CoroUtilBlock.isAir(id) && id.getMaterial() == Material.wood) {
         		float var5 = 0;
 
@@ -1274,7 +1275,7 @@ public class SceneEnhancer implements Runnable {
                 return null;
             }
 
-            return parWorld.getBlock(x, y, z);
+            return parWorld.getBlockState(new BlockPos(x, y, z)).getBlock();
         }
         catch (Exception ex)
         {
@@ -1290,6 +1291,6 @@ public class SceneEnhancer implements Runnable {
             return 0;
         }
 
-        return parWorld.getBlockMetadata(x, y, z);
+        return parWorld.getBlockStateMetadata(x, y, z);
     }
 }

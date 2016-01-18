@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -171,17 +172,17 @@ public class TornadoHelper {
 	                    {
 	                    	
 	                    	
-	                        Block blockID = parWorld.getBlock(tryX, tryY, tryZ);
+	                        Block blockID = parWorld.getBlockState(new BlockPos(tryX, tryY, tryZ)).getBlock();
 	                        
 	                        boolean performed = false;
 	
 	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID)/* && Block.blocksList[blockID].blockMaterial == Material.ground*//* && worldObj.getHeightValue(tryX, tryZ)-1 == tryY*/)
 	                        {
-	                            /*if (blockID != 0 && canGrab(blockID) && (worldObj.getBlockId(tryX,tryY+1,tryZ) == 0 ||
-	                                    worldObj.getBlockId(tryX+1,tryY,tryZ) == 0 ||
-	                                    worldObj.getBlockId(tryX,tryY,tryZ+1) == 0 ||
-	                                    worldObj.getBlockId(tryX-1,tryY,tryZ) == 0 ||
-	                                    worldObj.getBlockId(tryX,tryY,tryZ-1) == 0)) {*/
+	                            /*if (blockID != 0 && canGrab(blockID) && (worldObj.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
+	                                    worldObj.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
+	                                    worldObj.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||
+	                                    worldObj.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
+	                                    worldObj.getBlockStateId(tryX,tryY,tryZ-1) == 0)) {*/
 	                            tryRipCount++;
 	                            seesLight = tryRip(parWorld, tryX, tryY, tryZ, true);
 	                            
@@ -190,7 +191,7 @@ public class TornadoHelper {
 	                        
 	                        if (!performed && ConfigMisc.Storm_Tornado_RefinedGrabRules) {
 	                        	if (blockID == Blocks.grass) {
-	                        		parWorld.setBlock(tryX, tryY, tryZ, Blocks.dirt);
+	                        		parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        	}
 	                        }
 	                    	
@@ -200,7 +201,7 @@ public class TornadoHelper {
 	                    tryZ = (int)posZ-l+((mod_EntMover.tornadoBaseSize/2)+(ii/2));
 	
 	                    if (tryRipCount < tryRipMax) {
-	                    	int blockID = this.worldObj.getBlockId(tryX,tryY,tryZ);
+	                    	int blockID = this.worldObj.getBlockStateId(tryX,tryY,tryZ);
 	                    	if (blockID != 0 && canGrab(blockID)) {
 	                    		tryRipCount++;
 	                    		seesLight = tryRip(tryX,tryY,tryZ, true);
@@ -228,7 +229,7 @@ public class TornadoHelper {
 	                    
 	                    if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax)
 	                    {
-	                        Block blockID = parWorld.getBlock(tryX, tryY, tryZ);
+	                        Block blockID = parWorld.getBlockState(new BlockPos(tryX, tryY, tryZ)).getBlock();
 	
 	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
 	                        {
@@ -266,7 +267,7 @@ public class TornadoHelper {
           /*org.bukkit.entity.Entity bukkitentity = this.getBukkitEntity();
           if ((bukkitentity instanceof Player)) {
             Player player = (Player)bukkitentity;
-            BlockBreakEvent breakev = new BlockBreakEvent(player.getWorld().getBlockAt(x, y, z), player);
+            BlockBreakEvent breakev = new BlockBreakEvent(player.getWorld().getBlockStateAt(x, y, z), player);
             Bukkit.getPluginManager().callEvent(breakev);
             if (breakev.isCancelled()) {
                 return true;
@@ -289,7 +290,7 @@ public class TornadoHelper {
         }
 
         boolean seesLight = false;
-        Block blockID = parWorld.getBlock(tryX, tryY, tryZ);
+        Block blockID = parWorld.getBlockState(new BlockPos(tryX, tryY, tryZ)).getBlock();
 
         //System.out.println(parWorld.getHeightValue(tryX, tryZ));
         if (( /*(canGrab(blockID)) &&blockID != 0 ||*/
@@ -298,15 +299,15 @@ public class TornadoHelper {
                         parWorld.getHeightValue(tryX, tryZ + 1) - 1 < tryY ||
                         parWorld.getHeightValue(tryX - 1, tryZ) - 1 < tryY ||
                         parWorld.getHeightValue(tryX, tryZ - 1) - 1 < tryY))
-                /*(parWorld.getBlockId(tryX,tryY+1,tryZ) == 0 ||
-                 parWorld.getBlockId(tryX+1,tryY,tryZ) == 0 ||
-                 parWorld.getBlockId(tryX,tryY,tryZ+1) == 0 ||
-                 parWorld.getBlockId(tryX-1,tryY,tryZ) == 0 ||
-                 parWorld.getBlockId(tryX,tryY,tryZ-1) == 0 ||
-                 parWorld.getBlockId(tryX+1,tryY+1,tryZ) == 0 ||
-                 parWorld.getBlockId(tryX,tryY+1,tryZ+1) == 0 ||
-                 parWorld.getBlockId(tryX-1,tryY+1,tryZ) == 0 ||
-                 parWorld.getBlockId(tryX,tryY+1,tryZ-1) == 0)*/
+                /*(parWorld.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
+                 parWorld.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
+                 parWorld.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||
+                 parWorld.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
+                 parWorld.getBlockStateId(tryX,tryY,tryZ-1) == 0 ||
+                 parWorld.getBlockStateId(tryX+1,tryY+1,tryZ) == 0 ||
+                 parWorld.getBlockStateId(tryX,tryY+1,tryZ+1) == 0 ||
+                 parWorld.getBlockStateId(tryX-1,tryY+1,tryZ) == 0 ||
+                 parWorld.getBlockStateId(tryX,tryY+1,tryZ-1) == 0)*/
            )
         {
             
@@ -314,7 +315,7 @@ public class TornadoHelper {
             if (parWorld.getChunkProvider().chunkExists((int)storm.pos.xCoord / 16, (int)storm.pos.zCoord / 16) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigMisc.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigMisc.Storm_Tornado_maxBlocksGrabbedPerTick)
             {
                 lastGrabTime = System.currentTimeMillis() - 5;
-                //int blockMeta = this.parWorld.getBlockMetadata(tryX,tryY,tryZ);
+                //int blockMeta = this.parWorld.getBlockStateMetadata(tryX,tryY,tryZ);
                 //rip noise, nm, forces particles
                 //parWorld.playAuxSFX(2001, tryX, tryY, tryZ, blockID + blockMeta * 256);
 
@@ -382,11 +383,11 @@ public class TornadoHelper {
 
                 if (notify)
                 {
-                    parWorld.setBlock(tryX, tryY, tryZ, Blocks.air, 0, 3);
+                    parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.air.getDefaultState(), 3);
                 }
                 else
                 {
-                    parWorld.setBlock(tryX, tryY, tryZ, Blocks.air, 0, 0);
+                    parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.air.getDefaultState(), 0);
                 }
             }
         }

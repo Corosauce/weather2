@@ -85,9 +85,9 @@ public class TileEntityWeatherMachine extends TileEntity
     				if (manager != null) {
     					StormObject so = new StormObject(manager);
     					so.initFirstTime();
-    					so.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
+    					so.pos = Vec3.createVectorHelper(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
     					so.layer = 0;
-    					so.userSpawnedFor = "" + xCoord + yCoord + zCoord;
+    					so.userSpawnedFor = "" + getPos().getX() + getPos().getY() + getPos().getZ();
     					//so.canSnowFromCloudTemperature = true;
     					so.naturallySpawned = false;
     					
@@ -105,7 +105,7 @@ public class TileEntityWeatherMachine extends TileEntity
     			
     			if (lockStormHere) {
 					//lastTickStormObject.pos = Vec3.createVectorHelper(xCoord + rand.nextFloat() - rand.nextFloat(), StormObject.layers.get(0), zCoord + rand.nextFloat() - rand.nextFloat());
-					lastTickStormObject.pos = Vec3.createVectorHelper(xCoord, StormObject.layers.get(0), zCoord);
+					lastTickStormObject.pos = Vec3.createVectorHelper(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
 				}
 				
 				lastTickStormObject.size = weatherSize;

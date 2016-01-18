@@ -13,6 +13,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -70,7 +71,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.noCollision = true;
         this.tile = var5;
         this.setSize(0.9F, 0.9F);
-        this.yOffset = this.height / 2.0F;
+        //this.yOffset = this.height / 2.0F;
         this.setPosition((double)var2 + 0.5D, (double)var3 + 0.5D, (double)var4 + 0.5D);
         this.motionX = 0.0D;
         this.motionY = 0.0D;
@@ -79,15 +80,15 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosY = (double)((float)var3 + 0.5F);
         this.prevPosZ = (double)((float)var4 + 0.5F);
         this.material = tile.getMaterial();
-        this.tileentity = var1.getTileEntity(var2, var3, var4);
-        this.metadata = var1.getBlockMetadata(var2, var3, var4);
+        this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
+        this.metadata = var1.getBlockStateMetadata(var2, var3, var4);
 
         owner = parOwner;
         
         if (this.tileentity != null)
         {
-            //var1.setBlockTileEntity(var2, var3, var4, ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(var1));
-            var1.setBlock(var2, var3, var4, Blocks.air, 0, 2);
+            //var1.setBlockStateTileEntity(var2, var3, var4, ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(var1));
+            var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.air.getDefaultState(), 2);
         }
     }
 
@@ -400,31 +401,31 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     private void blockify(int var1, int var2, int var3, int var4)
     {
         this.setDead();
-        Block var5 = this.worldObj.getBlock(var1, var2, var3);
+        Block var5 = this.worldObj.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
 
         if (this.tileentity != null || this.type != 0 || ConfigMisc.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigMisc.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {
             if (!WeatherUtil.shouldRemoveBlock(var5) && !WeatherUtil.isOceanBlock(var5) && var2 < 255)
             {
-                this.worldObj.setBlock(var1, var2 + 1, var3, this.tile, this.metadata, 3);
+                this.worldObj.setBlockState(new BlockPos(var1, var2 + 1, var3), this.tile.getStateFromMeta(this.metadata), 3);
             }
 
             boolean var6 = false;
 
             if (!WeatherUtil.isOceanBlock(var5))
             {
-                if (this.worldObj.setBlock(var1, var2, var3, this.tile, this.metadata, 3))
+                if (this.worldObj.setBlockState(new BlockPos(var1, var2, var3), this.tile.getStateFromMeta(this.metadata), 3))
                 {
                     var6 = true;
                 }
             }/*
             else
             {
-                this.worldObj.setBlock(var1, var2, var3, WeatherMod.finiteWaterId, this.metadata, 3);
+                this.worldObj.setBlockState(new BlockPos(var1, var2, var3), WeatherMod.finiteWaterId.getDefaultState(), this.metadata, 3);
 
                 if (var2 < 255)
                 {
-                    this.worldObj.setBlock(var1, var2 + 1, var3, WeatherMod.finiteWaterId, this.metadata, 3);
+                    this.worldObj.setBlockState(new BlockPos(var1, var2 + 1, var3), WeatherMod.finiteWaterId.getDefaultState(), this.metadata, 3);
                 }
             }*/
 
@@ -433,7 +434,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                 //Block.blocksList[this.tile].onBlockPlacedBy(this.worldObj, var1, var2, var3, var4, this);
                 if (this.tileentity != null)
                 {
-                    this.worldObj.setTileEntity(var1, var2, var3, this.tileentity);
+                    this.worldObj.setTileEntity(new BlockPos(var1, var2, var3), this.tileentity);
                 }
             }
         }

@@ -70,7 +70,7 @@ public class WeatherUtil {
                     	return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
-    	                float strVsBlock = block.getBlockHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
+    	                float strVsBlock = block.getBlockStateHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
     	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)

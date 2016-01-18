@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -215,10 +216,10 @@ public class VolcanoObject {
 				pos.yCoord = world.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
 				startYPos = (int) pos.yCoord;
 				
-				topBlockID = world.getBlock(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord));
+				topBlockID = world.getBlockState(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord));
 				
 				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, (int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord, 0)) {
-					topBlockID = world.getBlock((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord);
+					topBlockID = world.getBlockState((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord);
 				}
 				
 				for (int yy = startYPos + curHeight; yy > 2; yy--) {
@@ -249,9 +250,9 @@ public class VolcanoObject {
 							
 							//skip derpy top layer
 							if (yy != startYPos + curHeight) {
-								Block idScan = world.getBlock(posX, yy, posZ);
+								Block idScan = world.getBlockState(new BlockPos(posX, yy, posZ)).getBlock();
 								if (CoroUtilBlock.isAir(idScan) || idScan.getMaterial() == Material.water) {
-									world.setBlock(posX, yy, posZ, blockID);
+									world.setBlockState(new BlockPos(posX, yy, posZ), blockID.getDefaultState());
 								}
 							}
 						}
@@ -305,18 +306,18 @@ public class VolcanoObject {
 								
 									//skip top layers
 									if (yy != curHeight) {
-										if (CoroUtilBlock.isAir(world.getBlock(posX, startYPos+yy, posZ))) {
-											world.setBlock(posX, startYPos+yy, posZ, blockID);
+										if (CoroUtilBlock.isAir(world.getBlockState(posX, startYPos+yy, posZ))) {
+											world.setBlockState(new BlockPos(posX, startYPos+yy, posZ), blockID.getDefaultState());
 										}
 									}
 									
 									//handle growth under expanded area
 									int underY = startYPos+yy-1;
-									Block underBlockID = world.getBlock(posX, underY, posZ);
+									Block underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
 									while ((CoroUtilBlock.isAir(underBlockID) || underBlockID.getMaterial() == Material.water) && underY > 1) {
-										world.setBlock(posX, underY, posZ, Blocks.dirt);
+										world.setBlockState(new BlockPos(posX, underY, posZ), Blocks.dirt.getDefaultState());
 										underY--;
-										underBlockID = world.getBlock(posX, underY, posZ);
+										underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
 									}
 								}
 							}
@@ -339,11 +340,11 @@ public class VolcanoObject {
 						int posY = (int)Math.floor((startYPos)) + step;
 						int posZ = (int)Math.floor((pos.zCoord));
 						
-						world.setBlock(posX, posY, posZ, Blocks.lava);
-						world.setBlock(posX+1, posY, posZ, Blocks.lava);
-						world.setBlock(posX-1, posY, posZ, Blocks.lava);
-						world.setBlock(posX, posY, posZ+1, Blocks.lava);
-						world.setBlock(posX, posY, posZ-1, Blocks.lava);
+						world.setBlockState(new BlockPos(posX, posY, posZ), Blocks.lava.getDefaultState());
+						world.setBlockState(new BlockPos(posX+1, posY, posZ), Blocks.lava.getDefaultState());
+						world.setBlockState(new BlockPos(posX-1, posY, posZ), Blocks.lava.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ+1), Blocks.lava.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ-1), Blocks.lava.getDefaultState());
 					} else {
 						step = 0;
 						state++;
@@ -379,15 +380,15 @@ public class VolcanoObject {
 						
 						Block blockID = Blocks.lava;
 						
-						world.setBlock(posX, posY, posZ, blockID);
-						world.setBlock(posX+1, posY, posZ, blockID);
-						world.setBlock(posX-1, posY, posZ, blockID);
-						world.setBlock(posX, posY, posZ+1, blockID);
-						world.setBlock(posX, posY, posZ-1, blockID);
-						world.setBlock(posX+1, posY, posZ+1, blockID);
-						world.setBlock(posX-1, posY, posZ-1, blockID);
-						world.setBlock(posX-1, posY, posZ+1, blockID);
-						world.setBlock(posX+1, posY, posZ-1, blockID);
+						world.setBlockState(new BlockPos(posX, posY, posZ), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX+1, posY, posZ), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX-1, posY, posZ), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ+1), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ-1), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX+1, posY, posZ+1), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX-1, posY, posZ-1), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX-1, posY, posZ+1), blockID.getDefaultState());
+						world.setBlockState(new BlockPos(posX+1, posY, posZ-1), blockID.getDefaultState());
 					}
 				}
 				
@@ -409,15 +410,15 @@ public class VolcanoObject {
 					
 					Block blockID = Blocks.stone;
 					
-					world.setBlock(posX, posY, posZ, blockID);
-					world.setBlock(posX+1, posY, posZ, blockID);
-					world.setBlock(posX-1, posY, posZ, blockID);
-					world.setBlock(posX, posY, posZ+1, blockID);
-					world.setBlock(posX, posY, posZ-1, blockID);
-					world.setBlock(posX+1, posY, posZ+1, blockID);
-					world.setBlock(posX-1, posY, posZ-1, blockID);
-					world.setBlock(posX-1, posY, posZ+1, blockID);
-					world.setBlock(posX+1, posY, posZ-1, blockID);
+					world.setBlockState(new BlockPos(posX, posY, posZ), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX+1, posY, posZ), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX-1, posY, posZ), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX, posY, posZ+1), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX, posY, posZ-1), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX+1, posY, posZ+1), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX-1, posY, posZ-1), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX-1, posY, posZ+1), blockID.getDefaultState());
+					world.setBlockState(new BlockPos(posX+1, posY, posZ-1), blockID.getDefaultState());
 					
 					step++;
 				}

@@ -38,7 +38,7 @@ public class BlockTSensor extends Block
     	
     	if (var1.isRemote) return;
     	
-        //var1.getBlockMetadata(var2, var3, var4);
+        //var1.getBlockStateMetadata(var2, var3, var4);
         //List var7 = var1.getEntitiesWithinAABB(EntTornado.class, AxisAlignedBB.getBoundingBoxFromPool((double)var2, (double)var3, (double)var4, (double)var2 + 1.0D, (double)var3 + 1.0D, (double)var4 + 1.0D).expand(140.0D, 140.0D, 140.0D));
     	
     	boolean enable = false;
@@ -53,17 +53,17 @@ public class BlockTSensor extends Block
 
         if (enable)
         {
-            var1.setBlockMetadataWithNotify(var2, var3, var4, 15, 2);
+            var1.setBlockStateMetadataWithNotify(var2, var3, var4, 15, 2);
         }
         else
         {
-            var1.setBlockMetadataWithNotify(var2, var3, var4, 0, 2);
+            var1.setBlockStateMetadataWithNotify(var2, var3, var4, 0, 2);
         }
 
         /*if(var7.size() > 0) {
-           var1.setBlockMetadataWithNotify(var2, var3, var4, 15);
+           var1.setBlockStateMetadataWithNotify(var2, var3, var4, 15);
         } else {
-           var1.setBlockMetadataWithNotify(var2, var3, var4, 0);
+           var1.setBlockStateMetadataWithNotify(var2, var3, var4, 0);
         }*/
         var1.notifyBlocksOfNeighborChange(var2, var3 - 1, var4, this);
         var1.notifyBlocksOfNeighborChange(var2, var3 + 1, var4, this);
@@ -75,13 +75,13 @@ public class BlockTSensor extends Block
     @Override
     public int isProvidingStrongPower(IBlockAccess var1, int var2, int var3, int var4, int var5)
     {
-        return var1.getBlockMetadata(var2, var3, var4) == 0 ? 0 : 15;
+        return var1.getBlockStateMetadata(var2, var3, var4) == 0 ? 0 : 15;
     }
 
     @Override
     public int isProvidingWeakPower(IBlockAccess var1, int var2, int var3, int var4, int var5)
     {
-        return var1.getBlockMetadata(var2, var3, var4) == 0 ? 0 : 15;
+        return var1.getBlockStateMetadata(var2, var3, var4) == 0 ? 0 : 15;
     }
 
     @Override

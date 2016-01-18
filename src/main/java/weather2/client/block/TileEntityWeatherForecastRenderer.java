@@ -29,13 +29,13 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	
     	StormObject so = tEnt.lastTickStormObject;
     	
-    	Vec3 pos = Vec3.createVectorHelper(tEnt.xCoord, tEnt.yCoord, tEnt.zCoord);
+    	Vec3 pos = new Vec3(tEnt.getPos().getX(), tEnt.getPos().getY(), tEnt.getPos().getZ());
     	
     	String descSeverity = "";
     	String descDist = "";
-    	String descWindAngleCloud = "Wind Angle Clouds: " + (int)WindReader.getWindAngle(var1.getWorldObj(), pos, WindReader.WindType.CLOUD);
-    	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.getWorldObj(), pos, WindReader.WindType.DOMINANT);
-    	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorldObj(), pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
+    	String descWindAngleCloud = "Wind Angle Clouds: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.CLOUD);
+    	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.DOMINANT);
+    	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorld(), pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
     	
     	String progression = "";
     	
@@ -77,7 +77,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     			progression = "";
     		}
     		
-    		Vec3 posXZ = Vec3.createVectorHelper(tEnt.xCoord, so.pos.yCoord, tEnt.zCoord);
+    		Vec3 posXZ = new Vec3(tEnt.getPos().getX(), so.pos.yCoord, tEnt.getPos().getZ());
     		
     		descDist = "" + (int)posXZ.distanceTo(so.pos);
     	}
@@ -143,7 +143,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     			
     			GL11.glPushMatrix();
     			
-                Vec3 posRenderOffset = Vec3.createVectorHelper(storm.pos.xCoord - tEnt.xCoord, 0, storm.pos.zCoord - tEnt.zCoord);
+                Vec3 posRenderOffset = new Vec3(storm.pos.xCoord - tEnt.getPos().getX(), 0, storm.pos.zCoord - tEnt.getPos().getZ());
                 posRenderOffset.xCoord /= sizeSimBoxDiameter;
                 posRenderOffset.zCoord /= sizeSimBoxDiameter;
                 

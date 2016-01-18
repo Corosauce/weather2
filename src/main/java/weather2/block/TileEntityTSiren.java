@@ -34,14 +34,14 @@ public class TileEntityTSiren extends TileEntity
     	
     	if (this.lastPlayTime < System.currentTimeMillis())
         {
-    		StormObject so = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(xCoord, yCoord, zCoord), ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
+    		StormObject so = ClientTickHandler.weatherManager.getClosestStorm(Vec3.createVectorHelper(getPos().getX(), getPos().getY(), getPos().getZ()), ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
 
             if (so != null)
             {
             	//if (so.attrib_tornado_severity > 0) {
             		//Weather.dbg("soooooouuuunnnnddddddd");
 	                this.lastPlayTime = System.currentTimeMillis() + 13000L;
-	                /*this.soundID = */WeatherUtilSound.playNonMovingSound(Vec3.createVectorHelper(xCoord, yCoord, zCoord), Weather.modID + ":streaming.siren", 1.0F, 1.0F, 120);
+	                /*this.soundID = */WeatherUtilSound.playNonMovingSound(Vec3.createVectorHelper(getPos().getX(), getPos().getY(), getPos().getZ()), Weather.modID + ":streaming.siren", 1.0F, 1.0F, 120);
             	//}
             }
         }
