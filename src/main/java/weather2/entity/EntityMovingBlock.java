@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -81,7 +82,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosZ = (double)((float)var4 + 0.5F);
         this.material = tile.getMaterial();
         this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
-        this.metadata = var1.getBlockStateMetadata(var2, var3, var4);
+        IBlockState state = var1.getBlockState(new BlockPos(var2, var3, var4));
+        this.metadata = state.getBlock().getMetaFromState(state);
 
         owner = parOwner;
         
@@ -366,7 +368,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             byte var20 = 50;
             int var21 = (int)(this.posZ + this.motionZ * 5.0D);
 
-            if (!this.worldObj.checkChunksExist(var11, var20, var21, var11, var20, var21))
+            if (!this.worldObj.isBlockLoaded(new BlockPos(var11, var20, var21)))
             {
                 this.setDead();
             }

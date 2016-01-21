@@ -21,7 +21,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import CoroUtil.util.Vec3;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
@@ -176,8 +176,8 @@ public class StormObject {
     //to let client know server is raining (since we override client side raining state for render changes)
     //public boolean overCastModeAndRaining = false;
     
-    @SideOnly(Side.CLIENT)
-    public RenderCubeCloud renderBlock;
+    /*@SideOnly(Side.CLIENT)
+    public RenderCubeCloud renderBlock;*/
     
     //there is an issue with rainstorms sometimes never going away, this is a patch to mend the underlying issue i cant find yet
     public long ticksSinceLastPacketReceived = 0;
@@ -191,7 +191,7 @@ public class StormObject {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
 			listParticlesFunnel = new ArrayList<EntityRotFX>();
 			listParticlesGround = new ArrayList<EntityRotFX>();
-			renderBlock = new RenderCubeCloud();
+			//renderBlock = new RenderCubeCloud();
 		}
 	}
 	
@@ -374,9 +374,9 @@ public class StormObject {
 	@SideOnly(Side.CLIENT)
 	public void tickRender(float partialTick) {
 		//renderBlock.doRenderClouds(this, 0, 0, 0, 0, partialTick);
-		if (layer == 1) {
+		/*if (layer == 1) {
 			renderBlock.doRenderClouds(this, pos.xCoord, pos.yCoord, pos.zCoord, 0, partialTick);
-		}
+		}*/
 	}
 	
 	public void tick() {
@@ -580,7 +580,7 @@ public class StormObject {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
 				int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
-				if (world.checkChunksExist(x, y, z, x, y, z)) {
+				if (world.isBlockLoaded(new BlockPos(x, y, z))) {
 					//if (world.canLightningStrikeAt(x, y, z)) {
 						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z));
 					//}
@@ -594,7 +594,7 @@ public class StormObject {
 			for (int i = 0; i < Math.max(1, ConfigMisc.Storm_HailPerTick * (size/maxSize)); i++) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
-				if (world.checkChunksExist(x, static_YPos_layer0, z, x, static_YPos_layer0, z) && (world.getClosestPlayer(x, 50, z, 80) != null)) {
+				if (world.isBlockLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getClosestPlayer(x, 50, z, 80) != null)) {
 					//int y = world.getPrecipitationHeight(x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
 					EntityIceBall hail = new EntityIceBall(world);
@@ -825,7 +825,8 @@ public class StormObject {
 				return new ChunkCoordinatesBlock(x, y, z, Blocks.air, 0);
 			}
 		} else if (checkID == Blocks.snow) {
-			int checkMeta = world.getBlockStateMetadata(x, y, z);
+			IBlockState state = world.getBlockState(new BlockPos(x, y, z));
+			int checkMeta = state.getBlock().getMetaFromState(state);
 			//if detected snow is shorter, return with detected meta val!
 			//adjusting to <=
 			if (checkMeta < sourceMeta) {
@@ -854,7 +855,7 @@ public class StormObject {
         }
         else
         {
-            if (par2 >= 0 && par2 < 256 && world.getSavedLightValue(EnumSkyBlock.BLOCK, par1, par2, par3) < 10)
+            if (par2 >= 0 && par2 < 256 && world.getLightFor(EnumSkyBlock.BLOCK, new BlockPos(par1, par2, par3)) < 10)
             {
                 Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
@@ -1357,7 +1358,7 @@ public class StormObject {
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
 		if (particleBehaviorFog == null) {
-			particleBehaviorFog = new ParticleBehaviorFog(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
+			particleBehaviorFog = new ParticleBehaviorFog(new net.minecraft.util.Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
 			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof GuiIngameMenu)) {

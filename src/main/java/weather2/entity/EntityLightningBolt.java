@@ -135,7 +135,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
             else
             {
                 double d0 = 3.0D;
-                List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, AxisAlignedBB.getBoundingBox(this.posX - d0, this.posY - d0, this.posZ - d0, this.posX + d0, this.posY + 6.0D + d0, this.posZ + d0));
+                List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - d0, this.posY - d0, this.posZ - d0, this.posX + d0, this.posY + 6.0D + d0, this.posZ + d0));
 
                 for (int l = 0; l < list.size(); ++l)
                 {

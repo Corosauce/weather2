@@ -412,7 +412,7 @@ public class TornadoHelper {
     	//canEntityBeSeen commented out till replaced with coord one, might cause issues
     	
         double dist = grabDist;
-        AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord, storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord);
+        AxisAlignedBB aabb = new AxisAlignedBB(storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord, storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord);
         List list = parWorld.getEntitiesWithinAABB(Entity.class, aabb.expand(dist, this.storm.maxHeight * 3, dist));
         boolean foundEnt = false;
         int killCount = 0;

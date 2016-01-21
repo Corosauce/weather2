@@ -6,12 +6,12 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.Vec3;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.CoroUtil;
 import CoroUtil.util.CoroUtilEntity;
+import CoroUtil.util.Vec3;
 
 public class CommandWeather2 extends CommandBase {
 

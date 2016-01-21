@@ -72,7 +72,7 @@ public class TileEntityAnemometer extends TileEntity
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
-    	return AxisAlignedBB.getBoundingBox(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 3, getPos().getZ() + 1);
+    	return new AxisAlignedBB(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 3, getPos().getZ() + 1);
     }
 
     public void writeToNBT(NBTTagCompound var1)

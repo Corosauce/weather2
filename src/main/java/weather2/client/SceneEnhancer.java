@@ -7,6 +7,7 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.particle.EntityFX;
@@ -1270,7 +1271,7 @@ public class SceneEnhancer implements Runnable {
     {
         try
         {
-            if (!parWorld.checkChunksExist(x, 0, z , x, 128, z))
+            if (!parWorld.isBlockLoaded(new BlockPos(x, 0, z)))
             {
                 return null;
             }
@@ -1286,11 +1287,12 @@ public class SceneEnhancer implements Runnable {
     @SideOnly(Side.CLIENT)
     private static int getBlockMetadata(World parWorld, int x, int y, int z)
     {
-        if (!parWorld.checkChunksExist(x, 0, z , x, 128, z))
+        if (!parWorld.isBlockLoaded(new BlockPos(x, 0, z)))
         {
             return 0;
         }
 
-        return parWorld.getBlockStateMetadata(x, y, z);
+        IBlockState state = parWorld.getBlockState(new BlockPos(x, y, z));
+        return state.getBlock().getMetaFromState(state);
     }
 }

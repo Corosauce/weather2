@@ -3,6 +3,7 @@ package weather2;
 import CoroUtil.render.RenderNull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -33,12 +34,12 @@ import weather2.util.WeatherUtilSound;
 public class ClientProxy extends CommonProxy
 {
 
-	public static IIcon radarIconRain;
-	public static IIcon radarIconLightning;
-	public static IIcon radarIconWind;
-	public static IIcon radarIconHail;
-	public static IIcon radarIconTornado;
-	public static IIcon radarIconCyclone;
+	public static TextureAtlasSprite radarIconRain;
+	public static TextureAtlasSprite radarIconLightning;
+	public static TextureAtlasSprite radarIconWind;
+	public static TextureAtlasSprite radarIconHail;
+	public static TextureAtlasSprite radarIconTornado;
+	public static TextureAtlasSprite radarIconCyclone;
 	
 	public static ClientTickHandler clientTickHandler;
 	

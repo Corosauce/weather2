@@ -90,7 +90,7 @@ public class ClientTickHandler
         	weatherManager.tick();
         	
         	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimensionId() == 0) {
-            	mc.gameSettings.clouds = false;
+            	mc.gameSettings.clouds = 0;
             }
         }
         
