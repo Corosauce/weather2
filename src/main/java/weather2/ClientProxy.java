@@ -24,6 +24,7 @@ import weather2.client.block.TileEntityWeatherMachineRenderer;
 import weather2.client.block.TileEntityWindVaneRenderer;
 import weather2.client.entity.RenderFlyingBlock;
 import weather2.client.entity.RenderLightningBolt;
+import weather2.client.entity.RenderLightningBoltOld;
 import weather2.client.entity.particle.EntityFallingRainFX;
 import weather2.client.entity.particle.EntityFallingSnowFX;
 import weather2.entity.EntityIceBall;
@@ -59,9 +60,9 @@ public class ClientProxy extends CommonProxy
     	
     	//TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
         
-        addMapping(EntityIceBall.class, new RenderFlyingBlock(Blocks.ice));
-        addMapping(EntityMovingBlock.class, new RenderFlyingBlock(null));
-        addMapping(EntityLightningBolt.class, new RenderLightningBolt());
+        addMapping(EntityIceBall.class, new RenderFlyingBlock(Minecraft.getMinecraft().getRenderManager(), Blocks.ice));
+        addMapping(EntityMovingBlock.class, new RenderFlyingBlock(Minecraft.getMinecraft().getRenderManager(), null));
+        addMapping(EntityLightningBolt.class, new RenderLightningBolt(Minecraft.getMinecraft().getRenderManager()));
         addMapping(EntityFallingRainFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));
         addMapping(EntityFallingSnowFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));
         

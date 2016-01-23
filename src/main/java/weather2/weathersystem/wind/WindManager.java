@@ -2,9 +2,9 @@ package weather2.weathersystem.wind;
 
 import java.util.Random;
 
+import CoroUtil.util.Vec3;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

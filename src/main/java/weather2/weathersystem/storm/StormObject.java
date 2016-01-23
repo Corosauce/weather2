@@ -1358,7 +1358,7 @@ public class StormObject {
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
 		if (particleBehaviorFog == null) {
-			particleBehaviorFog = new ParticleBehaviorFog(new net.minecraft.util.Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
+			particleBehaviorFog = new ParticleBehaviorFog(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
 			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof GuiIngameMenu)) {

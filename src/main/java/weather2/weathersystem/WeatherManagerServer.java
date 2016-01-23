@@ -6,7 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
@@ -19,6 +18,7 @@ import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.CoroUtilEntity;
+import CoroUtil.util.Vec3;
 
 public class WeatherManagerServer extends WeatherManagerBase {
 

@@ -112,7 +112,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
                 this.lightningState = 1;
                 this.boltVertex = this.rand.nextLong();
 
-                if (!this.worldObj.isRemote && rand.nextInt(fireChance) == 0 && this.worldObj.getGameRules().getGameRuleBooleanValue("doFireTick") && this.worldObj.doChunksNearChunkExist(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ), 10))
+                if (!this.worldObj.isRemote && rand.nextInt(fireChance) == 0 && this.worldObj.getGameRules().getBoolean("doFireTick") && this.worldObj.doChunksNearChunkExist(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ), 10))
                 {
                     int i = MathHelper.floor_double(this.posX);
                     int j = MathHelper.floor_double(this.posY);

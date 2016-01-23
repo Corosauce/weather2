@@ -2,9 +2,9 @@ package weather2.block;
 
 import java.util.Random;
 
+import CoroUtil.util.Vec3;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerServer;

@@ -18,7 +18,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -42,6 +41,7 @@ import CoroUtil.OldUtil;
 import CoroUtil.api.weather.WindHandler;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
+import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
@@ -345,7 +345,7 @@ public class SceneEnhancer implements Runnable {
 			//Weather.dbg("curPrecipVal: " + curPrecipVal * 100F);
 			
 			
-			int precipitationHeight = entP.worldObj.getPrecipitationHeight(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posZ));
+			int precipitationHeight = entP.worldObj.getPrecipitationHeight(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ))).getY();
 			
 			BiomeGenBase biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
@@ -364,7 +364,7 @@ public class SceneEnhancer implements Runnable {
 	            	//Weather.dbg("precip: " + curPrecipVal);
 	            	
 	            	//rain
-					if (curPrecipVal > 0 && entP.worldObj.canLightningStrikeAt(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ))) {
+					if (curPrecipVal > 0 && entP.worldObj.canLightningStrike(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ)))) {
 						
 						//Weather.dbg("rate: " + curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate);
 						

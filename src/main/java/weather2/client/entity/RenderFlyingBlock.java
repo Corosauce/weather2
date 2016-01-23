@@ -2,6 +2,7 @@ package weather2.client.entity;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -19,8 +20,9 @@ public class RenderFlyingBlock extends Render
 {
 	Block renderBlock;
 	
-    public RenderFlyingBlock(Block parBlock)
+    public RenderFlyingBlock(RenderManager manager, Block parBlock)
     {
+    	super(manager);
     	renderBlock = parBlock;
     }
     

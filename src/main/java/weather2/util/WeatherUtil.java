@@ -12,6 +12,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.CommonProxy;
@@ -70,7 +71,7 @@ public class WeatherUtil {
                     	return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
-    	                float strVsBlock = block.getBlockStateHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
+    	                float strVsBlock = block.getBlockHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
     	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
@@ -193,6 +194,9 @@ public class WeatherUtil {
 	
     public static void doBlockList()
     {
+    	
+    	System.out.println("1.8 TODO: verify block list lookup matching for exact comparions");
+    	
         blockIDToUseMapping.clear();
         //System.out.println("Blacklist: ");
         String[] splEnts = ConfigMisc.Storm_Tornado_GrabList.split(",");
@@ -217,7 +221,10 @@ public class WeatherUtil {
         Set set = Block.blockRegistry.getKeys();
         Iterator it = set.iterator();
         while (it.hasNext()) {
-        	String tagName = (String) it.next();
+        	Object obj = it.next();
+        	//String tagName = (String) ((ResourceLocation)obj).toString();
+        	ResourceLocation tagName = ((ResourceLocation)obj);
+        	
         	
         	Block block = (Block) Block.blockRegistry.getObject(tagName);
         	if (dbgShow) System.out.println("??? " + Block.blockRegistry.getNameForObject(block));
@@ -229,13 +236,13 @@ public class WeatherUtil {
                 for (int j = 0; j < splEnts.length; j++)
                 {
                 	if (ConfigMisc.Storm_Tornado_GrabCond_List_PartialMatches) {
-                		if (tagName.contains(splEnts[j])) {
+                		if (tagName.toString().contains(splEnts[j])) {
                 			dbg += Block.blockRegistry.getNameForObject(block) + ", ";
                 			foundEnt = true;
                 			break;
                 		}
                 	} else {
-	                    Block blockEntry = (Block)Block.blockRegistry.getObject(splEnts[j]);
+	                    Block blockEntry = (Block)Block.blockRegistry.getObject(new ResourceLocation(splEnts[j]));
 	
 	                    if (blockEntry != null && block == blockEntry)
 	                    {
@@ -251,16 +258,17 @@ public class WeatherUtil {
                 blockIDToUseMapping.put(block, foundEnt);
                 
                 //entList.append(s + " ");
-                /*if (foundEnt) {
-                	blockIDToUseMapping.put(block, foundEnt);
-                } else {
-                	blockIDToUseMapping.put(block, false);
-                }*/
+                //if (foundEnt) {
+                	//blockIDToUseMapping.put(block, foundEnt);
+                //} else {
+                	//blockIDToUseMapping.put(block, false);
+                //}
             }
             else
             {
                 //blockIDToUseMapping.put(block, false);
             }
+        	
         	
         }
         

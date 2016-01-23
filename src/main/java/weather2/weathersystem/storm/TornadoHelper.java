@@ -12,7 +12,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -25,6 +24,7 @@ import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
 import CoroUtil.util.CoroUtilBlock;
+import CoroUtil.util.Vec3;
 
 public class TornadoHelper {
 	

@@ -10,7 +10,6 @@ import java.util.List;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import org.apache.commons.io.FileUtils;
@@ -21,6 +20,7 @@ import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.util.CoroUtilFile;
+import CoroUtil.util.Vec3;
 
 public class WeatherManagerBase {
 
