@@ -1,10 +1,20 @@
 package weather2.client.entity;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityFallingBlock;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -36,29 +46,30 @@ public class RenderFlyingBlock extends Render
 	}
 
     @Override
-    public void doRender(Entity var1, double var2, double var4, double var6, float var8, float var9)
+    public void doRender(Entity entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_FOG);
+        //GL11.glDisable(GL11.GL_FOG);
         
-        int age = var1.ticksExisted * 5;
+        int age = entity.ticksExisted * 5;
         
         float size = 0.3F;// - (age * 0.03F);
         
         if (size < 0) size = 0;
         
-        if (var1 instanceof EntityMovingBlock) {
+        if (entity instanceof EntityMovingBlock) {
         	size = 1;
         }
         
-        GL11.glTranslatef((float)var2, (float)var4, (float)var6);
-        this.bindEntityTexture(var1);
+        GL11.glTranslatef((float)x, (float)y, (float)z);
+        this.bindEntityTexture(entity);
         //this.loadTexture("/terrain.png");
-        World var11 = var1.worldObj;
+        World var11 = entity.worldObj;
         //GL11.glDisable(GL11.GL_LIGHTING);
         
-        RenderBlocks rb = new RenderBlocks(var1.worldObj);
         GL11.glScalef(size, size, size);
+        
+        /*RenderBlocks rb = new RenderBlocks(var1.worldObj);
         //Tessellator tess = Tessellator.instance;
         //tess.setBrightness(255);
         //tess.setColorOpaque_F(255, 255, 255);
@@ -88,10 +99,56 @@ public class RenderFlyingBlock extends Render
         		GL11.glPopMatrix();
         	}
         	
+        }*/
+        
+        IBlockState state = null;
+        
+        if (entity instanceof EntityMovingBlock) {
+        	state = ((EntityMovingBlock) entity).tile.getDefaultState();
+        } else {
+        	if (renderBlock != null) {
+        		state = renderBlock.getDefaultState();
+        	}
         }
         
-        GL11.glEnable(GL11.GL_FOG);
-        GL11.glEnable(GL11.GL_LIGHTING);
+        //TODO: 1.8 fake hail rendering for extra effect without extra entities, see 1.7.10 code
+        
+        if (state != null)
+        {
+            this.bindTexture(TextureMap.locationBlocksTexture);
+            IBlockState iblockstate = state;
+            Block block = iblockstate.getBlock();
+            BlockPos blockpos = new BlockPos(entity);
+            World world = var11;
+
+            if (iblockstate != world.getBlockState(blockpos) && block.getRenderType() != -1)
+            {
+                if (block.getRenderType() == 3)
+                {
+                    GlStateManager.pushMatrix();
+                    GlStateManager.translate((float)x, (float)y, (float)z);
+                    GlStateManager.disableLighting();
+                    Tessellator tessellator = Tessellator.getInstance();
+                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
+                    int i = blockpos.getX();
+                    int j = blockpos.getY();
+                    int k = blockpos.getZ();
+                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
+                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
+                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
+                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
+                    tessellator.draw();
+                    GlStateManager.enableLighting();
+                    GlStateManager.popMatrix();
+                    super.doRender(entity, x, y, z, entityYaw, partialTicks);
+                }
+            }
+        }
+        
+        //GL11.glEnable(GL11.GL_FOG);
+        //GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
     }
 }

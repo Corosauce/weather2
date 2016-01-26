@@ -16,8 +16,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -252,7 +254,9 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                             var9 = MathHelper.floor_double(this.posX);
                             var11 = MathHelper.floor_double(this.posY);
                             int var12 = MathHelper.floor_double(this.posZ);
-                            tile.onEntityCollidedWithBlock(this.worldObj, var9, var11, var12, var10);
+                            BlockPos pos = new BlockPos(var9, var11, var12);
+                            IBlockState state = worldObj.getBlockState(pos);
+                            tile.onEntityCollidedWithBlock(this.worldObj, pos, state, var10);
                         }
                     }
 
@@ -284,39 +288,45 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                 int var17 = var3.getBlockPos().getY();
                 var9 = var3.getBlockPos().getZ();
 
-                if (var3.sideHit == 0)
+                //0
+                if (var3.sideHit == EnumFacing.DOWN)
                 {
                     --var17;
                 }
 
-                if (var3.sideHit == 1)
+                //1
+                if (var3.sideHit == EnumFacing.UP)
                 {
                     ++var17;
                 }
 
-                if (var3.sideHit == 2)
+                //2
+                if (var3.sideHit == EnumFacing.SOUTH)
                 {
                     --var9;
                 }
 
-                if (var3.sideHit == 3)
+                //3
+                if (var3.sideHit == EnumFacing.NORTH)
                 {
                     ++var9;
                 }
 
-                if (var3.sideHit == 4)
+                //4
+                if (var3.sideHit == EnumFacing.WEST)
                 {
                     --var8;
                 }
 
-                if (var3.sideHit == 5)
+                //5
+                if (var3.sideHit == EnumFacing.EAST)
                 {
                     ++var8;
                 }
 
                 if (this.type == 0)
                 {
-                    if (var3.sideHit != 0 && !this.collideFalling)
+                    if (var3.sideHit != EnumFacing.DOWN && !this.collideFalling)
                     {
                         if (!this.collideFalling)
                         {
@@ -400,7 +410,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         return this.worldObj.rayTraceBlocks(new Vec3(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
-    private void blockify(int var1, int var2, int var3, int var4)
+    private void blockify(int var1, int var2, int var3, EnumFacing var4)
     {
         this.setDead();
         Block var5 = this.worldObj.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
@@ -450,7 +460,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void writeEntityToNBT(NBTTagCompound var1)
     {
-        var1.setString("Tile", Block.blockRegistry.getNameForObject(tile));
+    	System.out.println("1.8 VERIFY THIS WORKS");
+        var1.setString("Tile", Block.blockRegistry.getNameForObject(tile).toString());
         var1.setByte("Metadata", (byte)this.metadata);
         var1.setInteger("blocktype", type);
         NBTTagCompound var2 = new NBTTagCompound();
@@ -468,7 +479,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void readEntityFromNBT(NBTTagCompound var1)
     {
-        this.tile = (Block)Block.blockRegistry.getObject(var1.getString("Tile"));
+    	System.out.println("1.8 VERIFY THIS WORKS");
+        this.tile = (Block)Block.blockRegistry.getObject(new ResourceLocation(var1.getString("Tile")));
         this.metadata = var1.getByte("Metadata") & 15;
         this.type = var1.getInteger("blocktype");
         this.tileentity = null;
@@ -521,14 +533,16 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void writeSpawnData(ByteBuf data)
     {
-    	ByteBufUtils.writeUTF8String(data, Block.blockRegistry.getNameForObject(tile));
+    	System.out.println("1.8 VERIFY THIS WORKS");
+    	ByteBufUtils.writeUTF8String(data, Block.blockRegistry.getNameForObject(tile).toString());
         data.writeInt(metadata);
     }
 
     @Override
     public void readSpawnData(ByteBuf data)
     {
-    	tile = (Block)Block.blockRegistry.getObject(ByteBufUtils.readUTF8String(data));
+    	System.out.println("1.8 VERIFY THIS WORKS");
+    	tile = (Block)Block.blockRegistry.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
         metadata = data.readInt();
     }
 }
