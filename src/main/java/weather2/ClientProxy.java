@@ -1,11 +1,14 @@
 package weather2;
 
 import CoroUtil.render.RenderNull;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -77,4 +80,15 @@ public class ClientProxy extends CommonProxy
     private static void addMapping(Class<? extends Entity> entityClass, Render render) {
 		RenderingRegistry.registerEntityRenderingHandler(entityClass, render);
 	}
+    
+    @Override
+    public void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
+    	super.addBlock(parBlock, unlocalizedName, blockNameBase);
+    	
+    	registerItem(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Weather.modID + ":" + unlocalizedName, "inventory"));
+    }
+    
+    public void registerItem(Item item, int meta, ModelResourceLocation location) {
+    	Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
+    }
 }

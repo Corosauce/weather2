@@ -19,7 +19,7 @@ public class TileEntityWindVaneRenderer extends TileEntitySpecialRenderer
 		model = new ModelWindVane();
 	}
 	
-    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8) {
+    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8, int destroyStage) {
     	
     	
     	

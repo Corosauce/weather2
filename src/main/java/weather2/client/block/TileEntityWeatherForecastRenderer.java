@@ -19,7 +19,7 @@ import extendedrenderer.ExtendedRenderer;
 
 public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 {
-    public void renderTileEntityAt(TileEntity var1, double x, double y, double z, float var8) {
+    public void renderTileEntityAt(TileEntity var1, double x, double y, double z, float var8, int destroyStage) {
     	
     	
     	TileEntityWeatherForecast tEnt = (TileEntityWeatherForecast) var1;

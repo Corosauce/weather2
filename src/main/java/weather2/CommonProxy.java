@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -96,17 +97,22 @@ public class CommonProxy implements IGuiHandler
 		
 	}
     
-    public static void addBlock(Block block, Class tEnt, String unlocalizedName, String blockNameBase) {
+    public void addBlock(Block block, Class tEnt, String unlocalizedName, String blockNameBase) {
 		addBlock(block, unlocalizedName, blockNameBase);
 		GameRegistry.registerTileEntity(tEnt, unlocalizedName);
 	}
 	
-	public static void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
+	public void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
 		//vanilla calls
 		GameRegistry.registerBlock(parBlock, unlocalizedName);
 		System.out.println("TODO: 1.8 json");
 		/*parBlock.setBlockName(Weather.modID + ":" + unlocalizedName);
 		parBlock.setBlockTextureName(Weather.modID + ":" + unlocalizedName);*/
+		
+		//new 1.8 stuff
+		parBlock.setUnlocalizedName(getNamePrefixed(unlocalizedName));
+		//parBlock.setRegistryName
+		
 		parBlock.setCreativeTab(tab);
 		LanguageRegistry.addName(parBlock, blockNameBase);
 	}
@@ -128,5 +134,13 @@ public class CommonProxy implements IGuiHandler
             int x, int y, int z)
     {
         return null;
+    }
+    
+    public static ResourceLocation getResource(String name) {
+    	return new ResourceLocation(Weather.modID, name);
+    }
+    
+    public static String getNamePrefixed(String name) {
+    	return Weather.modID + "." + name;
     }
 }
