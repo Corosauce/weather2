@@ -31,20 +31,11 @@ public class BlockTSensor extends Block
         this.setTickRandomly(true);
     }
 
-    /*@Override
-    public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
-    {
-        this.updateTick(world, pos, state, rand);
-    }*/
-
     @Override
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
     {
     	
     	if (world.isRemote) return;
-    	
-        //var1.getBlockStateMetadata(var2, var3, var4);
-        //List var7 = var1.getEntitiesWithinAABB(EntTornado.class, AxisAlignedBB.getBoundingBoxFromPool((double)var2, (double)var3, (double)var4, (double)var2 + 1.0D, (double)var3 + 1.0D, (double)var4 + 1.0D).expand(140.0D, 140.0D, 140.0D));
     	
     	boolean enable = false;
     	
@@ -64,32 +55,9 @@ public class BlockTSensor extends Block
         {
         	world.setBlockState(pos, state.withProperty(POWER, 0), 3);
         }
-
-        /*if(var7.size() > 0) {
-           var1.setBlockStateMetadataWithNotify(var2, var3, var4, 15);
-        } else {
-           var1.setBlockStateMetadataWithNotify(var2, var3, var4, 0);
-        }*/
-        /*world.notifyBlocksOfNeighborChange(var2, var3 - 1, var4, this);
-        world.notifyBlocksOfNeighborChange(var2, var3 + 1, var4, this);
-        world.notifyBlocksOfNeighborChange(var2, var3, var4, this);
-        world.markBlockRangeForRenderUpdate(var2, var3, var4, var2, var3, var4);
-        world.scheduleBlockUpdate(var2, var3, var4, this, this.tickRate(var1));*/
         
         world.scheduleBlockUpdate(pos, this, 100, 1);
     }
-
-    /*@Override
-    public int isProvidingStrongPower(IBlockAccess var1, int var2, int var3, int var4, int var5)
-    {
-        return var1.getBlockStateMetadata(var2, var3, var4) == 0 ? 0 : 15;
-    }
-
-    @Override
-    public int isProvidingWeakPower(IBlockAccess var1, int var2, int var3, int var4, int var5)
-    {
-        return var1.getBlockStateMetadata(var2, var3, var4) == 0 ? 0 : 15;
-    }*/
 
     public int getWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side)
     {
