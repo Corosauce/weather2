@@ -2,18 +2,20 @@ package weather2.block;
 
 import java.util.List;
 
+import CoroUtil.util.Vec3;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 
-public class TileEntityWeatherDeflector extends TileEntity
+public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 {
 	public int deflectorRadius = 150;
 
-    public void updateEntity()
+	@Override
+    public void update()
     {
     	
     	if (!worldObj.isRemote) {
