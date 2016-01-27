@@ -6,6 +6,8 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -17,10 +19,10 @@ public class BlockAnemometer extends BlockContainer
     	setBlockBounds(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
     }
     
-    @Override
+    /*@Override
     public IIcon getIcon(int par1, int par2) {
     	return Blocks.stone.getIcon(par1, par2);
-    }
+    }*/
 
     public int tickRate()
     {
@@ -35,13 +37,12 @@ public class BlockAnemometer extends BlockContainer
     }
     
     @Override
-    public boolean isBlockSolid(IBlockAccess par1iBlockAccess, int par2,
-    		int par3, int par4, int par5) {
-    	return true;//super.isBlockSolid(par1iBlockAccess, par2, par3, par4, par5);
+    public boolean isBlockSolid(IBlockAccess par1iBlockAccess, BlockPos pos, EnumFacing facing) {
+    	return true;
     }
     
     @Override
-    public boolean renderAsNormalBlock()
+    public boolean isFullCube()
     {
         return false;
     }

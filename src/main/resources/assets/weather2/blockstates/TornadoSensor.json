@@ -1,7 +1,21 @@
 {
   "variants": {
-    "normal": {
-      "model": "weather2:TornadoSensor"
-    }
+    "normal": { "model": "weather2:TornadoSensor" },
+	"power=0": { "model": "weather2:TornadoSensor" },
+	"power=1": { "model": "weather2:TornadoSensor" },
+	"power=2": { "model": "weather2:TornadoSensor" },
+	"power=3": { "model": "weather2:TornadoSensor" },
+	"power=4": { "model": "weather2:TornadoSensor" },
+	"power=5": { "model": "weather2:TornadoSensor" },
+	"power=6": { "model": "weather2:TornadoSensor" },
+	"power=7": { "model": "weather2:TornadoSensor" },
+	"power=8": { "model": "weather2:TornadoSensor" },
+	"power=9": { "model": "weather2:TornadoSensor" },
+	"power=10": { "model": "weather2:TornadoSensor" },
+	"power=11": { "model": "weather2:TornadoSensor" },
+	"power=12": { "model": "weather2:TornadoSensor" },
+	"power=13": { "model": "weather2:TornadoSensor" },
+	"power=14": { "model": "weather2:TornadoSensor" },
+	"power=15": { "model": "weather2:TornadoSensor" }
   }
 }
