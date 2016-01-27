@@ -5,7 +5,10 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityTSirenRenderer extends TileEntitySpecialRenderer
 {
-    //private SignModel signModel = new SignModel();
 
-    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8) {}
+	@Override
+	public void renderTileEntityAt(TileEntity te, double x, double y, double z,
+			float partialTicks, int destroyStage) {
+		
+	}
 }

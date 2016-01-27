@@ -31,11 +31,6 @@ public class BlockTSensor extends Block
         this.setTickRandomly(true);
     }
 
-    public boolean renderAsNormalBlock()
-    {
-        return false;
-    }
-
     /*@Override
     public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
     {
@@ -80,6 +75,8 @@ public class BlockTSensor extends Block
         world.notifyBlocksOfNeighborChange(var2, var3, var4, this);
         world.markBlockRangeForRenderUpdate(var2, var3, var4, var2, var3, var4);
         world.scheduleBlockUpdate(var2, var3, var4, this, this.tickRate(var1));*/
+        
+        world.scheduleBlockUpdate(pos, this, 100, 1);
     }
 
     /*@Override
