@@ -2,19 +2,23 @@ package weather2.client.block;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
 
-import CoroUtil.util.Vec3;
 import weather2.ClientProxy;
 import weather2.api.WindReader;
 import weather2.block.TileEntityWeatherForecast;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 
 public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
@@ -39,6 +43,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorld(), pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
     	
     	String progression = "";
+    	
+    	renderName("sdfsdfsdfsdfsdf", x, y, z);
     	
     	if (so != null) {
     		
@@ -113,20 +119,46 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             GL11.glDepthMask(false);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            Tessellator var14 = Tessellator.instance;
+            Tessellator var14 = Tessellator.getInstance();
+            WorldRenderer worldrenderer = var14.getWorldRenderer();
+            
+            
     		GL11.glDisable(GL11.GL_TEXTURE_2D);
     		
     		GL11.glTranslatef((float)x + 0.5F, (float)y+1.1F, (float)z + 0.5F);
     		
-            var14.startDrawingQuads();
+            //var14.startDrawingQuads();
+    		worldrenderer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
             //int width = var11.getStringWidth(par2Str) / 2;
         
-            var14.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.65F);
+    		worldrenderer
+    		.color(0.0F, 0.0F, 0.0F, 0.65F)
+    		.pos((double)-(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2))
+    		.endVertex();
+    		
+    		worldrenderer
+    		.color(0.0F, 0.0F, 0.0F, 0.65F)
+    		.pos((double)-(sizeRenderBoxDiameter/2), 0, (double)(sizeRenderBoxDiameter/2))
+    		.endVertex();
+    		
+    		worldrenderer
+    		.color(0.0F, 0.0F, 0.0F, 0.65F)
+    		.pos((double)(sizeRenderBoxDiameter/2), 0, (double)(sizeRenderBoxDiameter/2))
+    		.endVertex();
+    		
+    		worldrenderer
+    		.color(0.0F, 0.0F, 0.0F, 0.65F)
+    		.pos((double)(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2))
+    		.endVertex();
+    		
+    		var14.draw();
+    		
+            /*var14.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.65F);
             var14.addVertex((double)-(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2));
             var14.addVertex((double)-(sizeRenderBoxDiameter/2), 0, (double)(sizeRenderBoxDiameter/2));
             var14.addVertex((double)(sizeRenderBoxDiameter/2), 0, (double)(sizeRenderBoxDiameter/2));
             var14.addVertex((double)(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2));
-            var14.draw();
+            var14.draw();*/
             
             GL11.glEnable(GL11.GL_TEXTURE_2D);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -194,7 +226,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	
     }
     
-    public void renderIcon(double par3, double par5, double par7, int width, int height, float angle, IIcon parIcon) {
+    public void renderIcon(double par3, double par5, double par7, int width, int height, float angle, TextureAtlasSprite parIcon) {
     	
     	float var12 = 0.6F;
         float var13 = 0.016666668F * var12;
@@ -210,24 +242,52 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         
-        Tessellator var14 = Tessellator.instance;
+        Tessellator var14 = Tessellator.getInstance();
+        WorldRenderer worldrenderer = var14.getWorldRenderer();
         byte var15 = 0;
         
-        var14.startDrawingQuads();
+        Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
         
-        Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.locationItemsTexture);
+        //var14.startDrawingQuads();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         
         float f6 = parIcon.getMinU();
         float f7 = parIcon.getMaxU();
         float f9 = parIcon.getMinV();
         float f8 = parIcon.getMaxV();
         
-        var14.setColorRGBA_F(1F, 1F, 1F, 0.6F);
+        worldrenderer
+		.color(1F, 1F, 1F, 0.6F)
+		.pos((double)(-width / 2 - borderSize), (double)(-borderSize + var15), 0.0D)
+		.tex(f6, f9)
+		.endVertex();
+        
+        worldrenderer
+		.color(1F, 1F, 1F, 0.6F)
+		.pos((double)(-width / 2 - borderSize), (double)(height + var15), 0.0D)
+		.tex(f6, f8)
+		.endVertex();
+        
+        worldrenderer
+		.color(1F, 1F, 1F, 0.6F)
+		.pos((double)(width / 2 + borderSize), (double)(height + var15), 0.0D)
+		.tex(f7, f8)
+		.endVertex();
+        
+        worldrenderer
+		.color(1F, 1F, 1F, 0.6F)
+		.pos((double)(width / 2 + borderSize), (double)(-borderSize + var15), 0.0D)
+		.tex(f7, f9)
+		.endVertex();
+        
+        var14.draw();
+        
+        /*var14.setColorRGBA_F(1F, 1F, 1F, 0.6F);
         var14.addVertexWithUV((double)(-width / 2 - borderSize), (double)(-borderSize + var15), 0.0D, f6, f9);
         var14.addVertexWithUV((double)(-width / 2 - borderSize), (double)(height + var15), 0.0D, f6, f8);
         var14.addVertexWithUV((double)(width / 2 + borderSize), (double)(height + var15), 0.0D, f7, f8);
         var14.addVertexWithUV((double)(width / 2 + borderSize), (double)(-borderSize + var15), 0.0D, f7, f9);
-        var14.draw();
+        var14.draw();*/
         
         GL11.glDisable(GL11.GL_BLEND);
         
@@ -268,11 +328,13 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 	            //GL11.glDisable(GL11.GL_DEPTH_TEST);
 	            GL11.glEnable(GL11.GL_BLEND);
 	            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-	            Tessellator var14 = Tessellator.instance;
+	            Tessellator var14 = Tessellator.getInstance();
+	            WorldRenderer worldrenderer = var14.getWorldRenderer();
 	            byte var15 = 0;
 	            
 	            //GL11.glDisable(GL11.GL_TEXTURE_2D);
-	            var14.startDrawingQuads();
+	            //var14.startDrawingQuads();
+	            worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
 	            //int width = var11.getStringWidth(par2Str) / 2;
 	            
 	            /*Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
@@ -290,11 +352,38 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 	            var14.addVertexWithUV((double)(width / 2 + borderSize), (double)(height + var15), 0.0D, f7, f8);
 	            var14.addVertexWithUV((double)(width / 2 + borderSize), (double)(-borderSize + var15), 0.0D, f7, f9);*/
             
-	            var14.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
+	            
+	            
+	            worldrenderer
+	    		.color(0.0F, 0.0F, 0.0F, 0.25F)
+	    		.pos((double)(-width / 2 - borderSize), (double)(-borderSize + var15), 0.0D)
+	    		
+	    		.endVertex();
+	            
+	            worldrenderer
+	    		.color(0.0F, 0.0F, 0.0F, 0.25F)
+	    		.pos((double)(-width / 2 - borderSize), (double)(height + var15), 0.0D)
+	    		
+	    		.endVertex();
+	            
+	            worldrenderer
+	    		.color(0.0F, 0.0F, 0.0F, 0.25F)
+	    		.pos((double)(width / 2 + borderSize), (double)(height + var15), 0.0D)
+	    		
+	    		.endVertex();
+	            
+	            worldrenderer
+	    		.color(0.0F, 0.0F, 0.0F, 0.25F)
+	    		.pos((double)(width / 2 + borderSize), (double)(-borderSize + var15), 0.0D)
+	    		
+	    		.endVertex();
+	            
+	            /*var14.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
 	            var14.addVertex((double)(-width / 2 - borderSize), (double)(-borderSize + var15), 0.0D);
 	            var14.addVertex((double)(-width / 2 - borderSize), (double)(height + var15), 0.0D);
 	            var14.addVertex((double)(width / 2 + borderSize), (double)(height + var15), 0.0D);
-	            var14.addVertex((double)(width / 2 + borderSize), (double)(-borderSize + var15), 0.0D);
+	            var14.addVertex((double)(width / 2 + borderSize), (double)(-borderSize + var15), 0.0D);*/
+	            
 	            var14.draw();
             }
             GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -309,5 +398,56 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         //}
             
             GL11.glEnable(GL11.GL_CULL_FACE);
+    }
+    
+    public void renderName(String test, double x, double y, double z)
+    {
+    	
+    	TextureAtlasSprite parIcon = ClientProxy.radarIconCyclone;
+        
+        float f6 = parIcon.getMinU();
+        float f7 = parIcon.getMaxU();
+        float f9 = parIcon.getMinV();
+        float f8 = parIcon.getMaxV();
+    	
+        float f = 64F;
+        
+        String s = test;
+        float f1 = 0.02666667F;
+        GlStateManager.alphaFunc(516, 0.1F);
+
+        FontRenderer fontrenderer = Minecraft.getMinecraft().getRenderManager().getFontRenderer();
+        GlStateManager.pushMatrix();
+        GlStateManager.translate((float)x, (float)y + 2 + 0.5F - (/*entity.isChild() ? entity.height / 2.0F : */0.0F), (float)z);
+        GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(-Minecraft.getMinecraft().getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(Minecraft.getMinecraft().getRenderManager().playerViewX, 1.0F, 0.0F, 0.0F);
+        GlStateManager.scale(-0.02666667F, -0.02666667F, 0.02666667F);
+        GlStateManager.translate(0.0F, 9.374999F, 0.0F);
+        GlStateManager.disableLighting();
+        GlStateManager.depthMask(false);
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        int i = fontrenderer.getStringWidth(s) / 2;
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        
+        //Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+        //worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        
+        worldrenderer.pos((double)(-i - 1), -1.0D, 0.0D).color(0.0F, 0.0F, 0.0F, 0.75F)/*.tex(f6, f9)*/.endVertex();
+        worldrenderer.pos((double)(-i - 1), 8.0D, 0.0D).color(0.0F, 0.0F, 0.0F, 0.75F)/*.tex(f6, f8)*/.endVertex();
+        worldrenderer.pos((double)(i + 1), 8.0D, 0.0D).color(0.0F, 0.0F, 0.0F, 0.75F)/*.tex(f7, f8)*/.endVertex();
+        worldrenderer.pos((double)(i + 1), -1.0D, 0.0D).color(0.0F, 0.0F, 0.0F, 0.75F)/*.tex(f7, f9)*/.endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.depthMask(true);
+        fontrenderer.drawString(s, -fontrenderer.getStringWidth(s) / 2, 0, 553648127);
+        GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.popMatrix();
     }
 }

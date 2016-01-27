@@ -45,9 +45,9 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     }
 
     @Override
-    public void updateCameraAndRender(float var1)
+    public void func_181560_a(float var1, long nanoTime)
     {
-        super.updateCameraAndRender(var1);
+        super.func_181560_a(var1, nanoTime);
         //ModLoader.OnTick(var1, this.game);
     }
 
