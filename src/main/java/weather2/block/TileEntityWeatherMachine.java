@@ -5,12 +5,13 @@ import java.util.Random;
 import CoroUtil.util.Vec3;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 
-public class TileEntityWeatherMachine extends TileEntity
+public class TileEntityWeatherMachine extends TileEntity implements ITickable
 {
 	
 	//gui ideas
@@ -64,7 +65,8 @@ public class TileEntityWeatherMachine extends TileEntity
     	}
 	}
 	
-    public void updateEntity()
+	@Override
+    public void update()
     {
     	if (!worldObj.isRemote) {
     		
@@ -144,12 +146,14 @@ public class TileEntityWeatherMachine extends TileEntity
     	}
     }
 
+	@Override
     public void writeToNBT(NBTTagCompound var1)
     {
         super.writeToNBT(var1);
         var1.setInteger("weatherType", weatherType);
     }
 
+	@Override
     public void readFromNBT(NBTTagCompound var1)
     {
         super.readFromNBT(var1);

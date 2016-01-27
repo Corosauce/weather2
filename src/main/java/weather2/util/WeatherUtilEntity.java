@@ -12,7 +12,6 @@ import net.minecraft.init.Items;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import weather2.ClientTickHandler;
 import weather2.entity.EntityMovingBlock;
@@ -20,6 +19,7 @@ import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.api.weather.WindHandler;
 import CoroUtil.entity.EntityTropicalFishHook;
+import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
 
 public class WeatherUtilEntity {
@@ -165,7 +165,7 @@ public class WeatherUtilEntity {
             boolean bool = true;
         }
 
-        return ent.worldObj.rayTraceBlocks(new Vec3(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ), new Vec3(startX, ent.posY + (double)ent.getEyeHeight(), startZ)) == null;
+        return ent.worldObj.rayTraceBlocks((new Vec3(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ)).toMCVec(), (new Vec3(startX, ent.posY + (double)ent.getEyeHeight(), startZ)).toMCVec()) == null;
         //return true;
     }
 	
@@ -205,7 +205,7 @@ public class WeatherUtilEntity {
 	}
 	
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
-		boolean dirNorth = parWorld.rayTraceBlocks(parPos, parCheckPos) == null;
+		boolean dirNorth = parWorld.rayTraceBlocks(parPos.toMCVec(), parCheckPos.toMCVec()) == null;
 		if (dirNorth) {
 			if (parWorld.getHeight(new BlockPos(MathHelper.floor_double(parCheckPos.xCoord), 0, MathHelper.floor_double(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
 		}

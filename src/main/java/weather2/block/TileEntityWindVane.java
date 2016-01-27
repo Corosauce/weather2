@@ -1,16 +1,17 @@
 package weather2.block;
 
+import CoroUtil.util.Vec3;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.api.WindReader;
 import weather2.util.WeatherUtilEntity;
 
-public class TileEntityWindVane extends TileEntity
+public class TileEntityWindVane extends TileEntity implements ITickable
 {
 	
 	//since client receives data every couple seconds, we need to smooth out everything for best visual
@@ -26,7 +27,8 @@ public class TileEntityWindVane extends TileEntity
 	
 	public boolean isOutsideCached = false;
 
-    public void updateEntity()
+	@Override
+    public void update()
     {
     	if (worldObj.isRemote) {
     		

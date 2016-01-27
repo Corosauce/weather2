@@ -7,10 +7,10 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
 
 import org.lwjgl.opengl.GL11;
 
+import CoroUtil.util.Vec3;
 import weather2.ClientProxy;
 import weather2.api.WindReader;
 import weather2.block.TileEntityWeatherForecast;

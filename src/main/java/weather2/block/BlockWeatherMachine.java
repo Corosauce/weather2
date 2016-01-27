@@ -4,9 +4,12 @@ import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import CoroUtil.util.CoroUtil;
 
@@ -16,13 +19,6 @@ public class BlockWeatherMachine extends BlockContainer
     {
         super(Material.clay);
     }
-
-    public int tickRate()
-    {
-        return 90;
-    }
-
-    public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
 
     @Override
     public TileEntity createNewTileEntity(World var1, int meta)
@@ -37,18 +33,10 @@ public class BlockWeatherMachine extends BlockContainer
     }
     
     @Override
-    public boolean renderAsNormalBlock()
-    {
-        return false;
-    }
-    
-    @Override
-    public boolean onBlockActivated(World par1World, int par2, int par3,
-    		int par4, EntityPlayer par5EntityPlayer, int par6, float par7,
-    		float par8, float par9) {
+    public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer par5EntityPlayer, EnumFacing par6, float par7, float par8, float par9) {
     	
     	if (!par1World.isRemote) {
-	    	TileEntity tEnt = par1World.getTileEntity(par2, par3, par4);
+	    	TileEntity tEnt = par1World.getTileEntity(pos);
 	    	
 	    	if (tEnt instanceof TileEntityWeatherMachine) {
 	    		((TileEntityWeatherMachine) tEnt).cycleWeatherType();
@@ -69,6 +57,15 @@ public class BlockWeatherMachine extends BlockContainer
 	    	}
     	}
     	
-    	return super.onBlockActivated(par1World, par2, par3, par4, par5EntityPlayer, par6, par7, par8, par9);
+    	return false;
+    }
+    
+    /**
+     * The type of render function called. 3 for standard block models, 2 for TESR's, 1 for liquids, -1 is no render
+     */
+    @Override
+    public int getRenderType()
+    {
+        return 3;
     }
 }

@@ -13,7 +13,7 @@ import weather2.block.TileEntityAnemometer;
 public class TileEntityAnemometerRenderer extends TileEntitySpecialRenderer
 {
 	public ModelAnemometer model;
-	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/anemometer.png");
+	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/anemometer_custom.png");
 	
 	public TileEntityAnemometerRenderer() {
 		model = new ModelAnemometer();

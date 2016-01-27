@@ -13,7 +13,7 @@ import weather2.block.TileEntityWindVane;
 public class TileEntityWindVaneRenderer extends TileEntitySpecialRenderer
 {
 	public ModelWindVane model;
-	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/windvane.png");
+	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/windvane_custom.png");
 	
 	public TileEntityWindVaneRenderer() {
 		model = new ModelWindVane();
@@ -74,7 +74,7 @@ public class TileEntityWindVaneRenderer extends TileEntitySpecialRenderer
     	//GL11.glDisable(GL11.GL_LIGHTING);
     	
     	//GL11.glColor4f(1F, 1F, 1F, 1F);
-    	Tessellator tessellator = Tessellator.instance;
+    	Tessellator tessellator = Tessellator.getInstance();
     	//tessellator.setBrightness(9999999);
 
     	//tessellator.setBrightness(var1.getBlockType().getMixedBrightnessForBlock(var1.worldObj, MathHelper.floor_double(var2), MathHelper.floor_double(var4), MathHelper.floor_double(var6)));

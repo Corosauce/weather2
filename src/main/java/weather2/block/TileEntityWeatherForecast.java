@@ -3,13 +3,14 @@ package weather2.block;
 import java.util.ArrayList;
 import java.util.List;
 
+import CoroUtil.util.Vec3;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.ITickable;
 import weather2.ClientTickHandler;
 import weather2.weathersystem.storm.StormObject;
 
-public class TileEntityWeatherForecast extends TileEntity
+public class TileEntityWeatherForecast extends TileEntity implements ITickable
 {
 	
 	//since client receives data every couple seconds, we need to smooth out everything for best visual
@@ -28,8 +29,9 @@ public class TileEntityWeatherForecast extends TileEntity
 	public List<StormObject> storms = new ArrayList<StormObject>();
 	
 	//public MapHandler mapHandler;
-
-    public void updateEntity()
+	
+	@Override
+    public void update()
     {
     	if (worldObj.isRemote) {
     		if (worldObj.getTotalWorldTime() % 200 == 0) {
