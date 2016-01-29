@@ -10,6 +10,8 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -240,7 +242,12 @@ public class GuiEZConfig extends GuiScreen {
 			//we can check here if they hit esc to close gui, but i dont need it
 		}
 		
-		super.keyTyped(par1, par2);
+		try {
+			super.keyTyped(par1, par2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		
 		/*for (int i = 0; i < textBoxes.size(); i++) {
 			GuiTextFieldZC gtf = textBoxes.get(i);
@@ -255,7 +262,12 @@ public class GuiEZConfig extends GuiScreen {
 	
 	@Override
 	protected void mouseClicked(int par1, int par2, int par3) {
-		super.mouseClicked(par1, par2, par3);
+		try {
+			super.mouseClicked(par1, par2, par3);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		
 		/*for (int i = 0; i < textBoxes.size(); i++) {
 			textBoxes.get(i).mouseClicked(par1, par2, par3);
@@ -494,7 +506,7 @@ public class GuiEZConfig extends GuiScreen {
         
         
         addButton(new GuiButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
-        addButton(new GuiButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
+        //addButton(new GuiButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
         
         addButton(new GuiButton(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
         addButton(new GuiButton(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
@@ -621,7 +633,8 @@ public class GuiEZConfig extends GuiScreen {
         		initGui();
             }*/
 		} else if (var1.id == CMD_ADVANCED) {
-			Minecraft.getMinecraft().displayGuiScreen(new GuiConfigEditor());
+			//TODO: 1.8 readd
+			//Minecraft.getMinecraft().displayGuiScreen(new GuiConfigEditor());
         } else {
         	//at this point the remaining Ids not covered should be the dimension feature enable buttons
         	
@@ -672,7 +685,7 @@ public class GuiEZConfig extends GuiScreen {
 		return val;
 	}
 	
-	public void drawTexturedModalRect(int par1, int par2, int par3, int par4, int par5, int par6)
+	/*public void drawTexturedModalRect(int par1, int par2, int par3, int par4, int par5, int par6)
     {
         float f = 0.00390625F / 2F;
         float f1 = 0.00390625F / 2F;
@@ -682,6 +695,20 @@ public class GuiEZConfig extends GuiScreen {
         tessellator.addVertexWithUV((double)(par1 + par5), (double)(par2 + par6), (double)this.zLevel, (double)((float)(par3 + par5) * f), (double)((float)(par4 + par6) * f1));
         tessellator.addVertexWithUV((double)(par1 + par5), (double)(par2 + 0), (double)this.zLevel, (double)((float)(par3 + par5) * f), (double)((float)(par4 + 0) * f1));
         tessellator.addVertexWithUV((double)(par1 + 0), (double)(par2 + 0), (double)this.zLevel, (double)((float)(par3 + 0) * f), (double)((float)(par4 + 0) * f1));
+        tessellator.draw();
+    }*/
+	
+	public void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
+    {
+        float f = 0.00390625F / 2F;
+        float f1 = 0.00390625F / 2F;
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        worldrenderer.pos((double)(x + 0), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + 0) * f1)).endVertex();
+        worldrenderer.pos((double)(x + 0), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + 0) * f1)).endVertex();
         tessellator.draw();
     }
 

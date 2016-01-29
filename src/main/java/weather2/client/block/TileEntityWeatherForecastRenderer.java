@@ -29,9 +29,9 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	
     	//renderTileEntityAtTest(var1, x, y, z, var8, destroyStage);
     	
-    	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
+    	//renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
     	
-    	if (true) return;
+    	//if (true) return;
     	
     	TileEntityWeatherForecast tEnt = (TileEntityWeatherForecast) var1;
     	
@@ -103,14 +103,14 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	float yOffset = 2.5F;
     	
     	//if (oldMode) {
-	    	renderLivingLabel("particles: " + particleCount, x, y + yOffset, z, 0, 200, 40, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//renderLivingLabel("particles: " + particleCount, x, y + yOffset, z, 0, 200, 40, Minecraft.getMinecraft().getRenderManager().playerViewY);
 	    	//renderLivingLabel("closest storm type: " + progression + descSeverity, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
 	    	//renderLivingLabel("closest storm dist: " + descDist, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
 	    	//if (so != null) renderLivingLabel("closest storm intensity: " + ((int)(so.levelCurStagesIntensity * 100F) / 100F), x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
 	    	//if (so != null) renderLivingLabel("closest storm water level: " + (so.attrib_precipitation ? so.levelWater : 0), x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
-	    	renderLivingLabel(descWindAngleCloud, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
-	    	renderLivingLabel(descWindAngle, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
-	    	renderLivingLabel(descWindSpeed, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//renderLivingLabel(descWindAngleCloud, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//renderLivingLabel(descWindAngle, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
+	    	//renderLivingLabel(descWindSpeed, x, y + yOffset - 0.1F * index++, z, 1, Minecraft.getMinecraft().getRenderManager().playerViewY);
     	//} else {
     		
     		float sizeSimBoxDiameter = 2048;
@@ -135,7 +135,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     		GL11.glTranslatef((float)x + 0.5F, (float)y+1.1F, (float)z + 0.5F);
     		
             //var14.startDrawingQuads();
-    		worldrenderer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+    		worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
             //int width = var11.getStringWidth(par2Str) / 2;
         
     		worldrenderer
@@ -196,22 +196,22 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
                 
                 if (storm.levelCurIntensityStage >= StormObject.STATE_FORMING) {
                 	if (storm.stormType == StormObject.TYPE_WATER) {
-                		renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconCyclone);
+                		renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconCyclone);
                 		renderLivingLabel("C" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 15, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 	} else {
-                		renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconTornado);
+                		renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconTornado);
                 		renderLivingLabel("F" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 12, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 	}
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_HAIL) {
-                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconHail);
-                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
+                	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconHail);
+                	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
-                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
-                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
+                	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
+                	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
-                    renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
+                	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
                 } else {
-                	renderIcon(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconRain);
+                	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconRain);
                 }
                 
                 if (storm.hasStormPeaked && (storm.levelCurIntensityStage > storm.STATE_NORMAL)) {
