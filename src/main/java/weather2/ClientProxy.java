@@ -1,6 +1,5 @@
 package weather2;
 
-import CoroUtil.render.RenderNull;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
@@ -27,13 +26,13 @@ import weather2.client.block.TileEntityWeatherMachineRenderer;
 import weather2.client.block.TileEntityWindVaneRenderer;
 import weather2.client.entity.RenderFlyingBlock;
 import weather2.client.entity.RenderLightningBolt;
-import weather2.client.entity.RenderLightningBoltOld;
 import weather2.client.entity.particle.EntityFallingRainFX;
 import weather2.client.entity.particle.EntityFallingSnowFX;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtilSound;
+import CoroUtil.render.RenderNull;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {

@@ -47,7 +47,7 @@ public class Weather {
     {
     	eventChannel.register(new EventHandlerPacket());
     	
-    	FMLCommonHandler.instance().bus().register(new EventHandlerFML());
+    	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
 		
     	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
     	WeatherUtilConfig.nbtLoadDataAll();

@@ -34,7 +34,13 @@ public class EventHandlerFML {
 	@SubscribeEvent
 	public void tickClient(ClientTickEvent event) {
 		if (event.phase == Phase.START) {
-			ClientProxy.clientTickHandler.onTickInGame();
+			//1.8: new scenario where this will tick even if world is unloaded?
+			try {
+				ClientProxy.clientTickHandler.onTickInGame();				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		}
 	}
 	

@@ -132,6 +132,18 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
 	        var1.addVertexWithUV((double)(var13 + var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 + var5 * var12 + var7 * var12), (double)var8, (double)var10);
 	        var1.addVertexWithUV((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12), (double)var8, (double)var11);
 	        
+	        worldRendererIn.pos((double)(f11 - par3 * f10 - par6 * f10), (double)(f12 - par4 * f10), (double)(f13 - par5 * f10 - par7 * f10)).tex((double)f6, (double)f9)
+	        .color(this.particleRed * f14, this.particleGreen * f14, this.particleBlue * f14, this.particleAlpha).lightmap(j, k).endVertex();
+	        
+	        worldRendererIn.pos((double)(f11 - par3 * f10 + par6 * f10), (double)(f12 + par4 * f10), (double)(f13 - par5 * f10 + par7 * f10)).tex((double)f6, (double)f8)
+	        .color(this.particleRed * f14, this.particleGreen * f14, this.particleBlue * f14, this.particleAlpha).lightmap(j, k).endVertex();
+	        
+	        worldRendererIn.pos((double)(f11 + par3 * f10 + par6 * f10), (double)(f12 + par4 * f10), (double)(f13 + par5 * f10 + par7 * f10)).tex((double)f7, (double)f8)
+	        .color(this.particleRed * f14, this.particleGreen * f14, this.particleBlue * f14, this.particleAlpha).lightmap(j, k).endVertex();
+	        
+	        worldRendererIn.pos((double)(f11 + par3 * f10 - par6 * f10), (double)(f12 - par4 * f10), (double)(f13 + par5 * f10 - par7 * f10)).tex((double)f7, (double)f9)
+	        .color(this.particleRed * f14, this.particleGreen * f14, this.particleBlue * f14, this.particleAlpha).lightmap(j, k).endVertex();
+	        
 	        /*var1.addVertexWithUV((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12), (double)0, (double)0);
 	        var1.addVertexWithUV((double)(var13 - var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 - var5 * var12 + var7 * var12), (double)0, (double)0.2);
 	        var1.addVertexWithUV((double)(var13 + var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 + var5 * var12 + var7 * var12), (double)0.2, (double)0.2);

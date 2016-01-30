@@ -11,7 +11,9 @@ import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -122,7 +124,7 @@ public class VolcanoObject {
 		
 		curRadius = data.getInteger("curRadius");
 		curHeight = data.getInteger("curHeight");
-		topBlockID = (Block)Block.blockRegistry.getObject(data.getString("topBlockID"));
+		topBlockID = (Block)Block.blockRegistry.getObject(new ResourceLocation(data.getString("topBlockID")));
 		//topBlockID = data.getInteger("topBlockID");
 		startYPos = data.getInteger("startYPos");
 		
@@ -148,7 +150,7 @@ public class VolcanoObject {
 		
 		data.setInteger("curRadius", curRadius);
 		data.setInteger("curHeight", curHeight);
-		data.setString("topBlockID", Block.blockRegistry.getNameForObject(topBlockID));
+		data.setString("topBlockID", Block.blockRegistry.getNameForObject(topBlockID).toString());
 		//data.setInteger("topBlockID", topBlockID);
 		data.setInteger("startYPos", startYPos);
 		
@@ -218,7 +220,7 @@ public class VolcanoObject {
 				
 				topBlockID = world.getBlockState(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord))).getBlock();
 				
-				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, (int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord, 0)) {
+				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord)), EnumFacing.DOWN)) {
 					topBlockID = world.getBlockState(new BlockPos((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord)).getBlock();
 				}
 				

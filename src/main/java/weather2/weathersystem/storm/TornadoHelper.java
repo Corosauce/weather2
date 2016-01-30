@@ -1,9 +1,11 @@
 package weather2.weathersystem.storm;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -14,6 +16,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -44,6 +47,47 @@ public class TornadoHelper {
     
     //potentially an issue var
     public boolean lastTickPlayerClose;
+    
+    private List<BlockUpdateSnapshot> listBlockUpdateQueue = new ArrayList<TornadoHelper.BlockUpdateSnapshot>();
+    private int queueProcessRate = 10;
+    
+    public static class BlockUpdateSnapshot {
+    	private int dimID;
+    	private IBlockState state;
+    	private BlockPos pos;
+    	
+    	public BlockUpdateSnapshot(int dimID, IBlockState state, BlockPos pos) {
+			this.dimID = dimID;
+			this.state = state;
+			this.pos = pos;
+		}
+
+		public int getDimID() {
+			return dimID;
+		}
+
+		public void setDimID(int dimID) {
+			this.dimID = dimID;
+		}
+
+		public IBlockState getState() {
+			return state;
+		}
+
+		public void setState(IBlockState state) {
+			this.state = state;
+		}
+
+		public BlockPos getPos() {
+			return pos;
+		}
+
+		public void setPos(BlockPos pos) {
+			this.pos = pos;
+		}
+    	
+    	
+    }
 	
 	public TornadoHelper(StormObject parStorm) {
 		storm = parStorm;
@@ -69,6 +113,18 @@ public class TornadoHelper {
 	}
 	
 	public void tick(World parWorld) {
+		
+		if (!parWorld.isRemote) {
+			if (parWorld.getTotalWorldTime() % queueProcessRate == 0) {
+				for (BlockUpdateSnapshot snapshot : listBlockUpdateQueue) {
+					World world = DimensionManager.getWorld(snapshot.getDimID());
+					if (world != null) {
+						world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
+					}
+				}
+				listBlockUpdateQueue.clear();
+			}
+		}
 		
 		if (storm == null) return;
 		
@@ -184,14 +240,15 @@ public class TornadoHelper {
 	                                    worldObj.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
 	                                    worldObj.getBlockStateId(tryX,tryY,tryZ-1) == 0)) {*/
 	                            tryRipCount++;
-	                            seesLight = tryRip(parWorld, tryX, tryY, tryZ, true);
+	                            seesLight = tryRip(parWorld, tryX, tryY, tryZ);
 	                            
 	                            performed = seesLight;
 	                        }
 	                        
 	                        if (!performed && ConfigMisc.Storm_Tornado_RefinedGrabRules) {
 	                        	if (blockID == Blocks.grass) {
-	                        		parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
+	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
+	                        		listBlockUpdateQueue.add(new BlockUpdateSnapshot(parWorld.provider.getDimensionId(), Blocks.dirt.getDefaultState(), new BlockPos(tryX, tryY, tryZ)));
 	                        	}
 	                        }
 	                    	
@@ -234,7 +291,7 @@ public class TornadoHelper {
 	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
 	                        {
 	                            tryRipCount++;
-	                            tryRip(parWorld, tryX, tryY, tryZ, true);
+	                            tryRip(parWorld, tryX, tryY, tryZ);
 	                        }
 	                    }
 	                }
@@ -278,8 +335,14 @@ public class TornadoHelper {
           return false;
     }
 
-	public boolean tryRip(World parWorld, int tryX, int tryY, int tryZ, boolean notify)
+	public boolean tryRip(World parWorld, int tryX, int tryY, int tryZ/*, boolean notify*/)
     {
+		//performance debug testing vars:
+        boolean createEntity = false;
+        boolean tryRip = true;
+		
+        if (!tryRip) return true;
+		
         if (!ConfigMisc.Storm_Tornado_grabBlocks) return true;
         
         if (isNoDigCoord(tryX, tryY, tryZ)) return true;
@@ -321,27 +384,33 @@ public class TornadoHelper {
 
                 if (blockID != Blocks.snow && blockID != Blocks.glass)
                 {
-                    EntityMovingBlock mBlock;
+                    EntityMovingBlock mBlock = null;
 
                     if (parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140) != null) {
-	                    if (blockID == Blocks.grass)
-	                    {
-	                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.dirt, storm);
-	                    }
-	                    else
-	                    {
-	                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, blockID, storm);
-	                    }
+                    	if (createEntity) {
+		                    if (blockID == Blocks.grass)
+		                    {
+		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.dirt, storm);
+		                    }
+		                    else
+		                    {
+		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, blockID, storm);
+		                    }
+                    	}
 	                    
 	                    blockCount++;
 	                    
 	                    //if (WeatherMod.debug && parWorld.getWorldTime() % 60 == 0) System.out.println("ripping, count: " + WeatherMod.blockCount);
 
-	                    mBlock.setPosition(tryX, tryY, tryZ);
+	                    if (mBlock != null) {
+	                    	mBlock.setPosition(tryX, tryY, tryZ);
+	                    }
 	                    
-	                    if (!parWorld.isRemote)
-	                    {
-	                        parWorld.spawnEntityInWorld(mBlock);
+	                    if (createEntity) {
+		                    if (!parWorld.isRemote)
+		                    {
+		                        parWorld.spawnEntityInWorld(mBlock);
+		                    }
 	                    }
 
 	                    //this.activeBlocks.add(mBlock);
@@ -358,7 +427,9 @@ public class TornadoHelper {
 	                    }
 
 	                    //mBlock.controller = this;
-	                    mBlock.type = 0;
+	                    if (mBlock != null) {
+	                    	mBlock.type = 0;
+	                    }
 	                    seesLight = true;
                     }
 
@@ -381,14 +452,16 @@ public class TornadoHelper {
             {
                 removeCount++;
 
-                if (notify)
+                /*if (notify)
                 {
                     parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.air.getDefaultState(), 3);
                 }
                 else
                 {
                     parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.air.getDefaultState(), 0);
-                }
+                }*/
+                
+                listBlockUpdateQueue.add(new BlockUpdateSnapshot(parWorld.provider.getDimensionId(), Blocks.air.getDefaultState(), new BlockPos(tryX, tryY, tryZ)));
             }
         }
 
