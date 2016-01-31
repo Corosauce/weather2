@@ -15,7 +15,7 @@ import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.EntityTexFX;
 
 public class WeatherUtilParticle {
-    public static List fxLayers[];
+    public static List<EntityFX>[][] fxLayers;
     
     public static int effLeafID = 0;
     public static int effRainID = 1;
@@ -62,7 +62,7 @@ public class WeatherUtilParticle {
         {
             field = (EffectRenderer.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (List[])field.get(FMLClientHandler.instance().getClient().effectRenderer);
+            fxLayers = (List[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
         }
         catch (Exception ex)
         {
@@ -72,7 +72,7 @@ public class WeatherUtilParticle {
             {
                 field = (EffectRenderer.class).getDeclaredField("fxLayers");
                 field.setAccessible(true);
-                fxLayers = (List[])field.get(FMLClientHandler.instance().getClient().effectRenderer);
+                fxLayers = (List[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
             }
             catch (Exception ex2)
             {

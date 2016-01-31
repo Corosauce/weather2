@@ -1090,60 +1090,64 @@ public class SceneEnhancer implements Runnable {
         if (WeatherUtilParticle.fxLayers != null && windMan.getWindSpeedForPriority() >= 0.10)
         {
         	//Built in particles
-            for (int layer = 0; layer < 4; layer++)
+            for (int layer = 0; layer < WeatherUtilParticle.fxLayers.length; layer++)
             {
-                for (int i = 0; i < WeatherUtilParticle.fxLayers[layer].size(); i++)
+                for (int i = 0; i < WeatherUtilParticle.fxLayers[layer].length; i++)
                 {
-                    Entity entity1 = (Entity)WeatherUtilParticle.fxLayers[layer].get(i);
-                    
-                    if (ConfigMisc.Particle_VanillaAndWeatherOnly) {
-                    	String className = entity1.getClass().getName();
-                    	if (className.contains("net.minecraft.") || className.contains("weather2.")) {
-                    		
-                    	} else {
-                    		continue;
-                    	}
-                    	
-                    	//Weather.dbg("process: " + className);
-                    }
-
-                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.posX), 0, MathHelper.floor_double(entity1.posZ))).getY() - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
+                	for (int j = 0; j < WeatherUtilParticle.fxLayers[layer][i].size(); j++)
                     {
-                        if ((entity1 instanceof EntityFlameFX))
-                        {
-                        	if (windMan.getWindSpeedForPriority() >= 0.50) WeatherUtilParticle.setParticleAge((EntityFX)entity1, WeatherUtilParticle.getParticleAge((EntityFX)entity1) + 2);
-                        }
-                        else if (entity1 instanceof WindHandler) {
-                        	if (((WindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((EntityFX)entity1) % 2 == 0)
-                            {
-                        		WeatherUtilParticle.setParticleAge((EntityFX)entity1, WeatherUtilParticle.getParticleAge((EntityFX)entity1) + ((WindHandler)entity1).getParticleDecayExtra());
-                            }
-                        }
-                        else if (WeatherUtilParticle.getParticleAge((EntityFX)entity1) % 2 == 0)
-                        {
-                        	WeatherUtilParticle.setParticleAge((EntityFX)entity1, WeatherUtilParticle.getParticleAge((EntityFX)entity1) + 1);
-                        }
-
-                        //rustle!
-                        if (!(entity1 instanceof EntityWaterfallFX)) {
-	                        if (entity1.onGround)
+                	
+	                    Entity entity1 = (Entity)WeatherUtilParticle.fxLayers[layer][i].get(j);
+	                    
+	                    if (ConfigMisc.Particle_VanillaAndWeatherOnly) {
+	                    	String className = entity1.getClass().getName();
+	                    	if (className.contains("net.minecraft.") || className.contains("weather2.")) {
+	                    		
+	                    	} else {
+	                    		continue;
+	                    	}
+	                    	
+	                    	//Weather.dbg("process: " + className);
+	                    }
+	
+	                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.posX), 0, MathHelper.floor_double(entity1.posZ))).getY() - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
+	                    {
+	                        if ((entity1 instanceof EntityFlameFX))
 	                        {
-	                            //entity1.onGround = false;
-	                            entity1.motionY += rand.nextDouble() * entity1.motionX;
+	                        	if (windMan.getWindSpeedForPriority() >= 0.50) WeatherUtilParticle.setParticleAge((EntityFX)entity1, WeatherUtilParticle.getParticleAge((EntityFX)entity1) + 2);
+	                        }
+	                        else if (entity1 instanceof WindHandler) {
+	                        	if (((WindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((EntityFX)entity1) % 2 == 0)
+	                            {
+	                        		WeatherUtilParticle.setParticleAge((EntityFX)entity1, WeatherUtilParticle.getParticleAge((EntityFX)entity1) + ((WindHandler)entity1).getParticleDecayExtra());
+	                            }
+	                        }
+	                        else if (WeatherUtilParticle.getParticleAge((EntityFX)entity1) % 2 == 0)
+	                        {
+	                        	WeatherUtilParticle.setParticleAge((EntityFX)entity1, WeatherUtilParticle.getParticleAge((EntityFX)entity1) + 1);
 	                        }
 	
-	                        if (entity1.motionX < 0.01F && entity1.motionZ < 0.01F)
-	                        {
-	                            entity1.motionY += rand.nextDouble() * 0.02;
+	                        //rustle!
+	                        if (!(entity1 instanceof EntityWaterfallFX)) {
+		                        if (entity1.onGround)
+		                        {
+		                            //entity1.onGround = false;
+		                            entity1.motionY += rand.nextDouble() * entity1.motionX;
+		                        }
+		
+		                        if (entity1.motionX < 0.01F && entity1.motionZ < 0.01F)
+		                        {
+		                            entity1.motionY += rand.nextDouble() * 0.02;
+		                        }
 	                        }
-                        }
-
-                        //entity1.motionX += rand.nextDouble() * 0.03;
-                        //entity1.motionZ += rand.nextDouble() * 0.03;
-                        //entity1.motionY += -0.04 + rand.nextDouble() * 0.04;
-                        //if (canPushEntity(entity1)) {
-                        //if (!(entity1 instanceof EntityFlameFX)) {
-                        applyWindForce(entity1);
+	
+	                        //entity1.motionX += rand.nextDouble() * 0.03;
+	                        //entity1.motionZ += rand.nextDouble() * 0.03;
+	                        //entity1.motionY += -0.04 + rand.nextDouble() * 0.04;
+	                        //if (canPushEntity(entity1)) {
+	                        //if (!(entity1 instanceof EntityFlameFX)) {
+	                        applyWindForce(entity1);
+	                    }
                     }
                 }
             }
