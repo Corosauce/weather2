@@ -5,7 +5,10 @@ import java.awt.Color;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -71,12 +74,10 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         setParticleTextureIndex(0);
     }
-
-    public void renderParticle(Tessellator var1, float var2, float var3, float var4, float var5, float var6, float var7)
-    {
-    	//GL11.glBindTexture(GL11.GL_TEXTURE_2D, RenderManager.instance.renderEngine.getTexture("/particles.png"));
-    	
-        float var8 = (float)(this.getParticleTextureIndex() % 16) / 16.0F;
+    
+    @Override
+    public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7) {
+    	float var8 = (float)(this.getParticleTextureIndex() % 16) / 16.0F;
         float var9 = var8 + 0.0624375F;
         float var10 = (float)(this.getParticleTextureIndex() / 16) / 16.0F;
         float var11 = var10 + 0.0624375F;
@@ -89,18 +90,43 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         
         
-        var1.setColorOpaque_F(this.particleRed * var16, this.particleGreen * var16, this.particleBlue * var16);
+        /*var1.setColorOpaque_F(this.particleRed * var16, this.particleGreen * var16, this.particleBlue * var16);
         var1.addVertexWithUV((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12), (double)var9, (double)var11);
         var1.addVertexWithUV((double)(var13 - var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 - var5 * var12 + var7 * var12), (double)var9, (double)var10);
         var1.addVertexWithUV((double)(var13 + var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 + var5 * var12 + var7 * var12), (double)var8, (double)var10);
-        var1.addVertexWithUV((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12), (double)var8, (double)var11);
+        var1.addVertexWithUV((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12), (double)var8, (double)var11);*/
+        
+        int i = 65535;//this.getBrightnessForRender(partialTicks);
+        int j = i >> 16 & 65535;
+        int k = i & 65535;
+        
+        worldRendererIn.pos((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12)).tex((double)var9, (double)var11)
+        .color(this.particleRed * var16, this.particleGreen * var16, this.particleBlue * var16, this.particleAlpha).lightmap(j, k).endVertex();
+        
+        worldRendererIn.pos((double)(var13 - var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 - var5 * var12 + var7 * var12)).tex((double)var9, (double)var10)
+        .color(this.particleRed * var16, this.particleGreen * var16, this.particleBlue * var16, this.particleAlpha).lightmap(j, k).endVertex();
+        
+        worldRendererIn.pos((double)(var13 + var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 + var5 * var12 + var7 * var12)).tex((double)var8, (double)var10)
+        .color(this.particleRed * var16, this.particleGreen * var16, this.particleBlue * var16, this.particleAlpha).lightmap(j, k).endVertex();
+        
+        worldRendererIn.pos((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12)).tex((double)var8, (double)var11)
+        .color(this.particleRed * var16, this.particleGreen * var16, this.particleBlue * var16, this.particleAlpha).lightmap(j, k).endVertex();
+    }
+
+    public void renderParticle(Tessellator var1, float var2, float var3, float var4, float var5, float var6, float var7)
+    {
+    	//GL11.glBindTexture(GL11.GL_TEXTURE_2D, RenderManager.instance.renderEngine.getTexture("/particles.png"));
+    	
+        
     }
     
+    @Override
     public int getFXLayer()
     {
         return 0;
     }
 
+    @Override
     public void onUpdate()
     {
         this.prevPosX = this.posX;
@@ -134,7 +160,9 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         if (id.getMaterial() == Material.water/*id == 9 || id == 8*/) {
         	
-        	Double dir = BlockLiquid.getFlowDirection(worldObj, new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ)), Material.water);
+        	BlockPos pos = new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
+        	
+        	double dir = BlockLiquid.getFlowDirection(worldObj, pos, Material.water);
         	
         	if (dir != -1000) {
             	//System.out.println("uhhhh: " + dir);
@@ -151,7 +179,11 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
     		//this.motionY += (rand.nextFloat() * range/2) - (range/4);
     		this.motionZ += (rand.nextFloat() * range) - (range/2);
         	
-        	meta = this.worldObj.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
+    		IBlockState state = this.worldObj.getBlockState(pos);
+    		
+    		meta = state.getBlock().getMetaFromState(state);
+    		
+        	//meta = this.worldObj.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
         	if ((meta & 8) != 0/* && (id2 == 8 || id2 == 9)*/) {
         		this.motionY -= 0.05000000074505806D * this.particleGravity;
