@@ -364,7 +364,7 @@ public class SceneEnhancer implements Runnable {
 	            	//Weather.dbg("precip: " + curPrecipVal);
 	            	
 	            	//rain
-					if (curPrecipVal > 0 && entP.worldObj.canLightningStrike(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ)))) {
+					if (curPrecipVal > 0 && entP.worldObj.isRainingAt(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ)))) {
 						
 						//Weather.dbg("rate: " + curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate);
 						
