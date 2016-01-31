@@ -13,8 +13,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.util.WeatherUtilParticle;
 import CoroUtil.api.weather.WindHandler;
 import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.EntityTexFX;
 @SideOnly(Side.CLIENT)
-public class EntityFallingRainFX extends EntityRotFX implements WindHandler
+public class EntityFallingRainFX extends EntityTexFX implements WindHandler
 {
     public int age;
     public float brightness;
@@ -23,7 +24,7 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
     
     public EntityFallingRainFX(World var1, double var2, double var4, double var6, double var8, double var10, double var12, double var14, int colorIndex)
     {
-        super(var1, var2, var4, var6, var8, var10, var12);
+        super(var1, var2, var4, var6, var8, var10, var12, var14, colorIndex, WeatherUtilParticle.effRainID);
         this.motionX = var8 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
         this.motionY = var10 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
         this.motionZ = var12 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
@@ -75,7 +76,9 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
         this.particleMaxAge = (int)((float)this.particleMaxAge * var14);
         this.particleGravity = 1.0F;
         //this.particleScale = 1F;
-        this.setParticleTextureIndex(WeatherUtilParticle.effRainID);
+        //this.setParticleTextureIndex(WeatherUtilParticle.effRainID);
+        
+        this.particleAlpha = 0.5F;
         
         noClip = true;
     }
@@ -202,6 +205,7 @@ public class EntityFallingRainFX extends EntityRotFX implements WindHandler
         }*/
     }
 
+    @Override
     public int getFXLayer()
     {
         return 5;

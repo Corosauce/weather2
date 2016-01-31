@@ -4,6 +4,8 @@ import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -11,8 +13,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.util.WeatherUtilParticle;
 import CoroUtil.api.weather.WindHandler;
 import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.EntityTexFX;
 @SideOnly(Side.CLIENT)
-public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
+public class EntityFallingSnowFX extends EntityTexFX implements WindHandler
 {
     public int age;
     public float brightness;
@@ -21,7 +24,7 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
     
     public EntityFallingSnowFX(World var1, double var2, double var4, double var6, double var8, double var10, double var12, double var14, int colorIndex)
     {
-        super(var1, var2, var4, var6, var8, var10, var12);
+        super(var1, var2, var4, var6, var8, var10, var12, var14, colorIndex, 3);
         this.motionX = var8 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
         this.motionY = var10 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
         this.motionZ = var12 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
@@ -81,8 +84,9 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
         
         noClip = true;
     }
-
-    public void renderParticle(Tessellator var1, float var2, float var3, float var4, float var5, float var6, float var7)
+    
+    @Override
+    public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7)
     {
     	float framesX = 5;
     	float framesY = 1;
@@ -112,15 +116,9 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
         
         Minecraft mc = Minecraft.getMinecraft();
         float br = ((0.9F + (mc.gameSettings.gammaSetting * 0.1F)) - (mc.theWorld.calculateSkylightSubtracted(var2) * 0.03F)) * mc.theWorld.getSunBrightness(1F);
-        br = 0.55F * Math.max(0.3F, br) * (2F);
+        br = 0.35F * Math.max(0.3F, br) * (2F);
         
-        var1.setColorRGBA_F(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, particleAge * 0.1F);
-        
-        //TEEEEEEMMMMMPPPPPPP
-        /*float range = 20F;
-        for (int i = 0; i < WeatherUtilParticle.maxRainDrops; i++) {
-        	WeatherUtilParticle.rainPositions[i] = Vec3.createVectorHelper((rand.nextFloat() * range) - (range/2), (rand.nextFloat() * range/16) - (range/32), (rand.nextFloat() * range) - (range/2));
-        }*/
+        //var1.setColorRGBA_F(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, 0.5F);
         
         int rainDrops = 5 + ((Math.max(0, severityOfRainRate-1)) * 5);
         
@@ -137,10 +135,26 @@ public class EntityFallingSnowFX extends EntityRotFX implements WindHandler
 		        var15 += WeatherUtilParticle.rainPositions[i].zCoord;
 	        }
 	        
-	        var1.addVertexWithUV((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12), (double)var9, (double)var11);
+	        /*var1.addVertexWithUV((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12), (double)var9, (double)var11);
 	        var1.addVertexWithUV((double)(var13 - var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 - var5 * var12 + var7 * var12), (double)var9, (double)var10);
 	        var1.addVertexWithUV((double)(var13 + var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 + var5 * var12 + var7 * var12), (double)var8, (double)var10);
-	        var1.addVertexWithUV((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12), (double)var8, (double)var11);
+	        var1.addVertexWithUV((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12), (double)var8, (double)var11);*/
+	        
+	        int ii = 0;//this.getBrightnessForRender(partialTicks);
+	        int j = ii >> 16 & 65535;
+	        int k = ii & 65535;
+	        
+	        worldRendererIn.pos((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12)).tex((double)var9, (double)var11)
+	        .color(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, this.particleAlpha).lightmap(j, k).endVertex();
+	        
+	        worldRendererIn.pos((double)(var13 - var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 - var5 * var12 + var7 * var12)).tex((double)var9, (double)var10)
+	        .color(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, this.particleAlpha).lightmap(j, k).endVertex();
+	        
+	        worldRendererIn.pos((double)(var13 + var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 + var5 * var12 + var7 * var12)).tex((double)var8, (double)var10)
+	        .color(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, this.particleAlpha).lightmap(j, k).endVertex();
+	        
+	        worldRendererIn.pos((double)(var13 + var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 + var5 * var12 - var7 * var12)).tex((double)var8, (double)var11)
+	        .color(this.particleRed * br, this.particleGreen * br, this.particleBlue * br, this.particleAlpha).lightmap(j, k).endVertex();
 	        
 	        /*var1.addVertexWithUV((double)(var13 - var3 * var12 - var6 * var12), (double)(var14 - var4 * var12), (double)(var15 - var5 * var12 - var7 * var12), (double)0, (double)0);
 	        var1.addVertexWithUV((double)(var13 - var3 * var12 + var6 * var12), (double)(var14 + var4 * var12), (double)(var15 - var5 * var12 + var7 * var12), (double)0, (double)0.2);
