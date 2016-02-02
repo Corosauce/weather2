@@ -655,7 +655,7 @@ public class SceneEnhancer implements Runnable {
         
         float windStr = manager.windMan.getWindSpeedForPriority();//(weatherMan.wind.strength <= 1F ? weatherMan.wind.strength : 1F);
 
-        if (mc.objectMouseOver != null) {
+        /*if (mc.objectMouseOver != null && mc.objectMouseOver.getBlockPos() != null) {
         	Block id = mc.theWorld.getBlockState(new BlockPos(mc.objectMouseOver.getBlockPos().getX(), mc.objectMouseOver.getBlockPos().getY(), mc.objectMouseOver.getBlockPos().getZ())).getBlock();
         	//System.out.println(mc.theWorld.getBlockStateId(mc.objectMouseOver.blockX,mc.objectMouseOver.blockY,mc.objectMouseOver.blockZ));
         	if (CoroUtilBlock.isAir(id) && id.getMaterial() == Material.wood) {
@@ -668,7 +668,7 @@ public class SceneEnhancer implements Runnable {
                 	//shakeTrees(8);
                 }
         	}
-        }
+        }*/
 
         if ((!ConfigMisc.Wind_Particle_leafs && !ConfigMisc.Wind_Particle_air && !ConfigMisc.Wind_Particle_sand && !ConfigMisc.Wind_Particle_waterfall)/* || weatherMan.wind.strength < 0.10*/)
         {
