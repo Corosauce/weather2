@@ -533,7 +533,6 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void writeSpawnData(ByteBuf data)
     {
-    	System.out.println("1.8 VERIFY THIS WORKS");
     	ByteBufUtils.writeUTF8String(data, Block.blockRegistry.getNameForObject(tile).toString());
         data.writeInt(metadata);
     }
@@ -541,7 +540,6 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void readSpawnData(ByteBuf data)
     {
-    	System.out.println("1.8 VERIFY THIS WORKS");
     	tile = (Block)Block.blockRegistry.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
         metadata = data.readInt();
     }
