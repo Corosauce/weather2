@@ -89,7 +89,6 @@ public class CommonProxy implements IGuiHandler
 		
 		//vanilla calls
 		item.setUnlocalizedName(Weather.modID + ":" + unlocalizedName);
-		System.out.println("TODO: 1.8 json");
 		//item.setTextureName(Weather.modID + ":" + unlocalizedName);
 		item.setCreativeTab(CreativeTabs.tabMisc);
 		LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
@@ -105,7 +104,6 @@ public class CommonProxy implements IGuiHandler
 	public void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
 		//vanilla calls
 		GameRegistry.registerBlock(parBlock, unlocalizedName);
-		System.out.println("TODO: 1.8 json");
 		/*parBlock.setBlockName(Weather.modID + ":" + unlocalizedName);
 		parBlock.setBlockTextureName(Weather.modID + ":" + unlocalizedName);*/
 		

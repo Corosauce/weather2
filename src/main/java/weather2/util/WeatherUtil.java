@@ -189,13 +189,13 @@ public class WeatherUtil {
     {
         return (id == Blocks.stone ||
                 id == Blocks.cobblestone ||
-                id == Blocks.sandstone);
+                id == Blocks.sandstone);	
     }
 	
     public static void doBlockList()
     {
     	
-    	System.out.println("1.8 TODO: verify block list lookup matching for exact comparions");
+    	//System.out.println("1.8 TODO: verify block list lookup matching for exact comparions");
     	
         blockIDToUseMapping.clear();
         //System.out.println("Blacklist: ");
