@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
+import weather2.entity.EntityIceBall;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtilParticle;
 
@@ -125,24 +126,52 @@ public class RenderFlyingBlock extends Render
             {
                 if (block.getRenderType() == 3)
                 {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translate((float)x, (float)y, (float)z);
-                    GlStateManager.disableLighting();
-                    Tessellator tessellator = Tessellator.getInstance();
-                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
-                    int i = blockpos.getX();
-                    int j = blockpos.getY();
-                    int k = blockpos.getZ();
-                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
-                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
-                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
-                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
-                    tessellator.draw();
-                    GlStateManager.enableLighting();
-                    GlStateManager.popMatrix();
-                    super.doRender(entity, x, y, z, entityYaw, partialTicks);
+                	if (entity instanceof EntityMovingBlock) {
+	                    GlStateManager.pushMatrix();
+	                    GlStateManager.translate((float)x, (float)y, (float)z);
+	                    GlStateManager.disableLighting();
+	                    Tessellator tessellator = Tessellator.getInstance();
+	                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
+	                    int i = blockpos.getX();
+	                    int j = blockpos.getY();
+	                    int k = blockpos.getZ();
+	                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
+	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
+	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
+	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
+	                    tessellator.draw();
+	                    GlStateManager.enableLighting();
+	                    GlStateManager.popMatrix();
+                	} else if (entity instanceof EntityIceBall) {
+                		for (int ii = 0; ii < Math.min(4, WeatherUtilParticle.maxRainDrops); ii++) {
+                			GlStateManager.pushMatrix();
+    	                    //GlStateManager.translate((float)x, (float)y, (float)z);
+                			GlStateManager.translate((float)WeatherUtilParticle.rainPositions[ii].xCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].yCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].zCoord * 3F);
+    	                    GlStateManager.disableLighting();
+    	                    Tessellator tessellator = Tessellator.getInstance();
+    	                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+    	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
+    	                    int i = blockpos.getX();
+    	                    int j = blockpos.getY();
+    	                    int k = blockpos.getZ();
+    	                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
+    	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
+    	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
+    	                    tessellator.draw();
+    	                    GlStateManager.enableLighting();
+    	                    GlStateManager.popMatrix();
+                		}
+                	}
                 }
             }
         }
@@ -150,5 +179,7 @@ public class RenderFlyingBlock extends Render
         //GL11.glEnable(GL11.GL_FOG);
         //GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
+
+        super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 }

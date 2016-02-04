@@ -460,7 +460,6 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void writeEntityToNBT(NBTTagCompound var1)
     {
-    	System.out.println("1.8 VERIFY THIS WORKS");
         var1.setString("Tile", Block.blockRegistry.getNameForObject(tile).toString());
         var1.setByte("Metadata", (byte)this.metadata);
         var1.setInteger("blocktype", type);
@@ -479,7 +478,6 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void readEntityFromNBT(NBTTagCompound var1)
     {
-    	System.out.println("1.8 VERIFY THIS WORKS");
         this.tile = (Block)Block.blockRegistry.getObject(new ResourceLocation(var1.getString("Tile")));
         this.metadata = var1.getByte("Metadata") & 15;
         this.type = var1.getInteger("blocktype");
