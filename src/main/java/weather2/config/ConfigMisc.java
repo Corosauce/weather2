@@ -134,13 +134,6 @@ public class ConfigMisc implements IConfigCategory {
 	//blocks
 	public static double sirenActivateDistance = 256D;
 	public static double sensorActivateDistance = 256D;
-	public static int Block_sensorID = 1900;
-	public static int Block_sirenID = 1901;
-	public static int Block_windVaneID = 1902;
-	public static int Block_weatherForecastID = 1903;
-	public static int Block_weatherMachineID = 1904;
-	public static int Block_weatherDeflectorID = 1905;
-	public static int Block_anemometer = 1906;
 	public static boolean Block_WeatherMachineNoTornadosOrCyclones = false;
 	
 	//dimension settings

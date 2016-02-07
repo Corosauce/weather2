@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 
 public class BlockTSiren extends BlockContainer
 {
-    public BlockTSiren(int var1)
+    public BlockTSiren()
     {
         super(Material.clay);
     }

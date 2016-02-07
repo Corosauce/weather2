@@ -15,7 +15,7 @@ import CoroUtil.util.CoroUtil;
 
 public class BlockWeatherMachine extends BlockContainer
 {
-    public BlockWeatherMachine(int var1)
+    public BlockWeatherMachine()
     {
         super(Material.clay);
     }

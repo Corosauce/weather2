@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 
 public class BlockWeatherForecast extends BlockContainer
 {
-    public BlockWeatherForecast(int var1)
+    public BlockWeatherForecast()
     {
         super(Material.clay);
     }

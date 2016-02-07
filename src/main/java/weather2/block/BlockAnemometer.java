@@ -13,9 +13,9 @@ import net.minecraft.world.World;
 
 public class BlockAnemometer extends BlockContainer
 {
-    public BlockAnemometer(int var1)
+    public BlockAnemometer()
     {
-        super( Material.circuits);
+        super(Material.circuits);
     	setBlockBounds(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
     }
     

@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 
 public class BlockWeatherDeflector extends BlockContainer
 {
-    public BlockWeatherDeflector(int var1)
+    public BlockWeatherDeflector()
     {
         super(Material.clay);
     }

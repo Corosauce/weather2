@@ -61,13 +61,13 @@ public class CommonProxy implements IGuiHandler
     	addMapping(EntityMovingBlock.class, "Moving Block", 1, 128, 5, true);
     	addMapping(EntityLightningBolt.class, "Weather2 Lightning Bolt", 2, 512, 5, true);
     	
-    	addBlock(blockTSensor = (new BlockTSensor(ConfigMisc.Block_sensorID)), "TornadoSensor", "Tornado Sensor");
-    	addBlock(blockTSiren = (new BlockTSiren(ConfigMisc.Block_sirenID)), TileEntityTSiren.class, "TornadoSiren", "Tornado Siren");
-    	addBlock(blockWindVane = (new BlockWindVane(ConfigMisc.Block_windVaneID)), TileEntityWindVane.class, "WindVane", "Wind Vane");
-    	addBlock(blockWeatherForecast = (new BlockWeatherForecast(ConfigMisc.Block_weatherForecastID)), TileEntityWeatherForecast.class, "WeatherForecast", "Weather Forecast");
-    	addBlock(blockWeatherMachine = (new BlockWeatherMachine(ConfigMisc.Block_weatherMachineID)), TileEntityWeatherMachine.class, "WeatherMachine", "Weather Machine (right click to cycle)");
-    	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector(ConfigMisc.Block_weatherDeflectorID)), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
-    	addBlock(blockAnemometer = (new BlockAnemometer(ConfigMisc.Block_anemometer)), TileEntityAnemometer.class, "Anemometer", "Anemometer");
+    	addBlock(blockTSensor = (new BlockTSensor()), "TornadoSensor", "Tornado Sensor");
+    	addBlock(blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, "TornadoSiren", "Tornado Siren");
+    	addBlock(blockWindVane = (new BlockWindVane()), TileEntityWindVane.class, "WindVane", "Wind Vane");
+    	addBlock(blockWeatherForecast = (new BlockWeatherForecast()), TileEntityWeatherForecast.class, "WeatherForecast", "Weather Forecast");
+    	addBlock(blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, "WeatherMachine", "Weather Machine (right click to cycle)");
+    	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
+    	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer", "Anemometer");
         
     	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.redstone, 'I', Items.gold_ingot, 'X', Items.iron_ingot});
     	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', blockTSensor, 'X', Items.iron_ingot});

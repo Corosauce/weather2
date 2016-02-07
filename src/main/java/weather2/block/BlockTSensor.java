@@ -24,7 +24,7 @@ public class BlockTSensor extends Block
 	
 	public static final PropertyInteger POWER = PropertyInteger.create("power", 0, 15);
 	
-    public BlockTSensor(int var1)
+    public BlockTSensor()
     {
         super(Material.clay);
         this.setDefaultState(this.blockState.getBaseState().withProperty(POWER, Integer.valueOf(0)));
