@@ -144,19 +144,24 @@ public class TornadoHelper {
 		if (!parWorld.isRemote) {
 			if (parWorld.getTotalWorldTime() % queueProcessRate == 0) {
 				Iterator<BlockUpdateSnapshot> it = listBlockUpdateQueue.values().iterator();
+				int count = 0;
+				int entityCreateStaggerRate = 3;
 				while (it.hasNext()) {
 					BlockUpdateSnapshot snapshot = it.next();
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 						world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
 						if (snapshot.getState().getBlock() == Blocks.air) {
-							EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
-							/*if (mBlock != null) {
-		                    	mBlock.setPosition(tryX, tryY, tryZ);
-		                    }*/
-							parWorld.spawnEntityInWorld(mBlock);
+							if (count % entityCreateStaggerRate == 0) {
+								EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
+								/*if (mBlock != null) {
+			                    	mBlock.setPosition(tryX, tryY, tryZ);
+			                    }*/
+								parWorld.spawnEntityInWorld(mBlock);
+							}
 						}
 					}
+					count++;
 				}
 				listBlockUpdateQueue.clear();
 			}
@@ -382,7 +387,9 @@ public class TornadoHelper {
         boolean createEntity = false;
         boolean tryRip = true;
 		BlockPos pos = new BlockPos(tryX, tryY, tryZ);
-		if (listBlockUpdateQueue.containsKey(pos)) return true;
+		if (listBlockUpdateQueue.containsKey(pos)) {
+			return true;
+		}
         
         if (!tryRip) return true;
 		

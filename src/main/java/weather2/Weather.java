@@ -21,8 +21,7 @@ import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.CoroUtilFile;
 
-//@NetworkMod(channels = { "WeatherData", "EZGuiData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
-@Mod(modid = "weather2", name="weather2", version="v2.3.10")
+@Mod(modid = "weather2", name="weather2", version="v2.3.11")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )

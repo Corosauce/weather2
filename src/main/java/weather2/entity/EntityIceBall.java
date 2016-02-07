@@ -131,7 +131,8 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 
 					}
 				} else {
-					movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), damage);
+					//movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), damage);
+					movingobjectposition.entityHit.attackEntityFrom(DamageSource.fallingBlock, damage);
 				}
 				
 				/*if (movingobjectposition.entityHit instanceof EntityLiving) {
