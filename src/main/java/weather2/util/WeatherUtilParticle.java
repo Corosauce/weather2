@@ -44,7 +44,11 @@ public class WeatherUtilParticle {
     //weather2: not sure what will happen to this in 1.7, copied over for convinience
     public static int getParticleAge(EntityFX ent)
     {
-        return (Integer) OldUtil.getPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge");
+    	if (OldUtil.getPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge") != null) {
+    		return (Integer) OldUtil.getPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge");
+    	} else {
+    		return 0;
+    	}
     }
 
     //weather2: not sure what will happen to this in 1.7, copied over for convinience
