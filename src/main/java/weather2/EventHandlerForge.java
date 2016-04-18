@@ -27,7 +27,7 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(TextureStitchEvent event) {
+	public void registerIcons(TextureStitchEvent.Pre event) {
 		
 		ResourceLocation res;
 		
