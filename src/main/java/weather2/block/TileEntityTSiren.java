@@ -50,9 +50,9 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound var1)
+    public NBTTagCompound writeToNBT(NBTTagCompound var1)
     {
-        super.writeToNBT(var1);
+        return super.writeToNBT(var1);
     }
 
     @Override

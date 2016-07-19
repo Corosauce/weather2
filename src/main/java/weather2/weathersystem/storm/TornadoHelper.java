@@ -1,6 +1,5 @@
 package weather2.weathersystem.storm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,11 +12,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -151,7 +150,7 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 						world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
-						if (snapshot.getState().getBlock() == Blocks.air) {
+						if (snapshot.getState().getBlock() == Blocks.AIR) {
 							if (count % entityCreateStaggerRate == 0) {
 								EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
 								/*if (mBlock != null) {
@@ -210,7 +209,7 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            BiomeGenBase bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
+            Biome bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
         	
             //prevent grabbing in high areas (hills)
         	if (bgb != null && bgb.minHeight + bgb.maxHeight <= 0.7) {
@@ -291,7 +290,7 @@ public class TornadoHelper {
 	                        	if (blockID == Blocks.grass) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
-	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimensionId(), Blocks.dirt.getDefaultState(), state, pos, false));
+	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.DIRT.getDefaultState(), state, pos, false));
 	                        		}
 	                        		
 	                        	}
@@ -428,7 +427,7 @@ public class TornadoHelper {
                 //rip noise, nm, forces particles
                 //parWorld.playAuxSFX(2001, tryX, tryY, tryZ, blockID + blockMeta * 256);
 
-                if (blockID != Blocks.snow && blockID != Blocks.glass)
+                if (blockID != Blocks.SNOW && blockID != Blocks.GLASS)
                 {
                     EntityMovingBlock mBlock = null;
 
@@ -436,7 +435,7 @@ public class TornadoHelper {
                     	if (createEntity) {
 		                    if (blockID == Blocks.grass)
 		                    {
-		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.dirt, storm);
+		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.DIRT, storm);
 		                    }
 		                    else
 		                    {
@@ -484,7 +483,7 @@ public class TornadoHelper {
                 else
                 {
                     //depreciated - OR NOT!
-                    if (blockID == Blocks.glass)
+                    if (blockID == Blocks.GLASS)
                     {
                         parWorld.playSoundEffect(tryX, tryY, tryZ, "random.glass", 5.0F, 1.0F);
                     }
@@ -507,7 +506,7 @@ public class TornadoHelper {
                     parWorld.setBlockState(pos, Blocks.air.getDefaultState(), 0);
                 }*/
                 
-                listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimensionId(), Blocks.air.getDefaultState(), state, pos, true));
+                listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.AIR.getDefaultState(), state, pos, true));
             }
         }
 

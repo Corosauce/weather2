@@ -11,8 +11,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.CommonProxy;
@@ -74,7 +74,7 @@ public class WeatherUtil {
     	                float strVsBlock = block.getBlockHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
-    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
+    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.WOOD) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
     	                {
     	                    /*if (block.blockMaterial == Material.water) {
     	                    	return false;
@@ -92,7 +92,7 @@ public class WeatherUtil {
                 }
                 
                 if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-                	if (id == Blocks.dirt || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                	if (id == Blocks.DIRT || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
                 		result = false;
                 	}
                 }
@@ -113,7 +113,7 @@ public class WeatherUtil {
     
     public static boolean safetyCheck(Block id)
     {
-        if (id != Blocks.bedrock && id != Blocks.log && id != Blocks.chest && id != Blocks.jukebox/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
+        if (id != Blocks.BEDROCK && id != Blocks.LOG && id != Blocks.CHEST && id != Blocks.JUKEBOX/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
         {
             return true;
         }
@@ -156,7 +156,7 @@ public class WeatherUtil {
         }*/
 
         //water no
-        if (blockID.getMaterial() == Material.water)
+        if (blockID.getMaterial() == Material.WATER)
         {
             return false;
         }
@@ -187,9 +187,9 @@ public class WeatherUtil {
     
     public static boolean isSolidBlock(Block id)
     {
-        return (id == Blocks.stone ||
-                id == Blocks.cobblestone ||
-                id == Blocks.sandstone);	
+        return (id == Blocks.STONE ||
+                id == Blocks.COBBLESTONE ||
+                id == Blocks.SANDSTONE);	
     }
 	
     public static void doBlockList()
@@ -216,9 +216,9 @@ public class WeatherUtil {
 
         //HashMap hashmap = null;
         //System.out.println("?!?!" + Block.blocksList.length);
-        blockIDToUseMapping.put(Blocks.air, false);
+        blockIDToUseMapping.put(Blocks.AIR, false);
 
-        Set set = Block.blockRegistry.getKeys();
+        Set set = Block.REGISTRY.getKeys();
         Iterator it = set.iterator();
         while (it.hasNext()) {
         	Object obj = it.next();
@@ -226,8 +226,8 @@ public class WeatherUtil {
         	ResourceLocation tagName = ((ResourceLocation)obj);
         	
         	
-        	Block block = (Block) Block.blockRegistry.getObject(tagName);
-        	if (dbgShow) System.out.println("??? " + Block.blockRegistry.getNameForObject(block));
+        	Block block = (Block) Block.REGISTRY.getObject(tagName);
+        	if (dbgShow) System.out.println("??? " + Block.REGISTRY.getNameForObject(block));
         	
         	if (block != null)
             {
@@ -237,17 +237,17 @@ public class WeatherUtil {
                 {
                 	if (ConfigMisc.Storm_Tornado_GrabCond_List_PartialMatches) {
                 		if (tagName.toString().contains(splEnts[j])) {
-                			dbg += Block.blockRegistry.getNameForObject(block) + ", ";
+                			dbg += Block.REGISTRY.getNameForObject(block) + ", ";
                 			foundEnt = true;
                 			break;
                 		}
                 	} else {
-	                    Block blockEntry = (Block)Block.blockRegistry.getObject(new ResourceLocation(splEnts[j]));
+	                    Block blockEntry = (Block)Block.REGISTRY.getObject(new ResourceLocation(splEnts[j]));
 	
 	                    if (blockEntry != null && block == blockEntry)
 	                    {
 	                        foundEnt = true;
-	                        dbg += Block.blockRegistry.getNameForObject(block) + ", ";
+	                        dbg += Block.REGISTRY.getNameForObject(block) + ", ";
 	                        //blackList.append(s + " ");
 	                        //System.out.println("adding to list: " + blocks[j]);
 	                        break;

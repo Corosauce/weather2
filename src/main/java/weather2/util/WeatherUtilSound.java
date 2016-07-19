@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import CoroUtil.util.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -19,6 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import paulscode.sound.SoundSystem;
 import weather2.client.sound.MovingSoundStreamingSource;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.Vec3;
 
 public class WeatherUtilSound {
 	

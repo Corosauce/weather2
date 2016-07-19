@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.LanguageRegistry;
 import weather2.block.BlockAnemometer;
 import weather2.block.BlockTSensor;
 import weather2.block.BlockTSiren;
@@ -25,7 +24,6 @@ import weather2.block.TileEntityWeatherDeflector;
 import weather2.block.TileEntityWeatherForecast;
 import weather2.block.TileEntityWeatherMachine;
 import weather2.block.TileEntityWindVane;
-import weather2.config.ConfigMisc;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityMovingBlock;
@@ -69,12 +67,12 @@ public class CommonProxy implements IGuiHandler
     	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
     	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer", "Anemometer");
         
-    	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.redstone, 'I', Items.gold_ingot, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', blockTSensor, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.redstone, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', Items.compass, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', Items.diamond, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', blockWeatherMachine, 'X', Items.iron_ingot});
+    	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
+    	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
+    	GameRegistry.addRecipe(new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.REDSTONE, 'X', Items.IRON_INGOT});
+    	GameRegistry.addRecipe(new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.COMPASS, 'X', Items.IRON_INGOT});
+    	GameRegistry.addRecipe(new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.DIAMOND, 'X', Items.IRON_INGOT});
+    	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockWeatherMachine, 'X', Items.IRON_INGOT});
     	
     	LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
     }

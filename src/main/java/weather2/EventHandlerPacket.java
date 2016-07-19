@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -76,14 +77,14 @@ public class EventHandlerPacket {
 	        		sendNBT.setString("packetCommand", "EZGuiData");
 	        		sendNBT.setString("command", "syncUpdate");
 	        		sendNBT.setBoolean("markUpdated", true);
-	        		sendNBT.setBoolean("isPlayerOP", MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().canSendCommands(entP.getGameProfile()));
+	        		sendNBT.setBoolean("isPlayerOP", FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().canSendCommands(entP.getGameProfile()));
 	        		sendNBT.setTag("data", WeatherUtilConfig.nbtServerData);
 	        		sendNBT.setTag("dimListing", WeatherUtilConfig.createNBTDimensionListing());
 	        		
 	        		Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(sendNBT, Weather.eventChannelName), entP);
 	        		//PacketDispatcher.sendPacketToPlayer(WeatherPacketHelper.createPacketForServerToClientSerialization("EZGuiData", sendNBT), player);
 	        	} else if (command.equals("applySettings")) {
-	        		if (MinecraftServer.getServer().isSinglePlayer() || MinecraftServer.getServer().getConfigurationManager().canSendCommands(entP.getGameProfile())) {
+	        		if (FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().canSendCommands(entP.getGameProfile())) {
 	        			WeatherUtilConfig.nbtReceiveClientData(nbt.getCompoundTag("guiData"));
 	        		}
 	        	}

@@ -398,9 +398,9 @@ public class WeatherUtilConfig {
 		
 		for (int i = 0; i < worlds.length; i++) {
 			NBTTagCompound nbtDim = new NBTTagCompound();
-			int dimID = worlds[i].provider.getDimensionId();
+			int dimID = worlds[i].provider.getDimension();
 			nbtDim.setInteger("ID", dimID); //maybe redundant if we name tag as dimID too
-			nbtDim.setString("name", worlds[i].provider.getDimensionName());
+			nbtDim.setString("name", worlds[i].provider.getDimensionType().getName());
 			nbtDim.setBoolean("weather", listDimensionsWeather.contains(dimID));
 			nbtDim.setBoolean("clouds", listDimensionsClouds.contains(dimID));
 			nbtDim.setBoolean("storms", listDimensionsStorms.contains(dimID));

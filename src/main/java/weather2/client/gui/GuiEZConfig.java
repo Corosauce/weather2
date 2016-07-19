@@ -5,16 +5,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import org.lwjgl.opengl.GL11;
 
@@ -103,7 +102,7 @@ public class GuiEZConfig extends GuiScreen {
 
 		Weather.dbg("EZGUI constructor");
 		
-		if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isSinglePlayer()) {
+		if (FMLCommonHandler.instance().getMinecraftServerInstance() != null && FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer()) {
 			canPlayerChangeServerSettings = true;
 		}
 		

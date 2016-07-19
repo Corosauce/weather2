@@ -1,12 +1,12 @@
 package weather2.api;
 
-import CoroUtil.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerBase;
+import CoroUtil.util.Vec3;
 
 public class WindReader {
 	
@@ -46,7 +46,7 @@ public class WindReader {
 		if (parWorld.isRemote) {
 			wMan = getWeatherManagerClient();
 		} else {
-			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimensionId());
+			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimension());
 		}
 		
 		if (wMan != null) {
@@ -75,7 +75,7 @@ public class WindReader {
 		if (parWorld.isRemote) {
 			wMan = getWeatherManagerClient();
 		} else {
-			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimensionId());
+			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimension());
 		}
 		
 		if (wMan != null) {

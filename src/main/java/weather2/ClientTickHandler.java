@@ -89,12 +89,12 @@ public class ClientTickHandler
         if (world != null) {
         	weatherManager.tick();
         	
-        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimensionId() == 0) {
+        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
             	mc.gameSettings.clouds = 0;
             }
         }
         
-        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimensionId())) {
+        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
         	//weatherManager.tick();
         	
         	sceneEnhancer.tickClient();
@@ -127,7 +127,7 @@ public class ClientTickHandler
     public static void init(World world) {
     	Weather.dbg("Initializing WeatherManagerClient for client world");
     	lastWorld = world;
-    	weatherManager = new WeatherManagerClient(world.provider.getDimensionId());
+    	weatherManager = new WeatherManagerClient(world.provider.getDimension());
     }
 
     static void getField(Field field, Object newValue) throws Exception

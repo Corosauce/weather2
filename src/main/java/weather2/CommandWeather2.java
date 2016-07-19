@@ -6,6 +6,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
@@ -21,7 +22,7 @@ public class CommandWeather2 extends CommandBase {
 	}
 
 	@Override
-	public void processCommand(ICommandSender var1, String[] var2) {
+	public void execute(MinecraftServer server, ICommandSender var1, String[] var2) {
 		
 		String helpMsgStorm = "Syntax: storm create <rain/thunder/wind/spout/hail/F0/F1/F2/F3/F4/F5/C0/C1/C2/C3/C4/C5/hurricane> <Optional: alwaysProgress>... example: storm create F1 alwaysProgress ... eg2: storm killall";
 		
@@ -32,7 +33,7 @@ public class CommandWeather2 extends CommandBase {
 				
 				if (var2[0].equals("volcano")) {
 					if (var2[1].equals("create")) {
-						if (player.worldObj.provider.getDimensionId() == 0) {
+						if (player.worldObj.provider.getDimension() == 0) {
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(0);
 							VolcanoObject vo = new VolcanoObject(wm);
 							vo.pos = new Vec3(player.posX, player.posY, player.posZ);
@@ -49,7 +50,7 @@ public class CommandWeather2 extends CommandBase {
 					}
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
-						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimensionId());
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimension());
 						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "killing all storms");
 						List<StormObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
@@ -62,7 +63,7 @@ public class CommandWeather2 extends CommandBase {
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
 						if (var2.length > 2) {
-							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimensionId());
+							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimension());
 							StormObject so = new StormObject(wm);
 							so.layer = 0;
 							so.userSpawnedFor = CoroUtilEntity.getName(player);

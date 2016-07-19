@@ -1,12 +1,12 @@
 package weather2.client.sound;
 
-import CoroUtil.util.Vec3;
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.Vec3;
 
 public class MovingSoundStreamingSource extends MovingSound {
 

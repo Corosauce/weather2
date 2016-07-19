@@ -2,7 +2,6 @@ package weather2.weathersystem.wind;
 
 import java.util.Random;
 
-import CoroUtil.util.Vec3;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -13,6 +12,7 @@ import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.Vec3;
 
 public class WindManager {
 

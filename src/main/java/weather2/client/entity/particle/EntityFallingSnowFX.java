@@ -3,16 +3,13 @@ package weather2.client.entity.particle;
 import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.util.WeatherUtilParticle;
 import CoroUtil.api.weather.WindHandler;
-import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.EntityTexFX;
 @SideOnly(Side.CLIENT)
 public class EntityFallingSnowFX extends EntityTexFX implements WindHandler

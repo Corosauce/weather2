@@ -63,17 +63,17 @@ public class ServerTickHandler
         //add use of CSV of supported dimensions here once feature is added, for now just overworld
         
         for (int i = 0; i < worlds.length; i++) {
-        	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.getDimensionId())) {
+        	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.getDimension())) {
         		
-        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.getDimensionId())) {
-        			addWorldToWeather(worlds[i].provider.getDimensionId());
+        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.getDimension())) {
+        			addWorldToWeather(worlds[i].provider.getDimension());
         		}
         	}
         	
         	//tick it
-        	WeatherManagerServer wms = lookupDimToWeatherMan.get(worlds[i].provider.getDimensionId());
+        	WeatherManagerServer wms = lookupDimToWeatherMan.get(worlds[i].provider.getDimension());
         	if (wms != null) {
-        		lookupDimToWeatherMan.get(worlds[i].provider.getDimensionId()).tick();
+        		lookupDimToWeatherMan.get(worlds[i].provider.getDimension()).tick();
         	}
         }
         
@@ -142,7 +142,7 @@ public class ServerTickHandler
     }
     
     public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
-		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimensionId());
+		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimension());
 		if (wm != null) {
 			wm.playerJoinedServerSyncFull(entP);
 		}

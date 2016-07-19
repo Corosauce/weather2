@@ -4,14 +4,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
@@ -21,7 +18,6 @@ import weather2.block.TileEntityWeatherForecast;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.particle.ParticleRegistry;
 
 public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 {

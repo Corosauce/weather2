@@ -10,10 +10,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -50,7 +50,7 @@ public class VolcanoObject {
 
 	//public boolean isGrowing = true;
 	public int processRateDelay = 20; //make configurable
-	public Block topBlockID = Blocks.air;
+	public Block topBlockID = Blocks.AIR;
 	public int startYPos = -1;
 	public int curRadius = 5;
 	public int curHeight = 3;
@@ -124,7 +124,7 @@ public class VolcanoObject {
 		
 		curRadius = data.getInteger("curRadius");
 		curHeight = data.getInteger("curHeight");
-		topBlockID = (Block)Block.blockRegistry.getObject(new ResourceLocation(data.getString("topBlockID")));
+		topBlockID = (Block)Block.REGISTRY.getObject(new ResourceLocation(data.getString("topBlockID")));
 		//topBlockID = data.getInteger("topBlockID");
 		startYPos = data.getInteger("startYPos");
 		
@@ -150,7 +150,7 @@ public class VolcanoObject {
 		
 		data.setInteger("curRadius", curRadius);
 		data.setInteger("curHeight", curHeight);
-		data.setString("topBlockID", Block.blockRegistry.getNameForObject(topBlockID).toString());
+		data.setString("topBlockID", Block.REGISTRY.getNameForObject(topBlockID).toString());
 		//data.setInteger("topBlockID", topBlockID);
 		data.setInteger("startYPos", startYPos);
 		
@@ -242,18 +242,18 @@ public class VolcanoObject {
 							int posX = (int)Math.floor((pos.xCoord)+vec.xCoord+0.5);
 							int posZ = (int)Math.floor((pos.zCoord)+vec.zCoord+0.5);
 							
-							Block blockID = Blocks.obsidian;
+							Block blockID = Blocks.OBSIDIAN;
 							
 							if (yy >= startYPos) {
 								blockID = topBlockID;
 							} else if (dist < curRadius) {
-								blockID = Blocks.lava;
+								blockID = Blocks.LAVA;
 							}
 							
 							//skip derpy top layer
 							if (yy != startYPos + curHeight) {
 								Block idScan = world.getBlockState(new BlockPos(posX, yy, posZ)).getBlock();
-								if (CoroUtilBlock.isAir(idScan) || idScan.getMaterial() == Material.water) {
+								if (CoroUtilBlock.isAir(idScan) || idScan.getMaterial() == Material.WATER) {
 									world.setBlockState(new BlockPos(posX, yy, posZ), blockID.getDefaultState());
 								}
 							}
@@ -316,8 +316,8 @@ public class VolcanoObject {
 									//handle growth under expanded area
 									int underY = startYPos+yy-1;
 									Block underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
-									while ((CoroUtilBlock.isAir(underBlockID) || underBlockID.getMaterial() == Material.water) && underY > 1) {
-										world.setBlockState(new BlockPos(posX, underY, posZ), Blocks.dirt.getDefaultState());
+									while ((CoroUtilBlock.isAir(underBlockID) || underBlockID.getMaterial() == Material.WATER) && underY > 1) {
+										world.setBlockState(new BlockPos(posX, underY, posZ), Blocks.DIRT.getDefaultState());
 										underY--;
 										underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
 									}
@@ -410,7 +410,7 @@ public class VolcanoObject {
 					int posY = (int)Math.floor((startYPos)) + maxSize - step + 2;
 					int posZ = (int)Math.floor((pos.zCoord));
 					
-					Block blockID = Blocks.stone;
+					Block blockID = Blocks.STONE;
 					
 					world.setBlockState(new BlockPos(posX, posY, posZ), blockID.getDefaultState());
 					world.setBlockState(new BlockPos(posX+1, posY, posZ), blockID.getDefaultState());
@@ -495,8 +495,8 @@ public class VolcanoObject {
 				double distt = 300D;
 				double curDist = ent.getDistance(pos.xCoord, staticYPos, pos.zCoord);
 				
-				double vecX = ent.posX - pos.xCoord;
-		        double vecZ = ent.posZ - pos.zCoord;
+				double vecX = ent.getPosX() - pos.xCoord;
+		        double vecZ = ent.getPosZ() - pos.zCoord;
 		        float angle = (float)(Math.atan2(vecZ, vecX) * 180.0D / Math.PI);
 		        //System.out.println("angle: " + angle);
 		        angle += 50;
@@ -511,7 +511,7 @@ public class VolcanoObject {
 		        	//speed = 1D;
 		        }
 		        
-		        double curSpeed = Math.sqrt(ent.motionX * ent.motionX + ent.motionY * ent.motionY + ent.motionZ * ent.motionZ);
+		        double curSpeed = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 		        
 
 		        

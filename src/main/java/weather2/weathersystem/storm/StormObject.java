@@ -19,13 +19,11 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import CoroUtil.util.Vec3;
-import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -44,6 +42,7 @@ import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.CoroUtilEntity;
+import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
@@ -199,7 +198,7 @@ public class StormObject {
 	public void initFirstTime() {
 		ID = StormObject.lastUsedStormID++;
 		
-		BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+		Biome bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 
 		
 		float temp = 1;
@@ -704,12 +703,12 @@ public class StormObject {
 			            
 			            
 			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.snow.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))) {
+			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.SNOW.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 			            	boolean perform = false;
 			            	Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
 			            	int meta = 0;
-			            	if (id.getMaterial() == Material.snow) {
+			            	if (id.getMaterial() == Material.SNOW) {
 			            		if (ConfigMisc.Snow_ExtraPileUp) {
 			            			IBlockState state = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z));
 				            		meta = state.getBlock().getMetaFromState(state);
@@ -722,7 +721,7 @@ public class StormObject {
 				            				int originalSetBlockHeight = setBlockHeight;
 				            				for (i = 0; i < ConfigMisc.Snow_MaxBlockBuildupHeight; i++) {
 				            					Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
-				            					if (checkID.getMaterial() == Material.snow) {
+				            					if (checkID.getMaterial() == Material.SNOW) {
 				            						IBlockState state2 = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z));
 				            						meta = state2.getBlock().getMetaFromState(state2);
 				            						if (meta < snowMetaMax) {
@@ -799,7 +798,7 @@ public class StormObject {
 		if (attempt.posX != 0 || attempt.posZ != 0) return attempt;
 		attempt = getSnowfallEvenOutAdjust(x, y, z+1, sourceMeta);
 		if (attempt.posX != 0 || attempt.posZ != 0) return attempt;
-		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 	}
 	
 	//return relative values, id 0 (to mark its ok to start snow here) or id snow (to mark check meta), and meta of detected snow if snow (dont increment it, thats handled after this)
@@ -818,13 +817,13 @@ public class StormObject {
 			//make sure somethings underneath it - we shouldnt need to check deeper because we spread out while meta of snow is halfway, before it can start a second pile
 			if (CoroUtilBlock.isAir(checkID2)) {
 				//Weather.dbg("1");
-				return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+				return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 			} else {
 				//Weather.dbg("2");
 				//return that its an open area to start snow at
-				return new ChunkCoordinatesBlock(x, y, z, Blocks.air, 0);
+				return new ChunkCoordinatesBlock(x, y, z, Blocks.AIR, 0);
 			}
-		} else if (checkID == Blocks.snow) {
+		} else if (checkID == Blocks.SNOW) {
 			IBlockState state = world.getBlockState(new BlockPos(x, y, z));
 			int checkMeta = state.getBlock().getMetaFromState(state);
 			//if detected snow is shorter, return with detected meta val!
@@ -834,16 +833,16 @@ public class StormObject {
 				return new ChunkCoordinatesBlock(x, y, z, checkID, checkMeta);
 			}
 		} else {
-			return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+			return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 		}
-		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 	}
 	
 	public boolean canSnowAtBody(int par1, int par2, int par3)
     {
 		World world = manager.getWorld();
 		
-        BiomeGenBase biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
+		Biome biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
         
         if (biomegenbase == null) return false;
         
@@ -860,7 +859,7 @@ public class StormObject {
                 Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
 
-                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.snow)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ice && l.getMaterial().blocksMovement())
+                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.SNOW)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ICE && l.getMaterial().blocksMovement())
                 {
                     return true;
                 }
@@ -910,7 +909,7 @@ public class StormObject {
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
-			BiomeGenBase bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+			Biome bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 			
 			//temperature scan
 			if (bgb != null) {
@@ -985,7 +984,7 @@ public class StormObject {
 			
 			//actual storm formation chance
 			
-			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimensionId());
+			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
 			
 			boolean tryFormStorm = false;
 			
@@ -1003,7 +1002,7 @@ public class StormObject {
 				}
 			}
 			
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimensionId()) && tryFormStorm) {
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimension()) && tryFormStorm) {
 				//if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
 					int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
 					int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
@@ -1577,12 +1576,12 @@ public class StormObject {
 			EntityRotFX ent = listParticlesFunnel.get(i);
 			if (ent.isDead) {
 				listParticlesFunnel.remove(ent);
-			} else if (ent.posY > pos.yCoord) {
+			} else if (ent.getPosY() > pos.yCoord) {
 				ent.setDead();
 				listParticlesFunnel.remove(ent);
 			} else {
-				 double var16 = this.pos.xCoord - ent.posX;
-                 double var18 = this.pos.zCoord - ent.posZ;
+				 double var16 = this.pos.xCoord - ent.getPosX();
+                 double var18 = this.pos.zCoord - ent.getPosZ();
                  ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
                  ent.rotationYaw += ent.getEntityId() % 90;
                  ent.rotationPitch = -30F;
@@ -1590,7 +1589,7 @@ public class StormObject {
                  //fade spout blue to grey
                  if (levelCurIntensityStage == STATE_HIGHWIND) {
                 	 int fadingDistStart = 30;
-                	 if (ent.posY > posGround.yCoord + fadingDistStart) {
+                	 if (ent.getPosY() > posGround.yCoord + fadingDistStart) {
 		                 float maxVal = ent.getBlueColorF();
 		                 float fadeRate = 0.002F;
 		                 ent.setRBGColorF(Math.min(maxVal, ent.getRedColorF()+fadeRate), Math.min(maxVal, ent.getGreenColorF()+fadeRate), maxVal);
@@ -1612,9 +1611,9 @@ public class StormObject {
 				float posZ = (float) Math.cos(ent.getEntityId());
 				ent.setPosition(pos.xCoord + posX*radius, ent.posY, pos.zCoord + posZ*radius);*/
 		        
-				double curSpeed = Math.sqrt(ent.motionX * ent.motionX + ent.motionY * ent.motionY + ent.motionZ * ent.motionZ);
+				double curSpeed = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 				
-				double curDist = ent.getDistance(pos.xCoord, ent.posY, pos.zCoord);
+				double curDist = ent.getDistance(pos.xCoord, ent.getPosY(), pos.zCoord);
 
 				float dropDownRange = 15F;
 		        
@@ -1635,8 +1634,8 @@ public class StormObject {
 					double distt = size;//300D;
 					
 					
-					double vecX = ent.posX - pos.xCoord;
-			        double vecZ = ent.posZ - pos.zCoord;
+					double vecX = ent.getPosX() - pos.xCoord;
+			        double vecZ = ent.getPosZ() - pos.zCoord;
 			        float angle = (float)(Math.atan2(vecZ, vecX) * 180.0D / Math.PI);
 			        //System.out.println("angle: " + angle);
 			        
@@ -1674,8 +1673,8 @@ public class StormObject {
 			        		}
 			        	}
 			        	
-			        	double var16 = this.pos.xCoord - ent.posX;
-		                double var18 = this.pos.zCoord - ent.posZ;
+			        	double var16 = this.pos.xCoord - ent.getPosX();
+		                double var18 = this.pos.zCoord - ent.getPosZ();
 		                ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
 		                ent.rotationPitch = -20F - (ent.getEntityId() % 10);
 			        }
@@ -1710,8 +1709,8 @@ public class StormObject {
 			        
 			        
 			        if (curSpeed < speed * 20D) {
-			        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
-				        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+			        	ent.setMotionX(ent.getMotionX() + -Math.sin(Math.toRadians(angle)) * speed);
+				        ent.setMotionZ(ent.getMotionZ() + Math.cos(Math.toRadians(angle)) * speed);
 			        }
 				} else {
 					float cloudMoveAmp = 0.2F * (1 + layer);
@@ -1725,16 +1724,16 @@ public class StormObject {
 			        }
 					
 					if (curSpeed < speed * 1D) {
-			        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
-				        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+			        	ent.setMotionX(ent.getMotionX() + -Math.sin(Math.toRadians(angle)) * speed);
+				        ent.setMotionZ(ent.getMotionZ() + Math.cos(Math.toRadians(angle)) * speed);
 			        }
 				}
 		        
-				if (Math.abs(ent.posY - (pos.yCoord - extraDropCalc)) > 2F) {
-			        if (ent.posY < pos.yCoord - extraDropCalc) {
-		        		ent.motionY += 0.1D;
+				if (Math.abs(ent.getPosY() - (pos.yCoord - extraDropCalc)) > 2F) {
+			        if (ent.getPosY() < pos.yCoord - extraDropCalc) {
+		        		ent.setMotionY(ent.getMotionY() + 0.1D);
 		        	} else {
-		        		ent.motionY -= 0.1D;
+		        		ent.setMotionY(ent.getMotionY() + 0.1D);
 		        	}
 				}
 		        
@@ -1744,12 +1743,12 @@ public class StormObject {
 					dropDownSpeedMax = 0.9F;
 				}
 				
-		        if (ent.motionY < -dropDownSpeedMax) {
-		        	ent.motionY = -dropDownSpeedMax;
+		        if (ent.getMotionY() < -dropDownSpeedMax) {
+		        	ent.setMotionY(-dropDownSpeedMax);
 		        }
 		        
-		        if (ent.motionY > dropDownSpeedMax) {
-		        	ent.motionY = dropDownSpeedMax;
+		        if (ent.getMotionY() > dropDownSpeedMax) {
+		        	ent.setMotionY(dropDownSpeedMax);
 		        }
 		        
 		        //double distToGround = ent.worldObj.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
@@ -1765,19 +1764,19 @@ public class StormObject {
 		for (int i = 0; i < listParticlesGround.size(); i++) {
 			EntityRotFX ent = listParticlesGround.get(i);
 			
-			double curDist = ent.getDistance(pos.xCoord, ent.posY, pos.zCoord);
+			double curDist = ent.getDistance(pos.xCoord, ent.getPosY(), pos.zCoord);
 			
 			if (ent.isDead) {
 				listParticlesGround.remove(ent);
 			} else {
-				double curSpeed = Math.sqrt(ent.motionX * ent.motionX + ent.motionY * ent.motionY + ent.motionZ * ent.motionZ);
+				double curSpeed = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 			
 				double speed = Math.max(0.2F, 5F * spinSpeed) + (rand.nextDouble() * 0.01D);
 				double distt = size;//300D;
 				
 				
-				double vecX = ent.posX - pos.xCoord;
-		        double vecZ = ent.posZ - pos.zCoord;
+				double vecX = ent.getPosX() - pos.xCoord;
+		        double vecZ = ent.getPosZ() - pos.zCoord;
 		        float angle = (float)(Math.atan2(vecZ, vecX) * 180.0D / Math.PI);
 		        
 		        angle += 85;
@@ -1795,14 +1794,14 @@ public class StormObject {
 		        	ent.setDead();
 		        }
 
-	        	double var16 = this.pos.xCoord - ent.posX;
-                double var18 = this.pos.zCoord - ent.posZ;
+	        	double var16 = this.pos.xCoord - ent.getPosX();
+                double var18 = this.pos.zCoord - ent.getPosZ();
 		        //ent.rotationYaw += 5;//(float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
                 //ent.rotationPitch = 0;//-20F - (ent.getEntityId() % 10);
                 
                 if (curSpeed < speed * 20D) {
-		        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
-			        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+		        	ent.setMotionX(ent.getMotionX() + -Math.sin(Math.toRadians(angle)) * speed);
+			        ent.setMotionZ(ent.getMotionZ() + Math.cos(Math.toRadians(angle)) * speed);
 		        }
 			}
 		}

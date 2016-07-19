@@ -9,9 +9,9 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.Items;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import weather2.ClientTickHandler;
 import weather2.entity.EntityMovingBlock;
@@ -66,12 +66,12 @@ public class WeatherUtilEntity {
             
             int extraWeight = 0;
             
-            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.iron_chestplate)
+            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.IRON_CHESTPLATE)
             {
             	extraWeight = 2;
             }
 
-            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.diamond_chestplate)
+            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.DIAMOND_CHESTPLATE)
             {
             	extraWeight = 4;
             }

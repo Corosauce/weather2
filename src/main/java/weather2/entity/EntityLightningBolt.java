@@ -9,10 +9,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityWeatherEffect;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -20,6 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.config.ConfigMisc;
 import CoroUtil.util.CoroUtilBlock;
+import CoroUtil.util.Vec3;
 
 public class EntityLightningBolt extends EntityWeatherEffect
 {
@@ -59,10 +59,10 @@ public class EntityLightningBolt extends EntityWeatherEffect
             int j = MathHelper.floor_double(par4);
             int k = MathHelper.floor_double(par6);
 
-            if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.fire.canPlaceBlockAt(par1World, new BlockPos(i, j, k)))
+            if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(i, j, k)))
             {
                 //par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire, fireLifeTime, 3);
-                par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
+                par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
             }
 
             for (i = 0; i < 4; ++i)
@@ -71,10 +71,10 @@ public class EntityLightningBolt extends EntityWeatherEffect
                 k = MathHelper.floor_double(par4) + this.rand.nextInt(3) - 1;
                 int l = MathHelper.floor_double(par6) + this.rand.nextInt(3) - 1;
 
-                if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && Blocks.fire.canPlaceBlockAt(par1World, new BlockPos(j, k, l)))
+                if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(j, k, l)))
                 {
                     //par1World.setBlockState(new BlockPos(j, k, l), Blocks.fire.getDefaultState(), fireLifeTime, 3);
-                    par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
+                    par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
                 }
             }
         }
@@ -118,9 +118,9 @@ public class EntityLightningBolt extends EntityWeatherEffect
                     int j = MathHelper.floor_double(this.posY);
                     int k = MathHelper.floor_double(this.posZ);
 
-                    if (CoroUtilBlock.isAir(worldObj.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.fire.canPlaceBlockAt(worldObj, new BlockPos(i, j, k)))
+                    if (CoroUtilBlock.isAir(worldObj.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(worldObj, new BlockPos(i, j, k)))
                     {
-                    	worldObj.setBlockState(new BlockPos(i, j, k), Blocks.fire.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
+                    	worldObj.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
                     }
                 }
             }

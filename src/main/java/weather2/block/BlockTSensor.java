@@ -2,22 +2,20 @@ package weather2.block;
 
 import java.util.Random;
 
-import CoroUtil.util.Vec3;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.Vec3;
 
 public class BlockTSensor extends Block
 {
@@ -39,7 +37,7 @@ public class BlockTSensor extends Block
     	
     	boolean enable = false;
     	
-    	WeatherManagerServer wms = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimensionId());
+    	WeatherManagerServer wms = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
     	if (wms != null) {
     		StormObject so = wms.getClosestStorm(new Vec3(pos.getX(), pos.getY(), pos.getZ()), ConfigMisc.sensorActivateDistance, StormObject.STATE_FORMING);
     		if (so != null/* && so.attrib_tornado_severity > 0*/) {
