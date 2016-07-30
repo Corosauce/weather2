@@ -83,7 +83,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosX = (double)((float)var2 + 0.5F);
         this.prevPosY = (double)((float)var3 + 0.5F);
         this.prevPosZ = (double)((float)var4 + 0.5F);
-        this.material = tile.getMaterial();
+        this.material = tile.getMaterial(tile.getDefaultState());
         this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
         IBlockState state = var1.getBlockState(new BlockPos(var2, var3, var4));
         this.metadata = state.getBlock().getMetaFromState(state);
@@ -123,7 +123,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     {
     	//new kill off when distant method
     	if (!worldObj.isRemote) {
-	    	if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 140) == null) {
+	    	if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 140, false) == null) {
 				setDead();
 			}
     	}
@@ -242,11 +242,11 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                             var10.setFire(15);
                         }
 
-                        if (this.tile == Blocks.cactus)
+                        if (this.tile == Blocks.CACTUS)
                         {
                             var10.attackEntityFrom(DamageSource.causeThrownDamage(this, this), 1);
                         }
-                        else if (this.material == Material.lava)
+                        else if (this.material == Material.LAVA)
                         {
                         	var10.setFire(15);
                         }
@@ -263,7 +263,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
                     float var16 = 0.3F;
                     AxisAlignedBB var19 = var10.getEntityBoundingBox().expand((double)var16, (double)var16, (double)var16);
-                    MovingObjectPosition var13 = var19.calculateIntercept(var1, var2);
+                    RayTraceResult var13 = var19.calculateIntercept(var1, var2);
 
                     if (var13 != null)
                     {
@@ -280,7 +280,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (var4 != null)
             {
-                var3 = new MovingObjectPosition(var4);
+                var3 = new RayTraceResult(var4);
             }
 
             if (var3 != null && var3.entityHit == null && this.mode == 0)

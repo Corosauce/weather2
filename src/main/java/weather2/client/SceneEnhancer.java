@@ -155,7 +155,7 @@ public class SceneEnhancer implements Runnable {
 	
 	                    Block block = getBlock(worldRef, cCor.posX, cCor.posY, cCor.posZ);//Block.blocksList[id];
 	                    
-	                    if (block == null || (block.getMaterial() != Material.WATER && block.getMaterial() != Material.LEAVES)) {
+	                    if (block == null || (block.getMaterial(block.getDefaultState()) != Material.WATER && block.getMaterial(block.getDefaultState()) != Material.LEAVES)) {
 	                    	soundLocations.remove(i);
 	                		soundTimeLocations.remove(cCor);
 	                    } else {
@@ -247,7 +247,7 @@ public class SceneEnhancer implements Runnable {
                         if (block != null) {
                         	
                         	//Waterfall
-                        	if (ConfigMisc.Wind_Particle_waterfall && ((block.getMaterial() == Material.WATER))) {
+                        	if (ConfigMisc.Wind_Particle_waterfall && ((block.getMaterial(block.getDefaultState()) == Material.WATER))) {
                             	
                             	int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
@@ -258,7 +258,7 @@ public class SceneEnhancer implements Runnable {
                             		//this scans to bottom till not water, kinda overkill? owell lets keep it, and also add rule if index > 4 (waterfall height of 4)
                             		while (yy-index > 0) {
                             			Block id2 = getBlock(worldRef, xx, yy-index, zz);
-                            			if (id2 != null && !(id2.getMaterial() == Material.WATER)) {
+                            			if (id2 != null && !(id2.getMaterial(id2.getDefaultState()) == Material.WATER)) {
                             				break;
                             			}
                             			index++;
@@ -270,7 +270,7 @@ public class SceneEnhancer implements Runnable {
                             		int meta2 = getBlockMetadata(worldRef, xx, bottomY+10, zz);
                             		Block block2 = getBlock(worldRef, xx, bottomY+10, zz);;
                             		
-                        			if (index >= 4 && (block2 != null && block2.getMaterial() == Material.WATER && (meta2 & 8) != 0)) {
+                        			if (index >= 4 && (block2 != null && block2.getMaterial(block2.getDefaultState()) == Material.WATER && (meta2 & 8) != 0)) {
                         				boolean proxFail = false;
                         				for (int j = 0; j < soundLocations.size(); j++) {
                                 			if (Math.sqrt(soundLocations.get(j).getDistanceSquared(xx, bottomY, zz)) < 5) {
@@ -285,7 +285,7 @@ public class SceneEnhancer implements Runnable {
                         				}
                         			}
                             	}
-                            } else if (ConfigMisc.volWindTreesScale > 0 && ((block.getMaterial() == Material.leaves))) {
+                            } else if (ConfigMisc.volWindTreesScale > 0 && ((block.getMaterial(block.getDefaultState()) == Material.LEAVES))) {
                             	boolean proxFail = false;
                 				for (int j = 0; j < soundLocations.size(); j++) {
                         			if (Math.sqrt(soundLocations.get(j).getDistanceSquared(xx, yy, zz)) < 15) {
@@ -734,7 +734,7 @@ public class SceneEnhancer implements Runnable {
                             
                             //if (block != null && block.getMaterial() == Material.leaves)
                             
-                            if (/*id == ((Block)p_blocks_leaf.get(i)).blockID*/block != null && (block.getMaterial() == Material.LEAVES || block.getMaterial() == Material.VINE))
+                            if (/*id == ((Block)p_blocks_leaf.get(i)).blockID*/block != null && (block.getMaterial(block.getDefaultState()) == Material.LEAVES || block.getMaterial(block.getDefaultState()) == Material.VINE))
                             {
                             	
                             	lastTickFoundBlocks++;
@@ -777,7 +777,7 @@ public class SceneEnhancer implements Runnable {
 	                                }
                                 }
                             }
-                            else if (ConfigMisc.Wind_Particle_waterfall && player.getDistance(xx,  yy, zz) < 16 && (block != null && block.getMaterial() == Material.WATER)) {
+                            else if (ConfigMisc.Wind_Particle_waterfall && player.getDistance(xx,  yy, zz) < 16 && (block != null && block.getMaterial(block.getDefaultState()) == Material.WATER)) {
                             	
                             	int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
@@ -795,7 +795,7 @@ public class SceneEnhancer implements Runnable {
                             			
                             		//}
                             		//System.out.println("woot! " + chance);
-                                	if ((((block2 == null || block2.getMaterial() != Material.WATER) || (meta2 & 8) == 0) && (block3 != null && block3.getMaterial() == Material.WATER)) || worldRef.rand.nextInt(chance) == 0) {
+                                	if ((((block2 == null || block2.getMaterial(block2.getDefaultState()) != Material.WATER) || (meta2 & 8) == 0) && (block3 != null && block3.getMaterial(block3.getDefaultState()) == Material.WATER)) || worldRef.rand.nextInt(chance) == 0) {
                             		
 	                            		float range = 0.5F;
 	                            		
@@ -808,7 +808,7 @@ public class SceneEnhancer implements Runnable {
                                 	
 	                            		
 	                            		
-                            			if (((block2 == null || block2.getMaterial() != Material.WATER) || (meta2 & 8) == 0) && (block3 != null && block3.getMaterial() == Material.WATER)) {
+                            			if (((block2 == null || block2.getMaterial(block2.getDefaultState()) != Material.WATER) || (meta2 & 8) == 0) && (block3 != null && block3.getMaterial(block3.getDefaultState()) == Material.WATER)) {
                             				
                             				range = 2F;
                             				float speed = 0.2F;

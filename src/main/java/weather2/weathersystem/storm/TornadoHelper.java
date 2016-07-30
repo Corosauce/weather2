@@ -12,6 +12,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -212,7 +214,8 @@ public class TornadoHelper {
             Biome bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
         	
             //prevent grabbing in high areas (hills)
-        	if (bgb != null && bgb.minHeight + bgb.maxHeight <= 0.7) {
+            //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/heightVariation is correct, guessing we can just not factor in variation
+        	if (bgb != null && bgb.getBaseHeight()/* + bgb.getHeightVariation()*/ <= 0.7) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -287,7 +290,7 @@ public class TornadoHelper {
 	                        }
 	                        
 	                        if (!performed && ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-	                        	if (blockID == Blocks.grass) {
+	                        	if (blockID == Blocks.GRASS) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
 	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.DIRT.getDefaultState(), state, pos, false));
@@ -420,7 +423,7 @@ public class TornadoHelper {
         {
             
 
-            if (parWorld.getChunkProvider().chunkExists((int)storm.pos.xCoord / 16, (int)storm.pos.zCoord / 16) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigMisc.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigMisc.Storm_Tornado_maxBlocksGrabbedPerTick)
+            if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigMisc.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigMisc.Storm_Tornado_maxBlocksGrabbedPerTick)
             {
                 lastGrabTime = System.currentTimeMillis() - 5;
                 //int blockMeta = this.parWorld.getBlockStateMetadata(tryX,tryY,tryZ);
@@ -431,9 +434,9 @@ public class TornadoHelper {
                 {
                     EntityMovingBlock mBlock = null;
 
-                    if (parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140) != null) {
+                    if (parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140, false) != null) {
                     	if (createEntity) {
-		                    if (blockID == Blocks.grass)
+		                    if (blockID == Blocks.GRASS)
 		                    {
 		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.DIRT, storm);
 		                    }
@@ -485,7 +488,7 @@ public class TornadoHelper {
                     //depreciated - OR NOT!
                     if (blockID == Blocks.GLASS)
                     {
-                        parWorld.playSoundEffect(tryX, tryY, tryZ, "random.glass", 5.0F, 1.0F);
+                        parWorld.playSound(null, new BlockPos(tryX, tryY, tryZ), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.AMBIENT, 5.0F, 1.0F);
                     }
 
                     //break snow effect goes here

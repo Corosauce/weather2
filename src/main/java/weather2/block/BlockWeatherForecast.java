@@ -9,7 +9,7 @@ public class BlockWeatherForecast extends BlockContainer
 {
     public BlockWeatherForecast()
     {
-        super(Material.clay);
+        super(Material.CLAY);
     }
 
     @Override

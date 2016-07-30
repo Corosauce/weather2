@@ -14,7 +14,7 @@ public class BlockAnemometer extends BlockContainer
 {
     public BlockAnemometer()
     {
-        super(Material.circuits);
+        super(Material.CIRCUITS);
     	setBlockBounds(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
     }
     

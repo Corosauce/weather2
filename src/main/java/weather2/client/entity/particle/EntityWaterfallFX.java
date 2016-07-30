@@ -157,7 +157,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         int meta = 0;
         
-        if (id.getMaterial() == Material.WATER/*id == 9 || id == 8*/) {
+        if (id.getMaterial(id.getDefaultState()) == Material.WATER/*id == 9 || id == 8*/) {
         	
         	BlockPos pos = new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
@@ -226,7 +226,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         //System.out.println("adjusted height: " + height);
         
-        if ((id.getMaterial() == Material.WATER) && motionY > 0F && this.posY > ((int)Math.floor(this.posY)) + height) {
+        if ((id.getMaterial(id.getDefaultState()) == Material.WATER) && motionY > 0F && this.posY > ((int)Math.floor(this.posY)) + height) {
         	//System.out.println("meta: " + meta);
         	//this.posY = ((int)Math.floor(this.posY)) + height;
         	//this.setPosition(posX, posY, posZ);

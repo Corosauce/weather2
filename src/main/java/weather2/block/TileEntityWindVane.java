@@ -51,7 +51,7 @@ public class TileEntityWindVane extends TileEntity implements ITickable
 	    		if (smoothAngle > 180) smoothAngle-=360;
 	    		if (smoothAngle < -180) smoothAngle+=360;
 	    		
-	    		float bestMove = MathHelper.wrapAngleTo180_float(targetAngle - smoothAngle);
+	    		float bestMove = MathHelper.wrapDegrees(targetAngle - smoothAngle);
 	    		
 	    		float diff = ((targetAngle + 360 + 180) - (smoothAngle + 360 + 180));
 	    		

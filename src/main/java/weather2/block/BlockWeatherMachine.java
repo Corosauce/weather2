@@ -15,7 +15,7 @@ public class BlockWeatherMachine extends BlockContainer
 {
     public BlockWeatherMachine()
     {
-        super(Material.clay);
+        super(Material.CLAY);
     }
 
     @Override

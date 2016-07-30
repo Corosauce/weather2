@@ -9,7 +9,7 @@ public class BlockWeatherDeflector extends BlockContainer
 {
     public BlockWeatherDeflector()
     {
-        super(Material.clay);
+        super(Material.CLAY);
     }
 
     @Override

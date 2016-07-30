@@ -24,7 +24,7 @@ public class BlockTSensor extends Block
 	
     public BlockTSensor()
     {
-        super(Material.clay);
+        super(Material.CLAY);
         this.setDefaultState(this.blockState.getBaseState().withProperty(POWER, Integer.valueOf(0)));
         this.setTickRandomly(true);
     }

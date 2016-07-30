@@ -18,7 +18,6 @@ import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.api.weather.WindHandler;
-import CoroUtil.entity.EntityTropicalFishHook;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
 
@@ -136,7 +135,7 @@ public class WeatherUtilEntity {
             
         }
 
-        if (/*entity1 instanceof EntitySurfboard || */entity1 instanceof EntityBoat || entity1 instanceof EntityItem || entity1 instanceof EntityTropicalFishHook || entity1 instanceof EntityFishHook)
+        if (/*entity1 instanceof EntitySurfboard || */entity1 instanceof EntityBoat || entity1 instanceof EntityItem/* || entity1 instanceof EntityTropicalFishHook*/ || entity1 instanceof EntityFishHook)
         {
             return 4000F;
         }

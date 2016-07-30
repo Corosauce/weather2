@@ -253,7 +253,7 @@ public class VolcanoObject {
 							//skip derpy top layer
 							if (yy != startYPos + curHeight) {
 								Block idScan = world.getBlockState(new BlockPos(posX, yy, posZ)).getBlock();
-								if (CoroUtilBlock.isAir(idScan) || idScan.getMaterial() == Material.WATER) {
+								if (CoroUtilBlock.isAir(idScan) || idScan.getMaterial(idScan.getDefaultState()) == Material.WATER) {
 									world.setBlockState(new BlockPos(posX, yy, posZ), blockID.getDefaultState());
 								}
 							}
@@ -316,7 +316,7 @@ public class VolcanoObject {
 									//handle growth under expanded area
 									int underY = startYPos+yy-1;
 									Block underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
-									while ((CoroUtilBlock.isAir(underBlockID) || underBlockID.getMaterial() == Material.WATER) && underY > 1) {
+									while ((CoroUtilBlock.isAir(underBlockID) || underBlockID.getMaterial(underBlockID.getDefaultState()) == Material.WATER) && underY > 1) {
 										world.setBlockState(new BlockPos(posX, underY, posZ), Blocks.DIRT.getDefaultState());
 										underY--;
 										underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
@@ -342,11 +342,11 @@ public class VolcanoObject {
 						int posY = (int)Math.floor((startYPos)) + step;
 						int posZ = (int)Math.floor((pos.zCoord));
 						
-						world.setBlockState(new BlockPos(posX, posY, posZ), Blocks.lava.getDefaultState());
-						world.setBlockState(new BlockPos(posX+1, posY, posZ), Blocks.lava.getDefaultState());
-						world.setBlockState(new BlockPos(posX-1, posY, posZ), Blocks.lava.getDefaultState());
-						world.setBlockState(new BlockPos(posX, posY, posZ+1), Blocks.lava.getDefaultState());
-						world.setBlockState(new BlockPos(posX, posY, posZ-1), Blocks.lava.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ), Blocks.LAVA.getDefaultState());
+						world.setBlockState(new BlockPos(posX+1, posY, posZ), Blocks.LAVA.getDefaultState());
+						world.setBlockState(new BlockPos(posX-1, posY, posZ), Blocks.LAVA.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ+1), Blocks.LAVA.getDefaultState());
+						world.setBlockState(new BlockPos(posX, posY, posZ-1), Blocks.LAVA.getDefaultState());
 					} else {
 						step = 0;
 						state++;
@@ -380,7 +380,7 @@ public class VolcanoObject {
 						int posY = (int)Math.floor((startYPos)) + maxSize + i;
 						int posZ = (int)Math.floor((pos.zCoord));
 						
-						Block blockID = Blocks.lava;
+						Block blockID = Blocks.LAVA;
 						
 						world.setBlockState(new BlockPos(posX, posY, posZ), blockID.getDefaultState());
 						world.setBlockState(new BlockPos(posX+1, posY, posZ), blockID.getDefaultState());
@@ -482,7 +482,7 @@ public class VolcanoObject {
 		
 		for (int i = 0; i < listParticlesSmoke.size(); i++) {
 			EntityRotFX ent = listParticlesSmoke.get(i);
-			if (ent.isDead) {
+			if (!ent.isAlive()) {
 				listParticlesSmoke.remove(ent);
 			} else {
 				//ent.posX = pos.xCoord + i*10;
@@ -575,7 +575,7 @@ public class VolcanoObject {
 		//lock y
 		//entityfx.spawnY = (float) entityfx.posY;
 		//entityfx.spawnY = ((int)200 - 5) + rand.nextFloat() * 5;
-		entityfx.noClip = true;
+		entityfx.setCanCollide(false);
     	entityfx.callUpdatePB = false;
     	entityfx.setMaxAge(400 + rand.nextInt(200));
     	entityfx.setScale(50);

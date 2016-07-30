@@ -32,7 +32,7 @@ public class WeatherUtil {
     {
         try
         {
-        	ItemStack itemStr = new ItemStack(Items.diamond_axe);
+        	ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
             Block block = id;
             
@@ -71,10 +71,10 @@ public class WeatherUtil {
                     	return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
-    	                float strVsBlock = block.getBlockHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
+    	                float strVsBlock = block.getBlockHardness(block.getDefaultState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.getDefaultState()) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
-    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.WOOD) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
+    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial(block.getDefaultState()) == Material.WOOD) || block.getMaterial(block.getDefaultState()) == Material.CLOTH || block.getMaterial(block.getDefaultState()) == Material.PLANTS || block instanceof BlockTallGrass)
     	                {
     	                    /*if (block.blockMaterial == Material.water) {
     	                    	return false;
@@ -92,7 +92,7 @@ public class WeatherUtil {
                 }
                 
                 if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-                	if (id == Blocks.DIRT || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                	if (id == Blocks.DIRT || id == Blocks.GRASS || id == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
                 		result = false;
                 	}
                 }
@@ -156,7 +156,7 @@ public class WeatherUtil {
         }*/
 
         //water no
-        if (blockID.getMaterial() == Material.WATER)
+        if (blockID.getMaterial(blockID.getDefaultState()) == Material.WATER)
         {
             return false;
         }

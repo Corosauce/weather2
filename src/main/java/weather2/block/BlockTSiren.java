@@ -9,7 +9,7 @@ public class BlockTSiren extends BlockContainer
 {
     public BlockTSiren()
     {
-        super(Material.clay);
+        super(Material.CLAY);
     }
 
     @Override
