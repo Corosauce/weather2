@@ -31,7 +31,7 @@ public class EventHandlerPacket {
 	public void onPacketFromServer(FMLNetworkEvent.ClientCustomPacketEvent event) {
 		
 		try {
-			NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.packet.payload());
+			NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
 			
 			String packetCommand = nbt.getString("packetCommand");
 			
@@ -57,10 +57,10 @@ public class EventHandlerPacket {
 	
 	@SubscribeEvent
 	public void onPacketFromClient(FMLNetworkEvent.ServerCustomPacketEvent event) {
-		EntityPlayerMP entP = ((NetHandlerPlayServer)event.handler).playerEntity;
+		EntityPlayerMP entP = ((NetHandlerPlayServer)event.getHandler()).playerEntity;
 		
 		try {
-			NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.packet.payload());
+			NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
 			
 			String packetCommand = nbt.getString("packetCommand");
 			

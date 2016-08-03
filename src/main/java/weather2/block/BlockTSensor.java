@@ -63,7 +63,7 @@ public class BlockTSensor extends Block
     }
     
     @Override
-    public boolean canProvidePower()
+    public boolean canProvidePower(IBlockState state)
     {
         return true;
     }

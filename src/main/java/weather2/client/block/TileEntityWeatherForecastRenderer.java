@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -108,7 +109,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         GlStateManager.disableTexture2D();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         worldrenderer.pos((double)-(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2)).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
@@ -206,7 +207,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             Tessellator var14 = Tessellator.getInstance();
-            WorldRenderer worldrenderer = var14.getWorldRenderer();
+            VertexBuffer worldrenderer = var14.getBuffer();
             byte var15 = 0;
             
             worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
@@ -266,11 +267,11 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         int borderSize = 2;
         
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         
         GlStateManager.disableFog();
         
-        this.bindTexture(TextureMap.locationBlocksTexture);
+        this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         

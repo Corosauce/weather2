@@ -4,6 +4,7 @@ import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -31,7 +32,7 @@ public class BlockAnemometer extends BlockContainer
     public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
     
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
     	return false;
     }
     
@@ -41,7 +42,7 @@ public class BlockAnemometer extends BlockContainer
     }
     
     @Override
-    public boolean isFullCube()
+    public boolean isFullCube(IBlockState state)
     {
         return false;
     }

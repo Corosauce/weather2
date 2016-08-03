@@ -1150,13 +1150,13 @@ public class SceneEnhancer implements Runnable {
             }
 
             //My particle renderer - actually, instead add ones you need to weatherEffects (add blank renderer file)
-            for (int layer = 0; layer < ExtendedRenderer.rotEffRenderer.layers; layer++)
+            /*for (int layer = 0; layer < ExtendedRenderer.rotEffRenderer.layers; layer++)
             {
                 for (int i = 0; i < ExtendedRenderer.rotEffRenderer.fxLayers[layer].size(); i++)
                 {
                     Entity entity1 = (Entity)ExtendedRenderer.rotEffRenderer.fxLayers[layer].get(i);
                 }
-            }
+            }*/
         }
 
         //this was code to push play around if really windy, lets not do this anymore, who slides around in wind IRL?

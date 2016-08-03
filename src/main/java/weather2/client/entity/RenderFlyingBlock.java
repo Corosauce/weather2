@@ -41,7 +41,7 @@ public class RenderFlyingBlock extends Render
 	 * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
 	 */
 	protected ResourceLocation getEntityTexture(Entity entity) {
-		return TextureMap.locationBlocksTexture;
+		return TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 
     @Override
@@ -114,7 +114,7 @@ public class RenderFlyingBlock extends Render
         
         if (state != null)
         {
-            this.bindTexture(TextureMap.locationBlocksTexture);
+            this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             IBlockState iblockstate = state;
             Block block = iblockstate.getBlock();
             BlockPos blockpos = new BlockPos(entity);
