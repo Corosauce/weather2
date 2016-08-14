@@ -7,22 +7,26 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockAnemometer extends BlockContainer
 {
+	
+	public static final AxisAlignedBB AABB = new AxisAlignedBB(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
+	
     public BlockAnemometer()
     {
         super(Material.CIRCUITS);
-    	setBlockBounds(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
     }
     
-    /*@Override
-    public IIcon getIcon(int par1, int par2) {
-    	return Blocks.stone.getIcon(par1, par2);
-    }*/
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source,
+    		BlockPos pos) {
+    	return AABB;
+    }
 
     public int tickRate()
     {

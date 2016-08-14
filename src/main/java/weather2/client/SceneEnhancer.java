@@ -10,6 +10,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleFlame;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
@@ -1033,7 +1034,7 @@ public class SceneEnhancer implements Runnable {
                         
                         if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.posX), 0, MathHelper.floor_double(entity1.posZ))).getY() - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
                         {
-                            if ((entity1 instanceof EntityFlameFX))
+                            if ((entity1 instanceof ParticleFlame))
                             {
                             	WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
                             }
@@ -1109,7 +1110,7 @@ public class SceneEnhancer implements Runnable {
 	
 	                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.posX), 0, MathHelper.floor_double(entity1.posZ))).getY() - 1 < (int)entity1.posY + 1) || (entity1 instanceof EntityTexFX))
 	                    {
-	                        if ((entity1 instanceof EntityFlameFX))
+	                        if ((entity1 instanceof ParticleFlame))
 	                        {
 	                        	if (windMan.getWindSpeedForPriority() >= 0.50) WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
 	                        }
