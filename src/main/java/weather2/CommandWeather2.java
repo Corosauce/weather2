@@ -162,7 +162,7 @@ public class CommandWeather2 extends CommandBase {
 	}
 	
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender par1ICommandSender)
+	public boolean checkPermission(MinecraftServer server, ICommandSender par1ICommandSender)
     {
         return par1ICommandSender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
     }

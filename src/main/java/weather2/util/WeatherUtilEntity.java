@@ -1,5 +1,6 @@
 package weather2.util;
 
+import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
@@ -31,15 +32,16 @@ public class WeatherUtilEntity {
     	return getWeight(entity1, false);
     }
     
-    public static float getWeight(Entity entity1, boolean forTornado)
+    public static float getWeight(Object entity1, boolean forTornado)
     {
-    	
+    	World world = null;
+    	if (entity1 instanceof Entity) {
+    		world = ((Entity) entity1).getEntityWorld();
+    	} else if (entity1 instanceof EntityRotFX) {
+    		world = ((EntityRotFX) entity1).getWorld();
+    	}
     	if (entity1 instanceof IWindHandler) {
     		return ((IWindHandler) entity1).getWindWeight();
-    	}
-    	
-    	if (entity1 instanceof WindHandler) {
-    		return ((WindHandler) entity1).getWindWeight();
     	}
     	
     	//commented out for weather2 copy
@@ -50,7 +52,8 @@ public class WeatherUtilEntity {
 
         if (entity1 instanceof EntityPlayer)
         {
-            if (entity1.onGround || entity1.handleWaterMovement())
+        	EntityPlayer player = (EntityPlayer) entity1;
+            if (player.onGround || player.handleWaterMovement())
             {
                 playerInAirTime = 0;
             }
@@ -82,8 +85,9 @@ public class WeatherUtilEntity {
             }
         }
 
-        if (entity1.worldObj.isRemote && entity1 instanceof EntityRotFX)
+        if (entity1 instanceof EntityRotFX && world.isRemote)
         {
+        	
             float var = WeatherUtilParticle.getParticleWeight((EntityRotFX)entity1);
 
             if (var != -1)
@@ -103,12 +107,13 @@ public class WeatherUtilEntity {
 
         if (entity1 instanceof EntityLivingBase)
         {
+        	EntityLivingBase livingEnt = (EntityLivingBase) entity1;
             //if (entity1.onGround || entity1.handleWaterMovement())
             //{
                 //entity1.onGround = false;
                 //c_CoroWeatherUtil.setEntityAge((EntityLivingBase)entity1, -150);
-        	int airTime = entity1.getEntityData().getInteger("timeInAir");
-        	if (entity1.onGround || entity1.handleWaterMovement())
+        	int airTime = livingEnt.getEntityData().getInteger("timeInAir");
+        	if (livingEnt.onGround || livingEnt.handleWaterMovement())
             {
                 airTime = 0;
             }
@@ -119,7 +124,7 @@ public class WeatherUtilEntity {
         	//test
         	//airTime = 0;
         	
-        	entity1.getEntityData().setInteger("timeInAir", airTime);
+        	livingEnt.getEntityData().setInteger("timeInAir", airTime);
             //}
 
             //System.out.println(((EntityLivingBase)entity1).entityAge+150);
@@ -130,7 +135,7 @@ public class WeatherUtilEntity {
             	//Weather.dbg("airTime: " + airTime);
             	return 0.5F + (((float)airTime) / 800F);
             } else {
-            	return 500.0F + (entity1.onGround ? 2.0F : 0.0F) + ((airTime) / 400);
+            	return 500.0F + (livingEnt.onGround ? 2.0F : 0.0F) + ((airTime) / 400);
             }
             
         }

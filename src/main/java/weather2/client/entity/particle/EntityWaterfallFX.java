@@ -13,10 +13,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import CoroUtil.api.weather.WindHandler;
+import CoroUtil.api.weather.IWindHandler;
 import extendedrenderer.particle.entity.EntityRotFX;
 @SideOnly(Side.CLIENT)
-public class EntityWaterfallFX extends EntityRotFX implements WindHandler
+public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
 {
     public int age;
     public float brightness;

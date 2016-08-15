@@ -9,10 +9,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.util.WeatherUtilParticle;
-import CoroUtil.api.weather.WindHandler;
+import CoroUtil.api.weather.IWindHandler;
 import extendedrenderer.particle.entity.EntityTexFX;
 @SideOnly(Side.CLIENT)
-public class EntityFallingRainFX extends EntityTexFX implements WindHandler
+public class EntityFallingRainFX extends EntityTexFX implements IWindHandler
 {
     public int age;
     public float brightness;

@@ -36,7 +36,7 @@ import weather2.util.WeatherUtilParticle;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
-import CoroUtil.api.weather.WindHandler;
+import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
@@ -60,7 +60,7 @@ public class SceneEnhancer implements Runnable {
 	public static ParticleBehaviors pm;
 	
 	public static List<Particle> spawnQueueNormal = new ArrayList();
-    public static List<Entity> spawnQueue = new ArrayList();
+    public static List<Particle> spawnQueue = new ArrayList();
     
     public static long threadLastWorldTickTime;
     public static int lastTickFoundBlocks;
@@ -312,12 +312,15 @@ public class SceneEnhancer implements Runnable {
 		//reset particle data, discard dead ones as that was a bug from weather1
 		
 		if (ExtendedRenderer.rotEffRenderer != null) {
-        	for (int i = 0; i < ExtendedRenderer.rotEffRenderer.layers; i++)                            
+        	for (int i = 0; i < ExtendedRenderer.rotEffRenderer.fxLayers.length; i++)                            
             {
-                if (ExtendedRenderer.rotEffRenderer.fxLayers[i] != null)
-                {
-                    ExtendedRenderer.rotEffRenderer.fxLayers[i].clear();
-                }
+        		for (int j = 0; j < ExtendedRenderer.rotEffRenderer.fxLayers[i].length; j++) {
+        			if (ExtendedRenderer.rotEffRenderer.fxLayers[i][j] != null)
+                    {
+                        ExtendedRenderer.rotEffRenderer.fxLayers[i][j].clear();
+                    }
+        		}
+                
             }
         }
 		
@@ -354,7 +357,7 @@ public class SceneEnhancer implements Runnable {
 	            double d3;
 	            float f10;
 	
-	            if (/*curPrecipVal > 0*/entP.worldObj.getWorldChunkManager().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
+	            if (/*curPrecipVal > 0*/entP.worldObj.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
 	            	
 	            	//now absolute it for ez math
 	            	curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
@@ -370,7 +373,7 @@ public class SceneEnhancer implements Runnable {
 							int spawnAreaSize = 15;
 							EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
 							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
-					        ent.renderDistanceWeight = 1.0D;
+					        //ent.renderDistanceWeight = 1.0D;
 					        ent.setSize(1.2F, 1.2F);
 					        ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
 					        ent.setGravity(0.00001F);
@@ -393,7 +396,7 @@ public class SceneEnhancer implements Runnable {
 							int spawnAbove = 10;
 							EntityFallingSnowFX ent = new EntityFallingSnowFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + spawnAbove, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 5.5D, 6);
 							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
-					        ent.renderDistanceWeight = 1.0D;
+					        //ent.renderDistanceWeight = 1.0D;
 					        ent.setSize(1.2F, 1.2F);
 					        ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
 					        ent.setGravity(0.00001F);
@@ -583,7 +586,7 @@ public class SceneEnhancer implements Runnable {
     	try {
 	        for (int i = 0; i < spawnQueue.size(); i++)
 	        {
-	            Entity ent = spawnQueue.get(i);
+	            Particle ent = spawnQueue.get(i);
 	
 	            if (ent != null && ent.worldObj != null) {
 	            
@@ -800,7 +803,7 @@ public class SceneEnhancer implements Runnable {
                             		
 	                            		float range = 0.5F;
 	                            		
-	                            		Particle waterP;
+	                            		EntityRotFX waterP;
 	                            		//if (rand.nextInt(10) == 0) {
 	                            			//waterP = new EntityBubbleFX(worldRef, (double)xx + 0.5F + ((rand.nextFloat() * range) - (range/2)), (double)yy + 0.5F + ((rand.nextFloat() * range) - (range/2)), (double)zz + 0.5F + ((rand.nextFloat() * range) - (range/2)), 0D, 0D, 0D);
 	                            		//} else {
@@ -825,7 +828,7 @@ public class SceneEnhancer implements Runnable {
     	                            						((rand.nextFloat() * speed) - (speed/2)),
     	                            						2D, 3);
     	                            				//waterP.motionX = -1.5F;
-    	                            				waterP.motionY = 4.5F;
+    	                            				waterP.setMotionY(4.5F);
     	                            				//System.out.println("woot! " + chance);
     	                            				spawnQueueNormal.add(waterP);
                             					}
@@ -837,7 +840,7 @@ public class SceneEnhancer implements Runnable {
                             						(double)yy + 0.5F + ((rand.nextFloat() * range) - (range/2)), 
                             						(double)zz + 0.5F + ((rand.nextFloat() * range) - (range/2)), 0D, 0D, 0D, 6D, 2);
                             				
-                            				waterP.motionY = 0.5F;
+                            				waterP.setMotionY(0.5F);
                             				
                             				spawnQueueNormal.add(waterP);
                             			}
@@ -1038,10 +1041,10 @@ public class SceneEnhancer implements Runnable {
                             {
                             	WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
                             }
-                            else if (entity1 instanceof WindHandler) {
-                            	if (((WindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+                            else if (entity1 instanceof IWindHandler) {
+                            	if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
                                 {
-                            		WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((WindHandler)entity1).getParticleDecayExtra());
+                            		WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
                                 }
                             }
                             else if (WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
@@ -1114,10 +1117,10 @@ public class SceneEnhancer implements Runnable {
 	                        {
 	                        	if (windMan.getWindSpeedForPriority() >= 0.50) WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
 	                        }
-	                        else if (entity1 instanceof WindHandler) {
-	                        	if (((WindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+	                        else if (entity1 instanceof IWindHandler) {
+	                        	if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
 	                            {
-	                        		WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((WindHandler)entity1).getParticleDecayExtra());
+	                        		WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
 	                            }
 	                        }
 	                        else if (WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)

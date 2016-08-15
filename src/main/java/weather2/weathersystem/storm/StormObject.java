@@ -1530,7 +1530,7 @@ public class StormObject {
 					
 					//trim!
 					if (listParticlesFunnel.size() >= sizeMaxFunnelParticles) {
-						listParticlesFunnel.get(0).setDead();
+						listParticlesFunnel.get(0).setExpired();
 						listParticlesFunnel.remove(0);
 					}
 					
@@ -1577,7 +1577,7 @@ public class StormObject {
 			if (!ent.isAlive()) {
 				listParticlesFunnel.remove(ent);
 			} else if (ent.getPosY() > pos.yCoord) {
-				ent.setDead();
+				ent.setExpired();
 				listParticlesFunnel.remove(ent);
 			} else {
 				 double var16 = this.pos.xCoord - ent.getPosX();
@@ -1791,7 +1791,7 @@ public class StormObject {
 		        ent.setScale((float) Math.min(maxParticleSize, curDist * 2F));
 		        
 		        if (curDist < 20) {
-		        	ent.setDead();
+		        	ent.setExpired();
 		        }
 
 	        	double var16 = this.pos.xCoord - ent.getPosX();
