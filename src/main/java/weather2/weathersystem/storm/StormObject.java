@@ -25,6 +25,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -41,6 +42,7 @@ import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
+import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
@@ -1840,7 +1842,7 @@ public class StormObject {
 		return angle;
 	}
 	
-	public void spinEntity(Entity entity1) {
+	public void spinEntity(Object entity1) {
 		
 		StormObject entT = this;
 		StormObject entity = this;
@@ -1854,15 +1856,24 @@ public class StormObject {
     
     	boolean forTornado = true;//entT != null;
     	
+    	//TODO: 1.10.2 will this break client code?
+    	World world = DimensionManager.getWorld(this.manager.dim);
+    	long worldTime = world.getTotalWorldTime();
+    	
+    	Entity ent = null;
+    	if (entity1 instanceof Entity) {
+    		ent = (Entity) entity1;
+    	}
+    	
         //ConfigTornado.Storm_Tornado_height;
         double radius = 10D;
         double scale = conf.tornadoWidthScale;
-        double d1 = entity.pos.xCoord - entity1.posX;
-        double d2 = entity.pos.zCoord - entity1.posZ;
+        double d1 = entity.pos.xCoord - CoroUtilEntOrParticle.getPosX(entity1);
+        double d2 = entity.pos.zCoord - CoroUtilEntOrParticle.getPosZ(entity1);
         
         if (conf.type == conf.TYPE_SPOUT) {
-        	float range = 30F * (float) Math.sin((Math.toRadians(((entity1.worldObj.getTotalWorldTime() * 0.5F) + (ID * 50)) % 360)));
-        	float heightPercent = (float) (1F - ((entity1.posY - posGround.yCoord) / (pos.yCoord - posGround.yCoord)));
+        	float range = 30F * (float) Math.sin((Math.toRadians(((worldTime * 0.5F) + (ID * 50)) % 360)));
+        	float heightPercent = (float) (1F - ((CoroUtilEntOrParticle.getPosY(entity1) - posGround.yCoord) / (pos.yCoord - posGround.yCoord)));
         	float posOffsetX = (float) Math.sin((Math.toRadians(heightPercent * 360F)));
         	float posOffsetZ = (float) -Math.cos((Math.toRadians(heightPercent * 360F)));
         	//Weather.dbg("posOffset: " + posOffset);
@@ -1878,16 +1889,16 @@ public class StormObject {
 
         for (; f1 >= 180F; f1 -= 360F) { }
 
-        double distY = entity.pos.yCoord - entity1.posY;
+        double distY = entity.pos.yCoord - CoroUtilEntOrParticle.getPosY(entity1);
         double distXZ = Math.sqrt(Math.abs(d1)) + Math.sqrt(Math.abs(d2));
 
-        if (entity1.posY - entity.pos.yCoord < 0.0D)
+        if (CoroUtilEntOrParticle.getPosY(entity1) - entity.pos.yCoord < 0.0D)
         {
             distY = 1.0D;
         }
         else
         {
-            distY = entity1.posY - entity.pos.yCoord;
+            distY = CoroUtilEntOrParticle.getPosY(entity1) - entity.pos.yCoord;
         }
 
         if (distY > maxHeight)
@@ -1938,13 +1949,10 @@ public class StormObject {
 
             grab = grab - adjGrab;
 
-            if (entity1.motionY > -0.8)
+            if (CoroUtilEntOrParticle.getMotionY(entity1) > -0.8)
             {
             	//System.out.println(entity1.motionY);
-                entity1.fallDistance = 0F;
-            } else if (entity1.motionY > -1.5) {
-            	//entity1.fallDistance = 5F;
-            	//System.out.println(entity1.fallDistance);
+                ent.fallDistance = 0F;
             }
 
             
@@ -1958,7 +1966,7 @@ public class StormObject {
             pullY += adjPull;
             //0.2D / ((getWeight(entity1) * ((distXZ+1D) / radius)) * (((distY) / maxHeight)) * 3D);
             //grab = grab + (10D * ((distY / maxHeight) * 1D));
-            int airTime = entity1.getEntityData().getInteger("timeInAir");
+            int airTime = ent.getEntityData().getInteger("timeInAir");
             double adjGrab = (10D * (((float)(((double)(airTime) + 1D) / 400D))));
 
             if (adjGrab > 50)
@@ -1973,14 +1981,14 @@ public class StormObject {
 
             grab = grab - adjGrab;
 
-            if (entity1.motionY > -1.5)
+            if (ent.motionY > -1.5)
             {
-                entity1.fallDistance = 0F;
+                ent.fallDistance = 0F;
             }
             
-            if (entity1.motionY > 0.3F) entity1.motionY = 0.3F;
+            if (ent.motionY > 0.3F) ent.motionY = 0.3F;
 
-            if (forTornado) entity1.onGround = false;
+            if (forTornado) ent.onGround = false;
             
             //System.out.println(adjPull);
         }
@@ -2024,7 +2032,7 @@ public class StormObject {
         //if player and not spout
         if (entity1 instanceof EntityPlayer && conf.type != 0) {
         	//System.out.println("grab: " + f5);
-        	if (entity1.onGround) {
+        	if (ent.onGround) {
         		f5 *= 10.5F;
         	} else {
         		f5 *= 5F;
@@ -2064,25 +2072,31 @@ public class StormObject {
         }
         
         //prevent double+ pull on entities
-        long lastPullTime = entity1.getEntityData().getLong("lastPullTime");
-        if (lastPullTime == entity1.worldObj.getTotalWorldTime()) {
-        	//System.out.println("preventing double pull");
-        	pullY = 0;
+        if (entity1 instanceof Entity) {
+	        long lastPullTime = ent.getEntityData().getLong("lastPullTime");
+	        if (lastPullTime == worldTime) {
+	        	//System.out.println("preventing double pull");
+	        	pullY = 0;
+	        }
+	        ent.getEntityData().setLong("lastPullTime", worldTime);
         }
-        entity1.getEntityData().setLong("lastPullTime", entity1.worldObj.getTotalWorldTime());
         
         setVel(entity1, -moveX, pullY, moveZ);
 	}
 	
-	public void setVel(Entity entity, float f, float f1, float f2)
+	public void setVel(Object entity, float f, float f1, float f2)
     {
-        entity.motionX += f;
+        /*entity.motionX += f;
         entity.motionY += f1;
-        entity.motionZ += f2;
+        entity.motionZ += f2;*/
+        CoroUtilEntOrParticle.setMotionX(entity, CoroUtilEntOrParticle.getMotionX(entity) + f);
+		CoroUtilEntOrParticle.setMotionY(entity, CoroUtilEntOrParticle.getMotionY(entity) + f1);
+		CoroUtilEntOrParticle.setMotionZ(entity, CoroUtilEntOrParticle.getMotionZ(entity) + f2);
 
         if (entity instanceof EntitySquid)
         {
-            entity.setPosition(entity.posX + entity.motionX * 5F, entity.posY, entity.posZ + entity.motionZ * 5F);
+        	Entity ent = (Entity) entity;
+        	ent.setPosition(ent.posX + ent.motionX * 5F, ent.posY, ent.posZ + ent.motionZ * 5F);
         }
     }
 	
