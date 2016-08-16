@@ -18,7 +18,6 @@ import weather2.ClientTickHandler;
 import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
-import CoroUtil.api.weather.WindHandler;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
 
@@ -28,7 +27,7 @@ public class WeatherUtilEntity {
 	public static int playerInAirTime = 0;
 
     
-    public static float getWeight(Entity entity1) {
+    public static float getWeight(Object entity1) {
     	return getWeight(entity1, false);
     }
     

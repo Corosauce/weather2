@@ -1,5 +1,9 @@
 package weather2.weathersystem;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.particle.Particle;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -15,6 +19,9 @@ import weather2.weathersystem.storm.StormObject;
 public class WeatherManagerClient extends WeatherManagerBase {
 
 	//data for client, stormfronts synced from server
+	
+	//new for 1.10.2, replaces world.weatherEffects use
+	public List<Particle> listWeatherEffectedParticles = new ArrayList<Particle>();
 
 	public WeatherManagerClient(int parDim) {
 		super(parDim);
@@ -140,6 +147,10 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			
 			//windMan.nbtSyncFromServer(nbt);
 		}
+	}
+	
+	public void addWeatheredParticle(Particle particle) {
+		listWeatherEffectedParticles.add(particle);
 	}
 	
 }
