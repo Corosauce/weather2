@@ -55,6 +55,8 @@ public class CommonProxy implements IGuiHandler
     	WeatherUtil.doBlockList();
     	WeatherUtilConfig.processLists();
     	
+    	SoundRegistry.init();
+    	
     	addMapping(EntityIceBall.class, "Weather Hail", 0, 128, 5, true);
     	addMapping(EntityMovingBlock.class, "Moving Block", 1, 128, 5, true);
     	addMapping(EntityLightningBolt.class, "Weather2 Lightning Bolt", 2, 512, 5, true);
@@ -74,7 +76,7 @@ public class CommonProxy implements IGuiHandler
     	GameRegistry.addRecipe(new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.DIAMOND, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockWeatherMachine, 'X', Items.IRON_INGOT});
     	
-    	LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
+    	//LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
     }
     
     public static void addItem(ItemStack is, String unlocalizedName) {
@@ -88,8 +90,8 @@ public class CommonProxy implements IGuiHandler
 		//vanilla calls
 		item.setUnlocalizedName(Weather.modID + ":" + unlocalizedName);
 		//item.setTextureName(Weather.modID + ":" + unlocalizedName);
-		item.setCreativeTab(CreativeTabs.tabMisc);
-		LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
+		item.setCreativeTab(CreativeTabs.MISC);
+		//LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
 		
 		
 	}
@@ -110,7 +112,7 @@ public class CommonProxy implements IGuiHandler
 		//parBlock.setRegistryName
 		
 		parBlock.setCreativeTab(tab);
-		LanguageRegistry.addName(parBlock, blockNameBase);
+		//LanguageRegistry.addName(parBlock, blockNameBase);
 	}
     
     public static void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
