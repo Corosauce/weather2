@@ -6,12 +6,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -120,16 +122,16 @@ public class RenderFlyingBlock extends Render
             BlockPos blockpos = new BlockPos(entity);
             World world = var11;
 
-            if (iblockstate != world.getBlockState(blockpos) && block.getRenderType() != -1)
+            if (iblockstate != world.getBlockState(blockpos)/* && block.getRenderType(iblockstate) != -1*/)
             {
-                if (block.getRenderType() == 3)
+                if (block.getRenderType(iblockstate) == EnumBlockRenderType.MODEL)
                 {
                 	if (entity instanceof EntityMovingBlock) {
 	                    GlStateManager.pushMatrix();
 	                    GlStateManager.translate((float)x, (float)y, (float)z);
 	                    GlStateManager.disableLighting();
 	                    Tessellator tessellator = Tessellator.getInstance();
-	                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+	                    VertexBuffer worldrenderer = tessellator.getBuffer();
 	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
 	                    int i = blockpos.getX();
 	                    int j = blockpos.getY();
@@ -139,7 +141,7 @@ public class RenderFlyingBlock extends Render
 	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
 	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
 	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
+	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
 	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
 	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
 	                    tessellator.draw();
@@ -152,7 +154,7 @@ public class RenderFlyingBlock extends Render
                 			GlStateManager.translate((float)WeatherUtilParticle.rainPositions[ii].xCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].yCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].zCoord * 3F);
     	                    GlStateManager.disableLighting();
     	                    Tessellator tessellator = Tessellator.getInstance();
-    	                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+    	                    VertexBuffer worldrenderer = tessellator.getBuffer();
     	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
     	                    int i = blockpos.getX();
     	                    int j = blockpos.getY();
@@ -162,7 +164,7 @@ public class RenderFlyingBlock extends Render
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
     	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
     	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
     	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
     	                    tessellator.draw();

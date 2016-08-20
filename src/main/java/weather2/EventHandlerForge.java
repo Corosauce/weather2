@@ -31,22 +31,22 @@ public class EventHandlerForge {
 		ResourceLocation res;
 		
 		res = new ResourceLocation(Weather.modID + ":radar/radarIconRain");
-		event.getMap().setTextureEntry(res.toString(), ClientProxy.radarIconRain = new TextureAtlasSpriteImpl(res.toString()));
+		event.getMap().setTextureEntry(ClientProxy.radarIconRain = new TextureAtlasSpriteImpl(res.toString()));
 		
 		res = new ResourceLocation(Weather.modID + ":radar/radarIconLightning");
-		event.getMap().setTextureEntry(res.toString(), ClientProxy.radarIconLightning = new TextureAtlasSpriteImpl(res.toString()));
+		event.getMap().setTextureEntry(ClientProxy.radarIconLightning = new TextureAtlasSpriteImpl(res.toString()));
 		
 		res = new ResourceLocation(Weather.modID + ":radar/radarIconWind");
-		event.getMap().setTextureEntry(res.toString(), ClientProxy.radarIconWind = new TextureAtlasSpriteImpl(res.toString()));
+		event.getMap().setTextureEntry(ClientProxy.radarIconWind = new TextureAtlasSpriteImpl(res.toString()));
 		
 		res = new ResourceLocation(Weather.modID + ":radar/radarIconHail");
-		event.getMap().setTextureEntry(res.toString(), ClientProxy.radarIconHail = new TextureAtlasSpriteImpl(res.toString()));
+		event.getMap().setTextureEntry(ClientProxy.radarIconHail = new TextureAtlasSpriteImpl(res.toString()));
 		
 		res = new ResourceLocation(Weather.modID + ":radar/radarIconTornado");
-		event.getMap().setTextureEntry(res.toString(), ClientProxy.radarIconTornado = new TextureAtlasSpriteImpl(res.toString()));
+		event.getMap().setTextureEntry(ClientProxy.radarIconTornado = new TextureAtlasSpriteImpl(res.toString()));
 		
 		res = new ResourceLocation(Weather.modID + ":radar/radarIconCyclone");
-		event.getMap().setTextureEntry(res.toString(), ClientProxy.radarIconCyclone = new TextureAtlasSpriteImpl(res.toString()));
+		event.getMap().setTextureEntry(ClientProxy.radarIconCyclone = new TextureAtlasSpriteImpl(res.toString()));
 		
 		/*if (event.map.getTextureType() == 1) {
 			ClientProxy.radarIconRain = event.map.registerIcon(Weather.modID + ":radar/radarIconRain");

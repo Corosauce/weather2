@@ -10,7 +10,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleBubble;
 import net.minecraft.client.particle.ParticleFlame;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
@@ -49,6 +51,10 @@ import extendedrenderer.particle.behavior.ParticleBehaviors;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.EntityTexBiomeColorFX;
 import extendedrenderer.particle.entity.EntityTexFX;
+import extendedrenderer.particle.entity.ParticleBreakingTemp;
+import extendedrenderer.particle.entity.ParticleBubbleTemp;
+import extendedrenderer.particle.entity.ParticleTexFX;
+import extendedrenderer.particle.entity.ParticleTexLeafColor;
 
 @SideOnly(Side.CLIENT)
 public class SceneEnhancer implements Runnable {
@@ -750,14 +756,21 @@ public class SceneEnhancer implements Runnable {
                             	
                             	lastTickFoundBlocks++;
                             	
-                            	if (/*true || */worldRef.rand.nextInt(spawnRate) == 0)
+                            	if (/*true || *//*worldRef.rand.nextInt(5) == 0 || */worldRef.rand.nextInt(spawnRate) == 0)
                                 {
                             		//bottom of tree check || air beside vine check
 	                                if (ConfigMisc.Wind_Particle_leafs && (CoroUtilBlock.isAir(getBlock(worldRef, xx, yy - 1, zz)) || CoroUtilBlock.isAir(getBlock(worldRef, xx - 1, yy, zz))))
 	                                {
 	                                	
-	                                    EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
+	                                    //EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
+	                                    EntityRotFX var31 = new ParticleTexLeafColor(worldRef, (double)xx, (double)yy/* - 0.5*/, (double)zz, 0D, 0D, 0D, ParticleRegistry.leaf);
+	                                    //ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
 	                                    var31.setGravity(0.1F);
+	                                    var31.setCanCollide(true);
+	                                    //System.out.println("add particle");
+	                                    //Minecraft.getMinecraft().effectRenderer.addEffect(var31);
+	                                    //ExtendedRenderer.rotEffRenderer.addEffect(test);
+	                                    //ExtendedRenderer.rotEffRenderer.addEffect(var31);
 	                                    //WeatherUtil.setParticleGravity((EntityFX)var31, 0.1F);
 	
 	                                    /*for (int ii = 0; ii < 10; ii++)
@@ -768,6 +781,9 @@ public class SceneEnhancer implements Runnable {
 	                                    var31.rotationYaw = rand.nextInt(360);
 	                                    var31.rotationPitch = rand.nextInt(360);
 	                                    //var31.spawnAsWeatherEffect();
+	                                    
+	                                    
+	                                    
 	                                    spawnQueue.add(var31);
 	                                    
 	                                }
@@ -955,6 +971,9 @@ public class SceneEnhancer implements Runnable {
 	@SideOnly(Side.CLIENT)
     public static void tryWind(World world)
     {
+		
+		//if (true) return;
+		
         //if pre stage...
         //look for leaves? spawn particles
 
@@ -1140,16 +1159,17 @@ public class SceneEnhancer implements Runnable {
 	
 	                        //rustle!
 	                        if (!(entity1 instanceof EntityWaterfallFX)) {
-	                        	EntityWaterfallFX ent = (EntityWaterfallFX) entity1;
+	                        	//EntityWaterfallFX ent = (EntityWaterfallFX) entity1;
 		                        /*if (entity1.onGround)
 		                        {
 		                            //entity1.onGround = false;
 		                            entity1.motionY += rand.nextDouble() * entity1.getMotionX();
 		                        }*/
 		
-		                        if (ent.getMotionX() < 0.01F && ent.getMotionZ() < 0.01F)
+		                        if (CoroUtilEntOrParticle.getMotionX(entity1) < 0.01F && CoroUtilEntOrParticle.getMotionZ(entity1) < 0.01F)
 		                        {
-		                            ent.setMotionY(ent.getMotionY() + rand.nextDouble() * 0.02);
+		                            //ent.setMotionY(ent.getMotionY() + rand.nextDouble() * 0.02);
+		                            CoroUtilEntOrParticle.setMotionY(entity1, CoroUtilEntOrParticle.getMotionY(entity1) + rand.nextDouble() * 0.02);
 		                        }
 	                        }
 	
