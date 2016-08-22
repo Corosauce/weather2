@@ -2172,6 +2172,7 @@ public class StormObject {
 		}
     	
 		ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
+		//Minecraft.getMinecraft().effectRenderer.addEffect(entityfx);
 		//entityfx.spawnAsWeatherEffect();
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;

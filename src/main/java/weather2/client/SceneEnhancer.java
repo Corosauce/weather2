@@ -11,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleBubble;
+import net.minecraft.client.particle.ParticleFallingDust;
 import net.minecraft.client.particle.ParticleFlame;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
@@ -54,6 +55,7 @@ import extendedrenderer.particle.entity.EntityTexBiomeColorFX;
 import extendedrenderer.particle.entity.EntityTexFX;
 import extendedrenderer.particle.entity.ParticleBreakingTemp;
 import extendedrenderer.particle.entity.ParticleBubbleTemp;
+import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.particle.entity.ParticleTexLeafColor;
 
@@ -384,13 +386,17 @@ public class SceneEnhancer implements Runnable {
 						
 						for (int i = 0; i < curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
 							int spawnAreaSize = 15;
-							EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
+							/*EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
+							
 							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
 					        //ent.renderDistanceWeight = 1.0D;
 					        ent.setSize(1.2F, 1.2F);
 					        ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
 					        ent.setGravity(0.00001F);
-					        ent.spawnAsWeatherEffect();
+					        ent.spawnAsWeatherEffect();*/
+					        
+					        ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.rain);
+					        rain.spawnAsWeatherEffect();
 						}
 					}
 					
