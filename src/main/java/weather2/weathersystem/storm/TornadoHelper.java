@@ -763,7 +763,7 @@ public class TornadoHelper {
         {
             //worldObj.playSoundAtEntity(soundTarget, new StringBuilder().append("tornado."+sound).toString(), 1.0F, 1.0F);
             //((IWorldAccess)this.worldAccesses.get(var5)).playSound(var2, var1.posX, var1.posY - (double)var1.yOffset, var1.posZ, var3, var4);
-        	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append(Weather.modID + ":streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
+        	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append("streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
             //this.soundID[arrIndex] = mod_EntMover.getLastSoundID();
             //System.out.println(new StringBuilder().append("tornado."+sound[snd_rand[arrIndex]]).toString());
             //System.out.println(soundToLength.get(sound[snd_rand[arrIndex]]));

@@ -3,6 +3,7 @@ package weather2.client.entity.particle;
 import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -10,9 +11,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.util.WeatherUtilParticle;
 import CoroUtil.api.weather.IWindHandler;
-import extendedrenderer.particle.entity.EntityTexFX;
+import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.entity.ParticleTexFX;
 @SideOnly(Side.CLIENT)
-public class EntityFallingRainFX extends EntityTexFX implements IWindHandler
+public class EntityFallingRainFX extends ParticleTexFX implements IWindHandler
 {
     public int age;
     public float brightness;
@@ -21,7 +23,7 @@ public class EntityFallingRainFX extends EntityTexFX implements IWindHandler
     
     public EntityFallingRainFX(World var1, double var2, double var4, double var6, double var8, double var10, double var12, double var14, int colorIndex)
     {
-        super(var1, var2, var4, var6, var8, var10, var12, var14, colorIndex, WeatherUtilParticle.effRainID);
+        super(var1, var2, var4, var6, var8, var10, var12, /*var14, */ParticleRegistry.rain);
         this.motionX = var8 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
         this.motionY = var10 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
         this.motionZ = var12 + (double)((float)(Math.random() * 2.0D - 1.0D) * 0.05F);
@@ -77,11 +79,11 @@ public class EntityFallingRainFX extends EntityTexFX implements IWindHandler
         
         this.particleAlpha = 0.5F;
         
-        noClip = true;
+        this.setCanCollide(false);
     }
 
     @Override
-    public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7)
+    public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7)
     {
     	float framesX = 5;
     	float framesY = 1;
@@ -173,13 +175,13 @@ public class EntityFallingRainFX extends EntityTexFX implements IWindHandler
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
         
-        this.lastTickPosX = this.posX;
+        /*this.lastTickPosX = this.posX;
         this.lastTickPosY = this.posY;
-        this.lastTickPosZ = this.posZ;
+        this.lastTickPosZ = this.posZ;*/
 
-        if (this.particleAge++ >= this.particleMaxAge || this.onGround || this.isInWater() || posY+this.motionY < this.worldObj.getHeight(new BlockPos((int)Math.floor(posX), 0, (int)Math.floor(posZ))).getY())
+        if (this.particleAge++ >= this.particleMaxAge/* || this.onGround || this.isInWater()*/ || posY+this.motionY < this.worldObj.getHeight(new BlockPos((int)Math.floor(posX), 0, (int)Math.floor(posZ))).getY())
         {
-            this.setDead();
+            this.setExpired();
         }
 
         //this.particleTextureIndex = 7 - this.particleAge * 8 / this.particleMaxAge;
@@ -202,11 +204,11 @@ public class EntityFallingRainFX extends EntityTexFX implements IWindHandler
         }*/
     }
 
-    @Override
+    /*@Override
     public int getFXLayer()
     {
         return 5;
-    }
+    }*/
 
 	@Override
 	public float getWindWeight() {

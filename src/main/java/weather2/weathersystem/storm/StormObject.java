@@ -385,7 +385,7 @@ public class StormObject {
 		
 
 		//TODO: 1.10.2 TEMP OFF REENABLE
-		if (true) return;
+		//if (true) return;
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);

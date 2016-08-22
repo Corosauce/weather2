@@ -3,6 +3,8 @@ package weather2.client.sound;
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.weathersystem.storm.StormObject;
@@ -15,9 +17,9 @@ public class MovingSoundStreamingSource extends MovingSound {
 	public Vec3 realSource = null;
 
 	//constructor for non moving sounds
-    public MovingSoundStreamingSource(Vec3 parPos, ResourceLocation parRes, float parVolume, float parPitch, float parCutOffRange)
+    public MovingSoundStreamingSource(Vec3 parPos, SoundEvent event, SoundCategory category, float parVolume, float parPitch, float parCutOffRange)
     {
-        super(parRes);
+        super(event, category);
         this.repeat = false;
         this.volume = parVolume;
         this.pitch = parPitch;
@@ -29,9 +31,9 @@ public class MovingSoundStreamingSource extends MovingSound {
     }
     
     //constructor for moving sounds
-    public MovingSoundStreamingSource(StormObject parStorm, ResourceLocation parRes, float parVolume, float parPitch, float parCutOffRange)
+    public MovingSoundStreamingSource(StormObject parStorm, SoundEvent event, SoundCategory category, float parVolume, float parPitch, float parCutOffRange)
     {
-        super(parRes);
+        super(event, category);
         this.storm = parStorm;
         this.repeat = false;
         this.volume = parVolume;

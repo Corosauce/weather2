@@ -17,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -773,6 +774,8 @@ public class SceneEnhancer implements Runnable {
 	                                    //ExtendedRenderer.rotEffRenderer.addEffect(var31);
 	                                    //WeatherUtil.setParticleGravity((EntityFX)var31, 0.1F);
 	
+	                                    //worldRef.spawnParticle(EnumParticleTypes.FALLING_DUST, (double)xx, (double)yy, (double)zz, 0.0D, 0.0D, 0.0D, 0);
+	                                    
 	                                    /*for (int ii = 0; ii < 10; ii++)
 	                                    {
 	                                        applyWindForce(var31);

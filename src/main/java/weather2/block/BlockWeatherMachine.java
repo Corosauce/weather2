@@ -38,7 +38,7 @@ public class BlockWeatherMachine extends BlockContainer
     @Override
     public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer par5EntityPlayer, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
     	
-    	if (!par1World.isRemote) {
+    	if (!par1World.isRemote && hand == EnumHand.MAIN_HAND) {
 	    	TileEntity tEnt = par1World.getTileEntity(pos);
 	    	
 	    	if (tEnt instanceof TileEntityWeatherMachine) {

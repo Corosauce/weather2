@@ -14,6 +14,22 @@ public class SoundRegistry {
 		register("env.waterfall");
 		register("env.wind_calm");
 		register("env.wind_calmfade");
+		register("streaming.destruction");
+		register("streaming.destruction_0_");
+		register("streaming.destruction_1_");
+		register("streaming.destruction_2_");
+		register("streaming.destruction_s");
+		register("streaming.destructionb");
+		register("streaming.siren");
+		register("streaming.wind_close");
+		register("streaming.wind_close_0_");
+		register("streaming.wind_close_1_");
+		register("streaming.wind_close_2_");
+		register("streaming.wind_far");
+		register("streaming.wind_far_0_");
+		register("streaming.wind_far_1_");
+		register("streaming.wind_far_2_");
+		
 	}
 
 	public static void register(String soundPath) {

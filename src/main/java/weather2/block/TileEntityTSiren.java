@@ -43,7 +43,7 @@ public class TileEntityTSiren extends TileEntity implements ITickable
             	//if (so.attrib_tornado_severity > 0) {
             		//Weather.dbg("soooooouuuunnnnddddddd");
 	                this.lastPlayTime = System.currentTimeMillis() + 13000L;
-	                /*this.soundID = */WeatherUtilSound.playNonMovingSound(new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()), Weather.modID + ":streaming.siren", 1.0F, 1.0F, 120);
+	                /*this.soundID = */WeatherUtilSound.playNonMovingSound(new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()), "streaming.siren", 1.0F, 1.0F, 120);
             	//}
             }
         }

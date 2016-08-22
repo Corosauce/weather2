@@ -3,6 +3,7 @@ package weather2.client.entity.particle;
 import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -79,11 +80,11 @@ public class EntityFallingSnowFX extends EntityTexFX implements IWindHandler
         //this.particleScale = 1F;
         this.setParticleTextureIndex(WeatherUtilParticle.effSnowID);
         
-        noClip = true;
+        this.setCanCollide(false);
     }
     
     @Override
-    public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7)
+    public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7)
     {
     	float framesX = 5;
     	float framesY = 1;
@@ -175,15 +176,15 @@ public class EntityFallingSnowFX extends EntityTexFX implements IWindHandler
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
         
-        this.lastTickPosX = this.posX;
+        /*this.lastTickPosX = this.posX;
         this.lastTickPosY = this.posY;
-        this.lastTickPosZ = this.posZ;
+        this.lastTickPosZ = this.posZ;*/
 
         //System.out.println("this.worldObj.getHeightValue((int)Math.floor(posX), (int)Math.floor(posZ)): " + this.worldObj.getHeightValue((int)Math.floor(posX), (int)Math.floor(posZ)));
         
-        if (this.particleAge++ >= this.particleMaxAge || this.onGround || this.isInWater() || posY+this.motionY < this.worldObj.getHeight(new BlockPos((int)Math.floor(posX), 0, (int)Math.floor(posZ))).getY())
+        if (this.particleAge++ >= this.particleMaxAge/* || this.onGround || this.isInWater()*/ || posY+this.motionY < this.worldObj.getHeight(new BlockPos((int)Math.floor(posX), 0, (int)Math.floor(posZ))).getY())
         {
-            this.setDead();
+            this.setExpired();
         }
 
         //this.particleTextureIndex = 7 - this.particleAge * 8 / this.particleMaxAge;
@@ -211,10 +212,10 @@ public class EntityFallingSnowFX extends EntityTexFX implements IWindHandler
         }
     }
 
-    public int getFXLayer()
+    /*public int getFXLayer()
     {
         return 5;
-    }
+    }*/
 
 	@Override
 	public float getWindWeight() {
