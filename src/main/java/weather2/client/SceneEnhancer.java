@@ -123,7 +123,7 @@ public class SceneEnhancer implements Runnable {
 			Minecraft mc = FMLClientHandler.instance().getClient();
 			tryWind(mc.theWorld);
 			
-			tickTest();
+			//tickTest();
 		}
 	}
 	
@@ -402,6 +402,10 @@ public class SceneEnhancer implements Runnable {
 					        ent.spawnAsWeatherEffect();*/
 					        
 					        ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.rain);
+					        rain.setCanCollide(true);
+					        rain.setKillOnCollide(true);
+					        rain.setFacePlayer(false);
+					        rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 					        rain.spawnAsWeatherEffect();
 						}
 					}
@@ -419,13 +423,22 @@ public class SceneEnhancer implements Runnable {
 						for (int i = 0; i < curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
 							int spawnAreaSize = 50;
 							int spawnAbove = 10;
-							EntityFallingSnowFX ent = new EntityFallingSnowFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + spawnAbove, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 5.5D, 6);
+							/*EntityFallingSnowFX ent = new EntityFallingSnowFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + spawnAbove, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 5.5D, 6);
 							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
 					        //ent.renderDistanceWeight = 1.0D;
 					        ent.setSize(1.2F, 1.2F);
 					        ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
 					        ent.setGravity(0.00001F);
-					        ent.spawnAsWeatherEffect();
+					        ent.spawnAsWeatherEffect();*/
+					        
+					        ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.snow);
+					        snow.setScale(1.3F);
+					        snow.setGravity(0.1F);
+					        snow.setMaxAge(200);
+					        snow.setFacePlayer(false);
+					        snow.setCanCollide(true);
+					        snow.setKillOnCollide(true);
+					        snow.spawnAsWeatherEffect();
 						}
 					}
 	            }
@@ -1318,12 +1331,16 @@ public class SceneEnhancer implements Runnable {
     public static void tickTest() {
     	Minecraft mc = Minecraft.getMinecraft();
     	if (miniTornado == null) {
-    		miniTornado = new ParticleBehaviorMiniTornado(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + 3, mc.thePlayer.posZ));
+    		miniTornado = new ParticleBehaviorMiniTornado(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
     	}
-    	miniTornado.tickUpdateList();
+    	
+    	//temp
+    	//miniTornado.coordSource = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ - 4);
+    	
+    	
     	
     	if (true || miniTornado.particles.size() == 0) {
-	    	for (int i = 0; i < 10; i++) {
+	    	for (int i = 0; i < 1; i++) {
 	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, miniTornado.coordSource.xCoord, miniTornado.coordSource.yCoord, miniTornado.coordSource.zCoord, 0, 0, 0, ParticleRegistry.squareGrey);
 	    		miniTornado.initParticle(part);
 	    		miniTornado.particles.add(part);
@@ -1331,5 +1348,18 @@ public class SceneEnhancer implements Runnable {
 	    	}
     	}
 		
+    	miniTornado.tickUpdateList();
+    	
+    	double x = 5;
+    	double z = 5;
+    	double x2 = 5;
+    	double z2 = 0;
+    	
+    	double vecX = x - x2;
+    	double vecZ = z - z2;
+    	
+    	double what = Math.atan2(vecZ, vecX);
+    	
+    	//System.out.println(Math.toDegrees(what));
     }
 }

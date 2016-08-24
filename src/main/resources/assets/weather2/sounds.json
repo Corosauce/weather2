@@ -1,24 +1,24 @@
 {
   "env.waterfall": {
-    "category": "block",
+    "category": "weather",
     "sounds": [
       "weather2:env/waterfall"
     ]
   },
   "env.wind_calm": {
-    "category": "block",
+    "category": "weather",
     "sounds": [
       "weather2:env/wind_calm"
     ]
   },
   "env.wind_calmfade": {
-    "category": "block",
+    "category": "weather",
     "sounds": [
       "weather2:env/wind_calmfade"
     ]
   },
   "streaming.destruction": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/destruction",
@@ -27,7 +27,7 @@
     ]
   },
   "streaming.destruction_0_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/destruction_0_",
@@ -36,7 +36,7 @@
     ]
   },
   "streaming.destruction_1_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/destruction_1_",
@@ -45,7 +45,7 @@
     ]
   },
   "streaming.destruction_2_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/destruction_2_",
@@ -54,7 +54,7 @@
     ]
   },
   "streaming.destruction_s": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/destruction_s",
@@ -63,7 +63,7 @@
     ]
   },
   "streaming.destructionb": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/destructionb",
@@ -72,7 +72,7 @@
     ]
   },
   "streaming.siren": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/siren",
@@ -81,7 +81,7 @@
     ]
   },
   "streaming.wind_close": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_close",
@@ -90,7 +90,7 @@
     ]
   },
   "streaming.wind_close_0_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_close_0_",
@@ -99,7 +99,7 @@
     ]
   },
   "streaming.wind_close_1_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_close_1_",
@@ -108,7 +108,7 @@
     ]
   },
   "streaming.wind_close_2_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_close_2_",
@@ -117,7 +117,7 @@
     ]
   },
   "streaming.wind_far": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_far",
@@ -126,7 +126,7 @@
     ]
   },
   "streaming.wind_far_0_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_far_0_",
@@ -135,7 +135,7 @@
     ]
   },
   "streaming.wind_far_1_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_far_1_",
@@ -144,7 +144,7 @@
     ]
   },
   "streaming.wind_far_2_": {
-    "category": "record",
+    "category": "weather",
     "sounds": [
       {
         "name": "weather2:streaming/wind_far_2_",
