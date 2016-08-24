@@ -49,6 +49,7 @@ import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.behavior.ParticleBehaviorMiniTornado;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.EntityTexBiomeColorFX;
@@ -92,6 +93,9 @@ public class SceneEnhancer implements Runnable {
     
     public static float curOvercastStr = 0F;
     public static float curOvercastStrTarget = 0F;
+    
+    //testing
+    public static ParticleBehaviorMiniTornado miniTornado;
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -118,6 +122,8 @@ public class SceneEnhancer implements Runnable {
 			
 			Minecraft mc = FMLClientHandler.instance().getClient();
 			tryWind(mc.theWorld);
+			
+			tickTest();
 		}
 	}
 	
@@ -1307,5 +1313,23 @@ public class SceneEnhancer implements Runnable {
 
         IBlockState state = parWorld.getBlockState(new BlockPos(x, y, z));
         return state.getBlock().getMetaFromState(state);
+    }
+    
+    public static void tickTest() {
+    	Minecraft mc = Minecraft.getMinecraft();
+    	if (miniTornado == null) {
+    		miniTornado = new ParticleBehaviorMiniTornado(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + 3, mc.thePlayer.posZ));
+    	}
+    	miniTornado.tickUpdateList();
+    	
+    	if (true || miniTornado.particles.size() == 0) {
+	    	for (int i = 0; i < 10; i++) {
+	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, miniTornado.coordSource.xCoord, miniTornado.coordSource.yCoord, miniTornado.coordSource.zCoord, 0, 0, 0, ParticleRegistry.squareGrey);
+	    		miniTornado.initParticle(part);
+	    		miniTornado.particles.add(part);
+	    		part.spawnAsWeatherEffect();
+	    	}
+    	}
+		
     }
 }

@@ -2,26 +2,26 @@
   "env.waterfall": {
     "category": "block",
     "sounds": [
-      "env/waterfall"
+      "weather2:env/waterfall"
     ]
   },
   "env.wind_calm": {
     "category": "block",
     "sounds": [
-      "env/wind_calm"
+      "weather2:env/wind_calm"
     ]
   },
   "env.wind_calmfade": {
     "category": "block",
     "sounds": [
-      "env/wind_calmfade"
+      "weather2:env/wind_calmfade"
     ]
   },
   "streaming.destruction": {
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/destruction",
+        "name": "weather2:streaming/destruction",
         "stream": true
       }
     ]
@@ -30,7 +30,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/destruction_0_",
+        "name": "weather2:streaming/destruction_0_",
         "stream": true
       }
     ]
@@ -39,7 +39,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/destruction_1_",
+        "name": "weather2:streaming/destruction_1_",
         "stream": true
       }
     ]
@@ -48,7 +48,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/destruction_2_",
+        "name": "weather2:streaming/destruction_2_",
         "stream": true
       }
     ]
@@ -57,7 +57,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/destruction_s",
+        "name": "weather2:streaming/destruction_s",
         "stream": true
       }
     ]
@@ -66,7 +66,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/destructionb",
+        "name": "weather2:streaming/destructionb",
         "stream": true
       }
     ]
@@ -75,7 +75,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/siren",
+        "name": "weather2:streaming/siren",
         "stream": true
       }
     ]
@@ -84,7 +84,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_close",
+        "name": "weather2:streaming/wind_close",
         "stream": true
       }
     ]
@@ -93,7 +93,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_close_0_",
+        "name": "weather2:streaming/wind_close_0_",
         "stream": true
       }
     ]
@@ -102,7 +102,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_close_1_",
+        "name": "weather2:streaming/wind_close_1_",
         "stream": true
       }
     ]
@@ -111,7 +111,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_close_2_",
+        "name": "weather2:streaming/wind_close_2_",
         "stream": true
       }
     ]
@@ -120,7 +120,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_far",
+        "name": "weather2:streaming/wind_far",
         "stream": true
       }
     ]
@@ -129,7 +129,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_far_0_",
+        "name": "weather2:streaming/wind_far_0_",
         "stream": true
       }
     ]
@@ -138,7 +138,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_far_1_",
+        "name": "weather2:streaming/wind_far_1_",
         "stream": true
       }
     ]
@@ -147,7 +147,7 @@
     "category": "record",
     "sounds": [
       {
-        "name": "streaming/wind_far_2_",
+        "name": "weather2:streaming/wind_far_2_",
         "stream": true
       }
     ]
