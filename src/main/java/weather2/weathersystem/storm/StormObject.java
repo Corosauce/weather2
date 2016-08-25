@@ -1570,6 +1570,8 @@ public class StormObject {
 							
 							
 							listParticlesFunnel.add(particle);
+							
+							//System.out.println(listParticlesFunnel.size());
 						}
 					} else {
 						//Weather.dbg("particles maxed");
@@ -1580,11 +1582,13 @@ public class StormObject {
 		
 		for (int i = 0; i < listParticlesFunnel.size(); i++) {
 			EntityRotFX ent = listParticlesFunnel.get(i);
+			//System.out.println(ent.getPosY());
 			if (!ent.isAlive()) {
 				listParticlesFunnel.remove(ent);
 			} else if (ent.getPosY() > pos.yCoord) {
 				ent.setExpired();
 				listParticlesFunnel.remove(ent);
+				//System.out.println("asd");
 			} else {
 				 double var16 = this.pos.xCoord - ent.getPosX();
                  double var18 = this.pos.zCoord - ent.getPosZ();

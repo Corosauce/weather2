@@ -58,9 +58,10 @@ public class BlockTSensor extends Block
         world.scheduleBlockUpdate(pos, this, 100, 1);
     }
 
-    public int getWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side)
+    @Override
+    public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        return ((Integer)state.getValue(POWER)).intValue();
+        return ((Integer)blockState.getValue(POWER)).intValue();
     }
     
     @Override
