@@ -83,7 +83,7 @@ public class GuiButtonBoolean extends GuiButton
         if (this.visible)
         {
             FontRenderer fontrenderer = par1Minecraft.fontRendererObj;
-            par1Minecraft.getTextureManager().bindTexture(buttonTextures);
+            par1Minecraft.getTextureManager().bindTexture(BUTTON_TEXTURES);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
             int k = this.getHoverState(this.hovered);

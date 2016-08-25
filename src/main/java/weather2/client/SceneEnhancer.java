@@ -10,15 +10,10 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleBubble;
-import net.minecraft.client.particle.ParticleFallingDust;
 import net.minecraft.client.particle.ParticleFlame;
-import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -29,10 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
-import weather2.Weather;
 import weather2.api.WindReader;
-import weather2.client.entity.particle.EntityFallingRainFX;
-import weather2.client.entity.particle.EntityFallingSnowFX;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtil;
@@ -52,10 +44,6 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorMiniTornado;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
 import extendedrenderer.particle.entity.EntityRotFX;
-import extendedrenderer.particle.entity.EntityTexBiomeColorFX;
-import extendedrenderer.particle.entity.EntityTexFX;
-import extendedrenderer.particle.entity.ParticleBreakingTemp;
-import extendedrenderer.particle.entity.ParticleBubbleTemp;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.particle.entity.ParticleTexLeafColor;
@@ -1091,7 +1079,7 @@ public class SceneEnhancer implements Runnable {
 
                         
                         
-                        if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.getPosX()), 0, MathHelper.floor_double(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof EntityTexFX))
+                        if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.getPosX()), 0, MathHelper.floor_double(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
                         {
                             /*if ((entity1 instanceof ParticleFlame))
                             {
@@ -1110,7 +1098,7 @@ public class SceneEnhancer implements Runnable {
 
                             //((Particle)entity1).particleAge=1;
                             
-                            if ((entity1 instanceof EntityTexFX) && ((EntityTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID)
+                            if ((entity1 instanceof ParticleTexFX) && ((ParticleTexFX)entity1).getParticleTexture() == ParticleRegistry.leaf/*((ParticleTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID*/)
                             {
                                 if (entity1.getMotionX() < 0.01F && entity1.getMotionZ() < 0.01F)
                                 {
@@ -1168,7 +1156,7 @@ public class SceneEnhancer implements Runnable {
 	                    	//Weather.dbg("process: " + className);
 	                    }
 	
-	                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(CoroUtilEntOrParticle.getPosX(entity1)), 0, MathHelper.floor_double(CoroUtilEntOrParticle.getPosZ(entity1)))).getY() - 1 < (int)CoroUtilEntOrParticle.getPosY(entity1) + 1) || (entity1 instanceof EntityTexFX))
+	                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(CoroUtilEntOrParticle.getPosX(entity1)), 0, MathHelper.floor_double(CoroUtilEntOrParticle.getPosZ(entity1)))).getY() - 1 < (int)CoroUtilEntOrParticle.getPosY(entity1) + 1) || (entity1 instanceof ParticleTexFX))
 	                    {
 	                        if ((entity1 instanceof ParticleFlame))
 	                        {
