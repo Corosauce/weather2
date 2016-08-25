@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11;
 
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityMovingBlock;
-import weather2.util.WeatherUtilParticle;
+import CoroUtil.util.CoroUtilParticle;
 
 @SideOnly(Side.CLIENT)
 public class RenderFlyingBlock extends Render
@@ -148,10 +148,10 @@ public class RenderFlyingBlock extends Render
 	                    GlStateManager.enableLighting();
 	                    GlStateManager.popMatrix();
                 	} else if (entity instanceof EntityIceBall) {
-                		for (int ii = 0; ii < Math.min(4, WeatherUtilParticle.maxRainDrops); ii++) {
+                		for (int ii = 0; ii < Math.min(4, CoroUtilParticle.maxRainDrops); ii++) {
                 			GlStateManager.pushMatrix();
     	                    //GlStateManager.translate((float)x, (float)y, (float)z);
-                			GlStateManager.translate((float)WeatherUtilParticle.rainPositions[ii].xCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].yCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].zCoord * 3F);
+                			GlStateManager.translate((float)CoroUtilParticle.rainPositions[ii].xCoord * 3F, (float)CoroUtilParticle.rainPositions[ii].yCoord * 3F, (float)CoroUtilParticle.rainPositions[ii].zCoord * 3F);
     	                    GlStateManager.disableLighting();
     	                    Tessellator tessellator = Tessellator.getInstance();
     	                    VertexBuffer worldrenderer = tessellator.getBuffer();

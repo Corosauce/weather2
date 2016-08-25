@@ -25,28 +25,17 @@ public class WeatherUtilParticle {
     public static int effWind2ID = 2;*/
     
     public static Random rand = new Random();
-    
-    public static Vec3[] rainPositions;
-    public static int maxRainDrops = 80;
     //public static int rainDrops = 20;
     
-    static {
-    	rainPositions = new Vec3[maxRainDrops];
-        
-        float range = 20F;
-        
-        for (int i = 0; i < maxRainDrops; i++) {
-        	rainPositions[i] = new Vec3((rand.nextFloat() * range) - (range/2), (rand.nextFloat() * range/16) - (range/32), (rand.nextFloat() * range) - (range/2));
-        }
-    }
     
-    //weather2: not sure what will happen to this in 1.7, copied over for convinience
+    
+    //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static int getParticleAge(Particle ent)
     {
         return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge");
     }
 
-    //weather2: not sure what will happen to this in 1.7, copied over for convinience
+    //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static void setParticleAge(Particle ent, int val)
     {
         OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge", val);
