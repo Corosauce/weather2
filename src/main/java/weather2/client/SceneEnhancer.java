@@ -392,9 +392,11 @@ public class SceneEnhancer implements Runnable {
 					        ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.rain);
 					        rain.setCanCollide(true);
 					        rain.setKillOnCollide(true);
+					        rain.windWeight = 1F;
 					        rain.setFacePlayer(false);
 					        rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 					        rain.spawnAsWeatherEffect();
+					        //ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 						}
 					}
 					
@@ -422,11 +424,13 @@ public class SceneEnhancer implements Runnable {
 					        ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.snow);
 					        snow.setScale(1.3F);
 					        snow.setGravity(0.1F);
+					        snow.windWeight = 0.1F;
 					        snow.setMaxAge(200);
 					        snow.setFacePlayer(false);
 					        snow.setCanCollide(true);
 					        snow.setKillOnCollide(true);
 					        snow.spawnAsWeatherEffect();
+					        //ClientTickHandler.weatherManager.addWeatheredParticle(snow);
 						}
 					}
 	            }
@@ -1060,6 +1064,11 @@ public class SceneEnhancer implements Runnable {
             	handleCount++;
             	
                 Particle particle = ClientTickHandler.weatherManager.listWeatherEffectedParticles.get(i);
+                
+                if (!particle.isAlive()) {
+                	ClientTickHandler.weatherManager.listWeatherEffectedParticles.remove(i--);
+                	continue;
+                }
                 
                 /*if (!(entity1 instanceof EntityLightningBolt))
                 {*/
