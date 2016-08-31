@@ -26,6 +26,7 @@ import weather2.block.TileEntityWeatherMachine;
 import weather2.block.TileEntityWindVane;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
+import weather2.entity.EntityLightningBoltCustom;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
@@ -60,6 +61,7 @@ public class CommonProxy implements IGuiHandler
     	addMapping(EntityIceBall.class, "Weather Hail", 0, 128, 5, true);
     	addMapping(EntityMovingBlock.class, "Moving Block", 1, 128, 5, true);
     	addMapping(EntityLightningBolt.class, "Weather2 Lightning Bolt", 2, 512, 5, true);
+    	addMapping(EntityLightningBoltCustom.class, "Weather2 Lightning Bolt Custom", 2, 512, 5, true);
     	
     	addBlock(blockTSensor = (new BlockTSensor()), "TornadoSensor", "Tornado Sensor");
     	addBlock(blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, "TornadoSiren", "Tornado Siren");

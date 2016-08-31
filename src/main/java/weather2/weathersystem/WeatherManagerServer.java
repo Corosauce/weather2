@@ -2,6 +2,7 @@ package weather2.weathersystem;
 
 import java.util.Random;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,7 +12,6 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
-import weather2.entity.EntityLightningBolt;
 import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
@@ -218,7 +218,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 	}
 	
-	public void syncLightningNew(EntityLightningBolt parEnt) {
+	public void syncLightningNew(Entity parEnt, boolean custom) {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncLightningNew");
@@ -227,6 +227,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		nbt.setInteger("posY", MathHelper.floor_double(parEnt.posY/* * 32.0D*/));
 		nbt.setInteger("posZ", MathHelper.floor_double(parEnt.posZ/* * 32.0D*/));
 		nbt.setInteger("entityID", parEnt.getEntityId());
+		nbt.setBoolean("custom", custom);
 		data.setTag("data", nbt);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.lightning", data);

@@ -44,13 +44,6 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
         rendererUpdateCount = 0;
     }
 
-    @Override
-    public void updateCameraAndRender(float var1, long nanoTime)
-    {
-        super.updateCameraAndRender(var1, nanoTime);
-        //ModLoader.OnTick(var1, this.game);
-    }
-
     public void disableLightMap2(double var1)
     {
         GL13.glClientActiveTexture(GL13.GL_TEXTURE1);

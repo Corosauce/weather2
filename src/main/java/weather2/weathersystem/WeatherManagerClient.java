@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.particle.Particle;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -12,6 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
+import weather2.entity.EntityLightningBoltCustom;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 
@@ -125,13 +127,21 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			int posYS = nbt.getInteger("posY");
 			int posZS = nbt.getInteger("posZ");
 			
+			boolean custom = nbt.getBoolean("custom");
+			
 			//Weather.dbg("uhhh " + parNBT);
 			
 			double posX = (double)posXS;// / 32D;
 			double posY = (double)posYS;// / 32D;
 			double posZ = (double)posZS;// / 32D;
-			
-			EntityLightningBolt ent = new EntityLightningBolt(getWorld(), posX, posY, posZ);
+			Entity ent = null;
+			if (!custom) {
+				ent = new EntityLightningBolt(getWorld(), posX, posY, posZ);
+				
+			} else {
+				ent = new EntityLightningBoltCustom(getWorld(), posX, posY, posZ);
+				
+			}
 			ent.serverPosX = posXS;
 			ent.serverPosY = posYS;
 			ent.serverPosZ = posZS;

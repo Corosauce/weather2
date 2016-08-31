@@ -14,10 +14,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import weather2.ClientTickHandler;
 import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
+import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
 
@@ -33,12 +36,7 @@ public class WeatherUtilEntity {
     
     public static float getWeight(Object entity1, boolean forTornado)
     {
-    	World world = null;
-    	if (entity1 instanceof Entity) {
-    		world = ((Entity) entity1).getEntityWorld();
-    	} else if (entity1 instanceof EntityRotFX) {
-    		world = ((EntityRotFX) entity1).getWorld();
-    	}
+    	World world = CoroUtilEntOrParticle.getWorld(entity1);
     	if (entity1 instanceof IWindHandler) {
     		return ((IWindHandler) entity1).getWindWeight();
     	}
@@ -84,7 +82,8 @@ public class WeatherUtilEntity {
             }
         }
 
-        if (entity1 instanceof EntityRotFX && world.isRemote)
+        
+        if (isParticleRotServerSafe(world, entity1))
         {
         	
             float var = WeatherUtilParticle.getParticleWeight((EntityRotFX)entity1);
@@ -151,6 +150,19 @@ public class WeatherUtilEntity {
 
         return 1F;
     }
+    
+    public static boolean isParticleRotServerSafe(World world, Object obj) {
+    	if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+    		return false;
+    	}
+    	if (!world.isRemote) return false;
+    	return isParticleRotClientCheck(obj);
+    }
+    
+    public static boolean isParticleRotClientCheck(Object obj) {
+    	return obj instanceof EntityRotFX;
+    }
+    
 	public static boolean canPushEntity(Entity ent)
     {
     	

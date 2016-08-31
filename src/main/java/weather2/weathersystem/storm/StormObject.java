@@ -587,7 +587,7 @@ public class StormObject {
 				int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
 				if (world.isBlockLoaded(new BlockPos(x, y, z))) {
 					//if (world.canLightningStrikeAt(x, y, z)) {
-						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z));
+						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z), false);
 					//}
 				}
 			}
@@ -1865,7 +1865,7 @@ public class StormObject {
     	boolean forTornado = true;//entT != null;
     	
     	//TODO: 1.10.2 will this break client code?
-    	World world = DimensionManager.getWorld(this.manager.dim);
+    	World world = CoroUtilEntOrParticle.getWorld(entity1);
     	long worldTime = world.getTotalWorldTime();
     	
     	Entity ent = null;
@@ -2223,10 +2223,10 @@ public class StormObject {
 		return parOrigVal;
 	}
 	
-	public void addWeatherEffectLightning(EntityLightningBolt parEnt) {
+	public void addWeatherEffectLightning(EntityLightningBolt parEnt, boolean custom) {
 		//manager.getWorld().addWeatherEffect(parEnt);
 		manager.getWorld().weatherEffects.add(parEnt);
-		((WeatherManagerServer)manager).syncLightningNew(parEnt);
+		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
 	}
 	
 	//notes moved to bottom\\

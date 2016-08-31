@@ -26,8 +26,10 @@ import weather2.client.block.TileEntityWeatherMachineRenderer;
 import weather2.client.block.TileEntityWindVaneRenderer;
 import weather2.client.entity.RenderFlyingBlock;
 import weather2.client.entity.RenderLightningBolt;
+import weather2.client.entity.RenderLightningBoltCustom;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
+import weather2.entity.EntityLightningBoltCustom;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtilSound;
 @SideOnly(Side.CLIENT)
@@ -62,6 +64,7 @@ public class ClientProxy extends CommonProxy
         addMapping(EntityIceBall.class, new RenderFlyingBlock(Minecraft.getMinecraft().getRenderManager(), Blocks.ICE));
         addMapping(EntityMovingBlock.class, new RenderFlyingBlock(Minecraft.getMinecraft().getRenderManager(), null));
         addMapping(EntityLightningBolt.class, new RenderLightningBolt(Minecraft.getMinecraft().getRenderManager()));
+        addMapping(EntityLightningBoltCustom.class, new RenderLightningBoltCustom(Minecraft.getMinecraft().getRenderManager()));
         /*addMapping(EntityFallingRainFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));
         addMapping(EntityFallingSnowFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));*/
         
