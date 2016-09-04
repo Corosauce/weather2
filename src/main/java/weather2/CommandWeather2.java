@@ -169,7 +169,7 @@ public class CommandWeather2 extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender icommandsender) {
-		return "";
+		return "Magic dev method!";
 	}
 
 }
