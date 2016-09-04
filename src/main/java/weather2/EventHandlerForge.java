@@ -7,6 +7,7 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry.TextureAtlasSpriteImpl;
 
 public class EventHandlerForge {
@@ -28,33 +29,14 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(TextureStitchEvent.Pre event) {
 		
-		ResourceLocation res;
+		//optifine breaks (removes) forge added method setTextureEntry, dont use it
 		
-		res = new ResourceLocation(Weather.modID + ":radar/radarIconRain");
-		event.getMap().setTextureEntry(ClientProxy.radarIconRain = new TextureAtlasSpriteImpl(res.toString()));
+		ClientProxy.radarIconRain = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconRain"));
+		ClientProxy.radarIconLightning = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconLightning"));
+		ClientProxy.radarIconWind = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconWind"));
+		ClientProxy.radarIconHail = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconHail"));
+		ClientProxy.radarIconTornado = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconTornado"));
+		ClientProxy.radarIconCyclone = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconCyclone"));
 		
-		res = new ResourceLocation(Weather.modID + ":radar/radarIconLightning");
-		event.getMap().setTextureEntry(ClientProxy.radarIconLightning = new TextureAtlasSpriteImpl(res.toString()));
-		
-		res = new ResourceLocation(Weather.modID + ":radar/radarIconWind");
-		event.getMap().setTextureEntry(ClientProxy.radarIconWind = new TextureAtlasSpriteImpl(res.toString()));
-		
-		res = new ResourceLocation(Weather.modID + ":radar/radarIconHail");
-		event.getMap().setTextureEntry(ClientProxy.radarIconHail = new TextureAtlasSpriteImpl(res.toString()));
-		
-		res = new ResourceLocation(Weather.modID + ":radar/radarIconTornado");
-		event.getMap().setTextureEntry(ClientProxy.radarIconTornado = new TextureAtlasSpriteImpl(res.toString()));
-		
-		res = new ResourceLocation(Weather.modID + ":radar/radarIconCyclone");
-		event.getMap().setTextureEntry(ClientProxy.radarIconCyclone = new TextureAtlasSpriteImpl(res.toString()));
-		
-		/*if (event.map.getTextureType() == 1) {
-			ClientProxy.radarIconRain = event.map.registerIcon(Weather.modID + ":radar/radarIconRain");
-			ClientProxy.radarIconLightning = event.map.registerIcon(Weather.modID + ":radar/radarIconLightning");
-			ClientProxy.radarIconWind = event.map.registerIcon(Weather.modID + ":radar/radarIconWind");
-			ClientProxy.radarIconHail = event.map.registerIcon(Weather.modID + ":radar/radarIconHail");
-			ClientProxy.radarIconTornado = event.map.registerIcon(Weather.modID + ":radar/radarIconTornado");
-			ClientProxy.radarIconCyclone = event.map.registerIcon(Weather.modID + ":radar/radarIconCyclone");
-		}*/
 	}
 }

@@ -47,6 +47,9 @@ public class EntityLightningBoltCustom extends EntityWeatherEffect
     
     public List<Vec3d> listVec = new ArrayList<Vec3d>();
     
+    public boolean spreadBolts = true;
+    public double curYaw = 0;
+    
     public EntityLightningBoltCustom(World par1World, double par2, double par4, double par6)
     {
         super(par1World);
@@ -57,12 +60,26 @@ public class EntityLightningBoltCustom extends EntityWeatherEffect
 
         Random rand = new Random();
         
-        double spread = 5;
+        //create lightning bolt parts
+        double spreadDist = 5;
+        double spreadAngle = 15;
+        
+        //init
+        if (listVec.size() == 0) {
+        	curYaw = rand.nextDouble();
+        	listVec.add(new Vec3d(this.posX, this.posY, this.posZ));
+        } else {
+        	curYaw += rand.nextDouble() * spreadAngle;
+        	if (curYaw > 360) curYaw -= 360;
+        	if (curYaw < 0) curYaw += 360;
+        	Vec3d vecLast = listVec.get(listVec.size()-1);
+        	double vecX = Math.sin(Math.toRadians(curYaw)); 
+        }
         for (int i = 0; i < 40; i++) {
         	//listVec.add(new Vec3d(0, 0, 0));
         	//worldrenderer.pos(xx+i, 128, 0).color(0.45F, 0.45F, 0.5F, 0.3F).endVertex();
         	//Random rand = new Random();
-        	listVec.add(new Vec3d(rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread));
+        	//listVec.add(new Vec3d(rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread));
         }
         
         if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == EnumDifficulty.NORMAL || par1World.getDifficulty() == EnumDifficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6)), 10))
