@@ -1,5 +1,6 @@
 package weather2;
 
+import weather2.client.SceneEnhancer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -23,6 +24,7 @@ public class EventHandlerForge {
     {
 		ClientTickHandler.checkClientWeather();
 		ClientTickHandler.weatherManager.tickRender(event.getPartialTicks());
+		SceneEnhancer.renderWorldLast(event);
     }
 	
 	@SubscribeEvent

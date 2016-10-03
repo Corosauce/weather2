@@ -1,5 +1,6 @@
 package weather2.client;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +20,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.EXTFogCoord;
+import org.lwjgl.opengl.GL11;
+
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.api.WindReader;
@@ -41,6 +49,8 @@ import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.behavior.ParticleBehaviorFog;
+import extendedrenderer.particle.behavior.ParticleBehaviorFogGround;
 import extendedrenderer.particle.behavior.ParticleBehaviorMiniTornado;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -84,6 +94,8 @@ public class SceneEnhancer implements Runnable {
     
     //testing
     public static ParticleBehaviorMiniTornado miniTornado;
+    
+    public static ParticleBehaviorFogGround particleBehaviorFog;
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -112,6 +124,7 @@ public class SceneEnhancer implements Runnable {
 			tryWind(mc.theWorld);
 			
 			//tickTest();
+			//tickTestFog();
 		}
 	}
 	
@@ -1358,5 +1371,86 @@ public class SceneEnhancer implements Runnable {
     	double what = Math.atan2(vecZ, vecX);
     	
     	//System.out.println(Math.toDegrees(what));
+    }
+    
+    public static void tickTestFog() {
+    	Minecraft mc = Minecraft.getMinecraft();
+    	if (particleBehaviorFog == null) {
+    		
+    		particleBehaviorFog = new ParticleBehaviorFogGround(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
+    	} else {
+    		//particleBehaviorFog.coordSource = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + 0.5D, mc.thePlayer.posZ);
+    	}
+    	
+    	if (/*true || */particleBehaviorFog.particles.size() <= 10000) {
+	    	for (int i = 0; i < 1; i++) {
+	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, particleBehaviorFog.coordSource.xCoord, particleBehaviorFog.coordSource.yCoord, particleBehaviorFog.coordSource.zCoord
+	    				, 0, 0, 0, ParticleRegistry.cloud256);
+	    		particleBehaviorFog.initParticle(part);
+	    		particleBehaviorFog.particles.add(part);
+	    		part.spawnAsWeatherEffect();
+	    	}
+    	}
+    	
+    	particleBehaviorFog.tickUpdateList();
+    }
+    
+    public static void renderWorldLast(RenderWorldLastEvent event) {
+    	
+    	boolean testFogCoords = false;
+    	if (testFogCoords) {
+	    	try {
+	
+	    		//GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+	    		
+	    		FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
+	    		{
+	    			fogColor.put(new float[]{0.4f, 0.0f, 0.0f, 0.2f});
+	    			fogColor.flip();
+	    		}
+	    		GL11.glEnable(GL11.GL_FOG);
+	    		GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_LINEAR);                  // Fog Fade Is Linear
+	
+	    		GL11.glFog(GL11.GL_FOG_COLOR, fogColor);               // Set The Fog Color
+	
+	    		GL11.glFogf(GL11.GL_FOG_START,  0.9f);                  // Set The Fog Start (Least Dense)
+	
+	    		GL11.glFogf(GL11.GL_FOG_END,    0.1f);                  // Set The Fog End (Most Dense)
+	
+	    		GL11.glHint(GL11.GL_FOG_HINT, GL11.GL_NICEST);                  // Per-Pixel Fog Calculation
+	
+	    		GL11.glFogi(EXTFogCoord.GL_FOG_COORDINATE_SOURCE_EXT, EXTFogCoord.GL_FOG_COORDINATE_EXT);
+	
+	
+	    		GL11.glBegin(GL11.GL_QUADS);
+	
+	    		float x = 0;
+	    		float y = 0;
+	    		float z = 1000;
+	
+	    		EXTFogCoord.glFogCoordfEXT(1.0f);
+	    		GL11.glTexCoord2f(0.0f, 0.0f);
+	    		GL11.glVertex3f(x-2.5f,y-2.5f,z-15.0f);
+	
+	    		EXTFogCoord.glFogCoordfEXT(1.0f);
+	    		GL11.glTexCoord2f(1.0f, 0.0f);
+	    		GL11.glVertex3f(x+2.5f,y-2.5f,z-15.0f);
+	
+	    		EXTFogCoord.glFogCoordfEXT(1.0f);
+	    		GL11.glTexCoord2f(1.0f, 1.0f);
+	    		GL11.glVertex3f(x+2.5f, y+2.5f,z-15.0f);
+	
+	    		EXTFogCoord.glFogCoordfEXT(1.0f);
+	    		GL11.glTexCoord2f(0.0f, 1.0f);
+	    		GL11.glVertex3f(x-2.5f, y+2.5f,z-15.0f);
+	
+	    		GL11.glEnd();
+	
+	    		GL11.glFlush();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+    	}
+    	
     }
 }
