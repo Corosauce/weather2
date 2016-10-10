@@ -1,5 +1,6 @@
 package weather2.client;
 
+import java.lang.reflect.Field;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -20,9 +23,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -49,7 +52,6 @@ import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
-import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.behavior.ParticleBehaviorFogGround;
 import extendedrenderer.particle.behavior.ParticleBehaviorMiniTornado;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
@@ -96,6 +98,30 @@ public class SceneEnhancer implements Runnable {
     public static ParticleBehaviorMiniTornado miniTornado;
     
     public static ParticleBehaviorFogGround particleBehaviorFog;
+    
+    //sandstorm fog state
+    public static double distToStormThreshold = 100;
+    public static double distToStorm = distToStormThreshold + 50;
+    public static float stormFogRed = 0;
+    public static float stormFogGreen = 0;
+    public static float stormFogBlue = 0;
+    public static float stormFogRedOrig = 0;
+    public static float stormFogGreenOrig = 0;
+    public static float stormFogBlueOrig = 0;
+    public static float stormFogDensity = 0;
+    public static float stormFogDensityOrig = 0;
+
+    public static float stormFogStart = 0;
+    public static float stormFogEnd = 0;
+    public static float stormFogStartOrig = 0;
+    public static float stormFogEndOrig = 0;
+    
+    public static float stormFogStartClouds = 0;
+    public static float stormFogEndClouds = 0;
+    public static float stormFogStartCloudsOrig = 0;
+    public static float stormFogEndCloudsOrig = 0;
+    
+    public static boolean needFogState = false;
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -125,6 +151,7 @@ public class SceneEnhancer implements Runnable {
 			
 			//tickTest();
 			//tickTestFog();
+			tickSandstorm();
 		}
 	}
 	
@@ -1393,6 +1420,132 @@ public class SceneEnhancer implements Runnable {
     	}
     	
     	particleBehaviorFog.tickUpdateList();
+    }
+    
+    /**
+     * Manages transitioning fog densities and color from current vanilla settings to our desired settings, and vice versa
+     */
+    public static void tickSandstorm() {
+    	
+    	//debug code start
+    	distToStorm--;
+    	if (distToStorm <= 0) {
+    		distToStorm = distToStormThreshold + 100;
+    	}
+    	//debug code end
+    	
+    	float fogColorChangeRate = 0.01F;
+    	float fogDistChangeRate = 2F;
+    	float fogDensityChangeRate = 0.01F;
+    	
+    	if (distToStorm < distToStormThreshold) {
+    		if (needFogState) {
+    			stormFogRed = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175080_Q");
+    			stormFogGreen = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175082_R");
+    			stormFogBlue = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175081_S");
+    			
+    			try {
+    				Object fogState = ObfuscationReflectionHelper.getPrivateValue(GlStateManager.class, null, "field_179155_g");
+    				Class<?> innerClass = Class.forName("net.minecraft.client.renderer.GlStateManager$FogState");
+    				Field fieldDensity = null;
+    				Field fieldStart = null;
+    				Field fieldEnd = null;
+    				try {
+    					fieldDensity = innerClass.getField("field_179048_c");
+    					fieldDensity.setAccessible(true);
+    					fieldStart = innerClass.getField("field_179045_d");
+    					fieldStart.setAccessible(true);
+    					fieldEnd = innerClass.getField("field_179046_e");
+    					fieldEnd.setAccessible(true);
+					} catch (Exception e) {
+						//dev env mode
+						fieldDensity = innerClass.getField("density");
+						fieldDensity.setAccessible(true);
+						fieldStart = innerClass.getField("start");
+    					fieldStart.setAccessible(true);
+    					fieldEnd = innerClass.getField("end");
+    					fieldEnd.setAccessible(true);
+					}
+    				stormFogDensity = fieldDensity.getFloat(fogState);
+    				
+    				//with this they sky has a drastic change
+    				stormFogStart = fieldStart.getFloat(fogState);
+    				stormFogEnd = fieldEnd.getFloat(fogState);
+    				
+    				//with this, the sky is fixed, but fog has a sudden change right at the end
+    				stormFogStartClouds = 0;
+    				stormFogEndClouds = 192;
+    				
+    				//its due to startCoords state changing in EntityRenderer i think
+    				
+    				stormFogStartOrig = stormFogStart;
+    				stormFogEndOrig = stormFogEnd;
+    				stormFogStartCloudsOrig = stormFogStartClouds;
+    				stormFogEndCloudsOrig = stormFogEndClouds;
+    				
+    				stormFogDensityOrig = stormFogDensity;
+    				
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+    			
+    			stormFogRedOrig = stormFogRed;
+    			stormFogGreenOrig = stormFogGreen;
+    			stormFogBlueOrig = stormFogBlue;
+    			needFogState = false;
+    		}
+    		
+    		stormFogRed = adjVal(stormFogRed, 0.7F, fogColorChangeRate);
+    		stormFogGreen = adjVal(stormFogGreen, 0.6F, fogColorChangeRate);
+    		stormFogBlue = adjVal(stormFogBlue, 0.3F, fogColorChangeRate);
+    		
+    		stormFogDensity = adjVal(stormFogDensity, 0.5F, fogDensityChangeRate);
+    		
+    		stormFogStart = adjVal(stormFogStart, 0F, fogDistChangeRate);
+    		stormFogEnd = adjVal(stormFogEnd, 20F, fogDistChangeRate);
+    		stormFogStartClouds = adjVal(stormFogStartClouds, 0F, fogDistChangeRate);
+    		stormFogEndClouds = adjVal(stormFogEndClouds, 20F, fogDistChangeRate);
+    		
+    		//System.out.println("ON");
+    	} else {
+    		needFogState = true;
+    		//if these values are already equal it shouldnt actually do anything
+    		stormFogRed = adjVal(stormFogRed, stormFogRedOrig, fogColorChangeRate);
+    		stormFogGreen = adjVal(stormFogGreen, stormFogGreenOrig, fogColorChangeRate);
+    		stormFogBlue = adjVal(stormFogBlue, stormFogBlueOrig, fogColorChangeRate);
+    		
+    		stormFogDensity = adjVal(stormFogDensity, stormFogDensityOrig, fogDensityChangeRate);
+    		
+    		stormFogStart = adjVal(stormFogStart, stormFogStartOrig, fogDistChangeRate);
+    		stormFogEnd = adjVal(stormFogEnd, stormFogEndOrig, fogDistChangeRate);
+    		stormFogStartClouds = adjVal(stormFogStartClouds, stormFogStartCloudsOrig, fogDistChangeRate);
+    		stormFogEndClouds = adjVal(stormFogEndClouds, stormFogEndCloudsOrig, fogDistChangeRate);
+    		
+    		//System.out.println("OFF");
+    	}
+    }
+    
+    public static boolean isFogOverridding() {
+    	return distToStorm < distToStormThreshold || 
+    			(stormFogRed != stormFogRedOrig || stormFogGreen != stormFogGreenOrig || stormFogBlue != stormFogBlueOrig) || 
+    			(stormFogDensity != stormFogDensityOrig || stormFogStart != stormFogStartOrig || stormFogEnd != stormFogEndOrig);
+    }
+    
+    public static float adjVal(float source, float target, float adj) {
+    	if (source < target) {
+    		source += adj;
+    		//fix over adjust
+    		if (source > target) {
+    			source = target;
+    		}
+    	} else if (source > target) {
+    		source -= adj;
+    		//fix over adjust
+    		if (source < target) {
+    			source = target;
+    		}
+    	}
+    	return source;
     }
     
     public static void renderWorldLast(RenderWorldLastEvent event) {

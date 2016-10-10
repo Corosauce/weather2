@@ -111,7 +111,7 @@ public class Weather {
 	 * Triggered when communicating with other mods
 	 * @param event
 	 */
-    @EventHandler
+    @Mod.EventHandler
     public void handleIMCMessages(IMCMessage event) {
 
     	
