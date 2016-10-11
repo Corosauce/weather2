@@ -148,8 +148,16 @@ public class WeatherManagerBase {
 		World world = getWorld();
 		if (world != null) {
 			//tick storms
-			for (int i = 0; i < getStormObjects().size(); i++) {
-				getStormObjects().get(i).tickRender(partialTick);
+			//There are scenarios where getStormObjects().get(i) returns a null storm, uncertain why, for now try to catch it and move on
+			try {
+				for (int i = 0; i < getStormObjects().size(); i++) {
+					StormObject obj = getStormObjects().get(i);
+					if (obj != null) {
+						obj.tickRender(partialTick);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}
