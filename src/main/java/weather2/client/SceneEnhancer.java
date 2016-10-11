@@ -152,6 +152,7 @@ public class SceneEnhancer implements Runnable {
 			//tickTest();
 			//tickTestFog();
 			tickSandstorm();
+			tickTestSandstormParticles();
 		}
 	}
 	
@@ -1422,6 +1423,10 @@ public class SceneEnhancer implements Runnable {
     	particleBehaviorFog.tickUpdateList();
     }
     
+    public static void tickTestSandstormParticles() {
+    	
+    }
+    
     /**
      * Manages transitioning fog densities and color from current vanilla settings to our desired settings, and vice versa
      */
@@ -1550,60 +1555,7 @@ public class SceneEnhancer implements Runnable {
     
     public static void renderWorldLast(RenderWorldLastEvent event) {
     	
-    	boolean testFogCoords = false;
-    	if (testFogCoords) {
-	    	try {
-	
-	    		//GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-	    		
-	    		FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
-	    		{
-	    			fogColor.put(new float[]{0.4f, 0.0f, 0.0f, 0.2f});
-	    			fogColor.flip();
-	    		}
-	    		GL11.glEnable(GL11.GL_FOG);
-	    		GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_LINEAR);                  // Fog Fade Is Linear
-	
-	    		GL11.glFog(GL11.GL_FOG_COLOR, fogColor);               // Set The Fog Color
-	
-	    		GL11.glFogf(GL11.GL_FOG_START,  0.9f);                  // Set The Fog Start (Least Dense)
-	
-	    		GL11.glFogf(GL11.GL_FOG_END,    0.1f);                  // Set The Fog End (Most Dense)
-	
-	    		GL11.glHint(GL11.GL_FOG_HINT, GL11.GL_NICEST);                  // Per-Pixel Fog Calculation
-	
-	    		GL11.glFogi(EXTFogCoord.GL_FOG_COORDINATE_SOURCE_EXT, EXTFogCoord.GL_FOG_COORDINATE_EXT);
-	
-	
-	    		GL11.glBegin(GL11.GL_QUADS);
-	
-	    		float x = 0;
-	    		float y = 0;
-	    		float z = 1000;
-	
-	    		EXTFogCoord.glFogCoordfEXT(1.0f);
-	    		GL11.glTexCoord2f(0.0f, 0.0f);
-	    		GL11.glVertex3f(x-2.5f,y-2.5f,z-15.0f);
-	
-	    		EXTFogCoord.glFogCoordfEXT(1.0f);
-	    		GL11.glTexCoord2f(1.0f, 0.0f);
-	    		GL11.glVertex3f(x+2.5f,y-2.5f,z-15.0f);
-	
-	    		EXTFogCoord.glFogCoordfEXT(1.0f);
-	    		GL11.glTexCoord2f(1.0f, 1.0f);
-	    		GL11.glVertex3f(x+2.5f, y+2.5f,z-15.0f);
-	
-	    		EXTFogCoord.glFogCoordfEXT(1.0f);
-	    		GL11.glTexCoord2f(0.0f, 1.0f);
-	    		GL11.glVertex3f(x-2.5f, y+2.5f,z-15.0f);
-	
-	    		GL11.glEnd();
-	
-	    		GL11.glFlush();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-    	}
+    	
     	
     }
 }

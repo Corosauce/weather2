@@ -7,9 +7,11 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.StormObjectSandstorm;
 import CoroUtil.util.CoroUtil;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
@@ -128,6 +130,17 @@ public class CommandWeather2 extends CommandBase {
 								so.alwaysProgresses = true;
 							} else if (var2[2].equalsIgnoreCase("test")) {
 								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
+							} else if (var2[2].equalsIgnoreCase("sandstorm")) {
+								so = new StormObjectSandstorm(wm);
+								so.layer = 0;
+								so.userSpawnedFor = CoroUtilEntity.getName(player);
+								so.naturallySpawned = false;
+								so.levelTemperature = 0F;
+								
+								so.pos = new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
+
+								so.levelWater = 0;
+								so.attrib_precipitation = false;
 							}
 							
 							if (var2.length > 3) {
