@@ -82,6 +82,9 @@ public class EventHandlerForge {
         	event.setCanceled(true);
         	event.setDensity(SceneEnhancer.stormFogDensity);
         }*/
+        
+        //event.setCanceled(true);
+        //event.setDensity(0.0F);
     }
 	
 	@SubscribeEvent

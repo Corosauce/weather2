@@ -127,26 +127,31 @@ public class RenderFlyingBlock extends Render
                 if (block.getRenderType(iblockstate) == EnumBlockRenderType.MODEL)
                 {
                 	if (entity instanceof EntityMovingBlock) {
-	                    GlStateManager.pushMatrix();
-	                    GlStateManager.translate((float)x, (float)y, (float)z);
-	                    GlStateManager.disableLighting();
-	                    Tessellator tessellator = Tessellator.getInstance();
-	                    VertexBuffer worldrenderer = tessellator.getBuffer();
-	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
-	                    int i = blockpos.getX();
-	                    int j = blockpos.getY();
-	                    int k = blockpos.getZ();
-	                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
-	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
-	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
-	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
-	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
-	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
-	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
-	                    tessellator.draw();
-	                    GlStateManager.enableLighting();
-	                    GlStateManager.popMatrix();
+                		try {
+                			GlStateManager.pushMatrix();
+    	                    GlStateManager.translate((float)x, (float)y, (float)z);
+    	                    GlStateManager.disableLighting();
+    	                    Tessellator tessellator = Tessellator.getInstance();
+    	                    VertexBuffer worldrenderer = tessellator.getBuffer();
+    	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
+    	                    int i = blockpos.getX();
+    	                    int j = blockpos.getY();
+    	                    int k = blockpos.getZ();
+    	                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
+    	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
+    	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
+    	                    tessellator.draw();
+    	                    GlStateManager.enableLighting();
+    	                    GlStateManager.popMatrix();
+						} catch (Exception e) {
+							//catch this issue, need real fix, https://github.com/Corosauce/weather2/issues/62 - java.lang.IllegalArgumentException: Cannot get property PropertyEnum{name=variant, clazz=class biomesoplenty.common.enums.BOPTrees, values=[mangrove, palm, redwood, willow]} as it does not exist in BlockState{block=minecraft:air, properties=[]}
+						}
+	                    
                 	} else if (entity instanceof EntityIceBall) {
                 		for (int ii = 0; ii < Math.min(4, CoroUtilParticle.maxRainDrops); ii++) {
                 			GlStateManager.pushMatrix();
