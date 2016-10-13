@@ -16,6 +16,7 @@ import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.WeatherObject;
 
 @SideOnly(Side.CLIENT)
 public class WeatherManagerClient extends WeatherManagerBase {
@@ -66,7 +67,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
-			StormObject so = lookupStormObjectsByID.get(ID);
+			WeatherObject so = lookupStormObjectsByID.get(ID);
 			if (so != null) {
 				removeStormObject(ID);
 			} else {
@@ -77,7 +78,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
-			StormObject so = lookupStormObjectsByID.get(ID);
+			WeatherObject so = lookupStormObjectsByID.get(ID);
 			if (so != null) {
 				so.nbtSyncFromServer(stormNBT);
 			} else {

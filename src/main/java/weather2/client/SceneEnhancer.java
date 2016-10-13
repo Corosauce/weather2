@@ -1465,7 +1465,7 @@ public class SceneEnhancer implements Runnable {
     	
     	if (mc.theWorld.getTotalWorldTime() % 40 == 0) {
     		//System.out.println("circ: " + circ);
-    		System.out.println("degRate: " + degRate);
+    		//System.out.println("degRate: " + degRate);
     	}
     	
     	Random rand = mc.theWorld.rand;
@@ -1477,7 +1477,7 @@ public class SceneEnhancer implements Runnable {
 	    		double z = vecWOP.zCoord + (Math.cos(Math.toRadians(i)) * (size + sizeRand));
 	    		double y = vecWOP.yCoord;
 	    		
-	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+	    		TextureAtlasSprite sprite = ParticleRegistry.chicken;
 	    		if (mc.theWorld.rand.nextInt(30) == 0) {
 	    			//sprite = ParticleRegistry.smokeTest;
 	    		}
@@ -1486,7 +1486,7 @@ public class SceneEnhancer implements Runnable {
 	    				, 0, 0, 0, sprite);
 	    		particleBehaviorFog.initParticle(part);
 	    		part.setFacePlayer(false);
-	    		part.isTransparent = true;
+	    		part.isTransparent = false;
 	    		part.rotationYaw = (float) -i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
 	    		part.rotationPitch = 0;
 	    		part.setMaxAge(300);

@@ -50,7 +50,7 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
 
-public class StormObject {
+public class StormObject extends WeatherObject {
 
 	//used on both server and client side, mark things SideOnly where needed
 	
@@ -59,9 +59,7 @@ public class StormObject {
 	//should they extend entity?
 	
 	//management stuff
-	public static long lastUsedStormID = 0; //ID starts from 0 for each game start, no storm nbt disk reload for now
-	public long ID; //loosely accurate ID for tracking, but we wanted to persist between world reloads..... need proper UUID??? I guess add in UUID later and dont persist, start from 0 per game run
-	public WeatherManagerBase manager;
+	
 	public String userSpawnedFor = "";
 	
 	@SideOnly(Side.CLIENT)
@@ -85,9 +83,6 @@ public class StormObject {
 	public static int static_YPos_layer2 = 500;
 	public static List<Integer> layers = new ArrayList<Integer>(Arrays.asList(static_YPos_layer0, static_YPos_layer1, static_YPos_layer2));
 	public int layer = 0;
-	public Vec3 pos = new Vec3(0, static_YPos_layer0, 0);
-	public Vec3 posGround = new Vec3(0, 0, 0);
-	public Vec3 motion = new Vec3(0, 0, 0);
 	
 	public boolean angleIsOverridden = false;
 	public float angleMovementTornadoOverride = 0;
@@ -172,7 +167,7 @@ public class StormObject {
     public boolean naturallySpawned = true;
     public boolean canSnowFromCloudTemperature = false;
     public boolean alwaysProgresses = false;
-    public boolean isDead = false;
+    
     
     //to let client know server is raining (since we override client side raining state for render changes)
     //public boolean overCastModeAndRaining = false;
@@ -186,7 +181,9 @@ public class StormObject {
     //public static long lastStormFormed = 0;
     
 	public StormObject(WeatherManagerBase parManager) {
-		manager = parManager;
+		super(parManager);
+		
+		pos = new Vec3(0, static_YPos_layer0, 0);
 		
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
@@ -196,9 +193,8 @@ public class StormObject {
 		}
 	}
 	
-	//not used yet
 	public void initFirstTime() {
-		ID = StormObject.lastUsedStormID++;
+		super.initFirstTime();
 		
 		Biome bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 
@@ -256,6 +252,7 @@ public class StormObject {
 	
 	public void readFromNBT(NBTTagCompound var1)
     {
+		super.readFromNBT(var1);
 		nbtSyncFromServer(var1);
 		
 		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
@@ -263,10 +260,10 @@ public class StormObject {
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
 	
-	public NBTTagCompound writeToNBT()
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-		
-		NBTTagCompound nbt = nbtSyncForClient();
+		nbt = super.writeToNBT(nbt);
+		nbt = nbtSyncForClient(nbt);
 		
 		nbt.setDouble("vecX", motion.xCoord);
 		nbt.setDouble("vecY", motion.yCoord);
@@ -280,6 +277,7 @@ public class StormObject {
 	
 	//receiver method
 	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+		super.nbtSyncFromServer(parNBT);
 		ID = parNBT.getLong("ID");
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
@@ -322,8 +320,8 @@ public class StormObject {
 	}
 	
 	//compose nbt data for packet (and serialization in future)
-	public NBTTagCompound nbtSyncForClient() {
-		NBTTagCompound data = new NBTTagCompound();
+	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
+		NBTTagCompound data = super.nbtSyncForClient(nbt);
 		
 		data.setInteger("posX", (int)pos.xCoord);
 		data.setInteger("posY", (int)pos.yCoord);
@@ -369,11 +367,12 @@ public class StormObject {
 	
 	public NBTTagCompound nbtForIMC() {
 		//we basically need all the same data minus a few soooo whatever
-		return nbtSyncForClient();
+		return nbtSyncForClient(new NBTTagCompound());
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void tickRender(float partialTick) {
+		super.tickRender(partialTick);
 		//renderBlock.doRenderClouds(this, 0, 0, 0, 0, partialTick);
 		/*if (layer == 1) {
 			renderBlock.doRenderClouds(this, pos.xCoord, pos.yCoord, pos.zCoord, 0, partialTick);
@@ -381,6 +380,7 @@ public class StormObject {
 	}
 	
 	public void tick() {
+		super.tick();
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
 		
 
@@ -1043,43 +1043,48 @@ public class StormObject {
 						}
 					} else if (rand.nextInt(randomChanceOfCollide) == 0) {
 						for (int i = 0; i < manager.getStormObjects().size(); i++) {
-							StormObject so = manager.getStormObjects().get(i);
+							WeatherObject wo = manager.getStormObjects().get(i);
 							
-							boolean startStorm = false;
-							
-							if (so.ID != this.ID && so.levelCurIntensityStage <= 0) {
-								if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
-									if (this.levelTemperature < 0) {
-										if (so.levelTemperature > 0) {
-											startStorm = true;
-										}
-									} else if (this.levelTemperature > 0) {
-										if (so.levelTemperature < 0) {
-											startStorm = true;
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject) wo;
+								
+								boolean startStorm = false;
+								
+								if (so.ID != this.ID && so.levelCurIntensityStage <= 0) {
+									if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
+										if (this.levelTemperature < 0) {
+											if (so.levelTemperature > 0) {
+												startStorm = true;
+											}
+										} else if (this.levelTemperature > 0) {
+											if (so.levelTemperature < 0) {
+												startStorm = true;
+											}
 										}
 									}
 								}
+								
+								if (startStorm) {
+									
+									//Weather.dbg("start storm!");
+									
+									playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+									
+									//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
+									EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+									
+									if (entP != null) {
+										initRealStorm(entP, so);
+									} else {
+										initRealStorm(null, so);
+										//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
+										//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
+									}
+									
+									break;
+								}
 							}
 							
-							if (startStorm) {
-								
-								//Weather.dbg("start storm!");
-								
-								playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
-								
-								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
-								EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
-								
-								if (entP != null) {
-									initRealStorm(entP, so);
-								} else {
-									initRealStorm(null, so);
-									//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
-									//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
-								}
-								
-								break;
-							}
 						}
 					}
 				//}
@@ -2114,8 +2119,11 @@ public class StormObject {
     public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder) {
     	double speed = 0D;
 		Random rand = new Random();
-    	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, ParticleRegistry.cloud256, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
+    	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, ParticleRegistry.potato, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
 		particleBehaviorFog.initParticle(entityfx);
+		
+		//potato
+		//entityfx.setRBGColorF(1f, 1f, 1f);
 		
 		//lock y
 		//entityfx.spawnY = (float) entityfx.posY;
@@ -2182,31 +2190,15 @@ public class StormObject {
 		return entityfx;
     }
 	
-	public void reset() {
-		setDead();
-	}
-	
-	public void setDead() {
-		//Weather.dbg("storm killed, ID: " + ID);
-		
-		isDead = true;
-		
-		//cleanup memory
-		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT/*manager.getWorld().isRemote*/) {
-			cleanupClient();
-		}
-		
-		cleanup();
-	}
-	
 	public void cleanup() {
-		manager = null;
+		super.cleanup();
 		if (tornadoHelper != null) tornadoHelper.storm = null;
 		tornadoHelper = null;
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void cleanupClient() {
+		super.cleanupClient();
 		listParticlesCloud.clear();
 		listParticlesFunnel.clear();
 		if (particleBehaviorFog != null && particleBehaviorFog.particles != null) particleBehaviorFog.particles.clear();

@@ -18,6 +18,7 @@ import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.util.CoroUtilFile;
 import CoroUtil.util.Vec3;
@@ -29,8 +30,8 @@ public class WeatherManagerBase {
 	public int dim;
 	
 	//storms
-	private List<StormObject> listStormObjects = new ArrayList<StormObject>();
-	public HashMap<Long, StormObject> lookupStormObjectsByID = new HashMap<Long, StormObject>();
+	private List<WeatherObject> listStormObjects = new ArrayList<WeatherObject>();
+	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<Long, WeatherObject>();
 	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<Integer, ArrayList<StormObject>>();
 	//private ArrayList<ArrayList<StormObject>> listStormObjectsByLayer = new ArrayList<ArrayList<StormObject>>();
 	
@@ -55,7 +56,7 @@ public class WeatherManagerBase {
 	
 	public void reset() {
 		for (int i = 0; i < getStormObjects().size(); i++) {
-			StormObject so = getStormObjects().get(i);
+			WeatherObject so = getStormObjects().get(i);
 			
 			so.reset();
 		}
@@ -92,9 +93,9 @@ public class WeatherManagerBase {
 		World world = getWorld();
 		if (world != null) {
 			//tick storms
-			List<StormObject> list = getStormObjects();
+			List<WeatherObject> list = getStormObjects();
 			for (int i = 0; i < list.size(); i++) {
-				StormObject so = list.get(i);
+				WeatherObject so = list.get(i);
 				if (this instanceof WeatherManagerServer && so.isDead) {
 					removeStormObject(so.ID);
 					((WeatherManagerServer)this).syncStormRemove(so);
@@ -151,7 +152,7 @@ public class WeatherManagerBase {
 			//There are scenarios where getStormObjects().get(i) returns a null storm, uncertain why, for now try to catch it and move on
 			try {
 				for (int i = 0; i < getStormObjects().size(); i++) {
-					StormObject obj = getStormObjects().get(i);
+					WeatherObject obj = getStormObjects().get(i);
 					if (obj != null) {
 						obj.tickRender(partialTick);
 					}
@@ -162,7 +163,7 @@ public class WeatherManagerBase {
 		}
 	}
 	
-	public List<StormObject> getStormObjects() {
+	public List<WeatherObject> getStormObjects() {
 		return listStormObjects;
 	}
 	
@@ -170,24 +171,30 @@ public class WeatherManagerBase {
 		return lookupStormObjectsByLayer.get(layer);
 	}
 	
-	public void addStormObject(StormObject so) {
+	public void addStormObject(WeatherObject so) {
 		if (!lookupStormObjectsByID.containsKey(so.ID)) {
 			listStormObjects.add(so);
 			lookupStormObjectsByID.put(so.ID, so);
-			lookupStormObjectsByLayer.get(so.layer).add(so);
+			if (so instanceof StormObject) {
+				StormObject so2 = (StormObject) so;
+				lookupStormObjectsByLayer.get(so2.layer).add(so2);
+			}
 		} else {
 			Weather.dbg("Weather2 WARNING!!! Client received new storm create for an ID that is already active! design bug");
 		}
 	}
 	
 	public void removeStormObject(long ID) {
-		StormObject so = lookupStormObjectsByID.get(ID);
+		WeatherObject so = lookupStormObjectsByID.get(ID);
 		
 		if (so != null) {
 			so.setDead();
 			listStormObjects.remove(so);
 			lookupStormObjectsByID.remove(ID);
-			lookupStormObjectsByLayer.get(so.layer).remove(so);
+			if (so instanceof StormObject) {
+				StormObject so2 = (StormObject) so;
+				lookupStormObjectsByLayer.get(so2.layer).remove(so2);
+			}
 		} else {
 			Weather.dbg("error looking up storm ID on server for removal: " + ID + " - lookup count: " + lookupStormObjectsByID.size() + " - last used ID: " + StormObject.lastUsedStormID);
 		}
@@ -231,21 +238,25 @@ public class WeatherManagerBase {
 		StormObject closestStorm = null;
 		double closestDist = 9999999;
 		
-		List<StormObject> listStorms = getStormObjects();
+		List<WeatherObject> listStorms = getStormObjects();
 		
 		for (int i = 0; i < listStorms.size(); i++) {
-			StormObject storm = listStorms.get(i);
-			if (storm == null || storm.isDead) continue;
-			double dist = storm.pos.distanceTo(parPos);
-			/*if (getWorld().isRemote) {
-				System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
-			}*/
-			if (dist < closestDist && dist <= maxDist) {
-				if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
-					closestStorm = storm;
-					closestDist = dist;
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof StormObject) {
+				StormObject storm = (StormObject) wo;
+				if (storm == null || storm.isDead) continue;
+				double dist = storm.pos.distanceTo(parPos);
+				/*if (getWorld().isRemote) {
+					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
+				}*/
+				if (dist < closestDist && dist <= maxDist) {
+					if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
+						closestStorm = storm;
+						closestDist = dist;
+					}
 				}
 			}
+			
 		}
 		
 		return closestStorm;
@@ -255,11 +266,14 @@ public class WeatherManagerBase {
 		List<StormObject> storms = new ArrayList<StormObject>();
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
-			StormObject storm = getStormObjects().get(i);
-			if (storm.isDead) continue;
-			
-			if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
-				storms.add(storm);
+			WeatherObject wo = getStormObjects().get(i);
+			if (wo instanceof StormObject) {
+				StormObject storm = (StormObject) wo;
+				if (storm.isDead) continue;
+				
+				if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
+					storms.add(storm);
+				}
 			}
 		}
 		
@@ -280,8 +294,9 @@ public class WeatherManagerBase {
 		
 		NBTTagCompound listStormsNBT = new NBTTagCompound();
 		for (int i = 0; i < listStormObjects.size(); i++) {
-			StormObject obj = listStormObjects.get(i);
-			NBTTagCompound objNBT = obj.writeToNBT();
+			WeatherObject obj = listStormObjects.get(i);
+			NBTTagCompound nbt = new NBTTagCompound();
+			NBTTagCompound objNBT = obj.writeToNBT(nbt);
 			listStormsNBT.setTag("storm_" + obj.ID, objNBT);
 		}
 		mainNBT.setTag("stormData", listStormsNBT);

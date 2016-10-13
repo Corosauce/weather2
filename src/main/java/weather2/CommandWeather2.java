@@ -11,7 +11,8 @@ import net.minecraft.util.math.BlockPos;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
-import weather2.weathersystem.storm.StormObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObject;
 import CoroUtil.util.CoroUtil;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
@@ -54,14 +55,17 @@ public class CommandWeather2 extends CommandBase {
 					if (var2[1].equalsIgnoreCase("killAll")) {
 						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimension());
 						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "killing all storms");
-						List<StormObject> listStorms = wm.getStormObjects();
+						List<WeatherObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
-							StormObject so = listStorms.get(i);
-							Weather.dbg("force killing storm ID: " + so.ID);
-							so.setDead();
-							/*wm.syncStormRemove(so);
-							wm.removeStormObject(so.ID);
-							*/
+							WeatherObject wo = listStorms.get(i);
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject) wo;
+								Weather.dbg("force killing storm ID: " + so.ID);
+								so.setDead();
+								/*wm.syncStormRemove(so);
+								wm.removeStormObject(so.ID);
+								*/
+							}
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
 						if (var2.length > 2) {
@@ -130,8 +134,8 @@ public class CommandWeather2 extends CommandBase {
 								so.alwaysProgresses = true;
 							} else if (var2[2].equalsIgnoreCase("test")) {
 								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
-							} else if (var2[2].equalsIgnoreCase("sandstorm")) {
-								so = new StormObjectSandstorm(wm);
+							}/* else if (var2[2].equalsIgnoreCase("sandstorm")) {
+								so = new WeatherObjectSandstorm(wm);
 								so.layer = 0;
 								so.userSpawnedFor = CoroUtilEntity.getName(player);
 								so.naturallySpawned = false;
@@ -141,7 +145,7 @@ public class CommandWeather2 extends CommandBase {
 
 								so.levelWater = 0;
 								so.attrib_precipitation = false;
-							}
+							}*/
 							
 							if (var2.length > 3) {
 								if (var2[3].contains("Progress") || var2[3].contains("progress")) {

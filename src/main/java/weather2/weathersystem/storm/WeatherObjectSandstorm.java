@@ -2,21 +2,21 @@ package weather2.weathersystem.storm;
 
 import weather2.weathersystem.WeatherManagerBase;
 
-public class StormObjectSandstorm extends StormObject {
+public class WeatherObjectSandstorm extends WeatherObject {
 
-	public int height = 0;
+	//public int height = 0;
 	
 	
-	public StormObjectSandstorm(WeatherManagerBase parManager) {
+	public WeatherObjectSandstorm(WeatherManagerBase parManager) {
 		super(parManager);
 	}
 	
 	public void initSandstorm() {
-		height = 0;
+		/*height = 0;
 		size = 0;
 		
 		maxSize = 300;
-		maxHeight = 100;
+		maxHeight = 100;*/
 	}
 	
 	@Override
@@ -26,20 +26,20 @@ public class StormObjectSandstorm extends StormObject {
 		boolean testGrowth = true;
 		
 		if (testGrowth) {
-			if (size < maxSize) {
+			/*if (size < maxSize) {
 				size++;
 			}
 			
 			if (height < maxHeight) {
 				height++;
-			}
+			}*/
 			
 			
 		}
 		
 	}
 	
-	@Override
+	
 	public void tickClient() {
 		//super.tickClient();
 	}
