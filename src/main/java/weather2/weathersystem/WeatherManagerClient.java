@@ -15,8 +15,10 @@ import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.volcano.VolcanoObject;
+import weather2.weathersystem.storm.EnumStormType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 @SideOnly(Side.CLIENT)
 public class WeatherManagerClient extends WeatherManagerBase {
@@ -58,10 +60,19 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			//long ID = stormNBT.getLong("ID");
 			
-			StormObject so = new StormObject(ClientTickHandler.weatherManager);
-			so.nbtSyncFromServer(stormNBT);
+			EnumStormType stormType = EnumStormType.get(stormNBT.getInteger("stormType"));
 			
-			addStormObject(so);
+			WeatherObject wo = null;
+			if (stormType == EnumStormType.CLOUD) {
+				wo = new StormObject(ClientTickHandler.weatherManager);
+			} else if (stormType == EnumStormType.SAND) {
+				wo = new WeatherObjectSandstorm(ClientTickHandler.weatherManager);
+			}
+			
+			//StormObject so
+			wo.nbtSyncFromServer(stormNBT);
+			
+			addStormObject(wo);
 		} else if (command.equals("syncStormRemove")) {
 			//Weather.dbg("removing client side storm");
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");

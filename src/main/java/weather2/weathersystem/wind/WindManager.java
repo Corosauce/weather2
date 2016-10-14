@@ -105,7 +105,11 @@ public class WindManager {
 	
 	//Angle getters\\
 	
-	//WIP
+	/**
+	 * WIP, Returns angle in degrees, 0-360
+	 * 
+	 * @return
+	 */
 	public float getWindAngleForPriority() {
 		//gets event wind, or if none, global, etc
 		if (windTimeEvent > 0) {
@@ -117,14 +121,29 @@ public class WindManager {
 		}
 	}
 	
+	/**
+	 * Returns angle in degrees, 0-360
+	 * 
+	 * @return
+	 */
 	public float getWindAngleForEvents() {
 		return windAngleEvent;
 	}
 	
+	/**
+	 * Returns angle in degrees, 0-360
+	 * 
+	 * @return
+	 */
 	public float getWindAngleForGusts() {
 		return windAngleGust;
 	}
 	
+	/**
+	 * Returns angle in degrees, 0-360
+	 * 
+	 * @return
+	 */
 	public float getWindAngleForClouds() {
 		return windAngleGlobal;
 	}

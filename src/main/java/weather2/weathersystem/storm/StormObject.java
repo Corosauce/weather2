@@ -88,8 +88,7 @@ public class StormObject extends WeatherObject {
 	public float angleMovementTornadoOverride = 0;
 	
 	//growth / progression info
-	public int size = 50;
-	public int maxSize = ConfigMisc.Storm_MaxRadius;
+	
 	public boolean isGrowing = true;
 	
 	//cloud formation data, helps storms
@@ -184,6 +183,7 @@ public class StormObject extends WeatherObject {
 		super(parManager);
 		
 		pos = new Vec3(0, static_YPos_layer0, 0);
+		maxSize = ConfigMisc.Storm_MaxRadius;
 		
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
@@ -278,12 +278,6 @@ public class StormObject extends WeatherObject {
 	//receiver method
 	public void nbtSyncFromServer(NBTTagCompound parNBT) {
 		super.nbtSyncFromServer(parNBT);
-		ID = parNBT.getLong("ID");
-		//Weather.dbg("StormObject " + ID + " receiving sync");
-		
-		pos = new Vec3(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
-		size = parNBT.getInteger("size");
-		maxSize = parNBT.getInteger("maxSize");
 		
 		//state = parNBT.getInteger("state");
 		
@@ -323,13 +317,7 @@ public class StormObject extends WeatherObject {
 	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
 		NBTTagCompound data = super.nbtSyncForClient(nbt);
 		
-		data.setInteger("posX", (int)pos.xCoord);
-		data.setInteger("posY", (int)pos.yCoord);
-		data.setInteger("posZ", (int)pos.zCoord);
 		
-		data.setLong("ID", ID);
-		data.setInteger("size", size);
-		data.setInteger("maxSize", maxSize);
 		
 		//data.setInteger("state", state);
 		

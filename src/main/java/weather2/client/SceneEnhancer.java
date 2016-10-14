@@ -1433,73 +1433,7 @@ public class SceneEnhancer implements Runnable {
     	
     	
     	
-    	double size = 150;
-    	//double height = 50;
-    	double distanceToCenter = vecWOP.distanceTo(new Vec3d(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
-    	//how close to renderable particle wall
-    	double distanceToFront = distanceToCenter - size;
-    	boolean isInside = distanceToFront < 0;
     	
-    	double circ = Math.PI * size;
-    	
-    	//double scale = 10;
-    	double distBetweenParticles = 3;
-    	
-    	//double circScale = circ / distBetweenParticles;
-    	
-    	/**
-    	 * if circ is 10, 10 / 3 size = 3 particles
-    	 * if 30 circ / 3 size = 10 particles
-    	 * if 200 circ / 3 size = 66 particles
-    	 * 
-    	 * how many degrees do we need to jump, 
-    	 * 360 / 3 part = 120
-    	 * 360 / 10 part = 36
-    	 * 360 / 66 part = 5.4
-    	 * 
-    	 */
-    	
-    	//need steady dist between particles
-    	
-    	double degRate = 360D / (circ / distBetweenParticles);
-    	
-    	if (mc.theWorld.getTotalWorldTime() % 40 == 0) {
-    		//System.out.println("circ: " + circ);
-    		//System.out.println("degRate: " + degRate);
-    	}
-    	
-    	Random rand = mc.theWorld.rand;
-    	
-	    for (double i = 0; i < 360; i += degRate) {
-	    	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
-	    		double sizeRand = rand.nextDouble() * 30D - rand.nextDouble() * 30D;
-	    		double x = vecWOP.xCoord + (Math.sin(Math.toRadians(i)) * (size + sizeRand));
-	    		double z = vecWOP.zCoord + (Math.cos(Math.toRadians(i)) * (size + sizeRand));
-	    		double y = vecWOP.yCoord;
-	    		
-	    		TextureAtlasSprite sprite = ParticleRegistry.chicken;
-	    		if (mc.theWorld.rand.nextInt(30) == 0) {
-	    			//sprite = ParticleRegistry.smokeTest;
-	    		}
-	    		
-	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, x, y, z
-	    				, 0, 0, 0, sprite);
-	    		particleBehaviorFog.initParticle(part);
-	    		part.setFacePlayer(false);
-	    		part.isTransparent = false;
-	    		part.rotationYaw = (float) -i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
-	    		part.rotationPitch = 0;
-	    		part.setMaxAge(300);
-	    		part.setGravity(0.09F);
-	    		part.setAlphaF(1F);
-	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.3F);
-	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
-	    		part.setScale(100);
-	    		//particleBehaviorFog.particles.add(part);
-	    		part.spawnAsWeatherEffect();
-	    		//mc.effectRenderer.addEffect(part);
-	    	}
-    	}
     	
     	//need circumference math to keep constant distance between particles to spawn based on size of storm
     	//this also needs adjusting based on the chosed particle scale (that is based on players distance to storm)

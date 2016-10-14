@@ -191,4 +191,8 @@ public class ServerTickHandler
     		lookupDimToWeatherMan.clear();
     	}
     }
+    
+    public static WeatherManagerServer getWeatherSystemForDim(int dimID) {
+    	return lookupDimToWeatherMan.get(dimID);
+    }
 }

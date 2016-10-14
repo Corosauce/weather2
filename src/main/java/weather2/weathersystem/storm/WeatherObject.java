@@ -19,6 +19,11 @@ public class WeatherObject {
 	public Vec3 posGround = new Vec3(0, 0, 0);
 	public Vec3 motion = new Vec3(0, 0, 0);
 	
+	public int size = 50;
+	public int maxSize = 0;
+	
+	public EnumStormType stormType = EnumStormType.CLOUD;
+	
 	public WeatherObject(WeatherManagerBase parManager) {
 		manager = parManager;
 	}
@@ -71,10 +76,24 @@ public class WeatherObject {
     }
 	
 	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+		ID = parNBT.getLong("ID");
+		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
+		pos = new Vec3(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
+		size = parNBT.getInteger("size");
+		maxSize = parNBT.getInteger("maxSize");
+		this.stormType = EnumStormType.get(parNBT.getInteger("stormType"));
 	}
 	
 	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
+		nbt.setInteger("posX", (int)pos.xCoord);
+		nbt.setInteger("posY", (int)pos.yCoord);
+		nbt.setInteger("posZ", (int)pos.zCoord);
+		
+		nbt.setLong("ID", ID);
+		nbt.setInteger("size", size);
+		nbt.setInteger("maxSize", maxSize);
+		nbt.setInteger("stormType", this.stormType.ordinal());
 		return nbt;
 	}
 	

@@ -69,6 +69,8 @@ public class CommandWeather2 extends CommandBase {
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
 						if (var2.length > 2) {
+							//TODO: make this handle non StormObject types better, currently makes instance and doesnt use that type if its a sandstorm
+							boolean spawnCloudStorm = true;
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimension());
 							StormObject so = new StormObject(wm);
 							so.layer = 0;
@@ -134,18 +136,19 @@ public class CommandWeather2 extends CommandBase {
 								so.alwaysProgresses = true;
 							} else if (var2[2].equalsIgnoreCase("test")) {
 								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
-							}/* else if (var2[2].equalsIgnoreCase("sandstorm")) {
-								so = new WeatherObjectSandstorm(wm);
-								so.layer = 0;
-								so.userSpawnedFor = CoroUtilEntity.getName(player);
-								so.naturallySpawned = false;
-								so.levelTemperature = 0F;
+							} else if (var2[2].equalsIgnoreCase("sandstorm")) {
 								
-								so.pos = new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
+								WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(wm);
+								
+								//sandstorm.pos = new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
 
-								so.levelWater = 0;
-								so.attrib_precipitation = false;
-							}*/
+								sandstorm.initFirstTime();
+								sandstorm.initSandstormSpawn(new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ));
+								wm.addStormObject(sandstorm);
+								wm.syncStormNew(sandstorm);
+								spawnCloudStorm = false;
+								
+							}
 							
 							if (var2.length > 3) {
 								if (var2[3].contains("Progress") || var2[3].contains("progress")) {
@@ -153,9 +156,11 @@ public class CommandWeather2 extends CommandBase {
 								}
 							}
 							
-							so.initFirstTime();
-							wm.addStormObject(so);
-							wm.syncStormNew(so);
+							if (spawnCloudStorm) {
+								so.initFirstTime();
+								wm.addStormObject(so);
+								wm.syncStormNew(so);
+							}
 							
 							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : ""));
 						} else {

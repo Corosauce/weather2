@@ -421,4 +421,8 @@ public class WeatherManagerBase {
 		
 		
 	}
+	
+	public WindManager getWindManager() {
+		return this.windMan;
+	}
 }
