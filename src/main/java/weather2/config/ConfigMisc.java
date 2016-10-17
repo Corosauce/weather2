@@ -135,6 +135,8 @@ public class ConfigMisc implements IConfigCategory {
 	public static double sirenActivateDistance = 256D;
 	public static double sensorActivateDistance = 256D;
 	public static boolean Block_WeatherMachineNoTornadosOrCyclones = false;
+	//TODO: basic item for recipes, so i can add config to disable weather machine without breaking other recipes
+	//public static boolean Block_WeatherMachineNoRecipe = false;
 	
 	//dimension settings
 	public static String Dimension_List_Weather = "0,-127";

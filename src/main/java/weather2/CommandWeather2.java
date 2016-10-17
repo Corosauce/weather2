@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import weather2.util.WeatherUtilBlock;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
@@ -168,9 +169,13 @@ public class CommandWeather2 extends CommandBase {
 						}
 					} else if (var2[1].equals("help")) {
 						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
+						
 					} else {
 						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 					}
+				} else if (var2[0].equals("testderp")) {
+					//EntityPlayerMP player = (EntityPlayerMP) var1;
+					WeatherUtilBlock.floodAreaWithSand(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 10, 1);
 				} else {
 					CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 				}
