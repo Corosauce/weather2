@@ -30,6 +30,7 @@ public class WeatherUtilBlock {
 		float thickness = 1F;
 		float tickStep = 0.75F;
 		int fillPerTick = 100;
+		float spreadDist = 10;
 		//use snow for now, make sand block after
 		
 		//snow has 8 layers till its a full solid block (full solid on 8th layer)
@@ -38,6 +39,8 @@ public class WeatherUtilBlock {
 		int ySource = world.getHeight(posSourcei).getY();
 		int y = ySource;
 		float startScan = fillDistance;
+		
+		Vec3 posLastNonWall = new Vec3(posSource);
 		
 		//scan outwards to find closest wall
 		for (float i = 0; i < fillDistance; i += tickStep) {
@@ -53,8 +56,62 @@ public class WeatherUtilBlock {
     		if (state.getMaterial() != Material.AIR) {
     			startScan = i;
     			break;
+    		} else {
+    			posLastNonWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
     		}
 		}
+		
+		boolean radialWay = true;
+		
+		//make dynamic depending on dist, see particle code for algo
+		float angleScanRes = 15;
+		
+		/**
+		 * Scan in a pattern that sand would spread in IRL
+		 * needs to scan in an arc, 360, cant assume we actually hit wall, but scanning will avoid filling up a wall of course
+		 * - hit wall, spread dist 1 block, scan forward
+		 * - scan left and right of decreasing angle
+		 * - after full angle scan, repeat with larger block dist, and smaller angle jump amount to account for distance from center (use even particle spread algo for that)
+		 * - there will be lots of redundant scans, due to resolution of scan and shared positions from left/right for first and last angled scans, owell
+		 * 
+		 * still needs code to support dropping sand down on lower blocks
+		 */
+		
+		int amountToFill = fillPerTick;
+		
+		//distance
+		for (float i = 1; i < spreadDist && amountToFill > 0; i += 0.75F) {
+			
+			//radial
+			for (float angle = 0; angle <= 180 && amountToFill > 0; angle += angleScanRes) {
+				
+				//left/right
+				for (int mode = 0; mode <= 1 && amountToFill > 0; mode++) {
+					
+					float orientationMulti = 1F;
+					if (mode == 1) {
+						orientationMulti = -1F;
+					}
+					double vecX = (-Math.sin(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
+		    		double vecZ = (Math.cos(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
+		    		
+		    		int x = MathHelper.floor_double(posLastNonWall.xCoord + vecX);
+		    		int z = MathHelper.floor_double(posLastNonWall.zCoord + vecZ);
+		    		
+		    		BlockPos pos = new BlockPos(x, y, z);
+		    		//IBlockState state = world.getBlockState(pos);
+		    		
+		    		amountToFill = trySpreadOnPos(world, pos, amountToFill);
+				}
+			}
+			
+    		
+    		
+    		
+    		
+		}
+		
+		if (radialWay) return;
 		
 		//scan inwards from the non air block we found
 		for (float i = startScan; i > 0; i -= tickStep) {
@@ -76,6 +133,8 @@ public class WeatherUtilBlock {
     		if (meta < snowMetaMax) {
         		meta += 1;
     		}*/
+    		
+    		
     		
     		boolean tryNew = true;
     		
@@ -136,6 +195,35 @@ public class WeatherUtilBlock {
 	    		}
     		}
 		}
+	}
+	
+	public static int trySpreadOnPos(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd) {
+		IBlockState state = world.getBlockState(posSpreadTo);
+		//verifies its snow or air with solid under it, use val snowMetaMax+1 to enforce always spread
+		if (canSpreadTo(world, posSpreadTo, snowMetaMax+1)) {
+			int height = 0;
+			if (state.getBlock() == Blocks.SNOW_LAYER) {
+				height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
+			}
+			//int extraFill = amount;
+			if (height <= snowMetaMax-1) {
+				height += amount;
+				if (height > snowMetaMax) {
+					amount = height - snowMetaMax;
+					height = snowMetaMax;
+				} else {
+					amount = 0;
+				}
+				try {
+					world.setBlockState(posSpreadTo, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
+			}
+		}
+		return amount;
 	}
 	
 	/**
