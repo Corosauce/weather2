@@ -29,8 +29,7 @@ public class WeatherUtilBlock {
 		//want to use this variable for how much the fill up spreads out to neighboring blocks
 		float thickness = 1F;
 		float tickStep = 0.75F;
-		int fillPerTick = 100;
-		float spreadDist = 10;
+		int fillPerTick = 300;
 		//use snow for now, make sand block after
 		
 		//snow has 8 layers till its a full solid block (full solid on 8th layer)
@@ -64,7 +63,7 @@ public class WeatherUtilBlock {
 		boolean radialWay = true;
 		
 		//make dynamic depending on dist, see particle code for algo
-		float angleScanRes = 15;
+		
 		
 		/**
 		 * Scan in a pattern that sand would spread in IRL
@@ -72,15 +71,29 @@ public class WeatherUtilBlock {
 		 * - hit wall, spread dist 1 block, scan forward
 		 * - scan left and right of decreasing angle
 		 * - after full angle scan, repeat with larger block dist, and smaller angle jump amount to account for distance from center (use even particle spread algo for that)
-		 * - there will be lots of redundant scans, due to resolution of scan and shared positions from left/right for first and last angled scans, owell
+		 * - 
 		 * 
 		 * still needs code to support dropping sand down on lower blocks
 		 */
 		
+		float angleScanRes = 5;
+		float spreadDist = 6;
 		int amountToFill = fillPerTick;
+		
+		//prevents trying to add sand to same position twice due to how trig code rounds to nearest block coord
+		List<BlockPos> listProcessedFilter = new ArrayList<BlockPos>();
 		
 		//distance
 		for (float i = 1; i < spreadDist && amountToFill > 0; i += 0.75F) {
+			
+			//int amountToAddBasedOnDist = (int) (((float)snowMetaMax / spreadDist) * (float)i);
+			
+			/**
+			 * for making it add less sand to each block the more distant it is from where the sand "landed"
+			 * TODO: make this formula not suck for other spreadDist sizes, currently manually tweaked
+			 */
+			int amountToAddBasedOnDist = (int) (((float)snowMetaMax+1F) - (i*1.5F));
+			if (amountToAddBasedOnDist < 1) amountToAddBasedOnDist = 1;
 			
 			//radial
 			for (float angle = 0; angle <= 180 && amountToFill > 0; angle += angleScanRes) {
@@ -99,9 +112,12 @@ public class WeatherUtilBlock {
 		    		int z = MathHelper.floor_double(posLastNonWall.zCoord + vecZ);
 		    		
 		    		BlockPos pos = new BlockPos(x, y, z);
-		    		//IBlockState state = world.getBlockState(pos);
 		    		
-		    		amountToFill = trySpreadOnPos(world, pos, amountToFill);
+		    		//IBlockState state = world.getBlockState(pos);
+		    		if (!listProcessedFilter.contains(pos)) {
+		    			listProcessedFilter.add(pos);
+		    			amountToFill = trySpreadOnPos(world, pos, amountToFill, amountToAddBasedOnDist);
+		    		}
 				}
 			}
 			
@@ -110,6 +126,8 @@ public class WeatherUtilBlock {
     		
     		
 		}
+		
+		System.out.println("leftover: " + amountToFill);
 		
 		if (radialWay) return;
 		
@@ -198,6 +216,9 @@ public class WeatherUtilBlock {
 	}
 	
 	public static int trySpreadOnPos(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd) {
+		
+		amount -= amountAllowedToAdd;
+		
 		IBlockState state = world.getBlockState(posSpreadTo);
 		//verifies its snow or air with solid under it, use val snowMetaMax+1 to enforce always spread
 		if (canSpreadTo(world, posSpreadTo, snowMetaMax+1)) {
@@ -207,12 +228,12 @@ public class WeatherUtilBlock {
 			}
 			//int extraFill = amount;
 			if (height <= snowMetaMax-1) {
-				height += amount;
+				height += amountAllowedToAdd;
 				if (height > snowMetaMax) {
-					amount = height - snowMetaMax;
+					amountAllowedToAdd = height - snowMetaMax;
 					height = snowMetaMax;
 				} else {
-					amount = 0;
+					amountAllowedToAdd = 0;
 				}
 				try {
 					world.setBlockState(posSpreadTo, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
@@ -223,7 +244,8 @@ public class WeatherUtilBlock {
 				
 			}
 		}
-		return amount;
+		
+		return amount + amountAllowedToAdd;
 	}
 	
 	/**
