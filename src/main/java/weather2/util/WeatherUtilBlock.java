@@ -29,7 +29,7 @@ public class WeatherUtilBlock {
 		//want to use this variable for how much the fill up spreads out to neighboring blocks
 		float thickness = 1F;
 		float tickStep = 0.75F;
-		int fillPerTick = 2;
+		int fillPerTick = 100;
 		//use snow for now, make sand block after
 		
 		//snow has 8 layers till its a full solid block (full solid on 8th layer)
@@ -77,43 +77,63 @@ public class WeatherUtilBlock {
         		meta += 1;
     		}*/
     		
-    		if (state.getMaterial() == Material.AIR) {
-    			world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, fillPerTick));
-    			foundSpotToFill = true;
-    			break;
-    		} else if (state.getBlock() == Blocks.SNOW_LAYER) {
-    			foundSpotToFill = true;
-    			//1 - 8
-    			int height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
-    			int extraFill = 0;
-    			if (height <= snowMetaMax-1) {
-    				height += fillPerTick;
-    				if (height > snowMetaMax) {
-    					extraFill = height - snowMetaMax;
-    					height = snowMetaMax;
-    				}
-    				world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
-    				if (extraFill > 0) {
-    					
-    					BlockPos nextPos = getPosToSpreadOn(world, world.rand, pos, null, height);
-    					if (nextPos != null) {
-    						int leftover = recurseSpreadSand(world, pos, pos, nextPos, extraFill, 1);
-    					}
-    				}
-    				System.out.println("extra to fill: " + extraFill);
-    				break;
-    			} else {
-    				//full from the start, treat like a wall
-    				//extraFill = fillPerTick;
-    				extraFill = fillPerTick;
-    				BlockPos nextPos = getPosToSpreadOn(world, world.rand, pos, null, height);
-					if (nextPos != null) {
-						int leftover = recurseSpreadSand(world, pos, pos, nextPos, extraFill, 1);
-					}
-    			}
-    			
-    			//world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, fillPerTick));
-    			
+    		boolean tryNew = true;
+    		
+    		//new
+    		if (tryNew) {
+	    		if (state.getMaterial() == Material.AIR || state.getBlock() == Blocks.SNOW_LAYER) {
+	    			int extraFill = fillPerTick;
+	    			int height = 0;
+	    			if (state.getBlock() == Blocks.SNOW_LAYER) {
+	    				height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
+	    			}
+	    			int leftover = recurseSpreadSand(world, pos, pos, pos, extraFill, 1);
+	    			break;
+					//BlockPos nextPos = getPosToSpreadOn(world, world.rand, pos, null, height);
+					/*if (nextPos != null) {
+						
+					}*/
+	    		}
+    		} else {
+    		
+	    		if (state.getMaterial() == Material.AIR) {
+	    			world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, fillPerTick));
+	    			foundSpotToFill = true;
+	    			break;
+	    		} else if (state.getBlock() == Blocks.SNOW_LAYER) {
+	    			foundSpotToFill = true;
+	    			//1 - 8
+	    			int height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
+	    			int extraFill = 0;
+	    			if (height <= snowMetaMax-1) {
+	    				height += fillPerTick;
+	    				if (height > snowMetaMax) {
+	    					extraFill = height - snowMetaMax;
+	    					height = snowMetaMax;
+	    				}
+	    				world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
+	    				if (extraFill > 0) {
+	    					
+	    					BlockPos nextPos = getPosToSpreadOn(world, world.rand, pos, null, height);
+	    					if (nextPos != null) {
+	    						int leftover = recurseSpreadSand(world, pos, pos, nextPos, extraFill, 1);
+	    					}
+	    				}
+	    				System.out.println("extra to fill: " + extraFill);
+	    				break;
+	    			} else {
+	    				//full from the start, treat like a wall
+	    				//extraFill = fillPerTick;
+	    				extraFill = fillPerTick;
+	    				BlockPos nextPos = getPosToSpreadOn(world, world.rand, pos, null, height);
+						if (nextPos != null) {
+							int leftover = recurseSpreadSand(world, pos, pos, nextPos, extraFill, 1);
+						}
+	    			}
+	    			
+	    			//world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, fillPerTick));
+	    			
+	    		}
     		}
 		}
 	}
@@ -138,19 +158,23 @@ public class WeatherUtilBlock {
 		if (state.getBlock() == Blocks.SNOW_LAYER) {
 			height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
 		}
-		int extraFill = 0;
+		//int extraFill = amount;
 		if (height <= snowMetaMax-1) {
 			height += amount;
 			if (height > snowMetaMax) {
-				extraFill = height - snowMetaMax;
+				amount = height - snowMetaMax;
 				height = snowMetaMax;
+			} else {
+				amount = 0;
 			}
 			world.setBlockState(posSpreadTo, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
-			if (extraFill > 0) {
-				BlockPos nextPos = getPosToSpreadOn(world, world.rand, posSpreadTo, posSpreadFrom, height);
-				if (nextPos != null) {
-					amount = recurseSpreadSand(world, posOriginalSource, posSpreadTo, nextPos, amount, currentRecurseDepth+1);
-				}
+			
+		}
+		
+		if (amount > 0) {
+			BlockPos nextPos = getPosToSpreadOn(world, world.rand, posSpreadTo, posSpreadFrom, height);
+			if (nextPos != null) {
+				amount = recurseSpreadSand(world, posOriginalSource, posSpreadTo, nextPos, amount, currentRecurseDepth+1);
 			}
 		}
 		
