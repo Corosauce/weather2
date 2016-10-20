@@ -120,11 +120,6 @@ public class WeatherUtilBlock {
 		    		}
 				}
 			}
-			
-    		
-    		
-    		
-    		
 		}
 		
 		System.out.println("leftover: " + amountToFill);
@@ -360,7 +355,7 @@ public class WeatherUtilBlock {
 			if (height < sourceAmount) {
 				return true;
 			}
-		} else if (state.getMaterial() == Material.AIR) {
+		} else if (state.getMaterial() == Material.AIR || state.getBlock().isReplaceable(world, pos)) {
 			if (world.getBlockState(pos.add(0, -1, 0)).isSideSolid(world, pos.add(0, -1, 0), EnumFacing.UP)) {
 				return true;
 			}
