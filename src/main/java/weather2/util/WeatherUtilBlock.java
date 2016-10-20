@@ -79,9 +79,12 @@ public class WeatherUtilBlock {
 		float angleScanRes = 5;
 		float spreadDist = 6;
 		int amountToFill = fillPerTick;
+		int maxFallDist = 10;
 		
 		//prevents trying to add sand to same position twice due to how trig code rounds to nearest block coord
 		List<BlockPos> listProcessedFilter = new ArrayList<BlockPos>();
+		
+		amountToFill = trySpreadOnPos(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountToFill, snowMetaMax, maxFallDist);
 		
 		//distance
 		for (float i = 1; i < spreadDist && amountToFill > 0; i += 0.75F) {
@@ -116,7 +119,7 @@ public class WeatherUtilBlock {
 		    		//IBlockState state = world.getBlockState(pos);
 		    		if (!listProcessedFilter.contains(pos)) {
 		    			listProcessedFilter.add(pos);
-		    			amountToFill = trySpreadOnPos(world, pos, amountToFill, amountToAddBasedOnDist);
+		    			amountToFill = trySpreadOnPos(world, pos, amountToFill, amountToAddBasedOnDist, maxFallDist);
 		    		}
 				}
 			}
@@ -152,7 +155,7 @@ public class WeatherUtilBlock {
     		boolean tryNew = true;
     		
     		//new
-    		if (tryNew) {
+    		/*if (tryNew) {
 	    		if (state.getMaterial() == Material.AIR || state.getBlock() == Blocks.SNOW_LAYER) {
 	    			int extraFill = fillPerTick;
 	    			int height = 0;
@@ -161,10 +164,6 @@ public class WeatherUtilBlock {
 	    			}
 	    			int leftover = recurseSpreadSand(world, pos, pos, pos, extraFill, 1);
 	    			break;
-					//BlockPos nextPos = getPosToSpreadOn(world, world.rand, pos, null, height);
-					/*if (nextPos != null) {
-						
-					}*/
 	    		}
     		} else {
     		
@@ -206,17 +205,18 @@ public class WeatherUtilBlock {
 	    			//world.setBlockState(pos, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, fillPerTick));
 	    			
 	    		}
-    		}
+    		}*/
 		}
 	}
 	
-	public static int trySpreadOnPos(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd) {
+	public static int trySpreadOnPos(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd, int maxDropAllowed) {
 		
 		amount -= amountAllowedToAdd;
 		
-		IBlockState state = world.getBlockState(posSpreadTo);
+		BlockPos posSpreadToNew = canSpreadToOrGetAdjustedPos(world, posSpreadTo, snowMetaMax+1, maxDropAllowed);
 		//verifies its snow or air with solid under it, use val snowMetaMax+1 to enforce always spread
-		if (canSpreadTo(world, posSpreadTo, snowMetaMax+1)) {
+		if (posSpreadToNew != null) {
+			IBlockState state = world.getBlockState(posSpreadToNew);
 			int height = 0;
 			if (state.getBlock() == Blocks.SNOW_LAYER) {
 				height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
@@ -231,7 +231,7 @@ public class WeatherUtilBlock {
 					amountAllowedToAdd = 0;
 				}
 				try {
-					world.setBlockState(posSpreadTo, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
+					world.setBlockState(posSpreadToNew, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -256,7 +256,7 @@ public class WeatherUtilBlock {
 	 * @param amount
 	 * @param currentRecurseDepth
 	 */
-	public static int recurseSpreadSand(World world, BlockPos posOriginalSource, BlockPos posSpreadFrom, BlockPos posSpreadTo, int amount, int currentRecurseDepth) {
+	/*public static int recurseSpreadSand(World world, BlockPos posOriginalSource, BlockPos posSpreadFrom, BlockPos posSpreadTo, int amount, int currentRecurseDepth) {
 		
 		IBlockState state = world.getBlockState(posSpreadTo);
 		int height = 0;
@@ -284,7 +284,7 @@ public class WeatherUtilBlock {
 		}
 		
 		return amount;
-	}
+	}*/
 	
 	/*public static BlockPos getNextRandomPosition(Random rand, BlockPos source, BlockPos exclude) {
 		BlockPos pos = null;
@@ -313,7 +313,7 @@ public class WeatherUtilBlock {
 	 * @param sourceHeight
 	 * @return
 	 */
-	public static BlockPos getPosToSpreadOn(World world, Random rand, BlockPos source, BlockPos exclude, int sourceHeight) {
+	/*public static BlockPos getPosToSpreadOn(World world, Random rand, BlockPos source, BlockPos exclude, int sourceHeight) {
 		List<BlockPos> listPositions = new ArrayList<BlockPos>();
 		listPositions.add(new BlockPos(source.add(-1, 0, 0)));
 		listPositions.add(new BlockPos(source.add(1, 0, 0)));
@@ -324,7 +324,7 @@ public class WeatherUtilBlock {
 		while (listPositions.size() > 0) {
 			int randVal = rand.nextInt(listPositions.size());
 			BlockPos pos = listPositions.get(randVal);
-			if ((exclude != null && pos.equals(exclude)) || !canSpreadTo(world, pos, sourceHeight)) {
+			if ((exclude != null && pos.equals(exclude)) || !canSpreadToOrGetAdjustedPos(world, pos, sourceHeight)) {
 				listPositions.remove(randVal);
 			} else {
 				return pos;
@@ -332,34 +332,34 @@ public class WeatherUtilBlock {
 		}
 		
 		return null;
-		
-		/*while (pos == null || pos.equals(exclude)) {
-			int randVal = rand.nextInt(4);
-			if (randVal == 1) {
-				pos = new BlockPos(source.add(-1, 0, 0));
-			} else if (randVal == 2) {
-				pos = new BlockPos(source.add(1, 0, 0));
-			} else if (randVal == 3) {
-				pos = new BlockPos(source.add(0, 0, -1));
-			} else if (randVal == 4) {
-				pos = new BlockPos(source.add(0, 0, 1));
-			}
-		}
-		return pos;*/
-	}
+	}*/
 	
-	public static boolean canSpreadTo(World world, BlockPos pos, int sourceAmount) {
+	/**
+	 * Originally named canSpreadTo with a boolean return, now returns null for false, and returns adjusted BlockPos for "falling down" areas where its a cliff with lots of air blocks
+	 * 
+	 * @param world
+	 * @param pos
+	 * @param sourceAmount
+	 * @return
+	 */
+	public static BlockPos canSpreadToOrGetAdjustedPos(World world, BlockPos pos, int sourceAmount, int maxDropAllowed) {
 		IBlockState state = world.getBlockState(pos);
 		if (state.getBlock() == Blocks.SNOW_LAYER) {
 			int height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
 			if (height < sourceAmount) {
-				return true;
+				return pos;
 			}
-		} else if (state.getMaterial() == Material.AIR || state.getBlock().isReplaceable(world, pos)) {
+		//pretty sure we can assume its solid under for this one
+		} else if (state.getBlock().isReplaceable(world, pos)) {
+			return pos;
+		} else if (state.getMaterial() == Material.AIR) {
+			BlockPos tryPos = new BlockPos(pos);
+			int dropDist = 0;
+			while (dropDist++ < maxDropAllowed && )
 			if (world.getBlockState(pos.add(0, -1, 0)).isSideSolid(world, pos.add(0, -1, 0), EnumFacing.UP)) {
-				return true;
+				return pos;
 			}
 		}
-		return false;
+		return null;
 	}
 }
