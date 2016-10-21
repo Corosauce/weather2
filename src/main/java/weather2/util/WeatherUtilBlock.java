@@ -29,7 +29,7 @@ public class WeatherUtilBlock {
 		//want to use this variable for how much the fill up spreads out to neighboring blocks
 		float thickness = 1F;
 		float tickStep = 0.75F;
-		int fillPerTick = 300;
+		int fillPerTick = 3000;
 		//use snow for now, make sand block after
 		
 		//snow has 8 layers till its a full solid block (full solid on 8th layer)
@@ -37,6 +37,10 @@ public class WeatherUtilBlock {
 		BlockPos posSourcei = posSource.toBlockPos();
 		int ySource = world.getHeight(posSourcei).getY();
 		int y = ySource;
+		
+		//override y so it scans from where player is
+		y = (int) posSource.yCoord;
+		
 		float startScan = fillDistance;
 		
 		Vec3 posLastNonWall = new Vec3(posSource);
@@ -76,51 +80,63 @@ public class WeatherUtilBlock {
 		 * still needs code to support dropping sand down on lower blocks
 		 */
 		
-		float angleScanRes = 5;
-		float spreadDist = 6;
+		float angleScanRes = 1;
+		float spreadDist = 20;
 		int amountToFill = fillPerTick;
-		int maxFallDist = 10;
+		int maxFallDist = 20;
 		
 		//prevents trying to add sand to same position twice due to how trig code rounds to nearest block coord
 		List<BlockPos> listProcessedFilter = new ArrayList<BlockPos>();
 		
-		amountToFill = trySpreadOnPos(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountToFill, snowMetaMax, maxFallDist);
+		//TEMP OVERRIDE!!!! set pos to player
+		//posLastNonWall = posSource;
+		
+		amountToFill = trySpreadOnPos2(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountToFill, 2, maxFallDist);
 		
 		//distance
-		for (float i = 1; i < spreadDist && amountToFill > 0; i += 0.75F) {
-			
-			//int amountToAddBasedOnDist = (int) (((float)snowMetaMax / spreadDist) * (float)i);
-			
-			/**
-			 * for making it add less sand to each block the more distant it is from where the sand "landed"
-			 * TODO: make this formula not suck for other spreadDist sizes, currently manually tweaked
-			 */
-			int amountToAddBasedOnDist = (int) (((float)snowMetaMax+1F) - (i*1.5F));
-			if (amountToAddBasedOnDist < 1) amountToAddBasedOnDist = 1;
-			
-			//radial
-			for (float angle = 0; angle <= 180 && amountToFill > 0; angle += angleScanRes) {
+		boolean doRadius = true;
+		if (doRadius) {
+			for (float i = 1; i < spreadDist && amountToFill > 0; i += 0.75F) {
 				
-				//left/right
-				for (int mode = 0; mode <= 1 && amountToFill > 0; mode++) {
+				//int amountToAddBasedOnDist = (int) (((float)snowMetaMax / spreadDist) * (float)i);
+				
+				/**
+				 * for making it add less sand to each block the more distant it is from where the sand "landed"
+				 * TODO: make this formula not suck for other spreadDist sizes, currently manually tweaked
+				 */
+				int amountToAddBasedOnDist = (int) (((float)snowMetaMax+1F) - (i*1.5F));
+				if (amountToAddBasedOnDist < 1) amountToAddBasedOnDist = 1;
+				
+				//temp
+				amountToAddBasedOnDist = 2;
+				
+				//radial
+				for (float angle = 0; angle <= 180 && amountToFill > 0; angle += angleScanRes) {
 					
-					float orientationMulti = 1F;
-					if (mode == 1) {
-						orientationMulti = -1F;
+					//left/right
+					for (int mode = 0; mode <= 1 && amountToFill > 0; mode++) {
+						
+						float orientationMulti = 1F;
+						if (mode == 1) {
+							orientationMulti = -1F;
+						}
+						double vecX = (-Math.sin(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
+			    		double vecZ = (Math.cos(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
+			    		
+			    		int x = MathHelper.floor_double(posLastNonWall.xCoord + vecX);
+			    		int z = MathHelper.floor_double(posLastNonWall.zCoord + vecZ);
+			    		
+			    		//fix for derp y
+			    		y = (int)posLastNonWall.yCoord;
+			    		
+			    		BlockPos pos = new BlockPos(x, y, z);
+			    		
+			    		IBlockState state = world.getBlockState(pos);
+			    		if (!listProcessedFilter.contains(pos)) {
+			    			listProcessedFilter.add(pos);
+			    			amountToFill = trySpreadOnPos2(world, pos, amountToFill, amountToAddBasedOnDist, maxFallDist);
+			    		}
 					}
-					double vecX = (-Math.sin(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
-		    		double vecZ = (Math.cos(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
-		    		
-		    		int x = MathHelper.floor_double(posLastNonWall.xCoord + vecX);
-		    		int z = MathHelper.floor_double(posLastNonWall.zCoord + vecZ);
-		    		
-		    		BlockPos pos = new BlockPos(x, y, z);
-		    		
-		    		//IBlockState state = world.getBlockState(pos);
-		    		if (!listProcessedFilter.contains(pos)) {
-		    			listProcessedFilter.add(pos);
-		    			amountToFill = trySpreadOnPos(world, pos, amountToFill, amountToAddBasedOnDist, maxFallDist);
-		    		}
 				}
 			}
 		}
@@ -209,6 +225,162 @@ public class WeatherUtilBlock {
 		}
 	}
 	
+	public static int trySpreadOnPos2(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd, int maxDropAllowed) {
+		
+		/**
+		 * - check pos for solid
+		 * - if air, tick down till not air or drop limit
+		 * - at first non air, find first block with up face solid or snow block
+		 * - set air to everything between not air and up face solid or snow block (2 high tall grass removal)
+		 * - 
+		 * - run code that sets snow, deals with solid up face or existing snow, fully or partially layered
+		 * 
+		 * 
+		 */
+		
+		//must have clear air above first spots
+		//TODO: might need special case so we can fill up a partially layered snow block
+		if (world.getBlockState(posSpreadTo.add(0, 1, 0)).getMaterial() != Material.AIR) {
+			return amount;
+		}
+		
+		IBlockState statePos = world.getBlockState(posSpreadTo);
+		
+		BlockPos posCheckNonAir = new BlockPos(posSpreadTo);
+		IBlockState stateCheckNonAir = world.getBlockState(posCheckNonAir);
+		
+		int depth = 0;
+		
+		//find first non air
+		while (stateCheckNonAir.getMaterial() == Material.AIR) {
+			posCheckNonAir = posCheckNonAir.add(0, -1, 0);
+			stateCheckNonAir = world.getBlockState(posCheckNonAir);
+			depth++;
+			//bail if drop too far, aka sand/snow fully particleizes
+			if (depth > maxDropAllowed) {
+				return amount;
+			}
+		}
+		
+		BlockPos posCheckPlaceable = new BlockPos(posCheckNonAir);
+		IBlockState stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
+		
+		int distForPlaceableBlocks = 0;
+		
+		while (true && distForPlaceableBlocks < 10) {
+			//if can be placed into, continue
+			if (stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable)) {
+				posCheckPlaceable = posCheckPlaceable.add(0, -1, 0);
+				stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
+				distForPlaceableBlocks++;
+				continue;
+			//if its the kind of solid we want, break loop
+			} else if (stateCheckPlaceable.isSideSolid(world, posCheckPlaceable, EnumFacing.UP) || 
+					stateCheckPlaceable.getBlock() == Blocks.SNOW_LAYER) {
+				break;
+			//its something we cant stack onto
+			} else {
+				System.out.println("found unstackable block: " + stateCheckPlaceable);
+				return amount;
+			}
+		}
+		
+		//for some reason theres 10+ blocks of half solid blocks, lets just abort
+		if (distForPlaceableBlocks >= 10) {
+			return amount;
+		}
+		
+		//at this point the block we are about to work with is solid facing up, or snow
+		if (!stateCheckPlaceable.isSideSolid(world, posCheckPlaceable, EnumFacing.UP) && 
+					stateCheckPlaceable.getBlock() != Blocks.SNOW_LAYER) {
+			System.out.println("shouldnt be, failed a check somewhere!");
+			return amount;
+		}
+		
+		//lets clear out the blocks we found between air and solid or snow block
+		for (int i = 0; i < distForPlaceableBlocks; i++) {
+			world.setBlockState(posCheckNonAir.add(0, -i, 0), Blocks.AIR.getDefaultState());
+		}
+		
+		BlockPos posPlaceSnow = new BlockPos(posCheckPlaceable);
+		IBlockState statePlaceSnow = world.getBlockState(posPlaceSnow);
+		
+		int amountToAdd = amountAllowedToAdd;
+		
+		//add in the amount of air blocks we found
+		//distForPlaceableBlocks += depth;
+		
+		//just place while stuff to add and air above
+		
+		while (amountAllowedToAdd > 0 && world.getBlockState(posCheckPlaceable.add(0, 1, 0)).getMaterial() == Material.AIR) {
+			//if no more layers to add
+			if (amountAllowedToAdd <= 0) {
+				break;
+			}
+			//if its snow we can add snow to
+			if (statePlaceSnow.getBlock() == Blocks.SNOW_LAYER && ((Integer)statePlaceSnow.getValue(BlockSnow.LAYERS)).intValue() < snowMetaMax) {
+				int height = ((Integer)statePlaceSnow.getValue(BlockSnow.LAYERS)).intValue();
+				//if (height < snowMetaMax) {
+					height += amountAllowedToAdd;
+					if (height > snowMetaMax) {
+						amountAllowedToAdd = height - snowMetaMax;
+						height = snowMetaMax;
+						
+					} else {
+						amountAllowedToAdd = 0;
+					}
+					try {
+						world.setBlockState(posPlaceSnow, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					//if we maxed it, up the val
+					if (height == snowMetaMax) {
+						posPlaceSnow = posPlaceSnow.add(0, 1, 0);
+						statePlaceSnow = world.getBlockState(posPlaceSnow);
+					}
+				//}
+			//solid block------------------- or air because we moved up 1 due to the previous being fully filled snow
+			} else if (statePlaceSnow.isSideSolid(world, posPlaceSnow, EnumFacing.UP)) {
+				posPlaceSnow = posPlaceSnow.add(0, 1, 0);
+				statePlaceSnow = world.getBlockState(posPlaceSnow);
+			//air
+			} else if (statePlaceSnow.getMaterial() == Material.AIR) {
+				//copypasta, refactor/reduce once things work
+				int height = amountAllowedToAdd;
+				if (height > snowMetaMax) {
+					amountAllowedToAdd = height - snowMetaMax;
+					height = snowMetaMax;
+					
+				} else {
+					amountAllowedToAdd = 0;
+				}
+				try {
+					world.setBlockState(posPlaceSnow, Blocks.SNOW_LAYER.getDefaultState().withProperty(BlockSnow.LAYERS, height));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				//if we maxed it, up the val
+				if (height == snowMetaMax) {
+					posPlaceSnow = posPlaceSnow.add(0, 1, 0);
+					statePlaceSnow = world.getBlockState(posPlaceSnow);
+				}
+			} else {
+				System.out.println("wat! - " + statePlaceSnow);
+			}
+		}
+		
+		if (amountAllowedToAdd < 0) {
+			System.out.println("wat");
+		}
+		int amountAdded = amountToAdd - amountAllowedToAdd;
+		amount -= amountAdded;
+		return amount;
+		
+	}
+	
 	public static int trySpreadOnPos(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd, int maxDropAllowed) {
 		
 		amount -= amountAllowedToAdd;
@@ -222,7 +394,7 @@ public class WeatherUtilBlock {
 				height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
 			}
 			//int extraFill = amount;
-			if (height <= snowMetaMax-1) {
+			if (height < snowMetaMax) {
 				height += amountAllowedToAdd;
 				if (height > snowMetaMax) {
 					amountAllowedToAdd = height - snowMetaMax;
@@ -344,21 +516,40 @@ public class WeatherUtilBlock {
 	 */
 	public static BlockPos canSpreadToOrGetAdjustedPos(World world, BlockPos pos, int sourceAmount, int maxDropAllowed) {
 		IBlockState state = world.getBlockState(pos);
-		if (state.getBlock() == Blocks.SNOW_LAYER) {
-			int height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
-			if (height < sourceAmount) {
+		if (state.getBlock() == Blocks.SNOW_LAYER && ((Integer)state.getValue(BlockSnow.LAYERS)).intValue() < snowMetaMax) {
+			return pos;
+			//int height = ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
+			/*if (height < sourceAmount) {
 				return pos;
-			}
+			}*/
 		//pretty sure we can assume its solid under for this one
-		} else if (state.getBlock().isReplaceable(world, pos)) {
+		} else if (state.getBlock().isReplaceable(world, pos) && state.isSideSolid(world, pos.add(0, -1, 0), EnumFacing.UP)) {
 			return pos;
 		} else if (state.getMaterial() == Material.AIR) {
-			BlockPos tryPos = new BlockPos(pos);
+			BlockPos bestPos = new BlockPos(pos);
 			int dropDist = 0;
-			while (dropDist++ < maxDropAllowed && )
-			if (world.getBlockState(pos.add(0, -1, 0)).isSideSolid(world, pos.add(0, -1, 0), EnumFacing.UP)) {
-				return pos;
+			boolean foundSolid = false;
+			while (dropDist++ < maxDropAllowed) {
+				
+				IBlockState checkState = world.getBlockState(bestPos.add(0, -1, 0));
+				if (checkState.getMaterial() == Material.AIR) {
+					bestPos = bestPos.add(0, -1, 0);
+					continue;
+				} else {
+					if (checkState.isSideSolid(world, pos.add(0, -1, 0), EnumFacing.UP) || 
+							(checkState.getBlock() == Blocks.SNOW_LAYER && ((Integer)checkState.getValue(BlockSnow.LAYERS)).intValue() == snowMetaMax)) {
+						//return spot above solid
+						return bestPos;
+					} else if (state.getBlock().isReplaceable(world, pos)) {
+						//return the assumed solid block under it
+						return bestPos.add(0, -1, 0);
+					}
+				}
+				
 			}
+			/*if (world.getBlockState(pos.add(0, -1, 0)).isSideSolid(world, pos.add(0, -1, 0), EnumFacing.UP)) {
+				return pos;
+			}*/
 		}
 		return null;
 	}
