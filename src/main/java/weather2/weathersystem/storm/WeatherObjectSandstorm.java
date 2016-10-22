@@ -10,10 +10,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.ClientTickHandler;
+import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.util.WeatherUtil;
 import weather2.weathersystem.WeatherManagerBase;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFogGround;
+import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexFX;
 
@@ -30,7 +34,7 @@ import extendedrenderer.particle.entity.ParticleTexFX;
  * usual crazy storm sounds
  * hurt plantlife leafyness
  * 
- * 
+ * take sand and relocate it forward in direction storm is pushing, near center of where stormfront is
  * 
  * 
  * @author Corosus
@@ -45,7 +49,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
 	
-	public ParticleBehaviorFogGround particleBehaviorFog;
+	public ParticleBehaviorSandstorm particleBehavior;
 	
 	public int age = 0;
 	public int maxAge = 20*20;
@@ -64,6 +68,20 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public void initSandstormSpawn(Vec3 pos) {
 		this.pos = new Vec3(pos);
 		this.posSpawn = new Vec3(pos);
+		
+		size = 15;
+		maxSize = 100;
+		
+		maxAge = 20*60;
+		
+		float angle = manager.getWindManager().getWindAngleForClouds();
+		
+		double vecX = -Math.sin(Math.toRadians(angle));
+		double vecZ = Math.cos(Math.toRadians(angle));
+		double speed = 150D;
+		
+		this.pos.xCoord -= vecX * speed;
+		this.pos.zCoord -= vecZ * speed;
 		
 		/*height = 0;
 		size = 0;
@@ -91,11 +109,18 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			
 			if (!manager.getWorld().isRemote) {
 				age++;
-				System.out.println("sandstorm age: " + age);
+				//System.out.println("sandstorm age: " + age);
 				if (age >= maxAge) {
 					this.setDead();
 					return;
 				}
+				
+				if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
+					if (size < maxSize) {
+						size++;
+					}
+				}
+				
 			}
 		}
 		
@@ -103,10 +128,10 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
-		double speed = 5D;
+		double speed = 0.2D;
 		
-		//this.pos.xCoord += vecX * speed;
-		//this.pos.zCoord += vecZ * speed;
+		this.pos.xCoord += vecX * speed;
+		this.pos.zCoord += vecZ * speed;
 		
 		if (manager.getWorld().isRemote) {
 			tickClient();
@@ -118,13 +143,17 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
+		
+		if (WeatherUtil.isPaused()) return;
+		
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		if (particleBehaviorFog == null) {
-			particleBehaviorFog = new ParticleBehaviorFogGround(pos);
+		if (particleBehavior == null) {
+			particleBehavior = new ParticleBehaviorSandstorm(pos);
 		}
 		
-		double size = 150;
+		
+		//double size = 15;
     	//double height = 50;
     	double distanceToCenter = pos.distanceTo(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
     	//how close to renderable particle wall
@@ -161,40 +190,113 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	Random rand = mc.theWorld.rand;
     	
-	    for (double i = 0; i < 360; i += degRate) {
-	    	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
-	    		double sizeRand = rand.nextDouble() * 30D - rand.nextDouble() * 30D;
-	    		double x = pos.xCoord + (Math.sin(Math.toRadians(i)) * (size + sizeRand));
-	    		double z = pos.zCoord + (Math.cos(Math.toRadians(i)) * (size + sizeRand));
-	    		double y = pos.yCoord;
-	    		
-	    		TextureAtlasSprite sprite = ParticleRegistry.chicken;
-	    		if (mc.theWorld.rand.nextInt(30) == 0) {
-	    			//sprite = ParticleRegistry.smokeTest;
-	    		}
-	    		
-	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, x, y, z
-	    				, 0, 0, 0, sprite);
-	    		particleBehaviorFog.initParticle(part);
-	    		part.setFacePlayer(false);
-	    		part.isTransparent = false;
-	    		part.rotationYaw = (float) -i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
-	    		part.rotationPitch = 0;
-	    		part.setMaxAge(300);
-	    		part.setGravity(0.09F);
-	    		part.setAlphaF(1F);
-	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.3F);
-	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
-	    		part.setScale(100);
-	    		//particleBehaviorFog.particles.add(part);
-	    		part.spawnAsWeatherEffect();
-	    		//mc.effectRenderer.addEffect(part);
-	    		
-	    		
+    	this.height = this.size / 2;
+    	int heightLayers = Math.max(1, this.height / (int) distBetweenParticles);
+    	
+    	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
+    		//System.out.println(heightLayers);
+    	}
+    	
+    	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
+		    for (double i = 0; i < 360; i += degRate) {
+		    	if ((mc.theWorld.getTotalWorldTime()) % 40 == 0) {
+		    		
+		    		//double sizeSub = 0.1D * size;
+		    		
+		    		double sizeRand = (size + /*rand.nextDouble() * 30D*/ - rand.nextDouble() * size/*30D*/)/* / (double)heightLayer*/;
+		    		double x = pos.xCoord + (Math.sin(Math.toRadians(i)) * (sizeRand));
+		    		double z = pos.zCoord + (Math.cos(Math.toRadians(i)) * (sizeRand));
+		    		double y = pos.yCoord + (heightLayer * distBetweenParticles);
+		    		
+		    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+		    		
+		    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
+		    				, 0, 0, 0, sprite);
+		    		particleBehavior.initParticle(part);
+		    		
+		    		part.angleToStorm = i;
+		    		part.distAdj = sizeRand;
+		    		part.heightLayer = heightLayer;
+		    		
+		    		part.setFacePlayer(false);
+		    		part.isTransparent = true;
+		    		part.rotationYaw = (float) -i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
+		    		part.rotationPitch = 0;
+		    		part.setMaxAge(300);
+		    		part.setGravity(0.09F);
+		    		part.setAlphaF(1F);
+		    		float brightnessMulti = 1F - (rand.nextFloat() * 0.3F);
+		    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+		    		part.setScale(100);
+		    		particleBehavior.particles.add(part);
+		    		part.spawnAsWeatherEffect();
+		    		
+		    		//only need for non managed particles
+		    		//ClientTickHandler.weatherManager.addWeatheredParticle(part);
+		    		
+		    		//mc.effectRenderer.addEffect(part);
+		    		
+		    		
+		    	}
 	    	}
     	}
+
+	    float angle = manager.getWindManager().getWindAngleForClouds();
+		
+		double vecX = -Math.sin(Math.toRadians(angle));
+		double vecZ = Math.cos(Math.toRadians(angle));
+		//double speed = 0.2D;
+		
+		
 	    
-	    System.out.println("spawn particles at: " + pos);
+		particleBehavior.coordSource = pos;
+	    particleBehavior.tickUpdateList();
+	    
+	    //System.out.println("client side size: " + size);
+	    
+	    //weather specific updates
+	    for (int i = 0; i < particleBehavior.particles.size(); i++) {
+	    	ParticleSandstorm particle = (ParticleSandstorm) particleBehavior.particles.get(i);
+	    	
+	    	//particle.setMotionX(particle.getMotionX() + (vecX * speed));
+	    	//particle.setMotionZ(particle.getMotionZ() + (vecZ * speed));
+	    	
+	    	double x = pos.xCoord + (Math.sin(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
+    		double z = pos.zCoord + (Math.cos(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
+    		double y = pos.yCoord + (particle.heightLayer * distBetweenParticles);
+    		
+    		moveToPosition(particle, x, y, z, 0.01D);
+	    	//particle.setPosition(x, y, z);
+	    }
+	    
+	    //System.out.println("spawn particles at: " + pos);
+	}
+	
+	public void moveToPosition(ParticleSandstorm particle, double x, double y, double z, double maxSpeed) {
+		if (particle.getPosX() > x) {
+			particle.setMotionX(particle.getMotionX() + -maxSpeed);
+		} else {
+			particle.setMotionX(particle.getMotionX() + maxSpeed);
+		}
+		
+		/*if (particle.getPosY() > y) {
+			particle.setMotionY(particle.getMotionY() + -maxSpeed);
+		} else {
+			particle.setMotionY(particle.getMotionY() + maxSpeed);
+		}*/
+		
+		if (particle.getPosZ() > z) {
+			particle.setMotionZ(particle.getMotionZ() + -maxSpeed);
+		} else {
+			particle.setMotionZ(particle.getMotionZ() + maxSpeed);
+		}
+		
+		
+		double distXZ = Math.sqrt((particle.getPosX() - x) * 2 + (particle.getPosZ() - z) * 2);
+		if (distXZ < 5D) {
+			particle.setMotionX(particle.getMotionX() * 0.8D);
+			particle.setMotionZ(particle.getMotionZ() * 0.8D);
+		}
 	}
 	
 	@Override
