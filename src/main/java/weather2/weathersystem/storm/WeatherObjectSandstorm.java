@@ -115,7 +115,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					return;
 				}
 				
-				if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
+				if (manager.getWorld().getTotalWorldTime() % 3 == 0) {
 					if (size < maxSize) {
 						size++;
 					}
@@ -190,23 +190,36 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	Random rand = mc.theWorld.rand;
     	
-    	this.height = this.size / 2;
+    	this.height = this.size / 4;
     	int heightLayers = Math.max(1, this.height / (int) distBetweenParticles);
     	
     	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
     		//System.out.println(heightLayers);
     	}
     	
+    	/**
+    	 * 
+    	 * ideas: 
+    	 * - pull particle distance inwards as its y reduces
+    	 * -- factor in initial height spawn, first push out, then in, for a circularly shaped effect vertically
+    	 * - base needs to be bigger than upper area
+    	 * -- account for size change in the degRate value calculations for less particle spam
+    	 * - needs more independant particle motion, its too unified atm
+    	 * - irl sandstorms last between hours and days, adjust time for mc using speed and scale and lifetime
+    	 */
+    	
     	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
 		    for (double i = 0; i < 360; i += degRate) {
 		    	if ((mc.theWorld.getTotalWorldTime()) % 40 == 0) {
 		    		
-		    		//double sizeSub = 0.1D * size;
+		    		double sizeSub = heightLayer * 2D;
+		    		double sizeDyn = size - sizeSub;
+		    		double inwardsAdj = 0;//rand.nextDouble() * (sizeDyn * 0.75D);
 		    		
-		    		double sizeRand = (size + /*rand.nextDouble() * 30D*/ - rand.nextDouble() * size/*30D*/)/* / (double)heightLayer*/;
+		    		double sizeRand = (sizeDyn + /*rand.nextDouble() * 30D*/ - inwardsAdj/*30D*/)/* / (double)heightLayer*/;
 		    		double x = pos.xCoord + (Math.sin(Math.toRadians(i)) * (sizeRand));
 		    		double z = pos.zCoord + (Math.cos(Math.toRadians(i)) * (sizeRand));
-		    		double y = pos.yCoord + (heightLayer * distBetweenParticles);
+		    		double y = pos.yCoord + (heightLayer * distBetweenParticles * 2);
 		    		
 		    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 		    		
@@ -225,7 +238,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		part.setMaxAge(300);
 		    		part.setGravity(0.09F);
 		    		part.setAlphaF(1F);
-		    		float brightnessMulti = 1F - (rand.nextFloat() * 0.3F);
+		    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
 		    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 		    		part.setScale(100);
 		    		particleBehavior.particles.add(part);
