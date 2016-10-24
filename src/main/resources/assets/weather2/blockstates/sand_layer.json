@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "layers=1":  { "model": "weather2:sand_height2" },
+        "layers=2":  { "model": "weather2:sand_height4" },
+        "layers=3":  { "model": "weather2:sand_height6" },
+        "layers=4":  { "model": "weather2:sand_height8" },
+        "layers=5":  { "model": "weather2:sand_height10" },
+        "layers=6":  { "model": "weather2:sand_height12" },
+        "layers=7":  { "model": "weather2:sand_height14" },
+        "layers=8":  { "model": "sand" }
+    }
+}

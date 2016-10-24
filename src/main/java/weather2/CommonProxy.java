@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import weather2.block.BlockAnemometer;
+import weather2.block.BlockSandLayer;
 import weather2.block.BlockTSensor;
 import weather2.block.BlockTSiren;
 import weather2.block.BlockWeatherDeflector;
@@ -41,6 +42,7 @@ public class CommonProxy implements IGuiHandler
 	public static Block blockWeatherForecast;
 	public static Block blockWeatherMachine;
 	public static Block blockWeatherDeflector;
+	public static Block blockSandLayer;
 	public static CreativeTabWeather tab;
 	
     public CommonProxy()
@@ -70,7 +72,8 @@ public class CommonProxy implements IGuiHandler
     	addBlock(blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, "WeatherMachine", "Weather Machine (right click to cycle)");
     	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
     	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer", "Anemometer");
-        
+    	addBlock(blockSandLayer = (new BlockSandLayer()), "sand_layer", "Sand Layer");
+    	
     	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.REDSTONE, 'X', Items.IRON_INGOT});

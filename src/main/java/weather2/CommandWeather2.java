@@ -175,7 +175,7 @@ public class CommandWeather2 extends CommandBase {
 					}
 				} else if (var2[0].equals("testderp")) {
 					//EntityPlayerMP player = (EntityPlayerMP) var1;
-					WeatherUtilBlock.floodAreaWithSand(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 10, 1);
+					WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 0, 1, CommonProxy.blockSandLayer);
 				} else {
 					CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 				}
