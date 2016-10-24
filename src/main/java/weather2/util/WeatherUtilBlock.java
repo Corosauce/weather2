@@ -32,7 +32,7 @@ public class WeatherUtilBlock {
 		//want to use this variable for how much the fill up spreads out to neighboring blocks
 		float thickness = 1F;
 		float tickStep = 0.75F;
-		int fillPerTick = 3000;
+		int fillPerTick = 30;
 		//use snow for now, make sand block after
 		
 		//snow has 8 layers till its a full solid block (full solid on 8th layer)
@@ -97,7 +97,7 @@ public class WeatherUtilBlock {
 		amountToFill = trySpreadOnPos2(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountToFill, 2, maxFallDist, blockLayerable);
 		
 		//distance
-		boolean doRadius = false;
+		boolean doRadius = true;
 		if (doRadius) {
 			for (float i = 1; i < spreadDist && amountToFill > 0; i += 0.75F) {
 				

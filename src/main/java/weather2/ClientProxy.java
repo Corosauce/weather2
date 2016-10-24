@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -90,4 +91,21 @@ public class ClientProxy extends CommonProxy
     public void registerItem(Item item, int meta, ModelResourceLocation location) {
     	Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
     }
+    
+    @Override
+	public void registerItemVariantModel(Item item, String name, int metadata) {
+		if (item != null) { 
+			//     ModelBakery.registerItemVariants(item, new ResourceLocation(Info.MODID + ":" + name));
+			ModelLoader.setCustomModelResourceLocation(item, metadata, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
+		}
+	}
+
+	@Override
+	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {
+		if (item != null) {
+			// ModelResourceLocation mrl = new ModelResourceLocation(Info.MODID + ":" + registryName, variantName);
+			// ModelLoader.setCustomModelResourceLocation(item, metadata, mrl);
+			ModelLoader.setCustomModelResourceLocation(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
+		}
+	}
 }

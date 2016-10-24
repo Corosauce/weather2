@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
@@ -38,6 +39,7 @@ public class BlockSandLayer extends Block
         this.setDefaultState(this.blockState.getBaseState().withProperty(LAYERS, Integer.valueOf(1)));
         //this.setTickRandomly(true);
         this.setCreativeTab(CreativeTabs.DECORATIONS);
+        this.setSoundType(SoundType.SAND);
     }
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)

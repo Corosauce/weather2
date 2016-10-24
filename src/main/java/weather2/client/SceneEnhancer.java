@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -1452,6 +1453,16 @@ public class SceneEnhancer implements Runnable {
     		
     	//particleBehaviorFog.tickUpdateList();
     	
+		boolean derp = false;
+        if (derp) {
+        	IBlockState state = mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.getEntityBoundingBox().minY-1, mc.thePlayer.posZ));
+	    	int id = Block.getStateId(state);
+	    	id = 12520;
+	    	double speed = 0.2D;
+	    	Random rand = mc.theWorld.rand;
+	    	mc.theWorld.spawnParticle(EnumParticleTypes.BLOCK_DUST, mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 
+	    			(rand.nextDouble() - rand.nextDouble()) * speed, (rand.nextDouble()) * speed * 2D, (rand.nextDouble() - rand.nextDouble()) * speed, id);
+    	}
     }
     
     /**

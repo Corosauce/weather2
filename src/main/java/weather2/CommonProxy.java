@@ -29,6 +29,7 @@ import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.entity.EntityMovingBlock;
+import weather2.item.ItemSandLayer;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
 
@@ -43,6 +44,9 @@ public class CommonProxy implements IGuiHandler
 	public static Block blockWeatherMachine;
 	public static Block blockWeatherDeflector;
 	public static Block blockSandLayer;
+	
+	public static Item itemSandLayer;
+	
 	public static CreativeTabWeather tab;
 	
     public CommonProxy()
@@ -74,6 +78,8 @@ public class CommonProxy implements IGuiHandler
     	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer", "Anemometer");
     	addBlock(blockSandLayer = (new BlockSandLayer()), "sand_layer", "Sand Layer");
     	
+    	registerItem(new ItemSandLayer(blockSandLayer), "Sand Layer");
+    	
     	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.REDSTONE, 'X', Items.IRON_INGOT});
@@ -84,11 +90,11 @@ public class CommonProxy implements IGuiHandler
     	//LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
     }
     
-    public static void addItem(ItemStack is, String unlocalizedName) {
+    public void addItem(ItemStack is, String unlocalizedName) {
 		addItem(is, unlocalizedName, "");
 	}
 	
-	public static void addItem(ItemStack is, String unlocalizedName, String itemNameBase) {
+	public void addItem(ItemStack is, String unlocalizedName, String itemNameBase) {
 		
 		Item item = is.getItem();
 		
@@ -119,8 +125,19 @@ public class CommonProxy implements IGuiHandler
 		parBlock.setCreativeTab(tab);
 		//LanguageRegistry.addName(parBlock, blockNameBase);
 	}
+	
+	private Item registerItem(Item item, String name) {
+		item.setUnlocalizedName(getNamePrefixed(name));
+		item.setRegistryName(new ResourceLocation(Weather.modID, name));
+
+		GameRegistry.register(item);
+		item.setCreativeTab(tab);
+		registerItemVariantModel(item, name, 0);
+
+		return item;
+	}
     
-    public static void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
+    public void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
     	EntityRegistry.registerModEntity(par0Class, par1Str, entityId, Weather.instance, distSync, tickRateSync, syncMotion);
         //EntityList.addMapping(par0Class, par1Str, entityId);
     }
@@ -139,11 +156,14 @@ public class CommonProxy implements IGuiHandler
         return null;
     }
     
-    public static ResourceLocation getResource(String name) {
+    public void registerItemVariantModel(Item item, String name, int metadata) {}
+	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {}
+    
+    public ResourceLocation getResource(String name) {
     	return new ResourceLocation(Weather.modID, name);
     }
     
-    public static String getNamePrefixed(String name) {
+    public String getNamePrefixed(String name) {
     	return Weather.modID + "." + name;
     }
 }

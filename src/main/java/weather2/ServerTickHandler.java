@@ -4,11 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import CoroUtil.util.Vec3;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemSpade;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -16,6 +22,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityLightningBoltCustom;
+import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
@@ -127,6 +134,22 @@ public class ServerTickHandler
 	        		EntityLightningBoltCustom lightning = new EntityLightningBoltCustom(world, player.posX, player.posY, player.posZ);
 	        		world.addWeatherEffect(lightning);
 	        		lookupDimToWeatherMan.get(0).syncLightningNew(lightning, true);
+	        	}
+        	}
+        }
+        
+        boolean derp = true;
+        if (derp) {
+        	if (world.getTotalWorldTime() % 3 == 0) {
+	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);
+	        	if (player != null) {
+	        		ItemStack is = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+	        		if (is != null && is.getItem() instanceof ItemSpade) {
+		        		IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
+		        		if (state.getBlock() != Blocks.SAND) {
+		        			WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 10, 1, CommonProxy.blockSandLayer);
+		        		}
+	        		}
 	        	}
         	}
         }
