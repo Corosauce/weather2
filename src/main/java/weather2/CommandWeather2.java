@@ -176,6 +176,28 @@ public class CommandWeather2 extends CommandBase {
 				} else if (var2[0].equals("testderp")) {
 					//EntityPlayerMP player = (EntityPlayerMP) var1;
 					WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 0, 1, CommonProxy.blockSandLayer);
+				} else if (var2[0].equals("wind")) {
+					if (var2[1].equals("high")) {
+						boolean doHighOn = false;
+						boolean doHighOff = false;
+						if (var2.length > 2) {
+							 if (var2[2].equals("start")) {
+								 doHighOn = true;
+							 } else if (var2[2].equals("stop")) {
+								 doHighOff = true;
+							 }
+						} else {
+							doHighOn = true;
+						}
+						WeatherManagerServer wm = ServerTickHandler.getWeatherSystemForDim(player.worldObj.provider.getDimension());
+						if (doHighOn) {
+							wm.windMan.startHighWindEvent();
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "started high wind event");
+						} else if (doHighOff) {
+							wm.windMan.stopHighWindEvent();
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "stopped high wind event");
+						}
+					}
 				} else {
 					CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
 				}

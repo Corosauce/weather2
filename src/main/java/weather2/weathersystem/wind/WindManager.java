@@ -59,11 +59,18 @@ public class WindManager {
 	//public float directionBeforeGust = 0;
 	public int windGustEventTimeRand = 60;
 	public float chanceOfWindGustEvent = 0.5F;
-	
+
+	//low wind event
 	public int lowWindTimer = 0;
 	public int lowWindTimerEnableAmountBase = 20*60*2;
 	public int lowWindTimerEnableAmountRnd = 20*60*10;
 	public int lowWindOddsTo1 = 20*200;
+	
+	//high wind event
+	public int highWindTimer = 0;
+	public int highWindTimerEnableAmountBase = 20*60*2;
+	public int highWindTimerEnableAmountRnd = 20*60*10;
+	public int highWindOddsTo1 = 20*400;
 	
 	public WindManager(WeatherManagerBase parManager) {
 		manager = parManager;
@@ -192,13 +199,30 @@ public class WindManager {
 				if (lowWindTimer <= 0) {
 					if (windSpeedGlobalRandChangeTimer-- <= 0)
 		            {
-						windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate) - (windSpeedGlobalChangeRate / 2);
+						//standard wind adjustment
+						if (highWindTimer <= 0) {
+							windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate) - (windSpeedGlobalChangeRate / 2);
+						//only increase for high wind
+						} else {
+							windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate)/* - (windSpeedGlobalChangeRate / 2)*/;
+						}
 						windSpeedGlobalRandChangeTimer = windSpeedGlobalRandChangeDelay;
 		            }
-					if (ConfigMisc.Wind_NoWindEvents) {
-						if (rand.nextInt(lowWindOddsTo1) == 0) {
-							lowWindTimer = lowWindTimerEnableAmountBase + rand.nextInt(lowWindTimerEnableAmountRnd);
-							Weather.dbg("no wind event, for ticks: " + lowWindTimer);
+					
+					//only allow for low wind if high wind not active
+					if (highWindTimer <= 0) {
+						if (ConfigMisc.Wind_NoWindEvents) {
+							if (rand.nextInt(lowWindOddsTo1) == 0) {
+								lowWindTimer = lowWindTimerEnableAmountBase + rand.nextInt(lowWindTimerEnableAmountRnd);
+								Weather.dbg("no wind event, for ticks: " + lowWindTimer);
+							}
+						}
+					}
+					
+					if (ConfigMisc.Wind_HighWindEvents) {
+						if (rand.nextInt(highWindOddsTo1) == 0) {
+							startHighWindEvent();
+							Weather.dbg("high wind event, for ticks: " + highWindTimer);
 						}
 					}
 				} else {
@@ -251,7 +275,7 @@ public class WindManager {
 	            float randGustWindFactor = 1F;
 				
 	            //gust data
-	            if (this.windTimeGust == 0 && lowWindTimer <= 0)
+	            if (this.windTimeGust == 0 && lowWindTimer <= 0 && highWindTimer <= 0)
 	            {
 	                if (chanceOfWindGustEvent > 0F)
 	                {
@@ -289,6 +313,14 @@ public class WindManager {
 		
 	}
 	
+	public void startHighWindEvent() {
+		highWindTimer = highWindTimerEnableAmountBase + (new Random()).nextInt(highWindTimerEnableAmountRnd);
+	}
+	
+	public void stopHighWindEvent() {
+		highWindTimer = 0;
+	}
+
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
 		EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
