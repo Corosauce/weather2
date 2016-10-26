@@ -4,6 +4,7 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import weather2.util.WeatherUtilBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.SoundType;
@@ -42,11 +43,13 @@ public class BlockSandLayer extends Block
         this.setSoundType(SoundType.SAND);
     }
 
+    @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return SAND_AABB[((Integer)state.getValue(LAYERS)).intValue()];
     }
 
+    @Override
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
         return ((Integer)worldIn.getBlockState(pos).getValue(LAYERS)).intValue() < 5;
@@ -55,11 +58,13 @@ public class BlockSandLayer extends Block
     /**
      * Checks if an IBlockState represents a block that is opaque and a full cube.
      */
+    @Override
     public boolean isFullyOpaque(IBlockState state)
     {
         return ((Integer)state.getValue(LAYERS)).intValue() == 7;
     }
 
+    @Override
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
     {
@@ -72,16 +77,19 @@ public class BlockSandLayer extends Block
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
      */
+    @Override
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    @Override
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    @Override
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos.down());
@@ -94,11 +102,16 @@ public class BlockSandLayer extends Block
      * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
      * block, etc.
      */
+    @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
     {
+    	/*if (!worldIn.isRemote) {
+    		WeatherUtilBlock.divideToNeighborCheck(state, worldIn, pos, blockIn);
+    	}*/
         this.checkAndDropBlock(worldIn, pos, state);
     }
 
+    
     private boolean checkAndDropBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!this.canPlaceBlockAt(worldIn, pos))
@@ -112,6 +125,7 @@ public class BlockSandLayer extends Block
         }
     }
 
+    @Override
     public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack)
     {
         super.harvestBlock(worldIn, player, pos, state, te, stack);
@@ -121,6 +135,7 @@ public class BlockSandLayer extends Block
     /**
      * Returns the quantity of items to drop on block destruction.
      */
+    @Override
     public int quantityDropped(Random random)
     {
         return 1;
@@ -134,6 +149,7 @@ public class BlockSandLayer extends Block
         }
     }*/
 
+    @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -151,6 +167,7 @@ public class BlockSandLayer extends Block
     /**
      * Convert the given metadata into a BlockState for this Block
      */
+    @Override
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(LAYERS, Integer.valueOf((meta & 7) + 1));
@@ -159,6 +176,7 @@ public class BlockSandLayer extends Block
     /**
      * Whether this Block can be replaced directly by other blocks (true for e.g. tall grass)
      */
+    @Override
     public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
     {
         return ((Integer)worldIn.getBlockState(pos).getValue(LAYERS)).intValue() == 1;
@@ -167,6 +185,7 @@ public class BlockSandLayer extends Block
     /**
      * Convert the BlockState into the correct metadata value
      */
+    @Override
     public int getMetaFromState(IBlockState state)
     {
         return ((Integer)state.getValue(LAYERS)).intValue() - 1;
@@ -174,6 +193,7 @@ public class BlockSandLayer extends Block
 
     @Override public int quantityDropped(IBlockState state, int fortune, Random random){ return ((Integer)state.getValue(LAYERS)) + 1; }
 
+    @Override
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer(this, new IProperty[] {LAYERS});

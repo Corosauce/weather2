@@ -320,8 +320,90 @@ public class WeatherUtilBlock {
 		} else if (block == CommonProxy.blockSandLayer) {
 			return block.getDefaultState().withProperty(BlockSandLayer.LAYERS, height);
 		} else {
-			//missing implementation
+			//means missing implementation
 			return null;
 		}
+	}
+	
+	/**
+	 * This method is bad, logic like this is difficult to do
+	 * 
+	 * @param state
+	 * @param worldIn
+	 * @param pos
+	 * @param blockIn
+	 * @return
+	 */
+	public static boolean divideToNeighborCheck(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
+		boolean foundSpotToSpread = false;
+		
+		int heightToUse = getHeightForLayeredBlock(state);
+		
+		System.out.println("try smooth out");
+		
+		if (heightToUse > 2) {
+			for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
+	        {
+				if (heightToUse > 2) {
+					BlockPos posCheck = pos.offset(enumfacing);
+		            IBlockState stateCheck = worldIn.getBlockState(posCheck);
+		            
+	
+	            	int addAmount = 1;
+		            
+		            //do height comparison if its sand already
+		            if (stateCheck.getBlock() == state.getBlock()) {
+		            	int heightCheck = getHeightForLayeredBlock(stateCheck);
+			            if (heightCheck + 2 <= heightToUse) {
+			            	heightToUse -= addAmount;
+			            	addHeightToLayerableBLock(worldIn, posCheck, stateCheck.getBlock(), heightCheck, addAmount);
+			            	foundSpotToSpread = true;
+			            }
+			        //else, do the usual
+		            }/* else if (stateCheck.getMaterial() == Material.AIR) {
+		            	int returnVal = trySpreadOnPos2(worldIn, posCheck, addAmount, addAmount, 10, stateCheck.getBlock());
+		            	//TODO: factor in partial addition not just fully used
+		            	if (returnVal == 0) {
+		            		heightToUse -= addAmount;
+		            		foundSpotToSpread = true;
+		            	}
+		            }*/
+				}
+	        }
+		}
+		
+		if (foundSpotToSpread) {
+			worldIn.setBlockState(pos, setBlockWithLayerState(state.getBlock(), heightToUse));
+		}
+		
+		return foundSpotToSpread;
+	}
+	
+	/**
+	 * Simple helper method, returns amount it couldnt add
+	 * @param world
+	 * @param pos
+	 * @param block
+	 * @param amount
+	 * @return
+	 */
+	public static int addHeightToLayerableBLock(World world, BlockPos pos, Block block, int sourceAmount, int amount) {
+		IBlockState state = world.getBlockState(pos);
+		int curAmount = sourceAmount;//getHeightForLayeredBlock(state);
+		curAmount += amount;
+		int leftOver = 0;
+		if (curAmount > layerableHeightPropMax) {
+			leftOver = curAmount - layerableHeightPropMax;
+			curAmount = layerableHeightPropMax;
+		} else {
+			leftOver = 0;
+		}
+		try {
+			world.setBlockState(pos, setBlockWithLayerState(block, curAmount));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return leftOver;
 	}
 }
