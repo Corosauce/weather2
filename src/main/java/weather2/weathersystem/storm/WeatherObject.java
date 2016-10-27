@@ -79,16 +79,16 @@ public class WeatherObject {
 		ID = parNBT.getLong("ID");
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
-		pos = new Vec3(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
+		pos = new Vec3(parNBT.getDouble("posX"), parNBT.getDouble("posY"), parNBT.getDouble("posZ"));
 		size = parNBT.getInteger("size");
 		maxSize = parNBT.getInteger("maxSize");
 		this.stormType = EnumStormType.get(parNBT.getInteger("stormType"));
 	}
 	
 	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
-		nbt.setInteger("posX", (int)pos.xCoord);
-		nbt.setInteger("posY", (int)pos.yCoord);
-		nbt.setInteger("posZ", (int)pos.zCoord);
+		nbt.setDouble("posX", pos.xCoord);
+		nbt.setDouble("posY", pos.yCoord);
+		nbt.setDouble("posZ", pos.zCoord);
 		
 		nbt.setLong("ID", ID);
 		nbt.setInteger("size", size);

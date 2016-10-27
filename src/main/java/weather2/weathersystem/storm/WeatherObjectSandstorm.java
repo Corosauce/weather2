@@ -67,7 +67,6 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	
 	public void initSandstormSpawn(Vec3 pos) {
 		this.pos = new Vec3(pos);
-		this.posSpawn = new Vec3(pos);
 		
 		size = 15;
 		maxSize = 100;
@@ -82,6 +81,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		this.pos.xCoord -= vecX * speed;
 		this.pos.zCoord -= vecZ * speed;
+		
+
+		this.posSpawn = new Vec3(this.pos);
 		
 		/*height = 0;
 		size = 0;
@@ -115,7 +117,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					return;
 				}
 				
-				if (manager.getWorld().getTotalWorldTime() % 3 == 0) {
+				if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
 					if (size < maxSize) {
 						size++;
 					}
@@ -197,6 +199,13 @@ public class WeatherObjectSandstorm extends WeatherObject {
     		//System.out.println(heightLayers);
     	}
     	
+    	double distFromSpawn = this.posSpawn.distanceTo(this.pos);
+    	
+    	double xVec = this.posSpawn.xCoord - this.pos.xCoord;
+    	double zVec = this.posSpawn.zCoord - this.pos.zCoord;
+    	
+    	double directionAngle = Math.atan2(zVec, xVec);
+    	
     	/**
     	 * 
     	 * ideas: 
@@ -208,8 +217,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	 * - irl sandstorms last between hours and days, adjust time for mc using speed and scale and lifetime
     	 */
     	
+    	double directionAngleDeg = Math.toDegrees(directionAngle);
+    	
     	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
-		    for (double i = 0; i < 360; i += degRate) {
+    		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
+		    for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
 		    	if ((mc.theWorld.getTotalWorldTime()) % 40 == 0) {
 		    		
 		    		double sizeSub = heightLayer * 2D;
@@ -217,7 +229,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		double inwardsAdj = 0;//rand.nextDouble() * (sizeDyn * 0.75D);
 		    		
 		    		double sizeRand = (sizeDyn + /*rand.nextDouble() * 30D*/ - inwardsAdj/*30D*/)/* / (double)heightLayer*/;
-		    		double x = pos.xCoord + (Math.sin(Math.toRadians(i)) * (sizeRand));
+		    		double x = pos.xCoord + (-Math.sin(Math.toRadians(i)) * (sizeRand));
 		    		double z = pos.zCoord + (Math.cos(Math.toRadians(i)) * (sizeRand));
 		    		double y = pos.yCoord + (heightLayer * distBetweenParticles * 2);
 		    		
@@ -233,7 +245,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		
 		    		part.setFacePlayer(false);
 		    		part.isTransparent = true;
-		    		part.rotationYaw = (float) -i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
+		    		part.rotationYaw = (float) i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
 		    		part.rotationPitch = 0;
 		    		part.setMaxAge(300);
 		    		part.setGravity(0.09F);
@@ -251,6 +263,51 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		
 		    		
 		    	}
+	    	}
+    	}
+    	
+    	/**
+    	 * Spawn particles between spawn pos and current pos
+    	 */
+    	
+    	
+    	//half of the angle (?)
+    	double spawnAngle = Math.atan2((double)this.size/* / 2D*/, distFromSpawn);
+    	
+    	//tweaking for visual due to it moving, etc
+    	spawnAngle *= 1.2D;
+    	
+    	double spawnDistInc = 10;
+    	
+    	if ((mc.theWorld.getTotalWorldTime()) % 2 == 0) {
+	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn; spawnDistTick += spawnDistInc) {
+	    		//add 1/4 PI for some reason, converting math to mc I guess
+	    		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);
+	    		
+	    		//project out from spawn point, towards a point within acceptable angle
+	    		double x = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
+	    		double z = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
+	    		//TODO: account for terrain adjustments
+	    		double y = posSpawn.yCoord + 10;
+	    		
+	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+	    		
+	    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
+	    				, 0, 0, 0, sprite);
+	    		particleBehavior.initParticle(part);
+	    		
+	    		part.setFacePlayer(false);
+	    		part.isTransparent = true;
+	    		part.rotationYaw = (float)rand.nextInt(360);
+	    		part.rotationPitch = (float)rand.nextInt(360);
+	    		part.setMaxAge(100);
+	    		part.setGravity(0.09F);
+	    		part.setAlphaF(1F);
+	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+	    		part.setScale(100);
+	    		//particleBehavior.particles.add(part);
+	    		part.spawnAsWeatherEffect();
 	    	}
     	}
 
@@ -274,7 +331,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    	//particle.setMotionX(particle.getMotionX() + (vecX * speed));
 	    	//particle.setMotionZ(particle.getMotionZ() + (vecZ * speed));
 	    	
-	    	double x = pos.xCoord + (Math.sin(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
+	    	double x = pos.xCoord + (-Math.sin(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
     		double z = pos.zCoord + (Math.cos(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
     		double y = pos.yCoord + (particle.heightLayer * distBetweenParticles);
     		
@@ -316,14 +373,22 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
 		NBTTagCompound data = super.nbtSyncForClient(nbt);
 		
-		/*data.setInteger("posX", (int)pos.xCoord);
-		data.setInteger("posY", (int)pos.yCoord);
-		data.setInteger("posZ", (int)pos.zCoord);
+		data.setDouble("posSpawnX", posSpawn.xCoord);
+		data.setDouble("posSpawnY", posSpawn.yCoord);
+		data.setDouble("posSpawnZ", posSpawn.zCoord);
 		
-		data.setLong("ID", ID);
+		/*data.setLong("ID", ID);
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);*/
 		return data;
+	}
+	
+	@Override
+	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+		// TODO Auto-generated method stub
+		super.nbtSyncFromServer(parNBT);
+		
+		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
 	}
 
 }
