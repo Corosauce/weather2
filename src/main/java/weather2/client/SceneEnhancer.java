@@ -41,6 +41,7 @@ import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilParticle;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.util.ChunkCoordinatesBlock;
@@ -1479,6 +1480,18 @@ public class SceneEnhancer implements Runnable {
     	//temp off
     	distToStorm = 100;
     	//debug code end
+    	
+    	Minecraft mc = Minecraft.getMinecraft();
+    	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
+    	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, distToStormThreshold + 10);
+    	if (sandstorm != null) {
+    		Vec3 posNoY = new Vec3(sandstorm.pos);
+    		posNoY.yCoord = mc.thePlayer.posY;
+    		distToStorm = posPlayer.distanceTo(posNoY);
+    	} else {
+    		distToStorm = distToStormThreshold + 10;
+    	}
+    	
     	
     	float fogColorChangeRate = 0.01F;
     	float fogDistChangeRate = 2F;

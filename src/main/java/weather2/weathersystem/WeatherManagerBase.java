@@ -19,6 +19,7 @@ import weather2.Weather;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.util.CoroUtilFile;
 import CoroUtil.util.Vec3;
@@ -254,6 +255,35 @@ public class WeatherManagerBase {
 						closestStorm = storm;
 						closestDist = dist;
 					}
+				}
+			}
+			
+		}
+		
+		return closestStorm;
+	}
+	
+	public WeatherObjectSandstorm getClosestSandstorm(Vec3 parPos, double maxDist) {
+		
+		WeatherObjectSandstorm closestStorm = null;
+		double closestDist = 9999999;
+		
+		List<WeatherObject> listStorms = getStormObjects();
+		
+		for (int i = 0; i < listStorms.size(); i++) {
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof WeatherObjectSandstorm) {
+				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
+				if (storm == null || storm.isDead) continue;
+				double dist = storm.pos.distanceTo(parPos);
+				/*if (getWorld().isRemote) {
+					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
+				}*/
+				if (dist < closestDist && dist <= maxDist) {
+					//if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
+						closestStorm = storm;
+						closestDist = dist;
+					//}
 				}
 			}
 			

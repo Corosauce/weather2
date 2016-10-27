@@ -226,7 +226,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		
 		    		double sizeSub = heightLayer * 2D;
 		    		double sizeDyn = size - sizeSub;
-		    		double inwardsAdj = 0;//rand.nextDouble() * (sizeDyn * 0.75D);
+		    		double inwardsAdj = rand.nextDouble() * 5D;//(sizeDyn * 0.75D);
 		    		
 		    		double sizeRand = (sizeDyn + /*rand.nextDouble() * 30D*/ - inwardsAdj/*30D*/)/* / (double)heightLayer*/;
 		    		double x = pos.xCoord + (-Math.sin(Math.toRadians(i)) * (sizeRand));
@@ -266,9 +266,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    	}
     	}
     	
-    	/**
-    	 * Spawn particles between spawn pos and current pos
-    	 */
+    	
     	
     	
     	//half of the angle (?)
@@ -279,16 +277,23 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double spawnDistInc = 10;
     	
+    	double extraDistSpawnIntoWall = size / 2D;
+    	
+    	/**
+    	 * Spawn particles between spawn pos and current pos, cone shaped
+    	 */
     	if ((mc.theWorld.getTotalWorldTime()) % 2 == 0) {
-	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn; spawnDistTick += spawnDistInc) {
+	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn + (extraDistSpawnIntoWall); spawnDistTick += spawnDistInc) {
 	    		//add 1/4 PI for some reason, converting math to mc I guess
 	    		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);
+
+	    		double randHeight = (spawnDistTick / distFromSpawn) * height * 1.2D * rand.nextDouble();
 	    		
 	    		//project out from spawn point, towards a point within acceptable angle
 	    		double x = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
 	    		double z = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
 	    		//TODO: account for terrain adjustments
-	    		double y = posSpawn.yCoord + 10;
+	    		double y = posSpawn.yCoord + 2 + randHeight;
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 	    		
