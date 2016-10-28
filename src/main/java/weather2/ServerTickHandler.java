@@ -146,10 +146,13 @@ public class ServerTickHandler
 	        	if (player != null) {
 	        		ItemStack is = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
 	        		if (is != null && is.getItem() instanceof ItemSpade) {
-		        		IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
-		        		if (state.getBlock() != Blocks.SAND) {
-		        			WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
-		        		}
+	        			int y = world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY();
+	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
+		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
+		        		//if (state.getBlock() != Blocks.SAND) {
+		        			//WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
+		        			WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ/*player.posX, player.posY, player.posZ*/), player.rotationYawHead, 15, 2, CommonProxy.blockSandLayer);
+		        		//}
 	        		}
 	        	}
         	}

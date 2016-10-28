@@ -7,6 +7,7 @@ import java.util.Random;
 import weather2.CommonProxy;
 import weather2.block.BlockSandLayer;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -28,6 +29,179 @@ import CoroUtil.util.Vec3;
 public class WeatherUtilBlock {
 	
 	public static int layerableHeightPropMax = 8;
+	
+	public static void fillAgainstWallSmoothly(World world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable) {
+		
+		/**
+		 * for now, work in halves
+		 * if "wall" is 4 height (aka 8 pixels high) or less, we can "go over it" aka continue onto next block past it
+		 * 
+		 * starting point needs to be air above solid
+		 * 
+		 * scan forward till not air or not placeable
+		 * 
+		 * get block height, if height < 4
+		 * - place infront of wall
+		 * if height >= 4
+		 * - progress onto it and continue past it
+		 * 
+		 * 
+		 * 
+		 * - factor in height of current block we are on if its not air, aka half filled sand block vs next block
+		 */
+		
+		BlockPos posSourcei = posSource.toBlockPos();
+		//int ySource = world.getHeight(posSourcei).getY();
+		int y = posSourcei.getY();
+		float tickStep = 0.75F;
+		
+		//float startScan = scanDistance;
+		
+		Vec3 posLastNonWall = new Vec3(posSource);
+		Vec3 posWall = null;
+		
+		BlockPos lastScannedPosXZ = null;//new BlockPos(posSourcei);
+		
+		//System.out.println("Start block (should be air): " + world.getBlockState(posSourcei));
+		
+		int previousBlockHeight = 0;
+		
+		//looking for a proper wall we cant fly over as sand
+		for (float i = 0; i < scanDistance; i += tickStep) {
+			double vecX = (-Math.sin(Math.toRadians(directionYaw)) * (i));
+    		double vecZ = (Math.cos(Math.toRadians(directionYaw)) * (i));
+    		
+    		int x = MathHelper.floor_double(posSource.xCoord + vecX);
+    		int z = MathHelper.floor_double(posSource.zCoord + vecZ);
+    		
+    		BlockPos pos = new BlockPos(x, y, z);
+    		BlockPos posXZ = new BlockPos(x, 0, z);
+    		IBlockState state = world.getBlockState(pos);
+    		
+    		if (lastScannedPosXZ == null || !posXZ.equals(lastScannedPosXZ)) {
+    		
+	    		lastScannedPosXZ = new BlockPos(posXZ);
+	    		
+	    		if (state.getMaterial() != Material.AIR) {
+	    			BlockPos posUp = new BlockPos(x, y + 1, z);
+	    			IBlockState stateUp = world.getBlockState(posUp);
+	    			if (stateUp.getMaterial() == Material.AIR) { 
+		    			int height = getHeightForAnyBlock(state);
+		    			
+		    			//if height of block minus block we are on/comparing against is short enough, we can continue onto it
+		    			if (height - previousBlockHeight <= 4) {
+		    				//if block we are progressing to is a full block, reset height val
+		    				if (height == 8) {
+		    					previousBlockHeight = 0;
+			    				y++;
+		    				} else {
+		    					previousBlockHeight = height;
+		    				}
+		    				
+		    				posLastNonWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+		    				
+		    				//System.out.println(posLastNonWall);
+		    				
+		    				continue;
+		    			//too high, count as a wall
+		    			} else {
+		    				posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+		    				break;
+		    			}
+	    			} else {
+	    				posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+	    				break;
+	    			}
+	    			
+	    			//startScan = i;
+	    			//posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+	    			//break;
+	    		} else {
+	    			posLastNonWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+	    		}
+	    		
+    		} else {
+    			continue;
+    		}
+		}
+		
+		if (posWall != null) {
+			int amountWeHave = 4;
+			int amountToAddPerXZ = 4;
+			amountWeHave = trySpreadOnPos2(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountWeHave, amountToAddPerXZ, 10, blockLayerable);
+		} else {
+			//System.out.println("no wall found");
+		}
+	}
+	
+	public static void fillAgainstWall(World world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable) {
+		//want to use this variable for how much the fill up spreads out to neighboring blocks
+		float thickness = 1F;
+		float tickStep = 0.75F;
+		//int fillPerTick = amountToTakeOrFill;
+		//use snow for now, make sand block after
+		
+		//snow has 7 layers till its a full solid block (full solid on 8th layer)
+		//0 is nothing, 1-7, 8 is full
+		
+		BlockPos posSourcei = posSource.toBlockPos();
+		int ySource = world.getHeight(posSourcei).getY();
+		int y = ySource;
+		
+		//override y so it scans from where ground at coord is
+		y = (int) posSource.yCoord;
+		//for sandstorm we might want to scan upwards in some scenarios.... but what
+		
+		float startScan = scanDistance;
+		
+		Vec3 posLastNonWall = new Vec3(posSource);
+		Vec3 posWall = null;
+		
+		//scan outwards to find closest wall
+		for (float i = 0; i < scanDistance; i += tickStep) {
+			double vecX = (-Math.sin(Math.toRadians(directionYaw)) * (i));
+    		double vecZ = (Math.cos(Math.toRadians(directionYaw)) * (i));
+    		
+    		int x = MathHelper.floor_double(posSource.xCoord + vecX);
+    		int z = MathHelper.floor_double(posSource.zCoord + vecZ);
+    		
+    		BlockPos pos = new BlockPos(x, y, z);
+    		IBlockState state = world.getBlockState(pos);
+    		
+    		if (state.getMaterial() != Material.AIR) {
+    			startScan = i;
+    			posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+    			break;
+    		} else {
+    			posLastNonWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
+    		}
+		}
+		
+		double distFromSourceToWall = posSource.distanceTo(posLastNonWall);
+		
+		//new code, check wall is high enough
+		if (posWall != null) {
+			BlockPos posCheck = new BlockPos(posWall.toBlockPos());
+			int heightOfWall = 0;
+			int heightNeeded = 2;
+			while (heightOfWall++ < heightNeeded) {
+				posCheck = posCheck.add(0, 1, 0);
+				IBlockState stateCheck = world.getBlockState(posCheck);
+				if (!stateCheck.isSideSolid(world, posCheck, EnumFacing.UP)) {
+					break;
+				}
+			}
+			
+			if (heightOfWall >= heightNeeded) {
+				int amountWeHave = 4;
+				int amountToAddPerXZ = 2;
+				
+				amountWeHave = trySpreadOnPos2(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountWeHave, amountToAddPerXZ, 10, blockLayerable);
+			}
+		}
+		
+		
+	}
 
 	public static void floodAreaWithLayerableBlock(World world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius/*, float takeRadius*/, Block blockLayerable, int amountToTakeOrFill) {
 		floodAreaWithLayerableBlock(world, posSource, directionYaw, scanDistance, fillRadius, -1, blockLayerable/*, false*/, amountToTakeOrFill);
@@ -74,6 +248,7 @@ public class WeatherUtilBlock {
 		float startScan = scanDistance;
 		
 		Vec3 posLastNonWall = new Vec3(posSource);
+		Vec3 posWall = null;
 		
 		//scan outwards to find closest wall
 		for (float i = 0; i < scanDistance; i += tickStep) {
@@ -88,6 +263,7 @@ public class WeatherUtilBlock {
     		
     		if (state.getMaterial() != Material.AIR) {
     			startScan = i;
+    			posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
     			break;
     		} else {
     			posLastNonWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
@@ -340,7 +516,7 @@ public class WeatherUtilBlock {
 				break;
 			//its something we cant stack onto
 			} else {
-				System.out.println("found unstackable block: " + stateCheckPlaceable);
+				//System.out.println("found unstackable block: " + stateCheckPlaceable);
 				return amount;
 			}
 		}
@@ -460,6 +636,21 @@ public class WeatherUtilBlock {
 			return true;
 		}
 		return false;
+	}
+	
+	public static int getHeightForAnyBlock(IBlockState state) {
+		Block block = state.getBlock();
+		if (block == Blocks.SNOW_LAYER) {
+			return ((Integer)state.getValue(BlockSnow.LAYERS)).intValue();
+		} else if (block == CommonProxy.blockSandLayer) {
+			return ((Integer)state.getValue(BlockSandLayer.LAYERS)).intValue();
+		} else if (block == Blocks.SAND || block == Blocks.SNOW) {
+			return 8;
+		} else if (block instanceof BlockSlab) {
+			return 4;
+		} else {
+			return 8;
+		}
 	}
 	
 	public static int getHeightForLayeredBlock(IBlockState state) {

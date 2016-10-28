@@ -1477,8 +1477,7 @@ public class SceneEnhancer implements Runnable {
     		distToStorm = distToStormThreshold + 100;
     	}*/
     	
-    	//temp off
-    	//distToStorm = 100;
+    	
     	//debug code end
     	
     	//TODO: make transition code actually tie to distance, not just trigger a static transition
@@ -1493,6 +1492,8 @@ public class SceneEnhancer implements Runnable {
     		distToStorm = distToStormThreshold + 10;
     	}
     	
+    	//temp off
+    	distToStorm = 100;
     	
     	float fogColorChangeRate = 0.01F;
     	float fogDistChangeRate = 2F;

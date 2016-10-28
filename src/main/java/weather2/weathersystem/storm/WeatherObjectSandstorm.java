@@ -7,19 +7,20 @@ import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.ClientTickHandler;
+import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManagerBase;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
-import extendedrenderer.particle.behavior.ParticleBehaviorFogGround;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.EntityRotFX;
-import extendedrenderer.particle.entity.ParticleTexFX;
 
 /**
  * spawns in sandy biomes
@@ -139,6 +140,33 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			tickClient();
 		}
 		
+		Random rand = new Random();
+		
+		World world = manager.getWorld();
+		
+		//sand block buildup
+		if (!manager.getWorld().isRemote) {
+			if (world.getTotalWorldTime() % 2 == 0) {
+				
+		    	for (int i = 0; i < 40000; i++) {
+		    		
+		    		double xVec = this.pos.xCoord - rand.nextInt(size / 2) + rand.nextInt(size);
+			    	double zVec = this.pos.zCoord - rand.nextInt(size / 2) + rand.nextInt(size);
+			    	
+			    	int x = MathHelper.floor_double(xVec);
+			    	int z = MathHelper.floor_double(zVec);
+			    	int y = world.getHeight(new BlockPos(x, 0, z)).getY();
+			    	
+			    	float angleRand = (rand.nextFloat() - rand.nextFloat()) * 360F;
+			    	
+			    	Vec3 vec = new Vec3(x, y, z);
+		    		//WeatherUtilBlock.floodAreaWithLayerableBlock(world, vec, angle, 15, 5, 2, CommonProxy.blockSandLayer, 4);
+			    	//WeatherUtilBlock.fillAgainstWall(world, vec, angle, 15, 2, CommonProxy.blockSandLayer);
+			    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vec, /*angle + */angleRand, 15, 2, CommonProxy.blockSandLayer);
+			    	
+		    	}
+			}
+		}
 		
 		
 	}
