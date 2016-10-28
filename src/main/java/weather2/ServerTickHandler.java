@@ -138,6 +138,7 @@ public class ServerTickHandler
         	}
         }
         
+        //TODO: TURN OFF FOR RELEASE
         boolean derp = true;
         if (derp) {
         	if (world.getTotalWorldTime() % 3 == 0) {
@@ -147,7 +148,7 @@ public class ServerTickHandler
 	        		if (is != null && is.getItem() instanceof ItemSpade) {
 		        		IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
 		        		if (state.getBlock() != Blocks.SAND) {
-		        			WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 10, 1, CommonProxy.blockSandLayer);
+		        			WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
 		        		}
 	        		}
 	        	}

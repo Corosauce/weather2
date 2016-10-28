@@ -1472,15 +1472,16 @@ public class SceneEnhancer implements Runnable {
     public static void tickSandstorm() {
     	
     	//debug code start
-    	distToStorm--;
+    	/*distToStorm--;
     	if (distToStorm <= 0) {
     		distToStorm = distToStormThreshold + 100;
-    	}
+    	}*/
     	
     	//temp off
-    	distToStorm = 100;
+    	//distToStorm = 100;
     	//debug code end
     	
+    	//TODO: make transition code actually tie to distance, not just trigger a static transition
     	Minecraft mc = Minecraft.getMinecraft();
     	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
     	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, distToStormThreshold + 10);
