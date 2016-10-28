@@ -97,6 +97,13 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public void tick() {
 		super.tick();
 		
+		Random rand = new Random();
+		
+		World world = manager.getWorld();
+		
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		this.posGround = new Vec3(pos.xCoord, yy, pos.zCoord);
+		
 		boolean testGrowth = true;
 	
 		//assume its a high wind event, until that feature is coded, buff wind speed this depends on
@@ -140,15 +147,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			tickClient();
 		}
 		
-		Random rand = new Random();
-		
-		World world = manager.getWorld();
-		
 		//sand block buildup
 		if (!manager.getWorld().isRemote) {
 			if (world.getTotalWorldTime() % 2 == 0) {
 				
-		    	for (int i = 0; i < 40000; i++) {
+		    	for (int i = 0; i < 40; i++) {
 		    		
 		    		double xVec = this.pos.xCoord - rand.nextInt(size / 2) + rand.nextInt(size);
 			    	double zVec = this.pos.zCoord - rand.nextInt(size / 2) + rand.nextInt(size);
@@ -162,7 +165,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    	Vec3 vec = new Vec3(x, y, z);
 		    		//WeatherUtilBlock.floodAreaWithLayerableBlock(world, vec, angle, 15, 5, 2, CommonProxy.blockSandLayer, 4);
 			    	//WeatherUtilBlock.fillAgainstWall(world, vec, angle, 15, 2, CommonProxy.blockSandLayer);
-			    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vec, /*angle + */angleRand, 15, 2, CommonProxy.blockSandLayer);
+			    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vec, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
 			    	
 		    	}
 			}

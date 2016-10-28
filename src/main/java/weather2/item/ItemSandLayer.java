@@ -54,7 +54,8 @@ public class ItemSandLayer extends ItemBlock
                     IBlockState iblockstate1 = iblockstate.withProperty(BlockSandLayer.LAYERS, Integer.valueOf(i + 1));
                     AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, blockpos);
 
-                    if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(blockpos)) && worldIn.setBlockState(blockpos, iblockstate1, 10))
+                    if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(blockpos)) && 
+                    		worldIn.setBlockState(blockpos, iblockstate1, 10))
                     {
                         SoundType soundtype = this.block.getSoundType(iblockstate1, worldIn, blockpos, playerIn);
                         worldIn.playSound(playerIn, blockpos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);

@@ -141,7 +141,7 @@ public class ServerTickHandler
         //TODO: TURN OFF FOR RELEASE
         boolean derp = true;
         if (derp) {
-        	if (world.getTotalWorldTime() % 3 == 0) {
+        	if (world.getTotalWorldTime() % 2 == 0) {
 	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);
 	        	if (player != null) {
 	        		ItemStack is = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);

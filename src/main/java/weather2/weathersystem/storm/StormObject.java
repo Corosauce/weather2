@@ -572,8 +572,8 @@ public class StormObject extends WeatherObject {
 			if (rand.nextInt((int)Math.max(1, ConfigMisc.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
-				int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
-				if (world.isBlockLoaded(new BlockPos(x, y, z))) {
+				if (world.isBlockLoaded(new BlockPos(x, 0, z))) {
+					int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
 					//if (world.canLightningStrikeAt(x, y, z)) {
 						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z), false);
 					//}

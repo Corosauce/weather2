@@ -50,6 +50,15 @@ public class WeatherUtilBlock {
 		 * - factor in height of current block we are on if its not air, aka half filled sand block vs next block
 		 */
 		
+		//fix for starting on a layerable block
+		IBlockState stateTest = world.getBlockState(posSource.toBlockPos());
+		if (stateTest.getBlock() == blockLayerable) {
+			int heightTest = getHeightForAnyBlock(stateTest);
+			if (heightTest < 8) {
+				//posSource = new Vec3(posSource.addVector(0, -1, 0));
+			}
+		}
+		
 		BlockPos posSourcei = posSource.toBlockPos();
 		//int ySource = world.getHeight(posSourcei).getY();
 		int y = posSourcei.getY();
@@ -85,7 +94,7 @@ public class WeatherUtilBlock {
 	    		if (state.getMaterial() != Material.AIR) {
 	    			BlockPos posUp = new BlockPos(x, y + 1, z);
 	    			IBlockState stateUp = world.getBlockState(posUp);
-	    			if (stateUp.getMaterial() == Material.AIR) { 
+	    			if (stateUp.getMaterial() == Material.AIR) {
 		    			int height = getHeightForAnyBlock(state);
 		    			
 		    			//if height of block minus block we are on/comparing against is short enough, we can continue onto it
@@ -126,8 +135,8 @@ public class WeatherUtilBlock {
 		}
 		
 		if (posWall != null) {
-			int amountWeHave = 4;
-			int amountToAddPerXZ = 4;
+			int amountWeHave = 1;
+			int amountToAddPerXZ = 1;
 			amountWeHave = trySpreadOnPos2(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountWeHave, amountToAddPerXZ, 10, blockLayerable);
 		} else {
 			//System.out.println("no wall found");
@@ -504,8 +513,8 @@ public class WeatherUtilBlock {
 		int distForPlaceableBlocks = 0;
 		
 		while (true && distForPlaceableBlocks < 10) {
-			//if can be placed into, continue
-			if (stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable)) {
+			//if can be placed into, continue, as long as its not our block as it is replacable at layer height 1
+			if (stateCheckPlaceable.getBlock() != blockLayerable && stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable)) {
 				posCheckPlaceable = posCheckPlaceable.add(0, -1, 0);
 				stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
 				distForPlaceableBlocks++;
@@ -648,6 +657,8 @@ public class WeatherUtilBlock {
 			return 8;
 		} else if (block instanceof BlockSlab) {
 			return 4;
+		} else if (block == Blocks.AIR) {
+			return 0;
 		} else {
 			return 8;
 		}
@@ -668,9 +679,17 @@ public class WeatherUtilBlock {
 	
 	public static IBlockState setBlockWithLayerState(Block block, int height) {
 		if (block == Blocks.SNOW_LAYER) {
-			return block.getDefaultState().withProperty(BlockSnow.LAYERS, height);
+			if (height == layerableHeightPropMax) {
+				return Blocks.SNOW.getDefaultState();
+			} else {
+				return block.getDefaultState().withProperty(BlockSnow.LAYERS, height);
+			}
 		} else if (block == CommonProxy.blockSandLayer) {
-			return block.getDefaultState().withProperty(BlockSandLayer.LAYERS, height);
+			if (height == layerableHeightPropMax) {
+				return Blocks.SAND.getDefaultState();
+			} else {
+				return block.getDefaultState().withProperty(BlockSandLayer.LAYERS, height);
+			}
 		} else {
 			//means missing implementation
 			return null;
