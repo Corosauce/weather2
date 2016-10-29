@@ -46,7 +46,7 @@ public class BlockSandLayer extends Block
     public BlockSandLayer()
     {
         super(Material.SAND);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(LAYERS, Integer.valueOf(1)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(LAYERS, Integer.valueOf(8)));
         //this.setTickRandomly(true);
         this.setCreativeTab(CreativeTabs.DECORATIONS);
         this.setSoundType(SoundType.SAND);
@@ -71,14 +71,14 @@ public class BlockSandLayer extends Block
     public boolean isFullyOpaque(IBlockState state)
     {
         //return ((Integer)state.getValue(LAYERS)).intValue() == 7;
-    	return ((Integer)state.getValue(LAYERS)).intValue() >= 7;
+    	return ((Integer)state.getValue(LAYERS)).intValue() == 8;
     }
 
     @Override
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        int i = ((Integer)blockState.getValue(LAYERS)).intValue() - 1;
+        int i = ((Integer)blockState.getValue(LAYERS)).intValue();
         float f = 0.125F;
         AxisAlignedBB axisalignedbb = blockState.getBoundingBox(worldIn, pos);
         return new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.maxX, (double)((float)i * 0.125F), axisalignedbb.maxZ);
@@ -97,6 +97,12 @@ public class BlockSandLayer extends Block
     public boolean isFullCube(IBlockState state)
     {
         return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
+    }
+    
+    //TODO: for testing heightmap issue
+    @Override
+    public boolean isFullBlock(IBlockState state) {
+    	return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
     }
 
     @Override
@@ -209,6 +215,7 @@ public class BlockSandLayer extends Block
         return new BlockStateContainer(this, new IProperty[] {LAYERS});
     }
     
+    //TODO: why did i add this
     @Override
     public boolean isSideSolid(IBlockState base_state, IBlockAccess world,
     		BlockPos pos, EnumFacing side) {

@@ -71,7 +71,7 @@ public class WeatherUtilBlock {
 		
 		BlockPos lastScannedPosXZ = null;//new BlockPos(posSourcei);
 		
-		//System.out.println("Start block (should be air): " + world.getBlockState(posSourcei));
+		System.out.println("Start block (should be air): " + world.getBlockState(posSourcei));
 		
 		int previousBlockHeight = 0;
 		
@@ -678,14 +678,15 @@ public class WeatherUtilBlock {
 	}
 	
 	public static IBlockState setBlockWithLayerState(Block block, int height) {
+		boolean solidBlockUnderMode = true;
 		if (block == Blocks.SNOW_LAYER) {
-			if (height == layerableHeightPropMax) {
+			if (height == layerableHeightPropMax && solidBlockUnderMode) {
 				return Blocks.SNOW.getDefaultState();
 			} else {
 				return block.getDefaultState().withProperty(BlockSnow.LAYERS, height);
 			}
 		} else if (block == CommonProxy.blockSandLayer) {
-			if (height == layerableHeightPropMax) {
+			if (height == layerableHeightPropMax && solidBlockUnderMode) {
 				return Blocks.SAND.getDefaultState();
 			} else {
 				return block.getDefaultState().withProperty(BlockSandLayer.LAYERS, height);

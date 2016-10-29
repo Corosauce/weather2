@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.CommonProxy;
+import weather2.Weather;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
@@ -97,9 +98,18 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public void tick() {
 		super.tick();
 		
-		Random rand = new Random();
+		if (manager == null) {
+			System.out.println("WeatherManager is null for " + this + ", why!!!");
+			return;
+		}
 		
+		Random rand = new Random();
 		World world = manager.getWorld();
+		
+		if (world == null) {
+			System.out.println("world is null for " + this + ", why!!!");
+			return;
+		}
 		
 		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		this.posGround = new Vec3(pos.xCoord, yy, pos.zCoord);
@@ -117,7 +127,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 				height++;
 			}*/
 			
-			if (!manager.getWorld().isRemote) {
+			if (!world.isRemote) {
 				age++;
 				//System.out.println("sandstorm age: " + age);
 				if (age >= maxAge) {
@@ -125,7 +135,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					return;
 				}
 				
-				if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
+				if (world.getTotalWorldTime() % 10 == 0) {
 					if (size < maxSize) {
 						size++;
 					}
@@ -143,12 +153,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.xCoord += vecX * speed;
 		this.pos.zCoord += vecZ * speed;
 		
-		if (manager.getWorld().isRemote) {
+		if (world.isRemote) {
 			tickClient();
 		}
 		
 		//sand block buildup
-		if (!manager.getWorld().isRemote) {
+		if (!world.isRemote) {
 			if (world.getTotalWorldTime() % 2 == 0) {
 				
 		    	for (int i = 0; i < 40; i++) {
