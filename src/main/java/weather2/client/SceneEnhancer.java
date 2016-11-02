@@ -435,7 +435,7 @@ public class SceneEnhancer implements Runnable {
 					        rain.setCanCollide(true);
 					        rain.setKillOnCollide(true);
 					        //1.10.2: had to adjust weight from 1 to 10 to make it not super pulled for some reason
-					        rain.windWeight = 10F;
+					        rain.windWeight = 1F;
 					        rain.setFacePlayer(false);
 					        rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 					        rain.spawnAsWeatherEffect();
@@ -468,7 +468,7 @@ public class SceneEnhancer implements Runnable {
 					        snow.setScale(1.3F);
 					        snow.setGravity(0.1F);
 					        //more buggy weight issues
-					        snow.windWeight = 0.1F * 400F;
+					        snow.windWeight = 0.1F/* * 400F*/;
 					        snow.setMaxAge(200);
 					        snow.setFacePlayer(false);
 					        snow.setCanCollide(true);
@@ -1174,7 +1174,8 @@ public class SceneEnhancer implements Runnable {
                         }*/
                         
                         //we apply it twice apparently, k
-                        applyWindForce(entity1, 2D, 0.5D);
+                        //applyWindForce(entity1, 2D, 0.5D);
+                        applyWindForceNew(entity1, 1F/20F, 0.5F);
                         //applyWindForce(entity1);
                     }
                 //}
@@ -1301,6 +1302,60 @@ public class SceneEnhancer implements Runnable {
             }
         }*/
     }
+	
+	/**
+	 * 
+	 * To solve the problem of speed going overkill due to bad formulas
+	 * 
+	 * end goal: make object move at speed of wind
+	 * - object has a weight that slows that adjustment
+	 * - conservation of momentum
+	 * 
+	 * calculate force based on wind speed vs objects speed
+	 * - use that force to apply to weight of object
+	 * - profit
+	 * 
+	 * 
+	 * @param ent
+	 */
+	public static void applyWindForceNew(Object ent, float multiplier, float maxSpeed) {
+		
+		/**
+		 * Wind acceleration = wind speed and direction - obj speed and direction
+		 * Wind mass = ???, 1?
+		 * Wind force = mass * acceleration
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
+		
+		WindManager windMan = ClientTickHandler.weatherManager.windMan;
+		
+		float windSpeed = windMan.getWindSpeedForPriority();
+    	float windAngle = windMan.getWindAngleForPriority();
+    	
+    	float windX = (float) -Math.sin(Math.toRadians(windAngle));
+    	float windZ = (float) Math.cos(Math.toRadians(windAngle));
+    	
+    	float objX = (float) CoroUtilEntOrParticle.getMotionX(ent);
+    	float objZ = (float) CoroUtilEntOrParticle.getMotionZ(ent);
+		
+    	float windWeight = 1F;
+    	float objWeight = WeatherUtilEntity.getWeight(ent);
+    	
+    	float weightDiff = windWeight / objWeight;
+    	
+    	float vecX = (objX - windX) * weightDiff * multiplier;
+    	float vecZ = (objZ - windZ) * weightDiff * multiplier;
+    	
+    	double speedCheck = (Math.abs(vecX) + Math.abs(vecZ)) / 2D;
+        if (speedCheck < maxSpeed) {
+        	//minus? why minus?!
+	    	CoroUtilEntOrParticle.setMotionX(ent, objX - vecX);
+	    	CoroUtilEntOrParticle.setMotionZ(ent, objZ - vecZ);
+        }
+	}
 	
 	public static void applyWindForce(Object ent)
     {
