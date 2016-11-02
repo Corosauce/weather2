@@ -46,6 +46,7 @@ public class BlockSandLayer extends Block
     public BlockSandLayer()
     {
         super(Material.SAND);
+        //TODO: full block set before this is called
         this.setDefaultState(this.blockState.getBaseState().withProperty(LAYERS, Integer.valueOf(8)));
         //this.setTickRandomly(true);
         this.setCreativeTab(CreativeTabs.DECORATIONS);

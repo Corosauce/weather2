@@ -20,6 +20,8 @@ import CoroUtil.util.Vec3;
 
 public class CommandWeather2 extends CommandBase {
 
+	//TODO: FIX FOR COMMAND BLOCKS, apparently permission issues
+	
 	@Override
 	public String getCommandName() {
 		return "weather2";
@@ -192,6 +194,8 @@ public class CommandWeather2 extends CommandBase {
 						WeatherManagerServer wm = ServerTickHandler.getWeatherSystemForDim(player.worldObj.provider.getDimension());
 						if (doHighOn) {
 							wm.windMan.startHighWindEvent();
+							//cancel any low wind state if there is one
+							wm.windMan.lowWindTimer = 0;
 							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "started high wind event");
 						} else if (doHighOff) {
 							wm.windMan.stopHighWindEvent();

@@ -86,6 +86,7 @@ public class CommonProxy implements IGuiHandler
     	GameRegistry.addRecipe(new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.COMPASS, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.DIAMOND, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockWeatherMachine, 'X', Items.IRON_INGOT});
+    	//TODO: RECIPES FOR ANEMOMETER AND SAND LAYER, REWORK RECIPES TO NOT USE WEATHER MACHINE, USE SOME BASE ITEM ETC
     	
     	//LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
     }

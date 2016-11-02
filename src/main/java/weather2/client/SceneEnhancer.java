@@ -47,6 +47,7 @@ import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.CoroUtilEntOrParticle;
+import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
@@ -433,11 +434,12 @@ public class SceneEnhancer implements Runnable {
 					        ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.rain);
 					        rain.setCanCollide(true);
 					        rain.setKillOnCollide(true);
-					        rain.windWeight = 1F;
+					        //1.10.2: had to adjust weight from 1 to 10 to make it not super pulled for some reason
+					        rain.windWeight = 10F;
 					        rain.setFacePlayer(false);
 					        rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 					        rain.spawnAsWeatherEffect();
-					        //ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+					        ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 						}
 					}
 					
@@ -465,13 +467,15 @@ public class SceneEnhancer implements Runnable {
 					        ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.snow);
 					        snow.setScale(1.3F);
 					        snow.setGravity(0.1F);
-					        snow.windWeight = 0.1F;
+					        //more buggy weight issues
+					        snow.windWeight = 0.1F * 400F;
 					        snow.setMaxAge(200);
 					        snow.setFacePlayer(false);
 					        snow.setCanCollide(true);
 					        snow.setKillOnCollide(true);
+					        snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;
 					        snow.spawnAsWeatherEffect();
-					        //ClientTickHandler.weatherManager.addWeatheredParticle(snow);
+					        ClientTickHandler.weatherManager.addWeatheredParticle(snow);
 						}
 					}
 	            }
@@ -1170,14 +1174,14 @@ public class SceneEnhancer implements Runnable {
                         }*/
                         
                         //we apply it twice apparently, k
-                        applyWindForce(entity1);
-                        applyWindForce(entity1);
+                        applyWindForce(entity1, 2D, 0.5D);
+                        //applyWindForce(entity1);
                     }
                 //}
             }
         }
         
-        //System.out.println("particles moved: " + handleCount);
+        System.out.println("particles moved: " + handleCount);
 
         WindManager windMan = ClientTickHandler.weatherManager.windMan;
         
@@ -1300,10 +1304,10 @@ public class SceneEnhancer implements Runnable {
 	
 	public static void applyWindForce(Object ent)
     {
-        applyWindForce(ent, 1D);
+        applyWindForce(ent, 1D, 1D);
     }
 	
-    public static void applyWindForce(Object entOrParticle, double multiplier)
+    public static void applyWindForce(Object entOrParticle, double multiplier, double maxSpeed)
     {
     	WindManager windMan = ClientTickHandler.weatherManager.windMan;
     	
@@ -1321,6 +1325,16 @@ public class SceneEnhancer implements Runnable {
             }
         }
         
+        double vecX = CoroUtilEntOrParticle.getMotionX(entOrParticle);
+        double vecY = CoroUtilEntOrParticle.getMotionY(entOrParticle);
+        double vecZ = CoroUtilEntOrParticle.getMotionZ(entOrParticle);
+        
+        double speedCheck = (Math.abs(vecX)/* + Math.abs(vecY)*/ + Math.abs(vecZ)) / 2D;
+        if (speedCheck < maxSpeed) {
+        	CoroUtilEntOrParticle.setMotionX(entOrParticle, CoroUtilEntOrParticle.getMotionX(entOrParticle) + speed * (double)(-MathHelper.sin(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
+            CoroUtilEntOrParticle.setMotionZ(entOrParticle, CoroUtilEntOrParticle.getMotionZ(entOrParticle) + speed * (double)(MathHelper.cos(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
+        }
+        
         
         /*if (ent instanceof EntityKoaManly) {
         	System.out.println("wind move speed: " + speed + " | " + ent.worldObj.isRemote);
@@ -1329,8 +1343,7 @@ public class SceneEnhancer implements Runnable {
         
         /*entOrParticle.motionX += speed * (double)(-MathHelper.sin(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0FweatherMan.wind.yDirection / 180.0F * (float)Math.PI));
         entOrParticle.motionZ += speed * (double)(MathHelper.cos(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0FweatherMan.wind.yDirection / 180.0F * (float)Math.PI));*/
-        CoroUtilEntOrParticle.setMotionX(entOrParticle, CoroUtilEntOrParticle.getMotionX(entOrParticle) + speed * (double)(-MathHelper.sin(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
-        CoroUtilEntOrParticle.setMotionZ(entOrParticle, CoroUtilEntOrParticle.getMotionZ(entOrParticle) + speed * (double)(MathHelper.cos(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
+        
         //commented out for weather2, yStrength was 0
         //ent.motionY += weatherMan.wind.yStrength * 0.1D * (double)(-MathHelper.sin((weatherMan.wind.yDirection) / 180.0F * (float)Math.PI));
     }
