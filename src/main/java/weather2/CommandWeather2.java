@@ -37,11 +37,7 @@ public class CommandWeather2 extends CommandBase {
 		
 		EntityPlayer player = null;
 		if (var1 instanceof EntityPlayer) {
-			try {
-				player = getCommandSenderAsPlayer(var1);
-			} catch (PlayerNotFoundException e) {
-				e.printStackTrace();
-			}
+			player = (EntityPlayer) var1;
 		}
 		World world = var1.getEntityWorld();
 		int dimension = world.provider.getDimension();
