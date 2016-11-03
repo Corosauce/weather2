@@ -41,7 +41,6 @@ public class WeatherUtilEntity {
     		return ((IWindHandler) entity1).getWindWeight();
     	}
     	
-    	//commented out for weather2 copy
         if (entity1 instanceof EntityMovingBlock)
         {
             return 1F + ((float)((EntityMovingBlock) entity1).age / 200);

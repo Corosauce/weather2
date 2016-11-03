@@ -431,7 +431,6 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	
 	@Override
 	public void nbtSyncFromServer(NBTTagCompound parNBT) {
-		// TODO Auto-generated method stub
 		super.nbtSyncFromServer(parNBT);
 		
 		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));

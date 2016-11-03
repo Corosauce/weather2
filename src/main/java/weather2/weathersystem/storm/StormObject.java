@@ -371,9 +371,6 @@ public class StormObject extends WeatherObject {
 		super.tick();
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
 		
-
-		//TODO: 1.10.2 TEMP OFF REENABLE
-		//if (true) return;
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
@@ -1857,7 +1854,6 @@ public class StormObject extends WeatherObject {
     
     	boolean forTornado = true;//entT != null;
     	
-    	//TODO: 1.10.2 will this break client code?
     	World world = CoroUtilEntOrParticle.getWorld(entity1);
     	long worldTime = world.getTotalWorldTime();
     	

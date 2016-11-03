@@ -153,7 +153,7 @@ public class SceneEnhancer implements Runnable {
 			//tickTest();
 			//tickTestFog();
 			tickSandstorm();
-			tickTestSandstormParticles();
+			//tickTestSandstormParticles();
 		}
 	}
 	
@@ -1182,7 +1182,7 @@ public class SceneEnhancer implements Runnable {
             }
         }
         
-        System.out.println("particles moved: " + handleCount);
+        //System.out.println("particles moved: " + handleCount);
 
         WindManager windMan = ClientTickHandler.weatherManager.windMan;
         
@@ -1249,7 +1249,8 @@ public class SceneEnhancer implements Runnable {
 	                        //entity1.motionY += -0.04 + rand.nextDouble() * 0.04;
 	                        //if (canPushEntity(entity1)) {
 	                        //if (!(entity1 instanceof EntityFlameFX)) {
-	                        applyWindForce(entity1);
+	                        //applyWindForce(entity1);
+	                        applyWindForceNew(entity1, 1F/20F, 0.5F);
 	                    }
                     }
                 }
@@ -1303,6 +1304,10 @@ public class SceneEnhancer implements Runnable {
         }*/
     }
 	
+	public static void applyWindForceNew(Object ent) {
+		applyWindForceNew(ent, 1F/20F, 0.5F);
+	}
+	
 	/**
 	 * 
 	 * To solve the problem of speed going overkill due to bad formulas
@@ -1319,24 +1324,28 @@ public class SceneEnhancer implements Runnable {
 	 * @param ent
 	 */
 	public static void applyWindForceNew(Object ent, float multiplier, float maxSpeed) {
-		
-		/**
-		 * Wind acceleration = wind speed and direction - obj speed and direction
-		 * Wind mass = ???, 1?
-		 * Wind force = mass * acceleration
-		 * 
-		 * 
-		 * 
-		 * 
-		 */
+				
+		boolean debugParticle = false;
+		if (ent instanceof EntityRotFX) {
+			EntityRotFX part = (EntityRotFX) ent;
+			if (part.debugID == 1) {
+				debugParticle = true;
+			}
+		}
 		
 		WindManager windMan = ClientTickHandler.weatherManager.windMan;
 		
 		float windSpeed = windMan.getWindSpeedForPriority();
     	float windAngle = windMan.getWindAngleForPriority();
     	
-    	float windX = (float) -Math.sin(Math.toRadians(windAngle));
-    	float windZ = (float) Math.cos(Math.toRadians(windAngle));
+    	Random rand = new Random();
+    	
+    	//temp
+    	//windSpeed = 1F;
+    	//windAngle = -90;//rand.nextInt(360);
+    	
+    	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
+    	float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
     	
     	float objX = (float) CoroUtilEntOrParticle.getMotionX(ent);
     	float objZ = (float) CoroUtilEntOrParticle.getMotionZ(ent);
@@ -1344,14 +1353,29 @@ public class SceneEnhancer implements Runnable {
     	float windWeight = 1F;
     	float objWeight = WeatherUtilEntity.getWeight(ent);
     	
+    	//divide by zero protection
+    	if (objWeight <= 0) {
+    		objWeight = 0.001F;
+    	}
+    	
+    	//TEMP
+    	//objWeight = 1F;
+    	
     	float weightDiff = windWeight / objWeight;
     	
-    	float vecX = (objX - windX) * weightDiff * multiplier;
-    	float vecZ = (objZ - windZ) * weightDiff * multiplier;
+    	float vecX = (objX - windX) * weightDiff;
+    	float vecZ = (objZ - windZ) * weightDiff;
+    	
+    	vecX *= multiplier;
+    	vecZ *= multiplier;
+    	
+    	if (debugParticle) {
+    		System.out.println(windX + " vs " + objX);
+    		System.out.println("diff: " + String.format("%.5g%n", vecX));
+    	}
     	
     	double speedCheck = (Math.abs(vecX) + Math.abs(vecZ)) / 2D;
         if (speedCheck < maxSpeed) {
-        	//minus? why minus?!
 	    	CoroUtilEntOrParticle.setMotionX(ent, objX - vecX);
 	    	CoroUtilEntOrParticle.setMotionZ(ent, objZ - vecZ);
         }
@@ -1475,16 +1499,25 @@ public class SceneEnhancer implements Runnable {
     		
     		particleBehaviorFog = new ParticleBehaviorFogGround(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
     	} else {
-    		//particleBehaviorFog.coordSource = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + 0.5D, mc.thePlayer.posZ);
+    		particleBehaviorFog.coordSource = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + 0.5D, mc.thePlayer.posZ);
     	}
     	
-    	if (/*true || */particleBehaviorFog.particles.size() <= 10000) {
-	    	for (int i = 0; i < 1; i++) {
-	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, particleBehaviorFog.coordSource.xCoord, particleBehaviorFog.coordSource.yCoord, particleBehaviorFog.coordSource.zCoord
-	    				, 0, 0, 0, ParticleRegistry.cloud256);
-	    		particleBehaviorFog.initParticle(part);
-	    		particleBehaviorFog.particles.add(part);
-	    		part.spawnAsWeatherEffect();
+    	if (mc.theWorld.getTotalWorldTime() % 300 == 0) {
+	    	if (/*true || */particleBehaviorFog.particles.size() <= 10000) {
+		    	for (int i = 0; i < 1; i++) {
+		    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, particleBehaviorFog.coordSource.xCoord, particleBehaviorFog.coordSource.yCoord, particleBehaviorFog.coordSource.zCoord
+		    				, 0, 0, 0, ParticleRegistry.cloud256);
+		    		part.setMotionX(-1);
+		    		part.setMotionY(0.1);
+		    		particleBehaviorFog.initParticle(part);
+		    		//particleBehaviorFog.particles.add(part);
+		    		part.spawnAsWeatherEffect();
+		    		part.windWeight = 5F;
+		    		part.debugID = 1;
+		    		part.setMaxAge(280);
+		    		part.setVanillaMotionDampen(false);
+		    		ClientTickHandler.weatherManager.addWeatheredParticle(part);
+		    	}
 	    	}
     	}
     	

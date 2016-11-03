@@ -252,7 +252,6 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
 
 	@Override
 	public int getParticleDecayExtra() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }

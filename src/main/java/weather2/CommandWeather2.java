@@ -201,6 +201,28 @@ public class CommandWeather2 extends CommandBase {
 							wm.windMan.stopHighWindEvent();
 							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "stopped high wind event");
 						}
+					} else if (var2[1].equals("low")) {
+						boolean doLowOn = false;
+						boolean doLowOff = false;
+						if (var2.length > 2) {
+							 if (var2[2].equals("start")) {
+								 doLowOn = true;
+							 } else if (var2[2].equals("stop")) {
+								 doLowOff = true;
+							 }
+						} else {
+							doLowOn = true;
+						}
+						WeatherManagerServer wm = ServerTickHandler.getWeatherSystemForDim(player.worldObj.provider.getDimension());
+						if (doLowOn) {
+							wm.windMan.startLowWindEvent();
+							//cancel any low wind state if there is one
+							wm.windMan.lowWindTimer = 0;
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "started low wind event");
+						} else if (doLowOff) {
+							wm.windMan.stopLowWindEvent();
+							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "stopped low wind event");
+						}
 					}
 				} else {
 					CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);

@@ -213,8 +213,8 @@ public class WindManager {
 					if (highWindTimer <= 0) {
 						if (ConfigMisc.Wind_NoWindEvents) {
 							if (rand.nextInt(lowWindOddsTo1) == 0) {
-								lowWindTimer = lowWindTimerEnableAmountBase + rand.nextInt(lowWindTimerEnableAmountRnd);
-								Weather.dbg("no wind event, for ticks: " + lowWindTimer);
+								startLowWindEvent();
+								Weather.dbg("low wind event, for ticks: " + lowWindTimer);
 							}
 						}
 					}
@@ -319,6 +319,14 @@ public class WindManager {
 	
 	public void stopHighWindEvent() {
 		highWindTimer = 0;
+	}
+	
+	public void startLowWindEvent() {
+		lowWindTimer = lowWindTimerEnableAmountBase + (new Random()).nextInt(lowWindTimerEnableAmountRnd);
+	}
+	
+	public void stopLowWindEvent() {
+		lowWindTimer = 0;
 	}
 
 	@SideOnly(Side.CLIENT)
