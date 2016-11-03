@@ -55,7 +55,7 @@ public class BlockWeatherMachine extends BlockContainer
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 6) {
 	    			msg = "Stage 1 Tropical Cyclone";
 	    		}
-	    		CoroUtil.sendPlayerMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
+	    		CoroUtil.sendCommandSenderMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
 	    		return true;
 	    	}
     	}
