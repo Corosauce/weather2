@@ -54,11 +54,11 @@ public class CommandWeather2 extends CommandBase {
 				//EntityPlayer player = getCommandSenderAsPlayer(var1);
 				
 				if (var2[0].equals("volcano")) {
-					if (var2[1].equals("create")) {
+					if (var2[1].equals("create") && posVec != Vec3d.ZERO) {
 						if (dimension == 0) {
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(0);
 							VolcanoObject vo = new VolcanoObject(wm);
-							vo.pos = new Vec3(posBlock.getX(), posBlock.getY(), posBlock.getZ());
+							vo.pos = new Vec3(posVec);
 							vo.initFirstTime();
 							wm.addVolcanoObject(vo);
 							vo.initPost();
@@ -87,7 +87,7 @@ public class CommandWeather2 extends CommandBase {
 							}
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
-						if (var2.length > 2) {
+						if (var2.length > 2 && posVec != Vec3d.ZERO) {
 							//TODO: make this handle non StormObject types better, currently makes instance and doesnt use that type if its a sandstorm
 							boolean spawnCloudStorm = true;
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
