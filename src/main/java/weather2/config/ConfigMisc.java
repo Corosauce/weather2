@@ -104,6 +104,7 @@ public class ConfigMisc implements IConfigCategory {
 	//lightning
 	public static int Lightning_OddsTo1OfFire = 20;
 	public static int Lightning_lifetimeOfFire = 3;
+	public static int Lightning_DistanceToPlayerForEffects = 256;
 	
 	//snow
 	public static boolean Snow_PerformSnowfall = false;
