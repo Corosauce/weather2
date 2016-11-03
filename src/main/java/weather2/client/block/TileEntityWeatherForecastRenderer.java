@@ -104,8 +104,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         GlStateManager.translate((float)x + 0.5F, (float)y+1.1F, (float)z + 0.5F);
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
         GlStateManager.disableLighting();
-        GlStateManager.depthMask(false);
-        GlStateManager.disableDepth();
+        //GlStateManager.depthMask(false);
+        //GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         Tessellator tessellator = Tessellator.getInstance();
@@ -118,8 +118,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         worldrenderer.pos((double)(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2)).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
-        GlStateManager.enableDepth();
-        GlStateManager.depthMask(true);
+        //GlStateManager.enableDepth();
+        //GlStateManager.depthMask(true);
         
         GlStateManager.enableLighting();
         GlStateManager.disableBlend();
