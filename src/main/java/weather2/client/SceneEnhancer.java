@@ -1492,14 +1492,27 @@ public class SceneEnhancer implements Runnable {
     	}
     	
     	//temp off
-    	distToStorm = 100;
+    	//distToStorm = distToStormThreshold;
+    	
+    	//distToStorm = 0;
     	
     	float fogColorChangeRate = 0.01F;
     	float fogDistChangeRate = 2F;
     	float fogDensityChangeRate = 0.01F;
     	
+    	//make it be full intensity once storm is halfway there
+    	float adjustAmount = 1F - (float) ((distToStorm) / distToStormThreshold);
+    	adjustAmount *= 2F;
+    	if (adjustAmount < 0F) adjustAmount = 0F;
+    	if (adjustAmount > 1F) adjustAmount = 1F;
+    	
+    	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
+    		//System.out.println(adjustAmount + " - " + distToStorm);
+    	}
+    	
     	if (distToStorm < distToStormThreshold) {
     		if (needFogState) {
+    			System.out.println("getting fog state");
     			stormFogRed = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175080_Q");
     			stormFogGreen = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175082_R");
     			stormFogBlue = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175081_S");
@@ -1528,15 +1541,12 @@ public class SceneEnhancer implements Runnable {
 					}
     				stormFogDensity = fieldDensity.getFloat(fogState);
     				
-    				//with this they sky has a drastic change
     				stormFogStart = fieldStart.getFloat(fogState);
     				stormFogEnd = fieldEnd.getFloat(fogState);
     				
-    				//with this, the sky is fixed, but fog has a sudden change right at the end
     				stormFogStartClouds = 0;
     				stormFogEndClouds = 192;
     				
-    				//its due to startCoords state changing in EntityRenderer i think
     				
     				stormFogStartOrig = stormFogStart;
     				stormFogEndOrig = stormFogEnd;
@@ -1555,7 +1565,9 @@ public class SceneEnhancer implements Runnable {
     			needFogState = false;
     		}
     		
-    		stormFogRed = adjVal(stormFogRed, 0.7F, fogColorChangeRate);
+    		
+    		
+    		/*stormFogRed = adjVal(stormFogRed, 0.7F, fogColorChangeRate);
     		stormFogGreen = adjVal(stormFogGreen, 0.6F, fogColorChangeRate);
     		stormFogBlue = adjVal(stormFogBlue, 0.3F, fogColorChangeRate);
     		
@@ -1564,13 +1576,29 @@ public class SceneEnhancer implements Runnable {
     		stormFogStart = adjVal(stormFogStart, 0F, fogDistChangeRate);
     		stormFogEnd = adjVal(stormFogEnd, 20F, fogDistChangeRate);
     		stormFogStartClouds = adjVal(stormFogStartClouds, 0F, fogDistChangeRate);
-    		stormFogEndClouds = adjVal(stormFogEndClouds, 20F, fogDistChangeRate);
+    		stormFogEndClouds = adjVal(stormFogEndClouds, 20F, fogDistChangeRate);*/
+    		
+    		//new dynamic adjusting
+    		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - 0.7F) * adjustAmount);
+    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - 0.6F) * adjustAmount);
+    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - 0.3F) * adjustAmount);
+    		
+    		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmount);
+    		
+    		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmount);
+    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 20F) * adjustAmount);
+    		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmount);
+    		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmount);
     		
     		//System.out.println("ON");
     	} else {
+    		if (!needFogState) {
+    			System.out.println("resetting need for fog state");
+    		}
     		needFogState = true;
+    		
     		//if these values are already equal it shouldnt actually do anything
-    		stormFogRed = adjVal(stormFogRed, stormFogRedOrig, fogColorChangeRate);
+    		/*stormFogRed = adjVal(stormFogRed, stormFogRedOrig, fogColorChangeRate);
     		stormFogGreen = adjVal(stormFogGreen, stormFogGreenOrig, fogColorChangeRate);
     		stormFogBlue = adjVal(stormFogBlue, stormFogBlueOrig, fogColorChangeRate);
     		
@@ -1579,16 +1607,16 @@ public class SceneEnhancer implements Runnable {
     		stormFogStart = adjVal(stormFogStart, stormFogStartOrig, fogDistChangeRate);
     		stormFogEnd = adjVal(stormFogEnd, stormFogEndOrig, fogDistChangeRate);
     		stormFogStartClouds = adjVal(stormFogStartClouds, stormFogStartCloudsOrig, fogDistChangeRate);
-    		stormFogEndClouds = adjVal(stormFogEndClouds, stormFogEndCloudsOrig, fogDistChangeRate);
+    		stormFogEndClouds = adjVal(stormFogEndClouds, stormFogEndCloudsOrig, fogDistChangeRate);*/
     		
     		//System.out.println("OFF");
     	}
     }
     
     public static boolean isFogOverridding() {
-    	return distToStorm < distToStormThreshold || 
+    	return distToStorm < distToStormThreshold/* || 
     			(stormFogRed != stormFogRedOrig || stormFogGreen != stormFogGreenOrig || stormFogBlue != stormFogBlueOrig) || 
-    			(stormFogDensity != stormFogDensityOrig || stormFogStart != stormFogStartOrig || stormFogEnd != stormFogEndOrig);
+    			(stormFogDensity != stormFogDensityOrig || stormFogStart != stormFogStartOrig || stormFogEnd != stormFogEndOrig)*/;
     }
     
     public static float adjVal(float source, float target, float adj) {

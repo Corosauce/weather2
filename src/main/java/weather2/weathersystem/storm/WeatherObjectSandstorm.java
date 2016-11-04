@@ -85,7 +85,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.xCoord -= vecX * speed;
 		this.pos.zCoord -= vecZ * speed;
 		
-
+		World world = manager.getWorld();
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		pos.yCoord = yy;
+		
+		posGround = new Vec3(pos);
+		
 		this.posSpawn = new Vec3(this.pos);
 		
 		/*height = 0;
@@ -114,7 +119,6 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 		
 		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
-		this.posGround = new Vec3(pos.xCoord, yy, pos.zCoord);
 		
 		boolean testGrowth = true;
 	
@@ -158,8 +162,13 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.zCoord += vecZ * speed;
 		
 		//wind movement
-		/*this.motion = windMan.applyWindForceImpl(this.motion, 1F);
-		this.pos.addVector(this.motion.xCoord, this.motion.zCoord, this.motion.yCoord);*/
+		//this.motion = windMan.applyWindForceImpl(this.motion, 5F, 1F/20F, 0.5F);
+		
+		/*this.pos.xCoord += this.motion.xCoord;
+		this.pos.yCoord += this.motion.yCoord;
+		this.pos.zCoord += this.motion.zCoord;*/
+		
+		this.pos.yCoord = yy + 1;
 		
 		if (world.isRemote) {
 			tickClient();
@@ -187,6 +196,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			}
 		}
 		
+		this.posGround.xCoord = pos.xCoord;
+		this.posGround.yCoord = yy;
+		this.posGround.zCoord = pos.zCoord;
 		
 	}
 	
@@ -196,12 +208,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		if (WeatherUtil.isPaused()) return;
 		
 		Minecraft mc = Minecraft.getMinecraft();
+		World world = manager.getWorld();
+		WindManager windMan = manager.getWindManager();
 		
 		if (particleBehavior == null) {
 			particleBehavior = new ParticleBehaviorSandstorm(pos);
 		}
-		
-		WindManager windMan = manager.getWindManager();
 		
 		//double size = 15;
     	//double height = 50;
@@ -302,7 +314,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 		    		part.setScale(100);
 		    		
-		    		part.windWeight = 1F;
+		    		//part.windWeight = 5F;
 		    		
 		    		particleBehavior.particles.add(part);
 		    		part.spawnAsWeatherEffect();
@@ -333,7 +345,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
-    	if ((mc.theWorld.getTotalWorldTime()) % 2 == 0) {
+    	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
 	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn + (extraDistSpawnIntoWall); spawnDistTick += spawnDistInc) {
 	    		//add 1/4 PI for some reason, converting math to mc I guess
 	    		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);
@@ -344,7 +356,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		double x = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
 	    		double z = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
 	    		//TODO: account for terrain adjustments
-	    		double y = posSpawn.yCoord + 2 + randHeight;
+	    		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+	    		double y = yy/*posSpawn.yCoord*/ + 2 + randHeight;
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 	    		

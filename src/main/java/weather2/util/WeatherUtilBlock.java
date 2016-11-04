@@ -71,7 +71,7 @@ public class WeatherUtilBlock {
 		
 		BlockPos lastScannedPosXZ = null;//new BlockPos(posSourcei);
 		
-		System.out.println("Start block (should be air): " + world.getBlockState(posSourcei));
+		//System.out.println("Start block (should be air): " + world.getBlockState(posSourcei));
 		
 		int previousBlockHeight = 0;
 		
