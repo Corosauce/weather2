@@ -12,12 +12,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.ClientTickHandler;
 import weather2.CommonProxy;
-import weather2.Weather;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManagerBase;
+import weather2.weathersystem.wind.WindManager;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
@@ -105,6 +106,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		Random rand = new Random();
 		World world = manager.getWorld();
+		WindManager windMan = manager.getWindManager();
 		
 		if (world == null) {
 			System.out.println("world is null for " + this + ", why!!!");
@@ -144,7 +146,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			}
 		}
 		
-		float angle = manager.getWindManager().getWindAngleForClouds();
+		float angle = windMan.getWindAngleForClouds();
+		
+		
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
@@ -152,6 +156,10 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		this.pos.xCoord += vecX * speed;
 		this.pos.zCoord += vecZ * speed;
+		
+		//wind movement
+		/*this.motion = windMan.applyWindForceImpl(this.motion, 1F);
+		this.pos.addVector(this.motion.xCoord, this.motion.zCoord, this.motion.yCoord);*/
 		
 		if (world.isRemote) {
 			tickClient();
@@ -173,8 +181,6 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    	float angleRand = (rand.nextFloat() - rand.nextFloat()) * 360F;
 			    	
 			    	Vec3 vec = new Vec3(x, y, z);
-		    		//WeatherUtilBlock.floodAreaWithLayerableBlock(world, vec, angle, 15, 5, 2, CommonProxy.blockSandLayer, 4);
-			    	//WeatherUtilBlock.fillAgainstWall(world, vec, angle, 15, 2, CommonProxy.blockSandLayer);
 			    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vec, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
 			    	
 		    	}
@@ -195,6 +201,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			particleBehavior = new ParticleBehaviorSandstorm(pos);
 		}
 		
+		WindManager windMan = manager.getWindManager();
 		
 		//double size = 15;
     	//double height = 50;
@@ -294,6 +301,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
 		    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 		    		part.setScale(100);
+		    		
+		    		part.windWeight = 1F;
+		    		
 		    		particleBehavior.particles.add(part);
 		    		part.spawnAsWeatherEffect();
 		    		
@@ -352,12 +362,16 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
 	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 	    		part.setScale(100);
+	    		
+	    		part.windWeight = 1F;
+	    		
 	    		//particleBehavior.particles.add(part);
+	    		ClientTickHandler.weatherManager.addWeatheredParticle(part);
 	    		part.spawnAsWeatherEffect();
 	    	}
     	}
 
-	    float angle = manager.getWindManager().getWindAngleForClouds();
+	    float angle = windMan.getWindAngleForClouds();
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
@@ -382,7 +396,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
     		double y = pos.yCoord + (particle.heightLayer * distBetweenParticles);
     		
     		moveToPosition(particle, x, y, z, 0.01D);
-	    	//particle.setPosition(x, y, z);
+    		//windMan.applyWindForceNew(particle);
+    		
 	    }
 	    
 	    //System.out.println("spawn particles at: " + pos);

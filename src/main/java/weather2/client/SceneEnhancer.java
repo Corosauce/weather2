@@ -1037,41 +1037,22 @@ public class SceneEnhancer implements Runnable {
     public static void tryWind(World world)
     {
 		
-		//if (true) return;
-		
-        //if pre stage...
-        //look for leaves? spawn particles
-
-        //RAIN!! MODIFY BLUE COLOR SHADES IN CODE BITCH
-
-        //logic
-    	//weatherMan.wind.strength = 0.6F;
-    	//debug = true;
-		
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		EntityPlayer player = mc.thePlayer;
 
-        //if (true) return;
         if (player == null)
         {
             return;
         }
 
         int dist = 60;
-        //if (side == Side.SERVER) {
-        //List list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, player.boundingBox.expand(dist, 80, dist));
-        List list = null;
-
-        /*if (side == Side.CLIENT)
-        {
-            list = player.worldObj.loadedEntityList;
-        }
-        else
-        {
-            
-        }*/
         
-        list = world.loadedEntityList;
+        List list = world.loadedEntityList;
+        
+        WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
+        if (weatherMan == null) return;
+        WindManager windMan = weatherMan.getWindManager();
+        if (windMan == null) return;
 
         //Chunk Entities
         //we're not moving chunk entities with wind this way ....... i think, only weather events like spinning etc
@@ -1087,12 +1068,6 @@ public class SceneEnhancer implements Runnable {
                 }
             }
         }*/
-
-        //}
-
-        //weatherMan.wind.strength = 0.2F;
-
-        //System.out.println("stuff: " + side);
         
         Random rand = new Random();
         
@@ -1175,7 +1150,7 @@ public class SceneEnhancer implements Runnable {
                         
                         //we apply it twice apparently, k
                         //applyWindForce(entity1, 2D, 0.5D);
-                        applyWindForceNew(entity1, 1F/20F, 0.5F);
+                        windMan.applyWindForceNew(entity1, 1F/20F, 0.5F);
                         //applyWindForce(entity1);
                     }
                 //}
@@ -1184,7 +1159,7 @@ public class SceneEnhancer implements Runnable {
         
         //System.out.println("particles moved: " + handleCount);
 
-        WindManager windMan = ClientTickHandler.weatherManager.windMan;
+        //WindManager windMan = ClientTickHandler.weatherManager.windMan;
         
         //Particles
         if (WeatherUtilParticle.fxLayers != null && windMan.getWindSpeedForPriority() >= 0.10)
@@ -1250,7 +1225,7 @@ public class SceneEnhancer implements Runnable {
 	                        //if (canPushEntity(entity1)) {
 	                        //if (!(entity1 instanceof EntityFlameFX)) {
 	                        //applyWindForce(entity1);
-	                        applyWindForceNew(entity1, 1F/20F, 0.5F);
+	                        windMan.applyWindForceNew(entity1, 1F/20F, 0.5F);
 	                    }
                     }
                 }
@@ -1303,83 +1278,6 @@ public class SceneEnhancer implements Runnable {
             }
         }*/
     }
-	
-	public static void applyWindForceNew(Object ent) {
-		applyWindForceNew(ent, 1F/20F, 0.5F);
-	}
-	
-	/**
-	 * 
-	 * To solve the problem of speed going overkill due to bad formulas
-	 * 
-	 * end goal: make object move at speed of wind
-	 * - object has a weight that slows that adjustment
-	 * - conservation of momentum
-	 * 
-	 * calculate force based on wind speed vs objects speed
-	 * - use that force to apply to weight of object
-	 * - profit
-	 * 
-	 * 
-	 * @param ent
-	 */
-	public static void applyWindForceNew(Object ent, float multiplier, float maxSpeed) {
-				
-		boolean debugParticle = false;
-		if (ent instanceof EntityRotFX) {
-			EntityRotFX part = (EntityRotFX) ent;
-			if (part.debugID == 1) {
-				debugParticle = true;
-			}
-		}
-		
-		WindManager windMan = ClientTickHandler.weatherManager.windMan;
-		
-		float windSpeed = windMan.getWindSpeedForPriority();
-    	float windAngle = windMan.getWindAngleForPriority();
-    	
-    	Random rand = new Random();
-    	
-    	//temp
-    	//windSpeed = 1F;
-    	//windAngle = -90;//rand.nextInt(360);
-    	
-    	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
-    	float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
-    	
-    	float objX = (float) CoroUtilEntOrParticle.getMotionX(ent);
-    	float objZ = (float) CoroUtilEntOrParticle.getMotionZ(ent);
-		
-    	float windWeight = 1F;
-    	float objWeight = WeatherUtilEntity.getWeight(ent);
-    	
-    	//divide by zero protection
-    	if (objWeight <= 0) {
-    		objWeight = 0.001F;
-    	}
-    	
-    	//TEMP
-    	//objWeight = 1F;
-    	
-    	float weightDiff = windWeight / objWeight;
-    	
-    	float vecX = (objX - windX) * weightDiff;
-    	float vecZ = (objZ - windZ) * weightDiff;
-    	
-    	vecX *= multiplier;
-    	vecZ *= multiplier;
-    	
-    	if (debugParticle) {
-    		System.out.println(windX + " vs " + objX);
-    		System.out.println("diff: " + String.format("%.5g%n", vecX));
-    	}
-    	
-    	double speedCheck = (Math.abs(vecX) + Math.abs(vecZ)) / 2D;
-        if (speedCheck < maxSpeed) {
-	    	CoroUtilEntOrParticle.setMotionX(ent, objX - vecX);
-	    	CoroUtilEntOrParticle.setMotionZ(ent, objZ - vecZ);
-        }
-	}
 	
 	public static void applyWindForce(Object ent)
     {

@@ -40,6 +40,7 @@ public class EventHandlerPacket {
 			if (packetCommand.equals("WeatherData")) {
 				ClientTickHandler.checkClientWeather();
 	        	
+				//this line still gets NPE's despite it checking if its null right before it, wtf
 	        	ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
 			} else if (packetCommand.equals("EZGuiData")) {
 				String command = nbt.getString("command");

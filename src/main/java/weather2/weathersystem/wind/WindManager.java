@@ -2,16 +2,20 @@ package weather2.weathersystem.wind;
 
 import java.util.Random;
 
+import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.Vec3;
 
 public class WindManager {
@@ -404,5 +408,112 @@ public class WindManager {
 	
 	public void reset() {
 		manager = null;
+	}
+	
+
+	
+	public void applyWindForceNew(Object ent) {
+		applyWindForceNew(ent, 1F/20F, 0.5F);
+	}
+	
+	/**
+	 * 
+	 * To solve the problem of speed going overkill due to bad formulas
+	 * 
+	 * end goal: make object move at speed of wind
+	 * - object has a weight that slows that adjustment
+	 * - conservation of momentum
+	 * 
+	 * calculate force based on wind speed vs objects speed
+	 * - use that force to apply to weight of object
+	 * - profit
+	 * 
+	 * 
+	 * @param ent
+	 */
+	public void applyWindForceNew(Object ent, float multiplier, float maxSpeed) {
+		
+		Vec3 motion = applyWindForceImpl(new Vec3(CoroUtilEntOrParticle.getMotionX(ent), CoroUtilEntOrParticle.getMotionY(ent), CoroUtilEntOrParticle.getMotionZ(ent)), 
+				WeatherUtilEntity.getWeight(ent), multiplier, maxSpeed);
+		
+		CoroUtilEntOrParticle.setMotionX(ent, motion.xCoord);
+    	CoroUtilEntOrParticle.setMotionZ(ent, motion.zCoord);
+	}
+	
+	public Vec3 applyWindForceImpl(Vec3 motion, float weight) {
+		return applyWindForceImpl(motion, weight, 1F/20F, 0.5F);
+	}
+	
+	/**
+	 * Handle generic uses of wind force, for stuff like weather objects that arent entities or paticles
+	 * 
+	 * @param motion
+	 * @param weight
+	 * @param multiplier
+	 * @param maxSpeed
+	 * @return
+	 */
+	public Vec3 applyWindForceImpl(Vec3 motion, float weight, float multiplier, float maxSpeed) {
+		boolean debugParticle = false;
+		/*if (ent instanceof EntityRotFX) {
+			EntityRotFX part = (EntityRotFX) ent;
+			if (part.debugID == 1) {
+				debugParticle = true;
+			}
+		}*/
+		
+		WindManager windMan = this;//ClientTickHandler.weatherManager.windMan;
+		
+		float windSpeed = windMan.getWindSpeedForPriority();
+    	float windAngle = windMan.getWindAngleForPriority();
+    	
+    	//Random rand = new Random();
+    	
+    	//temp
+    	//windSpeed = 1F;
+    	//windAngle = -90;//rand.nextInt(360);
+    	
+    	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
+    	float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
+    	
+    	float objX = (float) motion.xCoord;//CoroUtilEntOrParticle.getMotionX(ent);
+    	float objZ = (float) motion.zCoord;//CoroUtilEntOrParticle.getMotionZ(ent);
+		
+    	float windWeight = 1F;
+    	float objWeight = weight;
+    	
+    	//divide by zero protection
+    	if (objWeight <= 0) {
+    		objWeight = 0.001F;
+    	}
+    	
+    	//TEMP
+    	//objWeight = 1F;
+    	
+    	float weightDiff = windWeight / objWeight;
+    	
+    	float vecX = (objX - windX) * weightDiff;
+    	float vecZ = (objZ - windZ) * weightDiff;
+    	
+    	vecX *= multiplier;
+    	vecZ *= multiplier;
+    	
+    	if (debugParticle) {
+    		System.out.println(windX + " vs " + objX);
+    		System.out.println("diff: " + String.format("%.5g%n", vecX));
+    	}
+    	
+    	//copy over existing motion data
+    	Vec3 newMotion = new Vec3(motion);
+    	
+    	double speedCheck = (Math.abs(vecX) + Math.abs(vecZ)) / 2D;
+        if (speedCheck < maxSpeed) {
+        	newMotion.xCoord = objX - vecX;
+        	newMotion.zCoord = objZ - vecZ;
+	    	/*CoroUtilEntOrParticle.setMotionX(ent, objX - vecX);
+	    	CoroUtilEntOrParticle.setMotionZ(ent, objZ - vecZ);*/
+        }
+        
+        return newMotion;
 	}
 }
