@@ -20,7 +20,7 @@ import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.CoroUtilFile;
 
-@Mod(modid = "weather2", name="weather2", version="v2.3.15")
+@Mod(modid = "weather2", name="weather2", version="v2.3.15", dependencies="required-after:coroutil")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )

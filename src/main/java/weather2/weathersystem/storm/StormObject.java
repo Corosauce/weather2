@@ -79,8 +79,8 @@ public class StormObject extends WeatherObject {
 	
 	//basic info
 	public static int static_YPos_layer0 = ConfigMisc.Cloud_Layer0_Height;
-	public static int static_YPos_layer1 = 350;
-	public static int static_YPos_layer2 = 500;
+	public static int static_YPos_layer1 = ConfigMisc.Cloud_Layer1_Height;
+	public static int static_YPos_layer2 = ConfigMisc.Cloud_Layer2_Height;
 	public static List<Integer> layers = new ArrayList<Integer>(Arrays.asList(static_YPos_layer0, static_YPos_layer1, static_YPos_layer2));
 	public int layer = 0;
 	
@@ -178,6 +178,8 @@ public class StormObject extends WeatherObject {
     public long ticksSinceLastPacketReceived = 0;
 	
     //public static long lastStormFormed = 0;
+    
+    public boolean canBeDeadly = true;
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -382,9 +384,9 @@ public class StormObject extends WeatherObject {
 				
 				ticksSinceLastPacketReceived++;
 				
-				if (layer == 0) {
+				//if (layer == 0) {
 					tickClient();
-				}
+				//}
 				
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					tornadoHelper.tick(manager.getWorld());
@@ -436,6 +438,9 @@ public class StormObject extends WeatherObject {
 				tickWeatherEvents();
 				tickProgression();
 				tickSnowFall();
+			} else {
+				//make layer 1 max size for visuals
+				size = maxSize;
 			}
 			
 			//overCastModeAndRaining = ConfigMisc.overcastMode && manager.getWorld().isRaining();
@@ -979,16 +984,18 @@ public class StormObject extends WeatherObject {
 			
 			boolean tryFormStorm = false;
 			
-			if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
-				if (ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
-					if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-						tryFormStorm = true;
+			if (this.canBeDeadly) {
+				if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
+					if (ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
+						if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+							tryFormStorm = true;
+						}
 					}
-				}
-			} else {
-				if (ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
-					if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-						tryFormStorm = true;
+				} else {
+					if (ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
+						if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+							tryFormStorm = true;
+						}
 					}
 				}
 			}
@@ -1427,9 +1434,9 @@ public class StormObject extends WeatherObject {
 				if (listParticlesCloud.size() < size + extraSpawning) {
 					double spawnRad = size;
 					
-					if (layer != 0) {
+					/*if (layer != 0) {
 						spawnRad = size * 5;
-					}
+					}*/
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
@@ -2149,9 +2156,9 @@ public class StormObject extends WeatherObject {
 			baseBright -= adj;
 		}
 		
-		if (layer == 1) {
+		/*if (layer == 1) {
 			baseBright = 0.1F;
-		}
+		}*/
 		
 		float finalBright = Math.min(1F, baseBright+randFloat);
 		entityfx.setRBGColorF(finalBright, finalBright, finalBright);

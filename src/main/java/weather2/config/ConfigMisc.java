@@ -1,11 +1,15 @@
 package weather2.config;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
+import weather2.weathersystem.storm.StormObject;
 
 
 public class ConfigMisc implements IConfigCategory {
@@ -98,8 +102,12 @@ public class ConfigMisc implements IConfigCategory {
 	//clouds
 	public static int Cloud_ParticleSpawnDelay = 0;
 	public static int Cloud_Formation_MinDistBetweenSpawned = 256;
+	@ConfigComment("For a second layer of passive non storm progressing clouds")
 	public static boolean Cloud_Layer1_Enable = false;
 	public static int Cloud_Layer0_Height = 200;
+	public static int Cloud_Layer1_Height = 350;
+	@ConfigComment("Not used at the moment")
+	public static int Cloud_Layer2_Height = 500;
 	
 	//lightning
 	public static int Lightning_OddsTo1OfFire = 20;
@@ -165,6 +173,11 @@ public class ConfigMisc implements IConfigCategory {
 		//Weather.dbg("block list processing disabled");
 		WeatherUtil.doBlockList();
 		WeatherUtilConfig.processLists();
+		
+		StormObject.static_YPos_layer0 = Cloud_Layer0_Height;
+		StormObject.static_YPos_layer1 = Cloud_Layer1_Height;
+		StormObject.static_YPos_layer2 = Cloud_Layer2_Height;
+		StormObject.layers = new ArrayList<Integer>(Arrays.asList(StormObject.static_YPos_layer0, StormObject.static_YPos_layer1, StormObject.static_YPos_layer2));
 	}
 
 }

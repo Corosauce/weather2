@@ -138,7 +138,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					if (getStormObjectsByLayer(1).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (ConfigMisc.Cloud_Layer1_Enable) {
 							if (rand.nextInt(5) == 0) {
-								//trySpawnNearPlayerForLayer(entP, 1);
+								trySpawnNearPlayerForLayer(entP, 1);
 							}
 						}
 					}
@@ -182,6 +182,10 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			so.initFirstTime();
 			so.pos = tryPos;
 			so.layer = layer;
+			//make only layer 0 produce deadly storms
+			if (layer != 0) {
+				so.canBeDeadly = false;
+			}
 			so.userSpawnedFor = CoroUtilEntity.getName(entP);
 			addStormObject(so);
 			syncStormNew(so);

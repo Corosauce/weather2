@@ -377,7 +377,9 @@ public class SceneEnhancer implements Runnable {
 		
 		lastWorldDetected.weatherEffects.clear();
 		
-		WeatherUtilParticle.getFXLayers();
+		if (WeatherUtilParticle.fxLayers == null) {
+			WeatherUtilParticle.getFXLayers();
+		}
 		//WeatherUtilSound.getSoundSystem();
 	}
 	
@@ -385,6 +387,8 @@ public class SceneEnhancer implements Runnable {
 		
 		if (ConfigMisc.Particle_RainSnow) {
 			EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
+			
+			if (entP.posY >= StormObject.static_YPos_layer0) return;
 			
 			float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 			
