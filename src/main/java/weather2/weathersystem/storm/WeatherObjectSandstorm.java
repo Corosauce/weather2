@@ -118,6 +118,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			return;
 		}
 		
+		if (WeatherUtil.isPausedSideSafe(world)) return;
+		
 		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		
 		boolean testGrowth = true;
@@ -150,13 +152,15 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			}
 		}
 		
-		float angle = windMan.getWindAngleForClouds();
+		//clouds move at 0.2 amp of actual wind speed
 		
+		float angle = windMan.getWindAngleForClouds();
+		float speedWind = windMan.getWindSpeedForClouds();
 		
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
-		double speed = 0.2D;
+		double speed = speedWind * 0.3D;//0.2D;
 		
 		this.pos.xCoord += vecX * speed;
 		this.pos.zCoord += vecZ * speed;
@@ -205,7 +209,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
 		
-		if (WeatherUtil.isPaused()) return;
+		//moved
+		//if (WeatherUtil.isPaused()) return;
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		World world = manager.getWorld();
@@ -302,6 +307,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		part.angleToStorm = i;
 		    		part.distAdj = sizeRand;
 		    		part.heightLayer = heightLayer;
+		    		part.lockPosition = true;
 		    		
 		    		part.setFacePlayer(false);
 		    		part.isTransparent = true;
@@ -382,8 +388,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		
 	    		part.windWeight = 1F;
 	    		
-	    		//particleBehavior.particles.add(part);
-	    		ClientTickHandler.weatherManager.addWeatheredParticle(part);
+	    		particleBehavior.particles.add(part);
+	    		//ClientTickHandler.weatherManager.addWeatheredParticle(part);
 	    		part.spawnAsWeatherEffect();
 	    	}
     	}
@@ -392,7 +398,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
-		//double speed = 0.2D;
+		double speed = 0.8D;
 		
 		
 	    
@@ -405,14 +411,18 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    for (int i = 0; i < particleBehavior.particles.size(); i++) {
 	    	ParticleSandstorm particle = (ParticleSandstorm) particleBehavior.particles.get(i);
 	    	
-	    	//particle.setMotionX(particle.getMotionX() + (vecX * speed));
-	    	//particle.setMotionZ(particle.getMotionZ() + (vecZ * speed));
 	    	
-	    	double x = pos.xCoord + (-Math.sin(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
-    		double z = pos.zCoord + (Math.cos(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
-    		double y = pos.yCoord + (particle.heightLayer * distBetweenParticles);
-    		
-    		moveToPosition(particle, x, y, z, 0.01D);
+	    	
+	    	if (particle.lockPosition) {
+		    	double x = pos.xCoord + (-Math.sin(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
+	    		double z = pos.zCoord + (Math.cos(Math.toRadians(particle.angleToStorm)) * (particle.distAdj));
+	    		double y = pos.yCoord + (particle.heightLayer * distBetweenParticles);
+	    		
+	    		moveToPosition(particle, x, y, z, 0.01D);
+	    	} else {
+	    		particle.setMotionX(/*particle.getMotionX() + */(vecX * speed));
+		    	particle.setMotionZ(/*particle.getMotionZ() + */(vecZ * speed));
+	    	}
     		//windMan.applyWindForceNew(particle);
     		
 	    }

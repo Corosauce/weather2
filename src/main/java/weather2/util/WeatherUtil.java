@@ -27,6 +27,17 @@ public class WeatherUtil {
     	return false;
     }
     
+    public static boolean isPausedSideSafe(World world) {
+    	//return false if server side because it cant be paused legit
+    	if (!world.isRemote) return false;
+    	return isPausedForClient();
+    }
+    
+    public static boolean isPausedForClient() {
+    	if (FMLClientHandler.instance().getClient().isGamePaused()) return true;
+    	return false;
+    }
+    
     //Terrain grabbing
     public static boolean shouldGrabBlock(World parWorld, Block id)
     {

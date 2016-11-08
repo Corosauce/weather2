@@ -9,6 +9,7 @@ public class ParticleSandstorm extends ParticleTexFX {
 	public double angleToStorm = 0;
 	public int heightLayer = 0;
 	public double distAdj = 0;
+	public boolean lockPosition = false;
 	
 	public ParticleSandstorm(World worldIn, double posXIn, double posYIn,
 			double posZIn, double mX, double mY, double mZ,
