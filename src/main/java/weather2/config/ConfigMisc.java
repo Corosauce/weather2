@@ -42,12 +42,13 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Storm_Tornado_grabBlocks = true;
 	@ConfigComment("Grab blocks based on how well a diamond axe can mine the block, so mostly wooden blocks")
 	public static boolean Storm_Tornado_GrabCond_StrengthGrabbing = true;
-	@ConfigComment("Use a list of blocks instead of grabbing based on calculated strength of block")
+	@ConfigComment("Use a list of blocks instead of grabbing based on calculated strength of block, if true this overrides StrengthGrabbing and RefinedGrabRules")
 	public static boolean Storm_Tornado_GrabCond_List = false;
 	public static boolean Storm_Tornado_GrabCond_List_PartialMatches = false;
 	//public static boolean Storm_Tornado_GrabCond_List_TrimSpaces = true;
 	@ConfigComment("Treat block grab list as a blacklist instead of whitelist")
 	public static boolean Storm_Tornado_GrabListBlacklistMode = false;
+	@ConfigComment("Enable GrabCond_List to use, add registered block names to list, use commas to separate values")
 	public static String Storm_Tornado_GrabList = "planks, leaves";
 	public static int Storm_Tornado_maxBlocksPerStorm = 200;
 	public static int Storm_Tornado_maxBlocksGrabbedPerTick = 5;

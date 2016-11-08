@@ -316,6 +316,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		
 		    		//part.windWeight = 5F;
 		    		
+		    		part.setKillOnCollide(true);
+		    		
 		    		particleBehavior.particles.add(part);
 		    		part.spawnAsWeatherEffect();
 		    		
@@ -375,6 +377,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
 	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 	    		part.setScale(100);
+	    		
+	    		part.setKillOnCollide(true);
 	    		
 	    		part.windWeight = 1F;
 	    		

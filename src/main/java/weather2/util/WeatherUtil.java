@@ -227,7 +227,7 @@ public class WeatherUtil {
         	
         	
         	Block block = (Block) Block.REGISTRY.getObject(tagName);
-        	if (dbgShow) System.out.println("??? " + Block.REGISTRY.getNameForObject(block));
+        	//if (dbgShow) System.out.println("??? " + Block.REGISTRY.getNameForObject(block));
         	
         	if (block != null)
             {
