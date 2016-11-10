@@ -390,6 +390,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double directionAngleDeg = Math.toDegrees(directionAngle);
     	
+    	int spawnedThisTick = 0;
+    	
     	//stormfront wall
     	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
     		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
@@ -434,6 +436,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		particleBehavior.particles.add(part);
 		    		part.spawnAsWeatherEffect();
 		    		
+		    		spawnedThisTick++;
+		    		
 		    		//only need for non managed particles
 		    		//ClientTickHandler.weatherManager.addWeatheredParticle(part);
 		    		
@@ -445,10 +449,16 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	}
     	
     	
-    	
+    	if (spawnedThisTick > 0) {
+    		//System.out.println("spawnedThisTickv1: " + spawnedThisTick);
+    		spawnedThisTick = 0;
+    	}
     	
     	//half of the angle (?)
     	double spawnAngle = Math.atan2((double)this.maxSize/*this.size*//* / 2D*/, distFromSpawn);
+    	
+    	//temp test fix
+    	spawnAngle = Math.atan2((double)this.size/* / 2D*/, distFromSpawn);
     	
     	//tweaking for visual due to it moving, etc
     	spawnAngle *= 1.2D;
@@ -461,6 +471,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
     	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
+    		
+    		//System.out.println(this.particleBehavior.particles.size());
+    		
 	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn + (extraDistSpawnIntoWall); spawnDistTick += spawnDistInc) {
 	    		//add 1/4 PI for some reason, converting math to mc I guess
 	    		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);
@@ -498,7 +511,13 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		particleBehavior.particles.add(part);
 	    		//ClientTickHandler.weatherManager.addWeatheredParticle(part);
 	    		part.spawnAsWeatherEffect();
+	    		
+	    		spawnedThisTick++;
 	    	}
+    	}
+    	
+    	if (spawnedThisTick > 0) {
+    		//System.out.println("spawnedThisTickv2: " + spawnedThisTick);
     	}
 
 	    float angle = windMan.getWindAngleForClouds();

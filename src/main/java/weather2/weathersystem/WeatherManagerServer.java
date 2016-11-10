@@ -150,9 +150,11 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 	}
 	
-	public void trySpawnSandstormNearPos(World world, Vec3 posIn) {
+	public boolean trySpawnSandstormNearPos(World world, Vec3 posIn) {
 		/**
-		 * Might be a good idea to make the code search in areas upwind of player so they experience them more...
+		 * 1. Start upwind
+		 * 2. Find random spot near there loaded and in desert
+		 * 3. scan upwind and downwind, require a good stretch of sand for a storm
 		 */
 		
 		int searchRadius = 512;
@@ -182,37 +184,71 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (WeatherObjectSandstorm.isDesert(biomeIn)) {
 				//found
 				foundPos = pos;
-				break;
+				//break;
+				
+				
+				//go as far upwind as possible until no desert / unloaded area
+				
+				BlockPos posFind = new BlockPos(foundPos);
+				BlockPos posFindLastGoodUpwind = new BlockPos(foundPos);
+				BlockPos posFindLastGoodDownwind = new BlockPos(foundPos);
+				double tickDist = 10;
+				
+				while (world.isBlockLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
+					//update last good
+					posFindLastGoodUpwind = new BlockPos(posFind);
+					
+					//scan against wind (upwind)
+					int xx = MathHelper.floor_double(posFind.getX() + (dirX * -1D * tickDist));
+					int zz = MathHelper.floor_double(posFind.getZ() + (dirZ * -1D * tickDist));
+					
+					posFind = new BlockPos(xx, 0, zz);
+				}
+				
+				//reset for downwind scan
+				posFind = new BlockPos(foundPos);
+				
+				while (world.isBlockLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
+					//update last good
+					posFindLastGoodDownwind = new BlockPos(posFind);
+					
+					//scan with wind (downwind)
+					int xx = MathHelper.floor_double(posFind.getX() + (dirX * 1D * tickDist));
+					int zz = MathHelper.floor_double(posFind.getZ() + (dirZ * 1D * tickDist));
+					
+					posFind = new BlockPos(xx, 0, zz);
+				}
+				
+				int minDistanceOfDesertStretchNeeded = 200;
+				double dist = posFindLastGoodUpwind.getDistance(posFindLastGoodDownwind.getX(), posFindLastGoodDownwind.getY(), posFindLastGoodDownwind.getZ());
+				
+				if (dist >= minDistanceOfDesertStretchNeeded) {
+					
+					WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(this);
+
+					sandstorm.initFirstTime();
+					BlockPos posSpawn = new BlockPos(world.getHeight(posFindLastGoodUpwind)).add(0, 1, 0);
+					sandstorm.initSandstormSpawn(new Vec3(posSpawn));
+					addStormObject(sandstorm);
+					syncStormNew(sandstorm);
+					
+					System.out.println("found decent spot and stretch for sandstorm, stretch: " + dist);
+					return true;
+				}
+				
+				
 			}
 		}
 		
-		if (foundPos != null) {
-			//go as far upwind as possible until no desert / unloaded area
+		System.out.println("couldnt spawn sandstorm");
+		return false;
+		
+		/*if (foundPos != null) {
 			
-			BlockPos posFind = new BlockPos(foundPos);
-			BlockPos posFindLastGood = new BlockPos(foundPos);
-			double tickDist = 10;
-			
-			while (world.isBlockLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
-				//update last good
-				posFindLastGood = new BlockPos(posFind);
-				
-				int x = MathHelper.floor_double(posFind.getX() + (dirX * -1D * tickDist));
-				int z = MathHelper.floor_double(posFind.getZ() + (dirZ * -1D * tickDist));
-				
-				posFind = new BlockPos(x, 0, z);
-			}
-			
-			//posFindLastGood should be best spot at this point
-			
-			WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(this);
-
-			sandstorm.initFirstTime();
-			BlockPos posSpawn = new BlockPos(world.getHeight(posFindLastGood)).add(0, 1, 0);
-			sandstorm.initSandstormSpawn(new Vec3(posSpawn));
-			addStormObject(sandstorm);
-			syncStormNew(sandstorm);
-		}
+		} else {
+			System.out.println("couldnt spawn sandstorm");
+			return false;
+		}*/
 	}
 	
 	public void trySpawnStormCloudNearPlayerForLayer(EntityPlayer entP, int layer) {

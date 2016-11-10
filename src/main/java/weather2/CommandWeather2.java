@@ -164,7 +164,8 @@ public class CommandWeather2 extends CommandBase {
 								spawnCloudStorm = false;
 								
 							} else if (var2[2].equalsIgnoreCase("sandstormTest")) {
-								wm.trySpawnSandstormNearPos(world, new Vec3(posVec));
+								boolean spawned = wm.trySpawnSandstormNearPos(world, new Vec3(posVec));
+								spawnCloudStorm = false;
 							}
 							
 							if (var2.length > 3) {
