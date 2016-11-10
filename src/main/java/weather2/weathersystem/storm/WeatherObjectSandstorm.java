@@ -6,13 +6,14 @@ import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.init.Biomes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.ClientTickHandler;
 import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtil;
@@ -55,7 +56,15 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public ParticleBehaviorSandstorm particleBehavior;
 	
 	public int age = 0;
-	public int maxAge = 20*20;
+	//public int maxAge = 20*20;
+	
+	public int ageFadeout = 0;
+	public int ageFadeoutMax = 20*60*1;
+	
+	//public boolean dying = false;
+	public boolean isFrontGrowing = true;
+	
+	public Random rand = new Random();
 	
 	public WeatherObjectSandstorm(WeatherManagerBase parManager) {
 		super(parManager);
@@ -71,19 +80,19 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public void initSandstormSpawn(Vec3 pos) {
 		this.pos = new Vec3(pos);
 		
-		size = 15;
+		size = 1;
 		maxSize = 100;
 		
-		maxAge = 20*60;
-		
-		float angle = manager.getWindManager().getWindAngleForClouds();
+		//temp start
+		/*float angle = manager.getWindManager().getWindAngleForClouds();
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
 		double speed = 150D;
 		
 		this.pos.xCoord -= vecX * speed;
-		this.pos.zCoord -= vecZ * speed;
+		this.pos.zCoord -= vecZ * speed;*/
+		//temp end
 		
 		World world = manager.getWorld();
 		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
@@ -100,70 +109,115 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		maxHeight = 100;*/
 	}
 	
-	@Override
-	public void tick() {
-		super.tick();
-		
-		if (manager == null) {
-			System.out.println("WeatherManager is null for " + this + ", why!!!");
-			return;
+	public float getSandstormScale() {
+		if (isFrontGrowing) {
+			return (float)size / (float)maxSize;
+		} else {
+			return 1F - ((float)ageFadeout / (float)ageFadeoutMax);
 		}
+	}
+	
+	public static boolean isDesert(Biome biome) {
+		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS;
+	}
+	
+	/**
+	 * 
+	 * - size of storm determined by how long it was in desert
+	 * - front of storm dies down once it exits desert
+	 * - stops moving once fully dies down
+	 * 
+	 * - storm continues for minutes even after front has exited desert
+	 * 
+	 * 
+	 * 
+	 */
+	public void tickProgressionAndMovement() {
 		
-		Random rand = new Random();
 		World world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
-		
-		if (world == null) {
-			System.out.println("world is null for " + this + ", why!!!");
-			return;
-		}
-		
-		if (WeatherUtil.isPausedSideSafe(world)) return;
-		
-		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
-		
-		boolean testGrowth = true;
-	
-		//assume its a high wind event, until that feature is coded, buff wind speed this depends on
-		
-		if (testGrowth) {
-			/*if (size < maxSize) {
-				size++;
-			}
-			
-			if (height < maxHeight) {
-				height++;
-			}*/
-			
-			if (!world.isRemote) {
-				age++;
-				//System.out.println("sandstorm age: " + age);
-				if (age >= maxAge) {
-					this.setDead();
-					return;
-				}
-				
-				if (world.getTotalWorldTime() % 10 == 0) {
-					if (size < maxSize) {
-						size++;
-					}
-				}
-				
-			}
-		}
-		
-		//clouds move at 0.2 amp of actual wind speed
 		
 		float angle = windMan.getWindAngleForClouds();
 		float speedWind = windMan.getWindSpeedForClouds();
 		
+		/**
+		 * Progression
+		 */
+		
+		if (!world.isRemote) {
+			age++;
+			
+			//boolean isGrowing = true;
+			
+			BlockPos posBlock = pos.toBlockPos();
+			
+			//only grow if in loaded area and in desert, also prevent it from growing again for some reason if it started dying already
+			if (isFrontGrowing && world.isBlockLoaded(posBlock)) {
+				Biome biomeIn = world.getBiomeForCoordsBody(posBlock);
+				
+				//TODO: more generic desert detection
+				if (isDesert(biomeIn)) {
+					isFrontGrowing = true;
+				} else {
+					System.out.println("sandstorm fadeout started");
+					isFrontGrowing = false;
+				}
+			} else {
+				isFrontGrowing = false;
+			}
+			
+			int sizeAdjRate = 10;
+			
+			if (isFrontGrowing) {
+				if (world.getTotalWorldTime() % sizeAdjRate == 0) {
+					if (size < maxSize) {
+						size++;
+						System.out.println("size: " + size);
+					}
+				}
+			} else {
+				if (world.getTotalWorldTime() % sizeAdjRate == 0) {
+					if (size > 0) {
+						size--;
+						System.out.println("size: " + size);
+					}
+				}
+				
+				//fadeout till death
+				if (ageFadeout < ageFadeoutMax) {
+					ageFadeout++;
+				} else {
+					System.out.println("sandstorm died");
+					this.setDead();
+				}
+			}
+			
+			//System.out.println("sandstorm age: " + age);
+			//will die once it builds down
+			/*if (age >= maxAge) {
+				this.setDead();
+				return;
+			}*/
+			
+			
+			
+		}
+		
+		/**
+		 * Movement
+		 */
+		
+		//clouds move at 0.2 amp of actual wind speed
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
 		double speed = speedWind * 0.3D;//0.2D;
 		
-		this.pos.xCoord += vecX * speed;
-		this.pos.zCoord += vecZ * speed;
+		//prevent it from moving if its died down to nothing
+		if (size > 0) {
+			this.pos.xCoord += vecX * speed;
+			this.pos.zCoord += vecZ * speed;
+		}
 		
 		//wind movement
 		//this.motion = windMan.applyWindForceImpl(this.motion, 5F, 1F/20F, 0.5F);
@@ -172,17 +226,27 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.yCoord += this.motion.yCoord;
 		this.pos.zCoord += this.motion.zCoord;*/
 		
-		this.pos.yCoord = yy + 1;
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		
-		if (world.isRemote) {
-			tickClient();
-		}
+		this.pos.yCoord = yy + 1;
+	}
+	
+	public void tickBlockSandBuildup() {
+
+		World world = manager.getWorld();
+		WindManager windMan = manager.getWindManager();
+		
+		float angle = windMan.getWindAngleForClouds();
+		
+		//keep it set to do a lot of work only occasionally, prevents chunk render update spam for client which kills fps 
+		int delay = 40;
+		int loop = 800;
 		
 		//sand block buildup
 		if (!world.isRemote) {
-			if (world.getTotalWorldTime() % 2 == 0) {
+			if (world.getTotalWorldTime() % delay == 0) {
 				
-		    	for (int i = 0; i < 40; i++) {
+		    	for (int i = 0; i < loop; i++) {
 		    		
 		    		double xVec = this.pos.xCoord - rand.nextInt(size / 2) + rand.nextInt(size);
 			    	double zVec = this.pos.zCoord - rand.nextInt(size / 2) + rand.nextInt(size);
@@ -194,10 +258,52 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    	float angleRand = (rand.nextFloat() - rand.nextFloat()) * 360F;
 			    	
 			    	Vec3 vec = new Vec3(x, y, z);
+			    	
+			    	//avoid unloaded areas
+			    	if (!world.isBlockLoaded(vec.toBlockPos())) continue;
+			    	
 			    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vec, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
 			    	
 		    	}
 			}
+		}
+	}
+	
+	@Override
+	public void tick() {
+		super.tick();
+		
+		if (manager == null) {
+			System.out.println("WeatherManager is null for " + this + ", why!!!");
+			return;
+		}
+		
+		World world = manager.getWorld();
+		WindManager windMan = manager.getWindManager();
+		
+		if (world == null) {
+			System.out.println("world is null for " + this + ", why!!!");
+			return;
+		}
+		
+		if (WeatherUtil.isPausedSideSafe(world)) return;
+		
+		
+		
+		tickProgressionAndMovement();
+		
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		
+		
+		
+		
+		
+		if (world.isRemote) {
+			tickClient();
+		}
+		
+		if (size >= 2) {
+			tickBlockSandBuildup();
 		}
 		
 		this.posGround.xCoord = pos.xCoord;
@@ -284,6 +390,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double directionAngleDeg = Math.toDegrees(directionAngle);
     	
+    	//stormfront wall
     	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
     		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 		    for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
@@ -341,7 +448,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	
     	//half of the angle (?)
-    	double spawnAngle = Math.atan2((double)this.size/* / 2D*/, distFromSpawn);
+    	double spawnAngle = Math.atan2((double)this.maxSize/*this.size*//* / 2D*/, distFromSpawn);
     	
     	//tweaking for visual due to it moving, etc
     	spawnAngle *= 1.2D;
@@ -465,6 +572,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		data.setDouble("posSpawnY", posSpawn.yCoord);
 		data.setDouble("posSpawnZ", posSpawn.zCoord);
 		
+		data.setInteger("ageFadeout", this.ageFadeout);
+		data.setInteger("ageFadeoutMax", this.ageFadeoutMax);
+		
 		/*data.setLong("ID", ID);
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);*/
@@ -476,6 +586,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		super.nbtSyncFromServer(parNBT);
 		
 		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
+		
+		this.ageFadeout = parNBT.getInteger("ageFadeout");
+		this.ageFadeoutMax = parNBT.getInteger("ageFadeoutMax");
 	}
 
 }

@@ -137,6 +137,18 @@ public class WeatherUtilBlock {
 		if (posWall != null) {
 			int amountWeHave = 1;
 			int amountToAddPerXZ = 1;
+			
+			IBlockState state = world.getBlockState(posWall.toBlockPos());
+			if (state.getBlock() == Blocks.CACTUS) {
+				return;
+			}
+			
+			BlockPos pos2 = new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord);
+			IBlockState state2 = world.getBlockState(pos2);
+			if (state2.getMaterial() == Material.WATER || state2.getMaterial() == Material.LAVA) {
+				return;
+			}
+			
 			amountWeHave = trySpreadOnPos2(world, new BlockPos(posLastNonWall.xCoord, posLastNonWall.yCoord, posLastNonWall.zCoord), amountWeHave, amountToAddPerXZ, 10, blockLayerable);
 		} else {
 			//System.out.println("no wall found");

@@ -1496,7 +1496,7 @@ public class SceneEnhancer implements Runnable {
     	}
     	
     	//temp off
-    	//distToStorm = distToStormThreshold;
+    	distToStorm = distToStormThreshold;
     	
     	//distToStorm = 0;
     	

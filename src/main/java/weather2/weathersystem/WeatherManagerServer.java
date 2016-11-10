@@ -6,8 +6,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import weather2.Weather;
@@ -16,6 +18,7 @@ import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.CoroUtilEntity;
@@ -132,13 +135,13 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					
 					if (getStormObjectsByLayer(0).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (rand.nextInt(5) == 0) {
-							trySpawnNearPlayerForLayer(entP, 0);
+							trySpawnStormCloudNearPlayerForLayer(entP, 0);
 						}
 					}
 					if (getStormObjectsByLayer(1).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (ConfigMisc.Cloud_Layer1_Enable) {
 							if (rand.nextInt(5) == 0) {
-								trySpawnNearPlayerForLayer(entP, 1);
+								trySpawnStormCloudNearPlayerForLayer(entP, 1);
 							}
 						}
 					}
@@ -147,7 +150,72 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 	}
 	
-	public void trySpawnNearPlayerForLayer(EntityPlayer entP, int layer) {
+	public void trySpawnSandstormNearPos(World world, Vec3 posIn) {
+		/**
+		 * Might be a good idea to make the code search in areas upwind of player so they experience them more...
+		 */
+		
+		int searchRadius = 512;
+		
+		double angle = windMan.getWindAngleForClouds();
+		//-1 for upwind
+		double dirX = -Math.sin(Math.toRadians(angle));
+		double dirZ = Math.cos(Math.toRadians(angle));
+		double vecX = dirX * searchRadius/2 * -1;
+		double vecZ = dirZ * searchRadius/2 * -1;
+		
+		Random rand = new Random();
+		
+		BlockPos foundPos = null;
+		
+		int findTriesMax = 30;
+		for (int i = 0; i < findTriesMax; i++) {
+			
+			int x = MathHelper.floor_double(posIn.xCoord + vecX + rand.nextInt(searchRadius * 2) - searchRadius);
+			int z = MathHelper.floor_double(posIn.zCoord + vecZ + rand.nextInt(searchRadius * 2) - searchRadius);
+			
+			BlockPos pos = new BlockPos(x, 0, z);
+			
+			if (!world.isBlockLoaded(pos)) continue;
+			Biome biomeIn = world.getBiomeForCoordsBody(pos);
+			
+			if (WeatherObjectSandstorm.isDesert(biomeIn)) {
+				//found
+				foundPos = pos;
+				break;
+			}
+		}
+		
+		if (foundPos != null) {
+			//go as far upwind as possible until no desert / unloaded area
+			
+			BlockPos posFind = new BlockPos(foundPos);
+			BlockPos posFindLastGood = new BlockPos(foundPos);
+			double tickDist = 10;
+			
+			while (world.isBlockLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
+				//update last good
+				posFindLastGood = new BlockPos(posFind);
+				
+				int x = MathHelper.floor_double(posFind.getX() + (dirX * -1D * tickDist));
+				int z = MathHelper.floor_double(posFind.getZ() + (dirZ * -1D * tickDist));
+				
+				posFind = new BlockPos(x, 0, z);
+			}
+			
+			//posFindLastGood should be best spot at this point
+			
+			WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(this);
+
+			sandstorm.initFirstTime();
+			BlockPos posSpawn = new BlockPos(world.getHeight(posFindLastGood)).add(0, 1, 0);
+			sandstorm.initSandstormSpawn(new Vec3(posSpawn));
+			addStormObject(sandstorm);
+			syncStormNew(sandstorm);
+		}
+	}
+	
+	public void trySpawnStormCloudNearPlayerForLayer(EntityPlayer entP, int layer) {
 		
 		Random rand = new Random();
 		
