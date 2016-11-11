@@ -82,8 +82,8 @@ public class ClientProxy extends CommonProxy
 	}
     
     @Override
-    public void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
-    	super.addBlock(parBlock, unlocalizedName, blockNameBase);
+    public void addBlock(Block parBlock, String unlocalizedName, boolean creativeTab) {
+    	super.addBlock(parBlock, unlocalizedName, creativeTab);
     	
     	registerItem(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Weather.modID + ":" + unlocalizedName, "inventory"));
     }

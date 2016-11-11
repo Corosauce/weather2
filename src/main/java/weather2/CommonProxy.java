@@ -30,6 +30,7 @@ import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.entity.EntityMovingBlock;
 import weather2.item.ItemSandLayer;
+import weather2.item.ItemWeatherRecipe;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
 
@@ -46,6 +47,7 @@ public class CommonProxy implements IGuiHandler
 	public static Block blockSandLayer;
 	
 	public static Item itemSandLayer;
+	public static Item itemWeatherRecipe;
 	
 	public static CreativeTabWeather tab;
 	
@@ -69,16 +71,17 @@ public class CommonProxy implements IGuiHandler
     	addMapping(EntityLightningBolt.class, "Weather2 Lightning Bolt", 2, 512, 5, true);
     	addMapping(EntityLightningBoltCustom.class, "Weather2 Lightning Bolt Custom", 2, 512, 5, true);
     	
-    	addBlock(blockTSensor = (new BlockTSensor()), "TornadoSensor", "Tornado Sensor");
-    	addBlock(blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, "TornadoSiren", "Tornado Siren");
-    	addBlock(blockWindVane = (new BlockWindVane()), TileEntityWindVane.class, "WindVane", "Wind Vane");
-    	addBlock(blockWeatherForecast = (new BlockWeatherForecast()), TileEntityWeatherForecast.class, "WeatherForecast", "Weather Forecast");
-    	addBlock(blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, "WeatherMachine", "Weather Machine (right click to cycle)");
-    	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
-    	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer", "Anemometer");
-    	addBlock(blockSandLayer = (new BlockSandLayer()), "sand_layer", "Sand Layer");
+    	addBlock(blockTSensor = (new BlockTSensor()), "TornadoSensor");
+    	addBlock(blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, "TornadoSiren");
+    	addBlock(blockWindVane = (new BlockWindVane()), TileEntityWindVane.class, "WindVane");
+    	addBlock(blockWeatherForecast = (new BlockWeatherForecast()), TileEntityWeatherForecast.class, "WeatherForecast");
+    	addBlock(blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, "WeatherMachine");
+    	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector");
+    	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer");
+    	addBlock(blockSandLayer = (new BlockSandLayer()), "sand_layer", false);
     	
-    	registerItem(new ItemSandLayer(blockSandLayer), "Sand Layer");
+    	registerItem(itemSandLayer = new ItemSandLayer(blockSandLayer), "sandLayerPlaceable");
+    	registerItem(itemWeatherRecipe = new ItemWeatherRecipe(), "weatherItem");
     	
     	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
     	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
@@ -91,39 +94,52 @@ public class CommonProxy implements IGuiHandler
     	//LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
     }
     
-    public void addItem(ItemStack is, String unlocalizedName) {
+    /*public void addItem(Item is, String unlocalizedName) {
 		addItem(is, unlocalizedName, "");
 	}
 	
-	public void addItem(ItemStack is, String unlocalizedName, String itemNameBase) {
+	public void addItem(Item is, String unlocalizedName, String itemNameBase) {
 		
-		Item item = is.getItem();
+		Item item = is;//.getItem();
 		
 		//vanilla calls
 		item.setUnlocalizedName(Weather.modID + ":" + unlocalizedName);
 		//item.setTextureName(Weather.modID + ":" + unlocalizedName);
-		item.setCreativeTab(CreativeTabs.MISC);
+		item.setCreativeTab(tab);
 		//LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
 		
 		
-	}
+	}*/
     
-    public void addBlock(Block block, Class tEnt, String unlocalizedName, String blockNameBase) {
-		addBlock(block, unlocalizedName, blockNameBase);
+	public void addBlock(Block block, Class tEnt, String unlocalizedName) {
+		addBlock(block, tEnt, unlocalizedName, true);
+	}
+	
+    public void addBlock(Block block, Class tEnt, String unlocalizedName, boolean creativeTab) {
+		addBlock(block, unlocalizedName, creativeTab);
 		GameRegistry.registerTileEntity(tEnt, unlocalizedName);
 	}
 	
-	public void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
+    public void addBlock(Block parBlock, String unlocalizedName) {
+    	addBlock(parBlock, unlocalizedName, true);
+    }
+    
+	public void addBlock(Block parBlock, String unlocalizedName, boolean creativeTab) {
 		//vanilla calls
+		
+		/*parBlock.setRegistryName(new ResourceLocation(Weather.modID, unlocalizedName));*/
+		//GameRegistry.register(parBlock);
 		GameRegistry.registerBlock(parBlock, unlocalizedName);
 		/*parBlock.setBlockName(Weather.modID + ":" + unlocalizedName);
 		parBlock.setBlockTextureName(Weather.modID + ":" + unlocalizedName);*/
 		
-		//new 1.8 stuff
 		parBlock.setUnlocalizedName(getNamePrefixed(unlocalizedName));
-		//parBlock.setRegistryName
 		
-		parBlock.setCreativeTab(tab);
+		if (creativeTab) {
+			parBlock.setCreativeTab(tab);
+		} else {
+			parBlock.setCreativeTab(null);
+		}
 		//LanguageRegistry.addName(parBlock, blockNameBase);
 	}
 	
