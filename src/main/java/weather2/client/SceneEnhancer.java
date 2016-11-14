@@ -1590,7 +1590,7 @@ public class SceneEnhancer implements Runnable {
     		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmount);
     		
     		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmount);
-    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 20F) * adjustAmount);
+    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 8F) * adjustAmount);
     		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmount);
     		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmount);
     		

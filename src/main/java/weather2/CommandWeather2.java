@@ -166,6 +166,10 @@ public class CommandWeather2 extends CommandBase {
 							} else if (var2[2].equalsIgnoreCase("sandstormTest")) {
 								boolean spawned = wm.trySpawnSandstormNearPos(world, new Vec3(posVec));
 								spawnCloudStorm = false;
+								if (!spawned) {
+									CoroUtil.sendCommandSenderMsg(var1, "couldnt find spot to spawn");
+									return;
+								}
 							}
 							
 							if (var2.length > 3) {

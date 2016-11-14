@@ -58,6 +58,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public int age = 0;
 	//public int maxAge = 20*20;
 	
+	public int sizePeak = 1;
+	
 	public int ageFadeout = 0;
 	public int ageFadeoutMax = 20*60*1;
 	
@@ -81,6 +83,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos = new Vec3(pos);
 		
 		size = 1;
+		sizePeak = 1;
 		maxSize = 100;
 		
 		//temp start
@@ -172,14 +175,14 @@ public class WeatherObjectSandstorm extends WeatherObject {
 				if (world.getTotalWorldTime() % sizeAdjRate == 0) {
 					if (size < maxSize) {
 						size++;
-						System.out.println("size: " + size);
+						//System.out.println("size: " + size);
 					}
 				}
 			} else {
 				if (world.getTotalWorldTime() % sizeAdjRate == 0) {
 					if (size > 0) {
 						size--;
-						System.out.println("size: " + size);
+						//System.out.println("size: " + size);
 					}
 				}
 				
@@ -190,6 +193,10 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					System.out.println("sandstorm died");
 					this.setDead();
 				}
+			}
+			
+			if (size > sizePeak) {
+				sizePeak = size;
 			}
 			
 			//System.out.println("sandstorm age: " + age);
@@ -248,21 +255,35 @@ public class WeatherObjectSandstorm extends WeatherObject {
 				
 		    	for (int i = 0; i < loop; i++) {
 		    		
-		    		double xVec = this.pos.xCoord - rand.nextInt(size / 2) + rand.nextInt(size);
-			    	double zVec = this.pos.zCoord - rand.nextInt(size / 2) + rand.nextInt(size);
-			    	
-			    	int x = MathHelper.floor_double(xVec);
-			    	int z = MathHelper.floor_double(zVec);
-			    	int y = world.getHeight(new BlockPos(x, 0, z)).getY();
-			    	
-			    	float angleRand = (rand.nextFloat() - rand.nextFloat()) * 360F;
-			    	
-			    	Vec3 vec = new Vec3(x, y, z);
-			    	
-			    	//avoid unloaded areas
-			    	if (!world.isBlockLoaded(vec.toBlockPos())) continue;
-			    	
-			    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vec, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+		    		boolean frontOnly = false;
+		    		
+		    		if (frontOnly) {
+			    		double xVec = this.pos.xCoord - rand.nextInt(size / 2) + rand.nextInt(size);
+				    	double zVec = this.pos.zCoord - rand.nextInt(size / 2) + rand.nextInt(size);
+				    	
+				    	int x = MathHelper.floor_double(xVec);
+				    	int z = MathHelper.floor_double(zVec);
+				    	int y = world.getHeight(new BlockPos(x, 0, z)).getY();
+				    	
+				    	float angleRand = (rand.nextFloat() - rand.nextFloat()) * 360F;
+				    	
+				    	Vec3 vecPos = new Vec3(x, y, z);
+				    	
+				    	//avoid unloaded areas
+				    	if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
+				    	
+				    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+		    		} else {
+		    			Vec3 vecPos = getRandomPosInSandstorm();
+		    			
+		    			int y = world.getHeight(new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
+		    			vecPos.yCoord = y;
+		    			
+		    			//avoid unloaded areas
+				    	if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
+				    	
+				    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+		    		}
 			    	
 		    	}
 			}
@@ -392,7 +413,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	int spawnedThisTick = 0;
     	
-    	//stormfront wall
+    	/**
+    	 * stormfront wall
+    	 */
     	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
     		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 		    for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
@@ -455,26 +478,27 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	}
     	
     	//half of the angle (?)
-    	double spawnAngle = Math.atan2((double)this.maxSize/*this.size*//* / 2D*/, distFromSpawn);
-    	
-    	//temp test fix
-    	spawnAngle = Math.atan2((double)this.size/* / 2D*/, distFromSpawn);
+    	double spawnAngle = Math.atan2((double)this.sizePeak/*this.size*//* / 2D*/, distFromSpawn);
     	
     	//tweaking for visual due to it moving, etc
     	spawnAngle *= 1.2D;
     	
     	double spawnDistInc = 10;
     	
-    	double extraDistSpawnIntoWall = size / 2D;
+    	double extraDistSpawnIntoWall = sizePeak / 2D;
     	
     	/**
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
-    	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
+    	if ((mc.theWorld.getTotalWorldTime()) % 5 == 0) {
     		
     		//System.out.println(this.particleBehavior.particles.size());
     		
 	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn + (extraDistSpawnIntoWall); spawnDistTick += spawnDistInc) {
+	    		
+	    		//rate of spawn based on storm intensity
+	    		if (rand.nextDouble() >= getSandstormScale()) continue;
+	    		
 	    		//add 1/4 PI for some reason, converting math to mc I guess
 	    		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);
 
@@ -483,8 +507,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		//project out from spawn point, towards a point within acceptable angle
 	    		double x = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
 	    		double z = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (spawnDistTick));
-	    		//TODO: account for terrain adjustments
-	    		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+	    		
+	    		//attempt to widen start, might mess with spawn positions further towards front
+	    		x += (rand.nextDouble() - rand.nextDouble()) * 10D;
+	    		z += (rand.nextDouble() - rand.nextDouble()) * 10D;
+	    		
+	    		int yy = world.getHeight(new BlockPos(x, 0, z)).getY();
 	    		double y = yy/*posSpawn.yCoord*/ + 2 + randHeight;
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
@@ -514,10 +542,13 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		
 	    		spawnedThisTick++;
 	    	}
+	    	
+	    	System.out.println("SCALE: " + getSandstormScale());
     	}
     	
     	if (spawnedThisTick > 0) {
     		//System.out.println("spawnedThisTickv2: " + spawnedThisTick);
+    		
     	}
 
 	    float angle = windMan.getWindAngleForClouds();
@@ -554,6 +585,31 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    }
 	    
 	    //System.out.println("spawn particles at: " + pos);
+	}
+	
+	public Vec3 getRandomPosInSandstorm() {
+		
+		double extraDistSpawnIntoWall = sizePeak / 2D;
+		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
+		
+		double randDist = rand.nextDouble() * (distFromSpawn + extraDistSpawnIntoWall);
+		
+		double xVec = this.posSpawn.xCoord - this.pos.xCoord;
+    	double zVec = this.posSpawn.zCoord - this.pos.zCoord;
+    	
+    	double spawnAngle = Math.atan2((double)this.sizePeak/*this.size*//* / 2D*/, distFromSpawn);
+    	
+    	//tweaking for visual due to it moving, etc
+    	//spawnAngle *= 1.2D;
+    	
+    	double directionAngle = Math.atan2(zVec, xVec);
+		
+		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);
+		
+		double x = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/randAngle/*)*/) * (randDist));
+		double z = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (randDist));
+		
+		return new Vec3(x, 0, z);
 	}
 	
 	public void moveToPosition(ParticleSandstorm particle, double x, double y, double z, double maxSpeed) {
@@ -594,6 +650,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		data.setInteger("ageFadeout", this.ageFadeout);
 		data.setInteger("ageFadeoutMax", this.ageFadeoutMax);
 		
+		data.setInteger("sizePeak", sizePeak);
+		
 		/*data.setLong("ID", ID);
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);*/
@@ -608,6 +666,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		this.ageFadeout = parNBT.getInteger("ageFadeout");
 		this.ageFadeoutMax = parNBT.getInteger("ageFadeoutMax");
+		
+		this.sizePeak = parNBT.getInteger("sizePeak");
 	}
 
 }

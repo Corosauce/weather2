@@ -37,6 +37,8 @@ public class WindManager {
 	//- gusts are server side global, as planned
 	//- events are client side player, required small adjustments
 	
+	//TODO: save wind state to disk
+	
 	public WeatherManagerBase manager;
 	
 	//global
@@ -296,7 +298,7 @@ public class WindManager {
 	            }
 	            
 				//global wind angle
-	            windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.5F;
+	            windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
 				
 	            if (windAngleGlobal < -180)
 	            {
