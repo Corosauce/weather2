@@ -48,6 +48,7 @@ import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.CoroUtilEntity;
+import CoroUtil.util.CoroUtilPhysics;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
@@ -1499,6 +1500,40 @@ public class SceneEnhancer implements Runnable {
     	distToStorm = distToStormThreshold;
     	
     	//distToStorm = 0;
+    	
+    	/**
+    	 * new way to detect in sandstorm
+    	 * 1. use in convex shape method
+    	 * 2. if not, get closest point of shape to player, use that for distance
+    	 * -- note, add extra points to compare against so its hard to enter between points and have it think player is 50 blocks away still
+    	 * 
+    	 * - better idea, do 1., then if not, do point vs "minimum distance from a point to a line segment."
+    	 */
+    	
+    	List<Vec3> points = new ArrayList<Vec3>();
+    	
+    	//square shape test
+    	points.add(new Vec3(-100, 0, -100));
+    	points.add(new Vec3(-100, 0, 100));
+    	points.add(new Vec3(100, 0, 100));
+    	points.add(new Vec3(100, 0, -100));
+    	
+    	//triangle test
+    	/*points.add(new Vec3(-100, 0, -100));
+    	points.add(new Vec3(-100, 0, 100));
+    	points.add(new Vec3(100, 0, 0));*/
+    	//points.add(new Vec3(100, 0, -100));
+    	
+    	//tested works well
+    	boolean inStorm = CoroUtilPhysics.isInConvexShape(posPlayer, points);
+    	if (inStorm) {
+    		distToStorm = 0;
+    	} else {
+    		//TODO: "minimum distance from a point to a line segment."
+    		//distToStorm = distToStormThreshold;
+    		distToStorm = CoroUtilPhysics.getDistanceToShape(posPlayer, points);
+    	}
+    	
     	
     	float fogColorChangeRate = 0.01F;
     	float fogDistChangeRate = 2F;

@@ -473,7 +473,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	
     	if (spawnedThisTick > 0) {
-    		//System.out.println("spawnedThisTickv1: " + spawnedThisTick);
+    		System.out.println("spawnedThisTickv1: " + spawnedThisTick);
     		spawnedThisTick = 0;
     	}
     	
@@ -543,11 +543,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		spawnedThisTick++;
 	    	}
 	    	
-	    	System.out.println("SCALE: " + getSandstormScale());
+	    	System.out.println("age: " + age + " - SCALE: " + getSandstormScale());
     	}
     	
     	if (spawnedThisTick > 0) {
-    		//System.out.println("spawnedThisTickv2: " + spawnedThisTick);
+    		System.out.println("spawnedThisTickv2: " + spawnedThisTick);
     		
     	}
 
@@ -651,6 +651,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		data.setInteger("ageFadeoutMax", this.ageFadeoutMax);
 		
 		data.setInteger("sizePeak", sizePeak);
+		data.setInteger("age", age);
 		
 		/*data.setLong("ID", ID);
 		data.setInteger("size", size);
@@ -668,6 +669,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.ageFadeoutMax = parNBT.getInteger("ageFadeoutMax");
 		
 		this.sizePeak = parNBT.getInteger("sizePeak");
+		this.age = parNBT.getInteger("age");
 	}
 
 }
