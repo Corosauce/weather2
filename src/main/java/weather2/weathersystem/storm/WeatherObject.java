@@ -67,6 +67,10 @@ public class WeatherObject {
 		
 	}
 	
+	public int getUpdateRateForNetwork() {
+		return 40;
+	}
+	
 	public void readFromNBT(NBTTagCompound var1) {
 		
     }

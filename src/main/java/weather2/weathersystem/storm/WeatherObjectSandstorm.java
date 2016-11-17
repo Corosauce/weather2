@@ -247,7 +247,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		//keep it set to do a lot of work only occasionally, prevents chunk render update spam for client which kills fps 
 		int delay = 40;
-		int loop = 800;
+		int loop = (int)(800F * getSandstormScale());
 		
 		//sand block buildup
 		if (!world.isRemote) {
@@ -418,8 +418,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	 */
     	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
     		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
-		    for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
-		    	if ((mc.theWorld.getTotalWorldTime()) % 40 == 0) {
+		    //for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
+    			double i = directionAngleDeg + (rand.nextDouble() * 180D);
+		    	if ((mc.theWorld.getTotalWorldTime()) % 2 == 0) {
 		    		
 		    		double sizeSub = heightLayer * 2D;
 		    		double sizeDyn = size - sizeSub;
@@ -468,7 +469,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		
 		    		
 		    	}
-	    	}
+	    	//}
     	}
     	
     	
@@ -667,6 +668,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			particle.setMotionX(particle.getMotionX() * 0.8D);
 			particle.setMotionZ(particle.getMotionZ() * 0.8D);
 		}
+	}
+	
+	@Override
+	public int getUpdateRateForNetwork() {
+		return 1;
 	}
 	
 	@Override

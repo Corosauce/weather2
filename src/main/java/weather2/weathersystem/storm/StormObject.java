@@ -2212,6 +2212,15 @@ public class StormObject extends WeatherObject {
 		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
 	}
 	
+	@Override
+	public int getUpdateRateForNetwork() {
+		if (levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
+			return 2;
+		} else {
+			return super.getUpdateRateForNetwork();
+		}
+	}
+	
 	//notes moved to bottom\\
 	
 	//defaults are 0.5

@@ -1567,7 +1567,7 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
     	
-    	adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
+    	adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.001F);
     	
     	if (sandstorm != null && mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);

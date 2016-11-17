@@ -80,12 +80,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			
 			for (int i = 0; i < getStormObjects().size(); i++) {
 				WeatherObject wo = getStormObjects().get(i);
-				int updateRate = 40;
-				if (wo instanceof StormObject) {
-					if (((StormObject)wo).levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
-						updateRate = 2;
-					}
-				}
+				int updateRate = wo.getUpdateRateForNetwork();
 				if (world.getTotalWorldTime() % updateRate == 0) {
 					syncStormUpdate(wo);
 				}
