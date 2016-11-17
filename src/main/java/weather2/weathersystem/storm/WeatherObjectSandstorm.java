@@ -473,7 +473,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	
     	if (spawnedThisTick > 0) {
-    		System.out.println("spawnedThisTickv1: " + spawnedThisTick);
+    		//System.out.println("spawnedThisTickv1: " + spawnedThisTick);
     		spawnedThisTick = 0;
     	}
     	
@@ -543,11 +543,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		spawnedThisTick++;
 	    	}
 	    	
-	    	System.out.println("age: " + age + " - SCALE: " + getSandstormScale());
+	    	//System.out.println("age: " + age + " - SCALE: " + getSandstormScale());
     	}
     	
     	if (spawnedThisTick > 0) {
-    		System.out.println("spawnedThisTickv2: " + spawnedThisTick);
+    		//System.out.println("spawnedThisTickv2: " + spawnedThisTick);
     		
     	}
 
@@ -597,7 +597,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		double xVec = this.posSpawn.xCoord - this.pos.xCoord;
     	double zVec = this.posSpawn.zCoord - this.pos.zCoord;
     	
-    	double spawnAngle = Math.atan2((double)this.sizePeak/*this.size*//* / 2D*/, distFromSpawn);
+    	double spawnAngle = Math.atan2((double)this.sizePeak, distFromSpawn);
     	
     	//tweaking for visual due to it moving, etc
     	//spawnAngle *= 1.2D;
@@ -610,6 +610,36 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		double z = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (randDist));
 		
 		return new Vec3(x, 0, z);
+	}
+	
+	public List<Vec3> getSandstormAsShape() {
+		List<Vec3> listPoints = new ArrayList<>();
+		
+		double extraDistSpawnIntoWall = sizePeak / 2D;
+		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
+		
+		listPoints.add(new Vec3(this.posSpawn.xCoord, 0, this.posSpawn.zCoord));
+		
+		double xVec = this.posSpawn.xCoord - this.pos.xCoord;
+    	double zVec = this.posSpawn.zCoord - this.pos.zCoord;
+    	
+    	double spawnAngle = Math.atan2((double)this.sizePeak, distFromSpawn);
+    	
+    	double directionAngle = Math.atan2(zVec, xVec);
+    	
+    	double angleLeft = directionAngle + (Math.PI / 2D) - (spawnAngle);
+    	double angleRight = directionAngle + (Math.PI / 2D) - (spawnAngle) + (/*rand.nextDouble() * */spawnAngle * 2D);
+    	
+    	double xLeft = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/angleLeft/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
+		double zLeft = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/angleLeft/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
+		
+		double xRight = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/angleRight/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
+		double zRight = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/angleRight/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
+		
+		listPoints.add(new Vec3(xLeft, 0, zLeft));
+		listPoints.add(new Vec3(xRight, 0, zRight));
+		
+		return listPoints;
 	}
 	
 	public void moveToPosition(ParticleSandstorm particle, double x, double y, double z, double maxSpeed) {

@@ -123,7 +123,15 @@ public class SceneEnhancer implements Runnable {
     public static float stormFogStartCloudsOrig = 0;
     public static float stormFogEndCloudsOrig = 0;
     
-    public static boolean needFogState = false;
+    public static boolean needFogState = true;
+    
+    public static float scaleIntensityTarget = 0F;
+    public static float scaleIntensitySmooth = 0F;
+    
+    public static float adjustAmountTarget = 0F;
+    public static float adjustAmountSmooth = 0F;
+    
+    
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -1486,18 +1494,38 @@ public class SceneEnhancer implements Runnable {
     	
     	//TODO: make transition code actually tie to distance, not just trigger a static transition
     	Minecraft mc = Minecraft.getMinecraft();
-    	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
-    	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, distToStormThreshold + 10);
+    	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
+    	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, 9999/*distToStormThreshold + 10*/);
+    	float scaleIntensityTarget = 0F;
     	if (sandstorm != null) {
-    		Vec3 posNoY = new Vec3(sandstorm.pos);
+    		scaleIntensityTarget = sandstorm.getSandstormScale();
+    		/*Vec3 posNoY = new Vec3(sandstorm.pos);
     		posNoY.yCoord = mc.thePlayer.posY;
-    		distToStorm = posPlayer.distanceTo(posNoY);
+    		distToStorm = posPlayer.distanceTo(posNoY);*/
+    		
+    		List<Vec3> points = sandstorm.getSandstormAsShape();
+    		
+    		/*for (Vec3 point : points) {
+    			System.out.println("point: " + point.toString());
+    		}*/
+    		
+    		boolean inStorm = CoroUtilPhysics.isInConvexShape(posPlayer, points);
+        	if (inStorm) {
+        		//System.out.println("in storm");
+        		distToStorm = 0;
+        	} else {
+        		
+        		distToStorm = CoroUtilPhysics.getDistanceToShape(posPlayer, points);
+        		//System.out.println("near storm: " + distToStorm);
+        	}
     	} else {
     		distToStorm = distToStormThreshold + 10;
     	}
     	
+    	scaleIntensitySmooth = adjVal(scaleIntensitySmooth, scaleIntensityTarget, 0.01F);
+    	
     	//temp off
-    	distToStorm = distToStormThreshold;
+    	//distToStorm = distToStormThreshold;
     	
     	//distToStorm = 0;
     	
@@ -1510,13 +1538,13 @@ public class SceneEnhancer implements Runnable {
     	 * - better idea, do 1., then if not, do point vs "minimum distance from a point to a line segment."
     	 */
     	
-    	List<Vec3> points = new ArrayList<Vec3>();
+    	
     	
     	//square shape test
-    	points.add(new Vec3(-100, 0, -100));
+    	/*points.add(new Vec3(-100, 0, -100));
     	points.add(new Vec3(-100, 0, 100));
     	points.add(new Vec3(100, 0, 100));
-    	points.add(new Vec3(100, 0, -100));
+    	points.add(new Vec3(100, 0, -100));*/
     	
     	//triangle test
     	/*points.add(new Vec3(-100, 0, -100));
@@ -1525,14 +1553,7 @@ public class SceneEnhancer implements Runnable {
     	//points.add(new Vec3(100, 0, -100));
     	
     	//tested works well
-    	boolean inStorm = CoroUtilPhysics.isInConvexShape(posPlayer, points);
-    	if (inStorm) {
-    		distToStorm = 0;
-    	} else {
-    		//TODO: "minimum distance from a point to a line segment."
-    		//distToStorm = distToStormThreshold;
-    		distToStorm = CoroUtilPhysics.getDistanceToShape(posPlayer, points);
-    	}
+    	
     	
     	
     	float fogColorChangeRate = 0.01F;
@@ -1540,13 +1561,18 @@ public class SceneEnhancer implements Runnable {
     	float fogDensityChangeRate = 0.01F;
     	
     	//make it be full intensity once storm is halfway there
-    	float adjustAmount = 1F - (float) ((distToStorm) / distToStormThreshold);
-    	adjustAmount *= 2F;
-    	if (adjustAmount < 0F) adjustAmount = 0F;
-    	if (adjustAmount > 1F) adjustAmount = 1F;
+    	adjustAmountTarget = 1F - (float) ((distToStorm) / distToStormThreshold);
+    	adjustAmountTarget *= 2F * scaleIntensitySmooth;
     	
-    	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
+    	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
+    	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
+    	
+    	adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
+    	
+    	if (sandstorm != null && mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
+    		System.out.println("adjustAmountTarget: " + adjustAmountTarget);
+    		System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
     	}
     	
     	if (distToStorm < distToStormThreshold) {
@@ -1555,6 +1581,14 @@ public class SceneEnhancer implements Runnable {
     			stormFogRed = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175080_Q");
     			stormFogGreen = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175082_R");
     			stormFogBlue = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175081_S");
+    			
+    			//account for player being in fog as game loads, all values are 0 in this scenario
+    			//values arent perfect, are from noon daytime, but better than black
+    			if (stormFogRed == 0 && stormFogGreen == 0 && stormFogBlue == 0) {
+    				stormFogRed = 0.7225088F;
+    				stormFogGreen = 0.8253213F;
+    				stormFogBlue = 1F;
+    			}
     			
     			try {
     				Object fogState = ObfuscationReflectionHelper.getPrivateValue(GlStateManager.class, null, "field_179155_g");
@@ -1618,16 +1652,16 @@ public class SceneEnhancer implements Runnable {
     		stormFogEndClouds = adjVal(stormFogEndClouds, 20F, fogDistChangeRate);*/
     		
     		//new dynamic adjusting
-    		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - 0.7F) * adjustAmount);
-    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - 0.6F) * adjustAmount);
-    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - 0.3F) * adjustAmount);
+    		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - 0.7F) * adjustAmountSmooth);
+    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - 0.6F) * adjustAmountSmooth);
+    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - 0.3F) * adjustAmountSmooth);
     		
-    		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmount);
+    		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmountSmooth);
     		
-    		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmount);
-    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 8F) * adjustAmount);
-    		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmount);
-    		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmount);
+    		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmountSmooth);
+    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 8F) * adjustAmountSmooth);
+    		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmountSmooth);
+    		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmountSmooth);
     		
     		//System.out.println("ON");
     	} else {
