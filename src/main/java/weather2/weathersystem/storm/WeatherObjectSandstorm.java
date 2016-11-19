@@ -121,7 +121,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	}
 	
 	public static boolean isDesert(Biome biome) {
-		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS;
+		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || biome == Biomes.RIVER;
 	}
 	
 	/**

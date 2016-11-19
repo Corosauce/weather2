@@ -1567,7 +1567,12 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
     	
-    	adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.001F);
+    	//since size var adjusts by 10 every x seconds, transition is rough, try to make it smooth but keeps up
+    	if (adjustAmountSmooth < adjustAmountTarget) {
+    		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
+    	} else {
+    		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.001F);
+    	}
     	
     	if (sandstorm != null && mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
@@ -1575,7 +1580,7 @@ public class SceneEnhancer implements Runnable {
     		System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
     	}
     	
-    	if (distToStorm < distToStormThreshold) {
+    	if (adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*/) {
     		if (needFogState) {
     			System.out.println("getting fog state");
     			stormFogRed = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175080_Q");

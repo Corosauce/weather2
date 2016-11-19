@@ -91,7 +91,7 @@ public class WeatherUtilBlock {
     		
 	    		lastScannedPosXZ = new BlockPos(posXZ);
 	    		
-	    		if (state.getMaterial() != Material.AIR) {
+	    		if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS && !state.getBlock().isReplaceable(world, pos)) {
 	    			BlockPos posUp = new BlockPos(x, y + 1, z);
 	    			IBlockState stateUp = world.getBlockState(posUp);
 	    			if (stateUp.getMaterial() == Material.AIR) {

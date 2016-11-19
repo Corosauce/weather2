@@ -157,8 +157,23 @@ public class CommandWeather2 extends CommandBase {
 								
 								//sandstorm.pos = new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
 
+								Vec3 pos = new Vec3(posVec.xCoord, world.getHeight(new BlockPos(posVec.xCoord, 0, posVec.zCoord)).getY() + 1, posVec.zCoord);
+
+								
+								/**
+								 * adjust position upwind 150 blocks
+								 */
+								float angle = wm.getWindManager().getWindAngleForClouds();
+								double vecX = -Math.sin(Math.toRadians(angle));
+								double vecZ = Math.cos(Math.toRadians(angle));
+								double speed = 150D;
+								pos.xCoord -= vecX * speed;
+								pos.zCoord -= vecZ * speed;
+								
 								sandstorm.initFirstTime();
-								sandstorm.initSandstormSpawn(new Vec3(posVec.xCoord, world.getHeight(new BlockPos(posVec.xCoord, 0, posVec.zCoord)).getY() + 1, posVec.zCoord));
+								sandstorm.initSandstormSpawn(pos);
+								
+								
 								wm.addStormObject(sandstorm);
 								wm.syncStormNew(sandstorm);
 								spawnCloudStorm = false;
