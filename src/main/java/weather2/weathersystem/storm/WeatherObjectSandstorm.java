@@ -491,7 +491,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
-    	if ((mc.theWorld.getTotalWorldTime()) % 5 == 0) {
+    	if ((mc.theWorld.getTotalWorldTime()) % 3 == 0) {
     		
     		//System.out.println(this.particleBehavior.particles.size());
     		

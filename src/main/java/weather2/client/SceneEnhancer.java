@@ -1571,10 +1571,10 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountSmooth < adjustAmountTarget) {
     		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
     	} else {
-    		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.001F);
+    		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
     	}
     	
-    	if (sandstorm != null && mc.theWorld.getTotalWorldTime() % 20 == 0) {
+    	if (adjustAmountSmooth > 0 && /*sandstorm != null && */mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
     		System.out.println("adjustAmountTarget: " + adjustAmountTarget);
     		System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
@@ -1664,7 +1664,7 @@ public class SceneEnhancer implements Runnable {
     		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmountSmooth);
     		
     		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmountSmooth);
-    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 8F) * adjustAmountSmooth);
+    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 20F) * adjustAmountSmooth);
     		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmountSmooth);
     		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmountSmooth);
     		

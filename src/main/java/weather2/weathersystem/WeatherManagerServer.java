@@ -181,6 +181,20 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				foundPos = pos;
 				//break;
 				
+				//check left and right about 20 blocks, if its not still desert, force retry
+				double dirXLeft = -Math.sin(Math.toRadians(angle-90));
+				double dirZLeft = Math.cos(Math.toRadians(angle-90));
+				double dirXRight = -Math.sin(Math.toRadians(angle+90));
+				double dirZRight = Math.cos(Math.toRadians(angle+90));
+				
+				double distLeftRight = 20;
+				BlockPos posLeft = new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight));
+				if (!world.isBlockLoaded(posLeft)) continue;
+				if (!WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posLeft))) continue;
+				
+				BlockPos posRight = new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight));
+				if (!world.isBlockLoaded(posRight)) continue;
+				if (!WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posRight))) continue;
 				
 				//go as far upwind as possible until no desert / unloaded area
 				
