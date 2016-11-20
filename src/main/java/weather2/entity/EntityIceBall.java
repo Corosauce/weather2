@@ -74,6 +74,10 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 			if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 80, false) == null) {
 				setDead();
 			}
+			
+			if (isInWater()) {
+				setDead();
+			}
         } else {
         	tickAnimate();
         }

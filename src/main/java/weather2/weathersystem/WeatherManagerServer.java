@@ -176,7 +176,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (!world.isBlockLoaded(pos)) continue;
 			Biome biomeIn = world.getBiomeForCoordsBody(pos);
 			
-			if (WeatherObjectSandstorm.isDesert(biomeIn)) {
+			if (WeatherObjectSandstorm.isDesert(biomeIn, true)) {
 				//found
 				foundPos = pos;
 				//break;
