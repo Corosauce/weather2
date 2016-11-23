@@ -131,7 +131,7 @@ public class SceneEnhancer implements Runnable {
     public static float adjustAmountTarget = 0F;
     public static float adjustAmountSmooth = 0F;
     
-    
+    public static boolean isPlayerOutside = true;
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -163,6 +163,8 @@ public class SceneEnhancer implements Runnable {
 			//tickTestFog();
 			tickSandstorm();
 			//tickTestSandstormParticles();
+
+
 		}
 	}
 	
@@ -1498,6 +1500,13 @@ public class SceneEnhancer implements Runnable {
     	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, 9999/*distToStormThreshold + 10*/);
     	float scaleIntensityTarget = 0F;
     	if (sandstorm != null) {
+
+			if (mc.theWorld.getTotalWorldTime() % 40 == 0) {
+				isPlayerOutside = WeatherUtilEntity.isEntityOutside(mc.thePlayer);
+				//System.out.println("isPlayerOutside: " + isPlayerOutside);
+			}
+
+
     		scaleIntensityTarget = sandstorm.getSandstormScale();
     		/*Vec3 posNoY = new Vec3(sandstorm.pos);
     		posNoY.yCoord = mc.thePlayer.posY;
@@ -1562,7 +1571,7 @@ public class SceneEnhancer implements Runnable {
     	
     	//make it be full intensity once storm is halfway there
     	adjustAmountTarget = 1F - (float) ((distToStorm) / distToStormThreshold);
-    	adjustAmountTarget *= 2F * scaleIntensitySmooth;
+    	adjustAmountTarget *= 2F * scaleIntensitySmooth * (isPlayerOutside ? 1F : 0.5F);
     	
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
