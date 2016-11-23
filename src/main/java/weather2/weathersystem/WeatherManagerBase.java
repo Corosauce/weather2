@@ -294,8 +294,8 @@ public class WeatherManagerBase {
 		return closestStorm;
 	}
 	
-	public List<StormObject> getStormsAround(Vec3 parPos, double maxDist) {
-		List<StormObject> storms = new ArrayList<StormObject>();
+	public List<WeatherObject> getStormsAround(Vec3 parPos, double maxDist) {
+		List<WeatherObject> storms = new ArrayList<>();
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
@@ -306,6 +306,8 @@ public class WeatherManagerBase {
 				if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
 					storms.add(storm);
 				}
+			} else if (wo instanceof WeatherObjectSandstorm) {
+				storms.add(wo);
 			}
 		}
 		

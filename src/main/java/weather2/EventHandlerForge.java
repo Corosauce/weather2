@@ -50,6 +50,7 @@ public class EventHandlerForge {
 		ClientProxy.radarIconHail = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconHail"));
 		ClientProxy.radarIconTornado = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconTornado"));
 		ClientProxy.radarIconCyclone = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconCyclone"));
+		ClientProxy.radarIconSandstorm = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radarIconSandstorm"));
 		
 	}
 	

@@ -9,6 +9,7 @@ import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
+import weather2.weathersystem.storm.WeatherObject;
 
 public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 {
@@ -25,10 +26,10 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
     			if (wm != null) {
 		    		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
 		    		
-		    		List<StormObject> storms = wm.getStormsAround(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), deflectorRadius);
+		    		List<WeatherObject> storms = wm.getStormsAround(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), deflectorRadius);
 		    		
 		    		for (int i = 0; i < storms.size(); i++) {
-		    			StormObject storm = storms.get(i);
+						WeatherObject storm = storms.get(i);
 		    			
 		    			if (storm != null) {
 		    				wm.removeStormObject(storm.ID);

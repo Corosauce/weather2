@@ -9,6 +9,7 @@ import net.minecraft.util.ITickable;
 import weather2.ClientTickHandler;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
+import weather2.weathersystem.storm.WeatherObject;
 
 public class TileEntityWeatherForecast extends TileEntity implements ITickable
 {
@@ -26,7 +27,7 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
 	
 	public StormObject lastTickStormObject = null;
 	
-	public List<StormObject> storms = new ArrayList<StormObject>();
+	public List<WeatherObject> storms = new ArrayList<>();
 	
 	//public MapHandler mapHandler;
 	

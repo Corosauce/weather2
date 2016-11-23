@@ -147,7 +147,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
 			if (WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
-				if (rand.nextInt(ConfigMisc.Sandstorm_OddsTo1) == 0) {
+				if (ConfigMisc.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigMisc.Sandstorm_OddsTo1) == 0) {
 					if (ConfigMisc.Sandstorm_UseGlobalServerRate) {
 						//get a random player to try and spawn for, will recycle another if it cant spawn
 						EntityPlayer entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
