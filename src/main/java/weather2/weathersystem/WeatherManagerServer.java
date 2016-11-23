@@ -145,42 +145,38 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
-			if (WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0) {
-				for (int i = 0; i < world.playerEntities.size(); i++) {
-					EntityPlayer entP = world.playerEntities.get(i);
-					NBTTagCompound playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(entP));
-
-					long lastSandstormTime;
-
+			if (WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
+				Random rand = new Random();
+				if (rand.nextInt(ConfigMisc.Sandstorm_OddsTo1) == 0) {
 					if (ConfigMisc.Sandstorm_UseGlobalServerRate) {
-						lastSandstormTime = lastSandstormFormed;
+						//get a random player to try and spawn for, will recycle another if it cant spawn
+						EntityPlayer entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
+
+						boolean sandstormMade = trySandstormForPlayer(entP, lastSandstormFormed);
+						if (sandstormMade) {
+							lastSandstormFormed = world.getTotalWorldTime();
+						}
 					} else {
-						lastSandstormTime = playerNBT.getLong("lastSandstormTime");
-					}
-
-					if (lastSandstormTime == 0 || lastSandstormTime + ConfigMisc.Sandstorm_TimeBetweenInTicks < world.getTotalWorldTime()) {
-						Random rand = new Random();
-						//if (rand.nextInt(ConfigMisc.Sandstorm_OddsTo1) == 0) {
-
-							boolean sandstormMade = trySpawnSandstormNearPos(entP.getEntityWorld(), new Vec3(entP.getPositionVector()));
-
+						for (int i = 0; i < world.playerEntities.size(); i++) {
+							EntityPlayer entP = world.playerEntities.get(i);
+							NBTTagCompound playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(entP));
+							boolean sandstormMade = trySandstormForPlayer(entP, playerNBT.getLong("lastSandstormTime"));
 							if (sandstormMade) {
-								Weather.dbg("sandstorm spawned");
-								if (ConfigMisc.Sandstorm_UseGlobalServerRate) {
-									lastSandstormFormed = world.getTotalWorldTime();
-								} else {
-									playerNBT.setLong("lastSandstormTime", world.getTotalWorldTime());
-								}
-							} else {
-								Weather.dbg("sandstorm failed to spawn");
+								playerNBT.setLong("lastSandstormTime", world.getTotalWorldTime());
 							}
-						//}
+						}
 					}
-
-
 				}
 			}
 		}
+	}
+
+	public boolean trySandstormForPlayer(EntityPlayer player, long lastSandstormTime) {
+		boolean sandstormMade = false;
+		if (lastSandstormTime == 0 || lastSandstormTime + ConfigMisc.Sandstorm_TimeBetweenInTicks < player.getEntityWorld().getTotalWorldTime()) {
+			sandstormMade = trySpawnSandstormNearPos(player.getEntityWorld(), new Vec3(player.getPositionVector()));
+		}
+		return sandstormMade;
 	}
 	
 	public boolean trySpawnSandstormNearPos(World world, Vec3 posIn) {
@@ -278,16 +274,16 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					sandstorm.initSandstormSpawn(new Vec3(posSpawn));
 					addStormObject(sandstorm);
 					syncStormNew(sandstorm);
-					
-					System.out.println("found decent spot and stretch for sandstorm, stretch: " + dist);
+
+					Weather.dbg("found decent spot and stretch for sandstorm, stretch: " + dist);
 					return true;
 				}
 				
 				
 			}
 		}
-		
-		System.out.println("couldnt spawn sandstorm");
+
+		Weather.dbg("couldnt spawn sandstorm");
 		return false;
 		
 		/*if (foundPos != null) {

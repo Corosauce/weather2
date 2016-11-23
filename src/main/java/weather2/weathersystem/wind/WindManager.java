@@ -322,6 +322,10 @@ public class WindManager {
 	public void startHighWindEvent() {
 		highWindTimer = highWindTimerEnableAmountBase + (new Random()).nextInt(highWindTimerEnableAmountRnd);
 	}
+
+	public boolean isHighWindEventActive() {
+		return highWindTimer > 0;
+	}
 	
 	public void stopHighWindEvent() {
 		highWindTimer = 0;
