@@ -99,7 +99,13 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Server_Storm_Deadly_UseGlobalRate = false;
 	public static int Server_Storm_Deadly_OddsTo1 = 30;
 	public static int Server_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3;
-	
+
+	//sandstorm settings
+	public static boolean Sandstorm_UseGlobalServerRate = false;
+	public static int Sandstorm_OddsTo1 = 30;
+	@ConfigComment("Time between sandstorms for either each player or entire server depending on if global rate is on, default: 3 mc days")
+	public static int Sandstorm_TimeBetweenInTicks = 20*60*20*3;
+
 	//clouds
 	public static int Cloud_ParticleSpawnDelay = 0;
 	public static int Cloud_Formation_MinDistBetweenSpawned = 256;

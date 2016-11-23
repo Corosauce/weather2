@@ -47,6 +47,8 @@ public class WeatherManagerBase {
 	public boolean isVanillaRainActiveOnServer = false;
 	
 	public long lastStormFormed = 0;
+
+	public long lastSandstormFormed = 0;
 	
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
@@ -333,6 +335,8 @@ public class WeatherManagerBase {
 		mainNBT.setLong("lastUsedIDStorm", StormObject.lastUsedStormID);
 		
 		mainNBT.setLong("lastStormFormed", lastStormFormed);
+
+		mainNBT.setLong("lastSandstormFormed", lastSandstormFormed);
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
 		
@@ -390,6 +394,7 @@ public class WeatherManagerBase {
 		}
 		
 		lastStormFormed = rtsNBT.getLong("lastStormFormed");
+		lastSandstormFormed = rtsNBT.getLong("lastSandstormFormed");
 		
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
 		StormObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");

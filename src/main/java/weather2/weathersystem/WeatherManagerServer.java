@@ -14,6 +14,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
@@ -140,6 +141,43 @@ public class WeatherManagerServer extends WeatherManagerBase {
 							}
 						}
 					}
+				}
+			}
+
+			//if dimension can have storms, tick sandstorm spawning every 10 seconds
+			if (WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0) {
+				for (int i = 0; i < world.playerEntities.size(); i++) {
+					EntityPlayer entP = world.playerEntities.get(i);
+					NBTTagCompound playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(entP));
+
+					long lastSandstormTime;
+
+					if (ConfigMisc.Sandstorm_UseGlobalServerRate) {
+						lastSandstormTime = lastSandstormFormed;
+					} else {
+						lastSandstormTime = playerNBT.getLong("lastSandstormTime");
+					}
+
+					if (lastSandstormTime == 0 || lastSandstormTime + ConfigMisc.Sandstorm_TimeBetweenInTicks < world.getTotalWorldTime()) {
+						Random rand = new Random();
+						//if (rand.nextInt(ConfigMisc.Sandstorm_OddsTo1) == 0) {
+
+							boolean sandstormMade = trySpawnSandstormNearPos(entP.getEntityWorld(), new Vec3(entP.getPositionVector()));
+
+							if (sandstormMade) {
+								Weather.dbg("sandstorm spawned");
+								if (ConfigMisc.Sandstorm_UseGlobalServerRate) {
+									lastSandstormFormed = world.getTotalWorldTime();
+								} else {
+									playerNBT.setLong("lastSandstormTime", world.getTotalWorldTime());
+								}
+							} else {
+								Weather.dbg("sandstorm failed to spawn");
+							}
+						//}
+					}
+
+
 				}
 			}
 		}

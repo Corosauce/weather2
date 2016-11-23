@@ -25,6 +25,7 @@ public class WeatherUtilConfig {
 
 	public static List<Integer> listDimensionsWeather = new ArrayList<Integer>();
 	public static List<Integer> listDimensionsClouds = new ArrayList<Integer>();
+	//used for deadly storms and sandstorms
 	public static List<Integer> listDimensionsStorms = new ArrayList<Integer>();
 	public static List<Integer> listDimensionsWindEffects = new ArrayList<Integer>();
 	
