@@ -1,10 +1,7 @@
 package weather2.client;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -374,16 +371,16 @@ public class SceneEnhancer implements Runnable {
 		//reset particle data, discard dead ones as that was a bug from weather1
 		
 		if (ExtendedRenderer.rotEffRenderer != null) {
-        	for (int i = 0; i < ExtendedRenderer.rotEffRenderer.fxLayers.length; i++)                            
-            {
-        		for (int j = 0; j < ExtendedRenderer.rotEffRenderer.fxLayers[i].length; j++) {
-        			if (ExtendedRenderer.rotEffRenderer.fxLayers[i][j] != null)
-                    {
-                        ExtendedRenderer.rotEffRenderer.fxLayers[i][j].clear();
-                    }
-        		}
-                
-            }
+			for (ArrayDeque<Particle>[][] entry : ExtendedRenderer.rotEffRenderer.fxLayers) {
+				for (int i = 0; i < entry.length; i++) {
+					for (int j = 0; j < entry[i].length; j++) {
+						if (entry[i][j] != null) {
+							entry[i][j].clear();
+						}
+					}
+
+				}
+			}
         }
 		
 		lastWorldDetected.weatherEffects.clear();
