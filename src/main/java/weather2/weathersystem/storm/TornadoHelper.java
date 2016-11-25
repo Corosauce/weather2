@@ -715,7 +715,7 @@ public class TornadoHelper {
 
             if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND/*getStorm().type == getStorm().TYPE_TORNADO*/)
             {
-                tryPlaySound(WeatherUtilSound.snd_dmg_close, 0, mc.thePlayer, volScaleClose, close);
+                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.thePlayer, volScaleClose, close);
             }
         }
 

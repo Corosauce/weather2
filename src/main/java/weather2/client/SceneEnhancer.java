@@ -32,10 +32,7 @@ import weather2.SoundRegistry;
 import weather2.api.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.config.ConfigMisc;
-import weather2.util.WeatherUtil;
-import weather2.util.WeatherUtilConfig;
-import weather2.util.WeatherUtilEntity;
-import weather2.util.WeatherUtilParticle;
+import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
@@ -1481,17 +1478,7 @@ public class SceneEnhancer implements Runnable {
      * Manages transitioning fog densities and color from current vanilla settings to our desired settings, and vice versa
      */
     public static void tickSandstorm() {
-    	
-    	//debug code start
-    	/*distToStorm--;
-    	if (distToStorm <= 0) {
-    		distToStorm = distToStormThreshold + 100;
-    	}*/
-    	
-    	
-    	//debug code end
-    	
-    	//TODO: make transition code actually tie to distance, not just trigger a static transition
+
     	Minecraft mc = Minecraft.getMinecraft();
     	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
     	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, 9999/*distToStormThreshold + 10*/);
@@ -1695,7 +1682,56 @@ public class SceneEnhancer implements Runnable {
     		
     		//System.out.println("OFF");
     	}
+
+		tickSandstormSound();
     }
+
+	/**
+	 *
+	 */
+	public static void tickSandstormSound() {
+		/**
+		 * dist + storm intensity
+		 * 0F - 1F
+		 *
+		 * 0 = low
+		 * 0.33 = med
+		 * 0.66 = high
+		 *
+		 * static sound volume, keep at player
+		 */
+
+		Minecraft mc = Minecraft.getMinecraft();
+		if (adjustAmountSmooth > 0) {
+			if (adjustAmountSmooth < 0.33F) {
+				tryPlayPlayerLockedSound(WeatherUtilSound.snd_sandstorm_low, 5, mc.thePlayer, 1F);
+			} else if (adjustAmountSmooth < 0.66F) {
+				tryPlayPlayerLockedSound(WeatherUtilSound.snd_sandstorm_med, 4, mc.thePlayer, 1F);
+			} else {
+				tryPlayPlayerLockedSound(WeatherUtilSound.snd_sandstorm_high, 3, mc.thePlayer, 1F);
+			}
+		}
+	}
+
+	public static boolean tryPlayPlayerLockedSound(String[] sound, int arrIndex, Entity source, float vol)
+	{
+		Random rand = new Random();
+
+		if (WeatherUtilSound.soundTimer[arrIndex] <= System.currentTimeMillis())
+		{
+
+			String soundStr = sound[WeatherUtilSound.snd_rand[arrIndex]];
+
+			WeatherUtilSound.playPlayerLockedSound(new Vec3(source.getPositionVector()), new StringBuilder().append("streaming." + soundStr).toString(), vol, 1.0F);
+
+			int length = WeatherUtilSound.soundToLength.get(soundStr);
+			//-500L, for blending
+			WeatherUtilSound.soundTimer[arrIndex] = System.currentTimeMillis() + length - 500L;
+			WeatherUtilSound.snd_rand[arrIndex] = rand.nextInt(sound.length);
+		}
+
+		return false;
+	}
     
     public static boolean isFogOverridding() {
     	return distToStorm < distToStormThreshold/* || 

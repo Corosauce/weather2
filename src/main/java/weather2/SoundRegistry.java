@@ -29,6 +29,12 @@ public class SoundRegistry {
 		register("streaming.wind_far_0_");
 		register("streaming.wind_far_1_");
 		register("streaming.wind_far_2_");
+
+		register("streaming.sandstorm_high1");
+		register("streaming.sandstorm_med1");
+		register("streaming.sandstorm_med2");
+		register("streaming.sandstorm_low1");
+		register("streaming.sandstorm_low2");
 		
 	}
 

@@ -152,4 +152,51 @@
       }
     ]
   }
+  
+  ,
+  "streaming.sandstorm_high1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_high1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_med1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_med1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_med2": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_med2",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_low1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_low1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_low2": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_low2",
+        "stream": true
+      }
+    ]
+  }
 }
