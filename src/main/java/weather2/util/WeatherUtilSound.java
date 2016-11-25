@@ -24,22 +24,13 @@ import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 
 public class WeatherUtilSound {
-	
-	@SideOnly(Side.CLIENT)
-    public static SoundSystem sndSystem;
-    /*@SideOnly(Side.CLIENT)
-    public static SoundPool soundPool;*/
-    //public static int lastSoundID;
-	
-	//sound stuff not initialized - mainly tornado sounds
-	//public static long lastSoundPositionUpdate;
+
     public static String snd_dmg_close[] = new String[3];
     public static String snd_wind_close[] = new String[3];
     public static String snd_wind_far[] = new String[3];
-    public static Map soundToLength = new HashMap();
+    public static HashMap<String, Integer> soundToLength = new HashMap<>();
     public static int snd_rand[] = new int[3];
     public static long soundTimer[] = new long[3];
-    //public static int soundID[] = new int[3];
     
     public static void init() {
     	Random rand = new Random();

@@ -160,7 +160,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		if (!world.isRemote) {
 			age++;
-			
+
 			//boolean isGrowing = true;
 			
 			BlockPos posBlock = pos.toBlockPos();
@@ -453,7 +453,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		double z = pos.zCoord + (Math.cos(Math.toRadians(i)) * (sizeRand));
 			    		double y = pos.yCoord + (heightLayer * distBetweenParticles * 2);
 			    		
-			    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+			    		TextureAtlasSprite sprite = ParticleRegistry.cloud256_6;
 			    		
 			    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
 			    				, 0, 0, 0, sprite);
@@ -543,7 +543,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		int yy = world.getHeight(new BlockPos(x, 0, z)).getY();
 	    		double y = yy/*posSpawn.yCoord*/ + 2 + randHeight;
 	    		
-	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256_6;
 	    		
 	    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
 	    				, 0, 0, 0, sprite);
