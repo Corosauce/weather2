@@ -1582,8 +1582,8 @@ public class SceneEnhancer implements Runnable {
             }
 
             //System.out.println("wut: " + mc.theWorld.getCelestialAngle(1));
-            System.out.println("wutF: " + mc.theWorld.getSunBrightnessFactor(1F));
-            System.out.println("wut: " + mc.theWorld.getSunBrightness(1F));
+            //System.out.println("wutF: " + mc.theWorld.getSunBrightnessFactor(1F));
+            //System.out.println("wut: " + mc.theWorld.getSunBrightness(1F));
     	}
     	
     	if (adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*/) {

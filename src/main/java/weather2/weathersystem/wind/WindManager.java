@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigWind;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
@@ -66,15 +67,10 @@ public class WindManager {
 
 	//low wind event
 	public int lowWindTimer = 0;
-	public int lowWindTimerEnableAmountBase = 20*60*2;
-	public int lowWindTimerEnableAmountRnd = 20*60*10;
-	public int lowWindOddsTo1 = 20*200;
 	
 	//high wind event
 	public int highWindTimer = 0;
-	public int highWindTimerEnableAmountBase = 20*60*2;
-	public int highWindTimerEnableAmountRnd = 20*60*10;
-	public int highWindOddsTo1 = 20*400;
+
 	
 	public WindManager(WeatherManagerBase parManager) {
 		manager = parManager;
@@ -184,7 +180,7 @@ public class WindManager {
 		//lowWindTimer = 0;
 		//windSpeedGlobalChangeRate = 0.05F;
 		
-		if (!ConfigMisc.Misc_windOn) {
+		if (!ConfigWind.Misc_windOn) {
 			windSpeedGlobal = 0;
 			windSpeedGust = 0;
 			windTimeGust = 0;
@@ -196,7 +192,7 @@ public class WindManager {
 				
 				//global random wind speed change
 				
-				if (!ConfigMisc.Wind_LowWindEvents) {
+				if (!ConfigWind.Wind_LowWindEvents) {
 					lowWindTimer = 0;
 				}
 				
@@ -215,16 +211,16 @@ public class WindManager {
 					
 					//only allow for low wind if high wind not active
 					if (highWindTimer <= 0) {
-						if (ConfigMisc.Wind_LowWindEvents) {
-							if (rand.nextInt(lowWindOddsTo1) == 0) {
+						if (ConfigWind.Wind_LowWindEvents) {
+							if (rand.nextInt(ConfigWind.lowWindOddsTo1) == 0) {
 								startLowWindEvent();
 								Weather.dbg("low wind event, for ticks: " + lowWindTimer);
 							}
 						}
 					}
 					
-					if (ConfigMisc.Wind_HighWindEvents) {
-						if (rand.nextInt(highWindOddsTo1) == 0) {
+					if (ConfigWind.Wind_HighWindEvents) {
+						if (rand.nextInt(ConfigWind.highWindOddsTo1) == 0) {
 							startHighWindEvent();
 							Weather.dbg("high wind event, for ticks: " + highWindTimer);
 						}
@@ -318,19 +314,19 @@ public class WindManager {
 	}
 	
 	public void startHighWindEvent() {
-		highWindTimer = highWindTimerEnableAmountBase + (new Random()).nextInt(highWindTimerEnableAmountRnd);
+		highWindTimer = ConfigWind.highWindTimerEnableAmountBase + (new Random()).nextInt(ConfigWind.highWindTimerEnableAmountRnd);
 	}
 
 	public boolean isHighWindEventActive() {
 		return highWindTimer > 0;
 	}
-	
+
 	public void stopHighWindEvent() {
 		highWindTimer = 0;
 	}
 	
 	public void startLowWindEvent() {
-		lowWindTimer = lowWindTimerEnableAmountBase + (new Random()).nextInt(lowWindTimerEnableAmountRnd);
+		lowWindTimer = ConfigWind.lowWindTimerEnableAmountBase + (new Random()).nextInt(ConfigWind.lowWindTimerEnableAmountRnd);
 	}
 	
 	public void stopLowWindEvent() {

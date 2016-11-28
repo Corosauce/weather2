@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigWind;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
@@ -44,6 +45,7 @@ public class Weather {
     	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
 		
     	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
+		ConfigMod.addConfigFile(event, "weather2Wind", new ConfigWind());
     	WeatherUtilConfig.nbtLoadDataAll();
     }
     

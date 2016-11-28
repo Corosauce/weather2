@@ -79,7 +79,7 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     		EntityPlayer entP = mc.thePlayer;
     		if (entP != null) {
     			//convert to absolute (positive) value for old effects
-    			float curRainStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP, true));
+    			float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);
 
     			//convert to abs for snow being rain
     			curRainStr = Math.abs(curRainStr);

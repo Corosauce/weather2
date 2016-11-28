@@ -19,7 +19,7 @@ public class ConfigMisc implements IConfigCategory {
 	//misc
 	public static boolean Misc_proxyRenderOverrideEnabled = true;
 	//public static boolean Misc_takeControlOfGlobalRain = true;
-	public static boolean Misc_windOn = true;
+
 	public static int Misc_simBoxRadiusCutoff = 1024;
 	public static int Misc_simBoxRadiusSpawn = 1024;
 	public static boolean Misc_ForceVanillaCloudsOff = true;
@@ -136,8 +136,6 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
 	public static boolean Wind_Particle_fire = true;
-	public static boolean Wind_LowWindEvents = true;
-	public static boolean Wind_HighWindEvents = true;
 	public static int Thread_Particle_Process_Delay = 400;
 	public static boolean Particle_RainSnow = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;
