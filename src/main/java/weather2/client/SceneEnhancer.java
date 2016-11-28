@@ -1481,7 +1481,7 @@ public class SceneEnhancer implements Runnable {
 
     	Minecraft mc = Minecraft.getMinecraft();
     	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
-    	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstorm(posPlayer, 9999/*distToStormThreshold + 10*/);
+    	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
     	float scaleIntensityTarget = 0F;
     	if (sandstorm != null) {
 
@@ -1648,6 +1648,11 @@ public class SceneEnhancer implements Runnable {
     		stormFogEnd = adjVal(stormFogEnd, 20F, fogDistChangeRate);
     		stormFogStartClouds = adjVal(stormFogStartClouds, 0F, fogDistChangeRate);
     		stormFogEndClouds = adjVal(stormFogEndClouds, 20F, fogDistChangeRate);*/
+
+    		//TODO: WIP trying to better adjust values back to what they would be after 5 mins passed
+			/*stormFogRedOrig = mc.entityRenderer.fogColorRed;
+			stormFogGreenOrig = mc.entityRenderer.fogColorGreen;
+			stormFogBlueOrig = mc.entityRenderer.fogColorBlue;*/
     		
     		//new dynamic adjusting
     		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - 0.7F) * adjustAmountSmooth);

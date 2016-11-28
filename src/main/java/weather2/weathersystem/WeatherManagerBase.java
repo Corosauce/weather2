@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -264,7 +265,14 @@ public class WeatherManagerBase {
 		
 		return closestStorm;
 	}
-	
+
+	/**
+	 * Simply compares stormfront distances, doesnt factor in tail
+	 *
+	 * @param parPos
+	 * @param maxDist
+	 * @return
+	 */
 	public WeatherObjectSandstorm getClosestSandstorm(Vec3 parPos, double maxDist) {
 		
 		WeatherObjectSandstorm closestStorm = null;
@@ -293,7 +301,72 @@ public class WeatherManagerBase {
 		
 		return closestStorm;
 	}
-	
+
+	/**
+	 * Gets the most intense sandstorm, used for effects and sounds
+	 *
+	 * @param parPos
+	 * @return
+	 */
+	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos/*, double maxDist*/) {
+
+		WeatherObjectSandstorm bestStorm = null;
+		double closestDist = 9999999;
+		double mostIntense = 0;
+
+		List<WeatherObject> listStorms = getStormObjects();
+
+		for (int i = 0; i < listStorms.size(); i++) {
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof WeatherObjectSandstorm) {
+				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
+				if (sandstorm == null || sandstorm.isDead) continue;
+
+				List<Vec3> points = sandstorm.getSandstormAsShape();
+
+				double scale = sandstorm.getSandstormScale();
+				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, points);
+				double dist = CoroUtilPhysics.getDistanceToShape(parPos, points);
+				//if best is within storm, compare intensity
+				if (inStorm) {
+					//System.out.println("in storm");
+					closestDist = 0;
+					if (scale > mostIntense) {
+						mostIntense = scale;
+						bestStorm = sandstorm;
+					}
+				//if best is not within storm, compare distance to shape
+				} else if (closestDist > 0/* && dist < maxDist*/) {
+					if (dist < closestDist) {
+						closestDist = dist;
+						bestStorm = sandstorm;
+					}
+				}
+			}
+
+		}
+
+		return bestStorm;
+	}
+
+	public List<WeatherObject> getSandstormsAround(Vec3 parPos, double maxDist) {
+		List<WeatherObject> storms = new ArrayList<>();
+
+		for (int i = 0; i < getStormObjects().size(); i++) {
+			WeatherObject wo = getStormObjects().get(i);
+			if (wo instanceof WeatherObjectSandstorm) {
+				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
+				if (storm.isDead) continue;
+
+				if (storm.pos.distanceTo(parPos) < maxDist) {
+					storms.add(storm);
+				}
+			}
+		}
+
+		return storms;
+	}
+
 	public List<WeatherObject> getStormsAround(Vec3 parPos, double maxDist) {
 		List<WeatherObject> storms = new ArrayList<>();
 		
