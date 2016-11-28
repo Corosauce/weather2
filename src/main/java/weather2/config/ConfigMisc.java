@@ -136,7 +136,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
 	public static boolean Wind_Particle_fire = true;
-	public static boolean Wind_NoWindEvents = true;
+	public static boolean Wind_LowWindEvents = true;
 	public static boolean Wind_HighWindEvents = true;
 	public static int Thread_Particle_Process_Delay = 400;
 	public static boolean Particle_RainSnow = true;

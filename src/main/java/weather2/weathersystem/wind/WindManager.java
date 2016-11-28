@@ -2,13 +2,11 @@ package weather2.weathersystem.wind;
 
 import java.util.Random;
 
-import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilEntity;
@@ -198,7 +196,7 @@ public class WindManager {
 				
 				//global random wind speed change
 				
-				if (!ConfigMisc.Wind_NoWindEvents) {
+				if (!ConfigMisc.Wind_LowWindEvents) {
 					lowWindTimer = 0;
 				}
 				
@@ -217,7 +215,7 @@ public class WindManager {
 					
 					//only allow for low wind if high wind not active
 					if (highWindTimer <= 0) {
-						if (ConfigMisc.Wind_NoWindEvents) {
+						if (ConfigMisc.Wind_LowWindEvents) {
 							if (rand.nextInt(lowWindOddsTo1) == 0) {
 								startLowWindEvent();
 								Weather.dbg("low wind event, for ticks: " + lowWindTimer);

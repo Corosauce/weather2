@@ -101,10 +101,10 @@ public class BlockSandLayer extends Block
     }
     
     //TODO: for testing heightmap issue
-    @Override
+    /*@Override
     public boolean isFullBlock(IBlockState state) {
     	return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
-    }
+    }*/
 
     @Override
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
@@ -217,10 +217,10 @@ public class BlockSandLayer extends Block
     }
     
     //TODO: why did i add this
-    @Override
+    /*@Override
     public boolean isSideSolid(IBlockState base_state, IBlockAccess world,
     		BlockPos pos, EnumFacing side) {
     	IBlockState state = this.getActualState(base_state, world, pos);
         return ((Integer)state.getValue(LAYERS)) >= 8;
-    }
+    }*/
 }
