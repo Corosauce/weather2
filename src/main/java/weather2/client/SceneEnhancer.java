@@ -3,6 +3,7 @@ package weather2.client;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import CoroUtil.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -38,12 +39,6 @@ import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
-import CoroUtil.util.ChunkCoordinatesBlock;
-import CoroUtil.util.CoroUtilBlock;
-import CoroUtil.util.CoroUtilEntOrParticle;
-import CoroUtil.util.CoroUtilEntity;
-import CoroUtil.util.CoroUtilPhysics;
-import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFogGround;
@@ -53,6 +48,8 @@ import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.particle.entity.ParticleTexLeafColor;
+
+import static CoroUtil.util.CoroUtilMisc.adjVal;
 
 @SideOnly(Side.CLIENT)
 public class SceneEnhancer implements Runnable {
@@ -1570,9 +1567,9 @@ public class SceneEnhancer implements Runnable {
 
     	//since size var adjusts by 10 every x seconds, transition is rough, try to make it smooth but keeps up
     	if (adjustAmountSmooth < adjustAmountTarget) {
-    		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
+    		adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
     	} else {
-    		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
+    		adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
     	}
 
 
@@ -1759,23 +1756,6 @@ public class SceneEnhancer implements Runnable {
     	return adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*//* ||
     			(stormFogRed != stormFogRedOrig || stormFogGreen != stormFogGreenOrig || stormFogBlue != stormFogBlueOrig) || 
     			(stormFogDensity != stormFogDensityOrig || stormFogStart != stormFogStartOrig || stormFogEnd != stormFogEndOrig)*/;
-    }
-    
-    public static float adjVal(float source, float target, float adj) {
-    	if (source < target) {
-    		source += adj;
-    		//fix over adjust
-    		if (source > target) {
-    			source = target;
-    		}
-    	} else if (source > target) {
-    		source -= adj;
-    		//fix over adjust
-    		if (source < target) {
-    			source = target;
-    		}
-    	}
-    	return source;
     }
     
     public static void renderWorldLast(RenderWorldLastEvent event) {

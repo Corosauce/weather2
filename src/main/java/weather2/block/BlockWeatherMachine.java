@@ -14,7 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import CoroUtil.util.CoroUtil;
+import CoroUtil.util.CoroUtilMisc;
 
 public class BlockWeatherMachine extends BlockContainer
 {
@@ -55,7 +55,7 @@ public class BlockWeatherMachine extends BlockContainer
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 6) {
 	    			msg = "Stage 1 Tropical Cyclone";
 	    		}
-	    		CoroUtil.sendCommandSenderMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
+	    		CoroUtilMisc.sendCommandSenderMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
 	    		return true;
 	    	}
     	}

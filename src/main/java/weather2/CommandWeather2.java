@@ -17,7 +17,7 @@ import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.storm.WeatherObject;
-import CoroUtil.util.CoroUtil;
+import CoroUtil.util.CoroUtilMisc;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
 
@@ -61,15 +61,15 @@ public class CommandWeather2 extends CommandBase {
 							
 							wm.syncVolcanoNew(vo);
 							
-							CoroUtil.sendCommandSenderMsg(var1, "volcano created");
+							CoroUtilMisc.sendCommandSenderMsg(var1, "volcano created");
 						} else {
-							CoroUtil.sendCommandSenderMsg(var1, "can only make volcanos on main overworld");
+							CoroUtilMisc.sendCommandSenderMsg(var1, "can only make volcanos on main overworld");
 						}
 					}
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
 						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
-						CoroUtil.sendCommandSenderMsg(var1, "killing all storms");
+						CoroUtilMisc.sendCommandSenderMsg(var1, "killing all storms");
 						List<WeatherObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
 							WeatherObject wo = listStorms.get(i);
@@ -182,7 +182,7 @@ public class CommandWeather2 extends CommandBase {
 								boolean spawned = wm.trySpawnSandstormNearPos(world, new Vec3(posVec));
 								spawnCloudStorm = false;
 								if (!spawned) {
-									CoroUtil.sendCommandSenderMsg(var1, "couldnt find spot to spawn");
+									CoroUtilMisc.sendCommandSenderMsg(var1, "couldnt find spot to spawn");
 									return;
 								}
 							}
@@ -199,15 +199,15 @@ public class CommandWeather2 extends CommandBase {
 								wm.syncStormNew(so);
 							}
 							
-							CoroUtil.sendCommandSenderMsg(var1, "storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : ""));
+							CoroUtilMisc.sendCommandSenderMsg(var1, "storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : ""));
 						} else {
-							CoroUtil.sendCommandSenderMsg(var1, helpMsgStorm);
+							CoroUtilMisc.sendCommandSenderMsg(var1, helpMsgStorm);
 						}
 					} else if (var2[1].equals("help")) {
-						CoroUtil.sendCommandSenderMsg(var1, helpMsgStorm);
+						CoroUtilMisc.sendCommandSenderMsg(var1, helpMsgStorm);
 						
 					} else {
-						CoroUtil.sendCommandSenderMsg(var1, helpMsgStorm);
+						CoroUtilMisc.sendCommandSenderMsg(var1, helpMsgStorm);
 					}
 				} else if (var2[0].equals("testderp") && player != null) {
 					//EntityPlayerMP player = var1;
@@ -230,10 +230,10 @@ public class CommandWeather2 extends CommandBase {
 							wm.windMan.startHighWindEvent();
 							//cancel any low wind state if there is one
 							wm.windMan.lowWindTimer = 0;
-							CoroUtil.sendCommandSenderMsg(var1, "started high wind event");
+							CoroUtilMisc.sendCommandSenderMsg(var1, "started high wind event");
 						} else if (doHighOff) {
 							wm.windMan.stopHighWindEvent();
-							CoroUtil.sendCommandSenderMsg(var1, "stopped high wind event");
+							CoroUtilMisc.sendCommandSenderMsg(var1, "stopped high wind event");
 						}
 					} else if (var2[1].equals("low")) {
 						boolean doLowOn = false;
@@ -252,19 +252,19 @@ public class CommandWeather2 extends CommandBase {
 							wm.windMan.startLowWindEvent();
 							//cancel any low wind state if there is one
 							wm.windMan.lowWindTimer = 0;
-							CoroUtil.sendCommandSenderMsg(var1, "started low wind event");
+							CoroUtilMisc.sendCommandSenderMsg(var1, "started low wind event");
 						} else if (doLowOff) {
 							wm.windMan.stopLowWindEvent();
-							CoroUtil.sendCommandSenderMsg(var1, "stopped low wind event");
+							CoroUtilMisc.sendCommandSenderMsg(var1, "stopped low wind event");
 						}
 					}
 				} else {
-					CoroUtil.sendCommandSenderMsg(var1, helpMsgStorm);
+					CoroUtilMisc.sendCommandSenderMsg(var1, helpMsgStorm);
 				}
 			/*}*/
 		} catch (Exception ex) {
 			System.out.println("Exception handling Weather2 command");
-			CoroUtil.sendCommandSenderMsg(var1, helpMsgStorm);
+			CoroUtilMisc.sendCommandSenderMsg(var1, helpMsgStorm);
 			ex.printStackTrace();
 		}
 		
