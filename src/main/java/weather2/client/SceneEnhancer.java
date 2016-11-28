@@ -1559,18 +1559,34 @@ public class SceneEnhancer implements Runnable {
     	
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
-    	
+
+        //debug
+        //adjustAmountTarget = 1F;
+
+
+        float sunBrightness = mc.theWorld.getSunBrightness(1F)/* * 0.8F*/;
+        /*mc.theWorld.rainingStrength = 1F;
+        mc.theWorld.thunderingStrength = 1F;*/
+
     	//since size var adjusts by 10 every x seconds, transition is rough, try to make it smooth but keeps up
     	if (adjustAmountSmooth < adjustAmountTarget) {
     		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
     	} else {
     		adjustAmountSmooth = adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
     	}
-    	
-    	if (adjustAmountSmooth > 0 && /*sandstorm != null && */mc.theWorld.getTotalWorldTime() % 20 == 0) {
+
+
+
+    	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
-    		System.out.println("adjustAmountTarget: " + adjustAmountTarget);
-    		System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
+            if (adjustAmountSmooth > 0) {
+                System.out.println("adjustAmountTarget: " + adjustAmountTarget);
+                System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
+            }
+
+            //System.out.println("wut: " + mc.theWorld.getCelestialAngle(1));
+            System.out.println("wutF: " + mc.theWorld.getSunBrightnessFactor(1F));
+            System.out.println("wut: " + mc.theWorld.getSunBrightness(1F));
     	}
     	
     	if (adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*/) {
@@ -1629,10 +1645,11 @@ public class SceneEnhancer implements Runnable {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-    			
-    			stormFogRedOrig = stormFogRed;
+
+				//commented out to make dynamic via fog color event value backup
+    			/*stormFogRedOrig = stormFogRed;
     			stormFogGreenOrig = stormFogGreen;
-    			stormFogBlueOrig = stormFogBlue;
+    			stormFogBlueOrig = stormFogBlue;*/
     			needFogState = false;
     		}
     		
@@ -1655,9 +1672,9 @@ public class SceneEnhancer implements Runnable {
 			stormFogBlueOrig = mc.entityRenderer.fogColorBlue;*/
     		
     		//new dynamic adjusting
-    		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - 0.7F) * adjustAmountSmooth);
-    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - 0.6F) * adjustAmountSmooth);
-    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - 0.3F) * adjustAmountSmooth);
+    		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
+    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - (0.6F * sunBrightness)) * adjustAmountSmooth);
+    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - (0.3F * sunBrightness)) * adjustAmountSmooth);
     		
     		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmountSmooth);
     		
@@ -1739,7 +1756,7 @@ public class SceneEnhancer implements Runnable {
 	}
     
     public static boolean isFogOverridding() {
-    	return distToStorm < distToStormThreshold/* || 
+    	return adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*//* ||
     			(stormFogRed != stormFogRedOrig || stormFogGreen != stormFogGreenOrig || stormFogBlue != stormFogBlueOrig) || 
     			(stormFogDensity != stormFogDensityOrig || stormFogStart != stormFogStartOrig || stormFogEnd != stormFogEndOrig)*/;
     }

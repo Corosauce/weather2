@@ -93,6 +93,10 @@ public class EventHandlerForge {
     public void onFogColors(FogColors event) {
 		
         if (SceneEnhancer.isFogOverridding()) {
+			//backup original fog colors that are actively being adjusted based on time of day
+			SceneEnhancer.stormFogRedOrig = event.getRed();
+			SceneEnhancer.stormFogGreenOrig = event.getGreen();
+			SceneEnhancer.stormFogBlueOrig = event.getBlue();
         	event.setRed(SceneEnhancer.stormFogRed);
         	event.setGreen(SceneEnhancer.stormFogGreen);
         	event.setBlue(SceneEnhancer.stormFogBlue);
