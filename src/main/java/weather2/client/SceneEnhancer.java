@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import CoroUtil.util.*;
+import extendedrenderer.render.RotatingParticleManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -1558,7 +1559,7 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
 
         //debug
-        //adjustAmountTarget = 1F;
+        //adjustAmountTarget = 0.0F;
 
 
         float sunBrightness = mc.theWorld.getSunBrightness(1F)/* * 0.8F*/;
@@ -1572,7 +1573,8 @@ public class SceneEnhancer implements Runnable {
     		adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
     	}
 
-
+    	//update coroutil particle renderer fog state
+        RotatingParticleManager.sandstormFogAmount = adjustAmountSmooth;
 
     	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
