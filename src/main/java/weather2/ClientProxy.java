@@ -95,18 +95,18 @@ public class ClientProxy extends CommonProxy
     
     @Override
 	public void registerItemVariantModel(Item item, String name, int metadata) {
-		if (item != null) { 
-			//     ModelBakery.registerItemVariants(item, new ResourceLocation(Info.MODID + ":" + name));
-			ModelLoader.setCustomModelResourceLocation(item, metadata, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
+		if (item != null) {
+            Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
 		}
 	}
 
 	@Override
 	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {
 		if (item != null) {
-			// ModelResourceLocation mrl = new ModelResourceLocation(Info.MODID + ":" + registryName, variantName);
+            //old preinit only way
 			// ModelLoader.setCustomModelResourceLocation(item, metadata, mrl);
-			ModelLoader.setCustomModelResourceLocation(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
+            //this method works via init, ModelLoader does not, requires being in preinit
+            Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
 		}
 	}
 }

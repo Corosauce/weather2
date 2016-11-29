@@ -79,9 +79,9 @@ public class CommonProxy implements IGuiHandler
     	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector");
     	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer");
     	addBlock(blockSandLayer = (new BlockSandLayer()), "sand_layer", false);
-    	
-    	registerItem(itemSandLayer = new ItemSandLayer(blockSandLayer), "sandLayerPlaceable");
-    	registerItem(itemWeatherRecipe = new ItemWeatherRecipe(), "weatherItem");
+
+		registerItem(itemSandLayer = new ItemSandLayer(blockSandLayer), "sand_layer_placeable");
+		registerItem(itemWeatherRecipe = new ItemWeatherRecipe(), "weather_item");
     	
     	GameRegistry.addRecipe(new ItemStack(itemWeatherRecipe, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
     	
@@ -97,6 +97,10 @@ public class CommonProxy implements IGuiHandler
     	}
     	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', itemWeatherRecipe, 'X', Items.IRON_INGOT});
     }
+
+    public void preInit() {
+
+	}
     
     /*public void addItem(Item is, String unlocalizedName) {
 		addItem(is, unlocalizedName, "");

@@ -12,6 +12,8 @@ import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;
+import weather2.item.ItemSandLayer;
+import weather2.item.ItemWeatherRecipe;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
@@ -47,6 +49,8 @@ public class Weather {
     	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
 		ConfigMod.addConfigFile(event, "weather2Wind", new ConfigWind());
     	WeatherUtilConfig.nbtLoadDataAll();
+
+		proxy.preInit();
     }
     
 	@Mod.EventHandler
