@@ -85,7 +85,11 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     			curRainStr = Math.abs(curRainStr);
     			
     			//Weather.dbg("curRainStr: " + curRainStr);
-    			
+
+                if (mc.theWorld.getTotalWorldTime() % 10 == 0) {
+                    //System.out.println("curRainStr: " + curRainStr);
+                }
+
     			//if (!ConfigMisc.overcastMode) {
     				mc.theWorld.setRainStrength(curRainStr);
     			//}

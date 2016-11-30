@@ -414,81 +414,157 @@ public class SceneEnhancer implements Runnable {
 				float temperature = biomegenbase.getFloatTemperature(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posY), MathHelper.floor_double(entP.posZ)));
 	            double d3;
 	            float f10;
-	
-	            if (/*curPrecipVal > 0*/entP.worldObj.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
-	            	
-	            	//now absolute it for ez math
-	            	curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
-	            	
-	            	//Weather.dbg("precip: " + curPrecipVal);
-	            	
-	            	//rain
-					if (curPrecipVal > 0 && entP.worldObj.isRainingAt(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ)))) {
-						
-						//Weather.dbg("rate: " + curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate);
-						
+
+				//now absolute it for ez math
+				curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
+				World world = entP.worldObj;
+				Random rand = entP.worldObj.rand;
+
+				if (curPrecipVal > 0) {
+
+					if (entP.worldObj.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
+
+
+						//Weather.dbg("precip: " + curPrecipVal);
+
+
+
+						int spawnAreaSize = 15;
 						for (int i = 0; i < curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
-							int spawnAreaSize = 15;
-							/*EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
-							
-							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
-					        //ent.renderDistanceWeight = 1.0D;
-					        ent.setSize(1.2F, 1.2F);
-					        ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
-					        ent.setGravity(0.00001F);
-					        ent.spawnAsWeatherEffect();*/
-					        
-					        ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.rain);
-					        rain.setCanCollide(true);
-					        rain.setKillOnCollide(true);
-					        //1.10.2: had to adjust weight from 1 to 10 to make it not super pulled for some reason
-					        rain.windWeight = 1F;
-					        rain.setFacePlayer(false);
-					        rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
-					        rain.spawnAsWeatherEffect();
-					        ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+							BlockPos pos = new BlockPos(
+									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+									entP.posY - 5 + rand.nextInt(15),
+									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+							if (world.isRainingAt(pos)) {
+								ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
+										pos.getX(),
+										pos.getY(),
+										pos.getZ(),
+										0D, 0D, 0D, ParticleRegistry.rain);
+								rain.setCanCollide(true);
+								rain.setKillOnCollide(true);
+								rain.windWeight = 1F;
+								rain.setFacePlayer(false);
+								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.setMotionY(-0.5D/*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*/);
+								rain.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+							}
+						}
+
+						//rain
+						if (false && entP.worldObj.isRainingAt(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.getEntityBoundingBox().minY), MathHelper.floor_double(entP.posZ)))) {
+
+							//Weather.dbg("rate: " + curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate);
+
+							for (int i = 0; i < curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
+
+								/*EntityFallingRainFX ent = new EntityFallingRainFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 1.5D, 3);
+
+								ent.severityOfRainRate = (int)(curPrecipVal * 5F);
+								//ent.renderDistanceWeight = 1.0D;
+								ent.setSize(1.2F, 1.2F);
+								ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
+								ent.setGravity(0.00001F);
+								ent.spawnAsWeatherEffect();*/
+
+								ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
+										(double) entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+										(double) entP.posY + 15,
+										(double) entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+										0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.rain);
+								rain.setCanCollide(true);
+								rain.setKillOnCollide(true);
+								rain.windWeight = 1F;
+								rain.setFacePlayer(false);
+								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+							}
+						}
+
+					//snow
+					} else {
+
+						//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
+
+						int spawnAreaSize = 50;
+						for (int i = 0; i < curPrecipVal * 20F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
+							BlockPos pos = new BlockPos(
+									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+									entP.posY - 5 + rand.nextInt(15),
+									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+							if (isSnowingAt(world, pos)) {
+								ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, pos.getX(), pos.getY(), pos.getZ(), 0D, 0D, 0D, ParticleRegistry.snow);
+								snow.setMotionY(-0.3D);
+								snow.setScale(1.3F);
+								snow.setGravity(0.1F);
+								snow.windWeight = 0.2F;
+								snow.setMaxAge(200);
+								snow.setFacePlayer(false);
+								snow.setCanCollide(true);
+								snow.setKillOnCollide(true);
+								snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;
+								snow.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(snow);
+							}
+
+						}
+
+						if (false) {
+							for (int i = 0; i < curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
+
+								int spawnAbove = 10;
+									/*EntityFallingSnowFX ent = new EntityFallingSnowFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + spawnAbove, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 5.5D, 6);
+									ent.severityOfRainRate = (int)(curPrecipVal * 5F);
+									//ent.renderDistanceWeight = 1.0D;
+									ent.setSize(1.2F, 1.2F);
+									ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
+									ent.setGravity(0.00001F);
+									ent.spawnAsWeatherEffect();*/
+
+								ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, (double) entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double) entP.posY + 15, (double) entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.snow);
+								snow.setScale(1.3F);
+								snow.setGravity(0.1F);
+								snow.windWeight = 0.1F;
+								snow.setMaxAge(200);
+								snow.setFacePlayer(false);
+								snow.setCanCollide(true);
+								snow.setKillOnCollide(true);
+								snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;
+								snow.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(snow);
+							}
 						}
 					}
-					
-	            } else {
-	            	
-	            	//now absolute it for ez math
-	            	curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
-	            	
-	            	//snow
-	            	if (curPrecipVal > 0) {
-	            		
-	            		//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
-	            		
-						for (int i = 0; i < curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate; i++) {
-							int spawnAreaSize = 50;
-							int spawnAbove = 10;
-							/*EntityFallingSnowFX ent = new EntityFallingSnowFX(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + spawnAbove, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, 5.5D, 6);
-							ent.severityOfRainRate = (int)(curPrecipVal * 5F);
-					        //ent.renderDistanceWeight = 1.0D;
-					        ent.setSize(1.2F, 1.2F);
-					        ent.rotationYaw = ent.getWorld().rand.nextInt(360) - 180F;
-					        ent.setGravity(0.00001F);
-					        ent.spawnAsWeatherEffect();*/
-					        
-					        ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, (double)entP.posX + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), (double)entP.posY + 15, (double)entP.posZ + entP.worldObj.rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2), 0D, -5D - (entP.worldObj.rand.nextInt(5) * -1D), 0D, ParticleRegistry.snow);
-					        snow.setScale(1.3F);
-					        snow.setGravity(0.1F);
-					        //more buggy weight issues
-					        snow.windWeight = 0.1F/* * 400F*/;
-					        snow.setMaxAge(200);
-					        snow.setFacePlayer(false);
-					        snow.setCanCollide(true);
-					        snow.setKillOnCollide(true);
-					        snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;
-					        snow.spawnAsWeatherEffect();
-					        ClientTickHandler.weatherManager.addWeatheredParticle(snow);
-						}
-					}
-	            }
+				}
             }
 
 		}
+	}
+
+	public static boolean isSnowingAt(World world, BlockPos strikePosition)
+	{
+		/*if (!world.isRaining())
+		{
+			return false;
+		}
+		else if (!world.canSeeSky(strikePosition))
+		{
+			return false;
+		}
+		else */if (world.getPrecipitationHeight(strikePosition).getY() > strikePosition.getY())
+		{
+			return false;
+		}/*
+		else
+		{
+			Biome biome = world.getBiomeGenForCoords(strikePosition);
+			return biome.getEnableSnow() ? false : (this.canSnowAt(strikePosition, false) ? false : biome.canRain());
+		}*/
+		return true;
 	}
 	
 	public static float getRainStrengthAndControlVisuals(EntityPlayer entP) {
