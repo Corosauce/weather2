@@ -147,6 +147,7 @@ public class ServerTickHandler
 	        		ItemStack is = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
 	        		if (is != null && is.getItem() instanceof ItemSpade) {
 	        			int y = world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY();
+						System.out.println("y " + y);
 	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
 		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
 		        		//if (state.getBlock() != Blocks.SAND) {

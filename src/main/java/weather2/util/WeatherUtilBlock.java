@@ -29,8 +29,12 @@ import CoroUtil.util.Vec3;
 public class WeatherUtilBlock {
 	
 	public static int layerableHeightPropMax = 8;
-	
+
 	public static void fillAgainstWallSmoothly(World world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable) {
+		fillAgainstWallSmoothly(world, posSource, directionYaw, scanDistance, fillRadius, blockLayerable, 4);
+	}
+
+	public static void fillAgainstWallSmoothly(World world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable, int heightDiff) {
 		
 		/**
 		 * for now, work in halves
@@ -98,7 +102,7 @@ public class WeatherUtilBlock {
 		    			int height = getHeightForAnyBlock(state);
 		    			
 		    			//if height of block minus block we are on/comparing against is short enough, we can continue onto it
-		    			if (height - previousBlockHeight <= 4) {
+		    			if (height - previousBlockHeight <= heightDiff) {
 		    				//if block we are progressing to is a full block, reset height val
 		    				if (height == 8) {
 		    					previousBlockHeight = 0;

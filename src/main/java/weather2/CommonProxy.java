@@ -29,6 +29,7 @@ import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.entity.EntityMovingBlock;
+import weather2.item.ItemPocketSand;
 import weather2.item.ItemSandLayer;
 import weather2.item.ItemWeatherRecipe;
 import weather2.util.WeatherUtil;
@@ -48,6 +49,7 @@ public class CommonProxy implements IGuiHandler
 	
 	public static Item itemSandLayer;
 	public static Item itemWeatherRecipe;
+	public static Item itemPocketSand;
 	
 	public static CreativeTabWeather tab;
 	
@@ -82,6 +84,7 @@ public class CommonProxy implements IGuiHandler
 
 		registerItem(itemSandLayer = new ItemSandLayer(blockSandLayer), "sand_layer_placeable");
 		registerItem(itemWeatherRecipe = new ItemWeatherRecipe(), "weather_item");
+		registerItem(itemPocketSand = new ItemPocketSand(), "pocket_sand");
     	
     	GameRegistry.addRecipe(new ItemStack(itemWeatherRecipe, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
     	
