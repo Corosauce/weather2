@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import CoroUtil.util.*;
+import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.render.RotatingParticleManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -33,6 +34,7 @@ import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.api.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
+import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigMisc;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
@@ -124,9 +126,12 @@ public class SceneEnhancer implements Runnable {
     public static float adjustAmountSmooth = 0F;
     
     public static boolean isPlayerOutside = true;
+
+    public static ParticleBehaviorSandstorm particleBehavior;
 	
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
+
 	}
 	
 	@Override
@@ -1497,6 +1502,8 @@ public class SceneEnhancer implements Runnable {
     public static void tickSandstorm() {
 
     	Minecraft mc = Minecraft.getMinecraft();
+        EntityPlayer player = mc.thePlayer;
+        World world = mc.theWorld;
     	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
     	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
     	float scaleIntensityTarget = 0F;
@@ -1608,8 +1615,10 @@ public class SceneEnhancer implements Runnable {
     	}
     	
     	if (adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*/) {
+
+            //TODO: remove fetching of colors from this now that we dynamically track that
     		if (needFogState) {
-    			System.out.println("getting fog state");
+    			//System.out.println("getting fog state");
     			stormFogRed = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175080_Q");
     			stormFogGreen = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175082_R");
     			stormFogBlue = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175081_S");
@@ -1704,7 +1713,7 @@ public class SceneEnhancer implements Runnable {
     		//System.out.println("ON");
     	} else {
     		if (!needFogState) {
-    			System.out.println("resetting need for fog state");
+    			//System.out.println("resetting need for fog state");
     		}
     		needFogState = true;
     		
@@ -1722,6 +1731,70 @@ public class SceneEnhancer implements Runnable {
     		
     		//System.out.println("OFF");
     	}
+
+        //adjustAmountSmooth = 1F;
+
+    	//enhance the scene further with particles around player
+        if (true || adjustAmountSmooth > 0) {
+
+            if (particleBehavior == null) {
+                particleBehavior = new ParticleBehaviorSandstorm(new Vec3(player.getPosition()));
+            }
+
+            Random rand = mc.theWorld.rand;
+            int spawnAreaSize = 15;
+            for (int i = 0; i < 10/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+                BlockPos pos = new BlockPos(
+                        player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+                        player.posY - 5 + rand.nextInt(15),
+                        player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+                TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+
+                ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
+                        pos.getY(),
+                        pos.getZ(),
+                        0, 0, 0, sprite);
+                particleBehavior.initParticle(part);
+
+                part.setFacePlayer(false);
+                part.isTransparent = true;
+                part.rotationYaw = (float)rand.nextInt(360);
+                part.rotationPitch = (float)rand.nextInt(360);
+                part.setMaxAge(100);
+                part.setGravity(0.09F);
+                part.setAlphaF(1F);
+                float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+                part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                part.setScale(10);
+
+                part.setKillOnCollide(true);
+
+                part.windWeight = 1F;
+
+                particleBehavior.particles.add(part);
+                ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                part.spawnAsWeatherEffect();
+
+                if (world.isRainingAt(pos)) {
+                    /*ParticleTexExtraRender rain = new ParticleTexExtraRender(player.worldObj,
+                            pos.getX(),
+                            pos.getY(),
+                            pos.getZ(),
+                            0D, 0D, 0D, ParticleRegistry.rain);
+                    rain.setCanCollide(true);
+                    rain.setKillOnCollide(true);
+                    rain.windWeight = 1F;
+                    rain.setFacePlayer(false);
+                    rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+                    rain.setMotionY(-0.5D*//*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*//*);
+                    rain.spawnAsWeatherEffect();
+                    ClientTickHandler.weatherManager.addWeatheredParticle(rain);*/
+
+
+                }
+            }
+        }
 
 		tickSandstormSound();
     }
