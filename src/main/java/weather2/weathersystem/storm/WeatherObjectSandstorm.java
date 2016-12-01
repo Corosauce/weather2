@@ -438,7 +438,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	 */
     	float sandstormScale = getSandstormScale();
     	if (size > 0/*isFrontGrowing || sandstormScale > 0.5F*/) {
-	    	for (int heightLayer = 0; heightLayer < heightLayers; heightLayer++) {
+	    	for (int heightLayer = 0; heightLayer < heightLayers && spawnedThisTick < 500; heightLayer++) {
 	    		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 			    //for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
 	    			double i = directionAngleDeg + (rand.nextDouble() * 180D);
@@ -522,7 +522,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     		
     		//System.out.println(this.particleBehavior.particles.size());
     		
-	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn + (extraDistSpawnIntoWall); spawnDistTick += spawnDistInc) {
+	    	for (double spawnDistTick = 0; spawnDistTick < distFromSpawn + (extraDistSpawnIntoWall) && spawnedThisTick < 500; spawnDistTick += spawnDistInc) {
 	    		
 	    		//rate of spawn based on storm intensity
 	    		if (rand.nextDouble() >= sandstormScale) continue;
