@@ -516,4 +516,12 @@ public class WindManager {
         
         return newMotion;
 	}
+
+	public Vec3 getWindForce() {
+		float windSpeed = this.getWindSpeedForPriority();
+		float windAngle = this.getWindAngleForPriority();
+		float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
+		float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
+		return new Vec3(windX, 0, windZ);
+	}
 }

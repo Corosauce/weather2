@@ -162,6 +162,10 @@ public class SceneEnhancer implements Runnable {
 			//tickTestSandstormParticles();
 
 
+            if (particleBehavior == null) {
+                particleBehavior = new ParticleBehaviorSandstorm(null);
+            }
+            particleBehavior.tickUpdateList();
 		}
 	}
 	
@@ -1506,6 +1510,7 @@ public class SceneEnhancer implements Runnable {
         World world = mc.theWorld;
     	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
     	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
+        WindManager windMan = ClientTickHandler.weatherManager.getWindManager();
     	float scaleIntensityTarget = 0F;
     	if (sandstorm != null) {
 
@@ -1585,7 +1590,8 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
 
         //debug
-        //adjustAmountTarget = 0.0F;
+        adjustAmountTarget = 1F;
+        //adjustAmountTarget = 0F;
 
 
         float sunBrightness = mc.theWorld.getSunBrightness(1F)/* * 0.8F*/;
@@ -1735,66 +1741,168 @@ public class SceneEnhancer implements Runnable {
         //adjustAmountSmooth = 1F;
 
     	//enhance the scene further with particles around player
-        if (true || adjustAmountSmooth > 0) {
+        if (adjustAmountSmooth > 0.3F) {
 
-            if (particleBehavior == null) {
-                particleBehavior = new ParticleBehaviorSandstorm(new Vec3(player.getPosition()));
-            }
+            Vec3 windForce = windMan.getWindForce();
 
             Random rand = mc.theWorld.rand;
-            int spawnAreaSize = 15;
-            for (int i = 0; i < 10/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            int spawnAreaSize = 80;
+
+            //TODO: make fog state match particle intensitiy better, thinking only particlize within final 75% of intensity
+
+            for (int i = 0; i < ((float)30 * adjustAmountSmooth)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
-                        player.posY - 5 + rand.nextInt(15),
+                        player.posY - 2 + rand.nextInt(10),
                         player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
-                TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 
-                ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
-                        pos.getY(),
-                        pos.getZ(),
-                        0, 0, 0, sprite);
-                particleBehavior.initParticle(part);
 
-                part.setFacePlayer(false);
-                part.isTransparent = true;
-                part.rotationYaw = (float)rand.nextInt(360);
-                part.rotationPitch = (float)rand.nextInt(360);
-                part.setMaxAge(100);
-                part.setGravity(0.09F);
-                part.setAlphaF(1F);
-                float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-                part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
-                part.setScale(10);
+                if (isSnowingAt(world, pos)) {
+                    TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 
-                part.setKillOnCollide(true);
-
-                part.windWeight = 1F;
-
-                particleBehavior.particles.add(part);
-                ClientTickHandler.weatherManager.addWeatheredParticle(part);
-                part.spawnAsWeatherEffect();
-
-                if (world.isRainingAt(pos)) {
-                    /*ParticleTexExtraRender rain = new ParticleTexExtraRender(player.worldObj,
-                            pos.getX(),
+                    ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
                             pos.getY(),
                             pos.getZ(),
-                            0D, 0D, 0D, ParticleRegistry.rain);
-                    rain.setCanCollide(true);
-                    rain.setKillOnCollide(true);
-                    rain.windWeight = 1F;
-                    rain.setFacePlayer(false);
-                    rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
-                    rain.setMotionY(-0.5D*//*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*//*);
-                    rain.spawnAsWeatherEffect();
-                    ClientTickHandler.weatherManager.addWeatheredParticle(rain);*/
+                            0, 0, 0, sprite);
+                    particleBehavior.initParticle(part);
+
+                    part.setMotionX(windForce.xCoord);
+                    part.setMotionZ(windForce.zCoord);
+
+                    part.setFacePlayer(false);
+                    part.isTransparent = true;
+                    part.rotationYaw = (float)rand.nextInt(360);
+                    part.rotationPitch = (float)rand.nextInt(360);
+                    part.setMaxAge(40);
+                    part.setGravity(0.09F);
+                    part.setAlphaF(0F);
+                    float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+                    part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                    part.setScale(40);
+                    part.aboveGroundHeight = 0.2D;
+
+                    part.setKillOnCollide(true);
+
+                    part.windWeight = 1F;
+
+                    particleBehavior.particles.add(part);
+                    ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                    part.spawnAsWeatherEffect();
+
+
+                }
+            }
+
+            //tumbleweed
+            for (int i = 0; i < ((float)2 * adjustAmountSmooth)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+                BlockPos pos = new BlockPos(
+                        player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+                        player.posY - 2 + rand.nextInt(10),
+                        player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+
+
+                if (isSnowingAt(world, pos)) {
+                    TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
+
+                    ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
+                            pos.getY(),
+                            pos.getZ(),
+                            0, 0, 0, sprite);
+                    particleBehavior.initParticle(part);
+
+                    part.setMotionX(windForce.xCoord);
+                    part.setMotionZ(windForce.zCoord);
+
+                    part.setFacePlayer(true);
+                    part.isTransparent = true;
+                    part.rotationYaw = (float)rand.nextInt(360);
+                    part.rotationPitch = (float)rand.nextInt(360);
+                    part.setMaxAge(40);
+                    part.setGravity(0.3F);
+                    part.setAlphaF(0F);
+                    float brightnessMulti = 1F - (rand.nextFloat() * 0.2F);
+                    //part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                    part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+                    part.setScale(8);
+                    part.aboveGroundHeight = 0.5D;
+                    part.collisionSpeedDampen = false;
+                    part.bounceSpeed = 0.03D;
+                    part.bounceSpeedAhead = 0.03D;
+
+                    part.setKillOnCollide(false);
+
+                    part.windWeight = 1F;
+
+                    particleBehavior.particles.add(part);
+                    ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                    part.spawnAsWeatherEffect();
+
+
+                }
+            }
+
+            //tumbleweed
+            for (int i = 0; i < ((float)12 * adjustAmountSmooth)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+                BlockPos pos = new BlockPos(
+                        player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+                        player.posY - 2 + rand.nextInt(10),
+                        player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+
+
+                if (isSnowingAt(world, pos)) {
+                    TextureAtlasSprite sprite = null;
+                    int tex = rand.nextInt(3);
+                    if (tex == 0) {
+                        sprite = ParticleRegistry.debris_1;
+                    } else if (tex == 1) {
+                        sprite = ParticleRegistry.debris_2;
+                    } else if (tex == 2) {
+                        sprite = ParticleRegistry.debris_3;
+                    }
+
+                    ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
+                            pos.getY(),
+                            pos.getZ(),
+                            0, 0, 0, sprite);
+                    particleBehavior.initParticle(part);
+
+                    part.setMotionX(windForce.xCoord);
+                    part.setMotionZ(windForce.zCoord);
+
+                    part.setFacePlayer(true);
+                    part.isTransparent = true;
+                    part.rotationYaw = (float)rand.nextInt(360);
+                    part.rotationPitch = (float)rand.nextInt(360);
+
+                    part.setMaxAge(40);
+                    part.setGravity(0.3F);
+                    part.setAlphaF(0F);
+                    float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+                    //part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                    part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+                    part.setScale(8);
+                    part.aboveGroundHeight = 0.5D;
+                    part.collisionSpeedDampen = false;
+                    part.bounceSpeed = 0.03D;
+                    part.bounceSpeedAhead = 0.03D;
+
+                    part.setKillOnCollide(false);
+
+                    part.windWeight = 1F;
+
+                    particleBehavior.particles.add(part);
+                    ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                    part.spawnAsWeatherEffect();
 
 
                 }
             }
         }
+
+
 
 		tickSandstormSound();
     }
