@@ -1590,7 +1590,7 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
 
         //debug
-        adjustAmountTarget = 1F;
+        //adjustAmountTarget = 1F;
         //adjustAmountTarget = 0F;
 
 
@@ -1741,7 +1741,7 @@ public class SceneEnhancer implements Runnable {
         //adjustAmountSmooth = 1F;
 
     	//enhance the scene further with particles around player
-        if (adjustAmountSmooth > 0.3F) {
+        if (adjustAmountSmooth > 0.75F) {
 
             Vec3 windForce = windMan.getWindForce();
 
@@ -1750,7 +1750,9 @@ public class SceneEnhancer implements Runnable {
 
             //TODO: make fog state match particle intensitiy better, thinking only particlize within final 75% of intensity
 
-            for (int i = 0; i < ((float)30 * adjustAmountSmooth)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            float adjustAmountSmooth75 = (adjustAmountSmooth * 8F) - 7F;
+
+            for (int i = 0; i < ((float)30 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),
@@ -1795,7 +1797,7 @@ public class SceneEnhancer implements Runnable {
             }
 
             //tumbleweed
-            for (int i = 0; i < ((float)2 * adjustAmountSmooth)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            for (int i = 0; i < ((float)2 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),
@@ -1816,10 +1818,11 @@ public class SceneEnhancer implements Runnable {
                     part.setMotionZ(windForce.zCoord);
 
                     part.setFacePlayer(true);
+                    //part.spinFast = true;
                     part.isTransparent = true;
                     part.rotationYaw = (float)rand.nextInt(360);
                     part.rotationPitch = (float)rand.nextInt(360);
-                    part.setMaxAge(40);
+                    part.setMaxAge(80);
                     part.setGravity(0.3F);
                     part.setAlphaF(0F);
                     float brightnessMulti = 1F - (rand.nextFloat() * 0.2F);
@@ -1843,8 +1846,8 @@ public class SceneEnhancer implements Runnable {
                 }
             }
 
-            //tumbleweed
-            for (int i = 0; i < ((float)12 * adjustAmountSmooth)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            //debris
+            for (int i = 0; i < ((float)12 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),
@@ -1872,12 +1875,13 @@ public class SceneEnhancer implements Runnable {
                     part.setMotionX(windForce.xCoord);
                     part.setMotionZ(windForce.zCoord);
 
-                    part.setFacePlayer(true);
+                    part.setFacePlayer(false);
+                    part.spinFast = true;
                     part.isTransparent = true;
                     part.rotationYaw = (float)rand.nextInt(360);
                     part.rotationPitch = (float)rand.nextInt(360);
 
-                    part.setMaxAge(40);
+                    part.setMaxAge(80);
                     part.setGravity(0.3F);
                     part.setAlphaF(0F);
                     float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
