@@ -1590,7 +1590,7 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
 
         //debug
-        //adjustAmountTarget = 1F;
+        adjustAmountTarget = 1F;
         //adjustAmountTarget = 0F;
 
 
@@ -1712,7 +1712,7 @@ public class SceneEnhancer implements Runnable {
     		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmountSmooth);
     		
     		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmountSmooth);
-    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 20F) * adjustAmountSmooth);
+    		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 7F) * adjustAmountSmooth);
     		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmountSmooth);
     		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmountSmooth);
     		
@@ -1797,7 +1797,7 @@ public class SceneEnhancer implements Runnable {
             }
 
             //tumbleweed
-            for (int i = 0; i < ((float)2 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            for (int i = 0; i < ((float)1 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),

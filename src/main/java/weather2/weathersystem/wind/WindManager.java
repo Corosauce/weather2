@@ -230,7 +230,9 @@ public class WindManager {
 					windSpeedGlobal -= 0.01F;
 				}
 				
-				
+				if (highWindTimer > 0) {
+                    highWindTimer--;
+                }
 				
 				//enforce mins and maxs of wind speed
 				if (windSpeedGlobal < windSpeedMin)
