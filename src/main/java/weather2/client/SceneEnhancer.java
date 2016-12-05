@@ -1590,7 +1590,7 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
 
         //debug
-        adjustAmountTarget = 1F;
+        //adjustAmountTarget = 1F;
         //adjustAmountTarget = 0F;
 
 

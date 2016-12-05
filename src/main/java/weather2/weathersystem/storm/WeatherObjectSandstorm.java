@@ -217,7 +217,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			}*/
 			
 			//keep high wind active incase it dies off during storm
-            if (!windMan.isHighWindEventActive()) {
+            if (windMan.highWindTimer < 100) {
                 windMan.highWindTimer = 100;
             }
 			
