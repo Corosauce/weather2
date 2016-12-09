@@ -1594,7 +1594,7 @@ public class SceneEnhancer implements Runnable {
         //adjustAmountTarget = 0F;
 
 
-        float sunBrightness = mc.theWorld.getSunBrightness(1F)/* * 0.8F*/;
+        float sunBrightness = mc.theWorld.getSunBrightness(1F) * 1F;
         /*mc.theWorld.rainingStrength = 1F;
         mc.theWorld.thunderingStrength = 1F;*/
 
@@ -1706,10 +1706,10 @@ public class SceneEnhancer implements Runnable {
     		
     		//new dynamic adjusting
     		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
-    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - (0.6F * sunBrightness)) * adjustAmountSmooth);
-    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - (0.3F * sunBrightness)) * adjustAmountSmooth);
+    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - (0.5F * sunBrightness)) * adjustAmountSmooth);
+    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - (0.25F * sunBrightness)) * adjustAmountSmooth);
     		
-    		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.5F) * adjustAmountSmooth);
+    		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.02F) * adjustAmountSmooth);
     		
     		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmountSmooth);
     		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 7F) * adjustAmountSmooth);

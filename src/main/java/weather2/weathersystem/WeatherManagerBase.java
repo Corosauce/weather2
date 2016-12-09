@@ -42,7 +42,7 @@ public class WeatherManagerBase {
 	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<Long, VolcanoObject>();
 	
 	//wind
-	public WindManager windMan = new WindManager(this);
+	public WindManager windMan;
 	
 	//for client only
 	public boolean isVanillaRainActiveOnServer = false;
@@ -53,9 +53,10 @@ public class WeatherManagerBase {
 	
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
-		lookupStormObjectsByLayer.put(0, new ArrayList<StormObject>());
-		lookupStormObjectsByLayer.put(1, new ArrayList<StormObject>());
-		lookupStormObjectsByLayer.put(2, new ArrayList<StormObject>());
+		windMan = new WindManager(this);
+		lookupStormObjectsByLayer.put(0, new ArrayList<>());
+		lookupStormObjectsByLayer.put(1, new ArrayList<>());
+		lookupStormObjectsByLayer.put(2, new ArrayList<>());
 	}
 	
 	public void reset() {
@@ -412,6 +413,8 @@ public class WeatherManagerBase {
 		mainNBT.setLong("lastStormFormed", lastStormFormed);
 
 		mainNBT.setLong("lastSandstormFormed", lastSandstormFormed);
+
+		mainNBT.setTag("windMan", windMan.writeToNBT(new NBTTagCompound()));
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
 		
@@ -473,6 +476,8 @@ public class WeatherManagerBase {
 		
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
 		StormObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
+
+		windMan.readFromNBT(rtsNBT.getCompoundTag("windMan"));
 		
 		NBTTagCompound nbtVolcanoes = rtsNBT.getCompoundTag("volcanoData");
 		
@@ -480,7 +485,7 @@ public class WeatherManagerBase {
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			NBTTagCompound teamData = (NBTTagCompound)nbtVolcanoes.getCompoundTag(tagName);
+			NBTTagCompound teamData = nbtVolcanoes.getCompoundTag(tagName);
 			
 			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0)/*-1, -1, null*/);
 			try {
@@ -506,7 +511,7 @@ public class WeatherManagerBase {
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			NBTTagCompound teamData = (NBTTagCompound)nbtStorms.getCompoundTag(tagName);
+			NBTTagCompound teamData = nbtStorms.getCompoundTag(tagName);
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
 				StormObject to = new StormObject(ServerTickHandler.lookupDimToWeatherMan.get(dim)/*-1, -1, null*/);

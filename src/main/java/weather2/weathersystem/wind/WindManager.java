@@ -532,4 +532,42 @@ public class WindManager {
 		float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
 		return new Vec3(windX, 0, windZ);
 	}
+
+    public void readFromNBT(NBTTagCompound data) {
+        windSpeedGlobal = data.getFloat("windSpeedGlobal");
+        windAngleGlobal = data.getFloat("windAngleGlobal");
+
+        windSpeedGust = data.getFloat("windSpeedGust");
+        windAngleGust = data.getFloat("windAngleGust");
+        windTimeGust = data.getInteger("windTimeGust");
+
+		windSpeedEvent = data.getFloat("windSpeedEvent");
+		windAngleEvent = data.getFloat("windAngleEvent");
+		windTimeEvent = data.getInteger("windTimeEvent");
+
+        lowWindTimer = data.getInteger("lowWindTimer");
+        highWindTimer = data.getInteger("highWindTimer");
+
+    }
+
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        data.setFloat("windSpeedGlobal", windSpeedGlobal);
+        data.setFloat("windAngleGlobal", windAngleGlobal);
+
+        data.setFloat("windSpeedGust", windSpeedGust);
+        data.setFloat("windAngleGust", windAngleGust);
+        data.setInteger("windTimeGust", windTimeGust);
+
+		data.setFloat("windSpeedEvent", windSpeedEvent);
+		data.setFloat("windAngleEvent", windAngleEvent);
+		data.setInteger("windTimeEvent", windTimeEvent);
+
+        data.setInteger("lowWindTimer", lowWindTimer);
+        data.setInteger("highWindTimer", highWindTimer);
+
+
+
+
+        return data;
+    }
 }
