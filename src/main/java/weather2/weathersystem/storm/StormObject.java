@@ -251,7 +251,8 @@ public class StormObject extends WeatherObject {
 	public boolean isHurricane() {
 		return levelCurIntensityStage >= STATE_STAGE5;
 	}
-	
+
+	@Override
 	public void readFromNBT(NBTTagCompound var1)
     {
 		super.readFromNBT(var1);
@@ -261,7 +262,8 @@ public class StormObject extends WeatherObject {
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
-	
+
+    @Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
 		nbt = super.writeToNBT(nbt);

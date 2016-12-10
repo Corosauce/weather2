@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.volcano.VolcanoObject;
+import weather2.weathersystem.storm.EnumStormType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
@@ -511,19 +512,25 @@ public class WeatherManagerBase {
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			NBTTagCompound teamData = nbtStorms.getCompoundTag(tagName);
+			NBTTagCompound data = nbtStorms.getCompoundTag(tagName);
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
-				StormObject to = new StormObject(ServerTickHandler.lookupDimToWeatherMan.get(dim)/*-1, -1, null*/);
+                WeatherObject wo = null;
+                if (data.getInteger("stormType") == EnumStormType.CLOUD.ordinal()) {
+                    wo = new StormObject(this/*-1, -1, null*/);
+                } else if (data.getInteger("stormType") == EnumStormType.SAND.ordinal()) {
+                    wo = new WeatherObjectSandstorm(this);
+                    //initStormNew???
+                }
 				try {
-					to.readFromNBT(teamData);
+					wo.readFromNBT(data);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
-				addStormObject(to);
+				addStormObject(wo);
 				
 				//THIS LINE NEEDS REFINING FOR PLAYERS WHO JOIN AFTER THE FACT!!!
-				((WeatherManagerServer)(this)).syncStormNew(to);
+				((WeatherManagerServer)(this)).syncStormNew(wo);
 			} else {
 				System.out.println("WARNING: trying to load storm objects for missing dimension: " + dim);
 			}

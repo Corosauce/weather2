@@ -172,7 +172,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 				if (isDesert(biomeIn)) {
 					isFrontGrowing = true;
 				} else {
-					System.out.println("sandstorm fadeout started");
+					//System.out.println("sandstorm fadeout started");
 					isFrontGrowing = false;
 				}
 			} else {
@@ -200,7 +200,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 				if (ageFadeout < ageFadeoutMax) {
 					ageFadeout++;
 				} else {
-					System.out.println("sandstorm died");
+					//System.out.println("sandstorm died");
 					this.setDead();
 				}
 			}
@@ -750,6 +750,28 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.age = parNBT.getInteger("age");
 		
 		this.isFrontGrowing = parNBT.getBoolean("isFrontGrowing");
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound var1)
+	{
+		super.readFromNBT(var1);
+		nbtSyncFromServer(var1);
+
+		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	{
+		nbt = super.writeToNBT(nbt);
+		nbt = nbtSyncForClient(nbt);
+
+		nbt.setDouble("vecX", motion.xCoord);
+		nbt.setDouble("vecY", motion.yCoord);
+		nbt.setDouble("vecZ", motion.zCoord);
+
+		return nbt;
 	}
 
 }
