@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.config.ConfigSand;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManagerBase;
@@ -259,8 +260,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		float angle = windMan.getWindAngleForClouds();
 		
 		//keep it set to do a lot of work only occasionally, prevents chunk render update spam for client which kills fps 
-		int delay = 40;
-		int loop = (int)(800F * getSandstormScale());
+		int delay = ConfigSand.Sandstorm_Sand_Buildup_TickRate;
+		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getSandstormScale());
 		
 		int count = 0;
 		
@@ -272,38 +273,23 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		
 		    		//rate of placement based on storm intensity
 		    		if (rand.nextDouble() >= getSandstormScale()) continue;
-		    		
-		    		boolean frontOnly = false;
-		    		
-		    		if (frontOnly) {
-			    		double xVec = this.pos.xCoord - rand.nextInt(sizePeak / 2) + rand.nextInt(sizePeak);
-				    	double zVec = this.pos.zCoord - rand.nextInt(sizePeak / 2) + rand.nextInt(sizePeak);
-				    	
-				    	int x = MathHelper.floor_double(xVec);
-				    	int z = MathHelper.floor_double(zVec);
-				    	int y = world.getHeight(new BlockPos(x, 0, z)).getY();
-				    	
-				    	float angleRand = (rand.nextFloat() - rand.nextFloat()) * 360F;
-				    	
-				    	Vec3 vecPos = new Vec3(x, y, z);
-				    	
-				    	//avoid unloaded areas
-				    	if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
-				    	
-				    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
-		    		} else {
-		    			Vec3 vecPos = getRandomPosInSandstorm();
-		    			
-		    			int y = world.getHeight(new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
-		    			vecPos.yCoord = y;
-		    			
-		    			//avoid unloaded areas
-				    	if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
-				    	
-				    	WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
-				    	
-				    	count++;
-		    		}
+
+					Vec3 vecPos = getRandomPosInSandstorm();
+
+					int y = world.getHeight(new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
+					vecPos.yCoord = y;
+
+					//avoid unloaded areas
+					if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
+
+					Biome biomeIn = world.getBiomeForCoordsBody(vecPos.toBlockPos());
+
+					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
+						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+					}
+
+					count++;
+
 			    	
 		    	}
 				
