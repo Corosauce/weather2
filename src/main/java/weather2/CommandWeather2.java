@@ -73,8 +73,8 @@ public class CommandWeather2 extends CommandBase {
 						List<WeatherObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
 							WeatherObject wo = listStorms.get(i);
-							if (wo instanceof StormObject) {
-								StormObject so = (StormObject) wo;
+							if (wo instanceof WeatherObject) {
+								WeatherObject so = (WeatherObject) wo;
 								Weather.dbg("force killing storm ID: " + so.ID);
 								so.setDead();
 								/*wm.syncStormRemove(so);

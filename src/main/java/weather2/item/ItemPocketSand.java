@@ -11,6 +11,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -20,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.CommonProxy;
+import weather2.client.SceneEnhancer;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtilBlock;
 
@@ -33,6 +35,7 @@ public class ItemPocketSand extends Item {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player, EnumHand hand) {
+        //System.out.println("using right click");
         player.setActiveHand(hand);
         return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
     }
@@ -48,6 +51,8 @@ public class ItemPocketSand extends Item {
         Random rand = world.rand;
 
         TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+
+        SceneEnhancer.adjustAmountTargetPocketSandOverride = 1F;
 
         for (int i = 0; i < 5; i++) {
             ParticleSandstorm part = new ParticleSandstorm(world, player.posX, player.posY + 1.5D, player.posZ
@@ -76,7 +81,7 @@ public class ItemPocketSand extends Item {
             part.isTransparent = true;
             part.rotationYaw = (float) rand.nextInt(360);
             part.rotationPitch = (float) rand.nextInt(360);
-            part.setMaxAge(100);
+            part.setMaxAge(80);
             part.setGravity(0.09F);
             part.setAlphaF(1F);
             float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
@@ -86,7 +91,7 @@ public class ItemPocketSand extends Item {
             part.aboveGroundHeight = 0.5D;
             part.collisionSpeedDampen = false;
             part.bounceSpeed = 0.03D;
-            part.bounceSpeedAhead = 0.03D;
+            part.bounceSpeedAhead = 0.0D;
 
             part.setKillOnCollide(false);
 
@@ -129,10 +134,31 @@ public class ItemPocketSand extends Item {
     public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
         super.onUsingTick(stack, player, count);
 
-        //System.out.println("using tick");
+        if (!(player instanceof EntityPlayer)) return;
+
+        //TODO: vanilla active item in use state is hopelessly broken when you change itemstack data, find a workaround or redesign
+
+        if (stack.stackSize <= 0) {
+            player.resetActiveHand();
+            return;
+        }
 
         if (!player.worldObj.isRemote) {
+
+
             if (player.worldObj.getTotalWorldTime() % 2 == 0) {
+                if (!((EntityPlayer)player).capabilities.isCreativeMode)
+                {
+                    if (stack.stackSize > 0) {
+                        --stack.stackSize;
+                    }
+                    /*if (stack.getTagCompound() == null) {
+                        stack.setTagCompound(new NBTTagCompound());
+                    }
+                    int val = stack.getTagCompound().getInteger("count");
+                    stack.getTagCompound().setInteger("count", ++val);*/
+                }
+                //System.out.println("using tick " + stack.stackSize);
                 int y = (int) player.getEntityBoundingBox().minY;
                 double randSize = 20;
                 double randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
@@ -160,5 +186,20 @@ public class ItemPocketSand extends Item {
     public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
         //System.out.println("using first");
         return super.onItemUseFirst(stack, player, world, pos, side, hitX, hitY, hitZ, hand);
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
+    }
+
+    @Override
+    public boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
+        return super.shouldCauseBlockBreakReset(oldStack, newStack);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
 }

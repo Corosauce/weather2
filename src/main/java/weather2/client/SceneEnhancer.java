@@ -124,6 +124,8 @@ public class SceneEnhancer implements Runnable {
     
     public static float adjustAmountTarget = 0F;
     public static float adjustAmountSmooth = 0F;
+
+	public static float adjustAmountTargetPocketSandOverride = 0F;
     
     public static boolean isPlayerOutside = true;
 
@@ -1505,6 +1507,10 @@ public class SceneEnhancer implements Runnable {
      */
     public static void tickSandstorm() {
 
+		if (adjustAmountTargetPocketSandOverride > 0) {
+			adjustAmountTargetPocketSandOverride -= 0.01F;
+		}
+
     	Minecraft mc = Minecraft.getMinecraft();
         EntityPlayer player = mc.thePlayer;
         World world = mc.theWorld;
@@ -1585,6 +1591,13 @@ public class SceneEnhancer implements Runnable {
     	//make it be full intensity once storm is halfway there
     	adjustAmountTarget = 1F - (float) ((distToStorm) / distToStormThreshold);
     	adjustAmountTarget *= 2F * scaleIntensitySmooth * (isPlayerOutside ? 1F : 0.5F);
+
+		//use override if needed
+		boolean pocketSandOverride = false;
+		if (adjustAmountTarget < adjustAmountTargetPocketSandOverride) {
+			adjustAmountTarget = adjustAmountTargetPocketSandOverride;
+			pocketSandOverride = true;
+		}
     	
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
@@ -1599,11 +1612,15 @@ public class SceneEnhancer implements Runnable {
         mc.theWorld.thunderingStrength = 1F;*/
 
     	//since size var adjusts by 10 every x seconds, transition is rough, try to make it smooth but keeps up
-    	if (adjustAmountSmooth < adjustAmountTarget) {
-    		adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
-    	} else {
-    		adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
-    	}
+		if (!pocketSandOverride) {
+			if (adjustAmountSmooth < adjustAmountTarget) {
+				adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
+			} else {
+				adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
+			}
+		} else {
+			adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.02F);
+		}
 
     	//update coroutil particle renderer fog state
         RotatingParticleManager.sandstormFogAmount = adjustAmountSmooth;
@@ -1740,8 +1757,8 @@ public class SceneEnhancer implements Runnable {
 
         //adjustAmountSmooth = 1F;
 
-    	//enhance the scene further with particles around player
-        if (adjustAmountSmooth > 0.75F) {
+    	//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
+        if (adjustAmountSmooth > 0.75F && sandstorm != null) {
 
             Vec3 windForce = windMan.getWindForce();
 
