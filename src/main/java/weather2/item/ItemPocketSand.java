@@ -3,6 +3,7 @@ package weather2.item;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,9 +18,11 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.ClientTickHandler;
 import weather2.CommonProxy;
 import weather2.client.SceneEnhancer;
 import weather2.client.entity.particle.ParticleSandstorm;
@@ -35,14 +38,25 @@ public class ItemPocketSand extends Item {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player, EnumHand hand) {
-        //System.out.println("using right click");
-        player.setActiveHand(hand);
-        return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
+        if (!player.worldObj.isRemote) {
+            if (!(player).capabilities.isCreativeMode)
+            {
+                if (itemStackIn.stackSize > 0) {
+                    --itemStackIn.stackSize;
+                }
+            }
+            int y = (int) player.getEntityBoundingBox().minY;
+            double randSize = 20;
+            double randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
+            WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ), player.rotationYawHead + (float)randAngle, 15, 2, CommonProxy.blockSandLayer, 2);
+        } else {
+            particulate(player.worldObj, player);
+        }
+
+        return super.onItemRightClick(itemStackIn, worldIn, player, hand);
     }
 
     public void particulate(World world, EntityLivingBase player) {
-
-        //System.out.println("aaaa " + world.getTotalWorldTime());
 
         if (particleBehavior == null) {
             particleBehavior = new ParticleBehaviorSandstorm(new Vec3(player.getPosition()));
@@ -52,9 +66,24 @@ public class ItemPocketSand extends Item {
 
         TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 
-        SceneEnhancer.adjustAmountTargetPocketSandOverride = 1F;
+        double distCast = 10;
+        double xzAdj = Math.cos(Math.toRadians(player.rotationPitch));
+        double vecYCast = (-Math.sin(Math.toRadians(player.rotationPitch)) * (distCast));
+        double vecXCast = (-Math.sin(Math.toRadians(player.rotationYawHead)) * (distCast)) * xzAdj;
+        double vecZCast = (Math.cos(Math.toRadians(player.rotationYawHead)) * (distCast)) * xzAdj;
 
-        for (int i = 0; i < 5; i++) {
+        BlockPos pos = new BlockPos(player.posX + vecXCast, player.posY + vecYCast, player.posZ + vecZCast);
+        //pos = new BlockPos(player.getLookVec().add(new Vec3d(player.posX, player.posY, player.posZ)));
+
+        double dist = Math.sqrt(Minecraft.getMinecraft().thePlayer.getDistanceSq(pos));
+
+        //System.out.println(dist);
+
+        if (Minecraft.getMinecraft().thePlayer != player && dist < 7) {
+            SceneEnhancer.adjustAmountTargetPocketSandOverride = 1.3F;
+        }
+
+        for (int i = 0; i < 15; i++) {
             ParticleSandstorm part = new ParticleSandstorm(world, player.posX, player.posY + 1.5D, player.posZ
                     , 0, 0, 0, sprite);
             particleBehavior.initParticle(part);
@@ -67,7 +96,7 @@ public class ItemPocketSand extends Item {
             double vecZ = (Math.cos(Math.toRadians(player.rotationYawHead + randAngle)) * (speed));
             randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
 
-            double xzAdj = Math.cos(Math.toRadians(player.rotationPitch));
+            //double xzAdj = Math.cos(Math.toRadians(player.rotationPitch));
 
             double vecY = (-Math.sin(Math.toRadians(player.rotationPitch + randAngle)) * (speed));
 
@@ -98,25 +127,11 @@ public class ItemPocketSand extends Item {
             part.windWeight = 1F;
 
             particleBehavior.particles.add(part);
-            //ClientTickHandler.weatherManager.addWeatheredParticle(part);
+            ClientTickHandler.weatherManager.addWeatheredParticle(part);
             part.spawnAsWeatherEffect();
         }
 
         //System.out.println("spawn!");
-    }
-
-    @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-
-
-        //System.out.println("using use");
-
-        return super.onItemUse(stack, playerIn, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-    }
-
-    @Override
-    public int getMaxItemUseDuration(ItemStack stack) {
-        return 99999;//super.getMaxItemUseDuration(stack);
     }
 
     @Override
@@ -128,78 +143,5 @@ public class ItemPocketSand extends Item {
         particleBehavior.tickUpdateList();
 
         super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
-    }
-
-    @Override
-    public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-        super.onUsingTick(stack, player, count);
-
-        if (!(player instanceof EntityPlayer)) return;
-
-        //TODO: vanilla active item in use state is hopelessly broken when you change itemstack data, find a workaround or redesign
-
-        if (stack.stackSize <= 0) {
-            player.resetActiveHand();
-            return;
-        }
-
-        if (!player.worldObj.isRemote) {
-
-
-            if (player.worldObj.getTotalWorldTime() % 2 == 0) {
-                if (!((EntityPlayer)player).capabilities.isCreativeMode)
-                {
-                    if (stack.stackSize > 0) {
-                        --stack.stackSize;
-                    }
-                    /*if (stack.getTagCompound() == null) {
-                        stack.setTagCompound(new NBTTagCompound());
-                    }
-                    int val = stack.getTagCompound().getInteger("count");
-                    stack.getTagCompound().setInteger("count", ++val);*/
-                }
-                //System.out.println("using tick " + stack.stackSize);
-                int y = (int) player.getEntityBoundingBox().minY;
-                double randSize = 20;
-                double randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
-                WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ), player.rotationYawHead + (float)randAngle, 15, 2, CommonProxy.blockSandLayer, 2);
-            }
-        } else {
-            particulate(player.worldObj, player);
-        }
-    }
-
-    @Nullable
-    @Override
-    public ItemStack onItemUseFinish(ItemStack stack, World worldIn, EntityLivingBase entityLiving) {
-        //System.out.println("using finish");
-        return super.onItemUseFinish(stack, worldIn, entityLiving);
-    }
-
-    @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase entityLiving, int timeLeft) {
-        //System.out.println("using stop");
-        super.onPlayerStoppedUsing(stack, worldIn, entityLiving, timeLeft);
-    }
-
-    @Override
-    public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
-        //System.out.println("using first");
-        return super.onItemUseFirst(stack, player, world, pos, side, hitX, hitY, hitZ, hand);
-    }
-
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
-    }
-
-    @Override
-    public boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
-        return super.shouldCauseBlockBreakReset(oldStack, newStack);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
     }
 }
