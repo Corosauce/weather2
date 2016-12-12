@@ -10,8 +10,7 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import weather2.config.ConfigMisc;
-import weather2.config.ConfigWind;
+import weather2.config.*;
 import weather2.item.ItemSandLayer;
 import weather2.item.ItemWeatherRecipe;
 import weather2.player.PlayerData;
@@ -25,11 +24,6 @@ public class Weather {
 	@Mod.Instance( value = "weather2" )
 	public static Weather instance;
 	public static String modID = "weather2";
-	
-	public static long lastWorldTime;
-    
-    /** For use in preInit ONLY */
-    public Configuration preInitConfig;
 
     @SidedProxy(clientSide = "weather2.ClientProxy", serverSide = "weather2.CommonProxy")
     public static CommonProxy proxy;
@@ -46,8 +40,13 @@ public class Weather {
     	
     	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
 		
-    	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
-		ConfigMod.addConfigFile(event, "weather2Wind", new ConfigWind());
+    	ConfigMod.addConfigFile(event, new ConfigMisc());
+		ConfigMod.addConfigFile(event, new ConfigWind());
+		ConfigMod.addConfigFile(event, new ConfigSand());
+		ConfigMod.addConfigFile(event, new ConfigSnow());
+		ConfigMod.addConfigFile(event, new ConfigStorm());
+		ConfigMod.addConfigFile(event, new ConfigTornado());
+		ConfigMod.addConfigFile(event, new ConfigParticle());
     	WeatherUtilConfig.nbtLoadDataAll();
 
 		proxy.preInit();

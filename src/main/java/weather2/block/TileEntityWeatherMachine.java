@@ -7,6 +7,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
@@ -41,7 +42,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	public void cycleWeatherType() {
 		weatherType++;
 		int maxID = 6;
-		if (ConfigMisc.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
+		if (ConfigTornado.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
 			maxID = 4;
 		}
 		if (weatherType > maxID) {

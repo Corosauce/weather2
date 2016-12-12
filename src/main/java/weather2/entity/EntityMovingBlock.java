@@ -24,7 +24,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigStorm;
+import weather2.config.ConfigTornado;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.CoroUtilBlock;
@@ -140,12 +141,12 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             {
                 this.mode = 0;
 
-                if (this.tileentity == null && ConfigMisc.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigMisc.Storm_Tornado_rarityOfDisintegrate + 1) * 20) == 0)
+                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfDisintegrate + 1) * 20) == 0)
                 {
                     this.setDead();
                 }
 
-                if (this.tileentity == null && ConfigMisc.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigMisc.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
+                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
                 {
                     this.tile = Blocks.FIRE;
                 }
@@ -222,7 +223,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 	                    var10.motionZ = this.motionZ / 1.5D;
                 	}
                     
-                    if (ConfigMisc.Storm_FlyingBlocksHurt && Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ) > 0.4F) {
+                    if (ConfigStorm.Storm_FlyingBlocksHurt && Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ) > 0.4F) {
                     	//System.out.println("damaging with block: " + var10);
                     	
                     	DamageSource ds = DamageSource.causeThrownDamage(this, this);
@@ -416,7 +417,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.setDead();
         Block var5 = this.worldObj.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
 
-        if (this.tileentity != null || this.type != 0 || ConfigMisc.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigMisc.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
+        if (this.tileentity != null || this.type != 0 || ConfigTornado.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigTornado.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {
             if (!WeatherUtil.shouldRemoveBlock(var5) && !WeatherUtil.isOceanBlock(var5) && var2 < 255)
             {

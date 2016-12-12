@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.CommonProxy;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 
 public class WeatherUtil {
 
@@ -49,11 +49,11 @@ public class WeatherUtil {
             
         	boolean result = true;
             
-            if (ConfigMisc.Storm_Tornado_GrabCond_List)
+            if (ConfigTornado.Storm_Tornado_GrabCond_List)
             {
             	try {
 
-                    if (!ConfigMisc.Storm_Tornado_GrabListBlacklistMode)
+                    if (!ConfigTornado.Storm_Tornado_GrabListBlacklistMode)
                     {
                         if (!((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
                         	result = false;
@@ -71,7 +71,7 @@ public class WeatherUtil {
 				}
             } else {
 
-                if (ConfigMisc.Storm_Tornado_GrabCond_StrengthGrabbing)
+                if (ConfigTornado.Storm_Tornado_GrabCond_StrengthGrabbing)
                 {
                     float strMin = 0.0F;
                     float strMax = 0.74F;
@@ -102,7 +102,7 @@ public class WeatherUtil {
                     }
                 }
                 
-                if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
+                if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
                 	if (id == Blocks.DIRT || id == Blocks.GRASS || id == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
                 		result = false;
                 	}
@@ -210,7 +210,7 @@ public class WeatherUtil {
     	
         blockIDToUseMapping.clear();
         //System.out.println("Blacklist: ");
-        String[] splEnts = ConfigMisc.Storm_Tornado_GrabList.split(",");
+        String[] splEnts = ConfigTornado.Storm_Tornado_GrabList.split(",");
         //int[] blocks = new int[splEnts.length];
 
         if (splEnts.length > 0) {
@@ -246,7 +246,7 @@ public class WeatherUtil {
 
                 for (int j = 0; j < splEnts.length; j++)
                 {
-                	if (ConfigMisc.Storm_Tornado_GrabCond_List_PartialMatches) {
+                	if (ConfigTornado.Storm_Tornado_GrabCond_List_PartialMatches) {
                 		if (tagName.toString().contains(splEnts[j])) {
                 			dbg += Block.REGISTRY.getNameForObject(block) + ", ";
                 			foundEnt = true;

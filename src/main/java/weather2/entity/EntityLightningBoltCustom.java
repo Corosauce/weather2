@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigStorm;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
 
@@ -42,8 +42,8 @@ public class EntityLightningBoltCustom extends EntityWeatherEffect
      */
     private int boltLivingTime;
 
-    public int fireLifeTime = ConfigMisc.Lightning_lifetimeOfFire;
-    public int fireChance = ConfigMisc.Lightning_OddsTo1OfFire;
+    public int fireLifeTime = ConfigStorm.Lightning_lifetimeOfFire;
+    public int fireChance = ConfigStorm.Lightning_OddsTo1OfFire;
     
     public List<Vec3d> listVec = new ArrayList<Vec3d>();
     

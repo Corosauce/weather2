@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL13;
 
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigParticle;
 import weather2.util.WeatherUtil;
 
 public class EntityRendererProxyWeather2Mini extends EntityRenderer
@@ -99,7 +100,7 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     		}
     		
     		//note, the overcast effect change will effect vanilla non particle rain distance too, particle rain for life!
-    		if (!ConfigMisc.Particle_RainSnow) {
+    		if (!ConfigParticle.Particle_RainSnow) {
     			super.renderRainSnow(par1);
     		}
     		

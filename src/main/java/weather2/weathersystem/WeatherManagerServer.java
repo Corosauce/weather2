@@ -14,6 +14,8 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigSand;
+import weather2.config.ConfigStorm;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
@@ -60,7 +62,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				}
 			}
 			
-			if (ConfigMisc.preventServerThunderstorms) {
+			if (ConfigStorm.preventServerThunderstorms) {
 				world.getWorldInfo().setThundering(false);
 			}
 			
@@ -129,12 +131,12 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					
 					//Weather.dbg("getStormObjects().size(): " + getStormObjects().size());
 					
-					if (getStormObjectsByLayer(0).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
+					if (getStormObjectsByLayer(0).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (rand.nextInt(5) == 0) {
 							trySpawnStormCloudNearPlayerForLayer(entP, 0);
 						}
 					}
-					if (getStormObjectsByLayer(1).size() < ConfigMisc.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
+					if (getStormObjectsByLayer(1).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (ConfigMisc.Cloud_Layer1_Enable) {
 							if (rand.nextInt(5) == 0) {
 								trySpawnStormCloudNearPlayerForLayer(entP, 1);
@@ -147,8 +149,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
 			if (WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
-				if (ConfigMisc.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigMisc.Sandstorm_OddsTo1) == 0) {
-					if (ConfigMisc.Sandstorm_UseGlobalServerRate) {
+				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
+					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
 						//get a random player to try and spawn for, will recycle another if it cant spawn
 						EntityPlayer entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
 
@@ -173,7 +175,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 
 	public boolean trySandstormForPlayer(EntityPlayer player, long lastSandstormTime) {
 		boolean sandstormMade = false;
-		if (lastSandstormTime == 0 || lastSandstormTime + ConfigMisc.Sandstorm_TimeBetweenInTicks < player.getEntityWorld().getTotalWorldTime()) {
+		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.getEntityWorld().getTotalWorldTime()) {
 			sandstormMade = trySpawnSandstormNearPos(player.getEntityWorld(), new Vec3(player.getPositionVector()));
 		}
 		return sandstormMade;

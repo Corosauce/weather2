@@ -2,7 +2,6 @@ package weather2;
 
 import java.nio.FloatBuffer;
 
-import javafx.scene.Scene;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;

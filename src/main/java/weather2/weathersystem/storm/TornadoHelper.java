@@ -24,7 +24,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilEntity;
@@ -199,7 +199,7 @@ public class TornadoHelper {
         //int spawnYOffset = (int) storm.currentTopYBlock;
         int spawnYOffset = (int) storm.posBaseFormationPos.yCoord;
 
-        if (!parWorld.isRemote && ConfigMisc.Storm_Tornado_grabBlocks/*getStorm().grabsBlocks*/)
+        if (!parWorld.isRemote && ConfigTornado.Storm_Tornado_grabBlocks/*getStorm().grabsBlocks*/)
         {
             int yStart = 00;
             int yEnd = (int)storm.pos.yCoord/* + 72*/;
@@ -289,7 +289,7 @@ public class TornadoHelper {
 	                            performed = seesLight;
 	                        }
 	                        
-	                        if (!performed && ConfigMisc.Storm_Tornado_RefinedGrabRules) {
+	                        if (!performed && ConfigTornado.Storm_Tornado_RefinedGrabRules) {
 	                        	if (blockID == Blocks.GRASS) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
@@ -395,7 +395,7 @@ public class TornadoHelper {
         
         if (!tryRip) return true;
 		
-        if (!ConfigMisc.Storm_Tornado_grabBlocks) return true;
+        if (!ConfigTornado.Storm_Tornado_grabBlocks) return true;
         
         if (isNoDigCoord(tryX, tryY, tryZ)) return true;
 
@@ -423,7 +423,7 @@ public class TornadoHelper {
         {
             
 
-            if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigMisc.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigMisc.Storm_Tornado_maxBlocksGrabbedPerTick)
+            if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigTornado.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigTornado.Storm_Tornado_maxBlocksGrabbedPerTick)
             {
                 lastGrabTime = System.currentTimeMillis() - 5;
                 //int blockMeta = this.parWorld.getBlockStateMetadata(tryX,tryY,tryZ);
@@ -544,9 +544,9 @@ public class TornadoHelper {
             {
                 Entity entity1 = (Entity)list.get(i);
 
-                if ((!(entity1 instanceof EntityPlayer) || ConfigMisc.Storm_Tornado_grabPlayer))
+                if ((!(entity1 instanceof EntityPlayer) || ConfigTornado.Storm_Tornado_grabPlayer))
                 {
-                	if (!(entity1 instanceof EntityPlayer) && ConfigMisc.Storm_Tornado_grabPlayersOnly) {
+                	if (!(entity1 instanceof EntityPlayer) && ConfigTornado.Storm_Tornado_grabPlayersOnly) {
                 		continue;
                 	}
                     if (getDistanceXZ(storm.posBaseFormationPos, entity1.posX, entity1.posY, entity1.posZ) < dist)
@@ -604,7 +604,7 @@ public class TornadoHelper {
                 {*/
                     if (entity1 instanceof EntityMovingBlock)
                     {
-                        if (blockCount + 5 > ConfigMisc.Storm_Tornado_maxBlocksPerStorm)
+                        if (blockCount + 5 > ConfigTornado.Storm_Tornado_maxBlocksPerStorm)
                         {
                             if (entity1.posY > 255)
                             {

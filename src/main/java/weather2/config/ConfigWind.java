@@ -1,6 +1,7 @@
 package weather2.config;
 
 import modconfig.IConfigCategory;
+import weather2.Weather;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.storm.StormObject;
@@ -9,9 +10,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by Corosus on 11/28/2016.
- */
 public class ConfigWind implements IConfigCategory {
 
     public static boolean Misc_windOn = true;
@@ -27,13 +25,23 @@ public class ConfigWind implements IConfigCategory {
     public static int highWindOddsTo1 = 20*400;
 
     @Override
+    public String getName() {
+        return "Wind";
+    }
+
+    @Override
+    public String getRegistryName() {
+        return Weather.modID + getName();
+    }
+
+    @Override
     public String getConfigFileName() {
-        return "Weather2" + File.separator + "Wind";
+        return "Weather2" + File.separator + getName();
     }
 
     @Override
     public String getCategory() {
-        return "Weather2: Wind";
+        return "Weather2: " + getName();
     }
 
     @Override

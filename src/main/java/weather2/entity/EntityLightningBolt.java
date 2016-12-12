@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigStorm;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
 
@@ -40,8 +40,8 @@ public class EntityLightningBolt extends EntityWeatherEffect
      */
     private int boltLivingTime;
 
-    public int fireLifeTime = ConfigMisc.Lightning_lifetimeOfFire;
-    public int fireChance = ConfigMisc.Lightning_OddsTo1OfFire;
+    public int fireLifeTime = ConfigStorm.Lightning_lifetimeOfFire;
+    public int fireChance = ConfigStorm.Lightning_OddsTo1OfFire;
     
     public EntityLightningBolt(World par1World, double par2, double par4, double par6)
     {
@@ -151,7 +151,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     public void updateFlashEffect() {
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	//only flash sky if player is within 256 blocks of lightning
-    	if (mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(this) < ConfigMisc.Lightning_DistanceToPlayerForEffects) {
+    	if (mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
     		this.worldObj.setLastLightningBolt(2);
     	}
     }
@@ -159,7 +159,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     @SideOnly(Side.CLIENT)
     public void updateSoundEffect() {
     	Minecraft mc = FMLClientHandler.instance().getClient();
-    	if (mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(this) < ConfigMisc.Lightning_DistanceToPlayerForEffects) {
+    	if (mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
     		this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 64.0F, 0.8F + this.rand.nextFloat() * 0.2F, false);
             this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.rand.nextFloat() * 0.2F, false);
     	}
