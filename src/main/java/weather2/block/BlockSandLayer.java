@@ -1,9 +1,11 @@
 package weather2.block;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import weather2.CommonProxy;
 import weather2.util.WeatherUtilBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
@@ -157,6 +159,13 @@ public class BlockSandLayer extends Block
     {
         return 1;
     }
+
+    @Nullable
+    @Override
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+        return CommonProxy.itemSandLayer;
+    }
+
 
     /*public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
