@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.item.ItemPocketSand;
 import weather2.util.WeatherUtilConfig;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.CoroUtilEntity;
@@ -34,6 +35,7 @@ public class EventHandlerPacket {
 			NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
 			
 			String packetCommand = nbt.getString("packetCommand");
+			String command = nbt.getString("command");
 			
 			//System.out.println("Weather2 packet command from server: " + packetCommand);
 			
@@ -43,12 +45,16 @@ public class EventHandlerPacket {
 				//this line still gets NPE's despite it checking if its null right before it, wtf
 	        	ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
 			} else if (packetCommand.equals("EZGuiData")) {
-				String command = nbt.getString("command");
+
 				Weather.dbg("receiving GUI data for client, command: " + command);
 				if (command.equals("syncUpdate")) {
 					
 	        		WeatherUtilConfig.nbtReceiveServerDataForCache(nbt);
 	        	}
+			} else if (packetCommand.equals("PocketSandData")) {
+				if (command.equals("create")) {
+					ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
+				}
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

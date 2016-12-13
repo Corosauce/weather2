@@ -1,5 +1,6 @@
 package weather2.item;
 
+import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
@@ -20,13 +21,17 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.CommonProxy;
+import weather2.Weather;
 import weather2.client.SceneEnhancer;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtilBlock;
+import weather2.weathersystem.wind.WindManager;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -34,7 +39,7 @@ import java.util.Random;
 public class ItemPocketSand extends Item {
 
     @SideOnly(Side.CLIENT)
-    public ParticleBehaviorSandstorm particleBehavior;
+    public static ParticleBehaviorSandstorm particleBehavior;
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player, EnumHand hand) {
@@ -49,6 +54,8 @@ public class ItemPocketSand extends Item {
             double randSize = 20;
             double randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
             WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ), player.rotationYawHead + (float)randAngle, 15, 2, CommonProxy.blockSandLayer, 2);
+
+            particulateToClients(worldIn, player);
         } else {
             particulate(player.worldObj, player);
         }
@@ -56,7 +63,13 @@ public class ItemPocketSand extends Item {
         return super.onItemRightClick(itemStackIn, worldIn, player, hand);
     }
 
-    public void particulate(World world, EntityLivingBase player) {
+    /**
+     *
+     * @param world
+     * @param player The sand item using source
+     */
+    @SideOnly(Side.CLIENT)
+    public static void particulate(World world, EntityLivingBase player) {
 
         if (particleBehavior == null) {
             particleBehavior = new ParticleBehaviorSandstorm(new Vec3(player.getPosition()));
@@ -137,11 +150,36 @@ public class ItemPocketSand extends Item {
     @Override
     public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
+        if (worldIn.isRemote) {
+            tickClient(stack, worldIn, entityIn, itemSlot, isSelected);
+        }
+
+        super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void tickClient(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (particleBehavior == null) {
             particleBehavior = new ParticleBehaviorSandstorm(new Vec3(entityIn.getPosition()));
         }
         particleBehavior.tickUpdateList();
+    }
 
-        super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
+    public static void particulateToClients(World world, EntityLivingBase player) {
+        NBTTagCompound data = new NBTTagCompound();
+        data.setString("packetCommand", "PocketSandData");
+        data.setString("command", "create");
+        data.setString("playerName", player.getName());
+        Weather.eventChannel.sendToAllAround(PacketHelper.getNBTPacket(data, Weather.eventChannelName),
+                new NetworkRegistry.TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 50));
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void particulateFromServer(String username) {
+        World world = Minecraft.getMinecraft().theWorld;
+        EntityPlayer player = world.getPlayerEntityByName(username);
+        if (player != null) {
+            particulate(world, player);
+        }
     }
 }
