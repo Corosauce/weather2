@@ -1,6 +1,6 @@
 itemGroup.Weather2=Weather2 Items
 tile.weather2.TornadoSensor.name=Tornado Sensor
-tile.weather2.TornadoSiren.name=Tornado Siren
+tile.weather2.TornadoSiren.name=Weather Siren
 tile.weather2.WindVane.name=Wind Vane
 tile.weather2.WeatherForecast.name=Weather Radar
 tile.weather2.WeatherMachine.name=Weather Machine (right click to cycle)

@@ -232,4 +232,9 @@ public class BlockSandLayer extends Block
     	IBlockState state = this.getActualState(base_state, world, pos);
         return ((Integer)state.getValue(LAYERS)) >= 8;
     }*/
+
+    @Override
+    public boolean isVisuallyOpaque() {
+        return false;
+    }
 }

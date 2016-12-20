@@ -35,6 +35,12 @@ public class SoundRegistry {
 		register("streaming.sandstorm_med2");
 		register("streaming.sandstorm_low1");
 		register("streaming.sandstorm_low2");
+
+		register("streaming.siren_sandstorm_1");
+		register("streaming.siren_sandstorm_2");
+		register("streaming.siren_sandstorm_3");
+		register("streaming.siren_sandstorm_4");
+		register("streaming.siren_sandstorm_5_extra");
 		
 	}
 

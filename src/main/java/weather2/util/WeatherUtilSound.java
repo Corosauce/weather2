@@ -82,6 +82,12 @@ public class WeatherUtilSound {
         soundToLength.put(snd_sandstorm_med[0], 16325);
         soundToLength.put(snd_sandstorm_med[1], 12776);
         soundToLength.put(snd_sandstorm_high[0], 23974);
+
+        soundToLength.put("siren_sandstorm_1", 11923);
+        soundToLength.put("siren_sandstorm_2", 20122);
+        soundToLength.put("siren_sandstorm_3", 10366);
+        soundToLength.put("siren_sandstorm_4", 44274);
+        soundToLength.put("siren_sandstorm_5_extra", 1282);
     }
     
     @SideOnly(Side.CLIENT)

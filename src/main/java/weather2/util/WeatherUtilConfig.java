@@ -129,13 +129,13 @@ public class WeatherUtilConfig {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_PRECIPRATE)) {
 				//ConfigMisc.Particle_RainSnow = true;
 				if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("high")) {
-					ConfigParticle.Particle_Precipitation_effect_rate = 1D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 1D;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("medium")) {
-					ConfigParticle.Particle_Precipitation_effect_rate = 0.7D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 0.7D;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("low")) {
-					ConfigParticle.Particle_Precipitation_effect_rate = 0.3D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 0.3D;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("none")) {
-					ConfigParticle.Particle_Precipitation_effect_rate = 0D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 0D;
 					//ConfigMisc.Particle_RainSnow = false;
 				}
 			}

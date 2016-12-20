@@ -198,5 +198,50 @@
         "stream": true
       }
     ]
+  },
+  "streaming.siren_sandstorm_1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_2": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_2",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_3": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_3",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_4": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_4",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_5_extra": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_5_extra",
+        "stream": true
+      }
+    ]
   }
 }

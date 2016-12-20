@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.config.ConfigParticle;
 import weather2.config.ConfigSand;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
@@ -293,7 +294,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    	
 		    	}
 				
-				System.out.println("count: " + count);
+				//System.out.println("count: " + count);
 			}
 		}
 	}
@@ -426,13 +427,17 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	 * stormfront wall
     	 */
     	float sandstormScale = getSandstormScale();
+
+		double sandstormParticleRateDust = ConfigParticle.Sandstorm_Particle_Dust_effect_rate;
     	if (size > 0/*isFrontGrowing || sandstormScale > 0.5F*/) {
 	    	for (int heightLayer = 0; heightLayer < heightLayers && spawnedThisTick < 500; heightLayer++) {
 	    		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 			    //for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
 	    			double i = directionAngleDeg + (rand.nextDouble() * 180D);
 			    	if ((mc.theWorld.getTotalWorldTime()) % 2 == 0) {
-			    		
+
+						if (rand.nextDouble() >= sandstormParticleRateDust) continue;
+
 			    		double sizeSub = heightLayer * 2D;
 			    		double sizeDyn = size - sizeSub;
 			    		double inwardsAdj = rand.nextDouble() * 5D;//(sizeDyn * 0.75D);
@@ -491,7 +496,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	}
     	
     	if ((mc.theWorld.getTotalWorldTime()) % 20 == 0) {
-    		System.out.println("sandstormScale: " + sandstormScale + " - size: " + size);
+    		//System.out.println("sandstormScale: " + sandstormScale + " - size: " + size);
     	}
     	
     	//half of the angle (?)
@@ -515,6 +520,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		
 	    		//rate of spawn based on storm intensity
 	    		if (rand.nextDouble() >= sandstormScale) continue;
+
+				if (rand.nextDouble() >= sandstormParticleRateDust) continue;
 	    		
 	    		//add 1/4 PI for some reason, converting math to mc I guess
 	    		double randAngle = directionAngle + (Math.PI / 2D) - (spawnAngle) + (rand.nextDouble() * spawnAngle * 2D);

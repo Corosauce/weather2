@@ -442,7 +442,7 @@ public class SceneEnhancer implements Runnable {
 
 
 						int spawnAreaSize = 15;
-						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Particle_Precipitation_effect_rate; i++) {
+						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
@@ -471,13 +471,13 @@ public class SceneEnhancer implements Runnable {
 						//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
 
 						int spawnAreaSize = 50;
-						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Particle_Precipitation_effect_rate; i++) {
+						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
 									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
-							if (isSnowingAt(world, pos)) {
+							if (canPrecipitateAt(world, pos)) {
 								ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, pos.getX(), pos.getY(), pos.getZ(), 0D, 0D, 0D, ParticleRegistry.snow);
 								snow.setMotionY(-0.3D);
 								snow.setScale(1.3F);
@@ -500,7 +500,7 @@ public class SceneEnhancer implements Runnable {
 		}
 	}
 
-	public static boolean isSnowingAt(World world, BlockPos strikePosition)
+	public static boolean canPrecipitateAt(World world, BlockPos strikePosition)
 	{
 		/*if (!world.isRaining())
 		{
@@ -1629,8 +1629,8 @@ public class SceneEnhancer implements Runnable {
     	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
             if (adjustAmountSmooth > 0) {
-                System.out.println("adjustAmountTarget: " + adjustAmountTarget);
-                System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
+                //System.out.println("adjustAmountTarget: " + adjustAmountTarget);
+                //System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
             }
 
             //System.out.println("wut: " + mc.theWorld.getCelestialAngle(1));
@@ -1766,11 +1766,16 @@ public class SceneEnhancer implements Runnable {
             Random rand = mc.theWorld.rand;
             int spawnAreaSize = 80;
 
+			double sandstormParticleRateDebris = ConfigParticle.Sandstorm_Particle_Debris_effect_rate;
+			double sandstormParticleRateDust = ConfigParticle.Sandstorm_Particle_Dust_effect_rate;
+
             //TODO: make fog state match particle intensitiy better, thinking only particlize within final 75% of intensity
 
             float adjustAmountSmooth75 = (adjustAmountSmooth * 8F) - 7F;
 
-            for (int i = 0; i < ((float)30 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+			//extra dust
+            for (int i = 0; i < ((float)30 * adjustAmountSmooth75 * sandstormParticleRateDust)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),
@@ -1778,7 +1783,7 @@ public class SceneEnhancer implements Runnable {
 
 
 
-                if (isSnowingAt(world, pos)) {
+                if (canPrecipitateAt(world, pos)) {
                     TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 
                     ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
@@ -1815,7 +1820,8 @@ public class SceneEnhancer implements Runnable {
             }
 
             //tumbleweed
-            for (int i = 0; i < ((float)1 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            for (int i = 0; i < ((float)1 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),
@@ -1823,7 +1829,7 @@ public class SceneEnhancer implements Runnable {
 
 
 
-                if (isSnowingAt(world, pos)) {
+                if (canPrecipitateAt(world, pos)) {
                     TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
 
                     ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
@@ -1865,7 +1871,7 @@ public class SceneEnhancer implements Runnable {
             }
 
             //debris
-            for (int i = 0; i < ((float)12 * adjustAmountSmooth75)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+            for (int i = 0; i < ((float)8 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
                 BlockPos pos = new BlockPos(
                         player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
                         player.posY - 2 + rand.nextInt(10),
@@ -1873,7 +1879,7 @@ public class SceneEnhancer implements Runnable {
 
 
 
-                if (isSnowingAt(world, pos)) {
+                if (canPrecipitateAt(world, pos)) {
                     TextureAtlasSprite sprite = null;
                     int tex = rand.nextInt(3);
                     if (tex == 0) {

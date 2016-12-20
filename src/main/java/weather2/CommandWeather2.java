@@ -151,7 +151,7 @@ public class CommandWeather2 extends CommandBase {
 								so.alwaysProgresses = true;
 							} else if (var2[2].equalsIgnoreCase("test")) {
 								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
-							} else if (var2[2].equalsIgnoreCase("sandstorm")) {
+							} else if (var2[2].equalsIgnoreCase("sandstormUpwind")) {
 								
 								WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(wm);
 								
@@ -177,13 +177,19 @@ public class CommandWeather2 extends CommandBase {
 								wm.addStormObject(sandstorm);
 								wm.syncStormNew(sandstorm);
 								spawnCloudStorm = false;
+
+								wm.windMan.startHighWindEvent();
+								wm.windMan.lowWindTimer = 0;
 								
-							} else if (var2[2].equalsIgnoreCase("sandstormTest")) {
+							} else if (var2[2].equalsIgnoreCase("sandstorm")) {
 								boolean spawned = wm.trySpawnSandstormNearPos(world, new Vec3(posVec));
 								spawnCloudStorm = false;
 								if (!spawned) {
 									CoroUtilMisc.sendCommandSenderMsg(var1, "couldnt find spot to spawn");
 									return;
+								} else {
+									wm.windMan.startHighWindEvent();
+									wm.windMan.lowWindTimer = 0;
 								}
 							}
 							
