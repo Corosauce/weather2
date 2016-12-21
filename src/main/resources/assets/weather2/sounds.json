@@ -243,5 +243,14 @@
         "stream": true
       }
     ]
+  },
+  "streaming.siren_sandstorm_6_extra": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_6_extra",
+        "stream": true
+      }
+    ]
   }
 }

@@ -651,7 +651,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
 		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
-		
+
+		//for triangle shape
 		listPoints.add(new Vec3(this.posSpawn.xCoord, 0, this.posSpawn.zCoord));
 		
 		double xVec = this.posSpawn.xCoord - this.pos.xCoord;
@@ -663,7 +664,22 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double angleLeft = directionAngle + (Math.PI / 2D) - (spawnAngle);
     	double angleRight = directionAngle + (Math.PI / 2D) - (spawnAngle) + (/*rand.nextDouble() * */spawnAngle * 2D);
-    	
+
+		//kinda ok, but needs go to side more
+		double angleLeft1 = directionAngle + (Math.PI / 2D) - (spawnAngle);
+		double angleRight1 = directionAngle + (Math.PI / 2D) - (spawnAngle) + (/*rand.nextDouble() * */spawnAngle * 2D);
+
+		double wat = extraDistSpawnIntoWall;
+
+		double xLeft1 = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/angleLeft1/*)*/) * wat);
+		double zLeft1 = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/angleLeft1/*)*/) * wat);
+
+		double xRight1 = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/angleRight1/*)*/) * wat);
+		double zRight1 = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/angleRight1/*)*/) * wat);
+
+		//listPoints.add(new Vec3(xRight1, 0, zRight1));
+		//listPoints.add(new Vec3(xLeft1, 0, zLeft1));
+
     	double xLeft = posSpawn.xCoord + (-Math.sin(/*Math.toRadians(*/angleLeft/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
 		double zLeft = posSpawn.zCoord + (Math.cos(/*Math.toRadians(*/angleLeft/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
 		

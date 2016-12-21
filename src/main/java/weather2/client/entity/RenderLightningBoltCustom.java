@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import CoroUtil.util.Vec3;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.ClientTickHandler;
 import weather2.entity.EntityLightningBoltCustom;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 @SideOnly(Side.CLIENT)
 public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
@@ -74,16 +80,59 @@ public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
         //worldrenderer.pos(xx+3, yy+0, zz+3).color(0.45F, 0.45F, 0.5F, 1F).endVertex();
         
         double sizeRadius = 0.3D;
-        
+
+        //temp - visualize sandstorm
+        Minecraft mc = Minecraft.getMinecraft();
+        EntityPlayer player = mc.thePlayer;
+        World world = mc.theWorld;
+        Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
+        WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
+        if (sandstorm != null) {
+            List<Vec3> wat = sandstorm.getSandstormAsShape();
+            entity.listVec.clear();
+            for (Vec3 wat2 : wat) {
+                Vec3d wat3 = new Vec3d(wat2.xCoord - player.posX, -10, wat2.zCoord - player.posZ);
+                entity.listVec.add(wat3);
+
+                /*if (world.getTotalWorldTime() % 20 == 0) {
+                    System.out.println("wat: " + wat3);
+                }*/
+            }
+
+
+        }
+
+        if (world.getTotalWorldTime() % 20 == 0) {
+            //System.out.println("----------");
+        }
+
         for (int i = 0; i < entity.listVec.size() - 1; i++) {
         	Vec3d vec = entity.listVec.get(i);
         	Vec3d vec2 = entity.listVec.get(i+1);
-        	
-        	worldrenderer.pos(vec.xCoord - sizeRadius + x, vec.yCoord + y, vec.zCoord - sizeRadius + z).color(r, g, b, alpha).endVertex();
+
+            if (world.getTotalWorldTime() % 20 == 0) {
+                //System.out.println("wat: " + vec + " --- " + vec2);
+            }
+
+        	/*worldrenderer.pos(vec.xCoord - sizeRadius + x, vec.yCoord + y, vec.zCoord - sizeRadius + z).color(r, g, b, alpha).endVertex();
             worldrenderer.pos(vec.xCoord + sizeRadius + x, vec.yCoord + y, vec.zCoord - sizeRadius + z).color(r, g, b, alpha).endVertex();
             worldrenderer.pos(vec2.xCoord + sizeRadius + x, vec2.yCoord + y, vec2.zCoord + sizeRadius + z).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec2.xCoord - sizeRadius + x, vec2.yCoord + y, vec2.zCoord + sizeRadius + z).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.xCoord - sizeRadius + x, vec2.yCoord + y, vec2.zCoord + sizeRadius + z).color(r, g, b, alpha).endVertex();*/
+
+        	//temp - visualize sandstorm
+            worldrenderer.pos(vec.xCoord - sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec.xCoord + sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.xCoord + sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.xCoord - sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
         }
+
+        //temp - visualize sandstorm
+        Vec3d vec = entity.listVec.get(0);
+        Vec3d vec2 = entity.listVec.get(entity.listVec.size()-1);
+        worldrenderer.pos(vec.xCoord - sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec.xCoord + sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec2.xCoord + sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec2.xCoord - sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
         
         //worldrenderer.pos(-1, 0, -1).color(0.45F, 0.45F, 0.5F, 1F).endVertex();
         

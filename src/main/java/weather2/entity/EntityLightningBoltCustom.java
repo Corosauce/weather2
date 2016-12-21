@@ -61,7 +61,7 @@ public class EntityLightningBoltCustom extends EntityWeatherEffect
         Random rand = new Random();
         
         //create lightning bolt parts
-        double spreadDist = 5;
+        double spread = 5;
         double spreadAngle = 15;
         
         //init
@@ -75,11 +75,13 @@ public class EntityLightningBoltCustom extends EntityWeatherEffect
         	Vec3d vecLast = listVec.get(listVec.size()-1);
         	double vecX = Math.sin(Math.toRadians(curYaw)); 
         }
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 1; i++) {
         	//listVec.add(new Vec3d(0, 0, 0));
         	//worldrenderer.pos(xx+i, 128, 0).color(0.45F, 0.45F, 0.5F, 0.3F).endVertex();
         	//Random rand = new Random();
-        	//listVec.add(new Vec3d(rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread));
+
+
+        	listVec.add(new Vec3d(rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread, rand.nextDouble() * spread - rand.nextDouble() * spread));
         }
         
         if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == EnumDifficulty.NORMAL || par1World.getDifficulty() == EnumDifficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6)), 10))

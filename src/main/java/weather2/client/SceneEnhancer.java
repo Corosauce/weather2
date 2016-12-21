@@ -1643,17 +1643,6 @@ public class SceneEnhancer implements Runnable {
             //TODO: remove fetching of colors from this now that we dynamically track that
     		if (needFogState) {
     			//System.out.println("getting fog state");
-    			stormFogRed = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175080_Q");
-    			stormFogGreen = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175082_R");
-    			stormFogBlue = ObfuscationReflectionHelper.getPrivateValue(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, "field_175081_S");
-    			
-    			//account for player being in fog as game loads, all values are 0 in this scenario
-    			//values arent perfect, are from noon daytime, but better than black
-    			if (stormFogRed == 0 && stormFogGreen == 0 && stormFogBlue == 0) {
-    				stormFogRed = 0.7225088F;
-    				stormFogGreen = 0.8253213F;
-    				stormFogBlue = 1F;
-    			}
     			
     			try {
     				Object fogState = ObfuscationReflectionHelper.getPrivateValue(GlStateManager.class, null, "field_179155_g");
@@ -1696,31 +1685,8 @@ public class SceneEnhancer implements Runnable {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
-				//commented out to make dynamic via fog color event value backup
-    			/*stormFogRedOrig = stormFogRed;
-    			stormFogGreenOrig = stormFogGreen;
-    			stormFogBlueOrig = stormFogBlue;*/
     			needFogState = false;
     		}
-    		
-    		
-    		
-    		/*stormFogRed = adjVal(stormFogRed, 0.7F, fogColorChangeRate);
-    		stormFogGreen = adjVal(stormFogGreen, 0.6F, fogColorChangeRate);
-    		stormFogBlue = adjVal(stormFogBlue, 0.3F, fogColorChangeRate);
-    		
-    		stormFogDensity = adjVal(stormFogDensity, 0.5F, fogDensityChangeRate);
-    		
-    		stormFogStart = adjVal(stormFogStart, 0F, fogDistChangeRate);
-    		stormFogEnd = adjVal(stormFogEnd, 20F, fogDistChangeRate);
-    		stormFogStartClouds = adjVal(stormFogStartClouds, 0F, fogDistChangeRate);
-    		stormFogEndClouds = adjVal(stormFogEndClouds, 20F, fogDistChangeRate);*/
-
-    		//TODO: WIP trying to better adjust values back to what they would be after 5 mins passed
-			/*stormFogRedOrig = mc.entityRenderer.fogColorRed;
-			stormFogGreenOrig = mc.entityRenderer.fogColorGreen;
-			stormFogBlueOrig = mc.entityRenderer.fogColorBlue;*/
     		
     		//new dynamic adjusting
     		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
@@ -1733,30 +1699,12 @@ public class SceneEnhancer implements Runnable {
     		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 7F) * adjustAmountSmooth);
     		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmountSmooth);
     		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmountSmooth);
-    		
-    		//System.out.println("ON");
     	} else {
     		if (!needFogState) {
     			//System.out.println("resetting need for fog state");
     		}
     		needFogState = true;
-    		
-    		//if these values are already equal it shouldnt actually do anything
-    		/*stormFogRed = adjVal(stormFogRed, stormFogRedOrig, fogColorChangeRate);
-    		stormFogGreen = adjVal(stormFogGreen, stormFogGreenOrig, fogColorChangeRate);
-    		stormFogBlue = adjVal(stormFogBlue, stormFogBlueOrig, fogColorChangeRate);
-    		
-    		stormFogDensity = adjVal(stormFogDensity, stormFogDensityOrig, fogDensityChangeRate);
-    		
-    		stormFogStart = adjVal(stormFogStart, stormFogStartOrig, fogDistChangeRate);
-    		stormFogEnd = adjVal(stormFogEnd, stormFogEndOrig, fogDistChangeRate);
-    		stormFogStartClouds = adjVal(stormFogStartClouds, stormFogStartCloudsOrig, fogDistChangeRate);
-    		stormFogEndClouds = adjVal(stormFogEndClouds, stormFogEndCloudsOrig, fogDistChangeRate);*/
-    		
-    		//System.out.println("OFF");
     	}
-
-        //adjustAmountSmooth = 1F;
 
     	//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
         if (adjustAmountSmooth > 0.75F && sandstorm != null) {
@@ -1768,8 +1716,6 @@ public class SceneEnhancer implements Runnable {
 
 			double sandstormParticleRateDebris = ConfigParticle.Sandstorm_Particle_Debris_effect_rate;
 			double sandstormParticleRateDust = ConfigParticle.Sandstorm_Particle_Dust_effect_rate;
-
-            //TODO: make fog state match particle intensitiy better, thinking only particlize within final 75% of intensity
 
             float adjustAmountSmooth75 = (adjustAmountSmooth * 8F) - 7F;
 
