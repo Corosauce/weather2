@@ -47,6 +47,8 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Lightning_lifetimeOfFire = 3;
 	public static int Lightning_DistanceToPlayerForEffects = 256;
 
+	public static boolean Lightning_StartsFires = false;
+
     @Override
     public String getName() {
         return "Storm";

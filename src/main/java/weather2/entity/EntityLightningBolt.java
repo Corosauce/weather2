@@ -54,29 +54,26 @@ public class EntityLightningBolt extends EntityWeatherEffect
         Random rand = new Random();
         
         
-        
-        if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == EnumDifficulty.NORMAL || par1World.getDifficulty() == EnumDifficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6)), 10))
-        {
-            int i = MathHelper.floor_double(par2);
-            int j = MathHelper.floor_double(par4);
-            int k = MathHelper.floor_double(par6);
+        if (ConfigStorm.Lightning_StartsFires) {
+            if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == EnumDifficulty.NORMAL || par1World.getDifficulty() == EnumDifficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor_double(par2), MathHelper.floor_double(par4), MathHelper.floor_double(par6)), 10)) {
+                int i = MathHelper.floor_double(par2);
+                int j = MathHelper.floor_double(par4);
+                int k = MathHelper.floor_double(par6);
 
-            if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(i, j, k)))
-            {
-                //par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire, fireLifeTime, 3);
-                par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
-            }
-
-            for (i = 0; i < 4; ++i)
-            {
-                j = MathHelper.floor_double(par2) + this.rand.nextInt(3) - 1;
-                k = MathHelper.floor_double(par4) + this.rand.nextInt(3) - 1;
-                int l = MathHelper.floor_double(par6) + this.rand.nextInt(3) - 1;
-
-                if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(j, k, l)))
-                {
-                    //par1World.setBlockState(new BlockPos(j, k, l), Blocks.fire.getDefaultState(), fireLifeTime, 3);
+                if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(i, j, k))) {
+                    //par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire, fireLifeTime, 3);
                     par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
+                }
+
+                for (i = 0; i < 4; ++i) {
+                    j = MathHelper.floor_double(par2) + this.rand.nextInt(3) - 1;
+                    k = MathHelper.floor_double(par4) + this.rand.nextInt(3) - 1;
+                    int l = MathHelper.floor_double(par6) + this.rand.nextInt(3) - 1;
+
+                    if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(j, k, l))) {
+                        //par1World.setBlockState(new BlockPos(j, k, l), Blocks.fire.getDefaultState(), fireLifeTime, 3);
+                        par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
+                    }
                 }
             }
         }
@@ -119,9 +116,10 @@ public class EntityLightningBolt extends EntityWeatherEffect
                     int j = MathHelper.floor_double(this.posY);
                     int k = MathHelper.floor_double(this.posZ);
 
-                    if (CoroUtilBlock.isAir(worldObj.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(worldObj, new BlockPos(i, j, k)))
-                    {
-                    	worldObj.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
+                    if (ConfigStorm.Lightning_StartsFires) {
+                        if (CoroUtilBlock.isAir(worldObj.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(worldObj, new BlockPos(i, j, k))) {
+                            worldObj.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
+                        }
                     }
                 }
             }
