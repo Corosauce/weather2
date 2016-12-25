@@ -18,12 +18,14 @@ import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.CoroUtilFile;
 
-@Mod(modid = "weather2", name="weather2", version="2.3.15", dependencies="required-after:coroutil@[1.1.10,)")
+@Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil@[1.1.10,)")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )
 	public static Weather instance;
 	public static String modID = "weather2";
+
+	public static final String version = "${version}";
 
     @SidedProxy(clientSide = "weather2.ClientProxy", serverSide = "weather2.CommonProxy")
     public static CommonProxy proxy;

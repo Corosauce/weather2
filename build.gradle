@@ -20,14 +20,31 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "1.10.2-2.3.14"
+//version = "1.10.2-2.3.14"
+
 group= "weather2" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "weather2"
 
-sourceCompatibility = targetCompatibility = "1.7" // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = "1.7"
+    sourceCompatibility = targetCompatibility = "1.8"
 }
+targetCompatibility = 1.8
+
+ext.configFile = file "build.properties"
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+configurations {
+    deployerJars
+}
+
+
+
+version = "${config.minecraft_version}-${config.mod_version}"
 
 minecraft {
     version = "1.10.2-12.18.1.2073"
