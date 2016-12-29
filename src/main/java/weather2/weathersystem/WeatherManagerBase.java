@@ -33,14 +33,14 @@ public class WeatherManagerBase {
 	public int dim;
 	
 	//storms
-	private List<WeatherObject> listStormObjects = new ArrayList<WeatherObject>();
-	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<Long, WeatherObject>();
-	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<Integer, ArrayList<StormObject>>();
+	private List<WeatherObject> listStormObjects = new ArrayList<>();
+	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
+	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<>();
 	//private ArrayList<ArrayList<StormObject>> listStormObjectsByLayer = new ArrayList<ArrayList<StormObject>>();
 	
 	//volcanos
-	private List<VolcanoObject> listVolcanoes = new ArrayList<VolcanoObject>();
-	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<Long, VolcanoObject>();
+	private List<VolcanoObject> listVolcanoes = new ArrayList<>();
+	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<>();
 	
 	//wind
 	public WindManager windMan;
@@ -55,9 +55,9 @@ public class WeatherManagerBase {
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
 		windMan = new WindManager(this);
-		lookupStormObjectsByLayer.put(0, new ArrayList<>());
-		lookupStormObjectsByLayer.put(1, new ArrayList<>());
-		lookupStormObjectsByLayer.put(2, new ArrayList<>());
+		lookupStormObjectsByLayer.put(0, new ArrayList<StormObject>());
+		lookupStormObjectsByLayer.put(1, new ArrayList<StormObject>());
+		lookupStormObjectsByLayer.put(2, new ArrayList<StormObject>());
 	}
 	
 	public void reset() {
