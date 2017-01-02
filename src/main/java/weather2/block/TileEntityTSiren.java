@@ -11,6 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigSand;
 import weather2.util.WeatherUtilSound;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
@@ -52,55 +53,57 @@ public class TileEntityTSiren extends TileEntity implements ITickable
 	                /*this.soundID = */WeatherUtilSound.playNonMovingSound(pos, "streaming.siren", 1.0F, 1.0F, 120);
             	//}
             } else {
-                WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(pos);
+                if (!ConfigSand.Sandstorm_Siren_PleaseNoDarude) {
+                    WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(pos);
 
-                if (sandstorm != null) {
-                    List<Vec3> points = sandstorm.getSandstormAsShape();
+                    if (sandstorm != null) {
+                        List<Vec3> points = sandstorm.getSandstormAsShape();
 
-                    float distMax = 75F;
+                        float distMax = 75F;
 
-                    //double scale = sandstorm.getSandstormScale();
-                    boolean inStorm = CoroUtilPhysics.isInConvexShape(pos, points);
-                    double dist = Math.min(distMax, CoroUtilPhysics.getDistanceToShape(pos, points));
+                        //double scale = sandstorm.getSandstormScale();
+                        boolean inStorm = CoroUtilPhysics.isInConvexShape(pos, points);
+                        double dist = Math.min(distMax, CoroUtilPhysics.getDistanceToShape(pos, points));
 
-                    if (inStorm || dist < distMax) {
-                        String soundToPlay = "siren_sandstorm_5_extra";
-                        if (getWorld().rand.nextBoolean()) {
-                            soundToPlay = "siren_sandstorm_6_extra";
+                        if (inStorm || dist < distMax) {
+                            String soundToPlay = "siren_sandstorm_5_extra";
+                            if (getWorld().rand.nextBoolean()) {
+                                soundToPlay = "siren_sandstorm_6_extra";
+                            }
+
+                            float distScale = Math.max(0.1F, 1F - (float) ((dist) / distMax));
+                            if (inStorm) distScale = 1F;
+
+                            this.lastPlayTime = System.currentTimeMillis() + 15000L;//WeatherUtilSound.soundToLength.get(soundToPlay) - 500L;
+                            WeatherUtilSound.playNonMovingSound(pos, "streaming." + soundToPlay, 1F, distScale, distMax);
                         }
 
-                        float distScale = Math.max(0.1F, 1F - (float) ((dist) / distMax));
-                        if (inStorm) distScale = 1F;
+                        /*if (inStorm) {
+                            dist = 0;
+                        }
 
-                        this.lastPlayTime = System.currentTimeMillis() + 15000L;//WeatherUtilSound.soundToLength.get(soundToPlay) - 500L;
-                        WeatherUtilSound.playNonMovingSound(pos, "streaming." + soundToPlay, 1F, distScale, distMax);
+                        System.out.println("dist?: " + dist);
+
+                        float distScale = 1F - (float) ((dist) / distMax);
+                        distScale *= 2F * scale;
+
+                        String soundToPlay = "";
+
+                        System.out.println("siren scale: " + distScale);
+
+                        if (*//*inStorm || *//*distScale >= 0.75F) {
+                            soundToPlay = "siren_sandstorm_4";
+                        } else if (distScale >= 0.5F) {
+                            soundToPlay = "siren_sandstorm_3";
+                        } else if (distScale >= 0.25F) {
+                            soundToPlay = "siren_sandstorm_2";
+                        } else {
+                            soundToPlay = "siren_sandstorm_1";
+                        }
+
+                        this.lastPlayTime = System.currentTimeMillis() + WeatherUtilSound.soundToLength.get(soundToPlay) - 500L;
+                        WeatherUtilSound.playNonMovingSound(pos, "streaming." + soundToPlay, 1.0F, 1.0F, distMax);*/
                     }
-
-                    /*if (inStorm) {
-                        dist = 0;
-                    }
-
-                    System.out.println("dist?: " + dist);
-
-                    float distScale = 1F - (float) ((dist) / distMax);
-                    distScale *= 2F * scale;
-
-                    String soundToPlay = "";
-
-                    System.out.println("siren scale: " + distScale);
-
-                    if (*//*inStorm || *//*distScale >= 0.75F) {
-                        soundToPlay = "siren_sandstorm_4";
-                    } else if (distScale >= 0.5F) {
-                        soundToPlay = "siren_sandstorm_3";
-                    } else if (distScale >= 0.25F) {
-                        soundToPlay = "siren_sandstorm_2";
-                    } else {
-                        soundToPlay = "siren_sandstorm_1";
-                    }
-
-                    this.lastPlayTime = System.currentTimeMillis() + WeatherUtilSound.soundToLength.get(soundToPlay) - 500L;
-                    WeatherUtilSound.playNonMovingSound(pos, "streaming." + soundToPlay, 1.0F, 1.0F, distMax);*/
                 }
             }
         }

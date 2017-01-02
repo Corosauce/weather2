@@ -137,9 +137,8 @@ public class ServerTickHandler
 	        	}
         	}
         }
-        
-        //TODO: TURN OFF FOR RELEASE
-        boolean derp = true;
+
+        boolean derp = false;
         if (derp) {
         	if (world.getTotalWorldTime() % 2 == 0) {
 	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);

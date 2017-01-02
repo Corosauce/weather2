@@ -25,6 +25,8 @@ public class ConfigSand implements IConfigCategory {
     @ConfigComment("Allow layered sand blocks to buildup outside deserty biomes where sandstorm is")
     public static boolean Sandstorm_Sand_Buildup_AllowOutsideDesert = true;
 
+    public static boolean Sandstorm_Siren_PleaseNoDarude = false;
+
     @Override
     public String getName() {
         return "Sand";
