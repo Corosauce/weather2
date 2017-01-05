@@ -49,6 +49,8 @@ public class ConfigStorm implements IConfigCategory {
 
 	public static boolean Lightning_StartsFires = false;
 
+	public static int Storm_Deflector_RadiusOfStormRemoval = 150;
+
     @Override
     public String getName() {
         return "Storm";

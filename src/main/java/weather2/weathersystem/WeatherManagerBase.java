@@ -374,15 +374,19 @@ public class WeatherManagerBase {
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
+			if (wo.isDead) continue;
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
-				if (storm.isDead) continue;
-				
 				if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
 					storms.add(storm);
 				}
 			} else if (wo instanceof WeatherObjectSandstorm) {
-				storms.add(wo);
+				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
+				List<Vec3> points = sandstorm.getSandstormAsShape();
+				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
+				if (distToStorm < maxDist) {
+					storms.add(wo);
+				}
 			}
 		}
 		

@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
+import weather2.config.ConfigStorm;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
@@ -13,7 +14,7 @@ import weather2.weathersystem.storm.WeatherObject;
 
 public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 {
-	public int deflectorRadius = 150;
+	public int deflectorRadius = ConfigStorm.Storm_Deflector_RadiusOfStormRemoval;
 
 	@Override
     public void update()
