@@ -119,7 +119,7 @@ public class StormObject extends WeatherObject {
 	public static int TYPE_WATER = 1; //for tropical cyclones / hurricanes
 	
 	//used to mark intensity stages
-	public static int STATE_NORMAL = 0; //probably unused!
+	public static int STATE_NORMAL = 0;
 	public static int STATE_THUNDER = 1;
 	public static int STATE_HIGHWIND = 2;
 	public static int STATE_HAIL = 3;

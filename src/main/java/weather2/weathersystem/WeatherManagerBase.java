@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 
 import weather2.ServerTickHandler;
 import weather2.Weather;
+import weather2.config.ConfigStorm;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.EnumStormType;
 import weather2.weathersystem.storm.StormObject;
@@ -368,6 +369,30 @@ public class WeatherManagerBase {
 
 		return storms;
 	}
+
+    public List<WeatherObject> getStormsAroundForDeflector(Vec3 parPos, double maxDist) {
+        List<WeatherObject> storms = new ArrayList<>();
+
+        for (int i = 0; i < getStormObjects().size(); i++) {
+            WeatherObject wo = getStormObjects().get(i);
+            if (wo.isDead) continue;
+            if (wo instanceof StormObject) {
+                StormObject storm = (StormObject) wo;
+                if (storm.pos.distanceTo(parPos) < maxDist && ((storm.attrib_precipitation && ConfigStorm.Storm_Deflector_RemoveRainstorms) || storm.levelCurIntensityStage >= ConfigStorm.Storm_Deflector_MinStageRemove)) {
+                    storms.add(storm);
+                }
+            } else if (wo instanceof WeatherObjectSandstorm && ConfigStorm.Storm_Deflector_RemoveSandstorms) {
+                WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
+                List<Vec3> points = sandstorm.getSandstormAsShape();
+                double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
+                if (distToStorm < maxDist) {
+                    storms.add(wo);
+                }
+            }
+        }
+
+        return storms;
+    }
 
 	public List<WeatherObject> getStormsAround(Vec3 parPos, double maxDist) {
 		List<WeatherObject> storms = new ArrayList<>();

@@ -14,7 +14,6 @@ import weather2.weathersystem.storm.WeatherObject;
 
 public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 {
-	public int deflectorRadius = ConfigStorm.Storm_Deflector_RadiusOfStormRemoval;
 
 	@Override
     public void update()
@@ -27,7 +26,7 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
     			if (wm != null) {
 		    		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
 		    		
-		    		List<WeatherObject> storms = wm.getStormsAround(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), deflectorRadius);
+		    		List<WeatherObject> storms = wm.getStormsAroundForDeflector(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), ConfigStorm.Storm_Deflector_RadiusOfStormRemoval);
 		    		
 		    		for (int i = 0; i < storms.size(); i++) {
 						WeatherObject storm = storms.get(i);

@@ -1,5 +1,6 @@
 package weather2.config;
 
+import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -50,6 +51,11 @@ public class ConfigStorm implements IConfigCategory {
 	public static boolean Lightning_StartsFires = false;
 
 	public static int Storm_Deflector_RadiusOfStormRemoval = 150;
+
+    @ConfigComment("The minimum stage a storm has to be at to be removed, stages are: 0 = anything, 1 = thunder, 2 = high wind, 3 = hail, 4 = F0/C0, 5 = F1/C1, 6 = F2/C2, 7 = F3/C3, 8 = F4/C4, 9 = F5/C5")
+    public static int Storm_Deflector_MinStageRemove = 1;
+    public static boolean Storm_Deflector_RemoveRainstorms = false;
+    public static boolean Storm_Deflector_RemoveSandstorms = true;
 
     @Override
     public String getName() {
