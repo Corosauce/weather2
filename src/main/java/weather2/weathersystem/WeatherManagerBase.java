@@ -19,7 +19,7 @@ import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigStorm;
 import weather2.volcano.VolcanoObject;
-import weather2.weathersystem.storm.EnumStormType;
+import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
@@ -545,9 +545,9 @@ public class WeatherManagerBase {
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
                 WeatherObject wo = null;
-                if (data.getInteger("stormType") == EnumStormType.CLOUD.ordinal()) {
+                if (data.getInteger("stormType") == EnumWeatherObjectType.CLOUD.ordinal()) {
                     wo = new StormObject(this/*-1, -1, null*/);
-                } else if (data.getInteger("stormType") == EnumStormType.SAND.ordinal()) {
+                } else if (data.getInteger("stormType") == EnumWeatherObjectType.SAND.ordinal()) {
                     wo = new WeatherObjectSandstorm(this);
                     //initStormNew???
                 }

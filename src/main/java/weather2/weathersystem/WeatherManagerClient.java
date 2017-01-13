@@ -15,7 +15,7 @@ import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.volcano.VolcanoObject;
-import weather2.weathersystem.storm.EnumStormType;
+import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
@@ -60,12 +60,12 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			//long ID = stormNBT.getLong("ID");
 			
-			EnumStormType stormType = EnumStormType.get(stormNBT.getInteger("stormType"));
+			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInteger("weatherObjectType"));
 			
 			WeatherObject wo = null;
-			if (stormType == EnumStormType.CLOUD) {
+			if (weatherObjectType == EnumWeatherObjectType.CLOUD) {
 				wo = new StormObject(ClientTickHandler.weatherManager);
-			} else if (stormType == EnumStormType.SAND) {
+			} else if (weatherObjectType == EnumWeatherObjectType.SAND) {
 				wo = new WeatherObjectSandstorm(ClientTickHandler.weatherManager);
 			}
 			

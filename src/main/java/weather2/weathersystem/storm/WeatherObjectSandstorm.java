@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Biomes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.relauncher.Side;
@@ -73,7 +72,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	public WeatherObjectSandstorm(WeatherManagerBase parManager) {
 		super(parManager);
 		
-		this.stormType = EnumStormType.SAND;
+		this.weatherObjectType = EnumWeatherObjectType.SAND;
 		
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
