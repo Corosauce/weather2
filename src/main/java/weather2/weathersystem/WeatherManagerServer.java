@@ -1,6 +1,8 @@
 package weather2.weathersystem;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import cpw.mods.fml.common.event.FMLInterModComms;
 
@@ -100,14 +102,18 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 			
 			if (shouldUpdateHighWind || shouldUpdateLowWind) {
+				Set<NBTTagCompound> stormObjectsData = new HashSet<NBTTagCompound>();
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					StormObject so = getStormObjects().get(i);
 					if (so.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
 						if (shouldUpdateHighWind)
-							syncStormUpdate(so);
+							stormObjectsData.add(so.nbtSyncForClient());
+							//syncStormUpdate(so);
 					} else if (shouldUpdateLowWind)
-						syncStormUpdate(so);
+						stormObjectsData.add(so.nbtSyncForClient());
 				}
+				if (stormObjectsData.size() > 0)
+					syncStormUpdate(stormObjectsData);
 			}
 			
 			//sync volcanos
@@ -286,12 +292,16 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		//PacketDispatcher.sendPacketToAllAround(parStorm.pos.xCoord, parStorm.pos.yCoord, parStorm.pos.zCoord, syncRange, getWorld().provider.dimensionId, WeatherPacketHelper.createPacketForServerToClientSerialization("WeatherData", data));
 	}
 	
-	public void syncStormUpdate(StormObject parStorm) {
-		//packets
+	private void syncStormUpdate(Set<NBTTagCompound> stormObjectsData) {
 		NBTTagCompound data = new NBTTagCompound();
+		data.setInteger("stormCount", stormObjectsData.size());
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormUpdate");
-		data.setTag("data", parStorm.nbtSyncForClient());
+		int stormNumber = 0;
+		for (NBTTagCompound stormObjectData : stormObjectsData) {
+			data.setTag("storm" + stormNumber, stormObjectData);
+			stormNumber++;
+		}
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.dimensionId);
 	}
 	
