@@ -3,6 +3,7 @@ package weather2.weathersystem.storm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -51,11 +52,11 @@ import extendedrenderer.particle.entity.EntityRotFX;
 public class StormObject {
 
 	//used on both server and client side, mark things SideOnly where needed
-	
+
 	//size, state
-	
+
 	//should they extend entity?
-	
+
 	//management stuff
 	public static long lastUsedStormID = 0; //ID starts from 0 for each game start, no storm nbt disk reload for now
 	public long ID; //loosely accurate ID for tracking, but we wanted to persist between world reloads..... need proper UUID??? I guess add in UUID later and dont persist, start from 0 per game run
@@ -181,7 +182,12 @@ public class StormObject {
     //there is an issue with rainstorms sometimes never going away, this is a patch to mend the underlying issue i cant find yet
     public long ticksSinceLastPacketReceived = 0;
 	
+    // Use to cache the value we push out to clients. This is NOT the payload we actually send out - it's just used by the server to remember what it's already pushed out.
+    private NBTTagCompound cachedClientNBTState;
+	
     //public static long lastStormFormed = 0;
+    
+    
     
 	public StormObject(WeatherManagerBase parManager) {
 		manager = parManager;
@@ -278,57 +284,83 @@ public class StormObject {
 	
 	//receiver method
 	public void nbtSyncFromServer(NBTTagCompound parNBT) {
-		ID = parNBT.getLong("ID");
+		
+		/*
+		System.out.println("Received payload from server; length=" + parNBT.func_150296_c().size());
+		Iterator iterator = parNBT.func_150296_c().iterator();
+		String keys = "";
+		while (iterator.hasNext()) {
+			keys = keys.concat((String)iterator.next() + "; ");
+		}
+		System.out.println("    " + keys);
+		*/
+
+		//CachedNBTTagCompound newData = new CachedNBTTagCompound(cachedClientNBTState);
+		//NBTTagCompound newData = new CachedNBTTagCompound(cachedClientNBTState);
+		
+		CachedNBTTagCompound newData = new CachedNBTTagCompound(parNBT);
+		newData.setCachedNBT(cachedClientNBTState);
+		
+		ID = newData.getLong("ID");
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
-		pos = Vec3.createVectorHelper(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
-		size = parNBT.getInteger("size");
-		maxSize = parNBT.getInteger("maxSize");
+		pos = Vec3.createVectorHelper(newData.getInteger("posX"), newData.getInteger("posY"), newData.getInteger("posZ"));
 		
-		//state = parNBT.getInteger("state");
+		size = newData.getInteger("size");
+			
+		maxSize = newData.getInteger("maxSize");
 		
-		//attrib_tornado_severity = parNBT.getInteger("attrib_tornado_severity");
+		//state = newData.getInteger("state");
 		
-		//attrib_highwind = parNBT.getBoolean("attrib_highwind");
-		//attrib_tornado = parNBT.getBoolean("attrib_tornado");
-		//attrib_hurricane = parNBT.getBoolean("attrib_hurricane");
-		attrib_precipitation = parNBT.getBoolean("attrib_rain");
-		attrib_waterSpout = parNBT.getBoolean("attrib_waterSpout");
+		//attrib_tornado_severity = newData.getInteger("attrib_tornado_severity");
 		
-		currentTopYBlock = parNBT.getInteger("currentTopYBlock");
+		//attrib_highwind = newData.getBoolean("attrib_highwind");
+		//attrib_tornado = newData.getBoolean("attrib_tornado");
+		//attrib_hurricane = newData.getBoolean("attrib_hurricane");
+		attrib_precipitation = newData.getBoolean("attrib_rain");
+		attrib_waterSpout = newData.getBoolean("attrib_waterSpout");
 		
-		levelTemperature = parNBT.getFloat("levelTemperature");
-		levelWater = parNBT.getInteger("levelWater");
+		currentTopYBlock = newData.getInteger("currentTopYBlock");
 		
-		layer = parNBT.getInteger("layer");
+		levelTemperature = newData.getFloat("levelTemperature");
+		levelWater = newData.getInteger("levelWater");
 		
-		//curWeatherType = parNBT.getInteger("curWeatherType");
+		layer = newData.getInteger("layer");
 		
-		//formingStrength = parNBT.getFloat("formingStrength");
+		//curWeatherType = newData.getInteger("curWeatherType");
 		
-		levelCurIntensityStage = parNBT.getInteger("levelCurIntensityStage");
-		levelCurStagesIntensity = parNBT.getFloat("levelCurStagesIntensity");
-		stormType = parNBT.getInteger("stormType");
+		//formingStrength = newData.getFloat("formingStrength");
 		
-		hasStormPeaked = parNBT.getBoolean("hasStormPeaked");
+		levelCurIntensityStage = newData.getInteger("levelCurIntensityStage");
+		levelCurStagesIntensity = newData.getFloat("levelCurStagesIntensity");
+		stormType = newData.getInteger("stormType");
 		
-		//overCastModeAndRaining = parNBT.getBoolean("overCastModeAndRaining");
+		hasStormPeaked = newData.getBoolean("hasStormPeaked");
 		
-		isDead = parNBT.getBoolean("isDead");
+		//overCastModeAndRaining = newData.getBoolean("overCastModeAndRaining");
+		
+		isDead = newData.getBoolean("isDead");
+		
+		cachedClientNBTState = newData.getNewNBT();
 		
 		ticksSinceLastPacketReceived = 0;//manager.getWorld().getTotalWorldTime();
 	}
 	
 	//compose nbt data for packet (and serialization in future)
 	public NBTTagCompound nbtSyncForClient() {
-		NBTTagCompound data = new NBTTagCompound();
+		CachedNBTTagCompound data = new CachedNBTTagCompound();
+		data.setCachedNBT(cachedClientNBTState);
+		//NBTTagCompound data = new NBTTagCompound();
 		
+		data.setUpdateForced(true);
+		data.setLong("ID", ID);
+		data.setUpdateForced(false);
 		data.setInteger("posX", (int)pos.xCoord);
 		data.setInteger("posY", (int)pos.yCoord);
 		data.setInteger("posZ", (int)pos.zCoord);
 		
-		data.setLong("ID", ID);
 		data.setInteger("size", size);
+		
 		data.setInteger("maxSize", maxSize);
 		
 		//data.setInteger("state", state);
@@ -362,7 +394,106 @@ public class StormObject {
 		
 		data.setBoolean("isDead", isDead);
 		
-		return data;
+		cachedClientNBTState = data.getCachedNBT();
+		return data.getNewNBT();
+	}
+	
+	public class CachedNBTTagCompound {
+		private NBTTagCompound newData;
+		private NBTTagCompound cachedData;
+		private boolean forced = false;
+		
+		public CachedNBTTagCompound() {
+			this(new NBTTagCompound());
+		}
+		
+		public CachedNBTTagCompound(NBTTagCompound newData) {
+			this.newData = newData;
+		}
+		
+		public void setCachedNBT(NBTTagCompound cachedData) {
+			if (cachedData == null)
+				cachedData = new NBTTagCompound();
+			this.cachedData = cachedData;
+		}
+		
+		public NBTTagCompound getCachedNBT() {
+			return cachedData;
+		}
+		
+		public NBTTagCompound getNewNBT() {
+			return newData;
+		}
+		
+		public void setUpdateForced(boolean forced) {
+			this.forced = forced;
+		}
+
+		public long getLong(String key) {
+			if (!newData.hasKey(key))
+				newData.setLong(key, cachedData.getLong(key));
+			return newData.getLong(key);
+		}
+		
+		public void setLong(String key, long newVal) {
+			if (!cachedData.hasKey(key) || cachedData.getLong(key) != newVal || forced) {
+				newData.setLong(key, newVal);
+			}
+			cachedData.setLong(key, newVal);
+		}
+		
+		public int getInteger(String key) {
+			if (!newData.hasKey(key))
+				newData.setInteger(key, cachedData.getInteger(key));
+			return newData.getInteger(key);
+		}
+		
+		public void setInteger(String key, int newVal) {
+			if (!cachedData.hasKey(key) || cachedData.getInteger(key) != newVal || forced) {
+				newData.setInteger(key, newVal);
+			}
+			cachedData.setInteger(key, newVal);
+		}
+		
+		public short getShort(String key) {
+			if (!newData.hasKey(key))
+				newData.setShort(key, cachedData.getShort(key));
+			return newData.getShort(key);
+		}
+		
+		public void setShort(String key, short newVal) {
+			if (!cachedData.hasKey(key) || cachedData.getShort(key) != newVal || forced) {
+				newData.setShort(key, newVal);
+			}
+			cachedData.setShort(key, newVal);
+		}
+		
+		public boolean getBoolean(String key) {
+			if (!newData.hasKey(key))
+				newData.setBoolean(key, cachedData.getBoolean(key));
+			return newData.getBoolean(key);
+		}
+		
+		public void setBoolean(String key, boolean newVal) {
+			if (!cachedData.hasKey(key) || cachedData.getBoolean(key) != newVal || forced) {
+				newData.setBoolean(key, newVal);
+			}
+			cachedData.setBoolean(key, newVal);
+		}
+		
+		public float getFloat(String key) {
+			if (!newData.hasKey(key))
+				newData.setFloat(key, cachedData.getFloat(key));
+			return newData.getFloat(key);
+		}
+		
+		public void setFloat(String key, float newVal) {
+			if (!cachedData.hasKey(key) || cachedData.getFloat(key) != newVal || forced) {
+				newData.setFloat(key, newVal);
+			}
+			cachedData.setFloat(key, newVal);
+		}
+
 	}
 	
 	public NBTTagCompound nbtForIMC() {
