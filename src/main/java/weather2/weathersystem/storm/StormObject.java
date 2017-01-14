@@ -1964,7 +1964,9 @@ public class StormObject extends WeatherObject {
                 ent.fallDistance = 0F;
             }
 
-            
+            //mark last time tornado is flying player, and allow flight, event handler manages disabling flight after tornado stops flying player
+            ((EntityPlayer) entity1).getEntityData().setLong("CoroUtil_LastTimeFlying", ((EntityPlayer) entity1).worldObj.getTotalWorldTime());
+			((EntityPlayer)entity1).capabilities.allowFlying = true;
         }
         else if (entity1 instanceof EntityLivingBase)
         {
