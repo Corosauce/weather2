@@ -133,11 +133,11 @@ public class GuiEZConfig extends GuiScreen {
 		//Minecraft.getMinecraft().thePlayer.openContainer = Minecraft.getMinecraft().thePlayer.inventoryContainer;
 	}
 	
-	public void addButton(GuiButton btn) {
-		buttonsLookup.put(btn.id, btn);
-		//buttonsLookupInt.put(, lookupName);
-		buttonList.add(btn);
-	}
+	//public void addButton(GuiButton btn) {
+	//	buttonsLookup.put(btn.id, btn);
+	//	//buttonsLookupInt.put(, lookupName);
+	//	buttonList.add(btn);
+	//}
 	
 	/*public void addTextBox(String lookupName, GuiTextFieldZC textBox) {
 		textBoxes.add(textBox);
@@ -177,7 +177,7 @@ public class GuiEZConfig extends GuiScreen {
 		
 		//this.drawString(this.fontRenderer, "Server vals = OPs only", xStart+260, yStart+12, 16777215);
 		
-		this.drawString(this.fontRendererObj, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
+		this.drawString(this.fontRendererObj, "NOTE: The Compatibility Tab may crash your game under Java 1.8, Sorry for the inconvenience :(", xStart+7, yStart2-3-4, 16777215);
 		
 		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
 			this.drawString(this.fontRendererObj, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);

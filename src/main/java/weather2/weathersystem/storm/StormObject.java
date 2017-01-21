@@ -17,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -43,6 +44,7 @@ import weather2.util.WeatherUtilConfig;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
+import weather2.weathersystem.util.BiomeTypes;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.CoroUtilEntOrParticle;
@@ -99,7 +101,7 @@ public class StormObject extends WeatherObject {
 	public float levelWindMomentum = 0; //high elevation builds this, plains areas lowers it, 0 = no additional speed ontop of global speed
 	public float levelTemperature = 0; //negative for cold, positive for warm, we subtract 0.7 from vanilla values to make forest = 0, plains 0.1, ocean -0.5, etc
 	//public float levelWindDirectionAdjust = 0; //for persistant direction change i- wait just calculate on the fly based on temperature
-	
+
 	public int levelWaterStartRaining = 100;
 	
 	//storm data, used when its determined a storm will happen from cloud front collisions
@@ -143,7 +145,7 @@ public class StormObject extends WeatherObject {
 	//public int state = STATE_NORMAL;
 	
 	
-	//used for sure, rain is dependant on water level values
+	//used for sure, rain is dependent on water level values
 	public boolean attrib_precipitation = false;
 	public boolean attrib_waterSpout = false;
 	
@@ -201,7 +203,7 @@ public class StormObject extends WeatherObject {
 	public void initFirstTime() {
 		super.initFirstTime();
 		
-		Biome bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+		Biome bgb = manager.getWorld().getBiome(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 
 		
 		float temp = 1;
@@ -843,7 +845,7 @@ public class StormObject extends WeatherObject {
     {
 		World world = manager.getWorld();
 		
-		Biome biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
+		Biome biomegenbase = world.getBiome(new BlockPos(par1, 0, par3));
         
         if (biomegenbase == null) return false;
         
@@ -910,7 +912,7 @@ public class StormObject extends WeatherObject {
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
-			Biome bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+			Biome bgb = world.getBiome(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 			
 			//temperature scan
 			if (bgb != null) {
@@ -1204,6 +1206,16 @@ public class StormObject extends WeatherObject {
 						}
 					}
 				}
+			}
+			
+			
+			Double randomChance = Math.random();
+			//System.out.println(hasStormPeaked);
+			boolean isBiomeSuitable = BiomeTypes.isBiomeWarm(bgb) && BiomeTypes.isBiomeHumid(bgb);
+			//System.out.println(/*levelTemperature + " " + biomeIsSuitable + " " + */randomChance);
+			if (hasStormPeaked == true && isBiomeSuitable && ConfigStorm.Storm_OddsTo1OfStormRegenerationBase > randomChance){
+				System.out.println("Storm is regenerating");
+				hasStormPeaked = false;
 			}
 			
 			

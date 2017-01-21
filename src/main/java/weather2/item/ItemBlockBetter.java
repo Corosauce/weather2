@@ -92,10 +92,10 @@ public class ItemBlockBetter extends Item
 
                 if (tileentity != null)
                 {
-                    if (!worldIn.isRemote && tileentity.onlyOpsCanSetNbt() && (player == null || !player.func_189808_dh()))
-                    {
-                        return false;
-                    }
+                    //if (!worldIn.isRemote && tileentity.onlyOpsCanSetNbt() && (player == null || !player.func_189808_dh()))
+                    //{
+                    //    return false;
+                    //}
 
                     NBTTagCompound nbttagcompound = tileentity.writeToNBT(new NBTTagCompound());
                     NBTTagCompound nbttagcompound1 = nbttagcompound.copy();

@@ -50,7 +50,9 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PREF_BLOCKDESTRUCTION = 11;
 	public static int CMD_BTN_PREF_TORNADOANDCYCLONES = 15;
 	
-	public static int CMD_BTN_HIGHEST_ID = 15;
+	public static int CMD_BTN_PREF_STORMREGENERATION = 16;
+	
+	public static int CMD_BTN_HIGHEST_ID = 16;
 
 	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
 	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
@@ -87,6 +89,7 @@ public class WeatherUtilConfig {
 		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFRAIN);
 		listSettingsServer.add(CMD_BTN_PREF_BLOCKDESTRUCTION);
 		listSettingsServer.add(CMD_BTN_PREF_TORNADOANDCYCLONES);
+		listSettingsServer.add(CMD_BTN_PREF_STORMREGENERATION);
 	}
 	
 	//client should call this on detecting a close/save of GUI
@@ -267,7 +270,12 @@ public class WeatherUtilConfig {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)) {
 				ConfigTornado.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
 			}
+
 			
+			//added this, added rare chance that storms can turn active again when over warm and moist biome
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_STORMREGENERATION)){
+				ConfigStorm.Storm_OddsTo1OfStormRegenerationBase = nbtServerData.getDouble("btn_" + CMD_BTN_PREF_STORMREGENERATION);
+			}
 			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
 			//Iterator it = nbtDims.getTags().iterator();
 			

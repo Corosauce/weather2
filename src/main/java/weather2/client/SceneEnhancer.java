@@ -418,7 +418,7 @@ public class SceneEnhancer implements Runnable {
 			
 			int precipitationHeight = entP.worldObj.getPrecipitationHeight(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ))).getY();
 			
-			Biome biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
+			Biome biomegenbase = entP.worldObj.getBiomeForCoordsBody(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
             if (/*true*/biomegenbase != null/* || biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow()*/)
             {
@@ -997,7 +997,7 @@ public class SceneEnhancer implements Runnable {
                             {
                             	
                             	//null check biome in future if used
-                            	float temp = worldRef.getBiomeGenForCoords(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
+                            	float temp = worldRef.getBiomeForCoordsBody(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
                             	
                             	//System.out.println(temp);
                             	

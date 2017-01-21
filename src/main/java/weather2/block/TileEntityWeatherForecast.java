@@ -27,7 +27,7 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
 	
 	public StormObject lastTickStormObject = null;
 	
-	public List<WeatherObject> storms = new ArrayList<>();
+	public List<WeatherObject> storms = new ArrayList<WeatherObject>();
 	
 	//public MapHandler mapHandler;
 	

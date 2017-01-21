@@ -35,7 +35,7 @@ public class WeatherUtilSound {
     public static String snd_sandstorm_low[] = new String[2];
     public static String snd_sandstorm_med[] = new String[2];
     public static String snd_sandstorm_high[] = new String[1];
-    public static HashMap<String, Integer> soundToLength = new HashMap<>();
+    public static HashMap<String, Integer> soundToLength = new HashMap<String, Integer>();
 
     /**
      * These need to match the amount of array'd strings we use for sounds, was 3, now 6 for sandstorm addition

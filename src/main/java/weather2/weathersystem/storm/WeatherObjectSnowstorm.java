@@ -7,6 +7,7 @@ import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -45,7 +46,7 @@ import extendedrenderer.particle.entity.EntityRotFX;
  * @author Corosus
  *
  */
-public class WeatherObjectSandstorm extends WeatherObject {
+public class WeatherObjectSnowstorm extends WeatherObject {
 
 	public int height = 0;
 	
@@ -69,10 +70,10 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	
 	public Random rand = new Random();
 	
-	public WeatherObjectSandstorm(WeatherManagerBase parManager) {
+	public WeatherObjectSnowstorm(WeatherManagerBase parManager) {
 		super(parManager);
 		
-		this.weatherObjectType = EnumWeatherObjectType.SAND;
+		this.weatherObjectType = EnumWeatherObjectType.HORIZONTAL;
 		
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
@@ -80,7 +81,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 	}
 	
-	public void initSandstormSpawn(Vec3 pos) {
+	public void initSnowstormSpawn(Vec3 pos) {
 		this.pos = new Vec3(pos);
 		
 		size = 1;
@@ -113,7 +114,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		maxHeight = 100;*/
 	}
 	
-	public float getSandstormScale() {
+	public float getSnowstormScale() {
 		if (isFrontGrowing) {
 			return (float)size / (float)maxSize;
 		} else {
@@ -121,8 +122,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 	}
 	
-	public static boolean isDesert(Biome biome) {
-		return isDesert(biome, false);
+	public static boolean isSnowy(Biome biome) {
+		return isSnowy(biome, false);
 	}
 	
 	/**
@@ -132,10 +133,10 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 * @param forSpawn
 	 * @return
 	 */
-	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.getBiomeName().toLowerCase().contains("desert");
-	}
+	public static boolean isSnowy(Biome biome, boolean forSpawn) {
+		return biome == Biomes.ICE_MOUNTAINS || biome == Biomes.ICE_PLAINS || biome == Biomes.MUTATED_ICE_FLATS || biome == Biomes.COLD_BEACH || biome == Biomes.COLD_TAIGA || biome == Biomes.COLD_TAIGA_HILLS || biome == Biomes.MUTATED_TAIGA_COLD || biome == Biomes.FROZEN_OCEAN || biome == Biomes.FROZEN_RIVER || biome == Biomes.RIVER ;
 	
+	}
 	/**
 	 * 
 	 * - size of storm determined by how long it was in desert
@@ -170,7 +171,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			if (isFrontGrowing && world.isBlockLoaded(posBlock)) {
 				Biome biomeIn = world.getBiomeForCoordsBody(posBlock);
 
-				if (isDesert(biomeIn)) {
+				if (isSnowy(biomeIn)) {
 					isFrontGrowing = true;
 				} else {
 					//System.out.println("sandstorm fadeout started");
@@ -252,7 +253,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.yCoord = yy + 1;
 	}
 	
-	public void tickBlockSandBuildup() {
+	public void tickBlockSnowBuildup() {
 
 		World world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
@@ -261,7 +262,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		//keep it set to do a lot of work only occasionally, prevents chunk render update spam for client which kills fps 
 		int delay = ConfigSand.Sandstorm_Sand_Buildup_TickRate;
-		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getSandstormScale());
+		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getSnowstormScale());
 		
 		int count = 0;
 		
@@ -272,7 +273,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    	for (int i = 0; i < loop; i++) {
 		    		
 		    		//rate of placement based on storm intensity
-		    		if (rand.nextDouble() >= getSandstormScale()) continue;
+		    		if (rand.nextDouble() >= getSnowstormScale()) continue;
 
 					Vec3 vecPos = getRandomPosInSandstorm();
 
@@ -284,8 +285,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 					Biome biomeIn = world.getBiomeForCoordsBody(vecPos.toBlockPos());
 
-					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
-						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isSnowy(biomeIn)) {
+						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW_LAYER);
 					}
 
 					count++;
@@ -332,8 +333,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 		
 		//if (size >= 2) {
-		if (getSandstormScale() > 0.2D) {
-			tickBlockSandBuildup();
+		if (getSnowstormScale() > 0.2D) {
+			tickBlockSnowBuildup();
 		}
 		
 		this.posGround.xCoord = pos.xCoord;
@@ -425,7 +426,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * stormfront wall
     	 */
-    	float sandstormScale = getSandstormScale();
+    	float sandstormScale = getSnowstormScale();
 
 		double sandstormParticleRateDust = ConfigParticle.Sandstorm_Particle_Dust_effect_rate;
     	if (size > 0/*isFrontGrowing || sandstormScale > 0.5F*/) {
@@ -620,7 +621,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    //System.out.println("spawn particles at: " + pos);
 	}
 	
-	public Vec3 getRandomPosInSandstorm() {
+	public Vec3 getRandomPosInSnowstorm() {
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
 		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
@@ -645,7 +646,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		return new Vec3(x, 0, z);
 	}
 	
-	public List<Vec3> getSandstormAsShape() {
+	public List<Vec3> getSnowstormAsShape() {
 		List<Vec3> listPoints = new ArrayList<Vec3>();
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
