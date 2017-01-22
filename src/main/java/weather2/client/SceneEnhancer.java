@@ -993,11 +993,11 @@ public class SceneEnhancer implements Runnable {
                         			//pm.particles.add(entityfx);
                             	}
                             }
-                            else if (false && CoroUtilBlock.isAir(block))
-                            {
+                            //else if (false && CoroUtilBlock.isAir(block))
+                            //{
                             	
                             	//null check biome in future if used
-                            	float temp = worldRef.getBiomeForCoordsBody(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
+                            	//float temp = worldRef.getBiomeForCoordsBody(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
                             	
                             	//System.out.println(temp);
                             	
@@ -1066,7 +1066,7 @@ public class SceneEnhancer implements Runnable {
                         	}
                         }*/
                     
-                }
+                //}
             }
         }
     }
@@ -1139,10 +1139,10 @@ public class SceneEnhancer implements Runnable {
                     	
                     	EntityRotFX entity1 = (EntityRotFX) particle;
                     	
-                        if (entity1 == null)
-                        {
-                            continue;
-                        }
+                        //if (entity1 == null)
+                        //{
+                        //    continue;
+                        //}
 
                         
                         
@@ -1405,7 +1405,7 @@ public class SceneEnhancer implements Runnable {
     	
     	
     	
-    	if (true || miniTornado.particles.size() == 0) {
+    	if (true /*|| miniTornado.particles.size() == 0*/) {
 	    	for (int i = 0; i < 1; i++) {
 	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, miniTornado.coordSource.xCoord, miniTornado.coordSource.yCoord, miniTornado.coordSource.zCoord, 0, 0, 0, ParticleRegistry.squareGrey);
 	    		miniTornado.initParticle(part);
