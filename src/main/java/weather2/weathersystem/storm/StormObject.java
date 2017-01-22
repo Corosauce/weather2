@@ -112,7 +112,6 @@ public class StormObject extends WeatherObject {
 	public float levelCurStagesIntensity = 0;
 	//public boolean isRealStorm = false;
 	public boolean hasStormPeaked = false;
-	public boolean wasStormRevived = false;
 	
 	public int maxIntensityStage = STATE_STAGE5;
 	
@@ -521,7 +520,7 @@ public class StormObject extends WeatherObject {
 		
 		//Weather.dbg("cur angle: " + angle);
 		
-		double vecX= -Math.sin(Math.toRadians(angle));
+		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
 		
 		float cloudSpeedAmp = 0.2F;
@@ -1208,20 +1207,14 @@ public class StormObject extends WeatherObject {
 					}
 				}
 			}
-			if (wasStormRevived && stormType == TYPE_WATER){
-				Biome currentBiome = world.getBiome(new BlockPos(pos.xCoord, pos.yCoord, pos.zCoord));
-				if (!(currentBiome == Biomes.OCEAN || currentBiome == Biomes.DEEP_OCEAN)){
-					hasStormPeaked = true;
-				}
-			}
+			
 			
 			Double randomChance = Math.random();
 			//System.out.println(hasStormPeaked);
-			boolean isBiomeSuitable = !(stormType == TYPE_WATER) && BiomeTypes.isBiomeWeatherActive(world, new BlockPos(pos.xCoord, pos.yCoord, pos.zCoord));
+			boolean isBiomeSuitable = BiomeTypes.isBiomeWarm(bgb) && BiomeTypes.isBiomeHumid(bgb);
 			//System.out.println(/*levelTemperature + " " + biomeIsSuitable + " " + */randomChance);
 			if (hasStormPeaked == true && isBiomeSuitable && ConfigStorm.Storm_OddsTo1OfStormRegenerationBase > randomChance){
-				Weather.dbg("Storm is regenerating");
-				wasStormRevived = true;
+				System.out.println("Storm is regenerating");
 				hasStormPeaked = false;
 			}
 			

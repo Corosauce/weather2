@@ -16,7 +16,6 @@ import weather2.item.ItemWeatherRecipe;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
-import weather2.weathersystem.util.BiomeTypes;
 import CoroUtil.util.CoroUtilFile;
 
 @Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil")
@@ -69,6 +68,7 @@ public class Weather {
     
     @Mod.EventHandler
     public void serverStart(FMLServerStartedEvent event) {
+    	
     }
     
     @Mod.EventHandler
