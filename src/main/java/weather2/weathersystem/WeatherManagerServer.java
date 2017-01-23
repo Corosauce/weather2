@@ -22,6 +22,7 @@ import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectSnowstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.CoroUtilEntity;
@@ -286,6 +287,121 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 
 		Weather.dbg("couldnt spawn sandstorm");
+		return false;
+		
+		/*if (foundPos != null) {
+			
+		} else {
+			System.out.println("couldnt spawn sandstorm");
+			return false;
+		}*/
+	}
+	
+	public boolean trySpawnSnowstormNearPos(World world, Vec3 posIn) {
+		/**
+		 * 1. Start upwind
+		 * 2. Find random spot near there loaded and in desert
+		 * 3. scan upwind and downwind, require a good stretch of sand for a storm
+		 */
+		
+		int searchRadius = 512;
+		
+		double angle = windMan.getWindAngleForClouds();
+		//-1 for upwind
+		double dirX = -Math.sin(Math.toRadians(angle));
+		double dirZ = Math.cos(Math.toRadians(angle));
+		double vecX = dirX * searchRadius/2 * -1;
+		double vecZ = dirZ * searchRadius/2 * -1;
+		
+		Random rand = new Random();
+		
+		BlockPos foundPos = null;
+		
+		int findTriesMax = 30;
+		for (int i = 0; i < findTriesMax; i++) {
+			
+			int x = MathHelper.floor_double(posIn.xCoord + vecX + rand.nextInt(searchRadius * 2) - searchRadius);
+			int z = MathHelper.floor_double(posIn.zCoord + vecZ + rand.nextInt(searchRadius * 2) - searchRadius);
+			
+			BlockPos pos = new BlockPos(x, 0, z);
+			
+			if (!world.isBlockLoaded(pos)) continue;
+			Biome biomeIn = world.getBiomeForCoordsBody(pos);
+			
+			if (WeatherObjectSnowstorm.isSnowy(biomeIn, true)) {
+				//found
+				foundPos = pos;
+				//break;
+				
+				//check left and right about 20 blocks, if its not still desert, force retry
+				double dirXLeft = -Math.sin(Math.toRadians(angle-90));
+				double dirZLeft = Math.cos(Math.toRadians(angle-90));
+				double dirXRight = -Math.sin(Math.toRadians(angle+90));
+				double dirZRight = Math.cos(Math.toRadians(angle+90));
+				
+				double distLeftRight = 20;
+				BlockPos posLeft = new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight));
+				if (!world.isBlockLoaded(posLeft)) continue;
+				if (!WeatherObjectSnowstorm.isSnowy(world.getBiomeForCoordsBody(posLeft))) continue;
+				
+				BlockPos posRight = new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight));
+				if (!world.isBlockLoaded(posRight)) continue;
+				if (!WeatherObjectSnowstorm.isSnowy(world.getBiomeForCoordsBody(posRight))) continue;
+				
+				//go as far upwind as possible until no desert / unloaded area
+				
+				BlockPos posFind = new BlockPos(foundPos);
+				BlockPos posFindLastGoodUpwind = new BlockPos(foundPos);
+				BlockPos posFindLastGoodDownwind = new BlockPos(foundPos);
+				double tickDist = 10;
+				
+				while (world.isBlockLoaded(posFind) && WeatherObjectSnowstorm.isSnowy(world.getBiomeForCoordsBody(posFind))) {
+					//update last good
+					posFindLastGoodUpwind = new BlockPos(posFind);
+					
+					//scan against wind (upwind)
+					int xx = MathHelper.floor_double(posFind.getX() + (dirX * -1D * tickDist));
+					int zz = MathHelper.floor_double(posFind.getZ() + (dirZ * -1D * tickDist));
+					
+					posFind = new BlockPos(xx, 0, zz);
+				}
+				
+				//reset for downwind scan
+				posFind = new BlockPos(foundPos);
+				
+				while (world.isBlockLoaded(posFind) && WeatherObjectSnowstorm.isSnowy(world.getBiomeForCoordsBody(posFind))) {
+					//update last good
+					posFindLastGoodDownwind = new BlockPos(posFind);
+					
+					//scan with wind (downwind)
+					int xx = MathHelper.floor_double(posFind.getX() + (dirX * 1D * tickDist));
+					int zz = MathHelper.floor_double(posFind.getZ() + (dirZ * 1D * tickDist));
+					
+					posFind = new BlockPos(xx, 0, zz);
+				}
+				
+				int minDistanceOfDesertStretchNeeded = 200;
+				double dist = posFindLastGoodUpwind.getDistance(posFindLastGoodDownwind.getX(), posFindLastGoodDownwind.getY(), posFindLastGoodDownwind.getZ());
+				
+				if (dist >= minDistanceOfDesertStretchNeeded) {
+					
+					WeatherObjectSnowstorm sandstorm = new WeatherObjectSnowstorm(this);
+
+					sandstorm.initFirstTime();
+					BlockPos posSpawn = new BlockPos(world.getHeight(posFindLastGoodUpwind)).add(0, 1, 0);
+					sandstorm.initSnowSpawn(new Vec3(posSpawn));
+					addStormObject(sandstorm);
+					syncStormNew(sandstorm);
+
+					Weather.dbg("found decent spot and stretch for snowstorm, stretch: " + dist);
+					return true;
+				}
+				
+				
+			}
+		}
+
+		Weather.dbg("couldnt spawn snowstorm");
 		return false;
 		
 		/*if (foundPos != null) {

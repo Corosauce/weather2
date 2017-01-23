@@ -120,6 +120,7 @@ public class StormObject extends WeatherObject {
 	public int stormType = TYPE_LAND;
 	public static int TYPE_LAND = 0; //for tornados
 	public static int TYPE_WATER = 1; //for tropical cyclones / hurricanes
+	public static int TYPE_SNOW = 2;
 	
 	//used to mark intensity stages
 	public static int STATE_NORMAL = 0;
@@ -1217,9 +1218,9 @@ public class StormObject extends WeatherObject {
 			
 			Double randomChance = Math.random();
 			//System.out.println(hasStormPeaked);
-			boolean isBiomeSuitable = !(stormType == TYPE_WATER) && BiomeTypes.isBiomeWeatherActive(world, new BlockPos(pos.xCoord, pos.yCoord, pos.zCoord));
+			boolean isBiomeSuitable = !(stormType == TYPE_WATER) && !(stormType == TYPE_SNOW) && BiomeTypes.isBiomeWeatherActive(world, new BlockPos(pos.xCoord, pos.yCoord, pos.zCoord));
 			//System.out.println(/*levelTemperature + " " + biomeIsSuitable + " " + */randomChance);
-			if (hasStormPeaked == true && isBiomeSuitable && ConfigStorm.Storm_OddsTo1OfStormRegenerationBase > randomChance){
+			if (hasStormPeaked == true && isBiomeSuitable && ConfigStorm.Storm_OddsTo1OfStormRegenerationBase / maxSize > randomChance){
 				Weather.dbg("Storm is regenerating");
 				wasStormRevived = true;
 				hasStormPeaked = false;

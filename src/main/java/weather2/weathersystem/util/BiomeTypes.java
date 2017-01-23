@@ -10,8 +10,6 @@ import weather2.CommandWeather2;
 
 public class BiomeTypes {
 	
-	
-	
 	public static boolean isBiomeWeatherActive(World world, BlockPos blockpos){
 		boolean biomeIsWarm = false;
 		//Even though Ocean is cold we treat it like its hot because it is Humidissimo
@@ -21,6 +19,14 @@ public class BiomeTypes {
 		}
 		System.out.println(biomeIsWarm);
 		if (biomeIsWarm){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static boolean isBiomeFavorableForSnowstorms(Biome biome){
+		if (biome == Biomes.ICE_MOUNTAINS || biome == Biomes.ICE_PLAINS || biome == Biomes.MUTATED_ICE_FLATS || biome == Biomes.EXTREME_HILLS || biome == Biomes.EXTREME_HILLS_EDGE || biome == Biomes.EXTREME_HILLS_WITH_TREES || biome == Biomes.MUTATED_EXTREME_HILLS || biome == Biomes.MUTATED_EXTREME_HILLS_WITH_TREES || biome == Biomes.COLD_BEACH || biome == Biomes.COLD_TAIGA || biome == Biomes.COLD_TAIGA_HILLS || biome == Biomes.MUTATED_TAIGA_COLD || biome == Biomes.FOREST_HILLS){
 			return true;
 		} else {
 			return false;
