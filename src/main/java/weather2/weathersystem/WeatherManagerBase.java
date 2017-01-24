@@ -23,6 +23,7 @@ import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectSnowstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.util.CoroUtilFile;
 import CoroUtil.util.Vec3;
@@ -34,14 +35,14 @@ public class WeatherManagerBase {
 	public int dim;
 	
 	//storms
-	private List<WeatherObject> listStormObjects = new ArrayList<WeatherObject>();
-	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<Long, WeatherObject>();
-	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<Integer, ArrayList<StormObject>>();
+	private List<WeatherObject> listStormObjects = new ArrayList<>();
+	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
+	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<>();
 	//private ArrayList<ArrayList<StormObject>> listStormObjectsByLayer = new ArrayList<ArrayList<StormObject>>();
 	
 	//volcanos
-	private List<VolcanoObject> listVolcanoes = new ArrayList<VolcanoObject>();
-	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<Long, VolcanoObject>();
+	private List<VolcanoObject> listVolcanoes = new ArrayList<>();
+	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<>();
 	
 	//wind
 	public WindManager windMan;
@@ -304,6 +305,35 @@ public class WeatherManagerBase {
 		
 		return closestStorm;
 	}
+	
+	public WeatherObjectSnowstorm getClosestSnowstorm(Vec3 parPos, double maxDist) {
+		
+		WeatherObjectSnowstorm closestStorm = null;
+		double closestDist = 9999999;
+		
+		List<WeatherObject> listStorms = getStormObjects();
+		
+		for (int i = 0; i < listStorms.size(); i++) {
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof WeatherObjectSnowstorm) {
+				WeatherObjectSnowstorm storm = (WeatherObjectSnowstorm) wo;
+				if (storm == null || storm.isDead) continue;
+				double dist = storm.pos.distanceTo(parPos);
+				/*if (getWorld().isRemote) {
+					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
+				}*/
+				if (dist < closestDist && dist <= maxDist) {
+					//if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
+						closestStorm = storm;
+						closestDist = dist;
+					//}
+				}
+			}
+			
+		}
+		
+		return closestStorm;
+	}
 
 	/**
 	 * Gets the most intense sandstorm, used for effects and sounds
@@ -352,8 +382,49 @@ public class WeatherManagerBase {
 		return bestStorm;
 	}
 
+	public WeatherObjectSnowstorm getClosestSnowstormByIntensity(Vec3 parPos/*, double maxDist*/) {
+
+		WeatherObjectSnowstorm bestStorm = null;
+		double closestDist = 9999999;
+		double mostIntense = 0;
+
+		List<WeatherObject> listStorms = getStormObjects();
+
+		for (int i = 0; i < listStorms.size(); i++) {
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof WeatherObjectSnowstorm) {
+				WeatherObjectSnowstorm sandstorm = (WeatherObjectSnowstorm) wo;
+				if (sandstorm == null || sandstorm.isDead) continue;
+
+				List<Vec3> points = sandstorm.getSnowstormAsShape();
+
+				double scale = sandstorm.getSnowstormScale();
+				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, points);
+				double dist = CoroUtilPhysics.getDistanceToShape(parPos, points);
+				//if best is within storm, compare intensity
+				if (inStorm) {
+					//System.out.println("in storm");
+					closestDist = 0;
+					if (scale > mostIntense) {
+						mostIntense = scale;
+						bestStorm = sandstorm;
+					}
+				//if best is not within storm, compare distance to shape
+				} else if (closestDist > 0/* && dist < maxDist*/) {
+					if (dist < closestDist) {
+						closestDist = dist;
+						bestStorm = sandstorm;
+					}
+				}
+			}
+
+		}
+
+		return bestStorm;
+	}
+	
 	public List<WeatherObject> getSandstormsAround(Vec3 parPos, double maxDist) {
-		List<WeatherObject> storms = new ArrayList<WeatherObject>();
+		List<WeatherObject> storms = new ArrayList<>();
 
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
@@ -370,8 +441,26 @@ public class WeatherManagerBase {
 		return storms;
 	}
 
+	public List<WeatherObject> getSnowstormsAround(Vec3 parPos, double maxDist) {
+		List<WeatherObject> storms = new ArrayList<>();
+
+		for (int i = 0; i < getStormObjects().size(); i++) {
+			WeatherObject wo = getStormObjects().get(i);
+			if (wo instanceof WeatherObjectSnowstorm) {
+				WeatherObjectSnowstorm storm = (WeatherObjectSnowstorm) wo;
+				if (storm.isDead) continue;
+
+				if (storm.pos.distanceTo(parPos) < maxDist) {
+					storms.add(storm);
+				}
+			}
+		}
+
+		return storms;
+	}
+
     public List<WeatherObject> getStormsAroundForDeflector(Vec3 parPos, double maxDist) {
-        List<WeatherObject> storms = new ArrayList<WeatherObject>();
+        List<WeatherObject> storms = new ArrayList<>();
 
         for (int i = 0; i < getStormObjects().size(); i++) {
             WeatherObject wo = getStormObjects().get(i);
@@ -388,6 +477,13 @@ public class WeatherManagerBase {
                 if (distToStorm < maxDist) {
                     storms.add(wo);
                 }
+            } else if (wo instanceof WeatherObjectSnowstorm && ConfigStorm.Storm_Deflector_RemoveSandstorms) {
+                WeatherObjectSnowstorm sandstorm = (WeatherObjectSnowstorm)wo;
+                List<Vec3> points = sandstorm.getSnowstormAsShape();
+                double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
+                if (distToStorm < maxDist) {
+                    storms.add(wo);
+                }
             }
         }
 
@@ -395,7 +491,7 @@ public class WeatherManagerBase {
     }
 
 	public List<WeatherObject> getStormsAround(Vec3 parPos, double maxDist) {
-		List<WeatherObject> storms = new ArrayList<WeatherObject>();
+		List<WeatherObject> storms = new ArrayList<>();
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
@@ -408,6 +504,13 @@ public class WeatherManagerBase {
 			} else if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
 				List<Vec3> points = sandstorm.getSandstormAsShape();
+				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
+				if (distToStorm < maxDist) {
+					storms.add(wo);
+				}
+			} else if (wo instanceof WeatherObjectSnowstorm) {
+				WeatherObjectSnowstorm sandstorm = (WeatherObjectSnowstorm)wo;
+				List<Vec3> points = sandstorm.getSnowstormAsShape();
 				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
 				if (distToStorm < maxDist) {
 					storms.add(wo);
@@ -549,6 +652,9 @@ public class WeatherManagerBase {
                     wo = new StormObject(this/*-1, -1, null*/);
                 } else if (data.getInteger("stormType") == EnumWeatherObjectType.SAND.ordinal()) {
                     wo = new WeatherObjectSandstorm(this);
+                    //initStormNew???
+                } else if (data.getInteger("stormType") == EnumWeatherObjectType.SNOW.ordinal()) {
+                    wo = new WeatherObjectSnowstorm(this);
                     //initStormNew???
                 }
 				try {

@@ -19,6 +19,7 @@ import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectSnowstorm;
 
 @SideOnly(Side.CLIENT)
 public class WeatherManagerClient extends WeatherManagerBase {
@@ -26,7 +27,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 	//data for client, stormfronts synced from server
 	
 	//new for 1.10.2, replaces world.weatherEffects use
-	public List<Particle> listWeatherEffectedParticles = new ArrayList<Particle>();
+	public List<Particle> listWeatherEffectedParticles = new ArrayList<>();
 
 	public WeatherManagerClient(int parDim) {
 		super(parDim);
@@ -67,6 +68,8 @@ public class WeatherManagerClient extends WeatherManagerBase {
 				wo = new StormObject(ClientTickHandler.weatherManager);
 			} else if (weatherObjectType == EnumWeatherObjectType.SAND) {
 				wo = new WeatherObjectSandstorm(ClientTickHandler.weatherManager);
+			} else if (weatherObjectType == EnumWeatherObjectType.SNOW) {
+				wo = new WeatherObjectSnowstorm(ClientTickHandler.weatherManager);
 			}
 			
 			//StormObject so

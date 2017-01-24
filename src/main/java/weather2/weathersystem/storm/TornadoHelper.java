@@ -57,7 +57,7 @@ public class TornadoHelper {
      * - initially, entries were spam added as the block still existed, changed list to hashmap to allow for blockpos hash lookup before adding another entry
      * - entity creation relocated to queue processing to initially prevent entity spam, but with entry lookup, not needed, other issues like collision are now the reason why we still relocated entity creation to queue process
      */
-    private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<BlockPos, BlockUpdateSnapshot>();
+    private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<>();
     private int queueProcessRate = 10;
     
     public static class BlockUpdateSnapshot {
@@ -211,7 +211,7 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            Biome bgb = parWorld.getBiome(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
+            Biome bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
         	
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/heightVariation is correct, guessing we can just not factor in variation

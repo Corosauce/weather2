@@ -44,8 +44,10 @@ public class ClientProxy extends CommonProxy
 	public static TextureAtlasSprite radarIconTornado;
 	public static TextureAtlasSprite radarIconCyclone;
     public static TextureAtlasSprite radarIconSandstorm;
-	
+	public static TextureAtlasSprite radarIconSnowstorm;
+    
 	public static ClientTickHandler clientTickHandler;
+
 	
     public ClientProxy()
     {
