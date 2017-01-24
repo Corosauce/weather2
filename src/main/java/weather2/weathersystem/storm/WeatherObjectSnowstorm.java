@@ -78,7 +78,7 @@ public class WeatherObjectSnowstorm extends WeatherObject {
 		//Yup that is supposed to be that way, both work very similar!
 		
 		if (parManager.getWorld().isRemote) {
-			listParticlesCloud = new ArrayList<EntityRotFX>();
+			listParticlesCloud = new ArrayList<>();
 			
 		}
 	}

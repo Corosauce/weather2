@@ -35,14 +35,14 @@ public class WeatherManagerBase {
 	public int dim;
 	
 	//storms
-	private List<WeatherObject> listStormObjects = new ArrayList<WeatherObject>();
-	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<Long, WeatherObject>();
-	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<Integer, ArrayList<StormObject>>();
+	private List<WeatherObject> listStormObjects = new ArrayList<>();
+	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
+	public HashMap<Integer, ArrayList<StormObject>> lookupStormObjectsByLayer = new HashMap<>();
 	//private ArrayList<ArrayList<StormObject>> listStormObjectsByLayer = new ArrayList<ArrayList<StormObject>>();
 	
 	//volcanos
-	private List<VolcanoObject> listVolcanoes = new ArrayList<VolcanoObject>();
-	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<Long, VolcanoObject>();
+	private List<VolcanoObject> listVolcanoes = new ArrayList<>();
+	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<>();
 	
 	//wind
 	public WindManager windMan;
@@ -424,7 +424,7 @@ public class WeatherManagerBase {
 	}
 	
 	public List<WeatherObject> getSandstormsAround(Vec3 parPos, double maxDist) {
-		List<WeatherObject> storms = new ArrayList<WeatherObject>();
+		List<WeatherObject> storms = new ArrayList<>();
 
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
@@ -442,7 +442,7 @@ public class WeatherManagerBase {
 	}
 
 	public List<WeatherObject> getSnowstormsAround(Vec3 parPos, double maxDist) {
-		List<WeatherObject> storms = new ArrayList<WeatherObject>();
+		List<WeatherObject> storms = new ArrayList<>();
 
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
@@ -460,7 +460,7 @@ public class WeatherManagerBase {
 	}
 
     public List<WeatherObject> getStormsAroundForDeflector(Vec3 parPos, double maxDist) {
-        List<WeatherObject> storms = new ArrayList<WeatherObject>();
+        List<WeatherObject> storms = new ArrayList<>();
 
         for (int i = 0; i < getStormObjects().size(); i++) {
             WeatherObject wo = getStormObjects().get(i);
@@ -491,7 +491,7 @@ public class WeatherManagerBase {
     }
 
 	public List<WeatherObject> getStormsAround(Vec3 parPos, double maxDist) {
-		List<WeatherObject> storms = new ArrayList<WeatherObject>();
+		List<WeatherObject> storms = new ArrayList<>();
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);

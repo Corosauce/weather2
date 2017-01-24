@@ -86,7 +86,7 @@ public class StormObject extends WeatherObject {
 	public static int static_YPos_layer0 = ConfigMisc.Cloud_Layer0_Height;
 	public static int static_YPos_layer1 = ConfigMisc.Cloud_Layer1_Height;
 	public static int static_YPos_layer2 = ConfigMisc.Cloud_Layer2_Height;
-	public static List<Integer> layers = new ArrayList<Integer>(Arrays.asList(static_YPos_layer0, static_YPos_layer1, static_YPos_layer2));
+	public static List<Integer> layers = new ArrayList<>(Arrays.asList(static_YPos_layer0, static_YPos_layer1, static_YPos_layer2));
 	public int layer = 0;
 	
 	public boolean angleIsOverridden = false;
@@ -195,9 +195,9 @@ public class StormObject extends WeatherObject {
 		maxSize = ConfigStorm.Storm_MaxRadius;
 		
 		if (parManager.getWorld().isRemote) {
-			listParticlesCloud = new ArrayList<EntityRotFX>();
-			listParticlesFunnel = new ArrayList<EntityRotFX>();
-			listParticlesGround = new ArrayList<EntityRotFX>();
+			listParticlesCloud = new ArrayList<>();
+			listParticlesFunnel = new ArrayList<>();
+			listParticlesGround = new ArrayList<>();
 			//renderBlock = new RenderCubeCloud();
 		}
 	}
@@ -205,7 +205,7 @@ public class StormObject extends WeatherObject {
 	public void initFirstTime() {
 		super.initFirstTime();
 		
-		Biome bgb = manager.getWorld().getBiome(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+		Biome bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 
 		
 		float temp = 1;
@@ -847,7 +847,7 @@ public class StormObject extends WeatherObject {
     {
 		World world = manager.getWorld();
 		
-		Biome biomegenbase = world.getBiome(new BlockPos(par1, 0, par3));
+		Biome biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
         
         if (biomegenbase == null) return false;
         
@@ -914,7 +914,7 @@ public class StormObject extends WeatherObject {
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
-			Biome bgb = world.getBiome(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+			Biome bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 			
 			//temperature scan
 			if (bgb != null) {
@@ -1210,7 +1210,7 @@ public class StormObject extends WeatherObject {
 				}
 			}
 			if (wasStormRevived && stormType == TYPE_WATER){
-				Biome currentBiome = world.getBiome(new BlockPos(pos.xCoord, pos.yCoord, pos.zCoord));
+				Biome currentBiome = world.getBiomeGenForCoords(new BlockPos(pos.xCoord, pos.yCoord, pos.zCoord));
 				if (!(currentBiome == Biomes.OCEAN || currentBiome == Biomes.DEEP_OCEAN)){
 					hasStormPeaked = true;
 				}

@@ -338,7 +338,7 @@ public class WeatherUtilBlock {
 		}
 		
 		//prevents trying to add sand to same position twice due to how trig code rounds to nearest block coord
-		List<BlockPos> listProcessedFilter = new ArrayList<BlockPos>();
+		List<BlockPos> listProcessedFilter = new ArrayList<>();
 		
 		//TODO: radius for taking
 		if (doRadius) {

@@ -92,7 +92,7 @@ public class ConfigMisc implements IConfigCategory {
 		StormObject.static_YPos_layer0 = Cloud_Layer0_Height;
 		StormObject.static_YPos_layer1 = Cloud_Layer1_Height;
 		StormObject.static_YPos_layer2 = Cloud_Layer2_Height;
-		StormObject.layers = new ArrayList<Integer>(Arrays.asList(StormObject.static_YPos_layer0, StormObject.static_YPos_layer1, StormObject.static_YPos_layer2));
+		StormObject.layers = new ArrayList<>(Arrays.asList(StormObject.static_YPos_layer0, StormObject.static_YPos_layer1, StormObject.static_YPos_layer2));
 	}
 
 }

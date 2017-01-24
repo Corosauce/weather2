@@ -75,7 +75,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.weatherObjectType = EnumWeatherObjectType.SAND;
 		
 		if (parManager.getWorld().isRemote) {
-			listParticlesCloud = new ArrayList<EntityRotFX>();
+			listParticlesCloud = new ArrayList<>();
 			
 		}
 	}

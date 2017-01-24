@@ -27,7 +27,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 	//data for client, stormfronts synced from server
 	
 	//new for 1.10.2, replaces world.weatherEffects use
-	public List<Particle> listWeatherEffectedParticles = new ArrayList<Particle>();
+	public List<Particle> listWeatherEffectedParticles = new ArrayList<>();
 
 	public WeatherManagerClient(int parDim) {
 		super(parDim);
