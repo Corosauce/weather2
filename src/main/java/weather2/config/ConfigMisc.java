@@ -31,6 +31,20 @@ public class ConfigMisc implements IConfigCategory {
 	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
 	public static boolean preventServerThunderstorms = true;
 	
+	//Server tick rates
+	@ConfigComment("How often in ticks the clients should check the server's weather status")
+	public static int tickerRateSyncWeatherCheckVanilla = 400;
+	@ConfigComment("How often in ticks to sync low-wind storm data between server and clients. Might want to increase this for dedicated servers.")
+	public static int tickerRateSyncWeatherLowWind = 40;
+	@ConfigComment("How often in ticks to sync high-wind storm data between server and clients. Might want to increase this for dedicated servers.")
+	public static int tickerRateSyncWeatherHighWind = 2;
+	@ConfigComment("How often in ticks to sync volcano data between server and clients.")
+	public static int tickerRateSyncVolcanos = 40;
+	@ConfigComment("How often in ticks to sync wind data and do other IMC stuff between server and clients.")
+	public static int tickerRateSyncWindAndIMC = 60;
+	@ConfigComment("How often in ticks to run the storm spawn/remove checks. CHANGING THIS WILL CHANGE STORM FREQUENCY BY THE SAME FACTOR e.g. doubling this will make storms twice as rare (but will also take twice as long to 'remove' storms that are 'dead').")
+	public static int tickerRateSyncStormSpawnOrRemoveChecks = 20;
+	
 	//tornado
 	@ConfigComment("Grab player or not")
 	public static boolean Storm_Tornado_grabPlayer = true;
@@ -66,6 +80,7 @@ public class ConfigMisc implements IConfigCategory {
 	
 	//storm
 	public static boolean Storm_FlyingBlocksHurt = true;
+	@ConfigComment("Maximum possible stormfronts (or, more corrently, cloud formations) per player. Reducing this will improve network bandwidth.")
 	public static int Storm_MaxPerPlayerPerLayer = 20;
 	public static int Storm_Deadly_CollideDistance = 128;
 	public static int Storm_LightningStrikeBaseValueOddsTo1 = 200;

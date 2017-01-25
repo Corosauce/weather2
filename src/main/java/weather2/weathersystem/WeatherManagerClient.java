@@ -7,6 +7,10 @@ import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -65,14 +69,17 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncStormUpdate")) {
 			//Weather.dbg("updating client side storm");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
-			long ID = stormNBT.getLong("ID");
-			
-			StormObject so = lookupStormObjectsByID.get(ID);
-			if (so != null) {
-				so.nbtSyncFromServer(stormNBT);
-			} else {
-				Weather.dbg("error syncing storm, cant find by ID: " + ID);
+			//System.out.println("syncStormUpdate: Received payload of " + parNBT.getInteger("stormCount") + " storm data");
+			for (int i = 0; i < parNBT.getInteger("stormCount"); i++) {
+				NBTTagCompound stormNBT = parNBT.getCompoundTag("storm" + i);
+				long ID = stormNBT.getLong("ID");
+				
+				StormObject so = lookupStormObjectsByID.get(ID);
+				if (so != null) {
+					so.nbtSyncFromServer(stormNBT);
+				} else {
+					Weather.dbg("error syncing storm, cant find by ID: " + ID);
+				}
 			}
 		} else if (command.equals("syncVolcanoNew")) {
 			Weather.dbg("creating client side volcano");
