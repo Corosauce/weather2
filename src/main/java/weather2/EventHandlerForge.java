@@ -2,6 +2,7 @@ package weather2;
 
 import java.nio.FloatBuffer;
 
+import CoroUtil.difficulty.UtilEntityBuffs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;
@@ -9,6 +10,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.border.WorldBorder;
@@ -19,6 +22,7 @@ import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -30,6 +34,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import weather2.client.SceneEnhancer;
+import weather2.config.ConfigMisc;
 
 public class EventHandlerForge {
 
@@ -155,7 +160,10 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onScreenEvent(RenderGameOverlayEvent.Pre event) {
-		if (false && event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+
+		boolean darkenScreenTest = false;
+
+		if (darkenScreenTest && event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 			Minecraft mc = Minecraft.getMinecraft();
 			//System.out.println(event.getType());
 			float lightLevel = 0.4F/* - lightLevel*/;
@@ -209,5 +217,19 @@ public class EventHandlerForge {
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		}
 
+	}
+
+	@SubscribeEvent
+	public void onEntityCreatedOrLoaded(EntityJoinWorldEvent event) {
+		if (event.getEntity().worldObj.isRemote) return;
+
+		if (ConfigMisc.Villager_MoveInsideForStorms) {
+			if (event.getEntity() instanceof EntityVillager) {
+				EntityVillager ent = (EntityVillager) event.getEntity();
+
+				System.out.println("applying villager storm AI");
+				UtilEntityBuffs.applyBuffSingularTry(Weather.dataEntityBuffed_AI_MoveInsideStorm, ent, -1);
+			}
+		}
 	}
 }

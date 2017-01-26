@@ -1,5 +1,7 @@
 package weather2;
 
+import CoroUtil.difficulty.UtilEntityBuffs;
+import CoroUtil.difficulty.buffs.BuffAI_TaskBase;
 import modconfig.ConfigMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -11,6 +13,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import weather2.config.*;
+import weather2.entity.ai.EntityAIMoveIndoorsStorm;
 import weather2.item.ItemSandLayer;
 import weather2.item.ItemWeatherRecipe;
 import weather2.player.PlayerData;
@@ -34,6 +37,8 @@ public class Weather {
     
     public static String eventChannelName = "weather2";
 	public static final FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(eventChannelName);
+
+	public static String dataEntityBuffed_AI_MoveInsideStorm = "CoroAI_Weather_Buffed_AI_MoveInsideStorm";
     
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -59,6 +64,9 @@ public class Weather {
     {
     	proxy.init();
     	MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
+
+		int taskPriorityFromEntityVillager = 2;
+		UtilEntityBuffs.addBuff(new BuffAI_TaskBase(dataEntityBuffed_AI_MoveInsideStorm, EntityAIMoveIndoorsStorm.class, taskPriorityFromEntityVillager));
     }
     
     @Mod.EventHandler
