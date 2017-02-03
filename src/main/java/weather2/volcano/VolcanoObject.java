@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManagerBase;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
@@ -215,7 +216,7 @@ public class VolcanoObject {
 				pos.xCoord = Math.floor(pos.xCoord);
 				pos.zCoord = Math.floor(pos.zCoord);
 				
-				pos.yCoord = world.getHeight(new BlockPos((int)pos.xCoord, 0, (int)pos.zCoord)).getY();
+				pos.yCoord = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos((int)pos.xCoord, 0, (int)pos.zCoord)).getY();
 				startYPos = (int) pos.yCoord;
 				
 				topBlockID = world.getBlockState(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord))).getBlock();

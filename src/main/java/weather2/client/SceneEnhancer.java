@@ -1146,7 +1146,7 @@ public class SceneEnhancer implements Runnable {
 
                         
                         
-                        if ((world.getHeight(new BlockPos(MathHelper.floor_double(entity1.getPosX()), 0, MathHelper.floor_double(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
+                        if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor_double(entity1.getPosX()), 0, MathHelper.floor_double(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
                         {
                             /*if ((entity1 instanceof ParticleFlame))
                             {
@@ -1224,7 +1224,7 @@ public class SceneEnhancer implements Runnable {
 	                    	//Weather.dbg("process: " + className);
 	                    }
 	
-	                    if ((world.getHeight(new BlockPos(MathHelper.floor_double(CoroUtilEntOrParticle.getPosX(entity1)), 0, MathHelper.floor_double(CoroUtilEntOrParticle.getPosZ(entity1)))).getY() - 1 < (int)CoroUtilEntOrParticle.getPosY(entity1) + 1) || (entity1 instanceof ParticleTexFX))
+	                    if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor_double(CoroUtilEntOrParticle.getPosX(entity1)), 0, MathHelper.floor_double(CoroUtilEntOrParticle.getPosZ(entity1)))).getY() - 1 < (int)CoroUtilEntOrParticle.getPosY(entity1) + 1) || (entity1 instanceof ParticleTexFX))
 	                    {
 	                        if ((entity1 instanceof ParticleFlame))
 	                        {

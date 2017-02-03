@@ -199,7 +199,7 @@ public class WeatherUtilEntity {
 		int rangeCheck = 5;
 		int yOffset = 1;
 		
-		if (parWorld.getHeight(new BlockPos(MathHelper.floor_double(parPos.xCoord), 0, MathHelper.floor_double(parPos.zCoord))).getY() < parPos.yCoord+1) return true;
+		if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor_double(parPos.xCoord), 0, MathHelper.floor_double(parPos.zCoord))).getY() < parPos.yCoord+1) return true;
 		
 		if (cheapCheck) return false;
 		
@@ -221,7 +221,7 @@ public class WeatherUtilEntity {
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
 		boolean dirNorth = parWorld.rayTraceBlocks(parPos.toMCVec(), parCheckPos.toMCVec()) == null;
 		if (dirNorth) {
-			if (parWorld.getHeight(new BlockPos(MathHelper.floor_double(parCheckPos.xCoord), 0, MathHelper.floor_double(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
+			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor_double(parCheckPos.xCoord), 0, MathHelper.floor_double(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
 		}
 		return false;
 	}

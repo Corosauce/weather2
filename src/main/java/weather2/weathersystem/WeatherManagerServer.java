@@ -17,6 +17,7 @@ import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigStorm;
 import weather2.player.PlayerData;
+import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
@@ -272,7 +273,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(this);
 
 					sandstorm.initFirstTime();
-					BlockPos posSpawn = new BlockPos(world.getHeight(posFindLastGoodUpwind)).add(0, 1, 0);
+					BlockPos posSpawn = new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(world, posFindLastGoodUpwind)).add(0, 1, 0);
 					sandstorm.initSandstormSpawn(new Vec3(posSpawn));
 					addStormObject(sandstorm);
 					syncStormNew(sandstorm);
