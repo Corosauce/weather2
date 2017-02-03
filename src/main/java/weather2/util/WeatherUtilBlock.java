@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.util.math.*;
 import weather2.CommonProxy;
 import weather2.block.BlockSandLayer;
 import net.minecraft.block.Block;
@@ -13,10 +14,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import CoroUtil.util.Vec3;
 
@@ -94,10 +91,16 @@ public class WeatherUtilBlock {
     		if (lastScannedPosXZ == null || !posXZ.equals(lastScannedPosXZ)) {
     		
 	    		lastScannedPosXZ = new BlockPos(posXZ);
-	    		
-	    		if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS && !state.getBlock().isReplaceable(world, pos)) {
+
+				AxisAlignedBB aabbCompare = new AxisAlignedBB(pos);
+				List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
+				state.addCollisionBoxToList(world, pos, aabbCompare, listAABBCollision, null);
+
+				//if solid ground we can place on
+	    		if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS && (!state.getBlock().isReplaceable(world, pos) && !listAABBCollision.isEmpty())) {
 	    			BlockPos posUp = new BlockPos(x, y + 1, z);
 	    			IBlockState stateUp = world.getBlockState(posUp);
+					//if above it is air
 	    			if (stateUp.getMaterial() == Material.AIR) {
 		    			int height = getHeightForAnyBlock(state);
 		    			
@@ -121,6 +124,7 @@ public class WeatherUtilBlock {
 		    				posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
 		    				break;
 		    			}
+		    		//hit a wall
 	    			} else {
 	    				posWall = new Vec3(posSource.xCoord + vecX, y, posSource.zCoord + vecZ);
 	    				break;
@@ -143,7 +147,14 @@ public class WeatherUtilBlock {
 			int amountToAddPerXZ = 1;
 			
 			IBlockState state = world.getBlockState(posWall.toBlockPos());
-			if (state.getBlock() == Blocks.CACTUS) {
+			IBlockState state1 = world.getBlockState(posLastNonWall.toBlockPos().add(1, 0, 0));
+			IBlockState state22 = world.getBlockState(posLastNonWall.toBlockPos().add(-1, 0, 0));
+			IBlockState state3 = world.getBlockState(posLastNonWall.toBlockPos().add(0, 0, 1));
+			IBlockState state4 = world.getBlockState(posLastNonWall.toBlockPos().add(0, 0, -1));
+
+			//check all around place spot for cactus and cancel if true, to prevent cactus pop off when we place next to it
+			if (state.getBlock() == Blocks.CACTUS || state1.getBlock() == Blocks.CACTUS ||
+					state22.getBlock() == Blocks.CACTUS || state3.getBlock() == Blocks.CACTUS || state4.getBlock() == Blocks.CACTUS) {
 				return;
 			}
 			
@@ -170,7 +181,7 @@ public class WeatherUtilBlock {
 		//0 is nothing, 1-7, 8 is full
 		
 		BlockPos posSourcei = posSource.toBlockPos();
-		int ySource = world.getHeight(posSourcei).getY();
+		int ySource = WeatherUtilBlock.getPrecipitationHeightSafe(world, posSourcei).getY();
 		int y = ySource;
 		
 		//override y so it scans from where ground at coord is
@@ -263,7 +274,7 @@ public class WeatherUtilBlock {
 		//0 is nothing, 1-7, 8 is full
 		
 		BlockPos posSourcei = posSource.toBlockPos();
-		int ySource = world.getHeight(posSourcei).getY();
+		int ySource = WeatherUtilBlock.getPrecipitationHeightSafe(world, posSourcei).getY();
 		int y = ySource;
 		
 		//override y so it scans from where ground at coord is
@@ -530,7 +541,11 @@ public class WeatherUtilBlock {
 		
 		while (true && distForPlaceableBlocks < 10) {
 			//if can be placed into, continue, as long as its not our block as it is replacable at layer height 1
-			if (stateCheckPlaceable.getBlock() != blockLayerable && stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable)) {
+			AxisAlignedBB aabbCompare = new AxisAlignedBB(posCheckPlaceable);
+			List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
+			stateCheckPlaceable.addCollisionBoxToList(world, posCheckPlaceable, aabbCompare, listAABBCollision, null);
+
+			if (stateCheckPlaceable.getBlock() != blockLayerable && stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable) && listAABBCollision.isEmpty()) {
 				posCheckPlaceable = posCheckPlaceable.add(0, -1, 0);
 				stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
 				distForPlaceableBlocks++;
@@ -822,5 +837,20 @@ public class WeatherUtilBlock {
 		}
 		
 		return amountReceived;
+	}
+
+	/**
+	 * Safe version of World.getPrecipitationHeight that wont invoke chunkgen/chunkload if its requesting height in unloaded chunk
+	 *
+	 * @param world
+	 * @param pos
+	 * @return
+	 */
+	public static BlockPos getPrecipitationHeightSafe(World world, BlockPos pos) {
+		if (world.isBlockLoaded(pos)) {
+			return world.getPrecipitationHeight(pos);
+		} else {
+			return new BlockPos(pos.getX(), 0, pos.getZ());
+		}
 	}
 }

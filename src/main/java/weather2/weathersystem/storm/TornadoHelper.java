@@ -27,6 +27,7 @@ import weather2.Weather;
 import weather2.config.ConfigTornado;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
+import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
 import CoroUtil.util.CoroUtilBlock;
@@ -405,11 +406,11 @@ public class TornadoHelper {
 
         //System.out.println(parWorld.getHeightValue(tryX, tryZ));
         if (( /*(canGrab(blockID)) &&blockID != 0 ||*/
-                ((parWorld.getHeight(new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
-                        parWorld.getHeight(new BlockPos(tryX + 1, 0, tryZ)).getY() - 1 < tryY ||
-                        parWorld.getHeight(new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
-                        parWorld.getHeight(new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
-                        parWorld.getHeight(new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))
+                ((WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
+						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX + 1, 0, tryZ)).getY() - 1 < tryY ||
+						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
+						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
+						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))
                 /*(parWorld.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
                  parWorld.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
                  parWorld.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||

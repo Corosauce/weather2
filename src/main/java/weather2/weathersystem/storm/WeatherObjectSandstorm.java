@@ -99,7 +99,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		//temp end
 		
 		World world = manager.getWorld();
-		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		pos.yCoord = yy;
 		
 		posGround = new Vec3(pos);
@@ -247,7 +247,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.yCoord += this.motion.yCoord;
 		this.pos.zCoord += this.motion.zCoord;*/
 		
-		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		
 		this.pos.yCoord = yy + 1;
 	}
@@ -276,7 +276,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 					Vec3 vecPos = getRandomPosInSandstorm();
 
-					int y = world.getHeight(new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
+					int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
 					vecPos.yCoord = y;
 
 					//avoid unloaded areas
@@ -321,7 +321,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		tickProgressionAndMovement();
 		
-		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		
 		
 		
@@ -535,7 +535,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		x += (rand.nextDouble() - rand.nextDouble()) * 30D;
 	    		z += (rand.nextDouble() - rand.nextDouble()) * 30D;
 	    		
-	    		int yy = world.getHeight(new BlockPos(x, 0, z)).getY();
+	    		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(x, 0, z)).getY();
 	    		double y = yy/*posSpawn.yCoord*/ + 2 + randHeight;
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
