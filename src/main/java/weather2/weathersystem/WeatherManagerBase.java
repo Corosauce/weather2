@@ -185,7 +185,7 @@ public class WeatherManagerBase {
 				lookupStormObjectsByLayer.get(so2.layer).add(so2);
 			}
 		} else {
-			Weather.dbg("Weather2 WARNING!!! Received new storm create for an ID that is already active! design bug, ID: " + so.ID);
+			Weather.dbg("Weather2 WARNING!!! Received new storm create for an ID that is already active! design bug or edgecase with PlayerEvent.Clone, ID: " + so.ID);
 			Weather.dbgStackTrace();
 
 		}

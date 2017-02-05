@@ -183,11 +183,11 @@ public class ServerTickHandler
     	//wm.readFromFile();
     	wm.writeToFile();
     }
-    
-    public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
+
+    public static void playerClientRequestsFullSync(EntityPlayerMP entP) {
 		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimension());
 		if (wm != null) {
-			wm.playerJoinedServerSyncFull(entP);
+			wm.playerJoinedWorldSyncFull(entP);
 		}
 	}
     

@@ -340,15 +340,15 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			addStormObject(so);
 			syncStormNew(so);
 		} else {
-			Weather.dbg("couldnt find space to spawn cloud formation");
+			//Weather.dbg("couldnt find space to spawn cloud formation");
 		}
 	}
 	
-	public void playerJoinedServerSyncFull(EntityPlayerMP entP) {
-		Weather.dbg("Weather2: playerJoinedServerSyncFull for dim: " + dim);
+	public void playerJoinedWorldSyncFull(EntityPlayerMP entP) {
+		Weather.dbg("Weather2: playerJoinedWorldSyncFull for dim: " + dim);
 		World world = getWorld();
 		if (world != null) {
-			Weather.dbg("Weather2: playerJoinedServerSyncFull, sending " + getStormObjects().size() + " weather objects to: " + entP.getName() + ", dim: " + dim);
+			Weather.dbg("Weather2: playerJoinedWorldSyncFull, sending " + getStormObjects().size() + " weather objects to: " + entP.getName() + ", dim: " + dim);
 			//sync storms
 			for (int i = 0; i < getStormObjects().size(); i++) {
 				syncStormNew(getStormObjects().get(i), entP);

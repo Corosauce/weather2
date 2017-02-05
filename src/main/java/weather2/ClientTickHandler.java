@@ -3,12 +3,14 @@ package weather2;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import CoroUtil.packet.PacketHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
@@ -133,14 +135,22 @@ public class ClientTickHandler
     }
     
     public static void init(World world) {
-    	Weather.dbg("Weather2: Initializing WeatherManagerClient for client world");
-		//this part is probably redundant with new code that resets state when detecting no world active.
+		//this is generally triggered when they teleport to another dimension
 		if (weatherManager != null) {
 			Weather.dbg("Weather2: Detected old WeatherManagerClient with active world, clearing its data");
 			weatherManager.reset();
 		}
+
+		Weather.dbg("Weather2: Initializing WeatherManagerClient for client world and requesting full sync");
+
     	lastWorld = world;
     	weatherManager = new WeatherManagerClient(world.provider.getDimension());
+
+		//request a full sync from server
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("command", "syncFull");
+		data.setString("packetCommand", "WeatherData");
+		Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
     }
 
     static void getField(Field field, Object newValue) throws Exception

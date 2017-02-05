@@ -58,7 +58,8 @@ public class WeatherManagerClient extends WeatherManagerBase {
 		if (command.equals("syncStormNew")) {
 			//Weather.dbg("creating client side storm");
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
-			//long ID = stormNBT.getLong("ID");
+			long ID = stormNBT.getLong("ID");
+			Weather.dbg("syncStormNew, ID: " + ID);
 			
 			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInteger("weatherObjectType"));
 			
@@ -93,8 +94,8 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			if (so != null) {
 				so.nbtSyncFromServer(stormNBT);
 			} else {
-				Weather.dbg("error syncing storm, cant find by ID: " + ID);
-				Weather.dbgStackTrace();
+				Weather.dbg("error syncing storm, cant find by ID: " + ID + ", probably due to client resetting and waiting on full resync (this is ok)");
+				//Weather.dbgStackTrace();
 			}
 		} else if (command.equals("syncVolcanoNew")) {
 			Weather.dbg("creating client side volcano");

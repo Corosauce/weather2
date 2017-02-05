@@ -68,7 +68,7 @@ public class EventHandlerPacket {
 	
 	@SubscribeEvent
 	public void onPacketFromClient(FMLNetworkEvent.ServerCustomPacketEvent event) {
-		EntityPlayerMP entP = ((NetHandlerPlayServer)event.getHandler()).playerEntity;
+		final EntityPlayerMP entP = ((NetHandlerPlayServer)event.getHandler()).playerEntity;
 		
 		try {
 			final NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
@@ -76,12 +76,18 @@ public class EventHandlerPacket {
 			final String packetCommand = nbt.getString("packetCommand");
 			final String command = nbt.getString("command");
 			
-			Weather.dbg("Weather2 packet command from client: " + packetCommand);
+			Weather.dbg("Weather2 packet command from client: " + packetCommand + " - " + command);
 
 			entP.mcServer.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-					if (packetCommand.equals("EZGuiData")) {
+					if (packetCommand.equals("WeatherData")) {
+
+						if (command.equals("syncFull")) {
+							ServerTickHandler.playerClientRequestsFullSync(entP);
+						}
+
+					} else if (packetCommand.equals("EZGuiData")) {
 
 
 						Weather.dbg("packet handling command: " + command);
