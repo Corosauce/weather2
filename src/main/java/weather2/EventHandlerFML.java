@@ -14,59 +14,59 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 public class EventHandlerFML {
 
 	public static World lastWorld = null;
-	
+
 	@SubscribeEvent
 	public void tickWorld(WorldTickEvent event) {
 		if (event.phase == Phase.START) {
-			
+
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void tickServer(ServerTickEvent event) {
-		
+
 		if (event.phase == Phase.START) {
 			//System.out.println("tick weather2");
 			ServerTickHandler.onTickInGame();
 		}
-		
+
 	}
-	
+
 	@SubscribeEvent
 	public void tickClient(ClientTickEvent event) {
 		if (event.phase == Phase.START) {
 			//1.8: new scenario where this will tick even if world is unloaded?
 			try {
-				ClientProxy.clientTickHandler.onTickInGame();				
+				ClientProxy.clientTickHandler.onTickInGame();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void tickRenderScreen(RenderTickEvent event) {
 		if (event.phase == Phase.END) {
 			ClientProxy.clientTickHandler.onRenderScreenTick();
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void playerLoggedIn(PlayerLoggedInEvent event) {
-		Weather.dbg("Weather2: PlayerLoggedInEvent: " + event.player.getName());
+		//Weather.dbg("Weather2: PlayerLoggedInEvent: " + event.player.getName());
 		//ServerTickHandler.playerJoinedServerSyncFull((EntityPlayerMP) event.player);
 	}
 
 	@SubscribeEvent
 	public void playerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-		Weather.dbg("Weather2: PlayerChangedDimensionEvent: " + event.player.getName() + " from " + event.fromDim + ", to " + event.toDim);
+		//Weather.dbg("Weather2: PlayerChangedDimensionEvent: " + event.player.getName() + " from " + event.fromDim + ", to " + event.toDim);
 		//ServerTickHandler.playerChangedDimensionsSyncFull((EntityPlayerMP) event.player);
 	}
 
 	@SubscribeEvent
 	public void playerRespawned(PlayerEvent.PlayerRespawnEvent event) {
-		Weather.dbg("Weather2: PlayerRespawnEvent: " + event.player.getName());
+		//Weather.dbg("Weather2: PlayerRespawnEvent: " + event.player.getName());
 		//ServerTickHandler.playerChangedDimensionsSyncFull((EntityPlayerMP) event.player);
 	}
 
@@ -83,12 +83,12 @@ public class EventHandlerFML {
 	 */
 	@SubscribeEvent
 	public void playerCloned(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
-		if (!event.isCanceled()) {
+		/*if (!event.isCanceled()) {
 			if (event.getEntityPlayer().worldObj.provider.getDimension() != event.getOriginal().worldObj.provider.getDimension()) {
 				Weather.dbg("Weather2: PlayerEvent.Clone: " + event.isCanceled() + ", " + event.isWasDeath() + ", " + event.getEntityPlayer().worldObj.provider.getDimension() + ", " + event.getOriginal().worldObj.provider.getDimension() + ", " );
-				//ServerTickHandler.playerChangedDimensionsSyncFull((EntityPlayerMP) event.getEntityPlayer());
+				ServerTickHandler.playerChangedDimensionsSyncFull((EntityPlayerMP) event.getEntityPlayer());
 			}
-		}
+		}*/
 
 	}
 }
