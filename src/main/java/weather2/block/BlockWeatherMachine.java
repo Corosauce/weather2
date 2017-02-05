@@ -1,23 +1,26 @@
 package weather2.block;
 
-import java.util.Random;
+import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import CoroUtil.util.CoroUtil;
+import CoroUtil.util.CoroUtilMisc;
 
 public class BlockWeatherMachine extends BlockContainer
 {
     public BlockWeatherMachine()
     {
-        super(Material.clay);
+        super(Material.CLAY);
     }
 
     @Override
@@ -27,15 +30,15 @@ public class BlockWeatherMachine extends BlockContainer
     }
     
     @Override
-    public boolean isOpaqueCube()
+    public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
     
     @Override
-    public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer par5EntityPlayer, EnumFacing par6, float par7, float par8, float par9) {
+    public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer par5EntityPlayer, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
     	
-    	if (!par1World.isRemote) {
+    	if (!par1World.isRemote && hand == EnumHand.MAIN_HAND) {
 	    	TileEntity tEnt = par1World.getTileEntity(pos);
 	    	
 	    	if (tEnt instanceof TileEntityWeatherMachine) {
@@ -52,7 +55,7 @@ public class BlockWeatherMachine extends BlockContainer
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 6) {
 	    			msg = "Stage 1 Tropical Cyclone";
 	    		}
-	    		CoroUtil.sendPlayerMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
+	    		CoroUtilMisc.sendCommandSenderMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
 	    		return true;
 	    	}
     	}
@@ -64,8 +67,8 @@ public class BlockWeatherMachine extends BlockContainer
      * The type of render function called. 3 for standard block models, 2 for TESR's, 1 for liquids, -1 is no render
      */
     @Override
-    public int getRenderType()
+    public EnumBlockRenderType getRenderType(IBlockState state)
     {
-        return 3;
+        return EnumBlockRenderType.MODEL;
     }
 }

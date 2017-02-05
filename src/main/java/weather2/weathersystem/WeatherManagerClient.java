@@ -1,5 +1,10 @@
 package weather2.weathersystem;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.particle.Particle;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -8,13 +13,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
+import weather2.entity.EntityLightningBoltCustom;
 import weather2.volcano.VolcanoObject;
+import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.WeatherObject;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 @SideOnly(Side.CLIENT)
 public class WeatherManagerClient extends WeatherManagerBase {
 
 	//data for client, stormfronts synced from server
+	
+	//new for 1.10.2, replaces world.weatherEffects use
+	public List<Particle> listWeatherEffectedParticles = new ArrayList<Particle>();
 
 	public WeatherManagerClient(int parDim) {
 		super(parDim);
@@ -48,16 +60,25 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			//long ID = stormNBT.getLong("ID");
 			
-			StormObject so = new StormObject(ClientTickHandler.weatherManager);
-			so.nbtSyncFromServer(stormNBT);
+			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInteger("weatherObjectType"));
 			
-			addStormObject(so);
+			WeatherObject wo = null;
+			if (weatherObjectType == EnumWeatherObjectType.CLOUD) {
+				wo = new StormObject(ClientTickHandler.weatherManager);
+			} else if (weatherObjectType == EnumWeatherObjectType.SAND) {
+				wo = new WeatherObjectSandstorm(ClientTickHandler.weatherManager);
+			}
+			
+			//StormObject so
+			wo.nbtSyncFromServer(stormNBT);
+			
+			addStormObject(wo);
 		} else if (command.equals("syncStormRemove")) {
 			//Weather.dbg("removing client side storm");
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
-			StormObject so = lookupStormObjectsByID.get(ID);
+			WeatherObject so = lookupStormObjectsByID.get(ID);
 			if (so != null) {
 				removeStormObject(ID);
 			} else {
@@ -68,7 +89,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
-			StormObject so = lookupStormObjectsByID.get(ID);
+			WeatherObject so = lookupStormObjectsByID.get(ID);
 			if (so != null) {
 				so.nbtSyncFromServer(stormNBT);
 			} else {
@@ -118,13 +139,21 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			int posYS = nbt.getInteger("posY");
 			int posZS = nbt.getInteger("posZ");
 			
+			boolean custom = nbt.getBoolean("custom");
+			
 			//Weather.dbg("uhhh " + parNBT);
 			
 			double posX = (double)posXS;// / 32D;
 			double posY = (double)posYS;// / 32D;
 			double posZ = (double)posZS;// / 32D;
-			
-			EntityLightningBolt ent = new EntityLightningBolt(getWorld(), posX, posY, posZ);
+			Entity ent = null;
+			if (!custom) {
+				ent = new EntityLightningBolt(getWorld(), posX, posY, posZ);
+				
+			} else {
+				ent = new EntityLightningBoltCustom(getWorld(), posX, posY, posZ);
+				
+			}
 			ent.serverPosX = posXS;
 			ent.serverPosY = posYS;
 			ent.serverPosZ = posZS;
@@ -140,6 +169,10 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			
 			//windMan.nbtSyncFromServer(nbt);
 		}
+	}
+	
+	public void addWeatheredParticle(Particle particle) {
+		listWeatherEffectedParticles.add(particle);
 	}
 	
 }

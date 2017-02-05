@@ -4,71 +4,96 @@ import java.util.List;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.World;
+import weather2.util.WeatherUtilBlock;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
-import CoroUtil.util.CoroUtil;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObject;
+import CoroUtil.util.CoroUtilMisc;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
 
 public class CommandWeather2 extends CommandBase {
 
+	//TODO: FIX FOR COMMAND BLOCKS, apparently permission issues
+	
 	@Override
 	public String getCommandName() {
 		return "weather2";
 	}
 
 	@Override
-	public void processCommand(ICommandSender var1, String[] var2) {
+	public void execute(MinecraftServer server, ICommandSender var1, String[] var2) {
 		
 		String helpMsgStorm = "Syntax: storm create <rain/thunder/wind/spout/hail/F0/F1/F2/F3/F4/F5/C0/C1/C2/C3/C4/C5/hurricane> <Optional: alwaysProgress>... example: storm create F1 alwaysProgress ... eg2: storm killall";
 		
+		EntityPlayer player = null;
+		if (var1 instanceof EntityPlayer) {
+			player = (EntityPlayer) var1;
+		}
+		World world = var1.getEntityWorld();
+		int dimension = world.provider.getDimension();
+		BlockPos posBlock = var1.getPosition();
+		Vec3d posVec = var1.getPositionVector();
+		
 		try {
-			if(var1 instanceof EntityPlayerMP)
-			{
-				EntityPlayer player = getCommandSenderAsPlayer(var1);
+			/*if(var1 instanceof EntityPlayerMP)
+			{*/
+				//EntityPlayer player = getCommandSenderAsPlayer(var1);
 				
 				if (var2[0].equals("volcano")) {
-					if (var2[1].equals("create")) {
-						if (player.worldObj.provider.getDimensionId() == 0) {
+					if (var2[1].equals("create") && posVec != Vec3d.ZERO) {
+						if (dimension == 0) {
 							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(0);
 							VolcanoObject vo = new VolcanoObject(wm);
-							vo.pos = new Vec3(player.posX, player.posY, player.posZ);
+							vo.pos = new Vec3(posVec);
 							vo.initFirstTime();
 							wm.addVolcanoObject(vo);
 							vo.initPost();
 							
 							wm.syncVolcanoNew(vo);
 							
-							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "volcano created");
+							sendCommandSenderMsg(var1, "volcano created");
 						} else {
-							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "can only make volcanos on main overworld");
+							sendCommandSenderMsg(var1, "can only make volcanos on main overworld");
 						}
 					}
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
-						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimensionId());
-						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "killing all storms");
-						List<StormObject> listStorms = wm.getStormObjects();
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+						sendCommandSenderMsg(var1, "killing all storms");
+						List<WeatherObject> listStorms = wm.getStormObjects();
 						for (int i = 0; i < listStorms.size(); i++) {
-							StormObject so = listStorms.get(i);
-							Weather.dbg("force killing storm ID: " + so.ID);
-							so.setDead();
-							/*wm.syncStormRemove(so);
-							wm.removeStormObject(so.ID);
-							*/
+							WeatherObject wo = listStorms.get(i);
+							if (wo instanceof WeatherObject) {
+								WeatherObject so = (WeatherObject) wo;
+								Weather.dbg("force killing storm ID: " + so.ID);
+								so.setDead();
+								/*wm.syncStormRemove(so);
+								wm.removeStormObject(so.ID);
+								*/
+							}
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
-						if (var2.length > 2) {
-							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(player.worldObj.provider.getDimensionId());
+						if (var2.length > 2 && posVec != Vec3d.ZERO) {
+							//TODO: make this handle non StormObject types better, currently makes instance and doesnt use that type if its a sandstorm
+							boolean spawnCloudStorm = true;
+							WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
 							StormObject so = new StormObject(wm);
 							so.layer = 0;
 							so.userSpawnedFor = CoroUtilEntity.getName(player);
 							so.naturallySpawned = false;
 							so.levelTemperature = 0.1F;
-							so.pos = new Vec3(player.posX, StormObject.layers.get(so.layer), player.posZ);
+							so.pos = new Vec3(posVec.xCoord, StormObject.layers.get(so.layer), posVec.zCoord);
 
 							so.levelWater = so.levelWaterStartRaining * 2;
 							so.attrib_precipitation = true;
@@ -127,6 +152,46 @@ public class CommandWeather2 extends CommandBase {
 								so.alwaysProgresses = true;
 							} else if (var2[2].equalsIgnoreCase("test")) {
 								so.levelCurIntensityStage = StormObject.STATE_THUNDER;
+							} else if (var2[2].equalsIgnoreCase("sandstormUpwind")) {
+								
+								WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(wm);
+								
+								//sandstorm.pos = new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
+
+								Vec3 pos = new Vec3(posVec.xCoord, world.getHeight(new BlockPos(posVec.xCoord, 0, posVec.zCoord)).getY() + 1, posVec.zCoord);
+
+								
+								/**
+								 * adjust position upwind 150 blocks
+								 */
+								float angle = wm.getWindManager().getWindAngleForClouds();
+								double vecX = -Math.sin(Math.toRadians(angle));
+								double vecZ = Math.cos(Math.toRadians(angle));
+								double speed = 150D;
+								pos.xCoord -= vecX * speed;
+								pos.zCoord -= vecZ * speed;
+								
+								sandstorm.initFirstTime();
+								sandstorm.initSandstormSpawn(pos);
+								
+								
+								wm.addStormObject(sandstorm);
+								wm.syncStormNew(sandstorm);
+								spawnCloudStorm = false;
+
+								wm.windMan.startHighWindEvent();
+								wm.windMan.lowWindTimer = 0;
+								
+							} else if (var2[2].equalsIgnoreCase("sandstorm")) {
+								boolean spawned = wm.trySpawnSandstormNearPos(world, new Vec3(posVec));
+								spawnCloudStorm = false;
+								if (!spawned) {
+									sendCommandSenderMsg(var1, "couldnt find spot to spawn");
+									return;
+								} else {
+									wm.windMan.startHighWindEvent();
+									wm.windMan.lowWindTimer = 0;
+								}
 							}
 							
 							if (var2.length > 3) {
@@ -135,40 +200,101 @@ public class CommandWeather2 extends CommandBase {
 								}
 							}
 							
-							so.initFirstTime();
-							wm.addStormObject(so);
-							wm.syncStormNew(so);
-							
-							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, "storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : ""));
+							if (spawnCloudStorm) {
+								so.initFirstTime();
+								wm.addStormObject(so);
+								wm.syncStormNew(so);
+							}
+
+							sendCommandSenderMsg(var1, "storm " + var2[2] + " created" + (so.alwaysProgresses ? ", flags: alwaysProgresses" : ""));
 						} else {
-							CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
+							sendCommandSenderMsg(var1, helpMsgStorm);
 						}
 					} else if (var2[1].equals("help")) {
-						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
+						sendCommandSenderMsg(var1, helpMsgStorm);
+						
 					} else {
-						CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
+						sendCommandSenderMsg(var1, helpMsgStorm);
+					}
+				} else if (var2[0].equals("testderp") && player != null) {
+					//EntityPlayerMP player = var1;
+					WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 1, 1, CommonProxy.blockSandLayer, 30);
+				} else if (var2[0].equals("wind")) {
+					if (var2[1].equals("high")) {
+						boolean doHighOn = false;
+						boolean doHighOff = false;
+						if (var2.length > 2) {
+							 if (var2[2].equals("start")) {
+								 doHighOn = true;
+							 } else if (var2[2].equals("stop")) {
+								 doHighOff = true;
+							 }
+						} else {
+							doHighOn = true;
+						}
+						WeatherManagerServer wm = ServerTickHandler.getWeatherSystemForDim(dimension);
+						if (doHighOn) {
+							wm.windMan.startHighWindEvent();
+							//cancel any low wind state if there is one
+							wm.windMan.lowWindTimer = 0;
+							sendCommandSenderMsg(var1, "started high wind event");
+						} else if (doHighOff) {
+							wm.windMan.stopHighWindEvent();
+							sendCommandSenderMsg(var1, "stopped high wind event");
+						}
+					} else if (var2[1].equals("low")) {
+						boolean doLowOn = false;
+						boolean doLowOff = false;
+						if (var2.length > 2) {
+							 if (var2[2].equals("start")) {
+								 doLowOn = true;
+							 } else if (var2[2].equals("stop")) {
+								 doLowOff = true;
+							 }
+						} else {
+							doLowOn = true;
+						}
+						WeatherManagerServer wm = ServerTickHandler.getWeatherSystemForDim(dimension);
+						if (doLowOn) {
+							wm.windMan.startLowWindEvent();
+							//cancel any low wind state if there is one
+							wm.windMan.lowWindTimer = 0;
+							sendCommandSenderMsg(var1, "started low wind event");
+						} else if (doLowOff) {
+							wm.windMan.stopLowWindEvent();
+							sendCommandSenderMsg(var1, "stopped low wind event");
+						}
 					}
 				} else {
-					CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
+					sendCommandSenderMsg(var1, helpMsgStorm);
 				}
-			}
+			/*}*/
 		} catch (Exception ex) {
 			System.out.println("Exception handling Weather2 command");
-			CoroUtil.sendPlayerMsg((EntityPlayerMP) var1, helpMsgStorm);
+			sendCommandSenderMsg(var1, helpMsgStorm);
 			ex.printStackTrace();
 		}
 		
 	}
 	
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender par1ICommandSender)
+	public boolean checkPermission(MinecraftServer server, ICommandSender par1ICommandSender)
     {
         return par1ICommandSender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
     }
 
 	@Override
 	public String getCommandUsage(ICommandSender icommandsender) {
-		return "";
+		return "Magic dev method!";
+	}
+	
+	@Override
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
+	public static void sendCommandSenderMsg(ICommandSender entP, String msg) {
+		entP.addChatMessage(new TextComponentString(msg));
 	}
 
 }

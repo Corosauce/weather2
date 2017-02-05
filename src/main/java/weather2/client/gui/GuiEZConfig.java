@@ -5,16 +5,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import modconfig.gui.GuiConfigEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import org.lwjgl.opengl.GL11;
 
@@ -103,7 +104,7 @@ public class GuiEZConfig extends GuiScreen {
 
 		Weather.dbg("EZGUI constructor");
 		
-		if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isSinglePlayer()) {
+		if (FMLCommonHandler.instance().getMinecraftServerInstance() != null && FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer()) {
 			canPlayerChangeServerSettings = true;
 		}
 		
@@ -506,7 +507,7 @@ public class GuiEZConfig extends GuiScreen {
         
         
         addButton(new GuiButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
-        //addButton(new GuiButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
+        addButton(new GuiButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
         
         addButton(new GuiButton(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
         addButton(new GuiButton(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
@@ -633,8 +634,7 @@ public class GuiEZConfig extends GuiScreen {
         		initGui();
             }*/
 		} else if (var1.id == CMD_ADVANCED) {
-			//TODO: 1.8 readd
-			//Minecraft.getMinecraft().displayGuiScreen(new GuiConfigEditor());
+			Minecraft.getMinecraft().displayGuiScreen(new GuiConfigEditor());
         } else {
         	//at this point the remaining Ids not covered should be the dimension feature enable buttons
         	
@@ -703,7 +703,7 @@ public class GuiEZConfig extends GuiScreen {
         float f = 0.00390625F / 2F;
         float f1 = 0.00390625F / 2F;
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldrenderer.pos((double)(x + 0), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
         worldrenderer.pos((double)(x + width), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();

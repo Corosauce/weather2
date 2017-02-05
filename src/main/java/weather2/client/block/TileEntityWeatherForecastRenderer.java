@@ -4,14 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
@@ -21,7 +19,8 @@ import weather2.block.TileEntityWeatherForecast;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.particle.ParticleRegistry;
+import weather2.weathersystem.storm.WeatherObject;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 {
@@ -107,12 +106,12 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         GlStateManager.translate((float)x + 0.5F, (float)y+1.1F, (float)z + 0.5F);
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
         GlStateManager.disableLighting();
-        GlStateManager.depthMask(false);
-        GlStateManager.disableDepth();
+        //GlStateManager.depthMask(false);
+        //GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         GlStateManager.disableTexture2D();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         worldrenderer.pos((double)-(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2)).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
@@ -121,8 +120,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         worldrenderer.pos((double)(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2)).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
-        GlStateManager.enableDepth();
-        GlStateManager.depthMask(true);
+        //GlStateManager.enableDepth();
+        //GlStateManager.depthMask(true);
         
         GlStateManager.enableLighting();
         GlStateManager.disableBlend();
@@ -132,12 +131,12 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
         
 		for (int i = 0; i < tEnt.storms.size(); i++) {
-			
-			StormObject storm = tEnt.storms.get(i);
+
+            WeatherObject wo = tEnt.storms.get(i);
 			
 			GL11.glPushMatrix();
 			
-            Vec3 posRenderOffset = new Vec3(storm.pos.xCoord - tEnt.getPos().getX(), 0, storm.pos.zCoord - tEnt.getPos().getZ());
+            Vec3 posRenderOffset = new Vec3(wo.pos.xCoord - tEnt.getPos().getX(), 0, wo.pos.zCoord - tEnt.getPos().getZ());
             posRenderOffset.xCoord /= sizeSimBoxDiameter;
             posRenderOffset.zCoord /= sizeSimBoxDiameter;
             
@@ -147,31 +146,42 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             //Icon particleIcon = CommonProxy.blockWeatherDeflector.getBlockTextureFromSide(0);
             
             GL11.glTranslated(posRenderOffset.xCoord, 0, posRenderOffset.zCoord);
-            
-            if (storm.levelCurIntensityStage >= StormObject.STATE_FORMING) {
-            	if (storm.stormType == StormObject.TYPE_WATER) {
-            		renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconCyclone);
-            		renderLivingLabel("C" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 15, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
-            	} else {
-            		renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconTornado);
-            		renderLivingLabel("F" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 12, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
-            	}
-            } else if (storm.levelCurIntensityStage >= StormObject.STATE_HAIL) {
-            	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconHail);
-            	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
-            } else if (storm.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
-            	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
-            	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
-            } else if (storm.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
-            	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
-            } else {
-            	renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconRain);
-            }
-            
-            if (storm.hasStormPeaked && (storm.levelCurIntensityStage > storm.STATE_NORMAL)) {
-            	renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
-            } else {
-            	renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+
+            if (wo instanceof StormObject) {
+                StormObject storm = (StormObject)wo;
+
+                if (storm.levelCurIntensityStage >= StormObject.STATE_FORMING) {
+                    if (storm.stormType == StormObject.TYPE_WATER) {
+                        renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconCyclone);
+                        renderLivingLabel("C" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 15, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                    } else {
+                        renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconTornado);
+                        renderLivingLabel("F" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 12, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                    }
+                } else if (storm.levelCurIntensityStage >= StormObject.STATE_HAIL) {
+                    renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconHail);
+                    renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
+                } else if (storm.levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
+                    renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
+                    renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
+                } else if (storm.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
+                    renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
+                } else {
+                    renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconRain);
+                }
+
+                if (storm.hasStormPeaked && (storm.levelCurIntensityStage > storm.STATE_NORMAL)) {
+                    renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                } else {
+                    renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                }
+            } else if (wo instanceof WeatherObjectSandstorm) {
+                renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconSandstorm);
+                if (((WeatherObjectSandstorm)wo).isFrontGrowing) {
+                    renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                } else {
+                    renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                }
             }
             
         	//renderLivingLabel("r", x, y + 1.4F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
@@ -210,7 +220,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             Tessellator var14 = Tessellator.getInstance();
-            WorldRenderer worldrenderer = var14.getWorldRenderer();
+            VertexBuffer worldrenderer = var14.getBuffer();
             byte var15 = 0;
             
             worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
@@ -270,11 +280,11 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         int borderSize = 2;
         
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         
         GlStateManager.disableFog();
         
-        this.bindTexture(TextureMap.locationBlocksTexture);
+        this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         

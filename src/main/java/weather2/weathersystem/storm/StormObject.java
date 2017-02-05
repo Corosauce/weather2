@@ -19,20 +19,22 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import CoroUtil.util.Vec3;
-import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigSnow;
+import weather2.config.ConfigStorm;
+import weather2.config.ConfigTornado;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.player.PlayerData;
@@ -43,13 +45,15 @@ import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.ChunkCoordinatesBlock;
 import CoroUtil.util.CoroUtilBlock;
+import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.CoroUtilEntity;
+import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
 
-public class StormObject {
+public class StormObject extends WeatherObject {
 
 	//used on both server and client side, mark things SideOnly where needed
 	
@@ -58,9 +62,7 @@ public class StormObject {
 	//should they extend entity?
 	
 	//management stuff
-	public static long lastUsedStormID = 0; //ID starts from 0 for each game start, no storm nbt disk reload for now
-	public long ID; //loosely accurate ID for tracking, but we wanted to persist between world reloads..... need proper UUID??? I guess add in UUID later and dont persist, start from 0 per game run
-	public WeatherManagerBase manager;
+	
 	public String userSpawnedFor = "";
 	
 	@SideOnly(Side.CLIENT)
@@ -80,20 +82,16 @@ public class StormObject {
 	
 	//basic info
 	public static int static_YPos_layer0 = ConfigMisc.Cloud_Layer0_Height;
-	public static int static_YPos_layer1 = 350;
-	public static int static_YPos_layer2 = 500;
+	public static int static_YPos_layer1 = ConfigMisc.Cloud_Layer1_Height;
+	public static int static_YPos_layer2 = ConfigMisc.Cloud_Layer2_Height;
 	public static List<Integer> layers = new ArrayList<Integer>(Arrays.asList(static_YPos_layer0, static_YPos_layer1, static_YPos_layer2));
 	public int layer = 0;
-	public Vec3 pos = new Vec3(0, static_YPos_layer0, 0);
-	public Vec3 posGround = new Vec3(0, 0, 0);
-	public Vec3 motion = new Vec3(0, 0, 0);
 	
 	public boolean angleIsOverridden = false;
 	public float angleMovementTornadoOverride = 0;
 	
 	//growth / progression info
-	public int size = 50;
-	public int maxSize = ConfigMisc.Storm_MaxRadius;
+	
 	public boolean isGrowing = true;
 	
 	//cloud formation data, helps storms
@@ -121,7 +119,7 @@ public class StormObject {
 	public static int TYPE_WATER = 1; //for tropical cyclones / hurricanes
 	
 	//used to mark intensity stages
-	public static int STATE_NORMAL = 0; //probably unused!
+	public static int STATE_NORMAL = 0;
 	public static int STATE_THUNDER = 1;
 	public static int STATE_HIGHWIND = 2;
 	public static int STATE_HAIL = 3;
@@ -161,7 +159,7 @@ public class StormObject {
 	
 	public TornadoHelper tornadoHelper = new TornadoHelper(this);
 	
-	public Set<ChunkCoordIntPair> doneChunks = new HashSet<ChunkCoordIntPair>();
+	//public Set<ChunkCoordIntPair> doneChunks = new HashSet<ChunkCoordIntPair>();
 	public int updateLCG = (new Random()).nextInt();
     
     public float formingStrength = 0; //for transition from 0 (in clouds) to 1 (touch down)
@@ -171,7 +169,7 @@ public class StormObject {
     public boolean naturallySpawned = true;
     public boolean canSnowFromCloudTemperature = false;
     public boolean alwaysProgresses = false;
-    public boolean isDead = false;
+    
     
     //to let client know server is raining (since we override client side raining state for render changes)
     //public boolean overCastModeAndRaining = false;
@@ -184,8 +182,13 @@ public class StormObject {
 	
     //public static long lastStormFormed = 0;
     
+    public boolean canBeDeadly = true;
+    
 	public StormObject(WeatherManagerBase parManager) {
-		manager = parManager;
+		super(parManager);
+		
+		pos = new Vec3(0, static_YPos_layer0, 0);
+		maxSize = ConfigStorm.Storm_MaxRadius;
 		
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
@@ -195,11 +198,10 @@ public class StormObject {
 		}
 	}
 	
-	//not used yet
 	public void initFirstTime() {
-		ID = StormObject.lastUsedStormID++;
+		super.initFirstTime();
 		
-		BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+		Biome bgb = manager.getWorld().getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 
 		
 		float temp = 1;
@@ -252,20 +254,23 @@ public class StormObject {
 	public boolean isHurricane() {
 		return levelCurIntensityStage >= STATE_STAGE5;
 	}
-	
+
+	@Override
 	public void readFromNBT(NBTTagCompound var1)
     {
+		super.readFromNBT(var1);
 		nbtSyncFromServer(var1);
 		
 		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
-	
-	public NBTTagCompound writeToNBT()
+
+    @Override
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-		
-		NBTTagCompound nbt = nbtSyncForClient();
+		nbt = super.writeToNBT(nbt);
+		nbt = nbtSyncForClient(nbt);
 		
 		nbt.setDouble("vecX", motion.xCoord);
 		nbt.setDouble("vecY", motion.yCoord);
@@ -279,12 +284,7 @@ public class StormObject {
 	
 	//receiver method
 	public void nbtSyncFromServer(NBTTagCompound parNBT) {
-		ID = parNBT.getLong("ID");
-		//Weather.dbg("StormObject " + ID + " receiving sync");
-		
-		pos = new Vec3(parNBT.getInteger("posX"), parNBT.getInteger("posY"), parNBT.getInteger("posZ"));
-		size = parNBT.getInteger("size");
-		maxSize = parNBT.getInteger("maxSize");
+		super.nbtSyncFromServer(parNBT);
 		
 		//state = parNBT.getInteger("state");
 		
@@ -321,16 +321,10 @@ public class StormObject {
 	}
 	
 	//compose nbt data for packet (and serialization in future)
-	public NBTTagCompound nbtSyncForClient() {
-		NBTTagCompound data = new NBTTagCompound();
+	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
+		NBTTagCompound data = super.nbtSyncForClient(nbt);
 		
-		data.setInteger("posX", (int)pos.xCoord);
-		data.setInteger("posY", (int)pos.yCoord);
-		data.setInteger("posZ", (int)pos.zCoord);
 		
-		data.setLong("ID", ID);
-		data.setInteger("size", size);
-		data.setInteger("maxSize", maxSize);
 		
 		//data.setInteger("state", state);
 		
@@ -368,11 +362,12 @@ public class StormObject {
 	
 	public NBTTagCompound nbtForIMC() {
 		//we basically need all the same data minus a few soooo whatever
-		return nbtSyncForClient();
+		return nbtSyncForClient(new NBTTagCompound());
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void tickRender(float partialTick) {
+		super.tickRender(partialTick);
 		//renderBlock.doRenderClouds(this, 0, 0, 0, 0, partialTick);
 		/*if (layer == 1) {
 			renderBlock.doRenderClouds(this, pos.xCoord, pos.yCoord, pos.zCoord, 0, partialTick);
@@ -380,7 +375,9 @@ public class StormObject {
 	}
 	
 	public void tick() {
+		super.tick();
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
+		
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
@@ -392,9 +389,9 @@ public class StormObject {
 				
 				ticksSinceLastPacketReceived++;
 				
-				if (layer == 0) {
+				//if (layer == 0) {
 					tickClient();
-				}
+				//}
 				
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					tornadoHelper.tick(manager.getWorld());
@@ -446,6 +443,9 @@ public class StormObject {
 				tickWeatherEvents();
 				tickProgression();
 				tickSnowFall();
+			} else {
+				//make layer 1 max size for visuals
+				size = maxSize;
 			}
 			
 			//overCastModeAndRaining = ConfigMisc.overcastMode && manager.getWorld().isRaining();
@@ -576,13 +576,13 @@ public class StormObject {
 		currentTopYBlock = world.getHeight(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord))).getY();
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER) {
-			if (rand.nextInt((int)Math.max(1, ConfigMisc.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
+			if (rand.nextInt((int)Math.max(1, ConfigStorm.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
-				int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
-				if (world.isBlockLoaded(new BlockPos(x, y, z))) {
+				if (world.isBlockLoaded(new BlockPos(x, 0, z))) {
+					int y = world.getPrecipitationHeight(new BlockPos(x, 0, z)).getY();
 					//if (world.canLightningStrikeAt(x, y, z)) {
-						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z));
+						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z), false);
 					//}
 				}
 			}
@@ -591,10 +591,10 @@ public class StormObject {
 		//dont forget, this doesnt account for storm size, so small storms have high concentration of hail, as it grows, it appears to lessen in rate
 		if (isPrecipitating() && levelCurIntensityStage == STATE_HAIL && stormType == TYPE_LAND) {
 			//if (rand.nextInt(1) == 0) {
-			for (int i = 0; i < Math.max(1, ConfigMisc.Storm_HailPerTick * (size/maxSize)); i++) {
+			for (int i = 0; i < Math.max(1, ConfigStorm.Storm_HailPerTick * (size/maxSize)); i++) {
 				int x = (int) (pos.xCoord + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.zCoord + rand.nextInt(size) - rand.nextInt(size));
-				if (world.isBlockLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getClosestPlayer(x, 50, z, 80) != null)) {
+				if (world.isBlockLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getClosestPlayer(x, 50, z, 80, false) != null)) {
 					//int y = world.getPrecipitationHeight(x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
 					EntityIceBall hail = new EntityIceBall(world);
@@ -615,7 +615,7 @@ public class StormObject {
 	
 	public void tickSnowFall() {
 		
-		if (!ConfigMisc.Snow_PerformSnowfall) return;
+		if (!ConfigSnow.Snow_PerformSnowfall) return;
 		
 		if (!isPrecipitating()) return;
 		
@@ -663,7 +663,7 @@ public class StormObject {
 		            //world.theProfiler.startSection("getChunk");
 		            
 		            //afterthought, for weather 2.3.7
-		            if (!world.getChunkProvider().chunkExists(xx, zz)) {
+		            if (!world.isBlockLoaded(new BlockPos(x, 128, z))) {
 		            	continue;
 		            }
 		            
@@ -682,7 +682,7 @@ public class StormObject {
 		            
 		            int i2;
 		            
-					if (world.provider.canDoRainSnowIce(chunk) && (ConfigMisc.Snow_RarityOfBuildup == 0 || world.rand.nextInt(ConfigMisc.Snow_RarityOfBuildup) == 0))
+					if (world.provider.canDoRainSnowIce(chunk) && (ConfigSnow.Snow_RarityOfBuildup == 0 || world.rand.nextInt(ConfigSnow.Snow_RarityOfBuildup) == 0))
 			        {
 			            updateLCG = updateLCG * 3 + 1013904223;
 			            i1 = updateLCG >> 2;
@@ -704,25 +704,25 @@ public class StormObject {
 			            
 			            
 			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.snow.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))) {
+			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.SNOW.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 			            	boolean perform = false;
 			            	Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
 			            	int meta = 0;
-			            	if (id.getMaterial() == Material.snow) {
-			            		if (ConfigMisc.Snow_ExtraPileUp) {
+			            	if (id.getMaterial(id.getDefaultState()) == Material.SNOW) {
+			            		if (ConfigSnow.Snow_ExtraPileUp) {
 			            			IBlockState state = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z));
 				            		meta = state.getBlock().getMetaFromState(state);
 				            		if (meta < snowMetaMax) {
 				            			perform = true;
 					            		meta += 1;
 				            		} else {
-				            			if (ConfigMisc.Snow_MaxBlockBuildupHeight > 1) {
+				            			if (ConfigSnow.Snow_MaxBlockBuildupHeight > 1) {
 				            				int i;
 				            				int originalSetBlockHeight = setBlockHeight;
-				            				for (i = 0; i < ConfigMisc.Snow_MaxBlockBuildupHeight; i++) {
+				            				for (i = 0; i < ConfigSnow.Snow_MaxBlockBuildupHeight; i++) {
 				            					Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
-				            					if (checkID.getMaterial() == Material.snow) {
+				            					if (checkID.getMaterial(checkID.getDefaultState()) == Material.SNOW) {
 				            						IBlockState state2 = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z));
 				            						meta = state2.getBlock().getMetaFromState(state2);
 				            						if (meta < snowMetaMax) {
@@ -741,7 +741,7 @@ public class StormObject {
 				            					}
 				            				}
 				            				//if the loop went past the max height
-				            				if (i == ConfigMisc.Snow_MaxBlockBuildupHeight) {
+				            				if (i == ConfigSnow.Snow_MaxBlockBuildupHeight) {
 				            					perform = false;
 				            				}
 				            			}
@@ -752,7 +752,7 @@ public class StormObject {
 			            	}
 			            	if (perform) {
 			            		//Weather.dbg("set data: " + setBlockHeight + " - meta: " + meta);
-			            		if (ConfigMisc.Snow_SmoothOutPlacement) {
+			            		if (ConfigSnow.Snow_SmoothOutPlacement) {
 			            			//spread out as it was trying to go from ...
 			            			int origMeta = Math.max(0, meta-1);
 			            			if (origMeta > snowMetaMax - 4/*snowMetaMax / 2*/) {
@@ -799,7 +799,7 @@ public class StormObject {
 		if (attempt.posX != 0 || attempt.posZ != 0) return attempt;
 		attempt = getSnowfallEvenOutAdjust(x, y, z+1, sourceMeta);
 		if (attempt.posX != 0 || attempt.posZ != 0) return attempt;
-		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 	}
 	
 	//return relative values, id 0 (to mark its ok to start snow here) or id snow (to mark check meta), and meta of detected snow if snow (dont increment it, thats handled after this)
@@ -818,13 +818,13 @@ public class StormObject {
 			//make sure somethings underneath it - we shouldnt need to check deeper because we spread out while meta of snow is halfway, before it can start a second pile
 			if (CoroUtilBlock.isAir(checkID2)) {
 				//Weather.dbg("1");
-				return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+				return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 			} else {
 				//Weather.dbg("2");
 				//return that its an open area to start snow at
-				return new ChunkCoordinatesBlock(x, y, z, Blocks.air, 0);
+				return new ChunkCoordinatesBlock(x, y, z, Blocks.AIR, 0);
 			}
-		} else if (checkID == Blocks.snow) {
+		} else if (checkID == Blocks.SNOW) {
 			IBlockState state = world.getBlockState(new BlockPos(x, y, z));
 			int checkMeta = state.getBlock().getMetaFromState(state);
 			//if detected snow is shorter, return with detected meta val!
@@ -834,16 +834,16 @@ public class StormObject {
 				return new ChunkCoordinatesBlock(x, y, z, checkID, checkMeta);
 			}
 		} else {
-			return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+			return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 		}
-		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
+		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR, 0);
 	}
 	
 	public boolean canSnowAtBody(int par1, int par2, int par3)
     {
 		World world = manager.getWorld();
 		
-        BiomeGenBase biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
+		Biome biomegenbase = world.getBiomeGenForCoords(new BlockPos(par1, 0, par3));
         
         if (biomegenbase == null) return false;
         
@@ -860,7 +860,7 @@ public class StormObject {
                 Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
 
-                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.snow)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ice && l.getMaterial().blocksMovement())
+                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.SNOW)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ICE && l.getMaterial(l.getDefaultState()).blocksMovement())
                 {
                     return true;
                 }
@@ -893,29 +893,29 @@ public class StormObject {
 			//System.out.println("cur size: " + size);
 		}
 		
-		float tempAdjustRate = (float)ConfigMisc.Storm_TemperatureAdjustRate;//0.1F;
-		int levelWaterBuildRate = ConfigMisc.Storm_Rain_WaterBuildUpRate;
-		int levelWaterSpendRate = ConfigMisc.Storm_Rain_WaterSpendRate;
-		int randomChanceOfWaterBuildFromWater = ConfigMisc.Storm_Rain_WaterBuildUpOddsTo1FromSource;
-		int randomChanceOfWaterBuildFromNothing = ConfigMisc.Storm_Rain_WaterBuildUpOddsTo1FromNothing;
+		float tempAdjustRate = (float)ConfigStorm.Storm_TemperatureAdjustRate;//0.1F;
+		int levelWaterBuildRate = ConfigStorm.Storm_Rain_WaterBuildUpRate;
+		int levelWaterSpendRate = ConfigStorm.Storm_Rain_WaterSpendRate;
+		int randomChanceOfWaterBuildFromWater = ConfigStorm.Storm_Rain_WaterBuildUpOddsTo1FromSource;
+		int randomChanceOfWaterBuildFromNothing = ConfigStorm.Storm_Rain_WaterBuildUpOddsTo1FromNothing;
 		//int randomChanceOfRain = ConfigMisc.Player_Storm_Rain_OddsTo1;
 		
 		boolean isInOcean = false;
 		boolean isOverWater = false;
 		
-		if (world.getTotalWorldTime() % ConfigMisc.Storm_AllTypes_TickRateDelay == 0) {
+		if (world.getTotalWorldTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
 			
 			NBTTagCompound playerNBT = PlayerData.getPlayerNBT(userSpawnedFor);
 			
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
-			BiomeGenBase bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
+			Biome bgb = world.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(pos.xCoord), 0, MathHelper.floor_double(pos.zCoord)));
 			
 			//temperature scan
 			if (bgb != null) {
 				
-				isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
+				isInOcean = bgb.getBiomeName().contains("Ocean") || bgb.getBiomeName().contains("ocean");
 				
 				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord))));
 				if (levelTemperature > biomeTempAdj) {
@@ -936,7 +936,7 @@ public class StormObject {
 			Block blockID = world.getBlockState(new BlockPos(MathHelper.floor_double(pos.xCoord), currentTopYBlock-1, MathHelper.floor_double(pos.zCoord))).getBlock();
 			if (!CoroUtilBlock.isAir(blockID)) {
 				//Block block = Block.blocksList[blockID];
-				if (blockID.getMaterial() instanceof MaterialLiquid) {
+				if (blockID.getMaterial(blockID.getDefaultState()) instanceof MaterialLiquid) {
 					isOverWater = true;
 				}
 			}
@@ -947,7 +947,7 @@ public class StormObject {
 					performBuildup = true;
 				}
 				
-				if (!performBuildup && bgb != null && (isInOcean || bgb.biomeName.contains("Swamp") || bgb.biomeName.contains("Jungle") || bgb.biomeName.contains("River"))) {
+				if (!performBuildup && bgb != null && (isInOcean || bgb.getBiomeName().contains("Swamp") || bgb.getBiomeName().contains("Jungle") || bgb.getBiomeName().contains("River"))) {
 					performBuildup = true;
 				}
 			}
@@ -975,7 +975,7 @@ public class StormObject {
 			} else {
 				if (!ConfigMisc.overcastMode || manager.getWorld().isRaining()) {
 					if (levelWater >= levelWaterStartRaining) {
-						if (ConfigMisc.Player_Storm_Rain_OddsTo1 != -1 && rand.nextInt(ConfigMisc.Player_Storm_Rain_OddsTo1) == 0) {
+						if (ConfigStorm.Player_Storm_Rain_OddsTo1 != -1 && rand.nextInt(ConfigStorm.Player_Storm_Rain_OddsTo1) == 0) {
 							setPrecipitating(true);
 							Weather.dbg("starting raining for: " + ID);
 						}
@@ -985,30 +985,32 @@ public class StormObject {
 			
 			//actual storm formation chance
 			
-			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimensionId());
+			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
 			
 			boolean tryFormStorm = false;
 			
-			if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
-				if (ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
-					if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-						tryFormStorm = true;
+			if (this.canBeDeadly) {
+				if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
+					if (ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
+						if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+							tryFormStorm = true;
+						}
 					}
-				}
-			} else {
-				if (ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
-					if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-						tryFormStorm = true;
+				} else {
+					if (ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
+						if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
+							tryFormStorm = true;
+						}
 					}
 				}
 			}
 			
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimensionId()) && tryFormStorm) {
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimension()) && tryFormStorm) {
 				//if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-					int stormFrontCollideDist = ConfigMisc.Storm_Deadly_CollideDistance;
-					int randomChanceOfCollide = ConfigMisc.Player_Storm_Deadly_OddsTo1;
+					int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
+					int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
 					
-					if (isInOcean && (ConfigMisc.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
+					if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
 						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
 						
 						if (entP != null) {
@@ -1017,12 +1019,12 @@ public class StormObject {
 							initRealStorm(null, null);
 						}
 						
-						if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
+						if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
 							wm.lastStormFormed = world.getTotalWorldTime();
 						} else {
 							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
 						}
-					} else if (!isInOcean && ConfigMisc.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfLandBasedStorm) == 0) {
+					} else if (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0) {
 						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
 						
 						if (entP != null) {
@@ -1031,50 +1033,55 @@ public class StormObject {
 							initRealStorm(null, null);
 						}
 						
-						if (ConfigMisc.Server_Storm_Deadly_UseGlobalRate) {
+						if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
 							wm.lastStormFormed = world.getTotalWorldTime();
 						} else {
 							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
 						}
 					} else if (rand.nextInt(randomChanceOfCollide) == 0) {
 						for (int i = 0; i < manager.getStormObjects().size(); i++) {
-							StormObject so = manager.getStormObjects().get(i);
+							WeatherObject wo = manager.getStormObjects().get(i);
 							
-							boolean startStorm = false;
-							
-							if (so.ID != this.ID && so.levelCurIntensityStage <= 0) {
-								if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
-									if (this.levelTemperature < 0) {
-										if (so.levelTemperature > 0) {
-											startStorm = true;
-										}
-									} else if (this.levelTemperature > 0) {
-										if (so.levelTemperature < 0) {
-											startStorm = true;
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject) wo;
+								
+								boolean startStorm = false;
+								
+								if (so.ID != this.ID && so.levelCurIntensityStage <= 0) {
+									if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
+										if (this.levelTemperature < 0) {
+											if (so.levelTemperature > 0) {
+												startStorm = true;
+											}
+										} else if (this.levelTemperature > 0) {
+											if (so.levelTemperature < 0) {
+												startStorm = true;
+											}
 										}
 									}
 								}
+								
+								if (startStorm) {
+									
+									//Weather.dbg("start storm!");
+									
+									playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+									
+									//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
+									EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+									
+									if (entP != null) {
+										initRealStorm(entP, so);
+									} else {
+										initRealStorm(null, so);
+										//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
+										//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
+									}
+									
+									break;
+								}
 							}
 							
-							if (startStorm) {
-								
-								//Weather.dbg("start storm!");
-								
-								playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
-								
-								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
-								EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
-								
-								if (entP != null) {
-									initRealStorm(entP, so);
-								} else {
-									initRealStorm(null, so);
-									//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
-									//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
-								}
-								
-								break;
-							}
 						}
 					}
 				//}
@@ -1096,7 +1103,7 @@ public class StormObject {
 				}
 				
 				if ((levelCurIntensityStage == STATE_HIGHWIND || levelCurIntensityStage == STATE_HAIL) && isOverWater) {
-					if (ConfigMisc.Storm_OddsTo1OfHighWindWaterSpout != 0 && rand.nextInt(ConfigMisc.Storm_OddsTo1OfHighWindWaterSpout) == 0) {
+					if (ConfigStorm.Storm_OddsTo1OfHighWindWaterSpout != 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfHighWindWaterSpout) == 0) {
 						attrib_waterSpout = true;
 					}
 				} else {
@@ -1105,7 +1112,7 @@ public class StormObject {
 				
 				float levelStormIntensityRate = 0.02F;
 				float minIntensityToProgress = 0.6F;
-				int oddsTo1OfIntensityProgressionBase = ConfigMisc.Storm_OddsTo1OfProgressionBase;
+				int oddsTo1OfIntensityProgressionBase = ConfigStorm.Storm_OddsTo1OfProgressionBase;
 				
 				//speed up forming and greater progression
 				if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
@@ -1113,13 +1120,13 @@ public class StormObject {
 					oddsTo1OfIntensityProgressionBase /= 3;
 				}
 
-				int oddsTo1OfIntensityProgression = oddsTo1OfIntensityProgressionBase + (levelCurIntensityStage * ConfigMisc.Storm_OddsTo1OfProgressionStageMultiplier);
+				int oddsTo1OfIntensityProgression = oddsTo1OfIntensityProgressionBase + (levelCurIntensityStage * ConfigStorm.Storm_OddsTo1OfProgressionStageMultiplier);
 				
 				if (!hasStormPeaked) {
 					
 					levelCurStagesIntensity += levelStormIntensityRate;
 					
-					if (levelCurIntensityStage < maxIntensityStage && (!ConfigMisc.Storm_NoTornadosOrCyclones || levelCurIntensityStage < STATE_FORMING-1)) {
+					if (levelCurIntensityStage < maxIntensityStage && (!ConfigTornado.Storm_NoTornadosOrCyclones || levelCurIntensityStage < STATE_FORMING-1)) {
 						if (levelCurStagesIntensity >= minIntensityToProgress) {
 							//Weather.dbg("storm ID: " + this.ID + " trying to hit next stage");
 							if (alwaysProgresses || rand.nextInt(oddsTo1OfIntensityProgression) == 0) {
@@ -1225,7 +1232,7 @@ public class StormObject {
 	public void stageNext() {
 		levelCurIntensityStage++;
 		levelCurStagesIntensity = 0F;
-		if (ConfigMisc.Storm_Tornado_aimAtPlayerOnSpawn) {
+		if (ConfigTornado.Storm_Tornado_aimAtPlayerOnSpawn) {
 			if (!hasStormPeaked && levelCurIntensityStage == STATE_FORMING) {
 				aimStormAtClosestOrProvidedPlayer(null);
 			}
@@ -1265,7 +1272,7 @@ public class StormObject {
 			Weather.dbg("ocean storm happened, ID " + this.ID);
 		}
 		
-		if (ConfigMisc.Storm_Tornado_aimAtPlayerOnSpawn) {
+		if (ConfigTornado.Storm_Tornado_aimAtPlayerOnSpawn) {
 			
 			if (entP != null) {
 				aimStormAtClosestOrProvidedPlayer(entP);
@@ -1277,7 +1284,7 @@ public class StormObject {
 	public void aimStormAtClosestOrProvidedPlayer(EntityPlayer entP) {
 		
 		if (entP == null) {
-			entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
+			entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1, false);
 		}
 		
 		if (entP != null) {
@@ -1287,7 +1294,7 @@ public class StormObject {
             float yaw = -(float)(Math.atan2(var11, var15) * 180.0D / Math.PI);
             //weather override!
             //yaw = weatherMan.wind.direction;
-            int size = ConfigMisc.Storm_Tornado_aimAtPlayerAngleVariance;
+            int size = ConfigTornado.Storm_Tornado_aimAtPlayerAngleVariance;
             if (size > 0) {
             	yaw += rand.nextInt(size) - (size / 2);
             }
@@ -1432,15 +1439,15 @@ public class StormObject {
 				if (listParticlesCloud.size() < size + extraSpawning) {
 					double spawnRad = size;
 					
-					if (layer != 0) {
+					/*if (layer != 0) {
 						spawnRad = size * 5;
-					}
+					}*/
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
 					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
-						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 2);
+						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
 						
 				    	/*if (layer == 0) {
 				    		particle.particleScale = 500;
@@ -1471,7 +1478,7 @@ public class StormObject {
 					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						int groundY = manager.getWorld().getHeight(new BlockPos((int)tryPos.xCoord, 0, (int)tryPos.zCoord)).getY();
-						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 2);
+						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 0);
 						
 						particle.setScale(100);
 						particle.rotationYaw = rand.nextInt(360);
@@ -1522,7 +1529,7 @@ public class StormObject {
 		
 		//spawn funnel
 		if (isTornadoFormingOrGreater() || (attrib_waterSpout)) {
-			if (this.manager.getWorld().getTotalWorldTime() % (delay + ConfigMisc.Storm_ParticleSpawnDelay) == 0) {
+			if (this.manager.getWorld().getTotalWorldTime() % (delay + ConfigStorm.Storm_ParticleSpawnDelay) == 0) {
 				for (int i = 0; i < loopSize; i++) {
 					//temp comment out
 					//if (attrib_tornado_severity > 0) {
@@ -1531,7 +1538,7 @@ public class StormObject {
 					
 					//trim!
 					if (listParticlesFunnel.size() >= sizeMaxFunnelParticles) {
-						listParticlesFunnel.get(0).setDead();
+						listParticlesFunnel.get(0).setExpired();
 						listParticlesFunnel.remove(0);
 					}
 					
@@ -1542,7 +1549,7 @@ public class StormObject {
 						//int y = entP.worldObj.getPrecipitationHeight((int)tryPos.xCoord, (int)tryPos.zCoord);
 						
 						if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
-							EntityRotFX particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 3);
+							EntityRotFX particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
 							
 							//move these to a damn profile damnit!
 							particle.setMaxAge(150 + ((levelCurIntensityStage-1) * 100) + rand.nextInt(100));
@@ -1565,6 +1572,8 @@ public class StormObject {
 							
 							
 							listParticlesFunnel.add(particle);
+							
+							//System.out.println(listParticlesFunnel.size());
 						}
 					} else {
 						//Weather.dbg("particles maxed");
@@ -1575,14 +1584,16 @@ public class StormObject {
 		
 		for (int i = 0; i < listParticlesFunnel.size(); i++) {
 			EntityRotFX ent = listParticlesFunnel.get(i);
-			if (ent.isDead) {
+			//System.out.println(ent.getPosY());
+			if (!ent.isAlive()) {
 				listParticlesFunnel.remove(ent);
-			} else if (ent.posY > pos.yCoord) {
-				ent.setDead();
+			} else if (ent.getPosY() > pos.yCoord) {
+				ent.setExpired();
 				listParticlesFunnel.remove(ent);
+				//System.out.println("asd");
 			} else {
-				 double var16 = this.pos.xCoord - ent.posX;
-                 double var18 = this.pos.zCoord - ent.posZ;
+				 double var16 = this.pos.xCoord - ent.getPosX();
+                 double var18 = this.pos.zCoord - ent.getPosZ();
                  ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
                  ent.rotationYaw += ent.getEntityId() % 90;
                  ent.rotationPitch = -30F;
@@ -1590,7 +1601,7 @@ public class StormObject {
                  //fade spout blue to grey
                  if (levelCurIntensityStage == STATE_HIGHWIND) {
                 	 int fadingDistStart = 30;
-                	 if (ent.posY > posGround.yCoord + fadingDistStart) {
+                	 if (ent.getPosY() > posGround.yCoord + fadingDistStart) {
 		                 float maxVal = ent.getBlueColorF();
 		                 float fadeRate = 0.002F;
 		                 ent.setRBGColorF(Math.min(maxVal, ent.getRedColorF()+fadeRate), Math.min(maxVal, ent.getGreenColorF()+fadeRate), maxVal);
@@ -1603,7 +1614,7 @@ public class StormObject {
 		
 		for (int i = 0; i < listParticlesCloud.size(); i++) {
 			EntityRotFX ent = listParticlesCloud.get(i);
-			if (ent.isDead) {
+			if (!ent.isAlive()) {
 				listParticlesCloud.remove(ent);
 			} else {
 				//ent.posX = pos.xCoord + i*10;
@@ -1612,9 +1623,9 @@ public class StormObject {
 				float posZ = (float) Math.cos(ent.getEntityId());
 				ent.setPosition(pos.xCoord + posX*radius, ent.posY, pos.zCoord + posZ*radius);*/
 		        
-				double curSpeed = Math.sqrt(ent.motionX * ent.motionX + ent.motionY * ent.motionY + ent.motionZ * ent.motionZ);
+				double curSpeed = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 				
-				double curDist = ent.getDistance(pos.xCoord, ent.posY, pos.zCoord);
+				double curDist = ent.getDistance(pos.xCoord, ent.getPosY(), pos.zCoord);
 
 				float dropDownRange = 15F;
 		        
@@ -1635,8 +1646,8 @@ public class StormObject {
 					double distt = size;//300D;
 					
 					
-					double vecX = ent.posX - pos.xCoord;
-			        double vecZ = ent.posZ - pos.zCoord;
+					double vecX = ent.getPosX() - pos.xCoord;
+			        double vecZ = ent.getPosZ() - pos.zCoord;
 			        float angle = (float)(Math.atan2(vecZ, vecX) * 180.0D / Math.PI);
 			        //System.out.println("angle: " + angle);
 			        
@@ -1674,8 +1685,8 @@ public class StormObject {
 			        		}
 			        	}
 			        	
-			        	double var16 = this.pos.xCoord - ent.posX;
-		                double var18 = this.pos.zCoord - ent.posZ;
+			        	double var16 = this.pos.xCoord - ent.getPosX();
+		                double var18 = this.pos.zCoord - ent.getPosZ();
 		                ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
 		                ent.rotationPitch = -20F - (ent.getEntityId() % 10);
 			        }
@@ -1710,8 +1721,8 @@ public class StormObject {
 			        
 			        
 			        if (curSpeed < speed * 20D) {
-			        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
-				        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+			        	ent.setMotionX(ent.getMotionX() + -Math.sin(Math.toRadians(angle)) * speed);
+				        ent.setMotionZ(ent.getMotionZ() + Math.cos(Math.toRadians(angle)) * speed);
 			        }
 				} else {
 					float cloudMoveAmp = 0.2F * (1 + layer);
@@ -1725,16 +1736,16 @@ public class StormObject {
 			        }
 					
 					if (curSpeed < speed * 1D) {
-			        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
-				        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+			        	ent.setMotionX(ent.getMotionX() + -Math.sin(Math.toRadians(angle)) * speed);
+				        ent.setMotionZ(ent.getMotionZ() + Math.cos(Math.toRadians(angle)) * speed);
 			        }
 				}
 		        
-				if (Math.abs(ent.posY - (pos.yCoord - extraDropCalc)) > 2F) {
-			        if (ent.posY < pos.yCoord - extraDropCalc) {
-		        		ent.motionY += 0.1D;
+				if (Math.abs(ent.getPosY() - (pos.yCoord - extraDropCalc)) > 2F) {
+			        if (ent.getPosY() < pos.yCoord - extraDropCalc) {
+		        		ent.setMotionY(ent.getMotionY() + 0.1D);
 		        	} else {
-		        		ent.motionY -= 0.1D;
+		        		ent.setMotionY(ent.getMotionY() + 0.1D);
 		        	}
 				}
 		        
@@ -1744,12 +1755,12 @@ public class StormObject {
 					dropDownSpeedMax = 0.9F;
 				}
 				
-		        if (ent.motionY < -dropDownSpeedMax) {
-		        	ent.motionY = -dropDownSpeedMax;
+		        if (ent.getMotionY() < -dropDownSpeedMax) {
+		        	ent.setMotionY(-dropDownSpeedMax);
 		        }
 		        
-		        if (ent.motionY > dropDownSpeedMax) {
-		        	ent.motionY = dropDownSpeedMax;
+		        if (ent.getMotionY() > dropDownSpeedMax) {
+		        	ent.setMotionY(dropDownSpeedMax);
 		        }
 		        
 		        //double distToGround = ent.worldObj.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
@@ -1765,19 +1776,19 @@ public class StormObject {
 		for (int i = 0; i < listParticlesGround.size(); i++) {
 			EntityRotFX ent = listParticlesGround.get(i);
 			
-			double curDist = ent.getDistance(pos.xCoord, ent.posY, pos.zCoord);
+			double curDist = ent.getDistance(pos.xCoord, ent.getPosY(), pos.zCoord);
 			
-			if (ent.isDead) {
+			if (!ent.isAlive()) {
 				listParticlesGround.remove(ent);
 			} else {
-				double curSpeed = Math.sqrt(ent.motionX * ent.motionX + ent.motionY * ent.motionY + ent.motionZ * ent.motionZ);
+				double curSpeed = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 			
 				double speed = Math.max(0.2F, 5F * spinSpeed) + (rand.nextDouble() * 0.01D);
 				double distt = size;//300D;
 				
 				
-				double vecX = ent.posX - pos.xCoord;
-		        double vecZ = ent.posZ - pos.zCoord;
+				double vecX = ent.getPosX() - pos.xCoord;
+		        double vecZ = ent.getPosZ() - pos.zCoord;
 		        float angle = (float)(Math.atan2(vecZ, vecX) * 180.0D / Math.PI);
 		        
 		        angle += 85;
@@ -1792,17 +1803,17 @@ public class StormObject {
 		        ent.setScale((float) Math.min(maxParticleSize, curDist * 2F));
 		        
 		        if (curDist < 20) {
-		        	ent.setDead();
+		        	ent.setExpired();
 		        }
 
-	        	double var16 = this.pos.xCoord - ent.posX;
-                double var18 = this.pos.zCoord - ent.posZ;
+	        	double var16 = this.pos.xCoord - ent.getPosX();
+                double var18 = this.pos.zCoord - ent.getPosZ();
 		        //ent.rotationYaw += 5;//(float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
                 //ent.rotationPitch = 0;//-20F - (ent.getEntityId() % 10);
                 
                 if (curSpeed < speed * 20D) {
-		        	ent.motionX += -Math.sin(Math.toRadians(angle)) * speed;
-			        ent.motionZ += Math.cos(Math.toRadians(angle)) * speed;
+		        	ent.setMotionX(ent.getMotionX() + -Math.sin(Math.toRadians(angle)) * speed);
+			        ent.setMotionZ(ent.getMotionZ() + Math.cos(Math.toRadians(angle)) * speed);
 		        }
 			}
 		}
@@ -1829,7 +1840,7 @@ public class StormObject {
 			targetYaw = 0;
 		}
 		
-		float bestMove = MathHelper.wrapAngleTo180_float(targetYaw - angle);
+		float bestMove = MathHelper.wrapDegrees(targetYaw - angle);
 		
 		if (Math.abs(bestMove) < 180/* - (angleAdjust * 2)*/) {
 			if (bestMove > 0) angle -= angleAdjust;
@@ -1841,7 +1852,7 @@ public class StormObject {
 		return angle;
 	}
 	
-	public void spinEntity(Entity entity1) {
+	public void spinEntity(Object entity1) {
 		
 		StormObject entT = this;
 		StormObject entity = this;
@@ -1855,15 +1866,23 @@ public class StormObject {
     
     	boolean forTornado = true;//entT != null;
     	
+    	World world = CoroUtilEntOrParticle.getWorld(entity1);
+    	long worldTime = world.getTotalWorldTime();
+    	
+    	Entity ent = null;
+    	if (entity1 instanceof Entity) {
+    		ent = (Entity) entity1;
+    	}
+    	
         //ConfigTornado.Storm_Tornado_height;
         double radius = 10D;
         double scale = conf.tornadoWidthScale;
-        double d1 = entity.pos.xCoord - entity1.posX;
-        double d2 = entity.pos.zCoord - entity1.posZ;
+        double d1 = entity.pos.xCoord - CoroUtilEntOrParticle.getPosX(entity1);
+        double d2 = entity.pos.zCoord - CoroUtilEntOrParticle.getPosZ(entity1);
         
         if (conf.type == conf.TYPE_SPOUT) {
-        	float range = 30F * (float) Math.sin((Math.toRadians(((entity1.worldObj.getTotalWorldTime() * 0.5F) + (ID * 50)) % 360)));
-        	float heightPercent = (float) (1F - ((entity1.posY - posGround.yCoord) / (pos.yCoord - posGround.yCoord)));
+        	float range = 30F * (float) Math.sin((Math.toRadians(((worldTime * 0.5F) + (ID * 50)) % 360)));
+        	float heightPercent = (float) (1F - ((CoroUtilEntOrParticle.getPosY(entity1) - posGround.yCoord) / (pos.yCoord - posGround.yCoord)));
         	float posOffsetX = (float) Math.sin((Math.toRadians(heightPercent * 360F)));
         	float posOffsetZ = (float) -Math.cos((Math.toRadians(heightPercent * 360F)));
         	//Weather.dbg("posOffset: " + posOffset);
@@ -1879,16 +1898,16 @@ public class StormObject {
 
         for (; f1 >= 180F; f1 -= 360F) { }
 
-        double distY = entity.pos.yCoord - entity1.posY;
+        double distY = entity.pos.yCoord - CoroUtilEntOrParticle.getPosY(entity1);
         double distXZ = Math.sqrt(Math.abs(d1)) + Math.sqrt(Math.abs(d2));
 
-        if (entity1.posY - entity.pos.yCoord < 0.0D)
+        if (CoroUtilEntOrParticle.getPosY(entity1) - entity.pos.yCoord < 0.0D)
         {
             distY = 1.0D;
         }
         else
         {
-            distY = entity1.posY - entity.pos.yCoord;
+            distY = CoroUtilEntOrParticle.getPosY(entity1) - entity.pos.yCoord;
         }
 
         if (distY > maxHeight)
@@ -1939,13 +1958,10 @@ public class StormObject {
 
             grab = grab - adjGrab;
 
-            if (entity1.motionY > -0.8)
+            if (CoroUtilEntOrParticle.getMotionY(entity1) > -0.8)
             {
             	//System.out.println(entity1.motionY);
-                entity1.fallDistance = 0F;
-            } else if (entity1.motionY > -1.5) {
-            	//entity1.fallDistance = 5F;
-            	//System.out.println(entity1.fallDistance);
+                ent.fallDistance = 0F;
             }
 
             
@@ -1959,7 +1975,7 @@ public class StormObject {
             pullY += adjPull;
             //0.2D / ((getWeight(entity1) * ((distXZ+1D) / radius)) * (((distY) / maxHeight)) * 3D);
             //grab = grab + (10D * ((distY / maxHeight) * 1D));
-            int airTime = entity1.getEntityData().getInteger("timeInAir");
+            int airTime = ent.getEntityData().getInteger("timeInAir");
             double adjGrab = (10D * (((float)(((double)(airTime) + 1D) / 400D))));
 
             if (adjGrab > 50)
@@ -1974,14 +1990,14 @@ public class StormObject {
 
             grab = grab - adjGrab;
 
-            if (entity1.motionY > -1.5)
+            if (ent.motionY > -1.5)
             {
-                entity1.fallDistance = 0F;
+                ent.fallDistance = 0F;
             }
             
-            if (entity1.motionY > 0.3F) entity1.motionY = 0.3F;
+            if (ent.motionY > 0.3F) ent.motionY = 0.3F;
 
-            if (forTornado) entity1.onGround = false;
+            if (forTornado) ent.onGround = false;
             
             //System.out.println(adjPull);
         }
@@ -2025,7 +2041,7 @@ public class StormObject {
         //if player and not spout
         if (entity1 instanceof EntityPlayer && conf.type != 0) {
         	//System.out.println("grab: " + f5);
-        	if (entity1.onGround) {
+        	if (ent.onGround) {
         		f5 *= 10.5F;
         	} else {
         		f5 *= 5F;
@@ -2065,25 +2081,31 @@ public class StormObject {
         }
         
         //prevent double+ pull on entities
-        long lastPullTime = entity1.getEntityData().getLong("lastPullTime");
-        if (lastPullTime == entity1.worldObj.getTotalWorldTime()) {
-        	//System.out.println("preventing double pull");
-        	pullY = 0;
+        if (entity1 instanceof Entity) {
+	        long lastPullTime = ent.getEntityData().getLong("lastPullTime");
+	        if (lastPullTime == worldTime) {
+	        	//System.out.println("preventing double pull");
+	        	pullY = 0;
+	        }
+	        ent.getEntityData().setLong("lastPullTime", worldTime);
         }
-        entity1.getEntityData().setLong("lastPullTime", entity1.worldObj.getTotalWorldTime());
         
         setVel(entity1, -moveX, pullY, moveZ);
 	}
 	
-	public void setVel(Entity entity, float f, float f1, float f2)
+	public void setVel(Object entity, float f, float f1, float f2)
     {
-        entity.motionX += f;
+        /*entity.motionX += f;
         entity.motionY += f1;
-        entity.motionZ += f2;
+        entity.motionZ += f2;*/
+        CoroUtilEntOrParticle.setMotionX(entity, CoroUtilEntOrParticle.getMotionX(entity) + f);
+		CoroUtilEntOrParticle.setMotionY(entity, CoroUtilEntOrParticle.getMotionY(entity) + f1);
+		CoroUtilEntOrParticle.setMotionZ(entity, CoroUtilEntOrParticle.getMotionZ(entity) + f2);
 
         if (entity instanceof EntitySquid)
         {
-            entity.setPosition(entity.posX + entity.motionX * 5F, entity.posY, entity.posZ + entity.motionZ * 5F);
+        	Entity ent = (Entity) entity;
+        	ent.setPosition(ent.posX + ent.motionX * 5F, ent.posY, ent.posZ + ent.motionZ * 5F);
         }
     }
 	
@@ -2096,10 +2118,13 @@ public class StormObject {
     	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, ParticleRegistry.cloud256, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
 		particleBehaviorFog.initParticle(entityfx);
 		
+		//potato
+		//entityfx.setRBGColorF(1f, 1f, 1f);
+		
 		//lock y
 		//entityfx.spawnY = (float) entityfx.posY;
 		//entityfx.spawnY = ((int)200 - 5) + rand.nextFloat() * 5;
-		entityfx.noClip = true;
+		entityfx.setCanCollide(false);
     	entityfx.callUpdatePB = false;
     	
     	boolean debug = false;
@@ -2118,7 +2143,7 @@ public class StormObject {
     	
 		//pieces that move down with funnel need render order shift, also only for relevant storm formations
 		if (entityfx.getEntityId() % 20 < 5 && isSpinning()) {
-			entityfx.renderOrder = 3;
+			entityfx.renderOrder = 1;
 			
 			entityfx.setMaxAge((size) + rand.nextInt(100));
 		}
@@ -2136,9 +2161,9 @@ public class StormObject {
 			baseBright -= adj;
 		}
 		
-		if (layer == 1) {
+		/*if (layer == 1) {
 			baseBright = 0.1F;
-		}
+		}*/
 		
 		float finalBright = Math.min(1F, baseBright+randFloat);
 		entityfx.setRBGColorF(finalBright, finalBright, finalBright);
@@ -2155,36 +2180,21 @@ public class StormObject {
 		}
     	
 		ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
+		//Minecraft.getMinecraft().effectRenderer.addEffect(entityfx);
 		//entityfx.spawnAsWeatherEffect();
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }
 	
-	public void reset() {
-		setDead();
-	}
-	
-	public void setDead() {
-		//Weather.dbg("storm killed, ID: " + ID);
-		
-		isDead = true;
-		
-		//cleanup memory
-		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT/*manager.getWorld().isRemote*/) {
-			cleanupClient();
-		}
-		
-		cleanup();
-	}
-	
 	public void cleanup() {
-		manager = null;
+		super.cleanup();
 		if (tornadoHelper != null) tornadoHelper.storm = null;
 		tornadoHelper = null;
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void cleanupClient() {
+		super.cleanupClient();
 		listParticlesCloud.clear();
 		listParticlesFunnel.clear();
 		if (particleBehaviorFog != null && particleBehaviorFog.particles != null) particleBehaviorFog.particles.clear();
@@ -2201,10 +2211,19 @@ public class StormObject {
 		return parOrigVal;
 	}
 	
-	public void addWeatherEffectLightning(EntityLightningBolt parEnt) {
+	public void addWeatherEffectLightning(EntityLightningBolt parEnt, boolean custom) {
 		//manager.getWorld().addWeatherEffect(parEnt);
 		manager.getWorld().weatherEffects.add(parEnt);
-		((WeatherManagerServer)manager).syncLightningNew(parEnt);
+		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
+	}
+	
+	@Override
+	public int getUpdateRateForNetwork() {
+		if (levelCurIntensityStage >= StormObject.STATE_HIGHWIND) {
+			return 2;
+		} else {
+			return super.getUpdateRateForNetwork();
+		}
 	}
 	
 	//notes moved to bottom\\

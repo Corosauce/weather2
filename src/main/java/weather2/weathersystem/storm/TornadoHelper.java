@@ -1,6 +1,5 @@
 package weather2.weathersystem.storm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,17 +12,19 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilEntity;
@@ -151,7 +152,7 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 						world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
-						if (snapshot.getState().getBlock() == Blocks.air) {
+						if (snapshot.getState().getBlock() == Blocks.AIR) {
 							if (count % entityCreateStaggerRate == 0) {
 								EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
 								/*if (mBlock != null) {
@@ -198,7 +199,7 @@ public class TornadoHelper {
         //int spawnYOffset = (int) storm.currentTopYBlock;
         int spawnYOffset = (int) storm.posBaseFormationPos.yCoord;
 
-        if (!parWorld.isRemote && ConfigMisc.Storm_Tornado_grabBlocks/*getStorm().grabsBlocks*/)
+        if (!parWorld.isRemote && ConfigTornado.Storm_Tornado_grabBlocks/*getStorm().grabsBlocks*/)
         {
             int yStart = 00;
             int yEnd = (int)storm.pos.yCoord/* + 72*/;
@@ -210,10 +211,11 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            BiomeGenBase bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
+            Biome bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
         	
             //prevent grabbing in high areas (hills)
-        	if (bgb != null && bgb.minHeight + bgb.maxHeight <= 0.7) {
+            //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/heightVariation is correct, guessing we can just not factor in variation
+        	if (bgb != null && bgb.getBaseHeight()/* + bgb.getHeightVariation()*/ <= 0.7) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -287,11 +289,11 @@ public class TornadoHelper {
 	                            performed = seesLight;
 	                        }
 	                        
-	                        if (!performed && ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-	                        	if (blockID == Blocks.grass) {
+	                        if (!performed && ConfigTornado.Storm_Tornado_RefinedGrabRules) {
+	                        	if (blockID == Blocks.GRASS) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
-	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimensionId(), Blocks.dirt.getDefaultState(), state, pos, false));
+	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.DIRT.getDefaultState(), state, pos, false));
 	                        		}
 	                        		
 	                        	}
@@ -393,7 +395,7 @@ public class TornadoHelper {
         
         if (!tryRip) return true;
 		
-        if (!ConfigMisc.Storm_Tornado_grabBlocks) return true;
+        if (!ConfigTornado.Storm_Tornado_grabBlocks) return true;
         
         if (isNoDigCoord(tryX, tryY, tryZ)) return true;
 
@@ -421,22 +423,22 @@ public class TornadoHelper {
         {
             
 
-            if (parWorld.getChunkProvider().chunkExists((int)storm.pos.xCoord / 16, (int)storm.pos.zCoord / 16) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigMisc.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigMisc.Storm_Tornado_maxBlocksGrabbedPerTick)
+            if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigTornado.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigTornado.Storm_Tornado_maxBlocksGrabbedPerTick)
             {
                 lastGrabTime = System.currentTimeMillis() - 5;
                 //int blockMeta = this.parWorld.getBlockStateMetadata(tryX,tryY,tryZ);
                 //rip noise, nm, forces particles
                 //parWorld.playAuxSFX(2001, tryX, tryY, tryZ, blockID + blockMeta * 256);
 
-                if (blockID != Blocks.snow && blockID != Blocks.glass)
+                if (blockID != Blocks.SNOW && blockID != Blocks.GLASS)
                 {
                     EntityMovingBlock mBlock = null;
 
-                    if (parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140) != null) {
+                    if (parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140, false) != null) {
                     	if (createEntity) {
-		                    if (blockID == Blocks.grass)
+		                    if (blockID == Blocks.GRASS)
 		                    {
-		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.dirt, storm);
+		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.DIRT, storm);
 		                    }
 		                    else
 		                    {
@@ -484,9 +486,9 @@ public class TornadoHelper {
                 else
                 {
                     //depreciated - OR NOT!
-                    if (blockID == Blocks.glass)
+                    if (blockID == Blocks.GLASS)
                     {
-                        parWorld.playSoundEffect(tryX, tryY, tryZ, "random.glass", 5.0F, 1.0F);
+                        parWorld.playSound(null, new BlockPos(tryX, tryY, tryZ), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.AMBIENT, 5.0F, 1.0F);
                     }
 
                     //break snow effect goes here
@@ -507,7 +509,7 @@ public class TornadoHelper {
                     parWorld.setBlockState(pos, Blocks.air.getDefaultState(), 0);
                 }*/
                 
-                listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimensionId(), Blocks.air.getDefaultState(), state, pos, true));
+                listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.AIR.getDefaultState(), state, pos, true));
             }
         }
 
@@ -542,9 +544,9 @@ public class TornadoHelper {
             {
                 Entity entity1 = (Entity)list.get(i);
 
-                if ((!(entity1 instanceof EntityPlayer) || ConfigMisc.Storm_Tornado_grabPlayer))
+                if ((!(entity1 instanceof EntityPlayer) || ConfigTornado.Storm_Tornado_grabPlayer))
                 {
-                	if (!(entity1 instanceof EntityPlayer) && ConfigMisc.Storm_Tornado_grabPlayersOnly) {
+                	if (!(entity1 instanceof EntityPlayer) && ConfigTornado.Storm_Tornado_grabPlayersOnly) {
                 		continue;
                 	}
                     if (getDistanceXZ(storm.posBaseFormationPos, entity1.posX, entity1.posY, entity1.posZ) < dist)
@@ -602,7 +604,7 @@ public class TornadoHelper {
                 {*/
                     if (entity1 instanceof EntityMovingBlock)
                     {
-                        if (blockCount + 5 > ConfigMisc.Storm_Tornado_maxBlocksPerStorm)
+                        if (blockCount + 5 > ConfigTornado.Storm_Tornado_maxBlocksPerStorm)
                         {
                             if (entity1.posY > 255)
                             {
@@ -713,7 +715,7 @@ public class TornadoHelper {
 
             if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND/*getStorm().type == getStorm().TYPE_TORNADO*/)
             {
-                tryPlaySound(WeatherUtilSound.snd_dmg_close, 0, mc.thePlayer, volScaleClose, close);
+                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.thePlayer, volScaleClose, close);
             }
         }
 
@@ -761,7 +763,7 @@ public class TornadoHelper {
         {
             //worldObj.playSoundAtEntity(soundTarget, new StringBuilder().append("tornado."+sound).toString(), 1.0F, 1.0F);
             //((IWorldAccess)this.worldAccesses.get(var5)).playSound(var2, var1.posX, var1.posY - (double)var1.yOffset, var1.posZ, var3, var4);
-        	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append(Weather.modID + ":streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
+        	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append("streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
             //this.soundID[arrIndex] = mod_EntMover.getLastSoundID();
             //System.out.println(new StringBuilder().append("tornado."+sound[snd_rand[arrIndex]]).toString());
             //System.out.println(soundToLength.get(sound[snd_rand[arrIndex]]));

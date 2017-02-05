@@ -7,17 +7,19 @@ import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import CoroUtil.api.weather.WindHandler;
+import CoroUtil.api.weather.IWindHandler;
 import extendedrenderer.particle.entity.EntityRotFX;
 @SideOnly(Side.CLIENT)
-public class EntityWaterfallFX extends EntityRotFX implements WindHandler
+public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
 {
     public int age;
     public float brightness;
@@ -76,7 +78,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
     }
     
     @Override
-    public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7) {
+    public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7) {
     	float var8 = (float)(this.getParticleTextureIndex() % 16) / 16.0F;
         float var9 = var8 + 0.0624375F;
         float var10 = (float)(this.getParticleTextureIndex() / 16) / 16.0F;
@@ -85,7 +87,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         float var13 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)var2 - interpPosX);
         float var14 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)var2 - interpPosY);
         float var15 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)var2 - interpPosZ);
-        float var16 = this.getBrightness(var2) * this.brightness;
+        float var16 = this.getBrightnessForRender(var2) * this.brightness;
         var16 = (1F + FMLClientHandler.instance().getClient().gameSettings.gammaSetting) - (this.worldObj.calculateSkylightSubtracted(var2) * 0.13F);
         
         
@@ -145,7 +147,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         if (this.particleAge++ >= this.particleMaxAge)
         {
-            this.setDead();
+            this.setExpired();
         }
         
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
@@ -158,11 +160,19 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         int meta = 0;
         
-        if (id.getMaterial() == Material.water/*id == 9 || id == 8*/) {
+        if (id.getMaterial(id.getDefaultState()) == Material.WATER/*id == 9 || id == 8*/) {
         	
         	BlockPos pos = new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
-        	double dir = BlockLiquid.getFlowDirection(worldObj, pos, Material.water);
+        	//patch for missing getFlowDirection, based on its code, could just strait up use this method and test new speed
+        	Vec3d vec3 = Blocks.FLOWING_WATER.modifyAcceleration(worldObj, pos, null, new Vec3d(0, 0, 0));
+        	double dir = -1000;
+        	if (vec3.xCoord != 0 && vec3.zCoord != 0) {
+        		dir = Math.atan2(vec3.zCoord, vec3.xCoord) - (Math.PI / 2D);
+        	}
+        	
+        	
+        	//double dir = BlockLiquid.getFlowDirection(worldObj, pos, Material.WATER);
         	
         	if (dir != -1000) {
             	//System.out.println("uhhhh: " + dir);
@@ -208,7 +218,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         	//setDead();
         	
         	this.motionY -= 0.05000000074505806D * this.particleGravity * 1.5F;
-        	if (this.onGround) this.setDead();
+        	//if (this.onGround) this.setDead();
         }
         
         if (this.motionY > 0.03F) this.motionY = 0.03F;
@@ -227,7 +237,7 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
         
         //System.out.println("adjusted height: " + height);
         
-        if ((id.getMaterial() == Material.water) && motionY > 0F && this.posY > ((int)Math.floor(this.posY)) + height) {
+        if ((id.getMaterial(id.getDefaultState()) == Material.WATER) && motionY > 0F && this.posY > ((int)Math.floor(this.posY)) + height) {
         	//System.out.println("meta: " + meta);
         	//this.posY = ((int)Math.floor(this.posY)) + height;
         	//this.setPosition(posX, posY, posZ);
@@ -242,7 +252,6 @@ public class EntityWaterfallFX extends EntityRotFX implements WindHandler
 
 	@Override
 	public int getParticleDecayExtra() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }

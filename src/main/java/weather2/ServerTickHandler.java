@@ -4,14 +4,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import CoroUtil.util.Vec3;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemSpade;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import weather2.config.ConfigMisc;
+import weather2.entity.EntityLightningBoltCustom;
+import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
@@ -63,17 +74,17 @@ public class ServerTickHandler
         //add use of CSV of supported dimensions here once feature is added, for now just overworld
         
         for (int i = 0; i < worlds.length; i++) {
-        	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.getDimensionId())) {
+        	if (!lookupDimToWeatherMan.containsKey(worlds[i].provider.getDimension())) {
         		
-        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.getDimensionId())) {
-        			addWorldToWeather(worlds[i].provider.getDimensionId());
+        		if (WeatherUtilConfig.listDimensionsWeather.contains(worlds[i].provider.getDimension())) {
+        			addWorldToWeather(worlds[i].provider.getDimension());
         		}
         	}
         	
         	//tick it
-        	WeatherManagerServer wms = lookupDimToWeatherMan.get(worlds[i].provider.getDimensionId());
+        	WeatherManagerServer wms = lookupDimToWeatherMan.get(worlds[i].provider.getDimension());
         	if (wms != null) {
-        		lookupDimToWeatherMan.get(worlds[i].provider.getDimensionId()).tick();
+        		lookupDimToWeatherMan.get(worlds[i].provider.getDimension()).tick();
         	}
         }
         
@@ -114,6 +125,38 @@ public class ServerTickHandler
 	    		ex.printStackTrace();
 	    	}
         }
+        
+        boolean testCustomLightning = false;
+        if (testCustomLightning) {
+        	if (world.getTotalWorldTime() % 20 == 0) {
+	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);
+	        	if (player != null) {
+	        		EntityLightningBoltCustom lightning = new EntityLightningBoltCustom(world, player.posX, player.posY, player.posZ);
+	        		world.addWeatherEffect(lightning);
+	        		lookupDimToWeatherMan.get(0).syncLightningNew(lightning, true);
+	        	}
+        	}
+        }
+
+        boolean derp = false;
+        if (derp) {
+        	if (world.getTotalWorldTime() % 2 == 0) {
+	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);
+	        	if (player != null) {
+	        		ItemStack is = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+	        		if (is != null && is.getItem() instanceof ItemSpade) {
+	        			int y = world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY();
+						System.out.println("y " + y);
+	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
+		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
+		        		//if (state.getBlock() != Blocks.SAND) {
+		        			//WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
+		        			WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ/*player.posX, player.posY, player.posZ*/), player.rotationYawHead, 15, 2, CommonProxy.blockSandLayer);
+		        		//}
+	        		}
+	        	}
+        	}
+        }
     }
     
     //must only be used when world is active, soonest allowed is TickType.WORLDLOAD
@@ -142,7 +185,7 @@ public class ServerTickHandler
     }
     
     public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
-		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimensionId());
+		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimension());
 		if (wm != null) {
 			wm.playerJoinedServerSyncFull(entP);
 		}
@@ -174,5 +217,9 @@ public class ServerTickHandler
     		listWeatherMans.clear();
     		lookupDimToWeatherMan.clear();
     	}
+    }
+    
+    public static WeatherManagerServer getWeatherSystemForDim(int dimID) {
+    	return lookupDimToWeatherMan.get(dimID);
     }
 }

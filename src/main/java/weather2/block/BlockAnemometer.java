@@ -4,25 +4,29 @@ import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockAnemometer extends BlockContainer
 {
+	
+	public static final AxisAlignedBB AABB = new AxisAlignedBB(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
+	
     public BlockAnemometer()
     {
-        super(Material.circuits);
-    	setBlockBounds(0.4F, 0, 0.4F, 0.6F, 0.3F, 0.6F);
+        super(Material.CIRCUITS);
     }
     
-    /*@Override
-    public IIcon getIcon(int par1, int par2) {
-    	return Blocks.stone.getIcon(par1, par2);
-    }*/
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source,
+    		BlockPos pos) {
+    	return AABB;
+    }
 
     public int tickRate()
     {
@@ -32,7 +36,7 @@ public class BlockAnemometer extends BlockContainer
     public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
     
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
     	return false;
     }
     
@@ -42,7 +46,7 @@ public class BlockAnemometer extends BlockContainer
     }
     
     @Override
-    public boolean isFullCube()
+    public boolean isFullCube(IBlockState state)
     {
         return false;
     }

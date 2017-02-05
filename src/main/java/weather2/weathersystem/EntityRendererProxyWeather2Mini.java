@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL13;
 
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigParticle;
 import weather2.util.WeatherUtil;
 
 public class EntityRendererProxyWeather2Mini extends EntityRenderer
@@ -42,13 +43,6 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
         super(var1, resMan);
         this.mc = var1;
         rendererUpdateCount = 0;
-    }
-
-    @Override
-    public void updateCameraAndRender(float var1, long nanoTime)
-    {
-        super.updateCameraAndRender(var1, nanoTime);
-        //ModLoader.OnTick(var1, this.game);
     }
 
     public void disableLightMap2(double var1)
@@ -86,13 +80,17 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     		EntityPlayer entP = mc.thePlayer;
     		if (entP != null) {
     			//convert to absolute (positive) value for old effects
-    			float curRainStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP, true));
+    			float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);
 
     			//convert to abs for snow being rain
     			curRainStr = Math.abs(curRainStr);
     			
     			//Weather.dbg("curRainStr: " + curRainStr);
-    			
+
+                if (mc.theWorld.getTotalWorldTime() % 10 == 0) {
+                    //System.out.println("curRainStr: " + curRainStr);
+                }
+
     			//if (!ConfigMisc.overcastMode) {
     				mc.theWorld.setRainStrength(curRainStr);
     			//}
@@ -102,7 +100,7 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     		}
     		
     		//note, the overcast effect change will effect vanilla non particle rain distance too, particle rain for life!
-    		if (!ConfigMisc.Particle_RainSnow) {
+    		if (!ConfigParticle.Particle_RainSnow) {
     			super.renderRainSnow(par1);
     		}
     		

@@ -1,8 +1,8 @@
 package weather2;
 
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -11,8 +11,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.LanguageRegistry;
 import weather2.block.BlockAnemometer;
+import weather2.block.BlockSandLayer;
 import weather2.block.BlockTSensor;
 import weather2.block.BlockTSiren;
 import weather2.block.BlockWeatherDeflector;
@@ -28,7 +28,11 @@ import weather2.block.TileEntityWindVane;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
+import weather2.entity.EntityLightningBoltCustom;
 import weather2.entity.EntityMovingBlock;
+import weather2.item.ItemPocketSand;
+import weather2.item.ItemSandLayer;
+import weather2.item.ItemWeatherRecipe;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilConfig;
 
@@ -42,6 +46,12 @@ public class CommonProxy implements IGuiHandler
 	public static Block blockWeatherForecast;
 	public static Block blockWeatherMachine;
 	public static Block blockWeatherDeflector;
+	public static Block blockSandLayer;
+	
+	public static Item itemSandLayer;
+	public static Item itemWeatherRecipe;
+	public static Item itemPocketSand;
+	
 	public static CreativeTabWeather tab;
 	
     public CommonProxy()
@@ -57,65 +67,109 @@ public class CommonProxy implements IGuiHandler
     	WeatherUtil.doBlockList();
     	WeatherUtilConfig.processLists();
     	
+    	SoundRegistry.init();
+    	
     	addMapping(EntityIceBall.class, "Weather Hail", 0, 128, 5, true);
     	addMapping(EntityMovingBlock.class, "Moving Block", 1, 128, 5, true);
     	addMapping(EntityLightningBolt.class, "Weather2 Lightning Bolt", 2, 512, 5, true);
+    	addMapping(EntityLightningBoltCustom.class, "Weather2 Lightning Bolt Custom", 2, 512, 5, true);
     	
-    	addBlock(blockTSensor = (new BlockTSensor()), "TornadoSensor", "Tornado Sensor");
-    	addBlock(blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, "TornadoSiren", "Tornado Siren");
-    	addBlock(blockWindVane = (new BlockWindVane()), TileEntityWindVane.class, "WindVane", "Wind Vane");
-    	addBlock(blockWeatherForecast = (new BlockWeatherForecast()), TileEntityWeatherForecast.class, "WeatherForecast", "Weather Forecast");
-    	addBlock(blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, "WeatherMachine", "Weather Machine (right click to cycle)");
-    	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector", "Weather Deflector");
-    	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer", "Anemometer");
-        
-    	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.redstone, 'I', Items.gold_ingot, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', blockTSensor, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.redstone, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', Items.compass, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', Items.diamond, 'X', Items.iron_ingot});
-    	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.redstone, 'I', blockWeatherMachine, 'X', Items.iron_ingot});
+    	addBlock(blockTSensor = (new BlockTSensor()), "TornadoSensor");
+    	addBlock(blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, "TornadoSiren");
+    	addBlock(blockWindVane = (new BlockWindVane()), TileEntityWindVane.class, "WindVane");
+    	addBlock(blockWeatherForecast = (new BlockWeatherForecast()), TileEntityWeatherForecast.class, "WeatherForecast");
+    	addBlock(blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, "WeatherMachine");
+    	addBlock(blockWeatherDeflector = (new BlockWeatherDeflector()), TileEntityWeatherDeflector.class, "WeatherDeflector");
+    	addBlock(blockAnemometer = (new BlockAnemometer()), TileEntityAnemometer.class, "Anemometer");
+    	addBlock(blockSandLayer = (new BlockSandLayer()), "sand_layer", false);
+
+		registerItem(itemSandLayer = new ItemSandLayer(blockSandLayer), "sand_layer_placeable");
+		registerItem(itemWeatherRecipe = new ItemWeatherRecipe(), "weather_item");
+		registerItem(itemPocketSand = new ItemPocketSand(), "pocket_sand");
     	
-    	LanguageRegistry.instance().addStringLocalization("itemGroup.Weather2", "Weather2 Items");
+    	GameRegistry.addRecipe(new ItemStack(itemWeatherRecipe, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
+    	
+    	GameRegistry.addRecipe(new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', itemWeatherRecipe, 'X', Items.IRON_INGOT});
+    	GameRegistry.addRecipe(new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
+    	
+    	GameRegistry.addRecipe(new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.REDSTONE, 'X', itemWeatherRecipe});
+    	GameRegistry.addRecipe(new ItemStack(blockAnemometer, 1), new Object[] {"X X", "XDX", "X X", 'D', Items.REDSTONE, 'X', itemWeatherRecipe});
+    	
+    	GameRegistry.addRecipe(new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.COMPASS, 'X', itemWeatherRecipe});
+    	if (!ConfigMisc.Block_WeatherMachineNoRecipe)  {
+    		GameRegistry.addRecipe(new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.DIAMOND, 'X', itemWeatherRecipe});
+    	}
+    	GameRegistry.addRecipe(new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', itemWeatherRecipe, 'X', Items.IRON_INGOT});
+
+		GameRegistry.addRecipe(new ItemStack(itemSandLayer, 8), new Object[] {"DDD", "DID", "DDD", 'D', Blocks.SAND, 'I', itemWeatherRecipe});
+		GameRegistry.addRecipe(new ItemStack(itemPocketSand, 8), new Object[] {"DDD", "DID", "DDD", 'D', itemSandLayer, 'I', itemWeatherRecipe});
     }
+
+    public void preInit() {
+
+	}
     
-    public static void addItem(ItemStack is, String unlocalizedName) {
+    /*public void addItem(Item is, String unlocalizedName) {
 		addItem(is, unlocalizedName, "");
 	}
 	
-	public static void addItem(ItemStack is, String unlocalizedName, String itemNameBase) {
+	public void addItem(Item is, String unlocalizedName, String itemNameBase) {
 		
-		Item item = is.getItem();
+		Item item = is;//.getItem();
 		
 		//vanilla calls
 		item.setUnlocalizedName(Weather.modID + ":" + unlocalizedName);
 		//item.setTextureName(Weather.modID + ":" + unlocalizedName);
-		item.setCreativeTab(CreativeTabs.tabMisc);
-		LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
+		item.setCreativeTab(tab);
+		//LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
 		
 		
-	}
+	}*/
     
-    public void addBlock(Block block, Class tEnt, String unlocalizedName, String blockNameBase) {
-		addBlock(block, unlocalizedName, blockNameBase);
+	public void addBlock(Block block, Class tEnt, String unlocalizedName) {
+		addBlock(block, tEnt, unlocalizedName, true);
+	}
+	
+    public void addBlock(Block block, Class tEnt, String unlocalizedName, boolean creativeTab) {
+		addBlock(block, unlocalizedName, creativeTab);
 		GameRegistry.registerTileEntity(tEnt, unlocalizedName);
 	}
 	
-	public void addBlock(Block parBlock, String unlocalizedName, String blockNameBase) {
+    public void addBlock(Block parBlock, String unlocalizedName) {
+    	addBlock(parBlock, unlocalizedName, true);
+    }
+    
+	public void addBlock(Block parBlock, String unlocalizedName, boolean creativeTab) {
 		//vanilla calls
+		
+		/*parBlock.setRegistryName(new ResourceLocation(Weather.modID, unlocalizedName));*/
+		//GameRegistry.register(parBlock);
 		GameRegistry.registerBlock(parBlock, unlocalizedName);
 		/*parBlock.setBlockName(Weather.modID + ":" + unlocalizedName);
 		parBlock.setBlockTextureName(Weather.modID + ":" + unlocalizedName);*/
 		
-		//new 1.8 stuff
 		parBlock.setUnlocalizedName(getNamePrefixed(unlocalizedName));
-		//parBlock.setRegistryName
 		
-		parBlock.setCreativeTab(tab);
-		LanguageRegistry.addName(parBlock, blockNameBase);
+		if (creativeTab) {
+			parBlock.setCreativeTab(tab);
+		} else {
+			parBlock.setCreativeTab(null);
+		}
+		//LanguageRegistry.addName(parBlock, blockNameBase);
+	}
+	
+	private Item registerItem(Item item, String name) {
+		item.setUnlocalizedName(getNamePrefixed(name));
+		item.setRegistryName(new ResourceLocation(Weather.modID, name));
+
+		GameRegistry.register(item);
+		item.setCreativeTab(tab);
+		registerItemVariantModel(item, name, 0);
+
+		return item;
 	}
     
-    public static void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
+    public void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
     	EntityRegistry.registerModEntity(par0Class, par1Str, entityId, Weather.instance, distSync, tickRateSync, syncMotion);
         //EntityList.addMapping(par0Class, par1Str, entityId);
     }
@@ -134,11 +188,14 @@ public class CommonProxy implements IGuiHandler
         return null;
     }
     
-    public static ResourceLocation getResource(String name) {
+    public void registerItemVariantModel(Item item, String name, int metadata) {}
+	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {}
+    
+    public ResourceLocation getResource(String name) {
     	return new ResourceLocation(Weather.modID, name);
     }
     
-    public static String getNamePrefixed(String name) {
+    public String getNamePrefixed(String name) {
     	return Weather.modID + "." + name;
     }
 }

@@ -11,12 +11,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.CommonProxy;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 
 public class WeatherUtil {
 
@@ -27,22 +27,33 @@ public class WeatherUtil {
     	return false;
     }
     
+    public static boolean isPausedSideSafe(World world) {
+    	//return false if server side because it cant be paused legit
+    	if (!world.isRemote) return false;
+    	return isPausedForClient();
+    }
+    
+    public static boolean isPausedForClient() {
+    	if (FMLClientHandler.instance().getClient().isGamePaused()) return true;
+    	return false;
+    }
+    
     //Terrain grabbing
     public static boolean shouldGrabBlock(World parWorld, Block id)
     {
         try
         {
-        	ItemStack itemStr = new ItemStack(Items.diamond_axe);
+        	ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
             Block block = id;
             
         	boolean result = true;
             
-            if (ConfigMisc.Storm_Tornado_GrabCond_List)
+            if (ConfigTornado.Storm_Tornado_GrabCond_List)
             {
             	try {
 
-                    if (!ConfigMisc.Storm_Tornado_GrabListBlacklistMode)
+                    if (!ConfigTornado.Storm_Tornado_GrabListBlacklistMode)
                     {
                         if (!((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
                         	result = false;
@@ -60,7 +71,7 @@ public class WeatherUtil {
 				}
             } else {
 
-                if (ConfigMisc.Storm_Tornado_GrabCond_StrengthGrabbing)
+                if (ConfigTornado.Storm_Tornado_GrabCond_StrengthGrabbing)
                 {
                     float strMin = 0.0F;
                     float strMax = 0.74F;
@@ -71,10 +82,10 @@ public class WeatherUtil {
                     	return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
-    	                float strVsBlock = block.getBlockHardness(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block) - 1) / 4F));
+    	                float strVsBlock = block.getBlockHardness(block.getDefaultState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.getDefaultState()) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
-    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial() == Material.wood) || block.getMaterial() == Material.cloth || block.getMaterial() == Material.plants || block instanceof BlockTallGrass)
+    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial(block.getDefaultState()) == Material.WOOD) || block.getMaterial(block.getDefaultState()) == Material.CLOTH || block.getMaterial(block.getDefaultState()) == Material.PLANTS || block instanceof BlockTallGrass)
     	                {
     	                    /*if (block.blockMaterial == Material.water) {
     	                    	return false;
@@ -91,8 +102,8 @@ public class WeatherUtil {
                     }
                 }
                 
-                if (ConfigMisc.Storm_Tornado_RefinedGrabRules) {
-                	if (id == Blocks.dirt || id == Blocks.grass || id == Blocks.sand || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
+                	if (id == Blocks.DIRT || id == Blocks.GRASS || id == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
                 		result = false;
                 	}
                 }
@@ -113,7 +124,7 @@ public class WeatherUtil {
     
     public static boolean safetyCheck(Block id)
     {
-        if (id != Blocks.bedrock && id != Blocks.log && id != Blocks.chest && id != Blocks.jukebox/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
+        if (id != Blocks.BEDROCK && id != Blocks.LOG && id != Blocks.CHEST && id != Blocks.JUKEBOX/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
         {
             return true;
         }
@@ -156,7 +167,7 @@ public class WeatherUtil {
         }*/
 
         //water no
-        if (blockID.getMaterial() == Material.water)
+        if (blockID.getMaterial(blockID.getDefaultState()) == Material.WATER)
         {
             return false;
         }
@@ -187,9 +198,9 @@ public class WeatherUtil {
     
     public static boolean isSolidBlock(Block id)
     {
-        return (id == Blocks.stone ||
-                id == Blocks.cobblestone ||
-                id == Blocks.sandstone);	
+        return (id == Blocks.STONE ||
+                id == Blocks.COBBLESTONE ||
+                id == Blocks.SANDSTONE);	
     }
 	
     public static void doBlockList()
@@ -199,7 +210,7 @@ public class WeatherUtil {
     	
         blockIDToUseMapping.clear();
         //System.out.println("Blacklist: ");
-        String[] splEnts = ConfigMisc.Storm_Tornado_GrabList.split(",");
+        String[] splEnts = ConfigTornado.Storm_Tornado_GrabList.split(",");
         //int[] blocks = new int[splEnts.length];
 
         if (splEnts.length > 0) {
@@ -216,9 +227,9 @@ public class WeatherUtil {
 
         //HashMap hashmap = null;
         //System.out.println("?!?!" + Block.blocksList.length);
-        blockIDToUseMapping.put(Blocks.air, false);
+        blockIDToUseMapping.put(Blocks.AIR, false);
 
-        Set set = Block.blockRegistry.getKeys();
+        Set set = Block.REGISTRY.getKeys();
         Iterator it = set.iterator();
         while (it.hasNext()) {
         	Object obj = it.next();
@@ -226,8 +237,8 @@ public class WeatherUtil {
         	ResourceLocation tagName = ((ResourceLocation)obj);
         	
         	
-        	Block block = (Block) Block.blockRegistry.getObject(tagName);
-        	if (dbgShow) System.out.println("??? " + Block.blockRegistry.getNameForObject(block));
+        	Block block = (Block) Block.REGISTRY.getObject(tagName);
+        	//if (dbgShow) System.out.println("??? " + Block.REGISTRY.getNameForObject(block));
         	
         	if (block != null)
             {
@@ -235,19 +246,19 @@ public class WeatherUtil {
 
                 for (int j = 0; j < splEnts.length; j++)
                 {
-                	if (ConfigMisc.Storm_Tornado_GrabCond_List_PartialMatches) {
+                	if (ConfigTornado.Storm_Tornado_GrabCond_List_PartialMatches) {
                 		if (tagName.toString().contains(splEnts[j])) {
-                			dbg += Block.blockRegistry.getNameForObject(block) + ", ";
+                			dbg += Block.REGISTRY.getNameForObject(block) + ", ";
                 			foundEnt = true;
                 			break;
                 		}
                 	} else {
-	                    Block blockEntry = (Block)Block.blockRegistry.getObject(new ResourceLocation(splEnts[j]));
+	                    Block blockEntry = (Block)Block.REGISTRY.getObject(new ResourceLocation(splEnts[j]));
 	
 	                    if (blockEntry != null && block == blockEntry)
 	                    {
 	                        foundEnt = true;
-	                        dbg += Block.blockRegistry.getNameForObject(block) + ", ";
+	                        dbg += Block.REGISTRY.getNameForObject(block) + ", ";
 	                        //blackList.append(s + " ");
 	                        //System.out.println("adding to list: " + blocks[j]);
 	                        break;

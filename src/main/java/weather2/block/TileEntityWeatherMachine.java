@@ -2,14 +2,15 @@ package weather2.block;
 
 import java.util.Random;
 
-import CoroUtil.util.Vec3;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import CoroUtil.util.Vec3;
 
 public class TileEntityWeatherMachine extends TileEntity implements ITickable
 {
@@ -41,7 +42,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	public void cycleWeatherType() {
 		weatherType++;
 		int maxID = 6;
-		if (ConfigMisc.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
+		if (ConfigTornado.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
 			maxID = 4;
 		}
 		if (weatherType > maxID) {
@@ -53,7 +54,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	public void invalidate() {
 		super.invalidate();
 		
-		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimensionId());
+		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
 		if (wm != null) {
     		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
     		
@@ -82,7 +83,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     			}
     			
     			if (lastTickStormObject == null) {
-    				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimensionId());
+    				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
     				
     				if (manager != null) {
     					StormObject so = new StormObject(manager);
@@ -147,10 +148,10 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     }
 
 	@Override
-    public void writeToNBT(NBTTagCompound var1)
+    public NBTTagCompound writeToNBT(NBTTagCompound var1)
     {
-        super.writeToNBT(var1);
         var1.setInteger("weatherType", weatherType);
+        return super.writeToNBT(var1);
     }
 
 	@Override

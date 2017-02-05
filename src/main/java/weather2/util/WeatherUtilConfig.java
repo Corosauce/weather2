@@ -19,12 +19,17 @@ import org.apache.commons.lang3.StringUtils;
 
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigParticle;
+import weather2.config.ConfigSnow;
+import weather2.config.ConfigStorm;
+import weather2.config.ConfigTornado;
 import CoroUtil.util.CoroUtilFile;
 
 public class WeatherUtilConfig {
 
 	public static List<Integer> listDimensionsWeather = new ArrayList<Integer>();
 	public static List<Integer> listDimensionsClouds = new ArrayList<Integer>();
+	//used for deadly storms and sandstorms
 	public static List<Integer> listDimensionsStorms = new ArrayList<Integer>();
 	public static List<Integer> listDimensionsWindEffects = new ArrayList<Integer>();
 	
@@ -96,7 +101,7 @@ public class WeatherUtilConfig {
 		
 		try {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLEPRECIP)) {
-				ConfigMisc.Particle_RainSnow = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLEPRECIP)).equalsIgnoreCase("on");
+				ConfigParticle.Particle_RainSnow = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLEPRECIP)).equalsIgnoreCase("on");
 			}
 			
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_STORM)) {
@@ -111,32 +116,32 @@ public class WeatherUtilConfig {
 			
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_NATURE)) {
 				if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_NATURE)).equalsIgnoreCase("high")) {
-					ConfigMisc.Wind_Particle_effect_rate = 1F;
+					ConfigParticle.Wind_Particle_effect_rate = 1F;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_NATURE)).equalsIgnoreCase("medium")) {
-					ConfigMisc.Wind_Particle_effect_rate = 0.7F;
+					ConfigParticle.Wind_Particle_effect_rate = 0.7F;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_NATURE)).equalsIgnoreCase("low")) {
-					ConfigMisc.Wind_Particle_effect_rate = 0.3F;
+					ConfigParticle.Wind_Particle_effect_rate = 0.3F;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_NATURE)).equalsIgnoreCase("none")) {
-					ConfigMisc.Wind_Particle_effect_rate = 0.0F;
+					ConfigParticle.Wind_Particle_effect_rate = 0.0F;
 				}
 			}
 			
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_PRECIPRATE)) {
 				//ConfigMisc.Particle_RainSnow = true;
 				if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("high")) {
-					ConfigMisc.Particle_Precipitation_effect_rate = 1D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 1D;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("medium")) {
-					ConfigMisc.Particle_Precipitation_effect_rate = 0.7D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 0.7D;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("low")) {
-					ConfigMisc.Particle_Precipitation_effect_rate = 0.3D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 0.3D;
 				} else if (LIST_RATES2.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_PRECIPRATE)).equalsIgnoreCase("none")) {
-					ConfigMisc.Particle_Precipitation_effect_rate = 0D;
+					ConfigParticle.Precipitation_Particle_effect_rate = 0D;
 					//ConfigMisc.Particle_RainSnow = false;
 				}
 			}
 			
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)) {
-				ConfigMisc.Particle_VanillaAndWeatherOnly = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)).equalsIgnoreCase("on");
+				ConfigParticle.Particle_VanillaAndWeatherOnly = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)).equalsIgnoreCase("on");
 			}
 			
 			NBTTagCompound nbtDims = nbtClientData.getCompoundTag("dimData");
@@ -209,58 +214,58 @@ public class WeatherUtilConfig {
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS)) {
 				boolean val = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS)).equalsIgnoreCase("on");
-				ConfigMisc.Snow_PerformSnowfall = val;
-				ConfigMisc.Snow_ExtraPileUp = val;
+				ConfigSnow.Snow_PerformSnowfall = val;
+				ConfigSnow.Snow_ExtraPileUp = val;
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_RATEOFSTORM)) {
 				int numDays = nbtServerData.getInteger("btn_" + CMD_BTN_PREF_RATEOFSTORM);
 				if (numDays == 0) {
-					ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks = 12000;
-					ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks = 12000;
+					ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks = 12000;
+					ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks = 12000;
 				} else if (numDays == 11) {
 					//potentially remove the 'never' clause from here in favor of the dimension specific disabling of 'storms' which is already used in code
 					//for now consider this a second layer of rules to the storm creation process, probably not a user friendly idea
-					ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks = -1;
-					ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks = -1;
+					ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks = -1;
+					ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks = -1;
 				} else {
-					ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks = 24000*numDays;
-					ConfigMisc.Server_Storm_Deadly_TimeBetweenInTicks = 24000*numDays;
+					ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks = 24000*numDays;
+					ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks = 24000*numDays;
 				}
 				
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)) {
 				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("high")) {
-					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 30;
-					ConfigMisc.Server_Storm_Deadly_OddsTo1 = 30;
+					ConfigStorm.Player_Storm_Deadly_OddsTo1 = 30;
+					ConfigStorm.Server_Storm_Deadly_OddsTo1 = 30;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("medium")) {
-					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 45;
-					ConfigMisc.Server_Storm_Deadly_OddsTo1 = 45;
+					ConfigStorm.Player_Storm_Deadly_OddsTo1 = 45;
+					ConfigStorm.Server_Storm_Deadly_OddsTo1 = 45;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFSTORM)).equalsIgnoreCase("low")) {
-					ConfigMisc.Player_Storm_Deadly_OddsTo1 = 60;
-					ConfigMisc.Server_Storm_Deadly_OddsTo1 = 60;
+					ConfigStorm.Player_Storm_Deadly_OddsTo1 = 60;
+					ConfigStorm.Server_Storm_Deadly_OddsTo1 = 60;
 				}
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)) {
 				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("high")) {
-					ConfigMisc.Player_Storm_Rain_OddsTo1 = 150;
+					ConfigStorm.Player_Storm_Rain_OddsTo1 = 150;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("medium")) {
-					ConfigMisc.Player_Storm_Rain_OddsTo1 = 300;
+					ConfigStorm.Player_Storm_Rain_OddsTo1 = 300;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("low")) {
-					ConfigMisc.Player_Storm_Rain_OddsTo1 = 450;
+					ConfigStorm.Player_Storm_Rain_OddsTo1 = 450;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("none")) {
-					ConfigMisc.Player_Storm_Rain_OddsTo1 = -1;
+					ConfigStorm.Player_Storm_Rain_OddsTo1 = -1;
 				}
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_BLOCKDESTRUCTION)) {
-				ConfigMisc.Storm_Tornado_grabBlocks = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_BLOCKDESTRUCTION)).equalsIgnoreCase("on");
+				ConfigTornado.Storm_Tornado_grabBlocks = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_BLOCKDESTRUCTION)).equalsIgnoreCase("on");
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)) {
-				ConfigMisc.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
+				ConfigTornado.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
 			}
 			
 			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
@@ -398,9 +403,9 @@ public class WeatherUtilConfig {
 		
 		for (int i = 0; i < worlds.length; i++) {
 			NBTTagCompound nbtDim = new NBTTagCompound();
-			int dimID = worlds[i].provider.getDimensionId();
+			int dimID = worlds[i].provider.getDimension();
 			nbtDim.setInteger("ID", dimID); //maybe redundant if we name tag as dimID too
-			nbtDim.setString("name", worlds[i].provider.getDimensionName());
+			nbtDim.setString("name", worlds[i].provider.getDimensionType().getName());
 			nbtDim.setBoolean("weather", listDimensionsWeather.contains(dimID));
 			nbtDim.setBoolean("clouds", listDimensionsClouds.contains(dimID));
 			nbtDim.setBoolean("storms", listDimensionsStorms.contains(dimID));

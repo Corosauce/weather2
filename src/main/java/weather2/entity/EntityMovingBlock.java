@@ -13,21 +13,23 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import weather2.config.ConfigMisc;
+import weather2.config.ConfigStorm;
+import weather2.config.ConfigTornado;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.CoroUtilBlock;
+import CoroUtil.util.Vec3;
 
 public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnData
 {
@@ -82,7 +84,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosX = (double)((float)var2 + 0.5F);
         this.prevPosY = (double)((float)var3 + 0.5F);
         this.prevPosZ = (double)((float)var4 + 0.5F);
-        this.material = tile.getMaterial();
+        this.material = tile.getMaterial(tile.getDefaultState());
         this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
         IBlockState state = var1.getBlockState(new BlockPos(var2, var3, var4));
         this.metadata = state.getBlock().getMetaFromState(state);
@@ -92,7 +94,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         if (this.tileentity != null)
         {
             //var1.setBlockStateTileEntity(var2, var3, var4, ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(var1));
-            var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.air.getDefaultState(), 2);
+            var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.AIR.getDefaultState(), 2);
         }
     }
 
@@ -122,7 +124,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     {
     	//new kill off when distant method
     	if (!worldObj.isRemote) {
-	    	if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 140) == null) {
+	    	if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 140, false) == null) {
 				setDead();
 			}
     	}
@@ -139,14 +141,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             {
                 this.mode = 0;
 
-                if (this.tileentity == null && ConfigMisc.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigMisc.Storm_Tornado_rarityOfDisintegrate + 1) * 20) == 0)
+                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfDisintegrate + 1) * 20) == 0)
                 {
                     this.setDead();
                 }
 
-                if (this.tileentity == null && ConfigMisc.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigMisc.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
+                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
                 {
-                    this.tile = Blocks.fire;
+                    this.tile = Blocks.FIRE;
                 }
             }
 
@@ -186,14 +188,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             /*if(this.fire > 0) {
                --this.fire;
             }*/
-            Vec3 var1 = new Vec3(this.posX, this.posY, this.posZ);
-            Vec3 var2 = new Vec3(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
-            MovingObjectPosition var3 = this.worldObj.rayTraceBlocks(var1, var2);
-            var2 = new Vec3(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
+            Vec3d var1 = new Vec3d(this.posX, this.posY, this.posZ);
+            Vec3d var2 = new Vec3d(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
+            RayTraceResult var3 = this.worldObj.rayTraceBlocks(var1, var2);
+            var2 = new Vec3d(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
 
             if (var3 != null)
             {
-                var2 = new Vec3(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
+                var2 = new Vec3d(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
             }
 
             Entity var4 = null;
@@ -221,7 +223,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 	                    var10.motionZ = this.motionZ / 1.5D;
                 	}
                     
-                    if (ConfigMisc.Storm_FlyingBlocksHurt && Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ) > 0.4F) {
+                    if (ConfigStorm.Storm_FlyingBlocksHurt && Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ) > 0.4F) {
                     	//System.out.println("damaging with block: " + var10);
                     	
                     	DamageSource ds = DamageSource.causeThrownDamage(this, this);
@@ -241,11 +243,11 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                             var10.setFire(15);
                         }
 
-                        if (this.tile == Blocks.cactus)
+                        if (this.tile == Blocks.CACTUS)
                         {
                             var10.attackEntityFrom(DamageSource.causeThrownDamage(this, this), 1);
                         }
-                        else if (this.material == Material.lava)
+                        else if (this.material == Material.LAVA)
                         {
                         	var10.setFire(15);
                         }
@@ -262,7 +264,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
                     float var16 = 0.3F;
                     AxisAlignedBB var19 = var10.getEntityBoundingBox().expand((double)var16, (double)var16, (double)var16);
-                    MovingObjectPosition var13 = var19.calculateIntercept(var1, var2);
+                    RayTraceResult var13 = var19.calculateIntercept(var1, var2);
 
                     if (var13 != null)
                     {
@@ -279,7 +281,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (var4 != null)
             {
-                var3 = new MovingObjectPosition(var4);
+                var3 = new RayTraceResult(var4);
             }
 
             if (var3 != null && var3.entityHit == null && this.mode == 0)
@@ -407,7 +409,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     
     public boolean canEntityBeSeen(Entity par1Entity)
     {
-        return this.worldObj.rayTraceBlocks(new Vec3(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
+        return this.worldObj.rayTraceBlocks(new Vec3d(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3d(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
     private void blockify(int var1, int var2, int var3, EnumFacing var4)
@@ -415,7 +417,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.setDead();
         Block var5 = this.worldObj.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
 
-        if (this.tileentity != null || this.type != 0 || ConfigMisc.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigMisc.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
+        if (this.tileentity != null || this.type != 0 || ConfigTornado.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigTornado.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {
             if (!WeatherUtil.shouldRemoveBlock(var5) && !WeatherUtil.isOceanBlock(var5) && var2 < 255)
             {
@@ -460,7 +462,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void writeEntityToNBT(NBTTagCompound var1)
     {
-        var1.setString("Tile", Block.blockRegistry.getNameForObject(tile).toString());
+        var1.setString("Tile", Block.REGISTRY.getNameForObject(tile).toString());
         var1.setByte("Metadata", (byte)this.metadata);
         var1.setInteger("blocktype", type);
         NBTTagCompound var2 = new NBTTagCompound();
@@ -478,7 +480,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void readEntityFromNBT(NBTTagCompound var1)
     {
-        this.tile = (Block)Block.blockRegistry.getObject(new ResourceLocation(var1.getString("Tile")));
+        this.tile = (Block)Block.REGISTRY.getObject(new ResourceLocation(var1.getString("Tile")));
         this.metadata = var1.getByte("Metadata") & 15;
         this.type = var1.getInteger("blocktype");
         this.tileentity = null;
@@ -531,14 +533,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void writeSpawnData(ByteBuf data)
     {
-    	ByteBufUtils.writeUTF8String(data, Block.blockRegistry.getNameForObject(tile).toString());
+    	ByteBufUtils.writeUTF8String(data, Block.REGISTRY.getNameForObject(tile).toString());
         data.writeInt(metadata);
     }
 
     @Override
     public void readSpawnData(ByteBuf data)
     {
-    	tile = (Block)Block.blockRegistry.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
+    	tile = (Block)Block.REGISTRY.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
         metadata = data.readInt();
     }
 }

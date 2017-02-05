@@ -6,16 +6,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityFallingBlock;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11;
 
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityMovingBlock;
-import weather2.util.WeatherUtilParticle;
+import CoroUtil.util.CoroUtilParticle;
 
 @SideOnly(Side.CLIENT)
 public class RenderFlyingBlock extends Render
@@ -43,7 +43,7 @@ public class RenderFlyingBlock extends Render
 	 * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
 	 */
 	protected ResourceLocation getEntityTexture(Entity entity) {
-		return TextureMap.locationBlocksTexture;
+		return TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 
     @Override
@@ -116,45 +116,23 @@ public class RenderFlyingBlock extends Render
         
         if (state != null)
         {
-            this.bindTexture(TextureMap.locationBlocksTexture);
+            this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             IBlockState iblockstate = state;
             Block block = iblockstate.getBlock();
             BlockPos blockpos = new BlockPos(entity);
             World world = var11;
 
-            if (iblockstate != world.getBlockState(blockpos) && block.getRenderType() != -1)
+            if (iblockstate != world.getBlockState(blockpos)/* && block.getRenderType(iblockstate) != -1*/)
             {
-                if (block.getRenderType() == 3)
+                if (block.getRenderType(iblockstate) == EnumBlockRenderType.MODEL)
                 {
                 	if (entity instanceof EntityMovingBlock) {
-	                    GlStateManager.pushMatrix();
-	                    GlStateManager.translate((float)x, (float)y, (float)z);
-	                    GlStateManager.disableLighting();
-	                    Tessellator tessellator = Tessellator.getInstance();
-	                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
-	                    int i = blockpos.getX();
-	                    int j = blockpos.getY();
-	                    int k = blockpos.getZ();
-	                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
-	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
-	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
-	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
-	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
-	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
-	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
-	                    tessellator.draw();
-	                    GlStateManager.enableLighting();
-	                    GlStateManager.popMatrix();
-                	} else if (entity instanceof EntityIceBall) {
-                		for (int ii = 0; ii < Math.min(4, WeatherUtilParticle.maxRainDrops); ii++) {
+                		try {
                 			GlStateManager.pushMatrix();
-    	                    //GlStateManager.translate((float)x, (float)y, (float)z);
-                			GlStateManager.translate((float)WeatherUtilParticle.rainPositions[ii].xCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].yCoord * 3F, (float)WeatherUtilParticle.rainPositions[ii].zCoord * 3F);
+    	                    GlStateManager.translate((float)x, (float)y, (float)z);
     	                    GlStateManager.disableLighting();
     	                    Tessellator tessellator = Tessellator.getInstance();
-    	                    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+    	                    VertexBuffer worldrenderer = tessellator.getBuffer();
     	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
     	                    int i = blockpos.getX();
     	                    int j = blockpos.getY();
@@ -164,7 +142,34 @@ public class RenderFlyingBlock extends Render
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
     	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelFromBlockState(iblockstate, world, (BlockPos)null);
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
+    	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
+    	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
+    	                    tessellator.draw();
+    	                    GlStateManager.enableLighting();
+    	                    GlStateManager.popMatrix();
+						} catch (Exception e) {
+							//catch this issue, need real fix, https://github.com/Corosauce/weather2/issues/62 - java.lang.IllegalArgumentException: Cannot get property PropertyEnum{name=variant, clazz=class biomesoplenty.common.enums.BOPTrees, values=[mangrove, palm, redwood, willow]} as it does not exist in BlockState{block=minecraft:air, properties=[]}
+						}
+	                    
+                	} else if (entity instanceof EntityIceBall) {
+                		for (int ii = 0; ii < Math.min(4, CoroUtilParticle.maxRainDrops); ii++) {
+                			GlStateManager.pushMatrix();
+    	                    //GlStateManager.translate((float)x, (float)y, (float)z);
+                			GlStateManager.translate((float)CoroUtilParticle.rainPositions[ii].xCoord * 3F, (float)CoroUtilParticle.rainPositions[ii].yCoord * 3F, (float)CoroUtilParticle.rainPositions[ii].zCoord * 3F);
+    	                    GlStateManager.disableLighting();
+    	                    Tessellator tessellator = Tessellator.getInstance();
+    	                    VertexBuffer worldrenderer = tessellator.getBuffer();
+    	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
+    	                    int i = blockpos.getX();
+    	                    int j = blockpos.getY();
+    	                    int k = blockpos.getZ();
+    	                    worldrenderer.setTranslation((double)((float)(-i) - 0.5F), (double)(-j), (double)((float)(-k) - 0.5F));
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+    	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
     	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
     	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
     	                    tessellator.draw();

@@ -3,35 +3,29 @@ package weather2;
 import modconfig.ConfigMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import weather2.config.ConfigMisc;
+import weather2.config.*;
+import weather2.item.ItemSandLayer;
+import weather2.item.ItemWeatherRecipe;
 import weather2.player.PlayerData;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.CoroUtilFile;
 
-@Mod(modid = "weather2", name="weather2", version="v2.3.12")
+@Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil")
 public class Weather {
 	
-	@Mod.Instance( value = "weather2" )
+	@Mod.Instance( value = Weather.modID )
 	public static Weather instance;
-	public static String modID = "weather2";
-	
-	public static long lastWorldTime;
-    
-    /** For use in preInit ONLY */
-    public Configuration preInitConfig;
+
+	public static final String modID = "weather2";
+	public static final String version = "${version}";
 
     @SidedProxy(clientSide = "weather2.ClientProxy", serverSide = "weather2.CommonProxy")
     public static CommonProxy proxy;
@@ -48,8 +42,16 @@ public class Weather {
     	
     	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
 		
-    	ConfigMod.addConfigFile(event, "weather2Misc", new ConfigMisc());
+    	ConfigMod.addConfigFile(event, new ConfigMisc());
+		ConfigMod.addConfigFile(event, new ConfigWind());
+		ConfigMod.addConfigFile(event, new ConfigSand());
+		ConfigMod.addConfigFile(event, new ConfigSnow());
+		ConfigMod.addConfigFile(event, new ConfigStorm());
+		ConfigMod.addConfigFile(event, new ConfigTornado());
+		ConfigMod.addConfigFile(event, new ConfigParticle());
     	WeatherUtilConfig.nbtLoadDataAll();
+
+		proxy.preInit();
     }
     
 	@Mod.EventHandler
@@ -112,8 +114,8 @@ public class Weather {
 	 * Triggered when communicating with other mods
 	 * @param event
 	 */
-    @EventHandler
-    public void handleIMCMessages(IMCMessage event) {
+    @Mod.EventHandler
+    public void handleIMCMessages(FMLInterModComms.IMCEvent event) {
 
     	
     	

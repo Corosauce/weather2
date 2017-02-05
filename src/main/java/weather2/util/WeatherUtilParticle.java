@@ -1,21 +1,21 @@
 package weather2.util;
 
 import java.lang.reflect.Field;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.Random;
 
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.particle.EntityFX;
-import net.minecraft.util.Vec3;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import CoroUtil.OldUtil;
+import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
-import extendedrenderer.particle.entity.EntityTexFX;
+import extendedrenderer.particle.entity.ParticleTexFX;
 
 public class WeatherUtilParticle {
-    public static List<EntityFX>[][] fxLayers;
+    public static ArrayDeque<Particle>[][] fxLayers;
     
     public static int effLeafID = 0;
     public static int effRainID = 1;
@@ -25,31 +25,20 @@ public class WeatherUtilParticle {
     public static int effWind2ID = 2;*/
     
     public static Random rand = new Random();
-    
-    public static Vec3[] rainPositions;
-    public static int maxRainDrops = 80;
     //public static int rainDrops = 20;
     
-    static {
-    	rainPositions = new Vec3[maxRainDrops];
-        
-        float range = 20F;
-        
-        for (int i = 0; i < maxRainDrops; i++) {
-        	rainPositions[i] = new Vec3((rand.nextFloat() * range) - (range/2), (rand.nextFloat() * range/16) - (range/32), (rand.nextFloat() * range) - (range/2));
-        }
-    }
     
-    //weather2: not sure what will happen to this in 1.7, copied over for convinience
-    public static int getParticleAge(EntityFX ent)
+    
+    //weather2: not sure what will happen to this in 1.7, copied over for convenience
+    public static int getParticleAge(Particle ent)
     {
-        return (Integer) OldUtil.getPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge");
+        return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge");
     }
 
-    //weather2: not sure what will happen to this in 1.7, copied over for convinience
-    public static void setParticleAge(EntityFX ent, int val)
+    //weather2: not sure what will happen to this in 1.7, copied over for convenience
+    public static void setParticleAge(Particle ent, int val)
     {
-        OldUtil.setPrivateValueBoth(EntityFX.class, ent, "field_70546_d", "particleAge", val);
+        OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge", val);
     }
 
     @SideOnly(Side.CLIENT)
@@ -60,9 +49,9 @@ public class WeatherUtilParticle {
 
         try
         {
-            field = (EffectRenderer.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
+            field = (ParticleManager.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (List[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
+            fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
         }
         catch (Exception ex)
         {
@@ -70,9 +59,9 @@ public class WeatherUtilParticle {
         	//ex.printStackTrace();
             try
             {
-                field = (EffectRenderer.class).getDeclaredField("fxLayers");
+                field = (ParticleManager.class).getDeclaredField("fxLayers");
                 field.setAccessible(true);
-                fxLayers = (List[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
+                fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
             }
             catch (Exception ex2)
             {
@@ -90,7 +79,7 @@ public class WeatherUtilParticle {
             return 1.1F;
         }*/
 
-        if (entity1 instanceof EntityTexFX)
+        if (entity1 instanceof ParticleTexFX)
         {
             return 5.0F + ((float)entity1.getAge() / 200);
         }
@@ -101,7 +90,7 @@ public class WeatherUtilParticle {
             return 1.4F + ((float)entity1.getAge() / 200);
         }*/
 
-        if (entity1 instanceof EntityFX)
+        if (entity1 instanceof Particle)
         {
             return 5.0F + ((float)entity1.getAge() / 200);
         }

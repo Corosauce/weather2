@@ -4,14 +4,16 @@ import java.util.List;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import CoroUtil.api.weather.IWindHandler;
-import CoroUtil.componentAI.ICoroAI;
 import CoroUtil.entity.EntityThrowableUsefull;
 import CoroUtil.util.Vec3;
 
@@ -69,7 +71,11 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 				setDead();
 			}
 			
-			if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 80) == null) {
+			if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 80, false) == null) {
+				setDead();
+			}
+			
+			if (isInWater()) {
 				setDead();
 			}
         } else {
@@ -83,8 +89,8 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 	}
 	
 	@Override
-	public MovingObjectPosition tickEntityCollision(Vec3 vec3, Vec3 vec31) {
-		MovingObjectPosition movingobjectposition = null;
+	public RayTraceResult tickEntityCollision(Vec3 vec3, Vec3 vec31) {
+		RayTraceResult movingobjectposition = null;
 		
         Entity entity = null;
         List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(0.5D, 1D, 0.5D));
@@ -104,7 +110,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 
         if (entity != null)
         {
-            movingobjectposition = new MovingObjectPosition(entity);
+            movingobjectposition = new RayTraceResult(entity);
             /*if (movingobjectposition != null) {
             	this.onImpact(movingobjectposition);
             	setDead();
@@ -114,7 +120,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 	}
 
 	@Override
-	protected void onImpact(MovingObjectPosition movingobjectposition)
+	protected void onImpact(RayTraceResult movingobjectposition)
 	{
 		
 		if (movingobjectposition.entityHit != null)
@@ -124,16 +130,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 				
 				byte damage = 5;
 				
-				if (movingobjectposition.entityHit instanceof ICoroAI && getThrower() instanceof ICoroAI) {
-					if (((ICoroAI) getThrower()).getAIAgent().dipl_info != ((ICoroAI) movingobjectposition.entityHit).getAIAgent().dipl_info) {
-						movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), damage);
-					} else {
-
-					}
-				} else {
-					//movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), damage);
-					movingobjectposition.entityHit.attackEntityFrom(DamageSource.fallingBlock, damage);
-				}
+				movingobjectposition.entityHit.attackEntityFrom(DamageSource.fallingBlock, damage);
 				
 				/*if (movingobjectposition.entityHit instanceof EntityLiving) {
 					((EntityLiving)movingobjectposition.entityHit).knockBack(par1Entity, par2, par3, par5)
@@ -185,7 +182,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		
 		
 		if (!worldObj.isRemote) {
-			worldObj.playSoundEffect(posX, posY, posZ, "step.stone", 3F, 5F);//0.2F + worldObj.rand.nextFloat() * 0.1F);
+			worldObj.playSound(null, new BlockPos(posX, posY, posZ), SoundEvents.BLOCK_STONE_STEP, SoundCategory.AMBIENT, 3F, 5F);//0.2F + worldObj.rand.nextFloat() * 0.1F);
 			setDead();
 			//System.out.println("server: " + posX);
 		} else {
