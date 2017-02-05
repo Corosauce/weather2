@@ -94,6 +94,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 				so.nbtSyncFromServer(stormNBT);
 			} else {
 				Weather.dbg("error syncing storm, cant find by ID: " + ID);
+				Weather.dbgStackTrace();
 			}
 		} else if (command.equals("syncVolcanoNew")) {
 			Weather.dbg("creating client side volcano");

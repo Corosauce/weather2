@@ -50,8 +50,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		World world = getWorld();
 		
 		//wrap back to ID 0 just in case someone manages to hit 9223372036854775807 O_o
-		if (StormObject.lastUsedStormID >= Long.MAX_VALUE) {
-			StormObject.lastUsedStormID = 0;
+		if (WeatherObject.lastUsedStormID >= Long.MAX_VALUE) {
+			WeatherObject.lastUsedStormID = 0;
 		}
 		
 		if (world != null) {
@@ -345,6 +345,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	}
 	
 	public void playerJoinedServerSyncFull(EntityPlayerMP entP) {
+		Weather.dbg("Weather2: playerJoinedServerSyncFull for dim: " + dim);
 		World world = getWorld();
 		if (world != null) {
 			//sync storms

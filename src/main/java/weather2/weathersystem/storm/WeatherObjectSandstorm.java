@@ -782,4 +782,18 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		return nbt;
 	}
 
+	@Override
+	public void cleanup() {
+		super.cleanup();
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void cleanupClient() {
+		super.cleanupClient();
+		listParticlesCloud.clear();
+		if (particleBehavior != null && particleBehavior.particles != null) particleBehavior.particles.clear();
+		particleBehavior = null;
+	}
+
 }

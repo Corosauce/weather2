@@ -81,43 +81,40 @@ public class ClientTickHandler
     			mc.entityRenderer = new EntityRenderer(mc, mc.getResourceManager());
     		}
     	}
-        
-        if (world != null && world != lastWorld) {
-        	init(world);
-        }
-        
-        if (world != null) {
-        	weatherManager.tick();
-        	
-        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
-            	mc.gameSettings.clouds = 0;
-            }
-        }
-        
-        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
-        	//weatherManager.tick();
-        	
-        	sceneEnhancer.tickClient();
-            
-            
-        }
-        
-        if (world != null) {
-        	if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
-	            String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
-	            
-	            if (msg.equals("/weather2 config")) {
-	            	mc.ingameGUI.getChatGUI().getSentMessages().remove(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
-	            	mc.displayGuiScreen(new GuiEZConfig());
-	            }
-            }
-        }
+
+		if (world != null) {
+			checkClientWeather();
+
+			weatherManager.tick();
+
+			if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
+				mc.gameSettings.clouds = 0;
+			}
+
+			if (WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
+				//weatherManager.tick();
+
+				sceneEnhancer.tickClient();
+			}
+
+			if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
+				String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
+
+				if (msg.equals("/weather2 config")) {
+					mc.ingameGUI.getChatGUI().getSentMessages().remove(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
+					mc.displayGuiScreen(new GuiEZConfig());
+				}
+			}
+		}
+
     }
 	
     public static void checkClientWeather() {
+
     	try {
-    		if (ClientTickHandler.weatherManager == null) {
-    			ClientTickHandler.init(FMLClientHandler.instance().getClient().theWorld);
+			World world = FMLClientHandler.instance().getClient().theWorld;
+    		if (weatherManager == null || world != lastWorld) {
+    			init(world);
         	}
     	} catch (Exception ex) {
     		Weather.dbg("Warning, Weather2 client received packet before it was ready to use, and failed to init client weather due to null world");
@@ -126,6 +123,10 @@ public class ClientTickHandler
     
     public static void init(World world) {
     	Weather.dbg("Initializing WeatherManagerClient for client world");
+		if (weatherManager != null) {
+			Weather.dbg("Detected old WeatherManagerClient, clearing its data");
+			weatherManager.reset();
+		}
     	lastWorld = world;
     	weatherManager = new WeatherManagerClient(world.provider.getDimension());
     }

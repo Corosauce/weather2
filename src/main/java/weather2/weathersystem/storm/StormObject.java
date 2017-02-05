@@ -2186,7 +2186,8 @@ public class StormObject extends WeatherObject {
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }
-	
+
+	@Override
 	public void cleanup() {
 		super.cleanup();
 		if (tornadoHelper != null) tornadoHelper.storm = null;
@@ -2194,6 +2195,7 @@ public class StormObject extends WeatherObject {
 	}
 	
 	@SideOnly(Side.CLIENT)
+	@Override
 	public void cleanupClient() {
 		super.cleanupClient();
 		listParticlesCloud.clear();
