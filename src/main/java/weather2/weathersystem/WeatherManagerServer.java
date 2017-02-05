@@ -348,6 +348,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		Weather.dbg("Weather2: playerJoinedServerSyncFull for dim: " + dim);
 		World world = getWorld();
 		if (world != null) {
+			Weather.dbg("Weather2: playerJoinedServerSyncFull, sending " + getStormObjects().size() + " weather objects to: " + entP.getName() + ", dim: " + dim);
 			//sync storms
 			for (int i = 0; i < getStormObjects().size(); i++) {
 				syncStormNew(getStormObjects().get(i), entP);

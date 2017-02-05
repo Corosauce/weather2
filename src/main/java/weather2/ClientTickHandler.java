@@ -97,6 +97,7 @@ public class ClientTickHandler
 				sceneEnhancer.tickClient();
 			}
 
+			//TODO: replace with proper client side command?
 			if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
 				String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
 
@@ -105,9 +106,19 @@ public class ClientTickHandler
 					mc.displayGuiScreen(new GuiEZConfig());
 				}
 			}
+		} else {
+			resetClientWeather();
 		}
 
     }
+
+    public static void resetClientWeather() {
+		if (weatherManager != null) {
+			Weather.dbg("Weather2: Detected old WeatherManagerClient with unloaded world, clearing its data");
+			weatherManager.reset();
+			weatherManager = null;
+		}
+	}
 	
     public static void checkClientWeather() {
 
@@ -117,14 +128,15 @@ public class ClientTickHandler
     			init(world);
         	}
     	} catch (Exception ex) {
-    		Weather.dbg("Warning, Weather2 client received packet before it was ready to use, and failed to init client weather due to null world");
+    		Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
     	}
     }
     
     public static void init(World world) {
-    	Weather.dbg("Initializing WeatherManagerClient for client world");
+    	Weather.dbg("Weather2: Initializing WeatherManagerClient for client world");
+		//this part is probably redundant with new code that resets state when detecting no world active.
 		if (weatherManager != null) {
-			Weather.dbg("Detected old WeatherManagerClient, clearing its data");
+			Weather.dbg("Weather2: Detected old WeatherManagerClient with active world, clearing its data");
 			weatherManager.reset();
 		}
     	lastWorld = world;
