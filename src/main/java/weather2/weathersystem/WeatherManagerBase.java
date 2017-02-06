@@ -433,9 +433,10 @@ public class WeatherManagerBase {
 		NBTTagCompound listStormsNBT = new NBTTagCompound();
 		for (int i = 0; i < listStormObjects.size(); i++) {
 			WeatherObject obj = listStormObjects.get(i);
-			NBTTagCompound nbt = new NBTTagCompound();
-			NBTTagCompound objNBT = obj.writeToNBT(nbt);
-			listStormsNBT.setTag("storm_" + obj.ID, objNBT);
+			obj.getNbtCache().setUpdateForced(true);
+			obj.writeToNBT();
+			obj.getNbtCache().setUpdateForced(false);
+			listStormsNBT.setTag("storm_" + obj.ID, obj.getNbtCache().getNewNBT());
 		}
 		mainNBT.setTag("stormData", listStormsNBT);
 		mainNBT.setLong("lastUsedIDStorm", WeatherObject.lastUsedStormID);
@@ -545,20 +546,22 @@ public class WeatherManagerBase {
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
                 WeatherObject wo = null;
-                if (data.getInteger("stormType") == EnumWeatherObjectType.CLOUD.ordinal()) {
+                if (data.getInteger("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
                     wo = new StormObject(this/*-1, -1, null*/);
-                } else if (data.getInteger("stormType") == EnumWeatherObjectType.SAND.ordinal()) {
+                } else if (data.getInteger("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
                     wo = new WeatherObjectSandstorm(this);
                     //initStormNew???
                 }
 				try {
-					wo.readFromNBT(data);
+					wo.getNbtCache().setNewNBT(data);
+					wo.readFromNBT();
+					wo.getNbtCache().updateCacheFromNew();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
 				addStormObject(wo);
-				
-				//THIS LINE NEEDS REFINING FOR PLAYERS WHO JOIN AFTER THE FACT!!!
+
+				//TODO: possibly unneeded/redundant/bug inducing, packets will be sent upon request from client
 				((WeatherManagerServer)(this)).syncStormNew(wo);
 			} else {
 				System.out.println("WARNING: trying to load storm objects for missing dimension: " + dim);

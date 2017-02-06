@@ -93,6 +93,8 @@ public class ClientTickHandler
 				mc.gameSettings.clouds = 0;
 			}
 
+			//TODO: split logic up a bit better for this, if this is set to false mid sandstorm, fog is stuck on,
+			// with sandstorms and other things it might not represent the EZ config option
 			if (WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
 				//weatherManager.tick();
 
