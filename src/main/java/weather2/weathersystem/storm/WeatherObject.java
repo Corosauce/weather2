@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.util.CachedNBTTagCompound;
 import weather2.weathersystem.WeatherManagerBase;
 
 public class WeatherObject {
@@ -23,9 +24,14 @@ public class WeatherObject {
 	public int maxSize = 0;
 	
 	public EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.CLOUD;
-	
+
+	private CachedNBTTagCompound nbtCache;
+
+	//private NBTTagCompound cachedClientNBTState;
+
 	public WeatherObject(WeatherManagerBase parManager) {
 		manager = parManager;
+		nbtCache = new CachedNBTTagCompound();
 	}
 	
 	public void initFirstTime() {
@@ -71,15 +77,16 @@ public class WeatherObject {
 		return 40;
 	}
 	
-	public void readFromNBT(NBTTagCompound var1) {
+	public void readFromNBT() {
 		
     }
 	
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		return nbt;
+	public void writeToNBT() {
+
     }
 	
-	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+	public void nbtSyncFromServer() {
+		CachedNBTTagCompound parNBT = this.getNbtCache();
 		ID = parNBT.getLong("ID");
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
@@ -89,16 +96,27 @@ public class WeatherObject {
 		this.weatherObjectType = EnumWeatherObjectType.get(parNBT.getInteger("weatherObjectType"));
 	}
 	
-	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
+	public void nbtSyncForClient() {
+		CachedNBTTagCompound nbt = this.getNbtCache();
 		nbt.setDouble("posX", pos.xCoord);
 		nbt.setDouble("posY", pos.yCoord);
 		nbt.setDouble("posZ", pos.zCoord);
-		
+
 		nbt.setLong("ID", ID);
+		//just blind set ID into non cached data so client always has it, no need to check for forced state and restore orig state
+		nbt.getNewNBT().setLong("ID", ID);
+
 		nbt.setInteger("size", size);
 		nbt.setInteger("maxSize", maxSize);
 		nbt.setInteger("weatherObjectType", this.weatherObjectType.ordinal());
-		return nbt;
+	}
+
+	public CachedNBTTagCompound getNbtCache() {
+		return nbtCache;
+	}
+
+	public void setNbtCache(CachedNBTTagCompound nbtCache) {
+		this.nbtCache = nbtCache;
 	}
 	
 }

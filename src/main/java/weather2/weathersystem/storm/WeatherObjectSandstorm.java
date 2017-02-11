@@ -17,6 +17,7 @@ import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigSand;
+import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManagerBase;
@@ -724,8 +725,10 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	}
 	
 	@Override
-	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
-		NBTTagCompound data = super.nbtSyncForClient(nbt);
+	public void nbtSyncForClient() {
+		super.nbtSyncForClient();
+
+		CachedNBTTagCompound data = this.getNbtCache();
 		
 		data.setDouble("posSpawnX", posSpawn.xCoord);
 		data.setDouble("posSpawnY", posSpawn.yCoord);
@@ -742,12 +745,14 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		/*data.setLong("ID", ID);
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);*/
-		return data;
+
 	}
 	
 	@Override
-	public void nbtSyncFromServer(NBTTagCompound parNBT) {
-		super.nbtSyncFromServer(parNBT);
+	public void nbtSyncFromServer() {
+		super.nbtSyncFromServer();
+
+		CachedNBTTagCompound parNBT = this.getNbtCache();
 		
 		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
 		
@@ -761,25 +766,42 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound var1)
+	public void readFromNBT()
 	{
-		super.readFromNBT(var1);
-		nbtSyncFromServer(var1);
+		super.readFromNBT();
+		nbtSyncFromServer();
+
+		CachedNBTTagCompound var1 = this.getNbtCache();
 
 		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public void writeToNBT()
 	{
-		nbt = super.writeToNBT(nbt);
-		nbt = nbtSyncForClient(nbt);
+		super.writeToNBT();
+		nbtSyncForClient();
+
+		CachedNBTTagCompound nbt = this.getNbtCache();
 
 		nbt.setDouble("vecX", motion.xCoord);
 		nbt.setDouble("vecY", motion.yCoord);
 		nbt.setDouble("vecZ", motion.zCoord);
 
-		return nbt;
+	}
+
+	@Override
+	public void cleanup() {
+		super.cleanup();
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void cleanupClient() {
+		super.cleanupClient();
+		listParticlesCloud.clear();
+		if (particleBehavior != null && particleBehavior.particles != null) particleBehavior.particles.clear();
+		particleBehavior = null;
 	}
 
 }

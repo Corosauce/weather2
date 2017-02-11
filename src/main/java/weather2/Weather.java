@@ -89,7 +89,7 @@ public class Weather {
     
     public static void initTry() {
     	if (initProperNeededForWorld) {
-    		System.out.println("Weather2 being reinitialized");
+    		System.out.println("Weather2: being reinitialized");
     		initProperNeededForWorld = false;
 	    	CoroUtilFile.getWorldFolderName();
 	    	
@@ -132,6 +132,15 @@ public class Weather {
 	public static void dbg(Object obj) {
 		if (ConfigMisc.consoleDebug) {
 			System.out.println(obj);
+		}
+	}
+
+	public static void dbgStackTrace() {
+		if (ConfigMisc.consoleDebug) {
+			StackTraceElement[] arr = Thread.currentThread().getStackTrace();
+			for (StackTraceElement ele : arr) {
+				System.out.println(ele.toString());
+			}
 		}
 	}
 

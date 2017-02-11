@@ -3,10 +3,7 @@ package weather2.weathersystem;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -71,9 +68,9 @@ public class WeatherManagerBase {
 		getStormObjects().clear();
 		lookupStormObjectsByID.clear();
 		try {
-			lookupStormObjectsByLayer.get(0).clear();
-			lookupStormObjectsByLayer.get(1).clear();
-			lookupStormObjectsByLayer.get(2).clear();
+			for (int i = 0; i < lookupStormObjectsByLayer.size(); i++) {
+				lookupStormObjectsByLayer.get(i).clear();
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -88,8 +85,9 @@ public class WeatherManagerBase {
 		lookupVolcanoes.clear();
 		
 		windMan.reset();
-		
-		StormObject.lastUsedStormID = 0;
+
+		//do not reset this, its static (shared between client and server) and client side calls reset()
+		//WeatherObject.lastUsedStormID = 0;
 	}
 	
 	public World getWorld() {
@@ -187,7 +185,9 @@ public class WeatherManagerBase {
 				lookupStormObjectsByLayer.get(so2.layer).add(so2);
 			}
 		} else {
-			Weather.dbg("Weather2 WARNING!!! Client received new storm create for an ID that is already active! design bug");
+			Weather.dbg("Weather2 WARNING!!! Received new storm create for an ID that is already active! design bug or edgecase with PlayerEvent.Clone, ID: " + so.ID);
+			Weather.dbgStackTrace();
+
 		}
 	}
 	
@@ -203,7 +203,7 @@ public class WeatherManagerBase {
 				lookupStormObjectsByLayer.get(so2.layer).remove(so2);
 			}
 		} else {
-			Weather.dbg("error looking up storm ID on server for removal: " + ID + " - lookup count: " + lookupStormObjectsByID.size() + " - last used ID: " + StormObject.lastUsedStormID);
+			Weather.dbg("error looking up storm ID on server for removal: " + ID + " - lookup count: " + lookupStormObjectsByID.size() + " - last used ID: " + WeatherObject.lastUsedStormID);
 		}
 	}
 	
@@ -433,12 +433,13 @@ public class WeatherManagerBase {
 		NBTTagCompound listStormsNBT = new NBTTagCompound();
 		for (int i = 0; i < listStormObjects.size(); i++) {
 			WeatherObject obj = listStormObjects.get(i);
-			NBTTagCompound nbt = new NBTTagCompound();
-			NBTTagCompound objNBT = obj.writeToNBT(nbt);
-			listStormsNBT.setTag("storm_" + obj.ID, objNBT);
+			obj.getNbtCache().setUpdateForced(true);
+			obj.writeToNBT();
+			obj.getNbtCache().setUpdateForced(false);
+			listStormsNBT.setTag("storm_" + obj.ID, obj.getNbtCache().getNewNBT());
 		}
 		mainNBT.setTag("stormData", listStormsNBT);
-		mainNBT.setLong("lastUsedIDStorm", StormObject.lastUsedStormID);
+		mainNBT.setLong("lastUsedIDStorm", WeatherObject.lastUsedStormID);
 		
 		mainNBT.setLong("lastStormFormed", lastStormFormed);
 
@@ -505,7 +506,7 @@ public class WeatherManagerBase {
 		lastSandstormFormed = rtsNBT.getLong("lastSandstormFormed");
 		
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
-		StormObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
+		WeatherObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
 
 		windMan.readFromNBT(rtsNBT.getCompoundTag("windMan"));
 		
@@ -545,20 +546,22 @@ public class WeatherManagerBase {
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
                 WeatherObject wo = null;
-                if (data.getInteger("stormType") == EnumWeatherObjectType.CLOUD.ordinal()) {
+                if (data.getInteger("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
                     wo = new StormObject(this/*-1, -1, null*/);
-                } else if (data.getInteger("stormType") == EnumWeatherObjectType.SAND.ordinal()) {
+                } else if (data.getInteger("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
                     wo = new WeatherObjectSandstorm(this);
                     //initStormNew???
                 }
 				try {
-					wo.readFromNBT(data);
+					wo.getNbtCache().setNewNBT(data);
+					wo.readFromNBT();
+					wo.getNbtCache().updateCacheFromNew();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
 				addStormObject(wo);
-				
-				//THIS LINE NEEDS REFINING FOR PLAYERS WHO JOIN AFTER THE FACT!!!
+
+				//TODO: possibly unneeded/redundant/bug inducing, packets will be sent upon request from client
 				((WeatherManagerServer)(this)).syncStormNew(wo);
 			} else {
 				System.out.println("WARNING: trying to load storm objects for missing dimension: " + dim);

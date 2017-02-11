@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import java.util.Iterator;
 import java.util.Random;
 
 import net.minecraft.entity.Entity;
@@ -17,6 +18,7 @@ import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigStorm;
 import weather2.player.PlayerData;
+import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
 import weather2.volcano.VolcanoObject;
@@ -50,8 +52,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		World world = getWorld();
 		
 		//wrap back to ID 0 just in case someone manages to hit 9223372036854775807 O_o
-		if (StormObject.lastUsedStormID >= Long.MAX_VALUE) {
-			StormObject.lastUsedStormID = 0;
+		if (WeatherObject.lastUsedStormID >= Long.MAX_VALUE) {
+			WeatherObject.lastUsedStormID = 0;
 		}
 		
 		if (world != null) {
@@ -340,13 +342,15 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			addStormObject(so);
 			syncStormNew(so);
 		} else {
-			Weather.dbg("couldnt find space to spawn cloud formation");
+			//Weather.dbg("couldnt find space to spawn cloud formation");
 		}
 	}
 	
-	public void playerJoinedServerSyncFull(EntityPlayerMP entP) {
+	public void playerJoinedWorldSyncFull(EntityPlayerMP entP) {
+		Weather.dbg("Weather2: playerJoinedWorldSyncFull for dim: " + dim);
 		World world = getWorld();
 		if (world != null) {
+			Weather.dbg("Weather2: playerJoinedWorldSyncFull, sending " + getStormObjects().size() + " weather objects to: " + entP.getName() + ", dim: " + dim);
 			//sync storms
 			for (int i = 0; i < getStormObjects().size(); i++) {
 				syncStormNew(getStormObjects().get(i), entP);
@@ -416,7 +420,13 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormNew");
-		data.setTag("data", parStorm.nbtSyncForClient(new NBTTagCompound()));
+
+		CachedNBTTagCompound cache = parStorm.getNbtCache();
+		cache.setUpdateForced(true);
+		parStorm.nbtSyncForClient();
+		cache.setUpdateForced(false);
+		data.setTag("data", cache.getNewNBT());
+
 		if (entP == null) {
 			Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 		} else {
@@ -430,7 +440,28 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormUpdate");
-		data.setTag("data", parStorm.nbtSyncForClient(new NBTTagCompound()));
+		parStorm.getNbtCache().setNewNBT(new NBTTagCompound());
+		parStorm.nbtSyncForClient();
+		data.setTag("data", parStorm.getNbtCache().getNewNBT());
+		boolean testNetworkData = false;
+		if (testNetworkData) {
+			System.out.println("sending to client: " + parStorm.getNbtCache().getNewNBT().getKeySet().size());
+			if (parStorm instanceof StormObject) {
+				System.out.println("Real: " + ((StormObject) parStorm).levelCurIntensityStage);
+				if (parStorm.getNbtCache().getNewNBT().hasKey("levelCurIntensityStage")) {
+					System.out.println(" vs " + parStorm.getNbtCache().getNewNBT().getInteger("levelCurIntensityStage"));
+				} else {
+					System.out.println("no key!");
+				}
+			}
+
+			Iterator iterator = parStorm.getNbtCache().getNewNBT().getKeySet().iterator();
+			String keys = "";
+			while (iterator.hasNext()) {
+				keys = keys.concat((String) iterator.next() + "; ");
+			}
+			System.out.println("sending    " + keys);
+		}
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 	}
 	
@@ -439,7 +470,9 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormRemove");
-		data.setTag("data", parStorm.nbtSyncForClient(new NBTTagCompound()));
+		parStorm.nbtSyncForClient();
+		data.setTag("data", parStorm.getNbtCache().getNewNBT());
+		//data.setTag("data", parStorm.nbtSyncForClient(new NBTTagCompound()));
 		//fix for client having broken states
 		data.getCompoundTag("data").setBoolean("isDead", true);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());

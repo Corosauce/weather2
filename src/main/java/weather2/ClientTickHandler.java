@@ -3,12 +3,14 @@ package weather2;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import CoroUtil.packet.PacketHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
@@ -81,53 +83,76 @@ public class ClientTickHandler
     			mc.entityRenderer = new EntityRenderer(mc, mc.getResourceManager());
     		}
     	}
-        
-        if (world != null && world != lastWorld) {
-        	init(world);
-        }
-        
-        if (world != null) {
-        	weatherManager.tick();
-        	
-        	if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
-            	mc.gameSettings.clouds = 0;
-            }
-        }
-        
-        if (world != null && WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
-        	//weatherManager.tick();
-        	
-        	sceneEnhancer.tickClient();
-            
-            
-        }
-        
-        if (world != null) {
-        	if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
-	            String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
-	            
-	            if (msg.equals("/weather2 config")) {
-	            	mc.ingameGUI.getChatGUI().getSentMessages().remove(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
-	            	mc.displayGuiScreen(new GuiEZConfig());
-	            }
-            }
-        }
+
+		if (world != null) {
+			checkClientWeather();
+
+			weatherManager.tick();
+
+			if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
+				mc.gameSettings.clouds = 0;
+			}
+
+			//TODO: split logic up a bit better for this, if this is set to false mid sandstorm, fog is stuck on,
+			// with sandstorms and other things it might not represent the EZ config option
+			if (WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
+				//weatherManager.tick();
+
+				sceneEnhancer.tickClient();
+			}
+
+			//TODO: replace with proper client side command?
+			if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
+				String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
+
+				if (msg.equals("/weather2 config")) {
+					mc.ingameGUI.getChatGUI().getSentMessages().remove(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
+					mc.displayGuiScreen(new GuiEZConfig());
+				}
+			}
+		} else {
+			resetClientWeather();
+		}
+
     }
+
+    public static void resetClientWeather() {
+		if (weatherManager != null) {
+			Weather.dbg("Weather2: Detected old WeatherManagerClient with unloaded world, clearing its data");
+			weatherManager.reset();
+			weatherManager = null;
+		}
+	}
 	
     public static void checkClientWeather() {
+
     	try {
-    		if (ClientTickHandler.weatherManager == null) {
-    			ClientTickHandler.init(FMLClientHandler.instance().getClient().theWorld);
+			World world = FMLClientHandler.instance().getClient().theWorld;
+    		if (weatherManager == null || world != lastWorld) {
+    			init(world);
         	}
     	} catch (Exception ex) {
-    		Weather.dbg("Warning, Weather2 client received packet before it was ready to use, and failed to init client weather due to null world");
+    		Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
     	}
     }
     
     public static void init(World world) {
-    	Weather.dbg("Initializing WeatherManagerClient for client world");
+		//this is generally triggered when they teleport to another dimension
+		if (weatherManager != null) {
+			Weather.dbg("Weather2: Detected old WeatherManagerClient with active world, clearing its data");
+			weatherManager.reset();
+		}
+
+		Weather.dbg("Weather2: Initializing WeatherManagerClient for client world and requesting full sync");
+
     	lastWorld = world;
     	weatherManager = new WeatherManagerClient(world.provider.getDimension());
+
+		//request a full sync from server
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("command", "syncFull");
+		data.setString("packetCommand", "WeatherData");
+		Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
     }
 
     static void getField(Field field, Object newValue) throws Exception

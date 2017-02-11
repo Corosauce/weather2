@@ -171,7 +171,7 @@ public class ServerTickHandler
     }
     
     public static void removeWorldFromWeather(int dim) {
-    	Weather.dbg("Deregistering Weather2 manager for dim: " + dim);
+    	Weather.dbg("Weather2: Unregistering manager for dim: " + dim);
     	WeatherManagerServer wm = lookupDimToWeatherMan.get(dim);
     	
     	if (wm != null) {
@@ -183,11 +183,11 @@ public class ServerTickHandler
     	//wm.readFromFile();
     	wm.writeToFile();
     }
-    
-    public static void playerJoinedServerSyncFull(EntityPlayerMP entP) {
+
+    public static void playerClientRequestsFullSync(EntityPlayerMP entP) {
 		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimension());
 		if (wm != null) {
-			wm.playerJoinedServerSyncFull(entP);
+			wm.playerJoinedWorldSyncFull(entP);
 		}
 	}
     
@@ -201,6 +201,7 @@ public class ServerTickHandler
     }
     
     public static void reset() {
+		Weather.dbg("Weather2: ServerTickHandler resetting");
     	//World worlds[] = DimensionManager.getWorlds();
     	//for (int i = 0; i < worlds.length; i++) {
     	for (int i = 0; i < listWeatherMans.size(); i++) {
@@ -213,7 +214,7 @@ public class ServerTickHandler
 
     	//should never happen
     	if (listWeatherMans.size() > 0 || lookupDimToWeatherMan.size() > 0) {
-    		Weather.dbg("Weather2 reset state failed to manually clear lists, listWeatherMans.size(): " + listWeatherMans.size() + " - lookupDimToWeatherMan.size(): " + lookupDimToWeatherMan.size() + " - forcing a full clear of lists");
+    		Weather.dbg("Weather2: reset state failed to manually clear lists, listWeatherMans.size(): " + listWeatherMans.size() + " - lookupDimToWeatherMan.size(): " + lookupDimToWeatherMan.size() + " - forcing a full clear of lists");
     		listWeatherMans.clear();
     		lookupDimToWeatherMan.clear();
     	}

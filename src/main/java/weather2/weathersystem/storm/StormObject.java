@@ -1,11 +1,6 @@
 package weather2.weathersystem.storm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -38,10 +33,7 @@ import weather2.config.ConfigTornado;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.player.PlayerData;
-import weather2.util.WeatherUtil;
-import weather2.util.WeatherUtilBlock;
-import weather2.util.WeatherUtilConfig;
-import weather2.util.WeatherUtilEntity;
+import weather2.util.*;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.ChunkCoordinatesBlock;
@@ -257,10 +249,12 @@ public class StormObject extends WeatherObject {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound var1)
+	public void readFromNBT()
     {
-		super.readFromNBT(var1);
-		nbtSyncFromServer(var1);
+		super.readFromNBT();
+		nbtSyncFromServer();
+
+		CachedNBTTagCompound var1 = this.getNbtCache();
 		
 		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
@@ -268,25 +262,40 @@ public class StormObject extends WeatherObject {
     }
 
     @Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public void writeToNBT()
     {
-		nbt = super.writeToNBT(nbt);
-		nbt = nbtSyncForClient(nbt);
+		super.writeToNBT();
+		nbtSyncForClient();
+
+		CachedNBTTagCompound nbt = this.getNbtCache();
 		
 		nbt.setDouble("vecX", motion.xCoord);
 		nbt.setDouble("vecY", motion.yCoord);
 		nbt.setDouble("vecZ", motion.zCoord);
 		nbt.setBoolean("angleIsOverridden", angleIsOverridden);
 		nbt.setFloat("angleMovementTornadoOverride", angleMovementTornadoOverride);
-		
-		
-		return nbt;
+
     }
 	
 	//receiver method
-	public void nbtSyncFromServer(NBTTagCompound parNBT) {
-		super.nbtSyncFromServer(parNBT);
-		
+	@Override
+	public void nbtSyncFromServer() {
+
+		CachedNBTTagCompound parNBT = this.getNbtCache();
+
+		boolean testNetworkData = false;
+		if (testNetworkData) {
+			System.out.println("Received payload from server; length=" + parNBT.getNewNBT().getKeySet().size());
+			Iterator iterator = parNBT.getNewNBT().getKeySet().iterator();
+			String keys = "";
+			while (iterator.hasNext()) {
+				keys = keys.concat((String) iterator.next() + "; ");
+			}
+			System.out.println("Received    " + keys);
+		}
+
+		super.nbtSyncFromServer();
+
 		//state = parNBT.getInteger("state");
 		
 		//attrib_tornado_severity = parNBT.getInteger("attrib_tornado_severity");
@@ -307,7 +316,7 @@ public class StormObject extends WeatherObject {
 		//curWeatherType = parNBT.getInteger("curWeatherType");
 		
 		//formingStrength = parNBT.getFloat("formingStrength");
-		
+
 		levelCurIntensityStage = parNBT.getInteger("levelCurIntensityStage");
 		levelCurStagesIntensity = parNBT.getFloat("levelCurStagesIntensity");
 		stormType = parNBT.getInteger("stormType");
@@ -322,10 +331,11 @@ public class StormObject extends WeatherObject {
 	}
 	
 	//compose nbt data for packet (and serialization in future)
-	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
-		NBTTagCompound data = super.nbtSyncForClient(nbt);
-		
-		
+	@Override
+	public void nbtSyncForClient() {
+		super.nbtSyncForClient();
+
+		CachedNBTTagCompound data = this.getNbtCache();
 		
 		//data.setInteger("state", state);
 		
@@ -357,13 +367,13 @@ public class StormObject extends WeatherObject {
 		//data.setBoolean("overCastModeAndRaining", overCastModeAndRaining);
 		
 		data.setBoolean("isDead", isDead);
-		
-		return data;
+
 	}
 	
 	public NBTTagCompound nbtForIMC() {
 		//we basically need all the same data minus a few soooo whatever
-		return nbtSyncForClient(new NBTTagCompound());
+		nbtSyncForClient();
+		return getNbtCache().getNewNBT();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -2188,7 +2198,8 @@ public class StormObject extends WeatherObject {
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }
-	
+
+	@Override
 	public void cleanup() {
 		super.cleanup();
 		if (tornadoHelper != null) tornadoHelper.storm = null;
@@ -2196,6 +2207,7 @@ public class StormObject extends WeatherObject {
 	}
 	
 	@SideOnly(Side.CLIENT)
+	@Override
 	public void cleanupClient() {
 		super.cleanupClient();
 		listParticlesCloud.clear();
