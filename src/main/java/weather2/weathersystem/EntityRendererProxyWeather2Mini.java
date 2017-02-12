@@ -24,21 +24,6 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     {
         super(var1, resMan);
     }
-    
-    @Override
-    public void updateCameraAndRender(float var1)
-    {
-        super.updateCameraAndRender(var1);
-        //ModLoader.OnTick(var1, this.game);
-        
-        Minecraft mc = Minecraft.getMinecraft();
-        EntityPlayer entP = mc.thePlayer;
-		if (entP != null) {
-			float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);
-			curRainStr = Math.abs(curRainStr);
-			mc.theWorld.setRainStrength(curRainStr);
-		}
-    }
 
     @Override
     protected void renderRainSnow(float par1)
