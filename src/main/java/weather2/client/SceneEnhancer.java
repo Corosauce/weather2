@@ -28,6 +28,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
@@ -1929,14 +1930,22 @@ public class SceneEnhancer implements Runnable {
 	}
     
     public static boolean isFogOverridding() {
-    	return adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*//* ||
-    			(stormFogRed != stormFogRedOrig || stormFogGreen != stormFogGreenOrig || stormFogBlue != stormFogBlueOrig) || 
-    			(stormFogDensity != stormFogDensityOrig || stormFogStart != stormFogStartOrig || stormFogEnd != stormFogEndOrig)*/;
+    	return adjustAmountSmooth > 0;
     }
     
     public static void renderWorldLast(RenderWorldLastEvent event) {
     	
-    	
-    	
     }
+
+    public static void renderTick(TickEvent.RenderTickEvent event) {
+		if (event.phase == TickEvent.Phase.START) {
+			Minecraft mc = FMLClientHandler.instance().getClient();
+			EntityPlayer entP = mc.thePlayer;
+			if (entP != null) {
+				float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);
+				curRainStr = Math.abs(curRainStr);
+				mc.theWorld.setRainStrength(curRainStr);
+			}
+		}
+	}
 }
