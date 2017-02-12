@@ -1,7 +1,10 @@
 package weather2;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
+import weather2.client.SceneEnhancer;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -9,6 +12,8 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class EventHandlerFML {
 
@@ -38,10 +43,20 @@ public class EventHandlerFML {
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void tickRenderScreen(RenderTickEvent event) {
 		if (event.phase == Phase.END) {
 			ClientProxy.clientTickHandler.onRenderScreenTick();
+		} else if (event.phase == Phase.START) {
+			//fix for sky flicker with global overcast on and transitioning between vanilla weather states
+			Minecraft mc = Minecraft.getMinecraft();
+			EntityPlayer entP = mc.thePlayer;
+			if (entP != null) {
+				float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);
+				curRainStr = Math.abs(curRainStr);
+				mc.theWorld.setRainStrength(curRainStr);
+			}
 		}
 	}
 	

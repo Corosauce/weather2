@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
 import org.lwjgl.input.Mouse;
@@ -61,6 +62,8 @@ public class ClientTickHandler
     			}
     		}
     	}
+    	
+    	
     }
 
     public void onTickInGUI(GuiScreen guiscreen)
@@ -114,6 +117,7 @@ public class ClientTickHandler
 	            }
             }
         }
+        
     }
 	
     public static void checkClientWeather() {
