@@ -703,6 +703,8 @@ public class StormObject {
 		Random rand = new Random();
 		World world = manager.getWorld();
 		
+		if (size == 0) size = 1;
+		
 		currentTopYBlock = world.getHeightValue(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER) {
@@ -773,7 +775,7 @@ public class StormObject {
 		//EntityPlayer entP = world.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
 		
 		//if (entP != null) {
-		
+			if (size == 0) size = 1;
 			for (xx = (int) (pos.xCoord - size/2); xx < pos.xCoord + size/2; xx+=16) {
 				for (zz = (int) (pos.zCoord - size/2); zz < pos.zCoord + size/2; zz+=16) {
 			/*for (xx = (int) (entP.posX - size/2); xx < entP.posX + size/2; xx+=16) {

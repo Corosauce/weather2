@@ -26,7 +26,7 @@ import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
 //@NetworkMod(channels = { "WeatherData", "EZGuiData" }, clientSideRequired = true, serverSideRequired = true, packetHandler = WeatherPacketHandler.class)
-@Mod(modid = "weather2", name="weather2", version="v2.3.11")
+@Mod(modid = "weather2", name="weather2", version="v2.3.14")
 public class Weather {
 	
 	@Mod.Instance( value = "weather2" )
