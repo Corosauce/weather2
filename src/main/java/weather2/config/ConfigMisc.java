@@ -185,6 +185,9 @@ public class ConfigMisc implements IConfigCategory {
 		//Weather.dbg("block list processing disabled");
 		WeatherUtil.doBlockList();
 		WeatherUtilConfig.processLists();
+		if (Storm_MaxRadius < 1) {
+			Storm_MaxRadius = 1;
+		}
 	}
 
 }

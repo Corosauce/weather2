@@ -270,7 +270,8 @@ public class StormObject {
 	public NBTTagCompound writeToNBT()
     {
 		
-		NBTTagCompound nbt = nbtSyncForClient();
+		nbtSyncForClient();
+		NBTTagCompound nbt = cachedClientNBTState;
 		
 		nbt.setDouble("vecX", motion.xCoord);
 		nbt.setDouble("vecY", motion.yCoord);
