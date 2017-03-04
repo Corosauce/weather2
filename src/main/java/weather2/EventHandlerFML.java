@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import weather2.client.SceneEnhancer;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -32,6 +33,9 @@ public class EventHandlerFML {
 		if (event.phase == Phase.START) {
 			//System.out.println("tick weather2");
 			ServerTickHandler.onTickInGame();
+			
+			/*System.out.println("total: " + DimensionManager.getWorld(0).getTotalWorldTime());
+			System.out.println("not: " + DimensionManager.getWorld(0).getWorldTime());*/
 		}
 		
 	}

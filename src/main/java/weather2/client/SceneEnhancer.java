@@ -636,12 +636,12 @@ public class SceneEnhancer implements Runnable {
             return;
         }
 
-        if (threadLastWorldTickTime == worldRef.getWorldTime())
+        if (threadLastWorldTickTime == worldRef.getTotalWorldTime())
         {
             return;
         }
 
-        threadLastWorldTickTime = worldRef.getWorldTime();
+        threadLastWorldTickTime = worldRef.getTotalWorldTime();
         
         Random rand = new Random();
         
