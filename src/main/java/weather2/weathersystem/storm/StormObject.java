@@ -704,7 +704,9 @@ public class StormObject {
 		Random rand = new Random();
 		World world = manager.getWorld();
 		
+		//patch for worlds that are crashing due to storms that havent been removed since packet optimization bug 
 		if (size == 0) size = 1;
+		if (maxSize == 0) maxSize = 1;
 		
 		currentTopYBlock = world.getHeightValue(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
