@@ -25,12 +25,15 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Storm_Rain_WaterBuildUpOddsTo1FromNothing = 100;
 	public static int Storm_Rain_WaterBuildUp = 150;
 	public static double Storm_TemperatureAdjustRate = 0.1D;
-	//public static double Storm_Deadly_MinIntensity = 5.3D;
+	
+	public static double Storm_Deadly_MinIntensity = 5.3D;
 	public static int Storm_HailPerTick = 10;
 	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
 	public static int Storm_OddsTo1OfLandBasedStorm = -1;
 	public static int Storm_OddsTo1OfProgressionBase = 15;
 	public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
+	@ConfigComment("Setting this to 1 could lead to storms that never die in warm biomes. -1 Makes storms never respawn. The smaller the number, the smaller the chance a storm will increase again.")
+	public static double Storm_OddsTo1OfStormRegenerationBase = 0.0005;
 	public static int Storm_ParticleSpawnDelay = 0;
 	
 	//per player storm settings

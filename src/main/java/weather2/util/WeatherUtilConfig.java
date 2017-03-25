@@ -27,11 +27,11 @@ import CoroUtil.util.CoroUtilFile;
 
 public class WeatherUtilConfig {
 
-	public static List<Integer> listDimensionsWeather = new ArrayList<Integer>();
-	public static List<Integer> listDimensionsClouds = new ArrayList<Integer>();
+	public static List<Integer> listDimensionsWeather = new ArrayList<>();
+	public static List<Integer> listDimensionsClouds = new ArrayList<>();
 	//used for deadly storms and sandstorms
-	public static List<Integer> listDimensionsStorms = new ArrayList<Integer>();
-	public static List<Integer> listDimensionsWindEffects = new ArrayList<Integer>();
+	public static List<Integer> listDimensionsStorms = new ArrayList<>();
+	public static List<Integer> listDimensionsWindEffects = new ArrayList<>();
 	
 	public static int CMD_BTN_PERF_STORM = 2;
 	public static int CMD_BTN_PERF_NATURE = 3;
@@ -50,18 +50,20 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PREF_BLOCKDESTRUCTION = 11;
 	public static int CMD_BTN_PREF_TORNADOANDCYCLONES = 15;
 	
-	public static int CMD_BTN_HIGHEST_ID = 15;
+	public static int CMD_BTN_PREF_STORMREGENERATION = 16;
+	
+	public static int CMD_BTN_HIGHEST_ID = 16;
 
-	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
-	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
-	public static List<String> LIST_TOGGLE = new ArrayList<String>(Arrays.asList("Off", "On"));
-	public static List<String> LIST_CHANCE = new ArrayList<String>(Arrays.asList("1/2 Day", "1 Day", "2 Days", "3 Days", "4 Days", "5 Days", "6 Days", "7 Days", "8 Days", "9 Days", "10 Days", "Never"));
+	public static List<String> LIST_RATES = new ArrayList<>(Arrays.asList("High", "Medium", "Low"));
+	public static List<String> LIST_RATES2 = new ArrayList<>(Arrays.asList("High", "Medium", "Low", "None"));
+	public static List<String> LIST_TOGGLE = new ArrayList<>(Arrays.asList("Off", "On"));
+	public static List<String> LIST_CHANCE = new ArrayList<>(Arrays.asList("1/2 Day", "1 Day", "2 Days", "3 Days", "4 Days", "5 Days", "6 Days", "7 Days", "8 Days", "9 Days", "10 Days", "Never"));
 	
-	public static List<String> LIST_STORMSWHEN = new ArrayList<String>(Arrays.asList("Local Biomes", "Global Overcast"));
-	public static List<String> LIST_LOCK = new ArrayList<String>(Arrays.asList("Off", "On", "Don't lock"));
+	public static List<String> LIST_STORMSWHEN = new ArrayList<>(Arrays.asList("Local Biomes", "Global Overcast"));
+	public static List<String> LIST_LOCK = new ArrayList<>(Arrays.asList("Off", "On", "Don't lock"));
 	
-	public static List<Integer> listSettingsClient = new ArrayList<Integer>();
-	public static List<Integer> listSettingsServer = new ArrayList<Integer>();
+	public static List<Integer> listSettingsClient = new ArrayList<>();
+	public static List<Integer> listSettingsServer = new ArrayList<>();
 	
 	//for caching server data on client side (does not pertain to client only settings)
 	public static NBTTagCompound nbtClientCache = new NBTTagCompound();
@@ -87,6 +89,7 @@ public class WeatherUtilConfig {
 		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFRAIN);
 		listSettingsServer.add(CMD_BTN_PREF_BLOCKDESTRUCTION);
 		listSettingsServer.add(CMD_BTN_PREF_TORNADOANDCYCLONES);
+		listSettingsServer.add(CMD_BTN_PREF_STORMREGENERATION);
 	}
 	
 	//client should call this on detecting a close/save of GUI
@@ -273,7 +276,12 @@ public class WeatherUtilConfig {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)) {
 				ConfigTornado.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
 			}
+
 			
+			//added this, added rare chance that storms can turn active again when over warm and moist biome
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_STORMREGENERATION)){
+				ConfigStorm.Storm_OddsTo1OfStormRegenerationBase = nbtServerData.getDouble("btn_" + CMD_BTN_PREF_STORMREGENERATION);
+			}
 			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
 			//Iterator it = nbtDims.getTags().iterator();
 			

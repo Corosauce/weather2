@@ -192,6 +192,16 @@ public class CommandWeather2 extends CommandBase {
 									wm.windMan.startHighWindEvent();
 									wm.windMan.lowWindTimer = 0;
 								}
+							} else if (var2[2].equalsIgnoreCase("snowstorm")) {
+								boolean spawned = wm.trySpawnSnowstormNearPos(world, new Vec3(posVec));
+								spawnCloudStorm = false;
+								if (!spawned) {
+									sendCommandSenderMsg(var1, "couldnt find spot to spawn");
+									return;
+								} else {
+									wm.windMan.startHighWindEvent();
+									wm.windMan.lowWindTimer = 0;
+								}
 							}
 							
 							if (var2.length > 3) {

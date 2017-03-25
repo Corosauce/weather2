@@ -58,7 +58,7 @@ public class TornadoHelper {
      * - initially, entries were spam added as the block still existed, changed list to hashmap to allow for blockpos hash lookup before adding another entry
      * - entity creation relocated to queue processing to initially prevent entity spam, but with entry lookup, not needed, other issues like collision are now the reason why we still relocated entity creation to queue process
      */
-    private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<BlockPos, BlockUpdateSnapshot>();
+    private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<>();
     private int queueProcessRate = 10;
     
     public static class BlockUpdateSnapshot {

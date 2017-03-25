@@ -43,6 +43,7 @@ import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectSnowstorm;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
 import extendedrenderer.ExtendedRenderer;
@@ -163,6 +164,7 @@ public class SceneEnhancer implements Runnable {
 			//tickTest();
 			//tickTestFog();
 			tickSandstorm();
+			tickSnowstorm();
 			//tickTestSandstormParticles();
 
 
@@ -419,7 +421,7 @@ public class SceneEnhancer implements Runnable {
 			
 			int precipitationHeight = entP.worldObj.getPrecipitationHeight(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ))).getY();
 			
-			Biome biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
+			Biome biomegenbase = entP.worldObj.getBiomeForCoordsBody(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
             if (/*true*/biomegenbase != null/* || biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow()*/)
             {
@@ -994,11 +996,11 @@ public class SceneEnhancer implements Runnable {
                         			//pm.particles.add(entityfx);
                             	}
                             }
-                            else if (false && CoroUtilBlock.isAir(block))
-                            {
+                            //else if (false && CoroUtilBlock.isAir(block))
+                            //{
                             	
                             	//null check biome in future if used
-                            	float temp = worldRef.getBiomeGenForCoords(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
+                            	//float temp = worldRef.getBiomeForCoordsBody(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
                             	
                             	//System.out.println(temp);
                             	
@@ -1067,7 +1069,7 @@ public class SceneEnhancer implements Runnable {
                         	}
                         }*/
                     
-                }
+                //}
             }
         }
     }
@@ -1140,10 +1142,10 @@ public class SceneEnhancer implements Runnable {
                     	
                     	EntityRotFX entity1 = (EntityRotFX) particle;
                     	
-                        if (entity1 == null)
-                        {
-                            continue;
-                        }
+                        //if (entity1 == null)
+                        //{
+                        //    continue;
+                        //}
 
                         
                         
@@ -1406,7 +1408,7 @@ public class SceneEnhancer implements Runnable {
     	
     	
     	
-    	if (true || miniTornado.particles.size() == 0) {
+    	if (true /*|| miniTornado.particles.size() == 0*/) {
 	    	for (int i = 0; i < 1; i++) {
 	    		ParticleTexFX part = new ParticleTexFX(mc.theWorld, miniTornado.coordSource.xCoord, miniTornado.coordSource.yCoord, miniTornado.coordSource.zCoord, 0, 0, 0, ParticleRegistry.squareGrey);
 	    		miniTornado.initParticle(part);
@@ -1507,7 +1509,7 @@ public class SceneEnhancer implements Runnable {
     /**
      * Manages transitioning fog densities and color from current vanilla settings to our desired settings, and vice versa
      */
-    public static void tickSandstorm() {
+    public static void tickSnowstorm() {
 
 		if (adjustAmountTargetPocketSandOverride > 0) {
 			adjustAmountTargetPocketSandOverride -= 0.01F;
@@ -1517,7 +1519,7 @@ public class SceneEnhancer implements Runnable {
         EntityPlayer player = mc.thePlayer;
         World world = mc.theWorld;
     	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
-    	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
+    	WeatherObjectSnowstorm sandstorm = ClientTickHandler.weatherManager.getClosestSnowstormByIntensity(posPlayer);
         WindManager windMan = ClientTickHandler.weatherManager.getWindManager();
     	float scaleIntensityTarget = 0F;
     	if (sandstorm != null) {
@@ -1528,12 +1530,12 @@ public class SceneEnhancer implements Runnable {
 			}
 
 
-    		scaleIntensityTarget = sandstorm.getSandstormScale();
+    		scaleIntensityTarget = sandstorm.getSnowstormScale();
     		/*Vec3 posNoY = new Vec3(sandstorm.pos);
     		posNoY.yCoord = mc.thePlayer.posY;
     		distToStorm = posPlayer.distanceTo(posNoY);*/
     		
-    		List<Vec3> points = sandstorm.getSandstormAsShape();
+    		List<Vec3> points = sandstorm.getSnowstormAsShape();
     		
     		/*for (Vec3 point : points) {
     			System.out.println("point: " + point.toString());
@@ -1593,13 +1595,6 @@ public class SceneEnhancer implements Runnable {
     	//make it be full intensity once storm is halfway there
     	adjustAmountTarget = 1F - (float) ((distToStorm) / distToStormThreshold);
     	adjustAmountTarget *= 2F * scaleIntensitySmooth * (isPlayerOutside ? 1F : 0.5F);
-
-		//use override if needed
-		boolean pocketSandOverride = false;
-		if (adjustAmountTarget < adjustAmountTargetPocketSandOverride) {
-			adjustAmountTarget = adjustAmountTargetPocketSandOverride;
-			pocketSandOverride = true;
-		}
     	
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
@@ -1610,23 +1605,13 @@ public class SceneEnhancer implements Runnable {
 
 
         float sunBrightness = mc.theWorld.getSunBrightness(1F) * 1F;
-        /*mc.theWorld.rainingStrength = 1F;
-        mc.theWorld.thunderingStrength = 1F;*/
 
-    	//since size var adjusts by 10 every x seconds, transition is rough, try to make it smooth but keeps up
-		if (!pocketSandOverride) {
-			if (adjustAmountSmooth < adjustAmountTarget) {
-				adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
-			} else {
-				adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
-			}
-		} else {
-			adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.02F);
-		}
-
+		adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 5F);
+		adjustAmountSmooth *= 120;
+		//System.out.println(adjustAmountSmooth);
     	//update coroutil particle renderer fog state
         RotatingParticleManager.sandstormFogAmount = adjustAmountSmooth;
-
+        
     	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);
             if (adjustAmountSmooth > 0) {
@@ -1642,6 +1627,7 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*/) {
 
             //TODO: remove fetching of colors from this now that we dynamically track that
+    		needFogState = true;
     		if (needFogState) {
     			//System.out.println("getting fog state");
     			
@@ -1691,8 +1677,8 @@ public class SceneEnhancer implements Runnable {
     		
     		//new dynamic adjusting
     		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
-    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - (0.5F * sunBrightness)) * adjustAmountSmooth);
-    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - (0.25F * sunBrightness)) * adjustAmountSmooth);
+    		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
+    		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
     		
     		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.02F) * adjustAmountSmooth);
     		
@@ -1750,7 +1736,7 @@ public class SceneEnhancer implements Runnable {
                     part.setGravity(0.09F);
                     part.setAlphaF(0F);
                     float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-                    part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                    part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
                     part.setScale(40);
                     part.aboveGroundHeight = 0.2D;
 
@@ -1777,7 +1763,7 @@ public class SceneEnhancer implements Runnable {
 
 
                 if (canPrecipitateAt(world, pos)) {
-                    TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
+                    TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 
                     ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
                             pos.getY(),
@@ -1816,6 +1802,375 @@ public class SceneEnhancer implements Runnable {
 
                 }
             }
+                for (int i = 0; i < ((float)8 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+                    BlockPos pos = new BlockPos(
+                            player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+                            player.posY - 2 + rand.nextInt(10),
+                            player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+
+
+                    if (canPrecipitateAt(world, pos)) {
+                        TextureAtlasSprite sprite = null;
+                        int tex = rand.nextInt(3);
+                        if (tex == 0) {
+                            sprite = ParticleRegistry.cloud256;
+                        } else if (tex == 1) {
+                            sprite = ParticleRegistry.cloud256;
+                        } else if (tex == 2) {
+                            sprite = ParticleRegistry.cloud256;
+                        }
+
+                        ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
+                                pos.getY(),
+                                pos.getZ(),
+                                0, 0, 0, sprite);
+                        particleBehavior.initParticle(part);
+
+                        part.setMotionX(windForce.xCoord);
+                        part.setMotionZ(windForce.zCoord);
+
+                        part.setFacePlayer(false);
+                        part.spinFast = true;
+                        part.isTransparent = true;
+                        part.rotationYaw = (float)rand.nextInt(360);
+                        part.rotationPitch = (float)rand.nextInt(360);
+
+                        part.setMaxAge(80);
+                        part.setGravity(0.3F);
+                        part.setAlphaF(0F);
+                        float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+                        //part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                        part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+                        part.setScale(8);
+                        part.aboveGroundHeight = 0.5D;
+                        part.collisionSpeedDampen = false;
+                        part.bounceSpeed = 0.03D;
+                        part.bounceSpeedAhead = 0.03D;
+
+                        part.setKillOnCollide(false);
+
+                        part.windWeight = 1F;
+
+                        particleBehavior.particles.add(part);
+                        ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                        part.spawnAsWeatherEffect();
+
+
+                    }
+                }
+            }
+    	}
+            
+            public static void tickSandstorm() {
+
+        		if (adjustAmountTargetPocketSandOverride > 0) {
+        			adjustAmountTargetPocketSandOverride -= 0.01F;
+        		}
+
+            	Minecraft mc = Minecraft.getMinecraft();
+                EntityPlayer player = mc.thePlayer;
+                World world = mc.theWorld;
+            	Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
+            	WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
+                WindManager windMan = ClientTickHandler.weatherManager.getWindManager();
+            	float scaleIntensityTarget = 0F;
+            	if (sandstorm != null) {
+
+        			if (mc.theWorld.getTotalWorldTime() % 40 == 0) {
+        				isPlayerOutside = WeatherUtilEntity.isEntityOutside(mc.thePlayer);
+        				//System.out.println("isPlayerOutside: " + isPlayerOutside);
+        			}
+
+
+            		scaleIntensityTarget = sandstorm.getSandstormScale();
+            		/*Vec3 posNoY = new Vec3(sandstorm.pos);
+            		posNoY.yCoord = mc.thePlayer.posY;
+            		distToStorm = posPlayer.distanceTo(posNoY);*/
+            		
+            		List<Vec3> points = sandstorm.getSandstormAsShape();
+            		
+            		/*for (Vec3 point : points) {
+            			System.out.println("point: " + point.toString());
+            		}*/
+            		
+            		boolean inStorm = CoroUtilPhysics.isInConvexShape(posPlayer, points);
+                	if (inStorm) {
+                		//System.out.println("in storm");
+                		distToStorm = 0;
+                	} else {
+                		
+                		distToStorm = CoroUtilPhysics.getDistanceToShape(posPlayer, points);
+                		//System.out.println("near storm: " + distToStorm);
+                	}
+            	} else {
+            		distToStorm = distToStormThreshold + 10;
+            	}
+            	
+            	scaleIntensitySmooth = adjVal(scaleIntensitySmooth, scaleIntensityTarget, 0.01F);
+            	
+            	//temp off
+            	//distToStorm = distToStormThreshold;
+            	
+            	//distToStorm = 0;
+            	
+            	/**
+            	 * new way to detect in sandstorm
+            	 * 1. use in convex shape method
+            	 * 2. if not, get closest point of shape to player, use that for distance
+            	 * -- note, add extra points to compare against so its hard to enter between points and have it think player is 50 blocks away still
+            	 * 
+            	 * - better idea, do 1., then if not, do point vs "minimum distance from a point to a line segment."
+            	 */
+            	
+            	
+            	
+            	//square shape test
+            	/*points.add(new Vec3(-100, 0, -100));
+            	points.add(new Vec3(-100, 0, 100));
+            	points.add(new Vec3(100, 0, 100));
+            	points.add(new Vec3(100, 0, -100));*/
+            	
+            	//triangle test
+            	/*points.add(new Vec3(-100, 0, -100));
+            	points.add(new Vec3(-100, 0, 100));
+            	points.add(new Vec3(100, 0, 0));*/
+            	//points.add(new Vec3(100, 0, -100));
+            	
+            	//tested works well
+            	
+            	
+            	
+            	float fogColorChangeRate = 0.01F;
+            	float fogDistChangeRate = 2F;
+            	float fogDensityChangeRate = 0.01F;
+            	
+            	//make it be full intensity once storm is halfway there
+            	adjustAmountTarget = 1F - (float) ((distToStorm) / distToStormThreshold);
+            	adjustAmountTarget *= 2F * scaleIntensitySmooth * (isPlayerOutside ? 1F : 0.5F);
+
+        		//use override if needed
+        		boolean pocketSandOverride = false;
+        		if (adjustAmountTarget < adjustAmountTargetPocketSandOverride) {
+        			adjustAmountTarget = adjustAmountTargetPocketSandOverride;
+        			pocketSandOverride = true;
+        		}
+            	
+            	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
+            	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
+
+                //debug
+                //adjustAmountTarget = 1F;
+                //adjustAmountTarget = 0F;
+
+
+                float sunBrightness = mc.theWorld.getSunBrightness(1F) * 1F;
+                /*mc.theWorld.rainingStrength = 1F;
+                mc.theWorld.thunderingStrength = 1F;*/
+
+            	//since size var adjusts by 10 every x seconds, transition is rough, try to make it smooth but keeps up
+        		if (!pocketSandOverride) {
+        			if (adjustAmountSmooth < adjustAmountTarget) {
+        				adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.003F);
+        			} else {
+        				adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.002F);
+        			}
+        		} else {
+        			adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.02F);
+        		}
+
+            	//update coroutil particle renderer fog state
+                RotatingParticleManager.sandstormFogAmount = adjustAmountSmooth;
+
+            	if (mc.theWorld.getTotalWorldTime() % 20 == 0) {
+            		//System.out.println(adjustAmount + " - " + distToStorm);
+                    if (adjustAmountSmooth > 0) {
+                        //System.out.println("adjustAmountTarget: " + adjustAmountTarget);
+                        //System.out.println("adjustAmountSmooth: " + adjustAmountSmooth);
+                    }
+
+                    //System.out.println("wut: " + mc.theWorld.getCelestialAngle(1));
+                    //System.out.println("wutF: " + mc.theWorld.getSunBrightnessFactor(1F));
+                    //System.out.println("wut: " + mc.theWorld.getSunBrightness(1F));
+            	}
+            	
+            	if (adjustAmountSmooth > 0/*distToStorm < distToStormThreshold*/) {
+
+                    //TODO: remove fetching of colors from this now that we dynamically track that
+            		if (needFogState) {
+            			//System.out.println("getting fog state");
+            			
+            			try {
+            				Object fogState = ObfuscationReflectionHelper.getPrivateValue(GlStateManager.class, null, "field_179155_g");
+            				Class<?> innerClass = Class.forName("net.minecraft.client.renderer.GlStateManager$FogState");
+            				Field fieldDensity = null;
+            				Field fieldStart = null;
+            				Field fieldEnd = null;
+            				try {
+            					fieldDensity = innerClass.getField("field_179048_c");
+            					fieldDensity.setAccessible(true);
+            					fieldStart = innerClass.getField("field_179045_d");
+            					fieldStart.setAccessible(true);
+            					fieldEnd = innerClass.getField("field_179046_e");
+            					fieldEnd.setAccessible(true);
+        					} catch (Exception e) {
+        						//dev env mode
+        						fieldDensity = innerClass.getField("density");
+        						fieldDensity.setAccessible(true);
+        						fieldStart = innerClass.getField("start");
+            					fieldStart.setAccessible(true);
+            					fieldEnd = innerClass.getField("end");
+            					fieldEnd.setAccessible(true);
+        					}
+            				stormFogDensity = fieldDensity.getFloat(fogState);
+            				
+            				stormFogStart = fieldStart.getFloat(fogState);
+            				stormFogEnd = fieldEnd.getFloat(fogState);
+            				
+            				stormFogStartClouds = 0;
+            				stormFogEndClouds = 192;
+            				
+            				
+            				stormFogStartOrig = stormFogStart;
+            				stormFogEndOrig = stormFogEnd;
+            				stormFogStartCloudsOrig = stormFogStartClouds;
+            				stormFogEndCloudsOrig = stormFogEndClouds;
+            				
+            				stormFogDensityOrig = stormFogDensity;
+            				
+        				} catch (Exception e) {
+        					e.printStackTrace();
+        				}
+            			needFogState = false;
+            		}
+            		
+            		//new dynamic adjusting
+            		stormFogRed = stormFogRedOrig + (-(stormFogRedOrig - (0.7F * sunBrightness)) * adjustAmountSmooth);
+            		stormFogGreen = stormFogGreenOrig + (-(stormFogGreenOrig - (0.5F * sunBrightness)) * adjustAmountSmooth);
+            		stormFogBlue = stormFogBlueOrig + (-(stormFogBlueOrig - (0.25F * sunBrightness)) * adjustAmountSmooth);
+            		
+            		stormFogDensity = stormFogDensityOrig + (-(stormFogDensityOrig - 0.02F) * adjustAmountSmooth);
+            		
+            		stormFogStart = stormFogStartOrig + (-(stormFogStartOrig - 0F) * adjustAmountSmooth);
+            		stormFogEnd = stormFogEndOrig + (-(stormFogEndOrig - 7F) * adjustAmountSmooth);
+            		stormFogStartClouds = stormFogStartCloudsOrig + (-(stormFogStartCloudsOrig - 0F) * adjustAmountSmooth);
+            		stormFogEndClouds = stormFogEndCloudsOrig + (-(stormFogEndCloudsOrig - 20F) * adjustAmountSmooth);
+            	} else {
+            		if (!needFogState) {
+            			//System.out.println("resetting need for fog state");
+            		}
+            		needFogState = true;
+            	}
+
+            	//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
+                if (adjustAmountSmooth > 0.75F && sandstorm != null) {
+
+                    Vec3 windForce = windMan.getWindForce();
+
+                    Random rand = mc.theWorld.rand;
+                    int spawnAreaSize = 80;
+
+        			double sandstormParticleRateDebris = ConfigParticle.Sandstorm_Particle_Debris_effect_rate;
+        			double sandstormParticleRateDust = ConfigParticle.Sandstorm_Particle_Dust_effect_rate;
+
+                    float adjustAmountSmooth75 = (adjustAmountSmooth * 8F) - 7F;
+
+        			//extra dust
+                    for (int i = 0; i < ((float)30 * adjustAmountSmooth75 * sandstormParticleRateDust)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+
+                        BlockPos pos = new BlockPos(
+                                player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+                                player.posY - 2 + rand.nextInt(10),
+                                player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+
+
+                        if (canPrecipitateAt(world, pos)) {
+                            TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+
+                            ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
+                                    pos.getY(),
+                                    pos.getZ(),
+                                    0, 0, 0, sprite);
+                            particleBehavior.initParticle(part);
+
+                            part.setMotionX(windForce.xCoord);
+                            part.setMotionZ(windForce.zCoord);
+
+                            part.setFacePlayer(false);
+                            part.isTransparent = true;
+                            part.rotationYaw = (float)rand.nextInt(360);
+                            part.rotationPitch = (float)rand.nextInt(360);
+                            part.setMaxAge(40);
+                            part.setGravity(0.09F);
+                            part.setAlphaF(0F);
+                            float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+                            part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                            part.setScale(40);
+                            part.aboveGroundHeight = 0.2D;
+
+                            part.setKillOnCollide(true);
+
+                            part.windWeight = 1F;
+
+                            particleBehavior.particles.add(part);
+                            ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                            part.spawnAsWeatherEffect();
+
+
+                        }
+                    }
+
+                    //tumbleweed
+                    for (int i = 0; i < ((float)1 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
+
+                        BlockPos pos = new BlockPos(
+                                player.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+                                player.posY - 2 + rand.nextInt(10),
+                                player.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+
+
+                        if (canPrecipitateAt(world, pos)) {
+                            TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
+
+                            ParticleSandstorm part = new ParticleSandstorm(world, pos.getX(),
+                                    pos.getY(),
+                                    pos.getZ(),
+                                    0, 0, 0, sprite);
+                            particleBehavior.initParticle(part);
+
+                            part.setMotionX(windForce.xCoord);
+                            part.setMotionZ(windForce.zCoord);
+
+                            part.setFacePlayer(true);
+                            //part.spinFast = true;
+                            part.isTransparent = true;
+                            part.rotationYaw = (float)rand.nextInt(360);
+                            part.rotationPitch = (float)rand.nextInt(360);
+                            part.setMaxAge(80);
+                            part.setGravity(0.3F);
+                            part.setAlphaF(0F);
+                            float brightnessMulti = 1F - (rand.nextFloat() * 0.2F);
+                            //part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+                            part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+                            part.setScale(8);
+                            part.aboveGroundHeight = 0.5D;
+                            part.collisionSpeedDampen = false;
+                            part.bounceSpeed = 0.03D;
+                            part.bounceSpeedAhead = 0.03D;
+
+                            part.setKillOnCollide(false);
+
+                            part.windWeight = 1F;
+
+                            particleBehavior.particles.add(part);
+                            ClientTickHandler.weatherManager.addWeatheredParticle(part);
+                            part.spawnAsWeatherEffect();
+
+
+                        }
+                    }
 
             //debris
             for (int i = 0; i < ((float)8 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
