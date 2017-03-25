@@ -7,6 +7,7 @@ import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -17,10 +18,10 @@ import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigSand;
-import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManagerBase;
+import weather2.weathersystem.util.BiomeTypes;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
@@ -46,7 +47,7 @@ import extendedrenderer.particle.entity.EntityRotFX;
  * @author Corosus
  *
  */
-public class WeatherObjectSandstorm extends WeatherObject {
+public class WeatherObjectSnowstorm extends WeatherObject {
 
 	public int height = 0;
 	
@@ -70,10 +71,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	
 	public Random rand = new Random();
 	
-	public WeatherObjectSandstorm(WeatherManagerBase parManager) {
+	public WeatherObjectSnowstorm(WeatherManagerBase parManager) {
 		super(parManager);
 		
-		this.weatherObjectType = EnumWeatherObjectType.SAND;
+		this.weatherObjectType = EnumWeatherObjectType.SNOW;
+		//Yup that is supposed to be that way, both work very similar!
 		
 		if (parManager.getWorld().isRemote) {
 			listParticlesCloud = new ArrayList<>();
@@ -81,7 +83,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 	}
 	
-	public void initSandstormSpawn(Vec3 pos) {
+	public void initSnowSpawn(Vec3 pos) {
 		this.pos = new Vec3(pos);
 		
 		size = 1;
@@ -100,7 +102,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		//temp end
 		
 		World world = manager.getWorld();
-		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		pos.yCoord = yy;
 		
 		posGround = new Vec3(pos);
@@ -114,7 +116,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		maxHeight = 100;*/
 	}
 	
-	public float getSandstormScale() {
+	public float getSnowstormScale() {
 		if (isFrontGrowing) {
 			return (float)size / (float)maxSize;
 		} else {
@@ -122,8 +124,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 	}
 	
-	public static boolean isDesert(Biome biome) {
-		return isDesert(biome, false);
+	public static boolean isSnowy(Biome biome) {
+		return isSnowy(biome, false);
 	}
 	
 	/**
@@ -133,8 +135,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 * @param forSpawn
 	 * @return
 	 */
-	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.getBiomeName().toLowerCase().contains("desert");
+	public static boolean isSnowy(Biome biome, boolean forSpawn) {
+		return BiomeTypes.isBiomeFavorableForSnowstorms(biome);
 	}
 	
 	/**
@@ -171,7 +173,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			if (isFrontGrowing && world.isBlockLoaded(posBlock)) {
 				Biome biomeIn = world.getBiomeForCoordsBody(posBlock);
 
-				if (isDesert(biomeIn)) {
+				if (isSnowy(biomeIn)) {
 					isFrontGrowing = true;
 				} else {
 					//System.out.println("sandstorm fadeout started");
@@ -248,12 +250,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.yCoord += this.motion.yCoord;
 		this.pos.zCoord += this.motion.zCoord;*/
 		
-		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		
 		this.pos.yCoord = yy + 1;
 	}
 	
-	public void tickBlockSandBuildup() {
+	public void tickBlockSnowBuildup() {
 
 		World world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
@@ -262,7 +264,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		//keep it set to do a lot of work only occasionally, prevents chunk render update spam for client which kills fps 
 		int delay = ConfigSand.Sandstorm_Sand_Buildup_TickRate;
-		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getSandstormScale());
+		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getSnowstormScale());
 		
 		int count = 0;
 		
@@ -273,11 +275,11 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    	for (int i = 0; i < loop; i++) {
 		    		
 		    		//rate of placement based on storm intensity
-		    		if (rand.nextDouble() >= getSandstormScale()) continue;
+		    		if (rand.nextDouble() >= getSnowstormScale()) continue;
 
-					Vec3 vecPos = getRandomPosInSandstorm();
+					Vec3 vecPos = getRandomPosInSnowstorm();
 
-					int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
+					int y = world.getHeight(new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
 					vecPos.yCoord = y;
 
 					//avoid unloaded areas
@@ -285,8 +287,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 					Biome biomeIn = world.getBiomeForCoordsBody(vecPos.toBlockPos());
 
-					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
-						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isSnowy(biomeIn)) {
+						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW_LAYER);
 					}
 
 					count++;
@@ -322,7 +324,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		tickProgressionAndMovement();
 		
-		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
+		int yy = world.getHeight(new BlockPos(pos.xCoord, 0, pos.zCoord)).getY();
 		
 		
 		
@@ -333,8 +335,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		}
 		
 		//if (size >= 2) {
-		if (getSandstormScale() > 0.2D) {
-			tickBlockSandBuildup();
+		if (getSnowstormScale() > 0.2D) {
+			tickBlockSnowBuildup();
 		}
 		
 		this.posGround.xCoord = pos.xCoord;
@@ -426,7 +428,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * stormfront wall
     	 */
-    	float sandstormScale = getSandstormScale();
+    	float sandstormScale = getSnowstormScale();
 
 		double sandstormParticleRateDust = ConfigParticle.Sandstorm_Particle_Dust_effect_rate;
     	if (size > 0/*isFrontGrowing || sandstormScale > 0.5F*/) {
@@ -466,7 +468,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		part.setGravity(0.09F);
 			    		part.setAlphaF(1F);
 			    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-			    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+			    		part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
 			    		part.setScale(100);
 			    		
 			    		//part.windWeight = 5F;
@@ -536,7 +538,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		x += (rand.nextDouble() - rand.nextDouble()) * 30D;
 	    		z += (rand.nextDouble() - rand.nextDouble()) * 30D;
 	    		
-	    		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(x, 0, z)).getY();
+	    		int yy = world.getHeight(new BlockPos(x, 0, z)).getY();
 	    		double y = yy/*posSpawn.yCoord*/ + 2 + randHeight;
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
@@ -553,7 +555,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		part.setGravity(0.09F);
 	    		part.setAlphaF(1F);
 	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+	    		part.setRBGColorF(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
 	    		part.setScale(100);
 	    		
 	    		part.setKillOnCollide(true);
@@ -621,7 +623,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    //System.out.println("spawn particles at: " + pos);
 	}
 	
-	public Vec3 getRandomPosInSandstorm() {
+	public Vec3 getRandomPosInSnowstorm() {
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
 		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
@@ -646,7 +648,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		return new Vec3(x, 0, z);
 	}
 	
-	public List<Vec3> getSandstormAsShape() {
+	public List<Vec3> getSnowstormAsShape() {
 		List<Vec3> listPoints = new ArrayList<Vec3>();
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
@@ -725,10 +727,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	}
 	
 	@Override
-	public void nbtSyncForClient() {
-		super.nbtSyncForClient();
-
-		CachedNBTTagCompound data = this.getNbtCache();
+	public NBTTagCompound nbtSyncForClient(NBTTagCompound nbt) {
+		NBTTagCompound data = super.nbtSyncForClient(nbt);
 		
 		data.setDouble("posSpawnX", posSpawn.xCoord);
 		data.setDouble("posSpawnY", posSpawn.yCoord);
@@ -745,14 +745,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		/*data.setLong("ID", ID);
 		data.setInteger("size", size);
 		data.setInteger("maxSize", maxSize);*/
-
+		return data;
 	}
 	
 	@Override
-	public void nbtSyncFromServer() {
-		super.nbtSyncFromServer();
-
-		CachedNBTTagCompound parNBT = this.getNbtCache();
+	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+		super.nbtSyncFromServer(parNBT);
 		
 		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
 		
@@ -766,42 +764,25 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	}
 
 	@Override
-	public void readFromNBT()
+	public void readFromNBT(NBTTagCompound var1)
 	{
-		super.readFromNBT();
-		nbtSyncFromServer();
-
-		CachedNBTTagCompound var1 = this.getNbtCache();
+		super.readFromNBT(var1);
+		nbtSyncFromServer(var1);
 
 		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
 	}
 
 	@Override
-	public void writeToNBT()
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		super.writeToNBT();
-		nbtSyncForClient();
-
-		CachedNBTTagCompound nbt = this.getNbtCache();
+		nbt = super.writeToNBT(nbt);
+		nbt = nbtSyncForClient(nbt);
 
 		nbt.setDouble("vecX", motion.xCoord);
 		nbt.setDouble("vecY", motion.yCoord);
 		nbt.setDouble("vecZ", motion.zCoord);
 
-	}
-
-	@Override
-	public void cleanup() {
-		super.cleanup();
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void cleanupClient() {
-		super.cleanupClient();
-		listParticlesCloud.clear();
-		if (particleBehavior != null && particleBehavior.particles != null) particleBehavior.particles.clear();
-		particleBehavior = null;
+		return nbt;
 	}
 
 }

@@ -42,7 +42,7 @@ public class ServerTickHandler
     static {
     	
     	listWeatherMans = new ArrayList();
-    	lookupDimToWeatherMan = new HashMap<Integer, WeatherManagerServer>();
+    	lookupDimToWeatherMan = new HashMap<>();
     	
     }
     
@@ -91,7 +91,7 @@ public class ServerTickHandler
         boolean testRainRequest = false;
         if (testRainRequest) {
         	
-        	List<IMCMessage> listMsgs = new ArrayList<IMCMessage>();
+        	List<IMCMessage> listMsgs = new ArrayList<>();
 	    	listMsgs = FMLInterModComms.fetchRuntimeMessages(Weather.modID);
 	    	for (int i = 0; i < listMsgs.size(); i++) {
 	    		
@@ -115,7 +115,7 @@ public class ServerTickHandler
         boolean debugIMC = false;
         if (debugIMC) {
 	        try {
-		    	List<IMCMessage> listMsgs = new ArrayList<IMCMessage>();
+		    	List<IMCMessage> listMsgs = new ArrayList<>();
 		    	listMsgs = FMLInterModComms.fetchRuntimeMessages(Weather.modID);
 		    	for (int i = 0; i < listMsgs.size(); i++) {
 		    		

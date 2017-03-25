@@ -39,7 +39,7 @@ public class VolcanoObject {
 	public WeatherManagerBase manager;
 	
 	@SideOnly(Side.CLIENT)
-	public List<EntityRotFX> listParticlesSmoke = new ArrayList<EntityRotFX>();
+	public List<EntityRotFX> listParticlesSmoke = new ArrayList<>();
 	@SideOnly(Side.CLIENT)
 	public ParticleBehaviors particleBehaviors;
 	

@@ -21,6 +21,7 @@ import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectSnowstorm;
 
 public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 {
@@ -156,7 +157,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
                         renderLivingLabel("C" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 15, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                     } else {
                         renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconTornado);
-                        renderLivingLabel("F" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 12, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                        renderLivingLabel("EF" + (int)(storm.levelCurIntensityStage - StormObject.levelStormIntensityFormingStartVal), x, y + 1.5F, z, 1, 20, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                     }
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_HAIL) {
                     renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconHail);
@@ -178,6 +179,13 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             } else if (wo instanceof WeatherObjectSandstorm) {
                 renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconSandstorm);
                 if (((WeatherObjectSandstorm)wo).isFrontGrowing) {
+                    renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                } else {
+                    renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                }
+            } else if (wo instanceof WeatherObjectSnowstorm) {
+                renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconSnowstorm);
+                if (((WeatherObjectSnowstorm)wo).isFrontGrowing) {
                     renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 } else {
                     renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);

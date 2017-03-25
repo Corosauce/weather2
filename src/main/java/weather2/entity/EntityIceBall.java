@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -218,5 +219,29 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 	@Override
 	public int getParticleDecayExtra() {
 		return 0;
+	}
+
+	@Override
+	public void setThrowableHeading(double x, double y, double z, float velocity, float inaccuracy) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void entityInit() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void readEntityFromNBT(NBTTagCompound compound) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void writeEntityToNBT(NBTTagCompound compound) {
+		// TODO Auto-generated method stub
+		
 	}
 }

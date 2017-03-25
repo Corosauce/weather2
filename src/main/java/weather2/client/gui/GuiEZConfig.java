@@ -51,7 +51,7 @@ public class GuiEZConfig extends GuiScreen {
 	//public String guiPrev = "";
 	
 	//Elements
-	public HashMap<Integer, GuiButton> buttonsLookup = new HashMap<Integer, GuiButton>();
+	public HashMap<Integer, GuiButton> buttonsLookup = new HashMap<>();
 	//public HashMap<Integer, String> buttonsLookupInt = new HashMap<Integer, String>(); //shouldnt need, just use const button ids -> button
 	//public GuiTextField textboxWorldName;
 	public NBTTagCompound nbtSendCache = new NBTTagCompound();
@@ -92,12 +92,12 @@ public class GuiEZConfig extends GuiScreen {
     public int optionsPerDim = 4;
     public int btnDimIndexStart = 50;
     
-    public List<Integer> listDimIDs = new ArrayList<Integer>();
-    public List<String> listDimNames = new ArrayList<String>();
-    public List<Boolean> listSettingWeather = new ArrayList<Boolean>();
-    public List<Boolean> listSettingClouds = new ArrayList<Boolean>();
-    public List<Boolean> listSettingStorms = new ArrayList<Boolean>();
-    public List<Boolean> listSettingEffects = new ArrayList<Boolean>();
+    public List<Integer> listDimIDs = new ArrayList<>();
+    public List<String> listDimNames = new ArrayList<>();
+    public List<Boolean> listSettingWeather = new ArrayList<>();
+    public List<Boolean> listSettingClouds = new ArrayList<>();
+    public List<Boolean> listSettingStorms = new ArrayList<>();
+    public List<Boolean> listSettingEffects = new ArrayList<>();
 	
 	public GuiEZConfig () {
 		super();
@@ -177,7 +177,7 @@ public class GuiEZConfig extends GuiScreen {
 		
 		//this.drawString(this.fontRenderer, "Server vals = OPs only", xStart+260, yStart+12, 16777215);
 		
-		this.drawString(this.fontRendererObj, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
+		this.drawString(this.fontRendererObj, "NOTE: The Compatibility Tab may crash your game under Java 1.8, Sorry for the inconvenience :(", xStart+7, yStart2-3-4, 16777215);
 		
 		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
 			this.drawString(this.fontRendererObj, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);

@@ -20,7 +20,7 @@ import weather2.config.ConfigTornado;
 
 public class WeatherUtil {
 
-	public static HashMap<Block, Boolean> blockIDToUseMapping = new HashMap<Block, Boolean>();
+	public static HashMap<Block, Boolean> blockIDToUseMapping = new HashMap<>();
 	
     public static boolean isPaused() {
     	if (FMLClientHandler.instance().getClient().isGamePaused()) return true;
