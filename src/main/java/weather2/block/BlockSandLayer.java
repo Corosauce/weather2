@@ -217,7 +217,7 @@ public class BlockSandLayer extends Block
         return ((Integer)state.getValue(LAYERS)).intValue() - 1;
     }
 
-    @Override public int quantityDropped(IBlockState state, int fortune, Random random){ return ((Integer)state.getValue(LAYERS)) + 1; }
+    @Override public int quantityDropped(IBlockState state, int fortune, Random random){ return ((Integer)state.getValue(LAYERS)); }
 
     @Override
     protected BlockStateContainer createBlockState()

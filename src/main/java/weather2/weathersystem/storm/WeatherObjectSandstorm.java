@@ -448,6 +448,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		double y = pos.yCoord + (heightLayer * distBetweenParticles * 2);
 			    		
 			    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+						if (WeatherUtil.isAprilFoolsDay()) {
+							sprite = ParticleRegistry.chicken;
+						}
 			    		
 			    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
 			    				, 0, 0, 0, sprite);
@@ -540,6 +543,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		double y = yy/*posSpawn.yCoord*/ + 2 + randHeight;
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+	    		if (WeatherUtil.isAprilFoolsDay()) {
+	    			sprite = ParticleRegistry.chicken;
+				}
 	    		
 	    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
 	    				, 0, 0, 0, sprite);

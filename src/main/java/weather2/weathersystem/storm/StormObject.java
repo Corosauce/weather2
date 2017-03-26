@@ -8,6 +8,7 @@ import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntitySquid;
@@ -1458,7 +1459,12 @@ public class StormObject extends WeatherObject {
 					
 					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
-						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
+						EntityRotFX particle;
+						if (WeatherUtil.isAprilFoolsDay()) {
+							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+						} else {
+							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
+						}
 						
 				    	/*if (layer == 0) {
 				    		particle.particleScale = 500;
@@ -1489,7 +1495,12 @@ public class StormObject extends WeatherObject {
 					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.yCoord, pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						int groundY = WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos((int)tryPos.xCoord, 0, (int)tryPos.zCoord)).getY();
-						EntityRotFX particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 0);
+						EntityRotFX particle;
+						if (WeatherUtil.isAprilFoolsDay()) {
+							particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 0, ParticleRegistry.potato);
+						} else {
+							particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 0);
+						}
 						
 						particle.setScale(100);
 						particle.rotationYaw = rand.nextInt(360);
@@ -1560,7 +1571,12 @@ public class StormObject extends WeatherObject {
 						//int y = entP.worldObj.getPrecipitationHeight((int)tryPos.xCoord, (int)tryPos.zCoord);
 						
 						if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
-							EntityRotFX particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
+							EntityRotFX particle;
+							if (WeatherUtil.isAprilFoolsDay()) {
+								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.potato);
+							} else {
+								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
+							}
 							
 							//move these to a damn profile damnit!
 							particle.setMaxAge(150 + ((levelCurIntensityStage-1) * 100) + rand.nextInt(100));
@@ -2119,14 +2135,17 @@ public class StormObject extends WeatherObject {
         	ent.setPosition(ent.posX + ent.motionX * 5F, ent.posY, ent.posZ + ent.motionZ * 5F);
         }
     }
-	
-	
+
+	@SideOnly(Side.CLIENT)
+	public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder) {
+		return spawnFogParticle(x, y, z, parRenderOrder, ParticleRegistry.cloud256);
+	}
 	
 	@SideOnly(Side.CLIENT)
-    public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder) {
+    public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder, TextureAtlasSprite tex) {
     	double speed = 0D;
 		Random rand = new Random();
-    	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, ParticleRegistry.cloud256, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
+    	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, tex, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
 		particleBehaviorFog.initParticle(entityfx);
 		
 		//potato

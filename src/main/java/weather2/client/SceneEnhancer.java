@@ -58,9 +58,6 @@ import static CoroUtil.util.CoroUtilMisc.adjVal;
 
 @SideOnly(Side.CLIENT)
 public class SceneEnhancer implements Runnable {
-
-	//potential ideas:
-    //TROPICRAFT FLOWER SPAWN POLLEN!
 	
 	//this is for the thread we make
 	public World lastWorldDetected = null;
@@ -405,7 +402,12 @@ public class SceneEnhancer implements Runnable {
 			EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
 			
 			if (entP.posY >= StormObject.static_YPos_layer0) return;
-			
+
+			WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
+			if (weatherMan == null) return;
+			WindManager windMan = weatherMan.getWindManager();
+			if (windMan == null) return;
+
 			float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 			
 			float maxPrecip = 0.5F;
@@ -435,6 +437,7 @@ public class SceneEnhancer implements Runnable {
 
 				if (curPrecipVal > 0) {
 
+					//rain
 					if (entP.worldObj.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
 
 
@@ -459,6 +462,9 @@ public class SceneEnhancer implements Runnable {
 								rain.setKillOnCollide(true);
 								rain.windWeight = 1F;
 								rain.setFacePlayer(false);
+								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+								//rain.setTicksFadeInMax(2);
+								//rain.setAlphaF(0);
 								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 								rain.setMotionY(-0.5D/*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*/);
 								rain.spawnAsWeatherEffect();
@@ -486,6 +492,8 @@ public class SceneEnhancer implements Runnable {
 								snow.windWeight = 0.2F;
 								snow.setMaxAge(200);
 								snow.setFacePlayer(false);
+								snow.setTicksFadeInMax(10);
+								snow.setAlphaF(0);
 								snow.setCanCollide(true);
 								snow.setKillOnCollide(true);
 								snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;

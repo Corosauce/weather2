@@ -1,5 +1,6 @@
 package weather2.util;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -286,6 +287,16 @@ public class WeatherUtil {
         if (dbgShow) {
         	System.out.println(dbg);
         }
+    }
+
+    public static boolean isAprilFoolsDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        //test
+        //return calendar.get(Calendar.MONTH) == Calendar.MARCH && calendar.get(Calendar.DAY_OF_MONTH) == 25;
+
+        return calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
     }
     
     
