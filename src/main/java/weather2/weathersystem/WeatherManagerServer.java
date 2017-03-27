@@ -17,6 +17,7 @@ import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigStorm;
+import weather2.config.ConfigTornado;
 import weather2.player.PlayerData;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
@@ -150,7 +151,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
-			if (WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
+			if (!ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {

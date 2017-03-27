@@ -10,6 +10,9 @@ import java.io.File;
 public class ConfigSand implements IConfigCategory {
 
 
+    @ConfigComment("Takes the sand out of sandwiches")
+    public static boolean Storm_NoSandstorms = false;
+
 	//sandstorm settings
 	public static boolean Sandstorm_UseGlobalServerRate = false;
 	public static int Sandstorm_OddsTo1 = 30;

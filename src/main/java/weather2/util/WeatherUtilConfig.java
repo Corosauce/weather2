@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import modconfig.ConfigMod;
+import modconfig.IConfigCategory;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -18,11 +19,7 @@ import net.minecraftforge.common.DimensionManager;
 import org.apache.commons.lang3.StringUtils;
 
 import weather2.Weather;
-import weather2.config.ConfigMisc;
-import weather2.config.ConfigParticle;
-import weather2.config.ConfigSnow;
-import weather2.config.ConfigStorm;
-import weather2.config.ConfigTornado;
+import weather2.config.*;
 import CoroUtil.util.CoroUtilFile;
 
 public class WeatherUtilConfig {
@@ -49,8 +46,10 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PREF_CHANCEOFRAIN = 10;
 	public static int CMD_BTN_PREF_BLOCKDESTRUCTION = 11;
 	public static int CMD_BTN_PREF_TORNADOANDCYCLONES = 15;
+	public static int CMD_BTN_PREF_SANDSTORMS = 16;
+	public static int CMD_BTN_PREF_GLOBALRATE = 17;
 	
-	public static int CMD_BTN_HIGHEST_ID = 15;
+	public static int CMD_BTN_HIGHEST_ID = 17;
 
 	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
 	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
@@ -58,7 +57,8 @@ public class WeatherUtilConfig {
 	public static List<String> LIST_CHANCE = new ArrayList<String>(Arrays.asList("1/2 Day", "1 Day", "2 Days", "3 Days", "4 Days", "5 Days", "6 Days", "7 Days", "8 Days", "9 Days", "10 Days", "Never"));
 	
 	public static List<String> LIST_STORMSWHEN = new ArrayList<String>(Arrays.asList("Local Biomes", "Global Overcast"));
-	public static List<String> LIST_LOCK = new ArrayList<String>(Arrays.asList("Off", "On", "Don't lock"));
+	public static List<String> LIST_LOCK = new ArrayList<String>(Arrays.asList("Always Off", "Always On", "Don't lock"));
+	public static List<String> LIST_GLOBALRATE = new ArrayList<String>(Arrays.asList("Rand player", "Each player"));
 	
 	public static List<Integer> listSettingsClient = new ArrayList<Integer>();
 	public static List<Integer> listSettingsServer = new ArrayList<Integer>();
@@ -87,6 +87,8 @@ public class WeatherUtilConfig {
 		listSettingsServer.add(CMD_BTN_PREF_CHANCEOFRAIN);
 		listSettingsServer.add(CMD_BTN_PREF_BLOCKDESTRUCTION);
 		listSettingsServer.add(CMD_BTN_PREF_TORNADOANDCYCLONES);
+		listSettingsServer.add(CMD_BTN_PREF_SANDSTORMS);
+		listSettingsServer.add(CMD_BTN_PREF_GLOBALRATE);
 	}
 	
 	//client should call this on detecting a close/save of GUI
@@ -201,7 +203,7 @@ public class WeatherUtilConfig {
 		
 		Weather.dbg("nbtServerData: " + nbtServerData);
 		
-		String modID = "weather2Misc";
+		//String modID = "weather2Misc";
 		
 		try {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_STORM)) {
@@ -272,6 +274,17 @@ public class WeatherUtilConfig {
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)) {
 				ConfigTornado.Storm_NoTornadosOrCyclones = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_TORNADOANDCYCLONES)).equalsIgnoreCase("off");
+			}
+
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_SANDSTORMS)) {
+				ConfigSand.Storm_NoSandstorms = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_SANDSTORMS)).equalsIgnoreCase("off");
+			}
+
+			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_GLOBALRATE)) {
+				ConfigStorm.Server_Storm_Deadly_UseGlobalRate = nbtServerData.getInteger("btn_" + CMD_BTN_PREF_GLOBALRATE) == 0;
+				ConfigSand.Sandstorm_UseGlobalServerRate = nbtServerData.getInteger("btn_" + CMD_BTN_PREF_GLOBALRATE) == 0;
+
+				//System.out.println("ConfigStorm.Server_Storm_Deadly_UseGlobalRate: " + ConfigStorm.Server_Storm_Deadly_UseGlobalRate);
 			}
 			
 			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
@@ -348,8 +361,16 @@ public class WeatherUtilConfig {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
-		ConfigMod.configLookup.get(modID).writeConfigFile(true);
+
+		for (IConfigCategory config : Weather.listConfigs) {
+			//refresh configmods caches and data
+			ConfigMod.configLookup.get(config.getRegistryName()).writeConfigFile(true);
+			//not needed
+			//ConfigMod.populateData(config.getRegistryName());
+		}
+
+		//ConfigMod.configLookup.get(modID).writeConfigFile(true);
+		//ConfigMod.populateData(modID);
 		
 		//work lists here
 		

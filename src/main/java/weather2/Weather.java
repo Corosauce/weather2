@@ -1,6 +1,7 @@
 package weather2;
 
 import modconfig.ConfigMod;
+import modconfig.IConfigCategory;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +19,9 @@ import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
 import CoroUtil.util.CoroUtilFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil")
 public class Weather {
 	
@@ -34,7 +38,9 @@ public class Weather {
     
     public static String eventChannelName = "weather2";
 	public static final FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(eventChannelName);
-    
+
+	public static List<IConfigCategory> listConfigs = new ArrayList<>();
+
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -42,17 +48,28 @@ public class Weather {
     	
     	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
 		
-    	ConfigMod.addConfigFile(event, new ConfigMisc());
-		ConfigMod.addConfigFile(event, new ConfigWind());
-		ConfigMod.addConfigFile(event, new ConfigSand());
-		ConfigMod.addConfigFile(event, new ConfigSnow());
-		ConfigMod.addConfigFile(event, new ConfigStorm());
-		ConfigMod.addConfigFile(event, new ConfigTornado());
-		ConfigMod.addConfigFile(event, new ConfigParticle());
+    	ConfigMod.addConfigFile(event, addConfig(new ConfigMisc()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigWind()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigSand()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigSnow()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigStorm()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigTornado()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigParticle()));
     	WeatherUtilConfig.nbtLoadDataAll();
 
 		proxy.preInit();
     }
+
+	/**
+	 * To work around the need to force a configmod refresh on these when EZ GUI changes values
+	 *
+	 * @param config
+	 * @return
+	 */
+	public static IConfigCategory addConfig(IConfigCategory config) {
+		listConfigs.add(config);
+		return config;
+	}
     
 	@Mod.EventHandler
     public void load(FMLInitializationEvent event)

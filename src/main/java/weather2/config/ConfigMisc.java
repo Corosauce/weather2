@@ -52,6 +52,18 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Block_WeatherMachineNoTornadosOrCyclones = false;
 
 	public static boolean Block_WeatherMachineNoRecipe = false;
+	public static boolean Block_SensorNoRecipe = false;
+	public static boolean Block_SirenNoRecipe = false;
+	public static boolean Block_WindVaneNoRecipe = false;
+	public static boolean Block_AnemometerNoRecipe = false;
+	public static boolean Block_WeatherForecastNoRecipe = false;
+	public static boolean Block_WeatherDeflectorNoRecipe = false;
+	public static boolean Block_SandLayerNoRecipe = false;
+	public static boolean Block_SandNoRecipe = false;
+	public static boolean Item_PocketSandNoRecipe = false;
+	@ConfigComment("Disabling this recipe will keep them from using other recipes since it depends on this item")
+	public static boolean Item_WeatherItemNoRecipe = false;
+
 	
 	//dimension settings
 	public static String Dimension_List_Weather = "0,-127";
