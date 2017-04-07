@@ -156,11 +156,13 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
 						//get a random player to try and spawn for, will recycle another if it cant spawn
-						EntityPlayer entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
+						if (world.playerEntities.size() > 0) {
+							EntityPlayer entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
 
-						boolean sandstormMade = trySandstormForPlayer(entP, lastSandstormFormed);
-						if (sandstormMade) {
-							lastSandstormFormed = world.getTotalWorldTime();
+							boolean sandstormMade = trySandstormForPlayer(entP, lastSandstormFormed);
+							if (sandstormMade) {
+								lastSandstormFormed = world.getTotalWorldTime();
+							}
 						}
 					} else {
 						for (int i = 0; i < world.playerEntities.size(); i++) {
