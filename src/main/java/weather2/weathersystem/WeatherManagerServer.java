@@ -118,7 +118,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 20 == 0) {
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
-					EntityPlayer closestPlayer = world.getClosestPlayer(so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff, false);
+					EntityPlayer closestPlayer = world.getClosestPlayer(so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff, true);
 					
 					//isDead check is done in WeatherManagerBase
 					if (closestPlayer == null) {
