@@ -422,6 +422,8 @@ public class SceneEnhancer implements Runnable {
 		StormObject storm = null;
 		
 		ClientTickHandler.checkClientWeather();
+
+		if (ClientTickHandler.weatherManager == null) return 0;
 		
 		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
 		

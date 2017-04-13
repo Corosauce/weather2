@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: :forgeSrc:1.7.10-10.13.0.1180" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.2.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:guava:17.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.ibm.icu:icu4j-core-mojang:51.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.mojang:authlib:1.5.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.mojang:realms:1.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.paulscode:codecjorbis:20101023" level="project" />
+    <orderEntry type="library" name="Gradle: com.paulscode:codecwav:20101023" level="project" />
+    <orderEntry type="library" name="Gradle: com.paulscode:libraryjavasound:20101123" level="project" />
+    <orderEntry type="library" name="Gradle: com.paulscode:librarylwjglopenal:20100824" level="project" />
+    <orderEntry type="library" name="Gradle: com.paulscode:soundsystem:20120107" level="project" />
+    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-actor_2.11:2.3.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.typesafe:config:1.2.1" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.9" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.1.3" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-all:4.0.10.Final" level="project" />
+    <orderEntry type="library" name="Gradle: java3d:vecmath:1.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: lzma:lzma:0.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-linux" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-osx" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-windows" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.jinput:jinput:2.0.5" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.jutils:jutils:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: net.minecraft:launchwrapper:1.9" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.jopt-simple:jopt-simple:4.5" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.trove4j:trove4j:3.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-compress:1.8.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.3.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.3.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-api:2.0-beta9" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-core:2.0-beta9" level="project" />
+    <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-linux" level="project" />
+    <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-osx" level="project" />
+    <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-windows" level="project" />
+    <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl:2.9.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl_util:2.9.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.ow2.asm:asm-debug-all:4.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang.modules:scala-xml_2.11:1.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-actors-migration_2.11:1.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-actors:2.11.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-compiler:2.11.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-library:2.11.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-parser-combinators_2.11:1.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-reflect:2.11.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-swing_2.11:1.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.scala-lang:scala-xml_2.11:1.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch-external-platform:4.5:natives-windows-32" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch-external-platform:4.5:natives-windows-64" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:5.16:natives-osx" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:5.16:natives-windows-32" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:5.16:natives-windows-64" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch:5.16" level="project" />
+    <orderEntry type="module" module-name="CoroUtil_1.7.10" />
+  </component>
+</module>

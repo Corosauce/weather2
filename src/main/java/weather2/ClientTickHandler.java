@@ -126,7 +126,10 @@ public class ClientTickHandler
     			ClientTickHandler.init(FMLClientHandler.instance().getClient().theWorld);
         	}
     	} catch (Exception ex) {
-    		Weather.dbg("Warning, Weather2 client received packet before it was ready to use, and failed to init client weather due to null world");
+			//always get output for this
+			System.out.println("Warning, Weather2 weatherManager init failed for some reason, printing stacktrace, report to https://github.com/Corosauce/weather2/issues");
+			ex.printStackTrace();
+			//Weather.dbg("Warning, Weather2 client received packet before it was ready to use, and failed to init client weather due to null world");
     	}
     }
     
