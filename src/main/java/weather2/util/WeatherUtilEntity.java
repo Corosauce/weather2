@@ -225,4 +225,28 @@ public class WeatherUtilEntity {
 		}
 		return false;
 	}
+
+    public static EntityPlayer getClosestPlayerAny(World world, double posX, double posY, double posZ, double distance)
+    {
+        double d0 = -1.0D;
+        EntityPlayer entityplayer = null;
+
+        for (int i = 0; i < world.playerEntities.size(); ++i)
+        {
+            EntityPlayer entityplayer1 = (EntityPlayer)world.playerEntities.get(i);
+
+            //if ((EntitySelectors.CAN_AI_TARGET.apply(entityplayer1) || !spectator) && (EntitySelectors.NOT_SPECTATING.apply(entityplayer1) || spectator))
+            //{
+            double d1 = entityplayer1.getDistanceSq(posX, posY, posZ);
+
+            if ((distance < 0.0D || d1 < distance * distance) && (d0 == -1.0D || d1 < d0))
+            {
+                d0 = d1;
+                entityplayer = entityplayer1;
+            }
+            //}
+        }
+
+        return entityplayer;
+    }
 }

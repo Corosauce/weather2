@@ -22,6 +22,7 @@ import weather2.player.PlayerData;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
+import weather2.util.WeatherUtilEntity;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
@@ -118,7 +119,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 20 == 0) {
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
-					EntityPlayer closestPlayer = world.getClosestPlayer(so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff, true);
+					EntityPlayer closestPlayer = WeatherUtilEntity.getClosestPlayerAny(world, so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
 					
 					//isDead check is done in WeatherManagerBase
 					if (closestPlayer == null) {

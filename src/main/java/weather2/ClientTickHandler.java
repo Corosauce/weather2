@@ -34,6 +34,9 @@ public class ClientTickHandler
 	public boolean hasOpenedConfig = false;
 	
 	public GuiButton configButton;
+
+	//storing old reference to help retain any modifications done by other mods (dynamic surroundings asm)
+	public EntityRenderer oldRenderer;
 	
 	public ClientTickHandler() {
 		//this constructor gets called multiple times when created from proxy, this prevents multiple inits
@@ -75,12 +78,18 @@ public class ClientTickHandler
         
         if (ConfigMisc.Misc_proxyRenderOverrideEnabled) {
         	if (!(mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
+				oldRenderer = mc.entityRenderer;
         		EntityRendererProxyWeather2Mini temp = new EntityRendererProxyWeather2Mini(mc, mc.getResourceManager());
 		        mc.entityRenderer = temp;
         	}
     	} else {
     		if ((mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
-    			mc.entityRenderer = new EntityRenderer(mc, mc.getResourceManager());
+    			if (oldRenderer != null) {
+    				mc.entityRenderer = oldRenderer;
+				} else {
+					mc.entityRenderer = new EntityRenderer(mc, mc.getResourceManager());
+				}
+
     		}
     	}
 
