@@ -24,6 +24,8 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Misc_ForceVanillaCloudsOff = true;
 	public static int Misc_AutoDataSaveIntervalInTicks = 20*60*30;
 	public static boolean consoleDebug = false;
+
+	public static boolean radarCloudDebug = false;
 	
 	//Weather
 	@ConfigComment("If true, lets server side do vanilla weather rules, weather2 will only make storms when server side says 'rain' is on")
@@ -32,13 +34,16 @@ public class ConfigMisc implements IConfigCategory {
 	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
 	//clouds
 	public static int Cloud_ParticleSpawnDelay = 0;
-	public static int Cloud_Formation_MinDistBetweenSpawned = 256;
+	public static int Cloud_Formation_MinDistBetweenSpawned = 300;
 	@ConfigComment("For a second layer of passive non storm progressing clouds")
 	public static boolean Cloud_Layer1_Enable = false;
 	public static int Cloud_Layer0_Height = 200;
 	public static int Cloud_Layer1_Height = 350;
 	@ConfigComment("Not used at the moment")
 	public static int Cloud_Layer2_Height = 500;
+
+	@ConfigComment("How much to randomly change cloud coverage amount, performed every 10 seconds")
+	public static double Cloud_Coverage_Random_Change_Amount = 0.05D;
 	
 	public static int Thread_Particle_Process_Delay = 400;
 	//sound

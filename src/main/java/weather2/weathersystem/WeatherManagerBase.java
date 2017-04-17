@@ -49,7 +49,10 @@ public class WeatherManagerBase {
 	public long lastStormFormed = 0;
 
 	public long lastSandstormFormed = 0;
-	
+
+	//0 = none, 1 = usual max overcast
+	public float cloudIntensity = 1F;
+
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
 		windMan = new WindManager(this);
@@ -445,6 +448,8 @@ public class WeatherManagerBase {
 
 		mainNBT.setLong("lastSandstormFormed", lastSandstormFormed);
 
+		mainNBT.setFloat("cloudIntensity", this.cloudIntensity);
+
 		mainNBT.setTag("windMan", windMan.writeToNBT(new NBTTagCompound()));
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
@@ -504,6 +509,11 @@ public class WeatherManagerBase {
 		
 		lastStormFormed = rtsNBT.getLong("lastStormFormed");
 		lastSandstormFormed = rtsNBT.getLong("lastSandstormFormed");
+
+		//prevent setting to 0 for worlds updating to new weather version
+		if (rtsNBT.hasKey("cloudIntensity")) {
+			cloudIntensity = rtsNBT.getFloat("cloudIntensity");
+		}
 		
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
 		WeatherObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");

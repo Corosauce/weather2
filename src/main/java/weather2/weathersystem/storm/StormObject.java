@@ -177,6 +177,11 @@ public class StormObject extends WeatherObject {
     //public static long lastStormFormed = 0;
     
     public boolean canBeDeadly = true;
+
+	/**
+	 * Populate sky with stormless/cloudless storm objects in order to allow clear skies with current design
+	 */
+	public boolean cloudlessStorm = false;
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -216,7 +221,15 @@ public class StormObject extends WeatherObject {
 		
 		 
 	}
-	
+
+	public boolean isCloudlessStorm() {
+		return cloudlessStorm;
+	}
+
+	public void setCloudlessStorm(boolean cloudlessStorm) {
+		this.cloudlessStorm = cloudlessStorm;
+	}
+
 	public boolean isPrecipitating() {
 		return attrib_precipitation;
 	}
@@ -327,6 +340,8 @@ public class StormObject extends WeatherObject {
 		//overCastModeAndRaining = parNBT.getBoolean("overCastModeAndRaining");
 		
 		isDead = parNBT.getBoolean("isDead");
+
+		cloudlessStorm = parNBT.getBoolean("cloudlessStorm");
 		
 		ticksSinceLastPacketReceived = 0;//manager.getWorld().getTotalWorldTime();
 	}
@@ -368,6 +383,8 @@ public class StormObject extends WeatherObject {
 		//data.setBoolean("overCastModeAndRaining", overCastModeAndRaining);
 		
 		data.setBoolean("isDead", isDead);
+
+		data.setBoolean("cloudlessStorm", cloudlessStorm);
 
 	}
 	
@@ -420,15 +437,15 @@ public class StormObject extends WeatherObject {
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 				tornadoHelper.tick(manager.getWorld());
 			}
-			
+
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
 				if (manager.getWorld().isRemote) {
 					tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 		        }
 			}
-			
+
 			//debug \\
-			
+
 			//maxSize = 200;
 			//isGrowing = true;
 			
@@ -444,17 +461,19 @@ public class StormObject extends WeatherObject {
 			attrib_tornado_severity = 0;*/
 			//attrib_tornado_severity = ATTRIB_F1;
 			//debug //
-			
-			
-			
+
+
+
 			tickMovement();
-			
+
 			//System.out.println("cloud motion: " + motion + " wind angle: " + angle);
-			
+
 			if (layer == 0) {
-				tickWeatherEvents();
-				tickProgression();
-				tickSnowFall();
+				if (!isCloudlessStorm()) {
+					tickWeatherEvents();
+					tickProgression();
+					tickSnowFall();
+				}
 			} else {
 				//make layer 1 max size for visuals
 				size = maxSize;
@@ -1056,10 +1075,12 @@ public class StormObject extends WeatherObject {
 							
 							if (wo instanceof StormObject) {
 								StormObject so = (StormObject) wo;
-								
+
+
+
 								boolean startStorm = false;
 								
-								if (so.ID != this.ID && so.levelCurIntensityStage <= 0) {
+								if (so.ID != this.ID && so.levelCurIntensityStage <= 0 && !so.isCloudlessStorm()) {
 									if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
 										if (this.levelTemperature < 0) {
 											if (so.levelTemperature > 0) {
@@ -1376,6 +1397,9 @@ public class StormObject extends WeatherObject {
 	
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
+
+		if (isCloudlessStorm()) return;
+
 		if (particleBehaviorFog == null) {
 			particleBehaviorFog = new ParticleBehaviorFog(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;

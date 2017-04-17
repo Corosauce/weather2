@@ -23,7 +23,7 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Storm_Rain_WaterSpendRate = 3;
 	public static int Storm_Rain_WaterBuildUpOddsTo1FromSource = 15;
 	public static int Storm_Rain_WaterBuildUpOddsTo1FromNothing = 100;
-	public static int Storm_Rain_WaterBuildUp = 150;
+	//public static int Storm_Rain_WaterBuildUp = 150;
 	public static double Storm_TemperatureAdjustRate = 0.1D;
 	//public static double Storm_Deadly_MinIntensity = 5.3D;
 	public static int Storm_HailPerTick = 10;

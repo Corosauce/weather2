@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ClientTickHandler;
+import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import weather2.weathersystem.storm.WeatherObject;
@@ -37,8 +38,19 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
     	if (worldObj.isRemote) {
     		if (worldObj.getTotalWorldTime() % 200 == 0) {
     			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024, StormObject.STATE_THUNDER, true);
-    			
-    			storms = ClientTickHandler.weatherManager.getStormsAround(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024);
+
+    			if (ConfigMisc.radarCloudDebug) {
+    				//storms.clear();
+					List<WeatherObject> listAdd = new ArrayList<>();
+    				for (WeatherObject wo : ClientTickHandler.weatherManager.getStormObjects()) {
+    					//if (wo instanceof StormObject && !((StormObject) wo).isCloudlessStorm()) {
+							listAdd.add(wo);
+						//}
+					}
+					storms = listAdd;
+				} else {
+					storms = ClientTickHandler.weatherManager.getStormsAround(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024);
+				}
     		}
     	} else {
     		/*if (mapHandler == null) {

@@ -57,30 +57,10 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		if (WeatherObject.lastUsedStormID >= Long.MAX_VALUE) {
 			WeatherObject.lastUsedStormID = 0;
 		}
+
+		tickWeatherCoverage();
 		
 		if (world != null) {
-			
-			if (!ConfigMisc.overcastMode) {
-				if (ConfigMisc.lockServerWeatherMode != -1) {
-					world.getWorldInfo().setRaining(ConfigMisc.lockServerWeatherMode == 1);
-			    	world.getWorldInfo().setThundering(ConfigMisc.lockServerWeatherMode == 1);
-				}
-			}
-			
-			if (ConfigStorm.preventServerThunderstorms) {
-				world.getWorldInfo().setThundering(false);
-			}
-			
-			//if (ConfigMisc.overcastMode) {
-				if (world.getTotalWorldTime() % 400 == 0) {
-					isVanillaRainActiveOnServer = getWorld().isRaining();
-					syncWeatherVanilla();
-				}
-			//}
-			
-			if (world.getTotalWorldTime() % 400 == 0) {
-				//Weather.dbg("for dim: " + world.provider.dimensionId + " - is server dimension raining?: " + world.isRaining() + " time: " + world.getWorldInfo().getRainTime());
-			}
 			
 			//sync storms
 			
@@ -129,22 +109,58 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				}
 
 				Random rand = new Random();
+
+				//test with high wind to maximize movement/recycling
+				//cloud data:
+				//0.6: 19-20/20
+				//0.5: 17-18/20
+				//0.4: 16-17/20
+				//0.3: 16-18/20?
+				//0.2: 12/20?
+
+				/**
+				 * max size of cloud sets = 300 radius
+				 * sim box size = 1024 radius
+				 *
+				 * ~9 cloud sets in a player simbox
+				 */
+
+				//TEMP!!!
+				/*windMan.startHighWindEvent();
+				cloudIntensity = 0.3F;
+				int countDbg = 0;
+				int countDbg2 = 0;
+				for (StormObject so : getStormObjectsByLayer(0)) {
+					if (!so.isCloudlessStorm()) {
+						countDbg++;
+					} else {
+						countDbg2++;
+					}
+				}
+				System.out.println("cloud/cloudless/max count: " + countDbg + "/" + countDbg2 + "/" + (ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()));*/
 				
 				//cloud formation spawning - REFINE ME!
 				for (int i = 0; i < world.playerEntities.size(); i++) {
 					EntityPlayer entP = (EntityPlayer) world.playerEntities.get(i);
 					
 					//Weather.dbg("getStormObjects().size(): " + getStormObjects().size());
-					
+
+					//layer 0
 					if (getStormObjectsByLayer(0).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (rand.nextInt(5) == 0) {
-							trySpawnStormCloudNearPlayerForLayer(entP, 0);
+							//if (rand.nextFloat() <= cloudIntensity) {
+								trySpawnStormCloudNearPlayerForLayer(entP, 0);
+							//}
 						}
 					}
+
+					//layer 1
 					if (getStormObjectsByLayer(1).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 						if (ConfigMisc.Cloud_Layer1_Enable) {
 							if (rand.nextInt(5) == 0) {
-								trySpawnStormCloudNearPlayerForLayer(entP, 1);
+								//if (rand.nextFloat() <= cloudIntensity) {
+									trySpawnStormCloudNearPlayerForLayer(entP, 1);
+								//}
 							}
 						}
 					}
@@ -176,6 +192,49 @@ public class WeatherManagerServer extends WeatherManagerBase {
 						}
 					}
 				}
+			}
+		}
+	}
+
+	public void tickWeatherCoverage() {
+		World world = this.getWorld();
+		if (world != null) {
+			if (!ConfigMisc.overcastMode) {
+				if (ConfigMisc.lockServerWeatherMode != -1) {
+					world.getWorldInfo().setRaining(ConfigMisc.lockServerWeatherMode == 1);
+					world.getWorldInfo().setThundering(ConfigMisc.lockServerWeatherMode == 1);
+				}
+			}
+
+			if (ConfigStorm.preventServerThunderstorms) {
+				world.getWorldInfo().setThundering(false);
+			}
+
+			//if (ConfigMisc.overcastMode) {
+			if (world.getTotalWorldTime() % 400 == 0) {
+				isVanillaRainActiveOnServer = getWorld().isRaining();
+				syncWeatherVanilla();
+			}
+			//}
+
+			if (world.getTotalWorldTime() % 400 == 0) {
+				//Weather.dbg("for dim: " + world.provider.dimensionId + " - is server dimension raining?: " + world.isRaining() + " time: " + world.getWorldInfo().getRainTime());
+			}
+
+			//tick partial cloud cover variation
+			//windMan.startHighWindEvent();
+			//windMan.stopLowWindEvent();
+			//cloudIntensity = 0.3F;
+
+			if (world.getTotalWorldTime() % 200 == 0) {
+				Random rand = new Random();
+				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
+				if (cloudIntensity < 0.6F) {
+					cloudIntensity = 0.6F;
+				} else if (cloudIntensity > 1F) {
+					cloudIntensity = 1F;
+				}
+				//Weather.dbg("cloudIntensity: " + cloudIntensity);
 			}
 		}
 	}
@@ -343,6 +402,9 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				so.canBeDeadly = false;
 			}
 			so.userSpawnedFor = CoroUtilEntity.getName(entP);
+			if (rand.nextFloat() >= cloudIntensity) {
+				so.setCloudlessStorm(true);
+			}
 			addStormObject(so);
 			syncStormNew(so);
 		} else {

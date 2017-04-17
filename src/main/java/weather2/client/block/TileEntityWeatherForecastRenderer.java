@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 import weather2.ClientProxy;
 import weather2.api.WindReader;
 import weather2.block.TileEntityWeatherForecast;
+import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
@@ -166,14 +167,22 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
                     renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconWind);
                 } else if (storm.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
                     renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconLightning);
-                } else {
+                } else if (storm.isPrecipitating()) {
                     renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconRain);
                 }
 
                 if (storm.hasStormPeaked && (storm.levelCurIntensityStage > storm.STATE_NORMAL)) {
                     renderLivingLabel("\u00A7" + '4' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 } else {
-                    renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                    if (ConfigMisc.radarCloudDebug) {
+                        if (storm.isCloudlessStorm()) {
+                            renderLivingLabel("\u00A7" + '0' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                        } else {
+                            renderLivingLabel("\u00A7" + 'f' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                        }
+                    } else {
+                        renderLivingLabel("\u00A7" + '2' + "|", x, y + 1.2F, z, 1, 5, 5, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                    }
                 }
             } else if (wo instanceof WeatherObjectSandstorm) {
                 renderIconNew(x, y + 1.4F, z, 16, 16, Minecraft.getMinecraft().getRenderManager().playerViewY, ClientProxy.radarIconSandstorm);

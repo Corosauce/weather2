@@ -217,6 +217,9 @@ public class WindManager {
 								Weather.dbg("low wind event started, for ticks: " + lowWindTimer);
 							}
 						}
+					} else {
+						//fix edge case where if a high wind event is manually started, low wind could still be trying to take control
+						stopLowWindEvent();
 					}
 					
 					if (ConfigWind.Wind_HighWindEvents && highWindTimer <= 0) {
