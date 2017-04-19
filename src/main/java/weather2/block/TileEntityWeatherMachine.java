@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
+import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigTornado;
 import weather2.weathersystem.WeatherManagerServer;
@@ -36,8 +37,12 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	public int weatherSize = 50;
 	//prevent storm moving via wind
 	public boolean lockStormHere = true;
-	
+
+	//TODO: replace with ID and just lookup each time, for better serialization
 	public StormObject lastTickStormObject = null;
+
+	//for tracking between world reloads
+	public long lastTickStormObjectID = -1;
 
 	public void cycleWeatherType() {
 		weatherType++;
@@ -81,6 +86,19 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     			if (lastTickStormObject != null && lastTickStormObject.isDead) {
     				lastTickStormObject = null;
     			}
+
+    			//for when world is reloaded, regrab instance so a duplicate isnt greated (and so old one doesnt get loose)
+    			if (lastTickStormObject == null && lastTickStormObjectID != -1) {
+					WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
+
+					if (manager != null) {
+						StormObject obj = manager.getStormObjectByID(lastTickStormObjectID);
+						if (obj != null) {
+							lastTickStormObject = obj;
+							Weather.dbg("regrabbed old storm instance by ID " + obj.ID + " for weather machine");
+						}
+					}
+				}
     			
     			if (lastTickStormObject == null) {
     				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
@@ -98,6 +116,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     					manager.addStormObject(so);
     					manager.syncStormNew(so);
     					lastTickStormObject = so;
+    					lastTickStormObjectID = so.ID;
     				}
     			}
     		}
@@ -151,6 +170,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     public NBTTagCompound writeToNBT(NBTTagCompound var1)
     {
         var1.setInteger("weatherType", weatherType);
+        var1.setLong("lastTickStormObjectID", lastTickStormObjectID);
         return super.writeToNBT(var1);
     }
 
@@ -159,6 +179,9 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     {
         super.readFromNBT(var1);
         weatherType = var1.getInteger("weatherType");
+        if (var1.hasKey("lastTickStormObjectID")) {
+			lastTickStormObjectID = var1.getLong("lastTickStormObjectID");
+		}
 
     }
 }

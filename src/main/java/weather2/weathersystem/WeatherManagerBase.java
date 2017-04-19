@@ -178,6 +178,15 @@ public class WeatherManagerBase {
 	public List<StormObject> getStormObjectsByLayer(int layer) {
 		return lookupStormObjectsByLayer.get(layer);
 	}
+
+	public StormObject getStormObjectByID(long ID) {
+		WeatherObject obj = lookupStormObjectsByID.get(ID);
+		if (obj instanceof StormObject) {
+			return (StormObject) obj;
+		} else {
+			return null;
+		}
+	}
 	
 	public void addStormObject(WeatherObject so) {
 		if (!lookupStormObjectsByID.containsKey(so.ID)) {
