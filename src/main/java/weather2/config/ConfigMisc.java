@@ -19,7 +19,8 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Misc_proxyRenderOverrideEnabled = true;
 	//public static boolean Misc_takeControlOfGlobalRain = true;
 
-	public static int Misc_simBoxRadiusCutoff = 1024;
+	//cutoff a bit extra, noticed lots of storms being insta killed on creation
+	public static int Misc_simBoxRadiusCutoff = 1024+100;
 	public static int Misc_simBoxRadiusSpawn = 1024;
 	public static boolean Misc_ForceVanillaCloudsOff = true;
 	public static int Misc_AutoDataSaveIntervalInTicks = 20*60*30;

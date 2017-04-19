@@ -103,6 +103,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					
 					//isDead check is done in WeatherManagerBase
 					if (closestPlayer == null) {
+						Weather.dbg("removing distant storm: " + so.ID);
 						removeStormObject(so.ID);
 						syncStormRemove(so);
 					}

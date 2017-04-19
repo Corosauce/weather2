@@ -161,6 +161,8 @@ public class StormObject extends WeatherObject {
     public Vec3 posBaseFormationPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
     
     public boolean naturallySpawned = true;
+	//to prevent things like it progressing to next stage before weather machine undoes it
+	public boolean weatherMachineControlled = false;
     public boolean canSnowFromCloudTemperature = false;
     public boolean alwaysProgresses = false;
     
@@ -1035,7 +1037,11 @@ public class StormObject extends WeatherObject {
 					}
 				}
 			}
-			
+
+			if (weatherMachineControlled) {
+			    return;
+            }
+
 			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimension()) && tryFormStorm) {
 				//if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
 					int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
