@@ -423,7 +423,7 @@ public class SceneEnhancer implements Runnable {
 			
 			Biome biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
-            if (/*true*/biomegenbase != null/* || biomegenbase.canSpawnLightningBolt() || biomegenbase.getEnableSnow()*/)
+            if (biomegenbase != null && (biomegenbase.canRain() || biomegenbase.getEnableSnow()))
             {
 			
 				float temperature = biomegenbase.getFloatTemperature(new BlockPos(MathHelper.floor_double(entP.posX), MathHelper.floor_double(entP.posY), MathHelper.floor_double(entP.posZ)));
@@ -439,44 +439,42 @@ public class SceneEnhancer implements Runnable {
 
 					//rain
 					if (entP.worldObj.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
-						if (biomegenbase.canRain()) {
 
-							//Weather.dbg("precip: " + curPrecipVal);
+						//Weather.dbg("precip: " + curPrecipVal);
 
 
-							int spawnAreaSize = 15;
-							for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
-								BlockPos pos = new BlockPos(
-										entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
-										entP.posY - 5 + rand.nextInt(15),
-										entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+						int spawnAreaSize = 15;
+						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+							BlockPos pos = new BlockPos(
+									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+									entP.posY - 5 + rand.nextInt(15),
+									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
-								//EntityRenderer.addRainParticles doesnt actually use isRainingAt,
-								//switching to match what that method does to improve consistancy and tough as nails compat
-								if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
-									ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
-											pos.getX(),
-											pos.getY(),
-											pos.getZ(),
-											0D, 0D, 0D, ParticleRegistry.rain);
-									rain.setCanCollide(true);
-									rain.setKillOnCollide(true);
-									rain.windWeight = 1F;
-									rain.setFacePlayer(false);
-									//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
-									//rain.setTicksFadeInMax(2);
-									//rain.setAlphaF(0);
-									rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
-									rain.setMotionY(-0.5D/*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*/);
-									rain.spawnAsWeatherEffect();
-									ClientTickHandler.weatherManager.addWeatheredParticle(rain);
-								}
+							//EntityRenderer.addRainParticles doesnt actually use isRainingAt,
+							//switching to match what that method does to improve consistancy and tough as nails compat
+							if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+								ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
+										pos.getX(),
+										pos.getY(),
+										pos.getZ(),
+										0D, 0D, 0D, ParticleRegistry.rain);
+								rain.setCanCollide(true);
+								rain.setKillOnCollide(true);
+								rain.windWeight = 1F;
+								rain.setFacePlayer(false);
+								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+								//rain.setTicksFadeInMax(2);
+								//rain.setAlphaF(0);
+								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.setMotionY(-0.5D/*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*/);
+								rain.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 							}
 						}
 
+
 					//snow
 					} else {
-
 						//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
 
 						int spawnAreaSize = 50;
@@ -504,6 +502,7 @@ public class SceneEnhancer implements Runnable {
 							}
 
 						}
+
 					}
 				}
             }
