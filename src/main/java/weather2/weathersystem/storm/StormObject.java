@@ -1086,7 +1086,7 @@ public class StormObject extends WeatherObject {
 
 								boolean startStorm = false;
 								
-								if (so.ID != this.ID && so.levelCurIntensityStage <= 0 && !so.isCloudlessStorm()) {
+								if (so.ID != this.ID && so.levelCurIntensityStage <= 0 && !so.isCloudlessStorm() && !so.weatherMachineControlled) {
 									if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
 										if (this.levelTemperature < 0) {
 											if (so.levelTemperature > 0) {
