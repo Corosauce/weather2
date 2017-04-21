@@ -13,6 +13,13 @@ public class WeatherObject {
 	public static long lastUsedStormID = 0; //ID starts from 0 for each game start, no storm nbt disk reload for now
 	public long ID; //loosely accurate ID for tracking, but we wanted to persist between world reloads..... need proper UUID??? I guess add in UUID later and dont persist, start from 0 per game run
 	public boolean isDead = false;
+
+	/**
+	 * used to count up to a threshold to finally remove weather objects,
+	 * solves issue of simbox cutoff removing storms for first few ticks as player is joining in singleplayer
+	 * helps with multiplayer, requiring 30 seconds of no players near before removal
+	 */
+	public int ticksSinceNoNearPlayer = 0;
 	
 	public WeatherManagerBase manager;
 	

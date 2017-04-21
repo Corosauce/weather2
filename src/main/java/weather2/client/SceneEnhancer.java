@@ -437,14 +437,19 @@ public class SceneEnhancer implements Runnable {
 
 				if (curPrecipVal > 0) {
 
+					int spawnCount;
+					int spawnNeed = (int)(curPrecipVal * 60F * ConfigParticle.Precipitation_Particle_effect_rate);
+					int safetyCutout = 100;
+
 					//rain
 					if (entP.worldObj.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
 
 						//Weather.dbg("precip: " + curPrecipVal);
 
+						spawnCount = 0;
 
-						int spawnAreaSize = 15;
-						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+						int spawnAreaSize = 20;
+						for (int i = 0; i < safetyCutout; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
@@ -458,15 +463,68 @@ public class SceneEnhancer implements Runnable {
 										pos.getY(),
 										pos.getZ(),
 										0D, 0D, 0D, ParticleRegistry.rain);
-								rain.setCanCollide(true);
-								rain.setKillOnCollide(true);
+								//rain.setCanCollide(true);
+								//rain.setKillOnCollide(true);
+								rain.setKillWhenUnderTopmostBlock(true);
+								rain.setTicksFadeOutMaxOnDeath(5);
+								rain.setDontRenderUnderTopmostBlock(true);
+								rain.setExtraParticlesBaseAmount(15);
 								rain.windWeight = 1F;
 								rain.setFacePlayer(false);
+								rain.setFacePlayer(true);
+								rain.setScale(2F);
+								//rain.isTransparent = true;
+								rain.setMaxAge(50);
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
-								//rain.setTicksFadeInMax(2);
-								//rain.setAlphaF(0);
+								rain.setTicksFadeInMax(5);
+								rain.setAlphaF(0);
 								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 								rain.setMotionY(-0.5D/*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*/);
+								rain.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+
+								spawnCount++;
+								if (spawnCount >= spawnNeed) {
+									break;
+								}
+							}
+						}
+
+						if (world.getTotalWorldTime() % 60 == 0) {
+							System.out.println("spawnCount: " + spawnCount);
+						}
+
+						for (int i = 0; i < 0/*curPrecipVal * 1F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+							BlockPos pos = new BlockPos(
+									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+									entP.posY - 5 + rand.nextInt(15),
+									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+							if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+								ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
+										pos.getX(),
+										pos.getY(),
+										pos.getZ(),
+										0D, 0D, 0D, ParticleRegistry.cloud256);
+								/*rain.setCanCollide(true);
+								rain.setKillOnCollide(true);*/
+								rain.setKillWhenUnderTopmostBlock(true);
+								rain.setTicksFadeOutMaxOnDeath(5);
+								rain.setExtraParticlesBaseAmount(5);
+
+								rain.setDontRenderUnderTopmostBlock(true);
+								rain.setExtraParticlesBaseAmount(15);
+								//rain.setDontRenderUnderTopmostBlock(true);
+
+								rain.windWeight = 1F;
+								rain.setFacePlayer(true);
+								rain.setScale(30F);
+								rain.setMaxAge(100);
+								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+								rain.setTicksFadeInMax(5);
+								rain.setAlphaF(0);
+								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.setMotionY(-0.5D);
 								rain.spawnAsWeatherEffect();
 								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 							}
@@ -477,16 +535,26 @@ public class SceneEnhancer implements Runnable {
 					} else {
 						//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
 
+						spawnCount = 0;
+						//less for snow, since it falls slower so more is on screen longer
+						spawnNeed = (int)(curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate);
+
 						int spawnAreaSize = 50;
-						for (int i = 0; i < curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+						for (int i = 0; i < safetyCutout/*curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
-									entP.posY - 5 + rand.nextInt(15),
+									entP.posY - 5 + rand.nextInt(25),
 									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
 							if (canPrecipitateAt(world, pos)) {
 								ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.worldObj, pos.getX(), pos.getY(), pos.getZ(), 0D, 0D, 0D, ParticleRegistry.snow);
-								snow.setMotionY(-0.3D);
+
+								snow.setKillWhenUnderTopmostBlock(true);
+								snow.setTicksFadeOutMaxOnDeath(5);
+								snow.setDontRenderUnderTopmostBlock(true);
+								snow.setExtraParticlesBaseAmount(10);
+
+								snow.setMotionY(-0.1D);
 								snow.setScale(1.3F);
 								snow.setGravity(0.1F);
 								snow.windWeight = 0.2F;
@@ -494,11 +562,16 @@ public class SceneEnhancer implements Runnable {
 								snow.setFacePlayer(false);
 								snow.setTicksFadeInMax(10);
 								snow.setAlphaF(0);
-								snow.setCanCollide(true);
-								snow.setKillOnCollide(true);
+								//snow.setCanCollide(true);
+								//snow.setKillOnCollide(true);
 								snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;
 								snow.spawnAsWeatherEffect();
 								ClientTickHandler.weatherManager.addWeatheredParticle(snow);
+
+								spawnCount++;
+								if (spawnCount >= spawnNeed) {
+									break;
+								}
 							}
 
 						}
@@ -1120,88 +1193,62 @@ public class SceneEnhancer implements Runnable {
         Random rand = new Random();
         
         int handleCount = 0;
+
+        if (world.getTotalWorldTime() % 60 == 0) {
+			System.out.println("weather particles: " + ClientTickHandler.weatherManager.listWeatherEffectedParticles.size());
+		}
         
         //Weather Effects
-        if (ClientTickHandler.weatherManager.windMan.getWindSpeedForPriority() >= 0.10)
-        {
-        	
-        	for (int i = 0; i < ClientTickHandler.weatherManager.listWeatherEffectedParticles.size(); i++)
-            //for (int i = 0; i < world.weatherEffects.size(); i++)
-            {
-            	
+		for (int i = 0; i < ClientTickHandler.weatherManager.listWeatherEffectedParticles.size(); i++) {
+
+			Particle particle = ClientTickHandler.weatherManager.listWeatherEffectedParticles.get(i);
+
+			if (!particle.isAlive()) {
+				ClientTickHandler.weatherManager.listWeatherEffectedParticles.remove(i--);
+				continue;
+			}
+
+			if (ClientTickHandler.weatherManager.windMan.getWindSpeedForPriority() >= 0.10) {
+
             	handleCount++;
-            	
-                Particle particle = ClientTickHandler.weatherManager.listWeatherEffectedParticles.get(i);
-                
-                if (!particle.isAlive()) {
-                	ClientTickHandler.weatherManager.listWeatherEffectedParticles.remove(i--);
-                	continue;
-                }
-                
-                /*if (!(entity1 instanceof EntityLightningBolt))
-                {*/
-                	
-                	
-                	
-                    //applyWindForce(entity1);
-                    if (particle instanceof EntityRotFX)
-                    {
-                    	
-                    	EntityRotFX entity1 = (EntityRotFX) particle;
-                    	
-                        if (entity1 == null)
-                        {
-                            continue;
-                        }
 
-                        
-                        
-                        if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor_double(entity1.getPosX()), 0, MathHelper.floor_double(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
-                        {
-                            /*if ((entity1 instanceof ParticleFlame))
-                            {
-                            	WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
-                            }
-                            else */if (entity1 instanceof IWindHandler) {
-                            	if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
-                                {
-                            		WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
-                                }
-                            }
-                            else if (WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
-                            {
-                            	WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 1);
-                            }
+				if (particle instanceof EntityRotFX)
+				{
 
-                            //((Particle)entity1).particleAge=1;
-                            
-                            if ((entity1 instanceof ParticleTexFX) && ((ParticleTexFX)entity1).getParticleTexture() == ParticleRegistry.leaf/*((ParticleTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID*/)
-                            {
-                                if (entity1.getMotionX() < 0.01F && entity1.getMotionZ() < 0.01F)
-                                {
-                                    entity1.setMotionY(entity1.getMotionY() + rand.nextDouble() * 0.02);
-                                }
+					EntityRotFX entity1 = (EntityRotFX) particle;
 
-                                //entity1.motionX += rand.nextDouble() * 0.03;
-                                //entity1.motionZ += rand.nextDouble() * 0.03;
-                                entity1.setMotionY(entity1.getMotionY() - 0.01F);
-                                //do it twice!
-                                
-                            }
-                        }
+					if (entity1 == null)
+					{
+						continue;
+					}
 
-                        //if (canPushEntity(entity1)) {
-                        /*if (!(entity1 instanceof EntTornado))
-                        {
-                            
-                        }*/
-                        
-                        //we apply it twice apparently, k
-                        //applyWindForce(entity1, 2D, 0.5D);
-                        windMan.applyWindForceNew(entity1, 1F/20F, 0.5F);
-                        //applyWindForce(entity1);
-                    }
-                //}
+					if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor_double(entity1.getPosX()), 0, MathHelper.floor_double(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
+					{
+						if (entity1 instanceof IWindHandler) {
+							if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+							{
+								WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
+							}
+						}
+						else if (WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+						{
+							WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 1);
+						}
+
+						if ((entity1 instanceof ParticleTexFX) && ((ParticleTexFX)entity1).getParticleTexture() == ParticleRegistry.leaf/*((ParticleTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID*/)
+						{
+							if (entity1.getMotionX() < 0.01F && entity1.getMotionZ() < 0.01F)
+							{
+								entity1.setMotionY(entity1.getMotionY() + rand.nextDouble() * 0.02);
+							}
+
+							entity1.setMotionY(entity1.getMotionY() - 0.01F);
+
+						}
+					}
+
+					windMan.applyWindForceNew(entity1, 1F/20F, 0.5F);
+				}
             }
         }
         

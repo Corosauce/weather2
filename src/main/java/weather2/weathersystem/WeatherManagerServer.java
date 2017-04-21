@@ -96,16 +96,28 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//getVolcanoObjects().clear();
 			
 			//sim box work
-			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 20 == 0) {
+			int rate = 20;
+			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension()) && world.getTotalWorldTime() % rate == 0) {
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
 					EntityPlayer closestPlayer = WeatherUtilEntity.getClosestPlayerAny(world, so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
 					
 					//isDead check is done in WeatherManagerBase
 					if (closestPlayer == null) {
-						Weather.dbg("removing distant storm: " + so.ID);
-						removeStormObject(so.ID);
-						syncStormRemove(so);
+						so.ticksSinceNoNearPlayer += rate;
+						//finally remove if nothing near for 30 seconds, gives multiplayer server a chance to get players in
+						if (so.ticksSinceNoNearPlayer > 20 * 30) {
+							if (world.playerEntities.size() == 0) {
+								Weather.dbg("removing distant storm: " + so.ID + ", running without players");
+							} else {
+								Weather.dbg("removing distant storm: " + so.ID);
+							}
+
+							removeStormObject(so.ID);
+							syncStormRemove(so);
+						}
+					} else {
+						so.ticksSinceNoNearPlayer = 0;
 					}
 				}
 
@@ -230,13 +242,18 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (world.getTotalWorldTime() % 200 == 0) {
 				Random rand = new Random();
 				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
-				if (cloudIntensity < 0.6F) {
-					cloudIntensity = 0.6F;
+				if (cloudIntensity < 0F) {
+					cloudIntensity = 0F;
 				} else if (cloudIntensity > 1F) {
 					cloudIntensity = 1F;
 				}
-				//Weather.dbg("cloudIntensity: " + cloudIntensity);
+				if (world.getTotalWorldTime() % 2000 == 0) {
+					Weather.dbg("cloudIntensity FORCED MAX: " + cloudIntensity);
+				}
 			}
+
+			//temp lock to max for fps comparisons
+			cloudIntensity = 1F;
 		}
 	}
 

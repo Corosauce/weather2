@@ -282,6 +282,37 @@ public class WeatherManagerBase {
 	}
 
 	/**
+	 * TODO: Heavy on the processing, consider caching the result by location for 20 ticks
+	 *
+	 * @param parPos
+	 * @return
+	 */
+	public boolean isPrecipitatingAt(Vec3 parPos) {
+		List<WeatherObject> listStorms = getStormObjects();
+
+		for (int i = 0; i < listStorms.size(); i++) {
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof StormObject) {
+				StormObject storm = (StormObject) wo;
+				if (storm == null || storm.isDead) continue;
+				if (storm.attrib_precipitation) {
+					double dist = storm.pos.distanceTo(parPos);
+					if (dist < storm.size) {
+						return true;
+					}
+				}
+
+				/*if (getWorld().isRemote) {
+					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
+				}*/
+			}
+
+		}
+
+		return false;
+	}
+
+	/**
 	 * Simply compares stormfront distances, doesnt factor in tail
 	 *
 	 * @param parPos
