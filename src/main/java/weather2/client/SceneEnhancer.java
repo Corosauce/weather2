@@ -537,7 +537,7 @@ public class SceneEnhancer implements Runnable {
 
 						spawnCount = 0;
 						//less for snow, since it falls slower so more is on screen longer
-						spawnNeed = (int)(curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate);
+						spawnNeed = (int)(curPrecipVal * 40F * ConfigParticle.Precipitation_Particle_effect_rate);
 
 						int spawnAreaSize = 50;
 						for (int i = 0; i < safetyCutout/*curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
@@ -558,10 +558,11 @@ public class SceneEnhancer implements Runnable {
 								snow.setScale(1.3F);
 								snow.setGravity(0.1F);
 								snow.windWeight = 0.2F;
-								snow.setMaxAge(200);
+								snow.setMaxAge(40);
 								snow.setFacePlayer(false);
-								snow.setTicksFadeInMax(10);
+								snow.setTicksFadeInMax(5);
 								snow.setAlphaF(0);
+								snow.setTicksFadeOutMax(5);
 								//snow.setCanCollide(true);
 								//snow.setKillOnCollide(true);
 								snow.rotationYaw = snow.getWorld().rand.nextInt(360) - 180F;
