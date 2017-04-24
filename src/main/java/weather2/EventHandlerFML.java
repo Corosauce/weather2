@@ -55,8 +55,8 @@ public class EventHandlerFML {
 		} else if (event.phase == Phase.START) {
 			//fix for sky flicker with global overcast on and transitioning between vanilla weather states
 			Minecraft mc = Minecraft.getMinecraft();
-			EntityPlayer entP = mc.thePlayer;
-			if (entP != null) {
+			if (mc != null && mc.thePlayer != null && mc.theWorld != null) {
+				EntityPlayer entP = mc.thePlayer;
 				float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);
 				curRainStr = Math.abs(curRainStr);
 				mc.theWorld.setRainStrength(curRainStr);
