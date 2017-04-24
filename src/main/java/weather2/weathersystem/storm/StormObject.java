@@ -1802,7 +1802,7 @@ public class StormObject extends WeatherObject {
 			        if (ent.getPosY() < pos.yCoord - extraDropCalc) {
 		        		ent.setMotionY(ent.getMotionY() + 0.1D);
 		        	} else {
-		        		ent.setMotionY(ent.getMotionY() + 0.1D);
+		        		ent.setMotionY(ent.getMotionY() - 0.1D);
 		        	}
 				}
 		        
