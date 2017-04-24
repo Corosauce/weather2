@@ -21,7 +21,6 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -184,6 +183,9 @@ public class StormObject extends WeatherObject {
 	 * Populate sky with stormless/cloudless storm objects in order to allow clear skies with current design
 	 */
 	public boolean cloudlessStorm = false;
+
+	//used to cache a scan for blocks ahead of storm, to move around
+	public float cachedAngleAvoidance = 0;
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -523,7 +525,24 @@ public class StormObject extends WeatherObject {
 
 		//storm movement via wind
 		float angle = getAdjustedAngle();
-		
+
+
+
+		//avoid large obstacles
+		double scanDist = 50;
+		double scanX = this.pos.xCoord + (-Math.sin(Math.toRadians(angle)) * scanDist);
+		double scanZ = this.pos.zCoord + (Math.cos(Math.toRadians(angle)) * scanDist);
+
+		int height = WeatherUtilBlock.getPrecipitationHeightSafe(this.manager.getWorld(), new BlockPos(scanX, 0, scanZ)).getY();
+
+		if (this.pos.yCoord < height) {
+			float angleAdj = 45;
+			if (this.ID % 2 == 0) {
+				angleAdj = -45;
+			}
+			angle += angleAdj;
+		}
+
 		if (angleIsOverridden) {
 			angle = angleMovementTornadoOverride;
 			//debug
@@ -1489,20 +1508,22 @@ public class StormObject extends WeatherObject {
 					
 					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
-						EntityRotFX particle;
-						if (WeatherUtil.isAprilFoolsDay()) {
-							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
-						} else {
-							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
+						if (getAvoidAngleIfTerrainAtOrAheadOfPosition(getAdjustedAngle(), tryPos) == 0) {
+							EntityRotFX particle;
+							if (WeatherUtil.isAprilFoolsDay()) {
+								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+							} else {
+								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
+							}
+
+							/*if (layer == 0) {
+								particle.particleScale = 500;
+							} else {
+								particle.particleScale = 2000;
+							}*/
+
+							listParticlesCloud.add(particle);
 						}
-						
-				    	/*if (layer == 0) {
-				    		particle.particleScale = 500;
-				    	} else {
-				    		particle.particleScale = 2000;
-				    	}*/
-						
-						listParticlesCloud.add(particle);
 					}
 				}
 				
@@ -1786,6 +1807,24 @@ public class StormObject extends WeatherObject {
 					
 					float speed = getAdjustedSpeed() * cloudMoveAmp;
 					float angle = getAdjustedAngle();
+
+					//TODO: prevent new particles spawning inside or near solid blocks
+
+					if ((manager.getWorld().getTotalWorldTime()+this.ID) % 40 == 0) {
+						ent.avoidTerrainAngle = getAvoidAngleIfTerrainAtOrAheadOfPosition(angle, ent.getPos());
+					}
+
+					angle += ent.avoidTerrainAngle;
+
+					if (ent.avoidTerrainAngle != 0) {
+						/*float angleAdj = 90;
+						if (this.ID % 2 == 0) {
+							angleAdj = -90;
+						}
+						angle += angleAdj;*/
+
+						speed *= 0.5D;
+					}
 					
 					dropDownRange = 5;
 			        if (/*curDist < 200 && */ent.getEntityId() % 20 < 5) {
@@ -1907,6 +1946,27 @@ public class StormObject extends WeatherObject {
 		//Weather.dbg("ID: " + ID + " - " + manager.windMan.getWindAngleForClouds() + " - final angle: " + angle);
 		
 		return angle;
+	}
+
+	public float getAvoidAngleIfTerrainAtOrAheadOfPosition(float angle, Vec3 pos) {
+		double scanDistMax = 120;
+		for (int scanAngle = -20; scanAngle < 20; scanAngle += 10) {
+			for (double scanDistRange = 20; scanDistRange < scanDistMax; scanDistRange += 10) {
+				double scanX = pos.xCoord + (-Math.sin(Math.toRadians(angle + scanAngle)) * scanDistRange);
+				double scanZ = pos.zCoord + (Math.cos(Math.toRadians(angle + scanAngle)) * scanDistRange);
+
+				int height = WeatherUtilBlock.getPrecipitationHeightSafe(this.manager.getWorld(), new BlockPos(scanX, 0, scanZ)).getY();
+
+				if (pos.yCoord < height) {
+					if (scanAngle <= 0) {
+						return 90;
+					} else {
+						return -90;
+					}
+				}
+			}
+		}
+		return 0;
 	}
 	
 	public void spinEntity(Object entity1) {

@@ -486,14 +486,10 @@ public class TornadoHelper {
                 }
                 else
                 {
-                    //depreciated - OR NOT!
                     if (blockID == Blocks.GLASS)
                     {
                         parWorld.playSound(null, new BlockPos(tryX, tryY, tryZ), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.AMBIENT, 5.0F, 1.0F);
                     }
-
-                    //break snow effect goes here
-                    //mc.effectRenderer.addBlockDestroyEffects(tryX,tryY,tryZ, blockID, 0);
                 }
             }
             
