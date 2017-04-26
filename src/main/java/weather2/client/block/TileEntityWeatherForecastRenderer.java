@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
@@ -16,6 +17,7 @@ import org.lwjgl.opengl.GL11;
 import weather2.ClientProxy;
 import weather2.api.WindReader;
 import weather2.block.TileEntityWeatherForecast;
+import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
@@ -130,6 +132,13 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         GlStateManager.popMatrix();
 		
         renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+
+        if (ConfigMisc.radarCloudDebug) {
+            EntityPlayer entP = Minecraft.getMinecraft().thePlayer;
+            if (entP != null) {
+                renderLivingLabel("\u00A7" + "precip str: " + SceneEnhancer.getRainStrengthAndControlVisuals(entP), x, y + 2.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+            }
+        }
         
 		for (int i = 0; i < tEnt.storms.size(); i++) {
 

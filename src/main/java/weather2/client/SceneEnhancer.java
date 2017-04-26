@@ -423,6 +423,7 @@ public class SceneEnhancer implements Runnable {
 			
 			Biome biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
+			//check rules same way vanilla texture precip does
             if (biomegenbase != null && (biomegenbase.canRain() || biomegenbase.getEnableSnow()))
             {
 			
@@ -462,17 +463,19 @@ public class SceneEnhancer implements Runnable {
 										pos.getX(),
 										pos.getY(),
 										pos.getZ(),
-										0D, 0D, 0D, ParticleRegistry.rain);
+										0D, 0D, 0D, ParticleRegistry.rain_white);
 								//rain.setCanCollide(true);
 								//rain.setKillOnCollide(true);
 								rain.setKillWhenUnderTopmostBlock(true);
 								rain.setTicksFadeOutMaxOnDeath(5);
 								rain.setDontRenderUnderTopmostBlock(true);
-								rain.setExtraParticlesBaseAmount(15);
+								rain.setExtraParticlesBaseAmount(35);
+								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
 								rain.setFacePlayer(false);
 								rain.setFacePlayer(true);
 								rain.setScale(2F);
+								rain.setGravity(2.5F);
 								//rain.isTransparent = true;
 								rain.setMaxAge(50);
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
@@ -494,37 +497,51 @@ public class SceneEnhancer implements Runnable {
 							System.out.println("spawnCount: " + spawnCount);
 						}
 
-						for (int i = 0; i < 0/*curPrecipVal * 1F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+						spawnAreaSize = 20;
+						//ground splash
+						for (int i = 0; i < 30/*curPrecipVal * 1F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
 									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
-							if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
-								ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
-										pos.getX(),
-										pos.getY(),
-										pos.getZ(),
-										0D, 0D, 0D, ParticleRegistry.cloud256);
-								/*rain.setCanCollide(true);
-								rain.setKillOnCollide(true);*/
-								rain.setKillWhenUnderTopmostBlock(true);
-								rain.setTicksFadeOutMaxOnDeath(5);
-								rain.setExtraParticlesBaseAmount(5);
+							pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
-								rain.setDontRenderUnderTopmostBlock(true);
-								rain.setExtraParticlesBaseAmount(15);
+							if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+								ParticleTexFX rain = new ParticleTexFX(entP.worldObj,
+										pos.getX() + rand.nextFloat(),
+										pos.getY() - 1 + 0.01D,
+										pos.getZ() + rand.nextFloat(),
+										0D, 0D, 0D, ParticleRegistry.cloud256_6);
+								rain.setCanCollide(true);
+								//rain.setKillOnCollide(true);
+								//rain.setKillWhenUnderTopmostBlock(true);
+								//rain.setTicksFadeOutMaxOnDeath(5);
+
+								//rain.setDontRenderUnderTopmostBlock(true);
+								//rain.setExtraParticlesBaseAmount(5);
 								//rain.setDontRenderUnderTopmostBlock(true);
 
-								rain.windWeight = 1F;
-								rain.setFacePlayer(true);
-								rain.setScale(30F);
-								rain.setMaxAge(100);
+								boolean upward = rand.nextBoolean();
+
+								rain.windWeight = 12F;
+								rain.setFacePlayer(upward);
+
+								rain.setScale(5F + (rand.nextFloat() * 3F));
+								rain.setMaxAge(20);
+								rain.setGravity(-0.0F);
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
-								rain.setTicksFadeInMax(5);
+								rain.setTicksFadeInMax(0);
 								rain.setAlphaF(0);
+								rain.setTicksFadeOutMax(4);
+
 								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
-								rain.setMotionY(-0.5D);
+								rain.rotationPitch = 90;
+								rain.setMotionY(0D);
+								/*rain.setMotionX(0);
+								rain.setMotionZ(0);*/
+								rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+								rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 								rain.spawnAsWeatherEffect();
 								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 							}
@@ -609,8 +626,19 @@ public class SceneEnhancer implements Runnable {
 	public static float getRainStrengthAndControlVisuals(EntityPlayer entP) {
 		return getRainStrengthAndControlVisuals(entP, false);
 	}
-	
-	//returns in negatives for snow now! closer to 0 = less of that effect
+
+	/**
+	 * Returns value between -1 to 1
+	 * -1 is full on snow
+	 * 1 is full on rain
+	 * 0 is no precipitation
+	 *
+	 * also controls the client side raining and thundering values for vanilla
+	 *
+	 * @param entP
+	 * @param forOvercast
+	 * @return
+	 */
 	public static float getRainStrengthAndControlVisuals(EntityPlayer entP, boolean forOvercast) {
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
