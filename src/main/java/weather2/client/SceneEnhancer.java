@@ -524,11 +524,11 @@ public class SceneEnhancer implements Runnable {
 
 								boolean upward = rand.nextBoolean();
 
-								rain.windWeight = 12F;
+								rain.windWeight = 20F;
 								rain.setFacePlayer(upward);
 
-								rain.setScale(5F + (rand.nextFloat() * 3F));
-								rain.setMaxAge(20);
+								rain.setScale(3F + (rand.nextFloat() * 3F));
+								rain.setMaxAge(15);
 								rain.setGravity(-0.0F);
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
 								rain.setTicksFadeInMax(0);
@@ -547,7 +547,59 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
+						spawnAreaSize = 20;
+						//downfall
+						for (int i = 0; i < 2/*curPrecipVal * 1F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+							BlockPos pos = new BlockPos(
+									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+									entP.posY - 5 + rand.nextInt(25),
+									entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
+							if (entP.getDistanceSq(pos) < 10D * 10D) continue;
+
+							//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
+
+							if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+								ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
+										pos.getX() + rand.nextFloat(),
+										pos.getY() - 1 + 0.01D,
+										pos.getZ() + rand.nextFloat(),
+										0D, 0D, 0D, ParticleRegistry.downfall3);
+								//rain.setCanCollide(true);
+								//rain.setKillOnCollide(true);
+								rain.setKillWhenUnderTopmostBlock(true);
+								rain.setTicksFadeOutMaxOnDeath(5);
+
+								//rain.setDontRenderUnderTopmostBlock(true);
+								//rain.setExtraParticlesBaseAmount(5);
+								//rain.setDontRenderUnderTopmostBlock(true);
+								rain.setSlantParticleToWind(true);
+								rain.noExtraParticles = true;
+
+								boolean upward = rand.nextBoolean();
+
+								rain.windWeight = 8F;
+								rain.setFacePlayer(true);
+
+								rain.setScale(90F + (rand.nextFloat() * 3F));
+								rain.setMaxAge(60);
+								rain.setGravity(0.35F);
+								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+								rain.setTicksFadeInMax(20);
+								rain.setAlphaF(0);
+								rain.setTicksFadeOutMax(20);
+
+								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.rotationPitch = 90;
+								rain.setMotionY(-0.3D);
+								/*rain.setMotionX(0);
+								rain.setMotionZ(0);*/
+								rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+								rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
+								rain.spawnAsWeatherEffect();
+								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+							}
+						}
 					//snow
 					} else {
 						//Weather.dbg("rate: " + curPrecipVal * 5F * ConfigMisc.Particle_Precipitation_effect_rate);
