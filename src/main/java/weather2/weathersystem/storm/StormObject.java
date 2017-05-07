@@ -1159,6 +1159,10 @@ public class StormObject extends WeatherObject {
 					levelWater = levelWaterStartRaining;
 					setPrecipitating(true);
 				}
+
+				//temp
+				//levelWater = 0;
+				//setPrecipitating(false);
 				
 				if ((levelCurIntensityStage == STATE_HIGHWIND || levelCurIntensityStage == STATE_HAIL) && isOverWater) {
 					if (ConfigStorm.Storm_OddsTo1OfHighWindWaterSpout != 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfHighWindWaterSpout) == 0) {

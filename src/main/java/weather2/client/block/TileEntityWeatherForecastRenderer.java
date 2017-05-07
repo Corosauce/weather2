@@ -52,6 +52,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorld(), pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
     	
     	String progression = "";
+
+    	float levelWater = 0;
     	
     	if (so != null) {
     		
@@ -94,6 +96,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     		Vec3 posXZ = new Vec3(tEnt.getPos().getX(), so.pos.yCoord, tEnt.getPos().getZ());
     		
     		descDist = "" + (int)posXZ.distanceTo(so.pos);
+
+    		levelWater = so.levelWater;
     	}
     	
     	int index = 1;
@@ -136,7 +140,11 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         if (ConfigMisc.radarCloudDebug) {
             EntityPlayer entP = Minecraft.getMinecraft().thePlayer;
             if (entP != null) {
-                renderLivingLabel("\u00A7" + "precip str: " + SceneEnhancer.getRainStrengthAndControlVisuals(entP), x, y + 2.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                String rainThunder = entP.worldObj.rainingStrength + " / " + entP.worldObj.thunderingStrength;
+                renderLivingLabel("\u00A7" + " precip str: " + SceneEnhancer.getRainStrengthAndControlVisuals(entP), x, y + 2.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                renderLivingLabel("\u00A7" + " levelWater: " + levelWater, x, y + 2.3F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                renderLivingLabel("\u00A7" + " dist: " + descDist, x, y + 2.4F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                renderLivingLabel("\u00A7" + " rainThunder: " + rainThunder, x, y + 2.5F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
             }
         }
         

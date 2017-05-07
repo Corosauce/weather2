@@ -129,7 +129,9 @@ public class SceneEnhancer implements Runnable {
     public static boolean isPlayerOutside = true;
 
     public static ParticleBehaviorSandstorm particleBehavior;
-	
+
+    public static ParticleTexExtraRender testParticle;
+
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
 
@@ -370,8 +372,11 @@ public class SceneEnhancer implements Runnable {
             }
     	}
     }
-	
-	//called from our new thread, decided not to let client mc thread reset it, should be ok?
+
+	/**
+	 * called from our new thread, decided not to let client mc thread reset it, should be ok?
+	 */
+
 	public void reset() {
 		//reset particle data, discard dead ones as that was a bug from weather1
 		
@@ -397,7 +402,9 @@ public class SceneEnhancer implements Runnable {
 	}
 	
 	public void tickParticlePrecipitation() {
-		
+
+		//if (true) return;
+
 		if (ConfigParticle.Particle_RainSnow) {
 			EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
 			
@@ -423,6 +430,88 @@ public class SceneEnhancer implements Runnable {
 			
 			Biome biomegenbase = entP.worldObj.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(entP.posX), 0, MathHelper.floor_double(entP.posZ)));
 
+			World world = entP.worldObj;
+			Random rand = entP.worldObj.rand;
+
+			boolean particleTest = false;
+
+			if (particleTest) {
+				if (testParticle == null || testParticle.isExpired) {
+					BlockPos pos = new BlockPos(entP);
+
+					//if (entP.getDistanceSq(pos) < 10D * 10D) continue;
+
+					//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
+
+					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.worldObj,
+								pos.getX() + rand.nextFloat(),
+								pos.getY() - 1 + 0.01D,
+								pos.getZ() + rand.nextFloat(),
+								0D, 0D, 0D, ParticleRegistry.tumbleweed);
+						//rain.setCanCollide(true);
+						//rain.setKillOnCollide(true);
+						//rain.setKillWhenUnderTopmostBlock(true);
+						//rain.setTicksFadeOutMaxOnDeath(5);
+
+						rain.particleTextureJitterX = 0;
+						rain.particleTextureJitterY = 0;
+
+						//rain.setDontRenderUnderTopmostBlock(true);
+						//rain.setExtraParticlesBaseAmount(5);
+						//rain.setDontRenderUnderTopmostBlock(true);
+						rain.setSlantParticleToWind(false);
+						rain.noExtraParticles = true;
+
+						boolean upward = rand.nextBoolean();
+
+						rain.windWeight = 8F;
+						rain.setFacePlayer(false);
+
+						rain.setScale(90F + (rand.nextFloat() * 3F));
+
+
+						/**
+						 * 64x64 particle, 18 blocks high exactly when scale 90 used
+						 * 64x64 particle, 1 blocks high exactly when scale 5 used
+						 * particle texture file size doesnt matter,
+						 * scale 5 = 1 block size
+						 *
+						 */
+						rain.setScale(5F);
+						//rain.setScale(25F);
+						rain.setMaxAge(60);
+						rain.setGravity(0.0F);
+						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+						rain.setTicksFadeInMax(20);
+						rain.setAlphaF(0);
+						rain.setTicksFadeOutMax(20);
+
+						rain.rotationYaw = 90;//rain.getWorld().rand.nextInt(360) - 180F;
+						rain.rotationPitch = 0;
+						rain.setMotionY(-0D);
+									/*rain.setMotionX(0);
+									rain.setMotionZ(0);*/
+						rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+						rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
+						rain.spawnAsWeatherEffect();
+						ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+
+						testParticle = rain;
+					}
+				}
+
+				//TEST
+				if (testParticle != null) {
+					testParticle.setPosition(entP.posX + 5, entP.posY, entP.posZ);
+					/*testParticle.posX = entP.posX + 10;
+					testParticle.posY = entP.posY;
+					testParticle.posZ = entP.posZ;*/
+				}
+
+				if (true) return;
+			}
+
 			//check rules same way vanilla texture precip does
             if (biomegenbase != null && (biomegenbase.canRain() || biomegenbase.getEnableSnow()))
             {
@@ -433,8 +522,9 @@ public class SceneEnhancer implements Runnable {
 
 				//now absolute it for ez math
 				curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
-				World world = entP.worldObj;
-				Random rand = entP.worldObj.rand;
+
+				curPrecipVal *= 1F;
+
 
 				if (curPrecipVal > 0) {
 
@@ -493,13 +583,15 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
+						if (true) return;
+
 						if (world.getTotalWorldTime() % 60 == 0) {
 							System.out.println("spawnCount: " + spawnCount);
 						}
 
 						spawnAreaSize = 20;
 						//ground splash
-						for (int i = 0; i < 30/*curPrecipVal * 1F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+						for (int i = 0; i < 30F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
@@ -549,7 +641,7 @@ public class SceneEnhancer implements Runnable {
 
 						spawnAreaSize = 20;
 						//downfall
-						for (int i = 0; i < 2/*curPrecipVal * 1F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+						for (int i = 0; i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(25),
@@ -570,6 +662,9 @@ public class SceneEnhancer implements Runnable {
 								rain.setKillWhenUnderTopmostBlock(true);
 								rain.setTicksFadeOutMaxOnDeath(5);
 
+								//rain.particleTextureJitterX = 0;
+								//rain.particleTextureJitterY = 0;
+
 								//rain.setDontRenderUnderTopmostBlock(true);
 								//rain.setExtraParticlesBaseAmount(5);
 								//rain.setDontRenderUnderTopmostBlock(true);
@@ -582,6 +677,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setFacePlayer(true);
 
 								rain.setScale(90F + (rand.nextFloat() * 3F));
+								//rain.setScale(25F);
 								rain.setMaxAge(60);
 								rain.setGravity(0.35F);
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
@@ -852,6 +948,164 @@ public class SceneEnhancer implements Runnable {
 	    
 	    
 	    
+	}
+
+	public static float getPrecipStrength(EntityPlayer entP, boolean forOvercast) {
+		StormObject storm = getClosestStormCached(entP);
+		if (storm != null) {
+			float tempAdj = storm.levelTemperature > 0 ? 1F : -1F;
+
+			if (forOvercast) {
+				return curOvercastStr * tempAdj;
+			} else {
+				return curPrecipStr * tempAdj;
+			}
+		}
+
+		return 0;
+	}
+
+	public static void controlVanillaPrecipVisuals(EntityPlayer entP, boolean forOvercast) {
+
+	}
+
+	public static void tickPrecipAdjusting(EntityPlayer entP, boolean forOvercast) {
+
+		Minecraft mc = FMLClientHandler.instance().getClient();
+
+		double maxStormDist = 512 / 4 * 3;
+		Vec3 plPos = new Vec3(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
+
+		ClientTickHandler.checkClientWeather();
+
+		StormObject storm = getClosestStormCached(entP);
+
+		boolean closeEnough = false;
+		double stormDist = 9999;
+		float tempAdj = 1F;
+
+		float sizeToUse = 0;
+
+		float overcastModeMinPrecip = 0.2F;
+
+		if (closeEnough) {
+
+
+			double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
+
+			tempAdj = storm.levelTemperature > 0 ? 1F : -1F;
+
+			//limit plain rain clouds to light intensity
+			if (storm.levelCurIntensityStage == StormObject.STATE_NORMAL) {
+				if (stormIntensity > 0.3) stormIntensity = 0.3;
+			}
+
+			if (ConfigStorm.Storm_NoRainVisual) {
+				stormIntensity = 0;
+			}
+
+			//System.out.println("intensity: " + stormIntensity);
+			mc.theWorld.getWorldInfo().setRaining(true);
+			mc.theWorld.getWorldInfo().setThundering(true);
+			if (forOvercast) {
+				curOvercastStrTarget = (float) stormIntensity;
+			} else {
+				curPrecipStrTarget = (float) stormIntensity;
+			}
+			//mc.theWorld.thunderingStrength = (float) stormIntensity;
+		} else {
+			if (!ConfigMisc.overcastMode) {
+				mc.theWorld.getWorldInfo().setRaining(false);
+				mc.theWorld.getWorldInfo().setThundering(false);
+
+				if (forOvercast) {
+					curOvercastStrTarget = 0;
+				} else {
+					curPrecipStrTarget = 0;
+				}
+			} else {
+				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+					mc.theWorld.getWorldInfo().setRaining(true);
+					mc.theWorld.getWorldInfo().setThundering(true);
+
+					if (forOvercast) {
+						curOvercastStrTarget = overcastModeMinPrecip;
+					} else {
+						curPrecipStrTarget = overcastModeMinPrecip;
+					}
+				} else {
+					if (forOvercast) {
+						curOvercastStrTarget = 0;
+					} else {
+						curPrecipStrTarget = 0;
+					}
+				}
+
+
+			}
+
+			//mc.theWorld.setRainStrength(0);
+			//mc.theWorld.thunderingStrength = 0;
+		}
+
+		if (forOvercast) {
+
+	    	/*if (ConfigMisc.overcastMode) {
+	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+	    			if (curOvercastStrTarget < overcastModeMinPrecip) {
+	    				curOvercastStrTarget = overcastModeMinPrecip;
+	    			}
+	    		}
+	    	}*/
+
+			//mc.theWorld.setRainStrength(curOvercastStr);
+
+			if (curOvercastStr > curOvercastStrTarget) {
+				curOvercastStr -= 0.001F;
+			} else if (curOvercastStr < curOvercastStrTarget) {
+				curOvercastStr += 0.001F;
+			}
+
+			if (curOvercastStr < 0.0001 && curOvercastStr > -0.0001F) {
+				curOvercastStr = 0;
+			}
+		} else {
+
+	    	/*if (ConfigMisc.overcastMode) {
+	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+	    			if (curPrecipStrTarget < overcastModeMinPrecip) {
+	    				curPrecipStrTarget = overcastModeMinPrecip;
+	    			}
+	    		}
+	    	}*/
+
+			//mc.theWorld.setRainStrength(curPrecipStr);
+
+			if (curPrecipStr > curPrecipStrTarget) {
+				curPrecipStr -= 0.001F;
+			} else if (curPrecipStr < curPrecipStrTarget) {
+				curPrecipStr += 0.001F;
+			}
+
+			if (curPrecipStr < 0.0001 && curPrecipStr > -0.0001F) {
+				curPrecipStr = 0;
+			}
+		}
+	}
+
+	public static StormObject getClosestStormCached(EntityPlayer entP) {
+		if (WeatherManagerClient.closestStormCached == null || entP.worldObj.getTotalWorldTime() % 5 == 0) {
+			Minecraft mc = FMLClientHandler.instance().getClient();
+
+			double maxStormDist = 512 / 4 * 3;
+			Vec3 plPos = new Vec3(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
+
+			ClientTickHandler.checkClientWeather();
+
+			WeatherManagerClient.closestStormCached = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
+		}
+
+		return WeatherManagerClient.closestStormCached;
 	}
 	
 	public synchronized void tryParticleSpawning()

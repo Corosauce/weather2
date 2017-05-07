@@ -28,6 +28,8 @@ public class WeatherManagerClient extends WeatherManagerBase {
 	//new for 1.10.2, replaces world.weatherEffects use
 	public List<Particle> listWeatherEffectedParticles = new ArrayList<Particle>();
 
+	public static StormObject closestStormCached;
+
 	public WeatherManagerClient(int parDim) {
 		super(parDim);
 	}
@@ -184,5 +186,13 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			listWeatherEffectedParticles.clear();
 		}*/
 	}
-	
+
+	@Override
+	public void reset() {
+		super.reset();
+
+		listWeatherEffectedParticles.clear();
+
+		closestStormCached = null;
+	}
 }
