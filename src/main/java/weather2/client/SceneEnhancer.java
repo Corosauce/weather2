@@ -435,7 +435,9 @@ public class SceneEnhancer implements Runnable {
 			World world = entP.worldObj;
 			Random rand = entP.worldObj.rand;
 
-			boolean particleTest = false;
+			//System.out.println("ClientTickEvent time: " + world.getTotalWorldTime());
+
+			boolean particleTest = true;
 
 			if (particleTest) {
 				if (testParticle == null || testParticle.isExpired) {
@@ -450,7 +452,7 @@ public class SceneEnhancer implements Runnable {
 								pos.getX() + rand.nextFloat(),
 								pos.getY() - 1 + 0.01D,
 								pos.getZ() + rand.nextFloat(),
-								0D, 0D, 0D, ParticleRegistry.tumbleweed);
+								0D, 0D, 0D, ParticleRegistry.test_texture);
 						//rain.setCanCollide(true);
 						//rain.setKillOnCollide(true);
 						//rain.setKillWhenUnderTopmostBlock(true);
@@ -489,15 +491,15 @@ public class SceneEnhancer implements Runnable {
 						rain.setAlphaF(0);
 						rain.setTicksFadeOutMax(20);
 
-						rain.rotationYaw = 90;//rain.getWorld().rand.nextInt(360) - 180F;
-						rain.rotationPitch = 0;
+						rain.rotationYaw = 0;//rain.getWorld().rand.nextInt(360) - 180F;
+						rain.rotationPitch = 90;
 						rain.setMotionY(-0D);
 									/*rain.setMotionX(0);
 									rain.setMotionZ(0);*/
 						rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 						rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 						rain.spawnAsWeatherEffect();
-						ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 
 						testParticle = rain;
 					}
@@ -505,13 +507,17 @@ public class SceneEnhancer implements Runnable {
 
 				//TEST
 				if (testParticle != null) {
-					testParticle.setPosition(entP.posX + 5, entP.posY, entP.posZ);
+					testParticle.setPosition(entP.posX + 1, entP.posY, entP.posZ - 4);
+
+					testParticle.rotationPitch = world.getTotalWorldTime() % 360;
+					testParticle.rotationYaw = (world.getTotalWorldTime() % 360) * 6;
+
 					/*testParticle.posX = entP.posX + 10;
 					testParticle.posY = entP.posY;
 					testParticle.posZ = entP.posZ;*/
 				}
 
-				if (true) return;
+				//if (true) return;
 			}
 
 			//check rules same way vanilla texture precip does
@@ -565,8 +571,9 @@ public class SceneEnhancer implements Runnable {
 								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
 								rain.setFacePlayer(false);
-								rain.setFacePlayer(true);
+								//rain.setFacePlayer(true);
 								rain.setScale(2F);
+								rain.isTransparent = true;
 								rain.setGravity(2.5F);
 								//rain.isTransparent = true;
 								rain.setMaxAge(50);
@@ -585,7 +592,7 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
-						if (true) return;
+						//if (true) return;
 
 						if (world.getTotalWorldTime() % 60 == 0) {
 							System.out.println("spawnCount: " + spawnCount);
@@ -620,6 +627,8 @@ public class SceneEnhancer implements Runnable {
 
 								rain.windWeight = 20F;
 								rain.setFacePlayer(upward);
+								//SHADER COMPARE TEST
+								rain.setFacePlayer(false);
 
 								rain.setScale(3F + (rand.nextFloat() * 3F));
 								rain.setMaxAge(15);
@@ -677,6 +686,8 @@ public class SceneEnhancer implements Runnable {
 
 								rain.windWeight = 8F;
 								rain.setFacePlayer(true);
+								//SHADER COMPARE TEST
+								rain.setFacePlayer(false);
 
 								rain.setScale(90F + (rand.nextFloat() * 3F));
 								//rain.setScale(25F);
@@ -689,6 +700,8 @@ public class SceneEnhancer implements Runnable {
 
 								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 								rain.rotationPitch = 90;
+								//SHADER COMPARE TEST
+								rain.rotationPitch = 0;
 								rain.setMotionY(-0.3D);
 								/*rain.setMotionX(0);
 								rain.setMotionZ(0);*/
