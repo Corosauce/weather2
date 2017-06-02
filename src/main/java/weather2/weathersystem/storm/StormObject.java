@@ -57,7 +57,11 @@ public class StormObject extends WeatherObject {
 	//management stuff
 	
 	public String userSpawnedFor = "";
-	
+
+	//newer cloud managing list for more strict render optimized positioning
+	@SideOnly(Side.CLIENT)
+	public HashMap<Integer, EntityRotFX> lookupParticlesCloud;
+
 	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
 	@SideOnly(Side.CLIENT)
@@ -197,6 +201,7 @@ public class StormObject extends WeatherObject {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
 			listParticlesFunnel = new ArrayList<EntityRotFX>();
 			listParticlesGround = new ArrayList<EntityRotFX>();
+			lookupParticlesCloud = new HashMap<>();
 			//renderBlock = new RenderCubeCloud();
 		}
 	}
@@ -1499,9 +1504,73 @@ public class StormObject extends WeatherObject {
 		double maxSpawnDistFromPlayer = 512;
 		
 		//spawn clouds
+
+		Iterator<Map.Entry<Integer, EntityRotFX>> it = lookupParticlesCloud.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<Integer, EntityRotFX> entry = it.next();
+			if (!entry.getValue().isAlive()) {
+				it.remove();
+			} else {
+				int i = entry.getKey();
+				Vec3 tryPos = null;
+				if (i == 0) {
+					tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+				} else {
+					float spawnRad = 120;
+					//8 cloud particles in a radius around center
+					float rad = (float)Math.toRadians((360D / 8D) * ((double)(i-1)));
+					float x = (float)-Math.sin(rad) * spawnRad;
+					float z = (float)Math.cos(rad) * spawnRad;
+					tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
+				}
+				entry.getValue().setPosition(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord);
+			}
+		}
+
+		boolean newCloudWay = true;
+		if (newCloudWay) {
+			for (int i = 0; i < 9; i++) {
+				if (!lookupParticlesCloud.containsKey(i)) {
+
+					Vec3 tryPos = null;
+					if (i == 0) {
+						tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+					} else {
+						float spawnRad = 120;
+						//8 cloud particles in a radius around center
+						float rad = (float) Math.toRadians((360D / 8D) * ((double) (i - 1)));
+						float x = (float) -Math.sin(rad) * spawnRad;
+						float z = (float) Math.cos(rad) * spawnRad;
+						tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
+					}
+					EntityRotFX particle;
+					if (WeatherUtil.isAprilFoolsDay()) {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+					} else {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256_test);
+					}
+
+					//listParticlesCloud.add(particle);
+					lookupParticlesCloud.put(i, particle);
+				}
+			}
+		}
+
 		if (this.manager.getWorld().getTotalWorldTime() % (delay + ConfigMisc.Cloud_ParticleSpawnDelay) == 0) {
 			for (int i = 0; i < loopSize; i++) {
-				if (listParticlesCloud.size() < size + extraSpawning) {
+				/*if (listParticlesCloud.size() == 0) {
+					double spawnRad = 1;
+					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					EntityRotFX particle;
+					if (WeatherUtil.isAprilFoolsDay()) {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+					} else {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256_test);
+					}
+
+					listParticlesCloud.add(particle);
+				}*/
+				if (!newCloudWay && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
 					double spawnRad = size;
 					
 					/*if (layer != 0) {
@@ -1517,7 +1586,7 @@ public class StormObject extends WeatherObject {
 							if (WeatherUtil.isAprilFoolsDay()) {
 								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
 							} else {
-								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
+								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256);
 							}
 
 							/*if (layer == 0) {
@@ -1557,7 +1626,7 @@ public class StormObject extends WeatherObject {
 							particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 0);
 						}
 						
-						particle.setScale(100);
+						particle.setScale(200);
 						particle.rotationYaw = rand.nextInt(360);
 						particle.rotationPitch = rand.nextInt(360);
 						

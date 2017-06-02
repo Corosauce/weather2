@@ -7,6 +7,7 @@ import CoroUtil.util.*;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.render.RotatingParticleManager;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFire;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -465,7 +466,10 @@ public class SceneEnhancer implements Runnable {
 						//rain.setExtraParticlesBaseAmount(5);
 						//rain.setDontRenderUnderTopmostBlock(true);
 						rain.setSlantParticleToWind(false);
-						rain.noExtraParticles = true;
+						//rain.noExtraParticles = true;
+						rain.setExtraParticlesBaseAmount(2);
+						rain.setSeverityOfRainRate(0);
+						rain.setDontRenderUnderTopmostBlock(true);
 
 						boolean upward = rand.nextBoolean();
 
@@ -561,13 +565,14 @@ public class SceneEnhancer implements Runnable {
 										pos.getX(),
 										pos.getY(),
 										pos.getZ(),
-										0D, 0D, 0D, ParticleRegistry.rain_white);
+										0D, 0D, 0D, ParticleRegistry.rain_white_trans);
 								//rain.setCanCollide(true);
 								//rain.setKillOnCollide(true);
 								rain.setKillWhenUnderTopmostBlock(true);
 								rain.setTicksFadeOutMaxOnDeath(5);
 								rain.setDontRenderUnderTopmostBlock(true);
-								rain.setExtraParticlesBaseAmount(35);
+								rain.setExtraParticlesBaseAmount(135);
+								rain.fastLight = true;
 								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
 								rain.setFacePlayer(false);
@@ -592,7 +597,7 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
-						//if (true) return;
+						if (true) return;
 
 						if (world.getTotalWorldTime() % 60 == 0) {
 							System.out.println("spawnCount: " + spawnCount);
