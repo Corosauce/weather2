@@ -1503,8 +1503,9 @@ public class StormObject extends WeatherObject {
 		Vec3 playerAdjPos = new Vec3(entP.posX, pos.yCoord, entP.posZ);
 		double maxSpawnDistFromPlayer = 512;
 		
-		//spawn clouds
 
+
+		//maintain clouds new system
 		Iterator<Map.Entry<Integer, EntityRotFX>> it = lookupParticlesCloud.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Integer, EntityRotFX> entry = it.next();
@@ -1527,6 +1528,7 @@ public class StormObject extends WeatherObject {
 			}
 		}
 
+		//spawn clouds
 		boolean newCloudWay = true;
 		if (newCloudWay) {
 			for (int i = 0; i < 9; i++) {

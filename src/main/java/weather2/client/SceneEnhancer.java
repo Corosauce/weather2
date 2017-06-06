@@ -571,7 +571,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setKillWhenUnderTopmostBlock(true);
 								rain.setTicksFadeOutMaxOnDeath(5);
 								rain.setDontRenderUnderTopmostBlock(true);
-								rain.setExtraParticlesBaseAmount(135);
+								rain.setExtraParticlesBaseAmount(35);
 								rain.fastLight = true;
 								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
