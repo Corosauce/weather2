@@ -513,8 +513,8 @@ public class SceneEnhancer implements Runnable {
 				if (testParticle != null) {
 					testParticle.setPosition(entP.posX + 1, entP.posY, entP.posZ - 4);
 
-					testParticle.rotationPitch = world.getTotalWorldTime() % 360;
-					testParticle.rotationYaw = (world.getTotalWorldTime() % 360) * 6;
+					testParticle.rotationPitch = 45;//world.getTotalWorldTime() % 360;
+					testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
 
 					/*testParticle.posX = entP.posX + 10;
 					testParticle.posY = entP.posY;

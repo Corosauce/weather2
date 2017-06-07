@@ -63,6 +63,12 @@ public class StormObject extends WeatherObject {
 	public HashMap<Integer, EntityRotFX> lookupParticlesCloud;
 
 	@SideOnly(Side.CLIENT)
+	public HashMap<Integer, EntityRotFX> lookupParticlesCloudLower;
+
+	@SideOnly(Side.CLIENT)
+	public HashMap<Integer, EntityRotFX> lookupParticlesFunnel;
+
+	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
 	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesGround;
@@ -190,6 +196,8 @@ public class StormObject extends WeatherObject {
 
 	//used to cache a scan for blocks ahead of storm, to move around
 	public float cachedAngleAvoidance = 0;
+
+	public long ticksExisted = 0;
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -202,6 +210,8 @@ public class StormObject extends WeatherObject {
 			listParticlesFunnel = new ArrayList<EntityRotFX>();
 			listParticlesGround = new ArrayList<EntityRotFX>();
 			lookupParticlesCloud = new HashMap<>();
+			lookupParticlesCloudLower = new HashMap<>();
+			lookupParticlesFunnel = new HashMap<>();
 			//renderBlock = new RenderCubeCloud();
 		}
 	}
@@ -279,7 +289,7 @@ public class StormObject extends WeatherObject {
 
 		CachedNBTTagCompound var1 = this.getNbtCache();
 		
-		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
+
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
@@ -292,9 +302,7 @@ public class StormObject extends WeatherObject {
 
 		CachedNBTTagCompound nbt = this.getNbtCache();
 		
-		nbt.setDouble("vecX", motion.xCoord);
-		nbt.setDouble("vecY", motion.yCoord);
-		nbt.setDouble("vecZ", motion.zCoord);
+
 		nbt.setBoolean("angleIsOverridden", angleIsOverridden);
 		nbt.setFloat("angleMovementTornadoOverride", angleMovementTornadoOverride);
 
@@ -406,16 +414,88 @@ public class StormObject extends WeatherObject {
 	@SideOnly(Side.CLIENT)
 	public void tickRender(float partialTick) {
 		super.tickRender(partialTick);
+
+
+
 		//renderBlock.doRenderClouds(this, 0, 0, 0, 0, partialTick);
 		/*if (layer == 1) {
 			renderBlock.doRenderClouds(this, pos.xCoord, pos.yCoord, pos.zCoord, 0, partialTick);
 		}*/
+
+		//TODO: consider only putting funnel in this method since its the fast part, the rest might be slow enough to only need to do per gametick
+
+		if (!WeatherUtil.isPaused()) {
+			Iterator<Map.Entry<Integer, EntityRotFX>> it = lookupParticlesCloud.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, EntityRotFX> entry = it.next();
+				EntityRotFX ent = entry.getValue();
+				if (!ent.isAlive()) {
+					it.remove();
+				} else {
+					int i = entry.getKey();
+					Vec3 tryPos = null;
+					if (i == 0) {
+						tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+					} else {
+						//double interpRot = (manager.getWorld().getTotalWorldTime()-1) + (manager.getWorld().getTotalWorldTime())
+						double spawnRad = 120;//(ticksExisted % 100) + 10;
+						double speed = 200D / (spawnRad);
+						double offsetRotationPrev = ((ticksExisted - 1) % 360) * speed;
+						double offsetRotationNext = (ticksExisted % 360) * speed;
+						double offsetRotation = offsetRotationPrev + (offsetRotationNext - offsetRotationPrev) * partialTick;
+						//8 cloud particles in a radius around center
+						double rad = Math.toRadians(offsetRotation + ((360D / 8D) * ((double) (i - 1))));
+						double x = -Math.sin(rad) * spawnRad;
+						double z = Math.cos(rad) * spawnRad;
+						tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
+
+
+					}
+					ent.setPosition(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord);
+				}
+			}
+
+			it = lookupParticlesCloudLower.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, EntityRotFX> entry = it.next();
+				EntityRotFX ent = entry.getValue();
+				if (!ent.isAlive()) {
+					it.remove();
+				} else {
+					int i = entry.getKey();
+					Vec3 tryPos = null;
+					if (i == 0) {
+						tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+					} else {
+						//double interpRot = (manager.getWorld().getTotalWorldTime()-1) + (manager.getWorld().getTotalWorldTime())
+						double spawnRad = 120;//(ticksExisted % 100) + 10;
+						double speed = 200D / (spawnRad);
+						double offsetRotationPrev = ((ticksExisted - 1) % 360) * speed;
+						double offsetRotationNext = (ticksExisted % 360) * speed;
+						double offsetRotation = offsetRotationPrev + (offsetRotationNext - offsetRotationPrev) * partialTick;
+						//8 cloud particles in a radius around center
+						double rad = Math.toRadians(offsetRotation + ((360D / 8D) * ((double) (i - 1))));
+						double x = -Math.sin(rad) * spawnRad;
+						double z = Math.cos(rad) * spawnRad;
+						tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
+
+						double var16 = this.pos.xCoord - ent.getPosX();
+						double var18 = this.pos.zCoord - ent.getPosZ();
+						ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
+						ent.rotationPitch = -20F - (ent.getEntityId() % 10);
+					}
+					ent.setPosition(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord);
+				}
+			}
+		}
 	}
 	
 	public void tick() {
 		super.tick();
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
-		
+
+
+		ticksExisted++;
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
@@ -440,6 +520,8 @@ public class StormObject extends WeatherObject {
 						tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 			        }
 				}
+
+				tickMovementClient();
 			}
 		} else {
 
@@ -622,6 +704,11 @@ public class StormObject extends WeatherObject {
 		if (motion.zCoord > max) motion.zCoord = max;*/
 		
 		//actually move storm
+		pos.xCoord += motion.xCoord;
+		pos.zCoord += motion.zCoord;
+	}
+
+	public void tickMovementClient() {
 		pos.xCoord += motion.xCoord;
 		pos.zCoord += motion.zCoord;
 	}
@@ -1506,32 +1593,15 @@ public class StormObject extends WeatherObject {
 
 
 		//maintain clouds new system
-		Iterator<Map.Entry<Integer, EntityRotFX>> it = lookupParticlesCloud.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<Integer, EntityRotFX> entry = it.next();
-			if (!entry.getValue().isAlive()) {
-				it.remove();
-			} else {
-				int i = entry.getKey();
-				Vec3 tryPos = null;
-				if (i == 0) {
-					tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
-				} else {
-					float spawnRad = 120;
-					//8 cloud particles in a radius around center
-					float rad = (float)Math.toRadians((360D / 8D) * ((double)(i-1)));
-					float x = (float)-Math.sin(rad) * spawnRad;
-					float z = (float)Math.cos(rad) * spawnRad;
-					tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
-				}
-				entry.getValue().setPosition(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord);
-			}
-		}
+
 
 		//spawn clouds
 		boolean newCloudWay = true;
 		if (newCloudWay) {
-			for (int i = 0; i < 9; i++) {
+
+			int count = 9;
+
+			for (int i = 0; i < count; i++) {
 				if (!lookupParticlesCloud.containsKey(i)) {
 
 					Vec3 tryPos = null;
@@ -1540,7 +1610,7 @@ public class StormObject extends WeatherObject {
 					} else {
 						float spawnRad = 120;
 						//8 cloud particles in a radius around center
-						float rad = (float) Math.toRadians((360D / 8D) * ((double) (i - 1)));
+						float rad = (float) Math.toRadians((360D / (double)(count-1)) * ((double) (i - 1)));
 						float x = (float) -Math.sin(rad) * spawnRad;
 						float z = (float) Math.cos(rad) * spawnRad;
 						tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
@@ -1554,6 +1624,32 @@ public class StormObject extends WeatherObject {
 
 					//listParticlesCloud.add(particle);
 					lookupParticlesCloud.put(i, particle);
+				}
+			}
+
+			for (int i = 0; i < count; i++) {
+				if (!lookupParticlesCloudLower.containsKey(i)) {
+
+					Vec3 tryPos = null;
+					if (i == 0) {
+						tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+					} else {
+						float spawnRad = 120;
+						//8 cloud particles in a radius around center
+						float rad = (float) Math.toRadians((360D / (double)(count-1)) * ((double) (i - 1)));
+						float x = (float) -Math.sin(rad) * spawnRad;
+						float z = (float) Math.cos(rad) * spawnRad;
+						tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
+					}
+					EntityRotFX particle;
+					if (WeatherUtil.isAprilFoolsDay()) {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+					} else {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256_test);
+					}
+
+					//listParticlesCloud.add(particle);
+					lookupParticlesCloudLower.put(i, particle);
 				}
 			}
 		}
@@ -1607,7 +1703,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (levelCurIntensityStage >= STATE_HIGHWIND) {
+		if (!newCloudWay && levelCurIntensityStage >= STATE_HIGHWIND) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;

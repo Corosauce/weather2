@@ -117,6 +117,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         //GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.depthMask(false);
         Tessellator tessellator = Tessellator.getInstance();
         VertexBuffer worldrenderer = tessellator.getBuffer();
         GlStateManager.disableTexture2D();
