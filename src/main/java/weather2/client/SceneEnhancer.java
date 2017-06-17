@@ -438,7 +438,7 @@ public class SceneEnhancer implements Runnable {
 
 			//System.out.println("ClientTickEvent time: " + world.getTotalWorldTime());
 
-			boolean particleTest = true;
+			boolean particleTest = false;
 
 			if (particleTest) {
 				if (testParticle == null || testParticle.isExpired) {
@@ -569,14 +569,21 @@ public class SceneEnhancer implements Runnable {
 								//rain.setCanCollide(true);
 								//rain.setKillOnCollide(true);
 								rain.setKillWhenUnderTopmostBlock(true);
+								rain.killWhenUnderCameraAtLeast = 5;
 								rain.setTicksFadeOutMaxOnDeath(5);
 								rain.setDontRenderUnderTopmostBlock(true);
-								rain.setExtraParticlesBaseAmount(35);
-								rain.setExtraParticlesBaseAmount(15);
+								rain.setExtraParticlesBaseAmount(70);
+								//rain.extraYRotationRandom = true;
+								//rain.setExtraParticlesBaseAmount(15);
 								rain.fastLight = true;
 								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
 								rain.setFacePlayer(false);
+								rain.renderOrder = 2;
+
+								//rain.rotateOrderXY = true;
+								//rain.facePlayerYaw = true;
+
 								//rain.setFacePlayer(true);
 								rain.setScale(2F);
 								rain.isTransparent = true;
@@ -586,7 +593,9 @@ public class SceneEnhancer implements Runnable {
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
 								rain.setTicksFadeInMax(5);
 								rain.setAlphaF(0);
-								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.rotationYaw = 0;//rain.getWorld().rand.nextInt(360) - 180F;
+								rain.extraYRotation = rain.getWorld().rand.nextInt(360) - 180F;
+								rain.rotationPitch = 0;
 								rain.setMotionY(-0.5D/*-5D - (entP.worldObj.rand.nextInt(5) * -1D)*/);
 								rain.spawnAsWeatherEffect();
 								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
@@ -598,7 +607,7 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
-						if (true) return;
+
 
 						if (world.getTotalWorldTime() % 60 == 0) {
 							System.out.println("spawnCount: " + spawnCount);
@@ -606,7 +615,7 @@ public class SceneEnhancer implements Runnable {
 
 						spawnAreaSize = 20;
 						//ground splash
-						for (int i = 0; i < 30F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+						for (int i = 0; i < 300F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
@@ -634,7 +643,7 @@ public class SceneEnhancer implements Runnable {
 								rain.windWeight = 20F;
 								rain.setFacePlayer(upward);
 								//SHADER COMPARE TEST
-								rain.setFacePlayer(false);
+								//rain.setFacePlayer(false);
 
 								rain.setScale(3F + (rand.nextFloat() * 3F));
 								rain.setMaxAge(15);
@@ -643,6 +652,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setTicksFadeInMax(0);
 								rain.setAlphaF(0);
 								rain.setTicksFadeOutMax(4);
+								rain.renderOrder = 2;
 
 								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 								rain.rotationPitch = 90;
@@ -655,6 +665,8 @@ public class SceneEnhancer implements Runnable {
 								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 							}
 						}
+
+						//if (true) return;
 
 						spawnAreaSize = 20;
 						//downfall
@@ -685,7 +697,7 @@ public class SceneEnhancer implements Runnable {
 								//rain.setDontRenderUnderTopmostBlock(true);
 								//rain.setExtraParticlesBaseAmount(5);
 								//rain.setDontRenderUnderTopmostBlock(true);
-								rain.setSlantParticleToWind(true);
+								//rain.setSlantParticleToWind(true);
 								rain.noExtraParticles = true;
 
 								boolean upward = rand.nextBoolean();
@@ -694,6 +706,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setFacePlayer(true);
 								//SHADER COMPARE TEST
 								rain.setFacePlayer(false);
+								rain.facePlayerYaw = true;
 
 								rain.setScale(90F + (rand.nextFloat() * 3F));
 								//rain.setScale(25F);

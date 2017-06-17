@@ -36,8 +36,6 @@ public class WindManager {
 	//- gusts are server side global, as planned
 	//- events are client side player, required small adjustments
 	
-	//TODO: save wind state to disk
-	
 	public WeatherManagerBase manager;
 	
 	//global
@@ -286,7 +284,7 @@ public class WindManager {
 	            float randGustWindFactor = 1F;
 				
 	            //gust data
-	            if (this.windTimeGust == 0 && lowWindTimer <= 0 && highWindTimer <= 0)
+	            if (this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
 	            {
 	                if (chanceOfWindGustEvent > 0F)
 	                {

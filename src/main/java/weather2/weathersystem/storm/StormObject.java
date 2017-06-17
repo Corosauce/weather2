@@ -168,7 +168,7 @@ public class StormObject extends WeatherObject {
     public float formingStrength = 0; //for transition from 0 (in clouds) to 1 (touch down)
     
     public Vec3 posBaseFormationPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
-    
+
     public boolean naturallySpawned = true;
 	//to prevent things like it progressing to next stage before weather machine undoes it
 	public boolean weatherMachineControlled = false;
@@ -359,6 +359,8 @@ public class StormObject extends WeatherObject {
 		cloudlessStorm = parNBT.getBoolean("cloudlessStorm");
 		
 		ticksSinceLastPacketReceived = 0;//manager.getWorld().getTotalWorldTime();
+
+		weatherMachineControlled = parNBT.getBoolean("weatherMachineControlled");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -400,6 +402,8 @@ public class StormObject extends WeatherObject {
 		data.setBoolean("isDead", isDead);
 
 		data.setBoolean("cloudlessStorm", cloudlessStorm);
+
+		data.setBoolean("weatherMachineControlled", weatherMachineControlled);
 
 	}
 	
@@ -707,26 +711,30 @@ public class StormObject extends WeatherObject {
 			//Weather.dbg("storm ID: " + this.ID + ", stage: " + levelCurIntensityStage + ", storm speed: " + finalSpeed);
 		}
 		
-		
-		motion.xCoord = vecX * finalSpeed;
-		motion.zCoord = vecZ * finalSpeed;
-		
-		double max = 0.2D;
-		//max speed
-		
-		/*if (motion.xCoord < -max) motion.xCoord = -max;
-		if (motion.xCoord > max) motion.xCoord = max;
-		if (motion.zCoord < -max) motion.zCoord = -max;
-		if (motion.zCoord > max) motion.zCoord = max;*/
-		
-		//actually move storm
-		pos.xCoord += motion.xCoord;
-		pos.zCoord += motion.zCoord;
+
+		if (!weatherMachineControlled) {
+			motion.xCoord = vecX * finalSpeed;
+			motion.zCoord = vecZ * finalSpeed;
+
+			double max = 0.2D;
+			//max speed
+
+			/*if (motion.xCoord < -max) motion.xCoord = -max;
+			if (motion.xCoord > max) motion.xCoord = max;
+			if (motion.zCoord < -max) motion.zCoord = -max;
+			if (motion.zCoord > max) motion.zCoord = max;*/
+
+			//actually move storm
+			pos.xCoord += motion.xCoord;
+			pos.zCoord += motion.zCoord;
+		}
 	}
 
 	public void tickMovementClient() {
-		pos.xCoord += motion.xCoord;
-		pos.zCoord += motion.zCoord;
+		if (!weatherMachineControlled) {
+			pos.xCoord += motion.xCoord;
+			pos.zCoord += motion.zCoord;
+		}
 	}
 	
 	public void tickWeatherEvents() {
@@ -1652,9 +1660,9 @@ public class StormObject extends WeatherObject {
 						Vec3 tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
 						EntityRotFX particle;
 						if (WeatherUtil.isAprilFoolsDay()) {
-							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.chicken);
 						} else {
-							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256_test);
+							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.cloud256_test);
 						}
 
 						//set starting offset for even distribution
@@ -2452,8 +2460,16 @@ public class StormObject extends WeatherObject {
 			
 			entityfx.setMaxAge((size) + rand.nextInt(100));
 		}
+
+		//temp?
+		if (ParticleBehaviorFog.newCloudWay) {
+			entityfx.setMaxAge(400);
+		}
     	
     	float randFloat = (rand.nextFloat() * 0.6F);
+		if (ParticleBehaviorFog.newCloudWay) {
+			randFloat = (rand.nextFloat() * 0.4F);
+		}
 		float baseBright = 0.7F;
 		if (levelCurIntensityStage > STATE_NORMAL) {
 			baseBright = 0.2F;
