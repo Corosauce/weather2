@@ -426,7 +426,7 @@ public class SceneEnhancer implements Runnable {
 
 			//System.out.println("ClientTickEvent time: " + world.getTotalWorldTime());
 
-			boolean particleTest = true;
+			boolean particleTest = false;
 
 			if (particleTest) {
 				if (testParticle == null || testParticle.isExpired) {
@@ -526,7 +526,7 @@ public class SceneEnhancer implements Runnable {
 				if (curPrecipVal > 0) {
 
 					int spawnCount;
-					int spawnNeed = (int)(curPrecipVal * 60F * ConfigParticle.Precipitation_Particle_effect_rate);
+					int spawnNeed = (int)(curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate);
 					int safetyCutout = 100;
 
 					//rain
@@ -559,7 +559,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setExtraParticlesBaseAmount(35);
 								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
-								rain.setFacePlayer(false);
+								rain.setFacePlayer(true);
 								//rain.setFacePlayer(true);
 								rain.setScale(2F);
 								rain.isTransparent = true;
@@ -584,12 +584,15 @@ public class SceneEnhancer implements Runnable {
 						//if (true) return;
 
 						if (world.getTotalWorldTime() % 60 == 0) {
-							System.out.println("spawnCount: " + spawnCount);
+							//System.out.println("spawnCount: " + spawnCount);
 						}
+
+						boolean groundSplash = false;
+						boolean downfall = false;
 
 						spawnAreaSize = 20;
 						//ground splash
-						for (int i = 0; i < 30F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+						for (int i = 0; groundSplash == true && i < 30F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(15),
@@ -641,7 +644,7 @@ public class SceneEnhancer implements Runnable {
 
 						spawnAreaSize = 20;
 						//downfall
-						for (int i = 0; i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+						for (int i = 0; downfall == true && i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 							BlockPos pos = new BlockPos(
 									entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.posY - 5 + rand.nextInt(25),
@@ -1534,7 +1537,7 @@ public class SceneEnhancer implements Runnable {
         int handleCount = 0;
 
         if (world.getTotalWorldTime() % 60 == 0) {
-			System.out.println("weather particles: " + ClientTickHandler.weatherManager.listWeatherEffectedParticles.size());
+			//System.out.println("weather particles: " + ClientTickHandler.weatherManager.listWeatherEffectedParticles.size());
 		}
         
         //Weather Effects
