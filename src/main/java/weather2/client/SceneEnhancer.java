@@ -382,18 +382,7 @@ public class SceneEnhancer implements Runnable {
 		//reset particle data, discard dead ones as that was a bug from weather1
 		
 		if (ExtendedRenderer.rotEffRenderer != null) {
-			for (Map.Entry<TextureAtlasSprite, List<ArrayDeque<Particle>[][]>> entry1 : ExtendedRenderer.rotEffRenderer.fxLayers.entrySet()) {
-				for (ArrayDeque<Particle>[][] entry : entry1.getValue()) {
-					for (int i = 0; i < entry.length; i++) {
-						for (int j = 0; j < entry[i].length; j++) {
-							if (entry[i][j] != null) {
-								entry[i][j].clear();
-							}
-						}
-
-					}
-				}
-			}
+			ExtendedRenderer.rotEffRenderer.clear();
         }
 		
 		lastWorldDetected.weatherEffects.clear();
