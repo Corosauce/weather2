@@ -157,6 +157,12 @@ public class SceneEnhancer implements Runnable {
 			trySoundPlaying();
 			
 			Minecraft mc = FMLClientHandler.instance().getClient();
+
+			if (mc.theWorld != null && lastWorldDetected != mc.theWorld) {
+				lastWorldDetected = mc.theWorld;
+				reset();
+			}
+
 			tryWind(mc.theWorld);
 			
 			//tickTest();
@@ -175,11 +181,6 @@ public class SceneEnhancer implements Runnable {
 	//run from our newly created thread
 	public void tickClientThreaded() {
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		
-		if (mc.theWorld != null && lastWorldDetected != mc.theWorld) {
-			lastWorldDetected = mc.theWorld;
-			reset();
-		}
 		
 		if (mc.theWorld != null && mc.thePlayer != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.theWorld.provider.getDimension())) {
 			profileSurroundings();
@@ -373,16 +374,12 @@ public class SceneEnhancer implements Runnable {
     	}
     }
 
-	/**
-	 * called from our new thread, decided not to let client mc thread reset it, should be ok?
-	 */
-
 	public void reset() {
 		//reset particle data, discard dead ones as that was a bug from weather1
 		
-		if (ExtendedRenderer.rotEffRenderer != null) {
+		/*if (ExtendedRenderer.rotEffRenderer != null) {
 			ExtendedRenderer.rotEffRenderer.clear();
-        }
+        }*/
 		
 		lastWorldDetected.weatherEffects.clear();
 		
