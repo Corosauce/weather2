@@ -253,7 +253,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//temp lock to max for fps comparisons
-			cloudIntensity = 1F;
+			//cloudIntensity = 1F;
 		}
 	}
 
