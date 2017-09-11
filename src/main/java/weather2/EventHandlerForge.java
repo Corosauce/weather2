@@ -7,7 +7,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -199,7 +199,7 @@ public class EventHandlerForge {
 			//mc.getTextureManager().bindTexture(new ResourceLocation("textures/misc/vignette.png"));
 			mc.getTextureManager().bindTexture(new ResourceLocation("weather2:textures/gui/vignette.png"));
 			Tessellator tessellator = Tessellator.getInstance();
-			VertexBuffer vertexbuffer = tessellator.getBuffer();
+			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
 			vertexbuffer.pos(0.0D, (double)scaledRes.getScaledHeight() * scaledRes.getScaleFactor() * 1D, -90.0D).tex(0.0D, 1.0D).endVertex();
 			vertexbuffer.pos((double)scaledRes.getScaledWidth() * scaledRes.getScaleFactor(), (double)scaledRes.getScaledHeight() * scaledRes.getScaleFactor(), -90.0D).tex(1.0D, 1.0D).endVertex();

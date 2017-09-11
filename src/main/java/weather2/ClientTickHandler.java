@@ -58,7 +58,7 @@ public class ClientTickHandler
     		configButton = new GuiButton(0, (i/2)-100, 0, 200, 20, "Weather2 Config (unpauses game)");
     		configButton.drawButton(mc, k, l);
     		
-    		if (k >= configButton.xPosition && l >= configButton.yPosition && k < configButton.xPosition + 200 && l < configButton.yPosition + 20) {
+    		if (k >= configButton.x && l >= configButton.y && k < configButton.x + 200 && l < configButton.y + 20) {
     			if (Mouse.isButtonDown(0)) {
     				mc.displayGuiScreen(new GuiEZConfig());
     			}
