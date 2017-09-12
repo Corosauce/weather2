@@ -37,6 +37,7 @@ public class ItemBlockBetter extends Item
     /**
      * Sets the unlocalized name of this item to the string passed as the parameter, prefixed by "item."
      */
+    @Override
     public ItemBlockBetter setUnlocalizedName(String unlocalizedName)
     {
         super.setUnlocalizedName(unlocalizedName);
@@ -46,6 +47,7 @@ public class ItemBlockBetter extends Item
     /**
      * Called when a Block is right-clicked with this Item
      */
+    @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -165,6 +167,7 @@ public class ItemBlockBetter extends Item
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
     @SideOnly(Side.CLIENT)
+    @Override
     public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
     {
         this.block.getSubBlocks(itemIn, tab, subItems);
@@ -201,6 +204,7 @@ public class ItemBlockBetter extends Item
      * allows items to add custom lines of information to the mouseover description
      */
     @SideOnly(Side.CLIENT)
+    @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
     {
         block.addInformation(stack, playerIn, tooltip, advanced);
