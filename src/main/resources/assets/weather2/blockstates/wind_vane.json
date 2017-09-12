@@ -1,7 +1,7 @@
 {
   "variants": {
     "normal": {
-      "model": "weather2:WindVane"
+      "model": "weather2:wind_vane"
     }
   }
 }

@@ -79,7 +79,7 @@ public class BlockSandLayer extends Block
 
     @Override
     @Nullable
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         int i = ((Integer)blockState.getValue(LAYERS)).intValue();
         float f = 0.125F;
@@ -122,7 +122,7 @@ public class BlockSandLayer extends Block
      * block, etc.
      */
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
     	/*if (!worldIn.isRemote) {
     		WeatherUtilBlock.divideToNeighborCheck(state, worldIn, pos, blockIn);
@@ -234,7 +234,7 @@ public class BlockSandLayer extends Block
     }*/
 
     @Override
-    public boolean isVisuallyOpaque() {
+    public boolean causesSuffocation(IBlockState state) {
         return false;
     }
 }

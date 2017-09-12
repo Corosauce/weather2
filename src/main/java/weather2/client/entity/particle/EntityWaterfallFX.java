@@ -7,7 +7,7 @@ import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -78,7 +78,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
     }
     
     @Override
-    public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7) {
+    public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float var2, float var3, float var4, float var5, float var6, float var7) {
     	float var8 = (float)(this.getParticleTextureIndex() % 16) / 16.0F;
         float var9 = var8 + 0.0624375F;
         float var10 = (float)(this.getParticleTextureIndex() / 16) / 16.0F;
@@ -88,7 +88,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         float var14 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)var2 - interpPosY);
         float var15 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)var2 - interpPosZ);
         float var16 = this.getBrightnessForRender(var2) * this.brightness;
-        var16 = (1F + FMLClientHandler.instance().getClient().gameSettings.gammaSetting) - (this.worldObj.calculateSkylightSubtracted(var2) * 0.13F);
+        var16 = (1F + FMLClientHandler.instance().getClient().gameSettings.gammaSetting) - (this.world.calculateSkylightSubtracted(var2) * 0.13F);
         
         
         
@@ -136,9 +136,9 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         this.prevPosZ = this.posZ;
         
         float adj = 0.08F * rand.nextFloat();
-        //this.motionX += adj * Math.sin(worldObj.getWorldTime());
-        //this.motionZ += adj * Math.sin(worldObj.getWorldTime());
-        //this.motionY += adj * Math.cos(worldObj.getWorldTime());
+        //this.motionX += adj * Math.sin(world.getWorldTime());
+        //this.motionZ += adj * Math.sin(world.getWorldTime());
+        //this.motionY += adj * Math.cos(world.getWorldTime());
 
         if (particleRed < 255) particleRed += 0.01F;
         if (particleGreen < 255) particleGreen += 0.01F;
@@ -153,8 +153,8 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         //this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         
-        Block id = this.worldObj.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getBlock();
-        //int id2 = this.worldObj.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
+        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getBlock();
+        //int id2 = this.world.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
         
         
         
@@ -165,14 +165,14 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         	BlockPos pos = new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
         	//patch for missing getFlowDirection, based on its code, could just strait up use this method and test new speed
-        	Vec3d vec3 = Blocks.FLOWING_WATER.modifyAcceleration(worldObj, pos, null, new Vec3d(0, 0, 0));
+        	Vec3d vec3 = Blocks.FLOWING_WATER.modifyAcceleration(world, pos, null, new Vec3d(0, 0, 0));
         	double dir = -1000;
         	if (vec3.xCoord != 0 && vec3.zCoord != 0) {
         		dir = Math.atan2(vec3.zCoord, vec3.xCoord) - (Math.PI / 2D);
         	}
         	
         	
-        	//double dir = BlockLiquid.getFlowDirection(worldObj, pos, Material.WATER);
+        	//double dir = BlockLiquid.getFlowDirection(world, pos, Material.WATER);
         	
         	if (dir != -1000) {
             	//System.out.println("uhhhh: " + dir);
@@ -189,11 +189,11 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
     		//this.motionY += (rand.nextFloat() * range/2) - (range/4);
     		this.motionZ += (rand.nextFloat() * range) - (range/2);
         	
-    		IBlockState state = this.worldObj.getBlockState(pos);
+    		IBlockState state = this.world.getBlockState(pos);
     		
     		meta = state.getBlock().getMetaFromState(state);
     		
-        	//meta = this.worldObj.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
+        	//meta = this.world.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
         	if ((meta & 8) != 0/* && (id2 == 8 || id2 == 9)*/) {
         		this.motionY -= 0.05000000074505806D * this.particleGravity;
@@ -227,7 +227,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         this.motionX *= (double)var1;
         this.motionY *= (double)var1;
         this.motionZ *= (double)var1;
-        this.moveEntity(this.motionX, this.motionY, this.motionZ);
+        this.move(this.motionX, this.motionY, this.motionZ);
         
         int meta2 = meta;
         

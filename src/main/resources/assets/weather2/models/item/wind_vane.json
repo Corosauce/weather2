@@ -1,5 +1,5 @@
 {
-  "parent": "weather2:block/TornadoSiren",
+  "parent": "weather2:block/wind_vane",
   "display": {
     "thirdperson": {
       "rotation": [

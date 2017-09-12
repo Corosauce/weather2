@@ -29,7 +29,7 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     @Override
     public void update()
     {
-    	if (worldObj.isRemote) {
+    	if (world.isRemote) {
     		tickClient();
     	}
     }

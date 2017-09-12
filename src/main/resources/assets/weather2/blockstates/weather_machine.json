@@ -1,7 +1,7 @@
 {
   "variants": {
     "normal": {
-      "model": "weather2:WeatherMachine"
+      "model": "weather2:weather_machine"
     }
   }
 }

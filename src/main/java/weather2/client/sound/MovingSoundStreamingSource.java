@@ -58,7 +58,7 @@ public class MovingSoundStreamingSource extends MovingSound {
 
     public void update()
     {
-    	EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
+    	EntityPlayer entP = FMLClientHandler.instance().getClient().player;
     	
     	if (entP != null) {
     		this.xPosF = (float) entP.posX;
@@ -72,7 +72,7 @@ public class MovingSoundStreamingSource extends MovingSound {
 
     	//if locked to player, don't dynamically adjust volume
     	if (!lockToPlayer) {
-            float var3 = (float)((cutOffRange - (double)MathHelper.sqrt_double(getDistanceFrom(realSource, new Vec3(entP.posX, entP.posY, entP.posZ)))) / cutOffRange);
+            float var3 = (float)((cutOffRange - (double)MathHelper.sqrt(getDistanceFrom(realSource, new Vec3(entP.posX, entP.posY, entP.posZ)))) / cutOffRange);
 
             if (var3 < 0.0F)
             {

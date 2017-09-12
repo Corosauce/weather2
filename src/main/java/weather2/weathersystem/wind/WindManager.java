@@ -346,7 +346,7 @@ public class WindManager {
 
 	@SideOnly(Side.CLIENT)
 	public void tickClient() {
-		EntityPlayer entP = FMLClientHandler.instance().getClient().thePlayer;
+		EntityPlayer entP = FMLClientHandler.instance().getClient().player;
 
         if (windTimeEvent > 0) {
         	windTimeEvent--;

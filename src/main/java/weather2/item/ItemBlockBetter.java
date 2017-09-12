@@ -16,10 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,6 +34,7 @@ public class ItemBlockBetter extends Item
     /**
      * Sets the unlocalized name of this item to the string passed as the parameter, prefixed by "item."
      */
+    @Override
     public ItemBlockBetter setUnlocalizedName(String unlocalizedName)
     {
         super.setUnlocalizedName(unlocalizedName);
@@ -46,26 +44,29 @@ public class ItemBlockBetter extends Item
     /**
      * Called when a Block is right-clicked with this Item
      */
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
         Block block = iblockstate.getBlock();
+
+        ItemStack stack = playerIn.getHeldItem(hand);
 
         if (!block.isReplaceable(worldIn, pos))
         {
             pos = pos.offset(facing);
         }
 
-        if (stack.stackSize != 0 && playerIn.canPlayerEdit(pos, facing, stack) && worldIn.canBlockBePlaced(this.block, pos, false, facing, (Entity)null, stack))
+        if (stack.getCount() != 0 && playerIn.canPlayerEdit(pos, facing, stack) && worldIn.mayPlace(this.block, pos, false, facing, (Entity)null))
         {
             int i = this.getMetadata(stack.getMetadata());
-            IBlockState iblockstate1 = this.block.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);
+            IBlockState iblockstate1 = this.block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);
 
             if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
             {
                 SoundType soundtype = worldIn.getBlockState(pos).getBlock().getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn);
                 worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-                --stack.stackSize;
+                stack.shrink(1);
             }
 
             return EnumActionResult.SUCCESS;
@@ -92,7 +93,7 @@ public class ItemBlockBetter extends Item
 
                 if (tileentity != null)
                 {
-                    if (!worldIn.isRemote && tileentity.onlyOpsCanSetNbt() && (player == null || !player.func_189808_dh()))
+                    if (!worldIn.isRemote && tileentity.onlyOpsCanSetNbt() && (player == null || !player.canUseCommandBlock()))
                     {
                         return false;
                     }
@@ -132,7 +133,7 @@ public class ItemBlockBetter extends Item
             pos = pos.offset(side);
         }
 
-        return worldIn.canBlockBePlaced(this.block, pos, false, side, (Entity)null, stack);
+        return worldIn.mayPlace(this.block, pos, false, side, (Entity)null);
     }
 
     /**
@@ -165,7 +166,8 @@ public class ItemBlockBetter extends Item
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
     @SideOnly(Side.CLIENT)
-    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
+    @Override
+    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems)
     {
         this.block.getSubBlocks(itemIn, tab, subItems);
     }
@@ -201,6 +203,7 @@ public class ItemBlockBetter extends Item
      * allows items to add custom lines of information to the mouseover description
      */
     @SideOnly(Side.CLIENT)
+    @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
     {
         block.addInformation(stack, playerIn, tooltip, advanced);

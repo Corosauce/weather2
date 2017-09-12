@@ -8,7 +8,7 @@ import CoroUtil.util.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -40,7 +40,7 @@ public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
     public void doRender(EntityLightningBoltCustom entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder worldrenderer = tessellator.getBuffer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         GlStateManager.disableTexture2D();
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
@@ -83,9 +83,9 @@ public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
 
         //temp - visualize sandstorm
         Minecraft mc = Minecraft.getMinecraft();
-        EntityPlayer player = mc.thePlayer;
-        World world = mc.theWorld;
-        Vec3 posPlayer = new Vec3(mc.thePlayer.posX, 0/*mc.thePlayer.posY*/, mc.thePlayer.posZ);
+        EntityPlayer player = mc.player;
+        World world = mc.world;
+        Vec3 posPlayer = new Vec3(mc.player.posX, 0/*mc.player.posY*/, mc.player.posZ);
         WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
         if (sandstorm != null) {
             List<Vec3> wat = sandstorm.getSandstormAsShape();

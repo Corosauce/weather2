@@ -42,25 +42,29 @@ public class ItemPocketSand extends Item {
     public static ParticleBehaviorSandstorm particleBehavior;
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player, EnumHand hand) {
-        if (!player.worldObj.isRemote) {
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer player, EnumHand hand) {
+
+        ItemStack itemStackIn = player.getHeldItem(hand);
+
+        if (!player.world.isRemote) {
+
             if (!(player).capabilities.isCreativeMode)
             {
-                if (itemStackIn.stackSize > 0) {
-                    --itemStackIn.stackSize;
+                if (itemStackIn.getCount() > 0) {
+                    itemStackIn.shrink(1);
                 }
             }
             int y = (int) player.getEntityBoundingBox().minY;
             double randSize = 20;
-            double randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
-            WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ), player.rotationYawHead + (float)randAngle, 15, 2, CommonProxy.blockSandLayer, 2);
+            double randAngle = player.world.rand.nextDouble() * randSize - player.world.rand.nextDouble() * randSize;
+            WeatherUtilBlock.fillAgainstWallSmoothly(player.world, new Vec3(player.posX, y + 0.5D, player.posZ), player.rotationYawHead + (float)randAngle, 15, 2, CommonProxy.blockSandLayer, 2);
 
             particulateToClients(worldIn, player);
         } else {
-            particulate(player.worldObj, player);
+            particulate(player.world, player);
         }
 
-        return super.onItemRightClick(itemStackIn, worldIn, player, hand);
+        return super.onItemRightClick(worldIn, player, hand);
     }
 
     /**
@@ -88,11 +92,11 @@ public class ItemPocketSand extends Item {
         BlockPos pos = new BlockPos(player.posX + vecXCast, player.posY + vecYCast, player.posZ + vecZCast);
         //pos = new BlockPos(player.getLookVec().add(new Vec3d(player.posX, player.posY, player.posZ)));
 
-        double dist = Math.sqrt(Minecraft.getMinecraft().thePlayer.getDistanceSq(pos));
+        double dist = Math.sqrt(Minecraft.getMinecraft().player.getDistanceSq(pos));
 
         //System.out.println(dist);
 
-        if (Minecraft.getMinecraft().thePlayer != player && dist < 7) {
+        if (Minecraft.getMinecraft().player != player && dist < 7) {
             SceneEnhancer.adjustAmountTargetPocketSandOverride = 1.3F;
         }
 
@@ -103,11 +107,11 @@ public class ItemPocketSand extends Item {
 
             double speed = 0.6F;
             double randSize = 20;
-            double randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
+            double randAngle = player.world.rand.nextDouble() * randSize - player.world.rand.nextDouble() * randSize;
             double vecX = (-Math.sin(Math.toRadians(player.rotationYawHead + randAngle)) * (speed));
-            randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
+            randAngle = player.world.rand.nextDouble() * randSize - player.world.rand.nextDouble() * randSize;
             double vecZ = (Math.cos(Math.toRadians(player.rotationYawHead + randAngle)) * (speed));
-            randAngle = player.worldObj.rand.nextDouble() * randSize - player.worldObj.rand.nextDouble() * randSize;
+            randAngle = player.world.rand.nextDouble() * randSize - player.world.rand.nextDouble() * randSize;
 
             //double xzAdj = Math.cos(Math.toRadians(player.rotationPitch));
 
@@ -176,7 +180,7 @@ public class ItemPocketSand extends Item {
 
     @SideOnly(Side.CLIENT)
     public static void particulateFromServer(String username) {
-        World world = Minecraft.getMinecraft().theWorld;
+        World world = Minecraft.getMinecraft().world;
         EntityPlayer player = world.getPlayerEntityByName(username);
         if (player != null) {
             particulate(world, player);

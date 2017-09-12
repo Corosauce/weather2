@@ -1,5 +1,5 @@
 {
-  "parent": "weather2:block/TornadoSensor",
+  "parent": "weather2:block/anemometer",
   "display": {
     "thirdperson": {
       "rotation": [

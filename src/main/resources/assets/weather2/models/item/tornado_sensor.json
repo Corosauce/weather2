@@ -1,5 +1,5 @@
 {
-  "parent": "weather2:block/Anemometer",
+  "parent": "weather2:block/tornado_sensor",
   "display": {
     "thirdperson": {
       "rotation": [

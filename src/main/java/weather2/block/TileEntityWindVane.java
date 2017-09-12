@@ -30,10 +30,10 @@ public class TileEntityWindVane extends TileEntity implements ITickable
 	@Override
     public void update()
     {
-    	if (worldObj.isRemote) {
+    	if (world.isRemote) {
     		
-    		if (worldObj.getTotalWorldTime() % 40 == 0) {
-    			isOutsideCached = WeatherUtilEntity.isPosOutside(worldObj, new Vec3(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
+    		if (world.getTotalWorldTime() % 40 == 0) {
+    			isOutsideCached = WeatherUtilEntity.isPosOutside(world, new Vec3(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
     		}
     		
     		if (isOutsideCached) {
@@ -43,8 +43,8 @@ public class TileEntityWindVane extends TileEntity implements ITickable
 	    		//smoothAngleRotationalVel = 0;
 	    		//smoothAngleRotationalVelAccel = 0;
 	    		
-	    		float targetAngle = WindReader.getWindAngle(worldObj, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
-	    		float windSpeed = WindReader.getWindSpeed(worldObj, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
+	    		float targetAngle = WindReader.getWindAngle(world, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
+	    		float windSpeed = WindReader.getWindSpeed(world, new Vec3(getPos().getX(), getPos().getY(), getPos().getZ()));
 	    		
 	    		//System.out.println("targetAngle: " + targetAngle);
 	    		

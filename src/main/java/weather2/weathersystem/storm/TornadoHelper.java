@@ -159,7 +159,7 @@ public class TornadoHelper {
 								/*if (mBlock != null) {
 			                    	mBlock.setPosition(tryX, tryY, tryZ);
 			                    }*/
-								parWorld.spawnEntityInWorld(mBlock);
+								parWorld.spawnEntity(mBlock);
 							}
 						}
 					}
@@ -212,7 +212,7 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            Biome bgb = parWorld.getBiomeGenForCoords(new BlockPos(MathHelper.floor_double(storm.pos.xCoord), 0, MathHelper.floor_double(storm.pos.zCoord)));
+            Biome bgb = parWorld.getBiome(new BlockPos(MathHelper.floor(storm.pos.xCoord), 0, MathHelper.floor(storm.pos.zCoord)));
         	
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/heightVariation is correct, guessing we can just not factor in variation
@@ -266,7 +266,7 @@ public class TornadoHelper {
 	
 	                    double d0 = storm.pos.xCoord - tryX;
 	                    double d2 = storm.pos.zCoord - tryZ;
-	                    double dist = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
+	                    double dist = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 	                    BlockPos pos = new BlockPos(tryX, tryY, tryZ);
 	                    
 	                    if (dist < tornadoBaseSize/2 + ii/2 && tryRipCount < tryRipMax)
@@ -277,13 +277,13 @@ public class TornadoHelper {
 	                        
 	                        boolean performed = false;
 	
-	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID)/* && Block.blocksList[blockID].blockMaterial == Material.ground*//* && worldObj.getHeightValue(tryX, tryZ)-1 == tryY*/)
+	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID)/* && Block.blocksList[blockID].blockMaterial == Material.ground*//* && world.getHeightValue(tryX, tryZ)-1 == tryY*/)
 	                        {
-	                            /*if (blockID != 0 && canGrab(blockID) && (worldObj.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
-	                                    worldObj.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
-	                                    worldObj.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||
-	                                    worldObj.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
-	                                    worldObj.getBlockStateId(tryX,tryY,tryZ-1) == 0)) {*/
+	                            /*if (blockID != 0 && canGrab(blockID) && (world.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
+	                                    world.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
+	                                    world.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||
+	                                    world.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
+	                                    world.getBlockStateId(tryX,tryY,tryZ-1) == 0)) {*/
 	                            tryRipCount++;
 	                            seesLight = tryRip(parWorld, tryX, tryY, tryZ);
 	                            
@@ -306,7 +306,7 @@ public class TornadoHelper {
 	                    tryZ = (int)posZ-l+((mod_EntMover.tornadoBaseSize/2)+(ii/2));
 	
 	                    if (tryRipCount < tryRipMax) {
-	                    	int blockID = this.worldObj.getBlockStateId(tryX,tryY,tryZ);
+	                    	int blockID = this.world.getBlockStateId(tryX,tryY,tryZ);
 	                    	if (blockID != 0 && canGrab(blockID)) {
 	                    		tryRipCount++;
 	                    		seesLight = tryRip(tryX,tryY,tryZ, true);
@@ -330,7 +330,7 @@ public class TornadoHelper {
 	
 	                    double d0 = storm.pos.xCoord - tryX;
 	                    double d2 = storm.pos.zCoord - tryZ;
-	                    double dist = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
+	                    double dist = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 	                    
 	                    if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax)
 	                    {
@@ -458,7 +458,7 @@ public class TornadoHelper {
 	                    if (createEntity) {
 		                    if (!parWorld.isRemote)
 		                    {
-		                        parWorld.spawnEntityInWorld(mBlock);
+		                        parWorld.spawnEntity(mBlock);
 		                    }
 	                    }
 
@@ -557,14 +557,14 @@ public class TornadoHelper {
                         	if (entity1 instanceof EntityPlayer) {
                         		//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
                         		//actually we need to still change its motion var, otherwise weird things happen
-                        		//if (entity1.worldObj.isRemote) {
+                        		//if (entity1.world.isRemote) {
 	                        		if (WeatherUtilEntity.isEntityOutside(entity1)) {
 	                        			//Weather.dbg("entity1.motionY: " + entity1.motionY);
 	                        			storm.spinEntity(entity1);
 	                        			//spin(entity, conf, entity1);
 	                                    foundEnt = true;
 	                                    
-	                                    //Weather.dbg("spin player! client side?: " + entity1.worldObj.isRemote);
+	                                    //Weather.dbg("spin player! client side?: " + entity1.world.isRemote);
 	                        			
 	                        		}
                         		//} else {
@@ -576,7 +576,7 @@ public class TornadoHelper {
                         		//}
                         	} else if (entity1 instanceof EntityLivingBase && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
                         		//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
-                        		//if (!entity1.worldObj.isRemote) {
+                        		//if (!entity1.world.isRemote) {
 	                        		storm.spinEntity(entity1);
 	                        		//spin(entity, conf, entity1);
 	                                foundEnt = true;
@@ -588,10 +588,10 @@ public class TornadoHelper {
 
                 if (entity1 instanceof EntityMovingBlock && !entity1.isDead)
                 {
-                    int var3 = MathHelper.floor_double(entity1.posX);
-                    int var4 = MathHelper.floor_double(entity1.posZ);
+                    int var3 = MathHelper.floor(entity1.posX);
+                    int var4 = MathHelper.floor(entity1.posZ);
                     byte var5 = 32;
-                    /*if(!entity1.worldObj.checkChunksExist(var3 - var5, 0, var4 - var5, var3 + var5, 128, var4 + var5) || !entity1.addedToChunk) {
+                    /*if(!entity1.world.checkChunksExist(var3 - var5, 0, var4 - var5, var3 + var5, 128, var4 + var5) || !entity1.addedToChunk) {
                         entity1.setEntityDead();
                         mod_EntMover.blockCount--;
                     }*/
@@ -639,7 +639,7 @@ public class TornadoHelper {
         double var7 = parVec.xCoord - var1;
         //double var9 = ent.posY - var3;
         double var11 = parVec.zCoord - var5;
-        return (double)MathHelper.sqrt_double(var7 * var7/* + var9 * var9*/ + var11 * var11);
+        return (double)MathHelper.sqrt(var7 * var7/* + var9 * var9*/ + var11 * var11);
     }
     
     public double getDistanceXZ(Entity ent, double var1, double var3, double var5)
@@ -647,7 +647,7 @@ public class TornadoHelper {
         double var7 = ent.posX - var1;
         //double var9 = ent.posY - var3;
         double var11 = ent.posZ - var5;
-        return (double)MathHelper.sqrt_double(var7 * var7/* + var9 * var9*/ + var11 * var11);
+        return (double)MathHelper.sqrt(var7 * var7/* + var9 * var9*/ + var11 * var11);
     }
     
     @SideOnly(Side.CLIENT)
@@ -656,7 +656,7 @@ public class TornadoHelper {
     	
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	
-        if (mc.thePlayer == null)
+        if (mc.player == null)
         {
             return;
         }
@@ -667,12 +667,12 @@ public class TornadoHelper {
         if (storm.stormType == storm.TYPE_WATER) {
         	close = 200;
         }
-        Vec3 plPos = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
+        Vec3 plPos = new Vec3(mc.player.posX, mc.player.posY, mc.player.posZ);
         
         double distToPlayer = this.storm.posGround.distanceTo(plPos);
         
-        float volScaleFar = (float) ((far - distToPlayer/*this.getDistanceToEntity(mc.thePlayer)*/) / far);
-        float volScaleClose = (float) ((close - distToPlayer/*this.getDistanceToEntity(mc.thePlayer)*/) / close);
+        float volScaleFar = (float) ((far - distToPlayer/*this.getDistanceToEntity(mc.player)*/) / far);
+        float volScaleClose = (float) ((close - distToPlayer/*this.getDistanceToEntity(mc.player)*/) / close);
 
         if (volScaleFar < 0F)
         {
@@ -690,8 +690,8 @@ public class TornadoHelper {
             {
                 /*this.soundTimer[0] = System.currentTimeMillis();
                 this.soundTimer[1] = System.currentTimeMillis();
-                tryPlaySound(snd_dmg_close, 0, mc.thePlayer, volScaleClose);
-                tryPlaySound(snd_wind_close, 1, mc.thePlayer, volScaleClose);*/
+                tryPlaySound(snd_dmg_close, 0, mc.player, volScaleClose);
+                tryPlaySound(snd_wind_close, 1, mc.player, volScaleClose);*/
             }
 
             lastTickPlayerClose = true;
@@ -705,14 +705,14 @@ public class TornadoHelper {
 
         if (distToPlayer < far)
         {
-            if (playFarSound) tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.thePlayer, volScaleFar, far);
+            if (playFarSound) tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, volScaleFar, far);
             //tryPlaySound(snd_dmg_close[0], 0);
             //tryPlaySound(snd_dmg_close[0], 0);
-            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.thePlayer, volScaleClose, close);
+            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, volScaleClose, close);
 
             if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND/*getStorm().type == getStorm().TYPE_TORNADO*/)
             {
-                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.thePlayer, volScaleClose, close);
+                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, volScaleClose, close);
             }
         }
 
@@ -741,10 +741,10 @@ public class TornadoHelper {
 
         //System.out.println(volScaleClose);
         //System.out.println(distToPlayer);
-        //worldObj.playRecord("destruction2", (int)posX, (int)posY, (int)posZ);
-        //worldObj.playSoundEffect(posX, posY, posZ, "tornado.destruction", 1F, 1.0F);
-        //worldObj.playSoundAtEntity(mc.thePlayer, "tornado.destruction", 1.0F, 1.0F);
-        //worldObj.playRecord("tornado.destruction", (int)mc.thePlayer.posX, (int)mc.thePlayer.posY, (int)mc.thePlayer.posZ);
+        //world.playRecord("destruction2", (int)posX, (int)posY, (int)posZ);
+        //world.playSoundEffect(posX, posY, posZ, "tornado.destruction", 1F, 1.0F);
+        //world.playSoundAtEntity(mc.player, "tornado.destruction", 1.0F, 1.0F);
+        //world.playRecord("tornado.destruction", (int)mc.player.posX, (int)mc.player.posY, (int)mc.player.posZ);
         //mc.ingameGUI.recordPlayingUpFor = 0;
     }
 
@@ -758,7 +758,7 @@ public class TornadoHelper {
         //soundTarget = this;
         if (WeatherUtilSound.soundTimer[arrIndex] <= System.currentTimeMillis())
         {
-            //worldObj.playSoundAtEntity(soundTarget, new StringBuilder().append("tornado."+sound).toString(), 1.0F, 1.0F);
+            //world.playSoundAtEntity(soundTarget, new StringBuilder().append("tornado."+sound).toString(), 1.0F, 1.0F);
             //((IWorldAccess)this.worldAccesses.get(var5)).playSound(var2, var1.posX, var1.posY - (double)var1.yOffset, var1.posZ, var3, var4);
         	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append("streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
             //this.soundID[arrIndex] = mod_EntMover.getLastSoundID();

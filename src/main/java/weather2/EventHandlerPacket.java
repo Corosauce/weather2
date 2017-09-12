@@ -122,7 +122,7 @@ public class EventHandlerPacket {
     
     @SideOnly(Side.CLIENT)
     public String getSelfUsername() {
-    	return CoroUtilEntity.getName(Minecraft.getMinecraft().thePlayer);
+    	return CoroUtilEntity.getName(Minecraft.getMinecraft().player);
     }
 	
 }

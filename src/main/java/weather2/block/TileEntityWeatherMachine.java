@@ -59,7 +59,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	public void invalidate() {
 		super.invalidate();
 		
-		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
+		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
 		if (wm != null) {
     		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
     		
@@ -74,14 +74,14 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	@Override
     public void update()
     {
-    	if (!worldObj.isRemote) {
+    	if (!world.isRemote) {
     		
     		//TEMP
     		weatherSize = 100;
     		
     		//weatherType = 3;
     		
-    		if (worldObj.getTotalWorldTime() % 40 == 0) {
+    		if (world.getTotalWorldTime() % 40 == 0) {
     			
     			if (lastTickStormObject != null && lastTickStormObject.isDead) {
     				lastTickStormObject = null;
@@ -89,7 +89,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 
     			//for when world is reloaded, regrab instance so a duplicate isnt greated (and so old one doesnt get loose)
     			if (lastTickStormObject == null && lastTickStormObjectID != -1) {
-					WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
+					WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
 
 					if (manager != null) {
 						StormObject obj = manager.getStormObjectByID(lastTickStormObjectID);
@@ -101,7 +101,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 				}
     			
     			if (lastTickStormObject == null) {
-    				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
+    				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
     				
     				if (manager != null) {
     					StormObject so = new StormObject(manager);

@@ -27,7 +27,7 @@ public class CommandWeather2 extends CommandBase {
 	//TODO: FIX FOR COMMAND BLOCKS, apparently permission issues
 	
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "weather2";
 	}
 
@@ -156,7 +156,7 @@ public class CommandWeather2 extends CommandBase {
 								
 								WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(wm);
 								
-								//sandstorm.pos = new Vec3(player.posX, player.worldObj.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
+								//sandstorm.pos = new Vec3(player.posX, player.world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
 
 								Vec3 pos = new Vec3(posVec.xCoord, world.getHeight(new BlockPos(posVec.xCoord, 0, posVec.zCoord)).getY() + 1, posVec.zCoord);
 
@@ -218,7 +218,7 @@ public class CommandWeather2 extends CommandBase {
 					}
 				} else if (var2[0].equals("testderp") && player != null) {
 					//EntityPlayerMP player = var1;
-					WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 1, 1, CommonProxy.blockSandLayer, 30);
+					WeatherUtilBlock.floodAreaWithLayerableBlock(player.world, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 1, 1, CommonProxy.blockSandLayer, 30);
 				} else if (var2[0].equals("wind")) {
 					if (var2[1].equals("high")) {
 						boolean doHighOn = false;
@@ -280,11 +280,11 @@ public class CommandWeather2 extends CommandBase {
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender par1ICommandSender)
     {
-        return par1ICommandSender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
+        return par1ICommandSender.canUseCommand(this.getRequiredPermissionLevel(), this.getName());
     }
 
 	@Override
-	public String getCommandUsage(ICommandSender icommandsender) {
+	public String getUsage(ICommandSender icommandsender) {
 		return "Magic dev method!";
 	}
 	
@@ -294,7 +294,7 @@ public class CommandWeather2 extends CommandBase {
 	}
 
 	public static void sendCommandSenderMsg(ICommandSender entP, String msg) {
-		entP.addChatMessage(new TextComponentString(msg));
+		entP.sendMessage(new TextComponentString(msg));
 	}
 
 }

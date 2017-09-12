@@ -150,8 +150,8 @@ public class ServerTickHandler
 	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
 		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
 		        		//if (state.getBlock() != Blocks.SAND) {
-		        			//WeatherUtilBlock.floodAreaWithLayerableBlock(player.worldObj, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
-		        			WeatherUtilBlock.fillAgainstWallSmoothly(player.worldObj, new Vec3(player.posX, y + 0.5D, player.posZ/*player.posX, player.posY, player.posZ*/), player.rotationYawHead, 15, 2, CommonProxy.blockSandLayer);
+		        			//WeatherUtilBlock.floodAreaWithLayerableBlock(player.world, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
+		        			WeatherUtilBlock.fillAgainstWallSmoothly(player.world, new Vec3(player.posX, y + 0.5D, player.posZ/*player.posX, player.posY, player.posZ*/), player.rotationYawHead, 15, 2, CommonProxy.blockSandLayer);
 		        		//}
 	        		}
 	        	}
@@ -185,7 +185,7 @@ public class ServerTickHandler
     }
 
     public static void playerClientRequestsFullSync(EntityPlayerMP entP) {
-		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.worldObj.provider.getDimension());
+		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.world.provider.getDimension());
 		if (wm != null) {
 			wm.playerJoinedWorldSyncFull(entP);
 		}

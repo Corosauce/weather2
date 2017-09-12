@@ -87,7 +87,7 @@ public class TileEntityAnemometerRenderer extends TileEntitySpecialRenderer
     	Tessellator tessellator = Tessellator.getInstance();
     	//tessellator.setBrightness(9999999);
 
-    	//tessellator.setBrightness(var1.getBlockType().getMixedBrightnessForBlock(var1.worldObj, MathHelper.floor_double(var2), MathHelper.floor_double(var4), MathHelper.floor_double(var6)));
+    	//tessellator.setBrightness(var1.getBlockType().getMixedBrightnessForBlock(var1.world, MathHelper.floor(var2), MathHelper.floor(var4), MathHelper.floor(var6)));
     	
     	float br = 0.9F;
     	//GL11.glColor4f(br, br, br, 1F);

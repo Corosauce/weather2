@@ -288,8 +288,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		int findTriesMax = 30;
 		for (int i = 0; i < findTriesMax; i++) {
 			
-			int x = MathHelper.floor_double(posIn.xCoord + vecX + rand.nextInt(searchRadius * 2) - searchRadius);
-			int z = MathHelper.floor_double(posIn.zCoord + vecZ + rand.nextInt(searchRadius * 2) - searchRadius);
+			int x = MathHelper.floor(posIn.xCoord + vecX + rand.nextInt(searchRadius * 2) - searchRadius);
+			int z = MathHelper.floor(posIn.zCoord + vecZ + rand.nextInt(searchRadius * 2) - searchRadius);
 			
 			BlockPos pos = new BlockPos(x, 0, z);
 			
@@ -328,8 +328,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					posFindLastGoodUpwind = new BlockPos(posFind);
 					
 					//scan against wind (upwind)
-					int xx = MathHelper.floor_double(posFind.getX() + (dirX * -1D * tickDist));
-					int zz = MathHelper.floor_double(posFind.getZ() + (dirZ * -1D * tickDist));
+					int xx = MathHelper.floor(posFind.getX() + (dirX * -1D * tickDist));
+					int zz = MathHelper.floor(posFind.getZ() + (dirZ * -1D * tickDist));
 					
 					posFind = new BlockPos(xx, 0, zz);
 				}
@@ -342,8 +342,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					posFindLastGoodDownwind = new BlockPos(posFind);
 					
 					//scan with wind (downwind)
-					int xx = MathHelper.floor_double(posFind.getX() + (dirX * 1D * tickDist));
-					int zz = MathHelper.floor_double(posFind.getZ() + (dirZ * 1D * tickDist));
+					int xx = MathHelper.floor(posFind.getX() + (dirX * 1D * tickDist));
+					int zz = MathHelper.floor(posFind.getZ() + (dirZ * 1D * tickDist));
 					
 					posFind = new BlockPos(xx, 0, zz);
 				}
@@ -405,7 +405,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			spawnZ = (int) (entP.posZ - vecZ + rand.nextInt(ConfigMisc.Misc_simBoxRadiusSpawn) - rand.nextInt(ConfigMisc.Misc_simBoxRadiusSpawn));
 			tryPos = new Vec3(spawnX, StormObject.layers.get(layer), spawnZ);
 			soClose = getClosestStormAny(tryPos, ConfigMisc.Cloud_Formation_MinDistBetweenSpawned);
-			playerClose = entP.worldObj.getClosestPlayer(spawnX, 50, spawnZ, closestToPlayer, false);
+			playerClose = entP.world.getClosestPlayer(spawnX, 50, spawnZ, closestToPlayer, false);
 		}
 		
 		if (soClose == null) {
@@ -476,9 +476,9 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncLightningNew");
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setInteger("posX", MathHelper.floor_double(parEnt.posX/* * 32.0D*/));
-		nbt.setInteger("posY", MathHelper.floor_double(parEnt.posY/* * 32.0D*/));
-		nbt.setInteger("posZ", MathHelper.floor_double(parEnt.posZ/* * 32.0D*/));
+		nbt.setInteger("posX", MathHelper.floor(parEnt.posX/* * 32.0D*/));
+		nbt.setInteger("posY", MathHelper.floor(parEnt.posY/* * 32.0D*/));
+		nbt.setInteger("posZ", MathHelper.floor(parEnt.posZ/* * 32.0D*/));
 		nbt.setInteger("entityID", parEnt.getEntityId());
 		nbt.setBoolean("custom", custom);
 		data.setTag("data", nbt);

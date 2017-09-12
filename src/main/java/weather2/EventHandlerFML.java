@@ -84,8 +84,8 @@ public class EventHandlerFML {
 	@SubscribeEvent
 	public void playerCloned(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
 		/*if (!event.isCanceled()) {
-			if (event.getEntityPlayer().worldObj.provider.getDimension() != event.getOriginal().worldObj.provider.getDimension()) {
-				Weather.dbg("Weather2: PlayerEvent.Clone: " + event.isCanceled() + ", " + event.isWasDeath() + ", " + event.getEntityPlayer().worldObj.provider.getDimension() + ", " + event.getOriginal().worldObj.provider.getDimension() + ", " );
+			if (event.getEntityPlayer().world.provider.getDimension() != event.getOriginal().world.provider.getDimension()) {
+				Weather.dbg("Weather2: PlayerEvent.Clone: " + event.isCanceled() + ", " + event.isWasDeath() + ", " + event.getEntityPlayer().world.provider.getDimension() + ", " + event.getOriginal().world.provider.getDimension() + ", " );
 				ServerTickHandler.playerChangedDimensionsSyncFull((EntityPlayerMP) event.getEntityPlayer());
 			}
 		}*/

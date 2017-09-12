@@ -1,5 +1,5 @@
 {
-  "parent": "weather2:block/WeatherMachine",
+  "parent": "weather2:block/weather_forecast",
   "display": {
     "thirdperson": {
       "rotation": [

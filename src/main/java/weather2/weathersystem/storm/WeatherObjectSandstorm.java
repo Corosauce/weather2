@@ -359,7 +359,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		//double size = 15;
     	//double height = 50;
-    	double distanceToCenter = pos.distanceTo(new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
+    	double distanceToCenter = pos.distanceTo(new Vec3(mc.player.posX, mc.player.posY, mc.player.posZ));
     	//how close to renderable particle wall
     	double distanceToFront = distanceToCenter - size;
     	boolean isInside = distanceToFront < 0;
@@ -387,17 +387,17 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double degRate = 360D / (circ / distBetweenParticles);
     	
-    	if (mc.theWorld.getTotalWorldTime() % 40 == 0) {
+    	if (mc.world.getTotalWorldTime() % 40 == 0) {
     		//System.out.println("circ: " + circ);
     		//System.out.println("degRate: " + degRate);
     	}
     	
-    	Random rand = mc.theWorld.rand;
+    	Random rand = mc.world.rand;
     	
     	this.height = this.size / 4;
     	int heightLayers = Math.max(1, this.height / (int) distBetweenParticles);
     	
-    	if ((mc.theWorld.getTotalWorldTime()) % 10 == 0) {
+    	if ((mc.world.getTotalWorldTime()) % 10 == 0) {
     		//System.out.println(heightLayers);
     	}
     	
@@ -434,7 +434,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 			    //for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
 	    			double i = directionAngleDeg + (rand.nextDouble() * 180D);
-			    	if ((mc.theWorld.getTotalWorldTime()) % 2 == 0) {
+			    	if ((mc.world.getTotalWorldTime()) % 2 == 0) {
 
 						if (rand.nextDouble() >= sandstormParticleRateDust) continue;
 
@@ -452,7 +452,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 							sprite = ParticleRegistry.chicken;
 						}
 			    		
-			    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
+			    		ParticleSandstorm part = new ParticleSandstorm(mc.world, x, y, z
 			    				, 0, 0, 0, sprite);
 			    		particleBehavior.initParticle(part);
 			    		
@@ -498,7 +498,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     		spawnedThisTick = 0;
     	}
     	
-    	if ((mc.theWorld.getTotalWorldTime()) % 20 == 0) {
+    	if ((mc.world.getTotalWorldTime()) % 20 == 0) {
     		//System.out.println("sandstormScale: " + sandstormScale + " - size: " + size);
     	}
     	
@@ -515,7 +515,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
-    	if ((mc.theWorld.getTotalWorldTime()) % 3 == 0) {
+    	if ((mc.world.getTotalWorldTime()) % 3 == 0) {
     		
     		//System.out.println(this.particleBehavior.particles.size());
     		
@@ -547,7 +547,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    			sprite = ParticleRegistry.chicken;
 				}
 	    		
-	    		ParticleSandstorm part = new ParticleSandstorm(mc.theWorld, x, y, z
+	    		ParticleSandstorm part = new ParticleSandstorm(mc.world, x, y, z
 	    				, 0, 0, 0, sprite);
 	    		particleBehavior.initParticle(part);
 	    		

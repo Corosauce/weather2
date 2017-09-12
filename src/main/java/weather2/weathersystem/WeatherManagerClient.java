@@ -36,7 +36,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 	
 	@Override
 	public World getWorld() {
-		return FMLClientHandler.instance().getClient().theWorld;
+		return FMLClientHandler.instance().getClient().world;
 	}
 	
 	@Override

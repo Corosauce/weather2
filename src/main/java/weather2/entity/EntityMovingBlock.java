@@ -123,8 +123,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     public void onUpdate()
     {
     	//new kill off when distant method
-    	if (!worldObj.isRemote) {
-	    	if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 140, false) == null) {
+    	if (!world.isRemote) {
+	    	if (this.world.getClosestPlayer(this.posX, 50, this.posZ, 140, false) == null) {
 				setDead();
 			}
     	}
@@ -190,12 +190,12 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             }*/
             Vec3d var1 = new Vec3d(this.posX, this.posY, this.posZ);
             Vec3d var2 = new Vec3d(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
-            RayTraceResult var3 = this.worldObj.rayTraceBlocks(var1, var2);
+            RayTraceResult var3 = this.world.rayTraceBlocks(var1, var2);
             var2 = new Vec3d(this.posX + this.motionX * 1.3D, this.posY + this.motionY * 1.3D, this.posZ + this.motionZ * 1.3D);
 
             if (var3 != null)
             {
-                var2 = new Vec3d(var3.hitVec.x, var3.hitVec.y, var3.hitVec.z);
+                var2 = new Vec3d(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
             }
 
             Entity var4 = null;
@@ -203,7 +203,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (this.age > this.gravityDelay / 4)
             {
-                var5 = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ));
+                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ));
             }
 
             double var6 = 0.0D;
@@ -253,12 +253,12 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                         }
                         else
                         {
-                            var9 = MathHelper.floor_double(this.posX);
-                            var11 = MathHelper.floor_double(this.posY);
-                            int var12 = MathHelper.floor_double(this.posZ);
+                            var9 = MathHelper.floor(this.posX);
+                            var11 = MathHelper.floor(this.posY);
+                            int var12 = MathHelper.floor(this.posZ);
                             BlockPos pos = new BlockPos(var9, var11, var12);
-                            IBlockState state = worldObj.getBlockState(pos);
-                            tile.onEntityCollidedWithBlock(this.worldObj, pos, state, var10);
+                            IBlockState state = world.getBlockState(pos);
+                            tile.onEntityCollidedWithBlock(this.world, pos, state, var10);
                         }
                     }
 
@@ -333,8 +333,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                         if (!this.collideFalling)
                         {
                             this.collideFalling = true;
-                            this.posX = MathHelper.floor_double(posX);
-                            this.posZ = MathHelper.floor_double(posZ);
+                            this.posX = MathHelper.floor(posX);
+                            this.posZ = MathHelper.floor(posZ);
                             //this.posZ = (double)((int)(this.posZ + 0.0D));
                             this.setPosition(this.posX, this.posY, this.posZ);
                             this.motionX = 0.0D;
@@ -380,7 +380,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             byte var20 = 50;
             int var21 = (int)(this.posZ + this.motionZ * 5.0D);
 
-            if (!this.worldObj.isBlockLoaded(new BlockPos(var11, var20, var21)))
+            if (!this.world.isBlockLoaded(new BlockPos(var11, var20, var21)))
             {
                 this.setDead();
             }
@@ -409,46 +409,46 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     
     public boolean canEntityBeSeen(Entity par1Entity)
     {
-        return this.worldObj.rayTraceBlocks(new Vec3d(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3d(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
+        return this.world.rayTraceBlocks(new Vec3d(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3d(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
     private void blockify(int var1, int var2, int var3, EnumFacing var4)
     {
         this.setDead();
-        Block var5 = this.worldObj.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
+        Block var5 = this.world.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
 
         if (this.tileentity != null || this.type != 0 || ConfigTornado.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigTornado.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {
             if (!WeatherUtil.shouldRemoveBlock(var5) && !WeatherUtil.isOceanBlock(var5) && var2 < 255)
             {
-                this.worldObj.setBlockState(new BlockPos(var1, var2 + 1, var3), this.tile.getStateFromMeta(this.metadata), 3);
+                this.world.setBlockState(new BlockPos(var1, var2 + 1, var3), this.tile.getStateFromMeta(this.metadata), 3);
             }
 
             boolean var6 = false;
 
             if (!WeatherUtil.isOceanBlock(var5))
             {
-                if (this.worldObj.setBlockState(new BlockPos(var1, var2, var3), this.tile.getStateFromMeta(this.metadata), 3))
+                if (this.world.setBlockState(new BlockPos(var1, var2, var3), this.tile.getStateFromMeta(this.metadata), 3))
                 {
                     var6 = true;
                 }
             }/*
             else
             {
-                this.worldObj.setBlockState(new BlockPos(var1, var2, var3), WeatherMod.finiteWaterId.getDefaultState(), this.metadata, 3);
+                this.world.setBlockState(new BlockPos(var1, var2, var3), WeatherMod.finiteWaterId.getDefaultState(), this.metadata, 3);
 
                 if (var2 < 255)
                 {
-                    this.worldObj.setBlockState(new BlockPos(var1, var2 + 1, var3), WeatherMod.finiteWaterId.getDefaultState(), this.metadata, 3);
+                    this.world.setBlockState(new BlockPos(var1, var2 + 1, var3), WeatherMod.finiteWaterId.getDefaultState(), this.metadata, 3);
                 }
             }*/
 
             if (var6)
             {
-                //Block.blocksList[this.tile].onBlockPlacedBy(this.worldObj, var1, var2, var3, var4, this);
+                //Block.blocksList[this.tile].onBlockPlacedBy(this.world, var1, var2, var3, var4, this);
                 if (this.tileentity != null)
                 {
-                    this.worldObj.setTileEntity(new BlockPos(var1, var2, var3), this.tileentity);
+                    this.world.setTileEntity(new BlockPos(var1, var2, var3), this.tileentity);
                 }
             }
         }
@@ -487,7 +487,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
         if (this.tile instanceof BlockContainer)
         {
-            this.tileentity = ((BlockContainer)this.tile).createNewTileEntity(worldObj, metadata);
+            this.tileentity = ((BlockContainer)this.tile).createNewTileEntity(world, metadata);
             NBTTagCompound var2 = var1.getCompoundTag("TileEntity");
             this.tileentity.readFromNBT(var2);
         }
@@ -507,13 +507,13 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
     public World func_22685_k()
     {
-        return this.worldObj;
+        return this.world;
     }
 
     @Override
     public void setDead()
     {
-    	if (!worldObj.isRemote) {
+    	if (!world.isRemote) {
     		if (owner != null && owner.tornadoHelper != null) {
     			--owner.tornadoHelper.blockCount;
     			

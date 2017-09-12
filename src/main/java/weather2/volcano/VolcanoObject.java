@@ -219,9 +219,9 @@ public class VolcanoObject {
 				pos.yCoord = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos((int)pos.xCoord, 0, (int)pos.zCoord)).getY();
 				startYPos = (int) pos.yCoord;
 				
-				topBlockID = world.getBlockState(new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord))).getBlock();
+				topBlockID = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord))).getBlock();
 				
-				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, new BlockPos(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord-1), MathHelper.floor_double(pos.zCoord)), EnumFacing.DOWN)) {
+				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord)), EnumFacing.DOWN)) {
 					topBlockID = world.getBlockState(new BlockPos((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord)).getBlock();
 				}
 				
@@ -552,7 +552,7 @@ public class VolcanoObject {
 		        
 		        
 		        
-		        //double distToGround = ent.worldObj.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
+		        //double distToGround = ent.world.getHeightValue((int)pos.xCoord, (int)pos.zCoord);
 		        
 		        //ent.setPosition(ent.posX, pos.yCoord, ent.posZ);
 			}
@@ -569,7 +569,7 @@ public class VolcanoObject {
     public EntityRotFX spawnSmokeParticle(double x, double y, double z) {
     	double speed = 0D;
 		Random rand = new Random();
-    	EntityRotFX entityfx = particleBehaviors.spawnNewParticleIconFX(Minecraft.getMinecraft().theWorld, ParticleRegistry.cloud256, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed);
+    	EntityRotFX entityfx = particleBehaviors.spawnNewParticleIconFX(Minecraft.getMinecraft().world, ParticleRegistry.cloud256, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed);
     	particleBehaviors.initParticle(entityfx);
     	particleBehaviors.setParticleRandoms(entityfx, true, true);
     	particleBehaviors.setParticleFire(entityfx);

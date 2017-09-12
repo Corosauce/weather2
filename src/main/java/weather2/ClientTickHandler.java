@@ -58,7 +58,7 @@ public class ClientTickHandler
     		configButton = new GuiButton(0, (i/2)-100, 0, 200, 20, "Weather2 Config (unpauses game)");
     		configButton.drawButton(mc, k, l);
     		
-    		if (k >= configButton.x && l >= configButton.y && k < configButton.x + 200 && l < configButton.y + 20) {
+    		if (k >= configButton.xPosition && l >= configButton.yPosition && k < configButton.xPosition + 200 && l < configButton.yPosition + 20) {
     			if (Mouse.isButtonDown(0)) {
     				mc.displayGuiScreen(new GuiEZConfig());
     			}
@@ -74,7 +74,7 @@ public class ClientTickHandler
     public void onTickInGame()
     {
         Minecraft mc = FMLClientHandler.instance().getClient();
-        World world = mc.theWorld;
+        World world = mc.world;
         
         if (ConfigMisc.Misc_proxyRenderOverrideEnabled) {
         	if (!(mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
@@ -136,7 +136,7 @@ public class ClientTickHandler
     public static void checkClientWeather() {
 
     	try {
-			World world = FMLClientHandler.instance().getClient().theWorld;
+			World world = FMLClientHandler.instance().getClient().world;
     		if (weatherManager == null || world != lastWorld) {
     			init(world);
         	}

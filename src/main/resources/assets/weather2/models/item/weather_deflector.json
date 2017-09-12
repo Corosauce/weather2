@@ -1,5 +1,5 @@
 {
-  "parent": "weather2:block/WeatherForecast",
+  "parent": "weather2:block/weather_deflector",
   "display": {
     "thirdperson": {
       "rotation": [

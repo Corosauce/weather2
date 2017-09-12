@@ -58,7 +58,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 			this.motionY = -3;
 		}
 		
-		if (!this.worldObj.isRemote)
+		if (!this.world.isRemote)
         {
 			
 			ticksInAir++;
@@ -71,7 +71,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 				setDead();
 			}
 			
-			if (this.worldObj.getClosestPlayer(this.posX, 50, this.posZ, 80, false) == null) {
+			if (this.world.getClosestPlayer(this.posX, 50, this.posZ, 80, false) == null) {
 				setDead();
 			}
 			
@@ -93,7 +93,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		RayTraceResult movingobjectposition = null;
 		
         Entity entity = null;
-        List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).expand(0.5D, 1D, 0.5D));
+        List list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(0.5D, 1D, 0.5D));
         double d0 = 0.0D;
         EntityLivingBase entityliving = this.getThrower();
 
@@ -125,12 +125,12 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		
 		if (movingobjectposition.entityHit != null)
 		{
-			if (!worldObj.isRemote)
+			if (!world.isRemote)
 			{
 				
 				byte damage = 5;
 				
-				movingobjectposition.entityHit.attackEntityFrom(DamageSource.fallingBlock, damage);
+				movingobjectposition.entityHit.attackEntityFrom(DamageSource.FALLING_BLOCK, damage);
 				
 				/*if (movingobjectposition.entityHit instanceof EntityLiving) {
 					((EntityLiving)movingobjectposition.entityHit).knockBack(par1Entity, par2, par3, par5)
@@ -163,16 +163,16 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
         } 
         for (int i = 0; i < 30; i++)
         {
-            //worldObj.spawnParticle("snowballpoof", posX, posY, posZ, 0.0D, 0.0D, 0.0D);
+            //world.spawnParticle("snowballpoof", posX, posY, posZ, 0.0D, 0.0D, 0.0D);
         	double speed = 0.01D;
-        	EntityTexFX var31 = new EntityTexFX(worldObj, posX, posY, posZ, rand.nextGaussian()*rand.nextGaussian()*speed, rand.nextGaussian()*speed, rand.nextGaussian()*rand.nextGaussian()*speed, (rand.nextInt(80)/10), 0, mod_EntMover.effLeafID);
+        	EntityTexFX var31 = new EntityTexFX(world, posX, posY, posZ, rand.nextGaussian()*rand.nextGaussian()*speed, rand.nextGaussian()*speed, rand.nextGaussian()*rand.nextGaussian()*speed, (rand.nextInt(80)/10), 0, mod_EntMover.effLeafID);
             var31.setGravity(0.3F);
             Random rand = new Random();
             var31.rotationYaw = rand.nextInt(360);
             mod_ExtendedRenderer.rotEffRenderer.addEffect(var31);
         }
              */
-				if (!worldObj.isRemote) {
+				if (!world.isRemote) {
 					setDead();
 				}
 				
@@ -181,8 +181,8 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		
 		
 		
-		if (!worldObj.isRemote) {
-			worldObj.playSound(null, new BlockPos(posX, posY, posZ), SoundEvents.BLOCK_STONE_STEP, SoundCategory.AMBIENT, 3F, 5F);//0.2F + worldObj.rand.nextFloat() * 0.1F);
+		if (!world.isRemote) {
+			world.playSound(null, new BlockPos(posX, posY, posZ), SoundEvents.BLOCK_STONE_STEP, SoundCategory.AMBIENT, 3F, 5F);//0.2F + world.rand.nextFloat() * 0.1F);
 			setDead();
 			//System.out.println("server: " + posX);
 		} else {
@@ -193,7 +193,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 	
 	@Override
 	public void setDead() {
-		if (worldObj.isRemote) tickDeath();
+		if (world.isRemote) tickDeath();
 		super.setDead();
 	}
 	

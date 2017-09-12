@@ -33,8 +33,8 @@ public class GuiButtonBoolean extends GuiButton
         this.enabled = true;
         this.visible = true;
         this.id = par1;
-        this.x = par2;
-        this.y = par3;
+        this.xPosition = par2;
+        this.yPosition = par3;
         this.width = par4;
         this.height = par5;
         this.displayString = str;
@@ -82,13 +82,13 @@ public class GuiButtonBoolean extends GuiButton
     {
         if (this.visible)
         {
-            FontRenderer fontrenderer = par1Minecraft.fontRenderer;
+            FontRenderer fontrenderer = par1Minecraft.fontRendererObj;
             par1Minecraft.getTextureManager().bindTexture(BUTTON_TEXTURES);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.hovered = par2 >= this.x && par3 >= this.y && par2 < this.x + this.width && par3 < this.y + this.height;
+            this.hovered = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
             int k = this.getHoverState(this.hovered);
-            this.drawTexturedModalRect(this.x, this.y, 0, 46 + k * 20, this.width / 2, this.height);
-            this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
+            this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + k * 20, this.width / 2, this.height);
+            this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
             this.mouseDragged(par1Minecraft, par2, par3);
             int l = 14737632;
 
@@ -108,7 +108,7 @@ public class GuiButtonBoolean extends GuiButton
             	str = "\u00A7" + 'c' + strDisabled;
             }
             
-            this.drawCenteredString(fontrenderer, str, this.x + this.width / 2, this.y + (this.height - 8) / 2, l);
+            this.drawCenteredString(fontrenderer, str, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
         }
     }
 
@@ -128,6 +128,6 @@ public class GuiButtonBoolean extends GuiButton
      */
     public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3)
     {
-        return /*this.enabled && */this.visible && par2 >= this.x && par3 >= this.y && par2 < this.x + this.width && par3 < this.y + this.height;
+        return /*this.enabled && */this.visible && par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
     }
 }

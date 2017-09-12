@@ -1,7 +1,7 @@
 {
   "variants": {
     "normal": {
-      "model": "weather2:WeatherDeflector"
+      "model": "weather2:weather_forecast"
     }
   }
 }

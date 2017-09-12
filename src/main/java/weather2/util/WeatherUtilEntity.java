@@ -64,12 +64,14 @@ public class WeatherUtilEntity {
             
             int extraWeight = 0;
             
-            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.IRON_CHESTPLATE)
+            if (((EntityPlayer)entity1).inventory != null && !(((EntityPlayer)entity1).inventory.armorInventory.get(2).isEmpty())
+                    && ((EntityPlayer)entity1).inventory.armorInventory.get(2).getItem() == Items.IRON_CHESTPLATE)
             {
             	extraWeight = 2;
             }
 
-            if (((EntityPlayer)entity1).inventory != null && (((EntityPlayer)entity1).inventory.armorInventory[2] != null) && ((EntityPlayer)entity1).inventory.armorInventory[2].getItem() == Items.DIAMOND_CHESTPLATE)
+            if (((EntityPlayer)entity1).inventory != null && !(((EntityPlayer)entity1).inventory.armorInventory.get(2).isEmpty())
+                    && ((EntityPlayer)entity1).inventory.armorInventory.get(2).getItem() == Items.DIAMOND_CHESTPLATE)
             {
             	extraWeight = 4;
             }
@@ -179,7 +181,7 @@ public class WeatherUtilEntity {
             boolean bool = true;
         }
 
-        return ent.worldObj.rayTraceBlocks((new Vec3(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ)).toMCVec(), (new Vec3(startX, ent.posY + (double)ent.getEyeHeight(), startZ)).toMCVec()) == null;
+        return ent.world.rayTraceBlocks((new Vec3(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ)).toMCVec(), (new Vec3(startX, ent.posY + (double)ent.getEyeHeight(), startZ)).toMCVec()) == null;
         //return true;
     }
 	
@@ -188,7 +190,7 @@ public class WeatherUtilEntity {
 	}
 	
 	public static boolean isEntityOutside(Entity parEnt, boolean cheapCheck) {
-		return isPosOutside(parEnt.worldObj, new Vec3(parEnt.posX, parEnt.posY, parEnt.posZ), cheapCheck);
+		return isPosOutside(parEnt.world, new Vec3(parEnt.posX, parEnt.posY, parEnt.posZ), cheapCheck);
 	}
 	
 	public static boolean isPosOutside(World parWorld, Vec3 parPos) {
@@ -199,7 +201,7 @@ public class WeatherUtilEntity {
 		int rangeCheck = 5;
 		int yOffset = 1;
 		
-		if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor_double(parPos.xCoord), 0, MathHelper.floor_double(parPos.zCoord))).getY() < parPos.yCoord+1) return true;
+		if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor(parPos.xCoord), 0, MathHelper.floor(parPos.zCoord))).getY() < parPos.yCoord+1) return true;
 		
 		if (cheapCheck) return false;
 		
@@ -221,7 +223,7 @@ public class WeatherUtilEntity {
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
 		boolean dirNorth = parWorld.rayTraceBlocks(parPos.toMCVec(), parCheckPos.toMCVec()) == null;
 		if (dirNorth) {
-			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor_double(parCheckPos.xCoord), 0, MathHelper.floor_double(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
+			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor(parCheckPos.xCoord), 0, MathHelper.floor(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
 		}
 		return false;
 	}

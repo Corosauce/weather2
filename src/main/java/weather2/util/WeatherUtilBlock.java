@@ -81,8 +81,8 @@ public class WeatherUtilBlock {
 			double vecX = (-Math.sin(Math.toRadians(directionYaw)) * (i));
     		double vecZ = (Math.cos(Math.toRadians(directionYaw)) * (i));
     		
-    		int x = MathHelper.floor_double(posSource.xCoord + vecX);
-    		int z = MathHelper.floor_double(posSource.zCoord + vecZ);
+    		int x = MathHelper.floor(posSource.xCoord + vecX);
+    		int z = MathHelper.floor(posSource.zCoord + vecZ);
     		
     		BlockPos pos = new BlockPos(x, y, z);
     		BlockPos posXZ = new BlockPos(x, 0, z);
@@ -94,7 +94,7 @@ public class WeatherUtilBlock {
 
 				AxisAlignedBB aabbCompare = new AxisAlignedBB(pos);
 				List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
-				state.addCollisionBoxToList(world, pos, aabbCompare, listAABBCollision, null);
+				state.addCollisionBoxToList(world, pos, aabbCompare, listAABBCollision, null, false);
 
 				//if solid ground we can place on
 	    		if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS && (!state.getBlock().isReplaceable(world, pos) && !listAABBCollision.isEmpty())) {
@@ -198,8 +198,8 @@ public class WeatherUtilBlock {
 			double vecX = (-Math.sin(Math.toRadians(directionYaw)) * (i));
     		double vecZ = (Math.cos(Math.toRadians(directionYaw)) * (i));
     		
-    		int x = MathHelper.floor_double(posSource.xCoord + vecX);
-    		int z = MathHelper.floor_double(posSource.zCoord + vecZ);
+    		int x = MathHelper.floor(posSource.xCoord + vecX);
+    		int z = MathHelper.floor(posSource.zCoord + vecZ);
     		
     		BlockPos pos = new BlockPos(x, y, z);
     		IBlockState state = world.getBlockState(pos);
@@ -291,8 +291,8 @@ public class WeatherUtilBlock {
 			double vecX = (-Math.sin(Math.toRadians(directionYaw)) * (i));
     		double vecZ = (Math.cos(Math.toRadians(directionYaw)) * (i));
     		
-    		int x = MathHelper.floor_double(posSource.xCoord + vecX);
-    		int z = MathHelper.floor_double(posSource.zCoord + vecZ);
+    		int x = MathHelper.floor(posSource.xCoord + vecX);
+    		int z = MathHelper.floor(posSource.zCoord + vecZ);
     		
     		BlockPos pos = new BlockPos(x, y, z);
     		IBlockState state = world.getBlockState(pos);
@@ -370,8 +370,8 @@ public class WeatherUtilBlock {
 						double vecX = (-Math.sin(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
 			    		double vecZ = (Math.cos(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
 			    		
-			    		int x = MathHelper.floor_double(posSource.xCoord + vecX);
-			    		int z = MathHelper.floor_double(posSource.zCoord + vecZ);
+			    		int x = MathHelper.floor(posSource.xCoord + vecX);
+			    		int z = MathHelper.floor(posSource.zCoord + vecZ);
 			    		
 			    		//fix for derp y
 			    		y = (int)posSource.yCoord;
@@ -427,8 +427,8 @@ public class WeatherUtilBlock {
 						double vecX = (-Math.sin(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
 			    		double vecZ = (Math.cos(Math.toRadians(directionYaw - (angle * orientationMulti))) * (i));
 			    		
-			    		int x = MathHelper.floor_double(posLastNonWall.xCoord + vecX);
-			    		int z = MathHelper.floor_double(posLastNonWall.zCoord + vecZ);
+			    		int x = MathHelper.floor(posLastNonWall.xCoord + vecX);
+			    		int z = MathHelper.floor(posLastNonWall.zCoord + vecZ);
 			    		
 			    		//fix for derp y
 			    		y = (int)posLastNonWall.yCoord;
@@ -543,7 +543,7 @@ public class WeatherUtilBlock {
 			//if can be placed into, continue, as long as its not our block as it is replacable at layer height 1
 			AxisAlignedBB aabbCompare = new AxisAlignedBB(posCheckPlaceable);
 			List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
-			stateCheckPlaceable.addCollisionBoxToList(world, posCheckPlaceable, aabbCompare, listAABBCollision, null);
+			stateCheckPlaceable.addCollisionBoxToList(world, posCheckPlaceable, aabbCompare, listAABBCollision, null, false);
 
 			if (stateCheckPlaceable.getBlock() != blockLayerable && stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable) && listAABBCollision.isEmpty()) {
 				posCheckPlaceable = posCheckPlaceable.add(0, -1, 0);

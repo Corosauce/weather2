@@ -19,10 +19,10 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
     public void update()
     {
     	
-    	if (!worldObj.isRemote) {
+    	if (!world.isRemote) {
     		
-    		if (worldObj.getTotalWorldTime() % 100 == 0) {
-    			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(worldObj.provider.getDimension());
+    		if (world.getTotalWorldTime() % 100 == 0) {
+    			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
     			if (wm != null) {
 		    		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
 		    		
