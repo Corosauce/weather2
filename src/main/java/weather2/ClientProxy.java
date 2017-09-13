@@ -84,17 +84,30 @@ public class ClientProxy extends CommonProxy
 	}
     
     @Override
-    public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String unlocalizedName, boolean creativeTab) {
-    	super.addBlock(event, parBlock, unlocalizedName, creativeTab);
+    public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String name, boolean creativeTab) {
+    	super.addBlock(event, parBlock, name, creativeTab);
 
-    	registerItem(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Weather.modID + ":" + unlocalizedName, "inventory"));
+        addItemModel(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
     }
-    
-    public void registerItem(Item item, int meta, ModelResourceLocation location) {
-    	Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
-    }
-    
+
+
     @Override
+    public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
+        super.addItem(event, item, name);
+
+        addItemModel(item, 0, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
+    }
+
+    public void addItemModel(Item item, int meta, ModelResourceLocation location) {
+
+        //1.11: doesnt work currently for our method of loading, try it again in 1.12
+        //ModelLoader.setCustomModelResourceLocation(item, meta, location);
+
+        //using this for now
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
+    }
+    
+    /*@Override
 	public void registerItemVariantModel(Item item, String name, int metadata) {
 		if (item != null) {
             Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
@@ -104,10 +117,7 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {
 		if (item != null) {
-            //old preinit only way
-			// ModelLoader.setCustomModelResourceLocation(item, metadata, mrl);
-            //this method works via init, ModelLoader does not, requires being in preinit
             Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
 		}
-	}
+	}*/
 }

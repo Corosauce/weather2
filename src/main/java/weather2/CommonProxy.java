@@ -14,7 +14,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import weather2.block.BlockAnemometer;
 import weather2.block.BlockSandLayer;
@@ -103,9 +102,9 @@ public class CommonProxy implements IGuiHandler
 
 	@SubscribeEvent
 	public void registerItems(RegistryEvent.Register<Item> event) {
-		registerItem(event, itemSandLayer = new ItemSandLayer(blockSandLayer), sand_layer_placeable);
-		registerItem(event, itemWeatherRecipe = new ItemWeatherRecipe(), weather_item);
-		registerItem(event, itemPocketSand = new ItemPocketSand(), pocket_sand);
+		addItem(event, itemSandLayer = new ItemSandLayer(blockSandLayer), sand_layer_placeable);
+		addItem(event, itemWeatherRecipe = new ItemWeatherRecipe(), weather_item);
+		addItem(event, itemPocketSand = new ItemPocketSand(), pocket_sand);
 	}
 
     public void init()
@@ -118,10 +117,10 @@ public class CommonProxy implements IGuiHandler
 
     	SoundRegistry.init();
 
-    	addMapping(EntityIceBall.class, "Weather Hail", 0, 128, 5, true);
-    	addMapping(EntityMovingBlock.class, "Moving Block", 1, 128, 5, true);
-    	addMapping(EntityLightningBolt.class, "Weather2 Lightning Bolt", 2, 512, 5, true);
-    	addMapping(EntityLightningBoltCustom.class, "Weather2 Lightning Bolt Custom", 2, 512, 5, true);
+    	addMapping(EntityIceBall.class, "weather_hail", 0, 128, 5, true);
+    	addMapping(EntityMovingBlock.class, "moving_block", 1, 128, 5, true);
+    	addMapping(EntityLightningBolt.class, "weather2_lightning_bolt", 2, 512, 5, true);
+    	addMapping(EntityLightningBoltCustom.class, "weather2_lightning_bolt_custom", 2, 512, 5, true);
 
 		registerBlocks(null);
 		registerItems(null);
@@ -200,7 +199,7 @@ public class CommonProxy implements IGuiHandler
 		//LanguageRegistry.addName(parBlock, blockNameBase);
 	}
 	
-	private Item registerItem(RegistryEvent.Register<Item> event, Item item, String name) {
+	public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
 		item.setUnlocalizedName(Weather.modID + "." + name);
 		//item.setRegistryName(new ResourceLocation(Weather.modID, name));
 		item.setRegistryName(name);
@@ -214,9 +213,9 @@ public class CommonProxy implements IGuiHandler
 			GameRegistry.register(item);
 		}
 
-		registerItemVariantModel(item, name, 0);
+		//registerItemVariantModel(item, name, 0);
 
-		return item;
+		//return item;
 	}
     
     public void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
@@ -237,12 +236,12 @@ public class CommonProxy implements IGuiHandler
     {
         return null;
     }
-    
-    public void registerItemVariantModel(Item item, String name, int metadata) {}
+
+	/*public void registerItemVariantModel(Item item, String name, int metadata) {}
 	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {}
-    
-    public ResourceLocation getResource(String name) {
-    	return new ResourceLocation(Weather.modID, name);
-    }
+
+	public ResourceLocation getResource(String name) {
+		return new ResourceLocation(Weather.modID, name);
+	}*/
 
 }
