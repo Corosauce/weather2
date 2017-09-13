@@ -6,6 +6,7 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.init.Blocks;
@@ -218,10 +219,11 @@ public class VolcanoObject {
 				
 				pos.yCoord = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos((int)pos.xCoord, 0, (int)pos.zCoord)).getY();
 				startYPos = (int) pos.yCoord;
+
+				IBlockState statez = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord)));
+				topBlockID = statez.getBlock();
 				
-				topBlockID = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord))).getBlock();
-				
-				if (CoroUtilBlock.isAir(topBlockID) || !topBlockID.isBlockSolid(world, new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord)), EnumFacing.DOWN)) {
+				if (CoroUtilBlock.isAir(topBlockID) || !statez.getMaterial().isSolid()) {
 					topBlockID = world.getBlockState(new BlockPos((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord)).getBlock();
 				}
 				

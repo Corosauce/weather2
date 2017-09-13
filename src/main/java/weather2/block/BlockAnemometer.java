@@ -40,10 +40,10 @@ public class BlockAnemometer extends BlockContainer
     	return false;
     }
     
-    @Override
+    /*@Override
     public boolean isBlockSolid(IBlockAccess par1iBlockAccess, BlockPos pos, EnumFacing facing) {
     	return true;
-    }
+    }*/
     
     @Override
     public boolean isFullCube(IBlockState state)

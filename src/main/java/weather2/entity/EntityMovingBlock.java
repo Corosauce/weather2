@@ -195,7 +195,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (var3 != null)
             {
-                var2 = new Vec3d(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
+                var2 = new Vec3d(var3.hitVec.x, var3.hitVec.y, var3.hitVec.z);
             }
 
             Entity var4 = null;
@@ -203,7 +203,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (this.age > this.gravityDelay / 4)
             {
-                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ));
+                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ));
             }
 
             double var6 = 0.0D;

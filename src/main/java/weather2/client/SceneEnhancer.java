@@ -1875,7 +1875,7 @@ public class SceneEnhancer implements Runnable {
     	
     	//if (!isInside) {
     		for (int i = 0; i < 0; i++) {
-	    		ParticleTexFX part = new ParticleTexFX(mc.world, vecWOP.xCoord, vecWOP.yCoord, vecWOP.zCoord
+	    		ParticleTexFX part = new ParticleTexFX(mc.world, vecWOP.x, vecWOP.y, vecWOP.z
 	    				, 0, 0, 0, ParticleRegistry.cloud256);
 	    		particleBehaviorFog.initParticle(part);
 	    		part.setFacePlayer(false);

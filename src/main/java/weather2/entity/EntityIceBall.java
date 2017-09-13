@@ -93,7 +93,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		RayTraceResult movingobjectposition = null;
 		
         Entity entity = null;
-        List list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(0.5D, 1D, 0.5D));
+        List list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).expand(0.5D, 1D, 0.5D));
         double d0 = 0.0D;
         EntityLivingBase entityliving = this.getThrower();
 

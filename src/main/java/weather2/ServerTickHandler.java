@@ -54,7 +54,7 @@ public class ServerTickHandler
             return;
         }
 
-        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0);
+        World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0);
         
         if (world != null && lastWorld != world) {
         	lastWorld = world;

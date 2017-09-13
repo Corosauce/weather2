@@ -68,7 +68,7 @@ public class EventHandlerPacket {
 	
 	@SubscribeEvent
 	public void onPacketFromClient(FMLNetworkEvent.ServerCustomPacketEvent event) {
-		final EntityPlayerMP entP = ((NetHandlerPlayServer)event.getHandler()).playerEntity;
+		final EntityPlayerMP entP = ((NetHandlerPlayServer)event.getHandler()).player;
 		
 		try {
 			final NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());

@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -167,9 +168,9 @@ public class ItemBlockBetter extends Item
      */
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems)
     {
-        this.block.getSubBlocks(itemIn, tab, subItems);
+        this.block.getSubBlocks(tab, subItems);
     }
 
     public Block getBlock()
@@ -204,8 +205,8 @@ public class ItemBlockBetter extends Item
      */
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
-        block.addInformation(stack, playerIn, tooltip, advanced);
+        block.addInformation(stack, worldIn, tooltip, flagIn);
     }
 }

@@ -45,11 +45,11 @@ public class BlockWindVane extends BlockContainer
     	return false;
     }
     
-    @Override
+    /*@Override
     public boolean isBlockSolid(IBlockAccess worldIn, BlockPos pos,
     		EnumFacing side) {
     	return true;
-    }
+    }*/
     
     @Override
     public boolean isFullCube(IBlockState state)

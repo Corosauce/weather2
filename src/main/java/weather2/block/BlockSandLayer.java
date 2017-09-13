@@ -71,7 +71,7 @@ public class BlockSandLayer extends Block
      * Checks if an IBlockState represents a block that is opaque and a full cube.
      */
     @Override
-    public boolean isFullyOpaque(IBlockState state)
+    public boolean isTopSolid(IBlockState state)
     {
         //return ((Integer)state.getValue(LAYERS)).intValue() == 7;
     	return ((Integer)state.getValue(LAYERS)).intValue() == 8;

@@ -77,6 +77,12 @@ public class Weather {
     	proxy.init();
     	MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
     }
+
+	@Mod.EventHandler
+	public void postInit(FMLPostInitializationEvent event)
+	{
+		proxy.postInit();
+	}
     
     @Mod.EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {

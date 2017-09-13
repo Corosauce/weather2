@@ -11,7 +11,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -168,7 +168,7 @@ public class GuiEZConfig extends GuiScreen {
 		int yEleSize = 24;
 		int yEleSize2 = 44;
 		
-		this.drawString(this.fontRendererObj, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
+		this.drawString(this.fontRenderer, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
 		
 		int yStart2 = yStart + 34;
 		
@@ -177,39 +177,39 @@ public class GuiEZConfig extends GuiScreen {
 		
 		//this.drawString(this.fontRenderer, "Server vals = OPs only", xStart+260, yStart+12, 16777215);
 		
-		this.drawString(this.fontRendererObj, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
+		this.drawString(this.fontRenderer, "--------------------------------------------------------", xStart+7, yStart2-3-4, 16777215);
 		
 		if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
-			this.drawString(this.fontRendererObj, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRendererObj, "Nature effects", xStart+7, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRendererObj, "Particle precipitation rate", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRenderer, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, "Nature effects", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, "Particle precipitation rate", xStart+7, yStart2+8+yEleSize*2, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
-			this.drawString(this.fontRendererObj, "Storms when", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRendererObj, "Server side rain state", xStart+7, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRendererObj, "Particle precipitation", xStart+7, yStart2+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRendererObj, "Extra snowfall blocks", xStart+7, yStart2+8+yEleSize*3, 16777215);
-			this.drawString(this.fontRendererObj, "Wind only for vanilla particles", xStart+7, yStart2+8+yEleSize*4, 16777215);
+			this.drawString(this.fontRenderer, "Storms when", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, "Server side rain state", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, "Particle precipitation", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRenderer, "Extra snowfall blocks", xStart+7, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, "Wind only for vanilla particles", xStart+7, yStart2+8+yEleSize*4, 16777215);
 
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_PREFERENCE)) {
-			this.drawString(this.fontRendererObj, "Min days between deadly storms", xStart+7, yStart2+8, 16777215);
-			this.drawString(this.fontRendererObj, "Chance of storms", xStart+7, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRendererObj, "Chance of rain", xStart+7, yStart2+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRendererObj, "Block destruction", xStart+7, yStart2+8+yEleSize*3, 16777215);
-			this.drawString(this.fontRendererObj, "Tornados and Cyclones", xStart+7, yStart2+8+yEleSize*4, 16777215);
-			this.drawString(this.fontRendererObj, "Sandstorms", xStart+7, yStart2+8+yEleSize*5, 16777215);
-			this.drawString(this.fontRendererObj, "Deadly storm rate mode (Choose", xStart+7, yStart2+4+yEleSize*6, 16777215);
-			this.drawString(this.fontRendererObj, "random player vs for each pl.)", xStart+7, yStart2-6+yEleSize*7, 16777215);
+			this.drawString(this.fontRenderer, "Min days between deadly storms", xStart+7, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, "Chance of storms", xStart+7, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, "Chance of rain", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRenderer, "Block destruction", xStart+7, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, "Tornados and Cyclones", xStart+7, yStart2+8+yEleSize*4, 16777215);
+			this.drawString(this.fontRenderer, "Sandstorms", xStart+7, yStart2+8+yEleSize*5, 16777215);
+			this.drawString(this.fontRenderer, "Deadly storm rate mode (Choose", xStart+7, yStart2+4+yEleSize*6, 16777215);
+			this.drawString(this.fontRenderer, "random player vs for each pl.)", xStart+7, yStart2-6+yEleSize*7, 16777215);
 			
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*2, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*4, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*5, 16777215);
-			this.drawString(this.fontRendererObj, op, xStart+xOP, yStart2+8+yEleSize*6, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*1, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*4, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*5, 16777215);
+			this.drawString(this.fontRenderer, op, xStart+xOP, yStart2+8+yEleSize*6, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
 			//this.drawString(this.fontRenderer, "Not done yet! Just use /config and find the Dimension listings, ", xStart+7, yStart2+8, 16777215);
 			//this.drawString(this.fontRenderer, "then add the dimension ID", xStart+7, yStart2+8+yEleSize*1, 16777215);
@@ -220,15 +220,15 @@ public class GuiEZConfig extends GuiScreen {
 			try {
 				for (int i = 0; i < curDimListCountPerPage; i++) {
 					if (curDimListPage*curDimListCountPerPage + i < listDimIDs.size()) {
-						this.drawString(this.fontRendererObj, "\u00A7" + '6' + listDimNames.get(curDimListPage*curDimListCountPerPage + i), xStart+7, yStart2+8+yEleSize2*i, 16777215);
-						this.drawString(this.fontRendererObj, "Weather: ", xStart+7, yStart2+28+yEleSize2*i, 16777215);
-						this.drawString(this.fontRendererObj, "Clouds: ", xStart+100, yStart2+28+yEleSize2*i, 16777215);
-						this.drawString(this.fontRendererObj, "Storms: ", xStart+186, yStart2+28+yEleSize2*i, 16777215);
-						this.drawString(this.fontRendererObj, "Effects: ", xStart+270, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "\u00A7" + '6' + listDimNames.get(curDimListPage*curDimListCountPerPage + i), xStart+7, yStart2+8+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Weather: ", xStart+7, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Clouds: ", xStart+100, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Storms: ", xStart+186, yStart2+28+yEleSize2*i, 16777215);
+						this.drawString(this.fontRenderer, "Effects: ", xStart+270, yStart2+28+yEleSize2*i, 16777215);
 					}
 				}
 				
-				this.drawString(this.fontRendererObj, "" + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+80, yStart2+194, 16777215);
+				this.drawString(this.fontRenderer, "" + (curDimListPage+1) + "/" + (listDimNames.size() / curDimListCountPerPage + 1), xStart+80, yStart2+194, 16777215);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -714,7 +714,7 @@ public class GuiEZConfig extends GuiScreen {
         float f = 0.00390625F / 2F;
         float f1 = 0.00390625F / 2F;
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer worldrenderer = tessellator.getBuffer();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldrenderer.pos((double)(x + 0), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
         worldrenderer.pos((double)(x + width), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();

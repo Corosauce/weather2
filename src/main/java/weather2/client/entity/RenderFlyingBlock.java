@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -132,7 +132,7 @@ public class RenderFlyingBlock extends Render
     	                    GlStateManager.translate((float)x, (float)y, (float)z);
     	                    GlStateManager.disableLighting();
     	                    Tessellator tessellator = Tessellator.getInstance();
-    	                    VertexBuffer worldrenderer = tessellator.getBuffer();
+    	                    BufferBuilder worldrenderer = tessellator.getBuffer();
     	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
     	                    int i = blockpos.getX();
     	                    int j = blockpos.getY();
@@ -159,7 +159,7 @@ public class RenderFlyingBlock extends Render
                 			GlStateManager.translate((float)CoroUtilParticle.rainPositions[ii].xCoord * 3F, (float)CoroUtilParticle.rainPositions[ii].yCoord * 3F, (float)CoroUtilParticle.rainPositions[ii].zCoord * 3F);
     	                    GlStateManager.disableLighting();
     	                    Tessellator tessellator = Tessellator.getInstance();
-    	                    VertexBuffer worldrenderer = tessellator.getBuffer();
+    	                    BufferBuilder worldrenderer = tessellator.getBuffer();
     	                    worldrenderer.begin(7, DefaultVertexFormats.BLOCK);
     	                    int i = blockpos.getX();
     	                    int j = blockpos.getY();

@@ -93,7 +93,7 @@ public class CommandWeather2 extends CommandBase {
 							so.userSpawnedFor = CoroUtilEntity.getName(player);
 							so.naturallySpawned = false;
 							so.levelTemperature = 0.1F;
-							so.pos = new Vec3(posVec.xCoord, StormObject.layers.get(so.layer), posVec.zCoord);
+							so.pos = new Vec3(posVec.x, StormObject.layers.get(so.layer), posVec.z);
 
 							so.levelWater = so.levelWaterStartRaining * 2;
 							so.attrib_precipitation = true;
@@ -158,7 +158,7 @@ public class CommandWeather2 extends CommandBase {
 								
 								//sandstorm.pos = new Vec3(player.posX, player.world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY() + 1, player.posZ);
 
-								Vec3 pos = new Vec3(posVec.xCoord, world.getHeight(new BlockPos(posVec.xCoord, 0, posVec.zCoord)).getY() + 1, posVec.zCoord);
+								Vec3 pos = new Vec3(posVec.x, world.getHeight(new BlockPos(posVec.x, 0, posVec.z)).getY() + 1, posVec.z);
 
 								
 								/**

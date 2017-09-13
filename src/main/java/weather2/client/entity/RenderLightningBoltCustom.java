@@ -8,7 +8,7 @@ import CoroUtil.util.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -40,7 +40,7 @@ public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
     public void doRender(EntityLightningBoltCustom entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer worldrenderer = tessellator.getBuffer();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
         GlStateManager.disableTexture2D();
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
@@ -114,25 +114,25 @@ public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
                 //System.out.println("wat: " + vec + " --- " + vec2);
             }
 
-        	/*worldrenderer.pos(vec.xCoord - sizeRadius + x, vec.yCoord + y, vec.zCoord - sizeRadius + z).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec.xCoord + sizeRadius + x, vec.yCoord + y, vec.zCoord - sizeRadius + z).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec2.xCoord + sizeRadius + x, vec2.yCoord + y, vec2.zCoord + sizeRadius + z).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec2.xCoord - sizeRadius + x, vec2.yCoord + y, vec2.zCoord + sizeRadius + z).color(r, g, b, alpha).endVertex();*/
+        	/*worldrenderer.pos(vec.x - sizeRadius + x, vec.y + y, vec.z - sizeRadius + z).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec.x + sizeRadius + x, vec.y + y, vec.z - sizeRadius + z).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.x + sizeRadius + x, vec2.y + y, vec2.z + sizeRadius + z).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.x - sizeRadius + x, vec2.y + y, vec2.z + sizeRadius + z).color(r, g, b, alpha).endVertex();*/
 
         	//temp - visualize sandstorm
-            worldrenderer.pos(vec.xCoord - sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec.xCoord + sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec2.xCoord + sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
-            worldrenderer.pos(vec2.xCoord - sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec.x - sizeRadius, vec.y, vec.z - sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec.x + sizeRadius, vec.y, vec.z - sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.x + sizeRadius, vec2.y, vec2.z + sizeRadius).color(r, g, b, alpha).endVertex();
+            worldrenderer.pos(vec2.x - sizeRadius, vec2.y, vec2.z + sizeRadius).color(r, g, b, alpha).endVertex();
         }
 
         //temp - visualize sandstorm
         Vec3d vec = entity.listVec.get(0);
         Vec3d vec2 = entity.listVec.get(entity.listVec.size()-1);
-        worldrenderer.pos(vec.xCoord - sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
-        worldrenderer.pos(vec.xCoord + sizeRadius, vec.yCoord, vec.zCoord - sizeRadius).color(r, g, b, alpha).endVertex();
-        worldrenderer.pos(vec2.xCoord + sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
-        worldrenderer.pos(vec2.xCoord - sizeRadius, vec2.yCoord, vec2.zCoord + sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec.x - sizeRadius, vec.y, vec.z - sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec.x + sizeRadius, vec.y, vec.z - sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec2.x + sizeRadius, vec2.y, vec2.z + sizeRadius).color(r, g, b, alpha).endVertex();
+        worldrenderer.pos(vec2.x - sizeRadius, vec2.y, vec2.z + sizeRadius).color(r, g, b, alpha).endVertex();
         
         //worldrenderer.pos(-1, 0, -1).color(0.45F, 0.45F, 0.5F, 1F).endVertex();
         
