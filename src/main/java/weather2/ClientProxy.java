@@ -96,9 +96,15 @@ public class ClientProxy extends CommonProxy
     public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String name, boolean creativeTab) {
     	super.addBlock(event, parBlock, name, creativeTab);
 
-        addItemModel(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
+        //addItemModel(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
     }
 
+    @Override
+    public void addItemBlock(RegistryEvent.Register<Item> event, Item item) {
+        super.addItemBlock(event, item);
+
+        addItemModel(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+    }
 
     @Override
     public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {

@@ -106,13 +106,13 @@ public class CommonProxy implements IGuiHandler
 		Weather.proxy.addItem(event, itemWeatherRecipe = new ItemWeatherRecipe(), weather_item);
 		Weather.proxy.addItem(event, itemPocketSand = new ItemPocketSand(), pocket_sand);
 
-		event.getRegistry().register(new ItemBlock(blockTSensor).setRegistryName(blockTSensor.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(blockTSiren).setRegistryName(blockTSiren.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(blockWindVane).setRegistryName(blockWindVane.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(blockWeatherForecast).setRegistryName(blockWeatherForecast.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(blockWeatherMachine).setRegistryName(blockWeatherMachine.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(blockWeatherDeflector).setRegistryName(blockWeatherDeflector.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(blockAnemometer).setRegistryName(blockAnemometer.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSensor).setRegistryName(blockTSensor.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSiren).setRegistryName(blockTSiren.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockWindVane).setRegistryName(blockWindVane.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherForecast).setRegistryName(blockWeatherForecast.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherMachine).setRegistryName(blockWeatherMachine.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherDeflector).setRegistryName(blockWeatherDeflector.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockAnemometer).setRegistryName(blockAnemometer.getRegistryName()));
 	}
 
     public void init()
@@ -219,6 +219,10 @@ public class CommonProxy implements IGuiHandler
 
 		//ForgeRegistries.BLOCKS.register(parBlock);
 		//LanguageRegistry.addName(parBlock, blockNameBase);
+	}
+
+	public void addItemBlock(RegistryEvent.Register<Item> event, Item item) {
+		event.getRegistry().register(item);
 	}
 	
 	public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
