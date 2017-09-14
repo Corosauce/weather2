@@ -47,6 +47,7 @@ public class Weather {
     	eventChannel.register(new EventHandlerPacket());
     	
     	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
+		MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
 		
     	ConfigMod.addConfigFile(event, addConfig(new ConfigMisc()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigWind()));
@@ -75,7 +76,6 @@ public class Weather {
     public void load(FMLInitializationEvent event)
     {
     	proxy.init();
-    	MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
     }
 
 	@Mod.EventHandler

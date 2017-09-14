@@ -117,7 +117,6 @@ public class CommonProxy implements IGuiHandler
 
     public void init()
     {
-    	tab = new CreativeTabWeather("Weather2");
 
     	//Weather.dbg("block list processing disabled");
     	WeatherUtil.doBlockList();
@@ -135,7 +134,7 @@ public class CommonProxy implements IGuiHandler
     }
 
     public void preInit() {
-
+		tab = new CreativeTabWeather("Weather2");
 	}
 
 	public void postInit() {

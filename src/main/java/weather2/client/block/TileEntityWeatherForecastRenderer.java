@@ -27,7 +27,8 @@ import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 {
-    public void renderTileEntityAt(TileEntity var1, double x, double y, double z, float var8, int destroyStage) {
+    @Override
+    public void render(TileEntity var1, double x, double y, double z, float var8, int destroyStage, float alpha) {
     	
     	//renderTileEntityAtTest(var1, x, y, z, var8, destroyStage);
     	

@@ -18,8 +18,9 @@ public class TileEntityAnemometerRenderer extends TileEntitySpecialRenderer
 	public TileEntityAnemometerRenderer() {
 		model = new ModelAnemometer();
 	}
-	
-    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8, int what) {
+
+	@Override
+    public void render(TileEntity var1, double var2, double var4, double var6, float var8, int what, float alpha) {
     	
     	
     	

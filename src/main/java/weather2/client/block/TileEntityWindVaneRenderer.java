@@ -18,8 +18,9 @@ public class TileEntityWindVaneRenderer extends TileEntitySpecialRenderer
 	public TileEntityWindVaneRenderer() {
 		model = new ModelWindVane();
 	}
-	
-    public void renderTileEntityAt(TileEntity var1, double var2, double var4, double var6, float var8, int destroyStage) {
+
+	@Override
+	public void render(TileEntity var1, double x, double y, double z, float var8, int what, float alpha) {
     	
     	
     	
@@ -36,7 +37,7 @@ public class TileEntityWindVaneRenderer extends TileEntitySpecialRenderer
     	
     	GL11.glPushMatrix();
     	
-    	GL11.glTranslatef((float) var2 + 0.5f, (float) var4 + 0F, (float) var6 + 0.5f);
+    	GL11.glTranslatef((float) x + 0.5f, (float) y + 0F, (float) z + 0.5f);
     	
     	//renderModel(tile.type, tile.rotation, false);
     	
