@@ -186,6 +186,8 @@ public class StormObject extends WeatherObject {
 
 	//used to cache a scan for blocks ahead of storm, to move around
 	public float cachedAngleAvoidance = 0;
+
+	public boolean isFirenado = true;
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -1630,7 +1632,11 @@ public class StormObject extends WeatherObject {
 							if (WeatherUtil.isAprilFoolsDay()) {
 								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.potato);
 							} else {
-								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
+								if (!isFirenado && false) {
+									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
+								} else {
+									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.cloud256_fire);
+								}
 							}
 							
 							//move these to a damn profile damnit!
@@ -1650,6 +1656,10 @@ public class StormObject extends WeatherObject {
 							} else {
 								particle.setScale(250);
 								particle.setRBGColorF(finalBright, finalBright, finalBright);
+							}
+
+							if (isFirenado) {
+								particle.setRBGColorF(1F, 1F, 1F);
 							}
 							
 							
@@ -2036,7 +2046,8 @@ public class StormObject extends WeatherObject {
             distY = maxHeight;
         }
 
-        double grab = (10D / WeatherUtilEntity.getWeight(entity1, forTornado))/* / ((distY / maxHeight) * 1D)*/ * ((Math.abs((maxHeight - distY)) / maxHeight));
+        float weight = WeatherUtilEntity.getWeight(entity1, forTornado);
+        double grab = (10D / weight)/* / ((distY / maxHeight) * 1D)*/ * ((Math.abs((maxHeight - distY)) / maxHeight));
         float pullY = 0.0F;
 
         //some random y pull
@@ -2053,12 +2064,12 @@ public class StormObject extends WeatherObject {
         //Weather.dbg("TEMP!!!!");
         //WeatherTypes.initWeatherTypes();
 
-        pullY += (float)(conf.tornadoLiftRate / (WeatherUtilEntity.getWeight(entity1, forTornado) / 2F)/* * (Math.abs(radius - distXZ) / radius)*/);
+        pullY += (float)(conf.tornadoLiftRate / (weight / 2F)/* * (Math.abs(radius - distXZ) / radius)*/);
         
         
         if (entity1 instanceof EntityPlayer)
         {
-            double adjPull = 0.2D / ((WeatherUtilEntity.getWeight(entity1, forTornado) * ((distXZ + 1D) / radius)));
+            double adjPull = 0.2D / ((weight * ((distXZ + 1D) / radius)));
             /*if (!entity1.onGround) {
             	adjPull /= (((float)(((double)playerInAirTime+1D) / 200D)) * 15D);
             }*/
@@ -2089,7 +2100,7 @@ public class StormObject extends WeatherObject {
         }
         else if (entity1 instanceof EntityLivingBase)
         {
-            double adjPull = 0.005D / ((WeatherUtilEntity.getWeight(entity1, forTornado) * ((distXZ + 1D) / radius)));
+            double adjPull = 0.005D / ((weight * ((distXZ + 1D) / radius)));
             /*if (!entity1.onGround) {
             	adjPull /= (((float)(((double)playerInAirTime+1D) / 200D)) * 15D);
             }*/
@@ -2290,6 +2301,11 @@ public class StormObject extends WeatherObject {
 		}*/
 		
 		float finalBright = Math.min(1F, baseBright+randFloat);
+
+		/*if (isFirenado) {
+			finalBright = 1F;
+		}*/
+
 		entityfx.setRBGColorF(finalBright, finalBright, finalBright);
 		
 		//entityfx.setRBGColorF(1, 1, 1);
@@ -2303,10 +2319,8 @@ public class StormObject extends WeatherObject {
 			}
 		}
     	
-		ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
-		//Minecraft.getMinecraft().effectRenderer.addEffect(entityfx);
-		//entityfx.spawnAsWeatherEffect();
-		particleBehaviorFog.particles.add(entityfx);
+		//ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
+		//particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }
 

@@ -334,13 +334,29 @@ public class TornadoHelper {
 	                    
 	                    if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax)
 	                    {
-	                        Block blockID = parWorld.getBlockState(new BlockPos(tryX, tryY, tryZ)).getBlock();
+	                    	BlockPos pos = new BlockPos(tryX, tryY, tryZ);
+	                        Block blockID = parWorld.getBlockState(pos).getBlock();
+
+
+							if (!storm.isFirenado) {
+								if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
+								{
+									tryRipCount++;
+									tryRip(parWorld, tryX, tryY, tryZ);
+								}
+
+							} else {
+								BlockPos posUp = pos.add(0, 1, 0);
+								if (!CoroUtilBlock.isAir(blockID) && CoroUtilBlock.isAir(parWorld.getBlockState(posUp).getBlock())) {
+									tryRipCount++;
+									parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
+
+									EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY() + 10, posUp.getZ(), Blocks.FIRE, storm);
+									parWorld.spawnEntity(mBlock);
+								}
+							}
 	
-	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
-	                        {
-	                            tryRipCount++;
-	                            tryRip(parWorld, tryX, tryY, tryZ);
-	                        }
+
 	                    }
 	                }
 	            //}
