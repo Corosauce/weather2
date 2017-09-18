@@ -60,7 +60,7 @@ public class BlockWeatherMachine extends BlockContainer
 	    	}
     	}
     	
-    	return false;
+    	return true;
     }
     
     /**
