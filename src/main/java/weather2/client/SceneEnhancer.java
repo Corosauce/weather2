@@ -426,7 +426,7 @@ public class SceneEnhancer implements Runnable {
 			boolean particleTest = false;
 
 			if (particleTest) {
-				if (testParticle == null || testParticle.isExpired) {
+				if (testParticle == null/* || testParticle.isExpired*/) {
 					BlockPos pos = new BlockPos(entP);
 
 					//if (entP.getDistanceSq(pos) < 10D * 10D) continue;
@@ -444,8 +444,8 @@ public class SceneEnhancer implements Runnable {
 						//rain.setKillWhenUnderTopmostBlock(true);
 						//rain.setTicksFadeOutMaxOnDeath(5);
 
-						rain.particleTextureJitterX = 0;
-						rain.particleTextureJitterY = 0;
+						/*rain.particleTextureJitterX = 0;
+						rain.particleTextureJitterY = 0;*/
 
 						//rain.setDontRenderUnderTopmostBlock(true);
 						//rain.setExtraParticlesBaseAmount(5);
