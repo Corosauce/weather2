@@ -187,7 +187,7 @@ public class StormObject extends WeatherObject {
 	//used to cache a scan for blocks ahead of storm, to move around
 	public float cachedAngleAvoidance = 0;
 
-	public boolean isFirenado = true;
+	public boolean isFirenado = false;
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -1632,7 +1632,7 @@ public class StormObject extends WeatherObject {
 							if (WeatherUtil.isAprilFoolsDay()) {
 								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.potato);
 							} else {
-								if (!isFirenado && false) {
+								if (!isFirenado/* && false*/) {
 									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
 								} else {
 									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.cloud256_fire);
@@ -2319,8 +2319,8 @@ public class StormObject extends WeatherObject {
 			}
 		}
     	
-		//ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
-		//particleBehaviorFog.particles.add(entityfx);
+		ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
+		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }
 

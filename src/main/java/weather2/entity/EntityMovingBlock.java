@@ -43,6 +43,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     public TileEntity tileentity;
     public Material material;
     public int age;
+    //i think type was used to change behavior between tornado based ones and hostile worlds ones?
+    //currently nothing in weather2 sets it to 1, always 0
     public int type;
     public boolean noCollision;
     public boolean collideFalling = false;

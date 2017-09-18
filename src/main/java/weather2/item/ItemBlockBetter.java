@@ -166,12 +166,12 @@ public class ItemBlockBetter extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    @SideOnly(Side.CLIENT)
+    /*@SideOnly(Side.CLIENT)
     @Override
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems)
     {
         this.block.getSubBlocks(tab, subItems);
-    }
+    }*/
 
     public Block getBlock()
     {
