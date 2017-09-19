@@ -242,13 +242,13 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (world.getTotalWorldTime() % 200 == 0) {
 				Random rand = new Random();
 				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
-				if (cloudIntensity < 0F) {
-					cloudIntensity = 0F;
-				} else if (cloudIntensity > 1F) {
-					cloudIntensity = 1F;
+				if (cloudIntensity < ConfigMisc.Cloud_Coverage_Min_Percent / 100F) {
+					cloudIntensity = (float)ConfigMisc.Cloud_Coverage_Min_Percent / 100F;
+				} else if (cloudIntensity > ConfigMisc.Cloud_Coverage_Max_Percent / 100F) {
+					cloudIntensity = (float)ConfigMisc.Cloud_Coverage_Max_Percent / 100F;
 				}
 				if (world.getTotalWorldTime() % 2000 == 0) {
-					Weather.dbg("cloudIntensity FORCED MAX: " + cloudIntensity);
+					//Weather.dbg("cloudIntensity FORCED MAX: " + cloudIntensity);
 				}
 			}
 
