@@ -20,6 +20,12 @@ public class ConfigTornado implements IConfigCategory {
 	public static boolean Storm_Tornado_grabPlayer = true;
 	@ConfigComment("Prevent grabbing of non players")
 	public static boolean Storm_Tornado_grabPlayersOnly = false;
+	@ConfigComment("Grab hostile mobs, overridden by Storm_Tornado_grabPlayersOnly")
+	public static boolean Storm_Tornado_grabMobs = true;
+	@ConfigComment("Grab animals, overridden by Storm_Tornado_grabPlayersOnly")
+	public static boolean Storm_Tornado_grabAnimals = true;
+	@ConfigComment("Grab villagers, overridden by Storm_Tornado_grabPlayersOnly")
+	public static boolean Storm_Tornado_grabVillagers = true;
 	@ConfigComment("Tear up blocks from the ground based on conditions defined")
 	public static boolean Storm_Tornado_grabBlocks = true;
 	@ConfigComment("Grab blocks based on how well a diamond axe can mine the block, so mostly wooden blocks")

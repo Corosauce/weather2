@@ -10,6 +10,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.INpc;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -538,6 +542,30 @@ public class TornadoHelper {
 
         return false;
     }
+
+    public boolean canGrabEntity(Entity ent) {
+    	if (ent instanceof EntityPlayer) {
+			if (ConfigTornado.Storm_Tornado_grabPlayer) {
+				return true;
+			}
+		} else {
+    		if (ConfigTornado.Storm_Tornado_grabPlayersOnly) {
+    			return false;
+			}
+			if (ent instanceof INpc && ConfigTornado.Storm_Tornado_grabVillagers) {
+				return true;
+			}
+
+			if (ent instanceof IMob && ConfigTornado.Storm_Tornado_grabMobs) {
+				return true;
+			}
+
+			if (ent instanceof EntityAnimal && ConfigTornado.Storm_Tornado_grabAnimals) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
     public boolean forceRotate(World parWorld/*Entity entity*/)
     {
@@ -557,50 +585,54 @@ public class TornadoHelper {
             {
                 Entity entity1 = (Entity)list.get(i);
 
-                if ((!(entity1 instanceof EntityPlayer) || ConfigTornado.Storm_Tornado_grabPlayer))
+                if (canGrabEntity(entity1)) {
+					if (getDistanceXZ(storm.posBaseFormationPos, entity1.posX, entity1.posY, entity1.posZ) < dist)
+					{
+						if ((entity1 instanceof EntityMovingBlock && !((EntityMovingBlock)entity1).collideFalling)/* || canEntityBeSeen(entity, entity1)*/)
+						{
+							storm.spinEntity(entity1);
+							//spin(entity, conf, entity1);
+							foundEnt = true;
+						} else {
+							if (entity1 instanceof EntityPlayer) {
+								//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
+								//actually we need to still change its motion var, otherwise weird things happen
+								//if (entity1.world.isRemote) {
+								if (WeatherUtilEntity.isEntityOutside(entity1)) {
+									//Weather.dbg("entity1.motionY: " + entity1.motionY);
+									storm.spinEntity(entity1);
+									//spin(entity, conf, entity1);
+									foundEnt = true;
+
+									//Weather.dbg("spin player! client side?: " + entity1.world.isRemote);
+
+								}
+								//} else {
+
+								//this should match the amount in spinEntity
+                        			/*if (entity1.motionY > -0.8) {
+                                        entity1.fallDistance = 0F;
+                                    }*/
+								//}
+							} else if (entity1 instanceof EntityLivingBase && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
+								//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
+								//if (!entity1.world.isRemote) {
+								storm.spinEntity(entity1);
+								//spin(entity, conf, entity1);
+								foundEnt = true;
+								//}
+							}
+						}
+					}
+				}
+
+                /*if ((!(entity1 instanceof EntityPlayer) || ConfigTornado.Storm_Tornado_grabPlayer))
                 {
                 	if (!(entity1 instanceof EntityPlayer) && ConfigTornado.Storm_Tornado_grabPlayersOnly) {
                 		continue;
                 	}
-                    if (getDistanceXZ(storm.posBaseFormationPos, entity1.posX, entity1.posY, entity1.posZ) < dist)
-                    {
-                        if ((entity1 instanceof EntityMovingBlock && !((EntityMovingBlock)entity1).collideFalling)/* || canEntityBeSeen(entity, entity1)*/)
-                        {
-                        	storm.spinEntity(entity1);
-                            //spin(entity, conf, entity1);
-                            foundEnt = true;
-                        } else {
-                        	if (entity1 instanceof EntityPlayer) {
-                        		//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
-                        		//actually we need to still change its motion var, otherwise weird things happen
-                        		//if (entity1.world.isRemote) {
-	                        		if (WeatherUtilEntity.isEntityOutside(entity1)) {
-	                        			//Weather.dbg("entity1.motionY: " + entity1.motionY);
-	                        			storm.spinEntity(entity1);
-	                        			//spin(entity, conf, entity1);
-	                                    foundEnt = true;
-	                                    
-	                                    //Weather.dbg("spin player! client side?: " + entity1.world.isRemote);
-	                        			
-	                        		}
-                        		//} else {
-                        			
-                        			//this should match the amount in spinEntity
-                        			/*if (entity1.motionY > -0.8) {
-                                        entity1.fallDistance = 0F;
-                                    }*/
-                        		//}
-                        	} else if (entity1 instanceof EntityLivingBase && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
-                        		//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
-                        		//if (!entity1.world.isRemote) {
-	                        		storm.spinEntity(entity1);
-	                        		//spin(entity, conf, entity1);
-	                                foundEnt = true;
-                        		//}
-                        	}
-                        }
-                    }
-                }
+
+                }*/
 
                 if (entity1 instanceof EntityMovingBlock && !entity1.isDead)
                 {
