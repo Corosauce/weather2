@@ -11,30 +11,22 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-//version = "1.0"
-group= "weather2" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "weather2"
+group= "${mod_name}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "${mod_name}"
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {
     sourceCompatibility = targetCompatibility = '1.8'
 }
 
-ext.configFile = file "build.properties"
-configFile.withReader {
-    // Load config.  It shall from now be referenced as simply config or project.config
-    def prop = new Properties()
-    prop.load(it)
-    project.ext.config = new ConfigSlurper().parse prop
-}
 configurations {
     deployerJars
 }
 
-version = "${config.minecraft_version}-${config.mod_version}"
+version = "${minecraft_version}-${mod_version}"
 
 minecraft {
-    version = "1.12.1-14.22.0.2475"
+    version = "${minecraft_version}-${forge_version}"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
@@ -47,29 +39,12 @@ minecraft {
 	replace '${version}', project.version
 }
 
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
-    // except that these dependencies get remapped to your current MCP mappings
-    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-	compile files("../forge-1.12.1-CoroUtil/build/classes/main/")
-
+    compile "com.github.Corosauce:coroutil:${coroutil_version}"
 }
 
 processResources {
@@ -89,4 +64,10 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+jar {
+	manifest {
+	    attributes 'FMLAT': 'weather2_at.cfg'
+	}
 }
