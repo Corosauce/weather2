@@ -969,7 +969,7 @@ public class StormObject extends WeatherObject {
 			//temperature scan
 			if (bgb != null) {
 				
-				isInOcean = bgb.getBiomeName().contains("Ocean") || bgb.getBiomeName().contains("ocean");
+				isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
 				
 				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord))));
 				if (levelTemperature > biomeTempAdj) {
@@ -1001,7 +1001,7 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 				
-				if (!performBuildup && bgb != null && (isInOcean || bgb.getBiomeName().contains("Swamp") || bgb.getBiomeName().contains("Jungle") || bgb.getBiomeName().contains("River"))) {
+				if (!performBuildup && bgb != null && (isInOcean || bgb.biomeName.contains("Swamp") || bgb.biomeName.contains("Jungle") || bgb.biomeName.contains("River"))) {
 					performBuildup = true;
 				}
 			}
