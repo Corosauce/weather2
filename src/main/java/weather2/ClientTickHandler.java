@@ -55,7 +55,7 @@ public class ClientTickHandler
             int j = scaledresolution.getScaledHeight();
     		int k = Mouse.getX() * i / mc.displayWidth;
             int l = j - Mouse.getY() * j / mc.displayHeight - 1;
-    		configButton = new GuiButton(0, (i/2)-100, 0, 200, 20, "Weather2 Config (unpauses game)");
+    		configButton = new GuiButton(0, (i/2)-100, 0, 200, 20, "Weather2 EZ Config");
     		configButton.drawButton(mc, k, l, 1F);
     		
     		if (k >= configButton.x && l >= configButton.y && k < configButton.x + 200 && l < configButton.y + 20) {

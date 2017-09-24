@@ -121,7 +121,7 @@ public class GuiEZConfig extends GuiScreen {
 	
 	@Override
 	public boolean doesGuiPauseGame() {
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -133,6 +133,7 @@ public class GuiEZConfig extends GuiScreen {
 		//Minecraft.getMinecraft().player.openContainer = Minecraft.getMinecraft().player.inventoryContainer;
 	}
 
+	@Override
 	public <T extends GuiButton> T addButton(T p_189646_1_) {
 		buttonsLookup.put(p_189646_1_.id, p_189646_1_);
 		this.buttonList.add(p_189646_1_);
@@ -152,6 +153,7 @@ public class GuiEZConfig extends GuiScreen {
 		textBoxesLookup.clear();*/
 	}
 
+
 	@Override
 	public void drawBackground(int par1)
     {
@@ -169,6 +171,10 @@ public class GuiEZConfig extends GuiScreen {
 		int yEleSize2 = 44;
 		
 		this.drawString(this.fontRenderer, "Weather2 EZ GUI Configuration" + (guiCur.equals("main") ? "" : " - GUI Tab: " + guiCur), xStart+7, yStart-9, 16777215);
+
+		if (!guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
+			this.fontRenderer.drawString("EZ GUI overrides custom adv. config", xStart + 7, yStart + 228, 0xFF0000);
+		}
 		
 		int yStart2 = yStart + 34;
 		
@@ -524,9 +530,9 @@ public class GuiEZConfig extends GuiScreen {
         addButton(new GuiButton(CMD_SUBGUI_DIMENSIONS, xStartPadded+btnWidthAndPadding*3, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_DIMENSIONS) ? "\u00A7" + '2' : "") + GUI_SUBGUI_DIMENSIONS));
         
         if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
-        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 0));
-        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_NATURE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
-        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 0));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 1));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_NATURE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 1));
+        	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 1));
         } else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_STORMSWHEN, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_LOCK, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_LOCK, 0));
@@ -709,6 +715,7 @@ public class GuiEZConfig extends GuiScreen {
         tessellator.draw();
     }*/
 	
+	@Override
 	public void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
     {
         float f = 0.00390625F / 2F;

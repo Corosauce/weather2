@@ -109,14 +109,17 @@ public class WeatherUtilConfig {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_STORM)) {
 				if (LIST_RATES.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_STORM)).equalsIgnoreCase("high")) {
 					ConfigMisc.Cloud_ParticleSpawnDelay = 0;
+					ConfigStorm.Storm_ParticleSpawnDelay = 1;
 					ConfigParticle.Sandstorm_Particle_Debris_effect_rate = 1;
 					ConfigParticle.Sandstorm_Particle_Dust_effect_rate = 1;
 				} else if (LIST_RATES.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_STORM)).equalsIgnoreCase("medium")) {
 					ConfigMisc.Cloud_ParticleSpawnDelay = 2;
+					ConfigStorm.Storm_ParticleSpawnDelay = 3;
 					ConfigParticle.Sandstorm_Particle_Debris_effect_rate = 0.6D;
 					ConfigParticle.Sandstorm_Particle_Dust_effect_rate = 0.6D;
 				} else if (LIST_RATES.get(nbtClientData.getInteger("btn_" + CMD_BTN_PERF_STORM)).equalsIgnoreCase("low")) {
 					ConfigMisc.Cloud_ParticleSpawnDelay = 5;
+					ConfigStorm.Storm_ParticleSpawnDelay = 5;
 					ConfigParticle.Sandstorm_Particle_Debris_effect_rate = 0.3D;
 					ConfigParticle.Sandstorm_Particle_Dust_effect_rate = 0.3D;
 				}

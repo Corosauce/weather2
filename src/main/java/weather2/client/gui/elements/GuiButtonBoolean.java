@@ -59,6 +59,7 @@ public class GuiButtonBoolean extends GuiButton
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
      */
+    @Override
     public int getHoverState(boolean par1)
     {
         byte var2 = 1;
@@ -78,7 +79,8 @@ public class GuiButtonBoolean extends GuiButton
     /**
      * Draws this button to the screen.
      */
-    public void drawButton(Minecraft par1Minecraft, int par2, int par3)
+    @Override
+    public void drawButton(Minecraft par1Minecraft, int par2, int par3, float partialTicks)
     {
         if (this.visible)
         {
@@ -115,17 +117,20 @@ public class GuiButtonBoolean extends GuiButton
     /**
      * Fired when the mouse button is dragged. Equivalent of MouseListener.mouseDragged(MouseEvent e).
      */
+    @Override
     protected void mouseDragged(Minecraft par1Minecraft, int par2, int par3) {}
 
     /**
      * Fired when the mouse button is released. Equivalent of MouseListener.mouseReleased(MouseEvent e).
      */
+    @Override
     public void mouseReleased(int par1, int par2) {}
 
     /**
      * Returns true if the mouse has been pressed on this control. Equivalent of MouseListener.mousePressed(MouseEvent
      * e).
      */
+    @Override
     public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3)
     {
         return /*this.enabled && */this.visible && par2 >= this.x && par3 >= this.y && par2 < this.x + this.width && par3 < this.y + this.height;
