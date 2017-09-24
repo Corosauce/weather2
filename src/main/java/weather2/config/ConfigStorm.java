@@ -31,7 +31,7 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Storm_OddsTo1OfLandBasedStorm = -1;
 	public static int Storm_OddsTo1OfProgressionBase = 15;
 	public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
-	public static int Storm_ParticleSpawnDelay = 0;
+	public static int Storm_ParticleSpawnDelay = 3;
 	
 	//per player storm settings
 	public static int Player_Storm_Deadly_OddsTo1 = 30;

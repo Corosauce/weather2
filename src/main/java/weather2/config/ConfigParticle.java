@@ -21,8 +21,8 @@ public class ConfigParticle implements IConfigCategory {
 	public static boolean Particle_RainSnow = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;
 	public static double Precipitation_Particle_effect_rate = 1D;
-	public static double Sandstorm_Particle_Debris_effect_rate = 1D;
-	public static double Sandstorm_Particle_Dust_effect_rate = 1D;
+	public static double Sandstorm_Particle_Debris_effect_rate = 0.6D;
+	public static double Sandstorm_Particle_Dust_effect_rate = 0.6D;
 
     @Override
     public String getName() {
