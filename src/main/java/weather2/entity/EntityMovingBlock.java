@@ -205,7 +205,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (this.age > this.gravityDelay / 4)
             {
-                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ));
+                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(this.motionX, this.motionY, this.motionZ));
             }
 
             double var6 = 0.0D;
@@ -265,7 +265,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                     }
 
                     float var16 = 0.3F;
-                    AxisAlignedBB var19 = var10.getEntityBoundingBox().expand((double)var16, (double)var16, (double)var16);
+                    AxisAlignedBB var19 = var10.getEntityBoundingBox().grow((double)var16, (double)var16, (double)var16);
                     RayTraceResult var13 = var19.calculateIntercept(var1, var2);
 
                     if (var13 != null)

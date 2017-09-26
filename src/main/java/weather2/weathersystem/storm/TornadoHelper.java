@@ -575,7 +575,8 @@ public class TornadoHelper {
     	
         double dist = grabDist;
         AxisAlignedBB aabb = new AxisAlignedBB(storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord, storm.pos.xCoord, storm.currentTopYBlock, storm.pos.zCoord);
-        List list = parWorld.getEntitiesWithinAABB(Entity.class, aabb.expand(dist, this.storm.maxHeight * 3, dist));
+        aabb = aabb.grow(dist, this.storm.maxHeight * 3, dist);
+        List list = parWorld.getEntitiesWithinAABB(Entity.class, aabb);
         boolean foundEnt = false;
         int killCount = 0;
 
