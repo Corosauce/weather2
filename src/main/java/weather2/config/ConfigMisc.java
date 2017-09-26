@@ -83,6 +83,9 @@ public class ConfigMisc implements IConfigCategory {
 	public static String Dimension_List_Storms = "0,-127";
 	public static String Dimension_List_WindEffects = "0,-127";
 
+	public static boolean Villager_MoveInsideForStorms = true;
+	public static int Villager_MoveInsideForStorms_Dist = 256;
+
 	public ConfigMisc() {
 		
 	}

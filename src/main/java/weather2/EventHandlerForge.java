@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.ai.EntityAIMoveIndoors;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -20,6 +22,7 @@ import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,6 +36,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import weather2.client.SceneEnhancer;
+import weather2.config.ConfigMisc;
+import weather2.entity.AI.EntityAIMoveIndoorsStorm;
+import weather2.util.UtilEntityBuffsMini;
 
 public class EventHandlerForge {
 
@@ -218,5 +224,19 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
 	public void onRenderTick(TickEvent.RenderTickEvent event) {
 		SceneEnhancer.renderTick(event);
+	}
+
+	@SubscribeEvent
+	public void onEntityCreatedOrLoaded(EntityJoinWorldEvent event) {
+		if (event.getEntity().world.isRemote) return;
+
+		if (ConfigMisc.Villager_MoveInsideForStorms) {
+			if (event.getEntity() instanceof EntityVillager) {
+				EntityVillager ent = (EntityVillager) event.getEntity();
+
+				Weather.dbg("applying villager storm AI");
+				UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
+			}
+		}
 	}
 }
