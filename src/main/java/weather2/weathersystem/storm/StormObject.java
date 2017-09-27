@@ -348,6 +348,8 @@ public class StormObject extends WeatherObject {
 		isDead = parNBT.getBoolean("isDead");
 
 		cloudlessStorm = parNBT.getBoolean("cloudlessStorm");
+
+		isFirenado = parNBT.getBoolean("isFirenado");
 		
 		ticksSinceLastPacketReceived = 0;//manager.getWorld().getTotalWorldTime();
 	}
@@ -391,6 +393,8 @@ public class StormObject extends WeatherObject {
 		data.setBoolean("isDead", isDead);
 
 		data.setBoolean("cloudlessStorm", cloudlessStorm);
+
+		data.setBoolean("isFirenado", isFirenado);
 
 	}
 	
@@ -1501,7 +1505,7 @@ public class StormObject extends WeatherObject {
 		double maxSpawnDistFromPlayer = 512;
 		
 		//spawn clouds
-		if (this.manager.getWorld().getTotalWorldTime() % (delay + ConfigMisc.Cloud_ParticleSpawnDelay) == 0) {
+		if (this.manager.getWorld().getTotalWorldTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
 			for (int i = 0; i < loopSize; i++) {
 				if (listParticlesCloud.size() < size + extraSpawning) {
 					double spawnRad = size;
@@ -1519,7 +1523,15 @@ public class StormObject extends WeatherObject {
 							if (WeatherUtil.isAprilFoolsDay()) {
 								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
 							} else {
+
 								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
+								if (isFirenado && isSpinning()) {
+									//if (particle.getEntityId() % 20 < 5) {
+										particle.setParticleTexture(ParticleRegistry.cloud256_fire);
+										particle.setRBGColorF(1F, 1F, 1F);
+
+									//}
+								}
 							}
 
 							/*if (layer == 0) {
@@ -1629,15 +1641,17 @@ public class StormObject extends WeatherObject {
 						
 						if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 							EntityRotFX particle;
-							if (WeatherUtil.isAprilFoolsDay()) {
-								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.potato);
-							} else {
-								if (!isFirenado/* && false*/) {
-									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
+							if (!isFirenado/* && false*/) {
+								if (WeatherUtil.isAprilFoolsDay()) {
+									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.potato);
 								} else {
-									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.cloud256_fire);
+									particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1);
 								}
+							} else {
+								particle = spawnFogParticle(tryPos.xCoord, posBaseFormationPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.cloud256_fire);
+
 							}
+
 							
 							//move these to a damn profile damnit!
 							particle.setMaxAge(150 + ((levelCurIntensityStage-1) * 100) + rand.nextInt(100));
@@ -1660,6 +1674,7 @@ public class StormObject extends WeatherObject {
 
 							if (isFirenado) {
 								particle.setRBGColorF(1F, 1F, 1F);
+								particle.setScale(particle.getScale() * 0.7F);
 							}
 							
 							

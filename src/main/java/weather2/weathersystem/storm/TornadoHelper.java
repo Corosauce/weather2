@@ -152,6 +152,7 @@ public class TornadoHelper {
 				Iterator<BlockUpdateSnapshot> it = listBlockUpdateQueue.values().iterator();
 				int count = 0;
 				int entityCreateStaggerRate = 3;
+				Random rand = new Random();
 				while (it.hasNext()) {
 					BlockUpdateSnapshot snapshot = it.next();
 					World world = DimensionManager.getWorld(snapshot.getDimID());
@@ -160,6 +161,10 @@ public class TornadoHelper {
 						if (snapshot.getState().getBlock() == Blocks.AIR) {
 							if (count % entityCreateStaggerRate == 0) {
 								EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
+								double speed = 1D;
+								mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
+								mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
+								mBlock.motionY = 1D;
 								/*if (mBlock != null) {
 			                    	mBlock.setPosition(tryX, tryY, tryZ);
 			                    }*/
@@ -180,6 +185,12 @@ public class TornadoHelper {
         removeCount = 0;
         tryRipCount = 0;
         int tryRipMax = 300;
+        //int firesPerTick = 0;
+		int firesPerTickMax = 1;
+
+        if (storm.isFirenado) {
+        	//tryRipMax = 1;
+		}
 
         //startDissipate();
         
@@ -204,7 +215,7 @@ public class TornadoHelper {
         //int spawnYOffset = (int) storm.currentTopYBlock;
         int spawnYOffset = (int) storm.posBaseFormationPos.yCoord;
 
-        if (!parWorld.isRemote && ConfigTornado.Storm_Tornado_grabBlocks/*getStorm().grabsBlocks*/)
+        if (!parWorld.isRemote && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado)/*getStorm().grabsBlocks*/)
         {
             int yStart = 00;
             int yEnd = (int)storm.pos.yCoord/* + 72*/;
@@ -220,7 +231,7 @@ public class TornadoHelper {
         	
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/heightVariation is correct, guessing we can just not factor in variation
-        	if (bgb != null && bgb.getBaseHeight()/* + bgb.getHeightVariation()*/ <= 0.7) {
+        	if (bgb != null && (bgb.getBaseHeight()/* + bgb.getHeightVariation()*/ <= 0.7 || storm.isFirenado)) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -327,10 +338,14 @@ public class TornadoHelper {
 	                for (int k = 0; k < 10; k++)
 	                {
 	                	int randSize = 40;
+
+						//if (storm.isFirenado) {
+							randSize = 10;
+						//}
 	                	
-	                    int tryX = (int)storm.pos.xCoord + rand.nextInt(randSize) - 20;
+	                    int tryX = (int)storm.pos.xCoord + rand.nextInt(randSize) - randSize/2;
 	                    int tryY = (int)spawnYOffset - 2 + rand.nextInt(8);
-	                    int tryZ = (int)storm.pos.zCoord + rand.nextInt(randSize) - 20;
+	                    int tryZ = (int)storm.pos.zCoord + rand.nextInt(randSize) - randSize/2;
 	
 	                    double d0 = storm.pos.xCoord - tryX;
 	                    double d2 = storm.pos.zCoord - tryZ;
@@ -341,24 +356,12 @@ public class TornadoHelper {
 	                    	BlockPos pos = new BlockPos(tryX, tryY, tryZ);
 	                        Block blockID = parWorld.getBlockState(pos).getBlock();
 
-
-							if (!storm.isFirenado) {
-								if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
-								{
-									tryRipCount++;
-									tryRip(parWorld, tryX, tryY, tryZ);
-								}
-
-							} else {
-								BlockPos posUp = pos.add(0, 1, 0);
-								if (!CoroUtilBlock.isAir(blockID) && CoroUtilBlock.isAir(parWorld.getBlockState(posUp).getBlock())) {
-									tryRipCount++;
-									parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
-
-									EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY() + 10, posUp.getZ(), Blocks.FIRE, storm);
-									parWorld.spawnEntity(mBlock);
-								}
+							if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
+							{
+								tryRipCount++;
+								tryRip(parWorld, tryX, tryY, tryZ);
 							}
+
 	
 
 	                    }
@@ -384,6 +387,48 @@ public class TornadoHelper {
         {
             seesLight = true;
         }
+
+		if (!parWorld.isRemote && storm.isFirenado) {
+			for (int i = 0; i < firesPerTickMax; i++) {
+				BlockPos posUp = new BlockPos(storm.posGround.xCoord, storm.posGround.yCoord + rand.nextInt(30), storm.posGround.zCoord);
+				IBlockState state = parWorld.getBlockState(posUp);
+				if (CoroUtilBlock.isAir(state.getBlock())) {
+					//parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
+
+					EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY(), posUp.getZ(), Blocks.FIRE, storm);
+					mBlock.metadata = 15;
+					double speed = 2D;
+					mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
+					mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
+					mBlock.motionY = 1D;
+					mBlock.mode = 0;
+					parWorld.spawnEntity(mBlock);
+				}
+			}
+
+			int randSize = 10;
+
+			int tryX = (int)storm.pos.xCoord + rand.nextInt(randSize) - randSize/2;
+
+			int tryZ = (int)storm.pos.zCoord + rand.nextInt(randSize) - randSize/2;
+			int tryY = parWorld.getHeight(tryX, tryZ) - 1;
+
+			double d0 = storm.pos.xCoord - tryX;
+			double d2 = storm.pos.zCoord - tryZ;
+			double dist = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
+
+			if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax) {
+				BlockPos pos = new BlockPos(tryX, tryY, tryZ);
+				Block block = parWorld.getBlockState(pos).getBlock();
+				BlockPos posUp = new BlockPos(tryX, tryY+1, tryZ);
+				Block blockUp = parWorld.getBlockState(posUp).getBlock();
+
+				if (!CoroUtilBlock.isAir(block) && CoroUtilBlock.isAir(blockUp))
+				{
+					parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
+				}
+			}
+		}
 	}
 	
 	public boolean isNoDigCoord(int x, int y, int z) {
@@ -535,7 +580,7 @@ public class TornadoHelper {
 
     public boolean canGrab(World parWorld, Block blockID)
     {
-        if (!CoroUtilBlock.isAir(blockID) && WeatherUtil.shouldGrabBlock(parWorld, blockID))
+        if (!CoroUtilBlock.isAir(blockID) && WeatherUtil.shouldGrabBlock(parWorld, blockID) && blockID != Blocks.FIRE)
         {
             return true;
         }
@@ -547,6 +592,8 @@ public class TornadoHelper {
     	if (ent instanceof EntityPlayer) {
 			if (ConfigTornado.Storm_Tornado_grabPlayer) {
 				return true;
+			} else {
+				return false;
 			}
 		} else {
     		if (ConfigTornado.Storm_Tornado_grabPlayersOnly) {
@@ -564,7 +611,8 @@ public class TornadoHelper {
 				return true;
 			}
 		}
-		return false;
+		//for moving blocks, other non livings
+		return true;
 	}
 	
     public boolean forceRotate(World parWorld/*Entity entity*/)

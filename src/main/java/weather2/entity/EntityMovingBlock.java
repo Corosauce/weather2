@@ -36,6 +36,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     public Block tile;
     public static final int falling = 0;
     public static final int grabbed = 1;
+    //mode 0 = use gravity
     public int mode;
     public static final float slowdown = 0.98F;
     public static final float curvature = 0.05F;
@@ -57,12 +58,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     public StormObject owner;
     public int gravityDelay;
 
+    public boolean killNextTick = false;
+
     public EntityMovingBlock(World var1)
     {
         super(var1);
         this.mode = 1;
         this.age = 0;
-        this.tile = null;
+        this.tile = Blocks.STONE;
         this.noCollision = true;
         this.gravityDelay = 60;
     }
@@ -100,40 +103,53 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         }
     }
 
+    @Override
     public boolean isInRangeToRenderDist(double var1)
     {
-        return true;
+        //return super.isInRangeToRenderDist(var1);
+        return var1 < 128D * 128D;
     }
 
+    @Override
     public boolean canTriggerWalking()
     {
         return false;
     }
 
+    @Override
     public void entityInit() {}
 
+    @Override
     public boolean canBePushed()
     {
         return !this.isDead;
     }
 
+    @Override
     public boolean canBeCollidedWith()
     {
         return !this.isDead && !this.noCollision;
     }
 
+    @Override
     public void onUpdate()
     {
+        super.onUpdate();
     	//new kill off when distant method
     	if (!world.isRemote) {
-	    	if (this.world.getClosestPlayer(this.posX, 50, this.posZ, 140, false) == null) {
+    	    if (killNextTick) {
+    	        setDead();
+            }
+	    	if (this.world.getClosestPlayer(this.posX, 50, this.posZ, 512, false) == null) {
 				setDead();
+				//return;
 			}
     	}
     	
         if (CoroUtilBlock.isAir(this.tile))
         {
             this.setDead();
+            //return;
         }
         else
         {
@@ -143,15 +159,16 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             {
                 this.mode = 0;
 
-                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfDisintegrate + 1) * 20) == 0)
+                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfDisintegrate + 1 + (owner != null && owner.isFirenado ? 100 : 0)) * 20) == 0)
                 {
                     this.setDead();
+                    //return;
                 }
 
-                if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
+                /*if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfFirenado != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfFirenado + 1) * 20) == 0)
                 {
                     this.tile = Blocks.FIRE;
-                }
+                }*/
             }
 
             if (this.type == 0)
@@ -385,6 +402,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             if (!this.world.isBlockLoaded(new BlockPos(var11, var20, var21)))
             {
                 this.setDead();
+                //return;
             }
 
             this.prevPosX = this.posX;
@@ -408,7 +426,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             this.setPosition(this.posX, this.posY, this.posZ);
         }
     }
-    
+
     public boolean canEntityBeSeen(Entity par1Entity)
     {
         return this.world.rayTraceBlocks(new Vec3d(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3d(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
@@ -416,7 +434,12 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
     private void blockify(int var1, int var2, int var3, EnumFacing var4)
     {
+        //TODO: this was the only thing killing off moving blocks on client side, syncing is broken server to client?
+
+        //if (true) return;
+        if (this.world.isRemote) return;
         this.setDead();
+
         Block var5 = this.world.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
 
         if (this.tileentity != null || this.type != 0 || ConfigTornado.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigTornado.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
@@ -456,8 +479,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         }
     }
 
-    public boolean attackEntityFrom(Entity var1, int var2)
-    {
+    @Override
+    public boolean attackEntityFrom(DamageSource source, float amount) {
         return false;
     }
 
@@ -494,22 +517,15 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             this.tileentity.readFromNBT(var2);
         }
         
-        if (type == 0) setDead(); //kill flying block on reload for tornado spazing fix
+        if (type == 0) {
+            //setDead(); //kill flying block on reload for tornado spazing fix
+            killNextTick = true;
+        }
     }
 
-    public float getShadowSize()
-    {
-        return 0.0F;
-    }
-
-    public boolean isInRangeToRenderVec3D(Vec3 asd)
-    {
-        return true;
-    }
-
-    public World func_22685_k()
-    {
-        return this.world;
+    @Override
+    public boolean isInRangeToRender3d(double x, double y, double z) {
+        return super.isInRangeToRender3d(x, y, z);
     }
 
     @Override
@@ -528,7 +544,6 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     	}
     	
     	owner = null;
-
         super.setDead();
     }
 
@@ -542,7 +557,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void readSpawnData(ByteBuf data)
     {
-    	tile = (Block)Block.REGISTRY.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
+    	tile = Block.REGISTRY.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
         metadata = data.readInt();
     }
 }

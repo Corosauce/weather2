@@ -123,6 +123,9 @@ public class CommandWeather2 extends CommandBase {
 								so.levelCurIntensityStage = StormObject.STATE_STAGE2;
 							} else if (var2[2].equalsIgnoreCase("F1")) {
 								so.levelCurIntensityStage = StormObject.STATE_STAGE1;
+							} else if (var2[2].equalsIgnoreCase("firenado")) {
+								so.levelCurIntensityStage = StormObject.STATE_STAGE1;
+								so.isFirenado = true;
 							} else if (var2[2].equalsIgnoreCase("F0")) {
 								so.levelCurIntensityStage = StormObject.STATE_FORMING;
 							} else if (var2[2].equalsIgnoreCase("C0")) {

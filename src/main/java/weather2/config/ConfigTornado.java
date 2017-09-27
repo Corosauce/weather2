@@ -43,8 +43,8 @@ public class ConfigTornado implements IConfigCategory {
 	@ConfigComment("How rarely a block will be removed while spinning around a tornado")
 	public static int Storm_Tornado_rarityOfDisintegrate = 15;
 	public static int Storm_Tornado_rarityOfBreakOnFall = 5;
-	@ConfigComment(":D")
-	public static int Storm_Tornado_rarityOfFirenado = -1;
+	//@ConfigComment(":D")
+	//public static int Storm_Tornado_rarityOfFirenado = -1;
 	@ConfigComment("Make tornados initial heading aimed towards closest player")
 	public static boolean Storm_Tornado_aimAtPlayerOnSpawn = true;
 	@ConfigComment("Accuracy of tornado aimed at player")
