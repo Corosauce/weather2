@@ -389,6 +389,7 @@ public class TornadoHelper {
         }
 
 		if (!parWorld.isRemote && storm.isFirenado) {
+        	if (storm.levelCurIntensityStage >= storm.STATE_STAGE1)
 			for (int i = 0; i < firesPerTickMax; i++) {
 				BlockPos posUp = new BlockPos(storm.posGround.xCoord, storm.posGround.yCoord + rand.nextInt(30), storm.posGround.zCoord);
 				IBlockState state = parWorld.getBlockState(posUp);
@@ -405,6 +406,7 @@ public class TornadoHelper {
 					parWorld.spawnEntity(mBlock);
 				}
 			}
+
 
 			int randSize = 10;
 
