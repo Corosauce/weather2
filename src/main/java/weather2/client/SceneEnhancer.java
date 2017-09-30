@@ -515,7 +515,7 @@ public class SceneEnhancer implements Runnable {
 
 			if (doFish) {
 				int spawnTryCur = 0;
-				int spawnTryMax = 200 / 2;
+				int spawnTryMax = 200;
 				int range = 60;
 				for (; spawnTryCur < spawnTryMax; spawnTryCur++) {
 					BlockPos pos = new BlockPos(entP.getPosition().add(rand.nextInt(range) - rand.nextInt(range),
@@ -527,12 +527,12 @@ public class SceneEnhancer implements Runnable {
 								pos.getX() + 0.5F,
 								pos.getY() + 0.5F,
 								pos.getZ() + 0.5F,
-								0D, 0D, 0D, ParticleRegistry.fish_1);
+								0D, 0D, 0D, ParticleRegistry.listFish.get(rand.nextInt(8) + 1));
 						fish.setTicksFadeInMax(20);
 						fish.setAlphaF(0);
 						fish.setTicksFadeOutMax(20);
 						fish.setMaxAge(20 * 10);
-						fish.setScale(8F);
+						fish.setScale(6F);
 						fish.setDontRenderUnderTopmostBlock(false);
 						fish.setGravity(0);
 						//fish.motionX = 0;
@@ -540,7 +540,7 @@ public class SceneEnhancer implements Runnable {
 						//fish.motionZ = 0;
 						fish.rotationYaw = rand.nextInt(360);
 						fish.rotationPitch = rand.nextInt(45);
-						fish.setRBGColorF(0.2F, 0.2F, 0.8F);
+						fish.setRBGColorF(0.6F, 0.6F, 1F);
 						ExtendedRenderer.rotEffRenderer.addEffect(fish);
 					}
 				}
