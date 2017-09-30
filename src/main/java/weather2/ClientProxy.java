@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -60,6 +61,7 @@ public class ClientProxy extends CommonProxy
     	WeatherUtilSound.init();
     	
     	//MinecraftForge.EVENT_BUS.register(new SoundLoader());
+        MinecraftForge.EVENT_BUS.register(new WaterRenderClear());
     	
     	//TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
         

@@ -36,6 +36,7 @@ import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.api.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
+import weather2.client.entity.particle.ParticleFish;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
@@ -508,6 +509,42 @@ public class SceneEnhancer implements Runnable {
 				}
 
 				//if (true) return;
+			}
+
+			boolean doFish = true;
+
+			if (doFish) {
+				int spawnTryCur = 0;
+				int spawnTryMax = 200 / 2;
+				int range = 60;
+				for (; spawnTryCur < spawnTryMax; spawnTryCur++) {
+					BlockPos pos = new BlockPos(entP.getPosition().add(rand.nextInt(range) - rand.nextInt(range),
+							rand.nextInt(range) - rand.nextInt(range),
+							rand.nextInt(range) - rand.nextInt(range)));
+					IBlockState state = world.getBlockState(pos);
+					if (world.isWater(pos)) {
+						ParticleFish fish = new ParticleFish(entP.worldObj,
+								pos.getX() + 0.5F,
+								pos.getY() + 0.5F,
+								pos.getZ() + 0.5F,
+								0D, 0D, 0D, ParticleRegistry.fish_1);
+						fish.setTicksFadeInMax(20);
+						fish.setAlphaF(0);
+						fish.setTicksFadeOutMax(20);
+						fish.setMaxAge(20 * 10);
+						fish.setScale(8F);
+						fish.setDontRenderUnderTopmostBlock(false);
+						fish.setGravity(0);
+						//fish.motionX = 0;
+						fish.motionY = 0;
+						//fish.motionZ = 0;
+						fish.rotationYaw = rand.nextInt(360);
+						fish.rotationPitch = rand.nextInt(45);
+						fish.setRBGColorF(0.2F, 0.2F, 0.8F);
+						ExtendedRenderer.rotEffRenderer.addEffect(fish);
+					}
+				}
+
 			}
 
 			//check rules same way vanilla texture precip does
