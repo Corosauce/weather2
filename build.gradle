@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.github.Corosauce:coroutil:${coroutil_version}"
+    compile files("../forge-1.12.1-CoroUtil/build/classes/main/")
 }
 
 processResources {
