@@ -38,6 +38,7 @@ import weather2.api.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.client.entity.particle.ParticleFish;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.client.entity.particle.ParticleTallGrass;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigStorm;
@@ -545,6 +546,69 @@ public class SceneEnhancer implements Runnable {
 					}
 				}
 
+			}
+
+			boolean doGrass = true;
+
+			if (doGrass) {
+				int spawnAreaSize = 60;
+				int spawnAmount = 80;
+				for (int i = 0; i < spawnAmount; i++) {
+					BlockPos pos = new BlockPos(
+							entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+							entP.posY,
+							entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+					pos = world.getPrecipitationHeight(pos);
+					IBlockState state = world.getBlockState(pos.add(0, -1, 0));
+
+					if (state.getMaterial() == Material.GRASS) {
+						ParticleTallGrass rain = new ParticleTallGrass(entP.worldObj,
+								pos.getX() + rand.nextFloat(),
+								pos.getY() + 0.5D - 0.2D,
+								pos.getZ() + rand.nextFloat(),
+								0D, 0D, 0D, ParticleRegistry.tallgrass);
+						rain.setCanCollide(true);
+						//hack
+						int color = 8763015;
+						color = 9551193;
+						rain.particleRed = (float)(color >> 16 & 255) / 255.0F;
+						rain.particleGreen = (float)(color >> 8 & 255) / 255.0F;
+						rain.particleBlue = (float)(color & 255) / 255.0F;
+
+
+						//rain.setPosY(pos.getY() + 0.5D + 0.01D);
+						//rain.setKillOnCollide(true);
+						//rain.setKillWhenUnderTopmostBlock(true);
+						//rain.setTicksFadeOutMaxOnDeath(5);
+
+						//rain.setDontRenderUnderTopmostBlock(true);
+						//rain.setExtraParticlesBaseAmount(5);
+						//rain.setDontRenderUnderTopmostBlock(true);
+
+						rain.windWeight = 99999F;
+						rain.setFacePlayer(false);
+						//SHADER COMPARE TEST
+						//rain.setFacePlayer(false);
+
+						rain.setScale(3F + (rand.nextFloat() * 3F));
+						rain.setMaxAge(240);
+						rain.setGravity(0.0F);
+						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+						rain.setTicksFadeInMax(4);
+						rain.setAlphaF(0);
+						rain.setTicksFadeOutMax(4);
+						rain.renderOrder = 2;
+
+						rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+						rain.rotationPitch = 0;
+						rain.setMotionY(0D);
+						rain.setMotionX(0);
+						rain.setMotionZ(0);
+						ExtendedRenderer.rotEffRenderer.addEffect(rain);
+						ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+					}
+				}
 			}
 
 			//check rules same way vanilla texture precip does
