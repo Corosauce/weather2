@@ -9,6 +9,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
+import weather2.CommonProxy;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
@@ -30,7 +31,12 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     public void update()
     {
     	if (world.isRemote) {
-    		tickClient();
+    	    int meta = CommonProxy.blockTSiren.getMetaFromState(this.world.getBlockState(this.getPos()));
+            if (BlockTSiren.isEnabled(meta)) {
+                System.out.println("enabled");
+                tickClient();
+            }
+
     	}
     }
     
