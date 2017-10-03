@@ -1,0 +1,27 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"all": "weather2:blocks/tornado_sensor"
+		},
+		"model": "weather2:tornado_sensor",
+		"uvlock": true
+	},
+	"variants": {
+		"power": {
+			"true": {
+				"textures": {
+					"all": "weather2:blocks/tornado_sensor"
+				}
+			},
+			"false": {
+				"textures": {
+					"all": "weather2:blocks/tornado_sensor"
+				}
+			}
+		},
+		"normal": [{
+
+		}]
+	}
+}
