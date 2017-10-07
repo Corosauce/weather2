@@ -7,6 +7,7 @@ import CoroUtil.util.*;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.render.RotatingParticleManager;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFire;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -155,7 +156,7 @@ public class SceneEnhancer implements Runnable {
 			tryParticleSpawning();
 			tickParticlePrecipitation();
 			trySoundPlaying();
-			
+
 			Minecraft mc = FMLClientHandler.instance().getClient();
 
 			if (mc.world != null && lastWorldDetected != mc.world) {
@@ -164,24 +165,24 @@ public class SceneEnhancer implements Runnable {
 			}
 
 			tryWind(mc.world);
-			
+
 			//tickTest();
 			//tickTestFog();
 			tickSandstorm();
 			//tickTestSandstormParticles();
 
 
-            if (particleBehavior == null) {
-                particleBehavior = new ParticleBehaviorSandstorm(null);
-            }
-            particleBehavior.tickUpdateList();
+			if (particleBehavior == null) {
+				particleBehavior = new ParticleBehaviorSandstorm(null);
+			}
+			particleBehavior.tickUpdateList();
 		}
 	}
 	
 	//run from our newly created thread
 	public void tickClientThreaded() {
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		
+
 		if (mc.world != null && mc.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.world.provider.getDimension())) {
 			profileSurroundings();
 			tryAmbientSounds();
@@ -451,7 +452,10 @@ public class SceneEnhancer implements Runnable {
 						//rain.setExtraParticlesBaseAmount(5);
 						//rain.setDontRenderUnderTopmostBlock(true);
 						rain.setSlantParticleToWind(false);
-						rain.noExtraParticles = true;
+						//rain.noExtraParticles = true;
+						rain.setExtraParticlesBaseAmount(2);
+						rain.setSeverityOfRainRate(0);
+						rain.setDontRenderUnderTopmostBlock(true);
 
 						boolean upward = rand.nextBoolean();
 
@@ -495,8 +499,8 @@ public class SceneEnhancer implements Runnable {
 				if (testParticle != null) {
 					testParticle.setPosition(entP.posX + 1, entP.posY, entP.posZ - 4);
 
-					testParticle.rotationPitch = world.getTotalWorldTime() % 360;
-					testParticle.rotationYaw = (world.getTotalWorldTime() % 360) * 6;
+					testParticle.rotationPitch = 45;//world.getTotalWorldTime() % 360;
+					testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
 
 					/*testParticle.posX = entP.posX + 10;
 					testParticle.posY = entP.posY;
@@ -552,9 +556,11 @@ public class SceneEnhancer implements Runnable {
 									//rain.setCanCollide(true);
 									//rain.setKillOnCollide(true);
 									rain.setKillWhenUnderTopmostBlock(true);
+									rain.killWhenUnderCameraAtLeast = 5;
 									rain.setTicksFadeOutMaxOnDeath(5);
 									rain.setDontRenderUnderTopmostBlock(true);
 									rain.setExtraParticlesBaseAmount(15);
+									rain.fastLight = true;
 									rain.setSlantParticleToWind(true);
 									rain.windWeight = 1F;
 									rain.setFacePlayer(true);
@@ -568,6 +574,7 @@ public class SceneEnhancer implements Runnable {
 									rain.setTicksFadeInMax(5);
 									rain.setAlphaF(0);
 									rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+									rain.extraYRotation = rain.getWorld().rand.nextInt(360) - 180F;
 									rain.setMotionY(-0.5D/*-5D - (entP.world.rand.nextInt(5) * -1D)*/);
 									rain.spawnAsWeatherEffect();
 									ClientTickHandler.weatherManager.addWeatheredParticle(rain);
@@ -580,7 +587,7 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
-						//if (true) return;
+
 
 						if (world.getTotalWorldTime() % 60 == 0) {
 							//System.out.println("spawnCount: " + spawnCount);
@@ -621,7 +628,7 @@ public class SceneEnhancer implements Runnable {
 								rain.windWeight = 20F;
 								rain.setFacePlayer(upward);
 								//SHADER COMPARE TEST
-								rain.setFacePlayer(false);
+								//rain.setFacePlayer(false);
 
 								rain.setScale(3F + (rand.nextFloat() * 3F));
 								rain.setMaxAge(15);
@@ -630,6 +637,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setTicksFadeInMax(0);
 								rain.setAlphaF(0);
 								rain.setTicksFadeOutMax(4);
+								rain.renderOrder = 2;
 
 								rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
 								rain.rotationPitch = 90;
@@ -642,6 +650,8 @@ public class SceneEnhancer implements Runnable {
 								ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 							}
 						}
+
+						//if (true) return;
 
 						spawnAreaSize = 20;
 						//downfall
@@ -672,7 +682,7 @@ public class SceneEnhancer implements Runnable {
 								//rain.setDontRenderUnderTopmostBlock(true);
 								//rain.setExtraParticlesBaseAmount(5);
 								//rain.setDontRenderUnderTopmostBlock(true);
-								rain.setSlantParticleToWind(true);
+								//rain.setSlantParticleToWind(true);
 								rain.noExtraParticles = true;
 
 								boolean upward = rand.nextBoolean();
@@ -681,6 +691,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setFacePlayer(true);
 								//SHADER COMPARE TEST
 								rain.setFacePlayer(false);
+								rain.facePlayerYaw = true;
 
 								rain.setScale(90F + (rand.nextFloat() * 3F));
 								//rain.setScale(25F);

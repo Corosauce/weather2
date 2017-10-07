@@ -128,6 +128,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     			if (lockStormHere) {
 					//lastTickStormObject.pos = new Vec3(xCoord + rand.nextFloat() - rand.nextFloat(), StormObject.layers.get(0), zCoord + rand.nextFloat() - rand.nextFloat());
 					lastTickStormObject.pos = new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
+					lastTickStormObject.motion = new Vec3(0, 0, 0);
 				}
 
 				lastTickStormObject.weatherMachineControlled = true;

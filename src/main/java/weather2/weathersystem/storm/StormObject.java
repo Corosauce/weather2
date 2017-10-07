@@ -57,7 +57,17 @@ public class StormObject extends WeatherObject {
 	//management stuff
 	
 	public String userSpawnedFor = "";
-	
+
+	//newer cloud managing list for more strict render optimized positioning
+	@SideOnly(Side.CLIENT)
+	public HashMap<Integer, EntityRotFX> lookupParticlesCloud;
+
+	@SideOnly(Side.CLIENT)
+	public HashMap<Integer, EntityRotFX> lookupParticlesCloudLower;
+
+	@SideOnly(Side.CLIENT)
+	public HashMap<Integer, EntityRotFX> lookupParticlesFunnel;
+
 	@SideOnly(Side.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
 	@SideOnly(Side.CLIENT)
@@ -158,7 +168,7 @@ public class StormObject extends WeatherObject {
     public float formingStrength = 0; //for transition from 0 (in clouds) to 1 (touch down)
     
     public Vec3 posBaseFormationPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
-    
+
     public boolean naturallySpawned = true;
 	//to prevent things like it progressing to next stage before weather machine undoes it
 	public boolean weatherMachineControlled = false;
@@ -199,6 +209,9 @@ public class StormObject extends WeatherObject {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
 			listParticlesFunnel = new ArrayList<EntityRotFX>();
 			listParticlesGround = new ArrayList<EntityRotFX>();
+			lookupParticlesCloud = new HashMap<>();
+			lookupParticlesCloudLower = new HashMap<>();
+			lookupParticlesFunnel = new HashMap<>();
 			//renderBlock = new RenderCubeCloud();
 		}
 	}
@@ -276,7 +289,7 @@ public class StormObject extends WeatherObject {
 
 		CachedNBTTagCompound var1 = this.getNbtCache();
 		
-		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
+
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
     }
@@ -289,9 +302,7 @@ public class StormObject extends WeatherObject {
 
 		CachedNBTTagCompound nbt = this.getNbtCache();
 		
-		nbt.setDouble("vecX", motion.xCoord);
-		nbt.setDouble("vecY", motion.yCoord);
-		nbt.setDouble("vecZ", motion.zCoord);
+
 		nbt.setBoolean("angleIsOverridden", angleIsOverridden);
 		nbt.setFloat("angleMovementTornadoOverride", angleMovementTornadoOverride);
 
@@ -352,6 +363,8 @@ public class StormObject extends WeatherObject {
 		isFirenado = parNBT.getBoolean("isFirenado");
 		
 		ticksSinceLastPacketReceived = 0;//manager.getWorld().getTotalWorldTime();
+
+		weatherMachineControlled = parNBT.getBoolean("weatherMachineControlled");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -394,7 +407,10 @@ public class StormObject extends WeatherObject {
 
 		data.setBoolean("cloudlessStorm", cloudlessStorm);
 
+
 		data.setBoolean("isFirenado", isFirenado);
+
+		data.setBoolean("weatherMachineControlled", weatherMachineControlled);
 
 	}
 	
@@ -407,16 +423,106 @@ public class StormObject extends WeatherObject {
 	@SideOnly(Side.CLIENT)
 	public void tickRender(float partialTick) {
 		super.tickRender(partialTick);
+
+
+
 		//renderBlock.doRenderClouds(this, 0, 0, 0, 0, partialTick);
 		/*if (layer == 1) {
 			renderBlock.doRenderClouds(this, pos.xCoord, pos.yCoord, pos.zCoord, 0, partialTick);
 		}*/
+
+		//TODO: consider only putting funnel in this method since its the fast part, the rest might be slow enough to only need to do per gametick
+
+		if (!WeatherUtil.isPaused()) {
+
+			int count = 8+1;
+
+
+			ParticleBehaviorFog.newCloudWay = true;
+
+			Iterator<Map.Entry<Integer, EntityRotFX>> it = lookupParticlesCloud.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, EntityRotFX> entry = it.next();
+				EntityRotFX ent = entry.getValue();
+				if (!ent.isAlive()) {
+					it.remove();
+				} else {
+					int i = entry.getKey();
+					Vec3 tryPos = null;
+					double spawnRad = 120;//(ticksExisted % 100) + 10;
+					double speed = 2D / (spawnRad);
+					if (isSpinning()) {
+						speed = 50D / (spawnRad);
+					}
+					ent.rotationSpeedAroundCenter = (float)speed;
+					if (i == 0) {
+						tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+						ent.rotationYaw = ent.rotationAroundCenter;
+					} else {
+						double rad = Math.toRadians(ent.rotationAroundCenter - ent.rotationSpeedAroundCenter + (ent.rotationSpeedAroundCenter * partialTick));
+						double x = -Math.sin(rad) * spawnRad;
+						double z = Math.cos(rad) * spawnRad;
+						tryPos = new Vec3(pos.xCoord + x, layers.get(layer), pos.zCoord + z);
+
+						double var16 = this.pos.xCoord - ent.getPosX();
+						double var18 = this.pos.zCoord - ent.getPosZ();
+						ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
+						//ent.rotationPitch = -20F;// - (ent.getEntityId() % 10);
+
+						//ent.setAge(100);
+
+
+					}
+					ent.setPosition(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord);
+				}
+			}
+
+
+
+			count = 16*2;
+
+			it = lookupParticlesCloudLower.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, EntityRotFX> entry = it.next();
+				EntityRotFX ent = entry.getValue();
+				if (!ent.isAlive()) {
+					it.remove();
+				} else {
+					int i = entry.getKey();
+					Vec3 tryPos = null;
+
+					ent.setScale(800);
+
+					double countPerLayer = 16;
+					double rotPos = i % 16;
+					int layerRot = i / 16;
+					double spawnRad = 80;
+					if (layerRot == 1) {
+						spawnRad = 60;
+						ent.setScale(600);
+					}
+					double speed = 50D / (spawnRad * 2D);
+
+					ent.rotationSpeedAroundCenter = (float)speed;
+					double rad = Math.toRadians(ent.rotationAroundCenter - ent.rotationSpeedAroundCenter + (ent.rotationSpeedAroundCenter * partialTick));
+					double x = -Math.sin(rad) * spawnRad;
+					double z = Math.cos(rad) * spawnRad;
+					tryPos = new Vec3(pos.xCoord + x, layers.get(layer) - 20, pos.zCoord + z);
+
+					ent.setPosition(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord);
+
+					double var16 = this.pos.xCoord - ent.getPosX();
+					double var18 = this.pos.zCoord - ent.getPosZ();
+					ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
+					ent.rotationPitch = -20F;// - (ent.getEntityId() % 10);
+				}
+			}
+		}
 	}
 	
 	public void tick() {
 		super.tick();
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
-		
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
@@ -441,6 +547,8 @@ public class StormObject extends WeatherObject {
 						tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 			        }
 				}
+
+				tickMovementClient();
 			}
 		} else {
 
@@ -610,21 +718,30 @@ public class StormObject extends WeatherObject {
 			//Weather.dbg("storm ID: " + this.ID + ", stage: " + levelCurIntensityStage + ", storm speed: " + finalSpeed);
 		}
 		
-		
-		motion.xCoord = vecX * finalSpeed;
-		motion.zCoord = vecZ * finalSpeed;
-		
-		double max = 0.2D;
-		//max speed
-		
-		/*if (motion.xCoord < -max) motion.xCoord = -max;
-		if (motion.xCoord > max) motion.xCoord = max;
-		if (motion.zCoord < -max) motion.zCoord = -max;
-		if (motion.zCoord > max) motion.zCoord = max;*/
-		
-		//actually move storm
-		pos.xCoord += motion.xCoord;
-		pos.zCoord += motion.zCoord;
+
+		if (!weatherMachineControlled) {
+			motion.xCoord = vecX * finalSpeed;
+			motion.zCoord = vecZ * finalSpeed;
+
+			double max = 0.2D;
+			//max speed
+
+			/*if (motion.xCoord < -max) motion.xCoord = -max;
+			if (motion.xCoord > max) motion.xCoord = max;
+			if (motion.zCoord < -max) motion.zCoord = -max;
+			if (motion.zCoord > max) motion.zCoord = max;*/
+
+			//actually move storm
+			pos.xCoord += motion.xCoord;
+			pos.zCoord += motion.zCoord;
+		}
+	}
+
+	public void tickMovementClient() {
+		if (!weatherMachineControlled) {
+			pos.xCoord += motion.xCoord;
+			pos.zCoord += motion.zCoord;
+		}
 	}
 	
 	public void tickWeatherEvents() {
@@ -1504,10 +1621,83 @@ public class StormObject extends WeatherObject {
 		Vec3 playerAdjPos = new Vec3(entP.posX, pos.yCoord, entP.posZ);
 		double maxSpawnDistFromPlayer = 512;
 		
+
+
+		//maintain clouds new system
+
+
 		//spawn clouds
+		if (ParticleBehaviorFog.newCloudWay) {
+
+			//1 in middle, 8 around it
+			int count = 8+1;
+
+			for (int i = 0; i < count; i++) {
+				if (!lookupParticlesCloud.containsKey(i)) {
+
+					//position doesnt matter, set by renderer while its invisible still
+					Vec3 tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+					EntityRotFX particle;
+					if (WeatherUtil.isAprilFoolsDay()) {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+					} else {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256_test);
+					}
+
+					//offset starting rotation for even distribution except for middle one
+					if (i != 0) {
+						double rotPos = (i - 1);
+						float radStart = (float) ((360D / 8D) * rotPos);
+						particle.rotationAroundCenter = radStart;
+					}
+
+					lookupParticlesCloud.put(i, particle);
+				}
+			}
+
+			if (isSpinning()) {
+
+				//2 layers of 16
+				count = 16*2;
+
+				for (int i = 0; i < count; i++) {
+					if (!lookupParticlesCloudLower.containsKey(i)) {
+
+						//position doesnt matter, set by renderer while its invisible still
+						Vec3 tryPos = new Vec3(pos.xCoord, layers.get(layer), pos.zCoord);
+						EntityRotFX particle;
+						if (WeatherUtil.isAprilFoolsDay()) {
+							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.chicken);
+						} else {
+							particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 1, ParticleRegistry.cloud256_test);
+						}
+
+						//set starting offset for even distribution
+						double rotPos = i % 15;
+						float radStart = (float) ((360D / 16D) * rotPos);
+						particle.rotationAroundCenter = radStart;
+
+						lookupParticlesCloudLower.put(i, particle);
+					}
+				}
+			}
+		}
+
 		if (this.manager.getWorld().getTotalWorldTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
 			for (int i = 0; i < loopSize; i++) {
-				if (listParticlesCloud.size() < size + extraSpawning) {
+				/*if (listParticlesCloud.size() == 0) {
+					double spawnRad = 1;
+					Vec3 tryPos = new Vec3(pos.xCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.zCoord + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					EntityRotFX particle;
+					if (WeatherUtil.isAprilFoolsDay()) {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.chicken);
+					} else {
+						particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0, ParticleRegistry.cloud256_test);
+					}
+
+					listParticlesCloud.add(particle);
+				}*/
+				if (!ParticleBehaviorFog.newCloudWay && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
 					double spawnRad = size;
 					
 					/*if (layer != 0) {
@@ -1550,7 +1740,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (levelCurIntensityStage >= STATE_HIGHWIND) {
+		if (!ParticleBehaviorFog.newCloudWay && levelCurIntensityStage >= STATE_HIGHWIND) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
@@ -1571,7 +1761,7 @@ public class StormObject extends WeatherObject {
 							particle = spawnFogParticle(tryPos.xCoord, groundY + 3, tryPos.zCoord, 0);
 						}
 						
-						particle.setScale(100);
+						particle.setScale(200);
 						particle.rotationYaw = rand.nextInt(360);
 						particle.rotationPitch = rand.nextInt(360);
 						
@@ -2297,8 +2487,16 @@ public class StormObject extends WeatherObject {
 			
 			entityfx.setMaxAge((size) + rand.nextInt(100));
 		}
+
+		//temp?
+		if (ParticleBehaviorFog.newCloudWay) {
+			entityfx.setMaxAge(400);
+		}
     	
     	float randFloat = (rand.nextFloat() * 0.6F);
+		if (ParticleBehaviorFog.newCloudWay) {
+			randFloat = (rand.nextFloat() * 0.4F);
+		}
 		float baseBright = 0.7F;
 		if (levelCurIntensityStage > STATE_NORMAL) {
 			baseBright = 0.2F;
