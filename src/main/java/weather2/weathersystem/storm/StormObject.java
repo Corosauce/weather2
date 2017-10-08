@@ -2,6 +2,7 @@ package weather2.weathersystem.storm;
 
 import java.util.*;
 
+import CoroUtil.config.ConfigCoroAI;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
@@ -438,7 +439,7 @@ public class StormObject extends WeatherObject {
 			int count = 8+1;
 
 
-			ParticleBehaviorFog.newCloudWay = true;
+			//ParticleBehaviorFog.newCloudWay = true;
 
 			Iterator<Map.Entry<Integer, EntityRotFX>> it = lookupParticlesCloud.entrySet().iterator();
 			while (it.hasNext()) {
@@ -1627,7 +1628,7 @@ public class StormObject extends WeatherObject {
 
 
 		//spawn clouds
-		if (ParticleBehaviorFog.newCloudWay) {
+		if (ConfigCoroAI.optimizedCloudRendering) {
 
 			//1 in middle, 8 around it
 			int count = 8+1;
@@ -1697,7 +1698,7 @@ public class StormObject extends WeatherObject {
 
 					listParticlesCloud.add(particle);
 				}*/
-				if (!ParticleBehaviorFog.newCloudWay && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
+				if (!ConfigCoroAI.optimizedCloudRendering && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
 					double spawnRad = size;
 					
 					/*if (layer != 0) {
@@ -1740,7 +1741,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (!ParticleBehaviorFog.newCloudWay && levelCurIntensityStage >= STATE_HIGHWIND) {
+		if (!ConfigCoroAI.optimizedCloudRendering && levelCurIntensityStage >= STATE_HIGHWIND) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
@@ -2489,12 +2490,12 @@ public class StormObject extends WeatherObject {
 		}
 
 		//temp?
-		if (ParticleBehaviorFog.newCloudWay) {
+		if (ConfigCoroAI.optimizedCloudRendering) {
 			entityfx.setMaxAge(400);
 		}
     	
     	float randFloat = (rand.nextFloat() * 0.6F);
-		if (ParticleBehaviorFog.newCloudWay) {
+		if (ConfigCoroAI.optimizedCloudRendering) {
 			randFloat = (rand.nextFloat() * 0.4F);
 		}
 		float baseBright = 0.7F;

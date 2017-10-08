@@ -3,6 +3,7 @@ package weather2.client;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.*;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.render.RotatingParticleManager;
@@ -563,7 +564,17 @@ public class SceneEnhancer implements Runnable {
 									rain.fastLight = true;
 									rain.setSlantParticleToWind(true);
 									rain.windWeight = 1F;
-									rain.setFacePlayer(true);
+
+									if (!RotatingParticleManager.useShaders) {
+										//old slanty rain way
+										rain.setFacePlayer(true);
+										rain.setSlantParticleToWind(true);
+									} else {
+										//new slanty rain way
+										rain.setFacePlayer(false);
+										rain.extraYRotation = rain.getWorld().rand.nextInt(360) - 180F;
+									}
+
 									//rain.setFacePlayer(true);
 									rain.setScale(2F);
 									rain.isTransparent = true;
@@ -574,7 +585,6 @@ public class SceneEnhancer implements Runnable {
 									rain.setTicksFadeInMax(5);
 									rain.setAlphaF(0);
 									rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
-									rain.extraYRotation = rain.getWorld().rand.nextInt(360) - 180F;
 									rain.setMotionY(-0.5D/*-5D - (entP.world.rand.nextInt(5) * -1D)*/);
 									rain.spawnAsWeatherEffect();
 									ClientTickHandler.weatherManager.addWeatheredParticle(rain);
@@ -593,8 +603,8 @@ public class SceneEnhancer implements Runnable {
 							//System.out.println("spawnCount: " + spawnCount);
 						}
 
-						boolean groundSplash = false;
-						boolean downfall = false;
+						boolean groundSplash = true;
+						boolean downfall = true;
 
 						//TODO: make ground splash and downfall use spawnNeed var style design
 

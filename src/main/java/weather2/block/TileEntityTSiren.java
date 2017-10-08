@@ -33,7 +33,7 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     	if (world.isRemote) {
     	    int meta = CommonProxy.blockTSiren.getMetaFromState(this.world.getBlockState(this.getPos()));
             if (BlockTSiren.isEnabled(meta)) {
-                System.out.println("enabled");
+                //System.out.println("enabled");
                 tickClient();
             }
 
