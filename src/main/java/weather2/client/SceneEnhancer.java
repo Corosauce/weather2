@@ -37,7 +37,9 @@ import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.api.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
+import weather2.client.entity.particle.ParticleFish;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.client.entity.particle.ParticleTallGrass;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigStorm;
@@ -509,6 +511,112 @@ public class SceneEnhancer implements Runnable {
 				}
 
 				//if (true) return;
+			}
+
+			boolean doFish = false;
+
+			if (doFish) {
+				int spawnTryCur = 0;
+				int spawnTryMax = 200;
+				int range = 60;
+				for (; spawnTryCur < spawnTryMax; spawnTryCur++) {
+					BlockPos pos = new BlockPos(entP.getPosition().add(rand.nextInt(range) - rand.nextInt(range),
+							rand.nextInt(range) - rand.nextInt(range),
+							rand.nextInt(range) - rand.nextInt(range)));
+					IBlockState state = world.getBlockState(pos);
+					if (state.getMaterial() == Material.WATER) {
+						ParticleFish fish = new ParticleFish(entP.world,
+								pos.getX() + 0.5F,
+								pos.getY() + 0.5F,
+								pos.getZ() + 0.5F,
+								0D, 0D, 0D, ParticleRegistry.listFish.get(rand.nextInt(8) + 1));
+						fish.setTicksFadeInMax(20);
+						fish.setAlphaF(0);
+						fish.setTicksFadeOutMax(20);
+						fish.setMaxAge(20 * 10);
+						fish.setScale(6F);
+						fish.setDontRenderUnderTopmostBlock(false);
+						fish.setGravity(0);
+						fish.isTransparent = false;
+						//fish.motionX = 0;
+						fish.motionY = 0;
+						//fish.motionZ = 0;
+						fish.rotationYaw = rand.nextInt(360);
+						fish.rotationPitch = rand.nextInt(45);
+						fish.setRBGColorF(0.6F, 0.6F, 1F);
+						ExtendedRenderer.rotEffRenderer.addEffect(fish);
+					}
+				}
+
+			}
+
+			boolean doGrass = true;
+
+			if (doGrass) {
+				int spawnAreaSize = 80;
+				int spawnAmount = 1;
+				for (int i = 0; i < spawnAmount; i++) {
+
+					BlockPos pos = new BlockPos(
+							entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+							entP.posY,
+							entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+					pos = world.getPrecipitationHeight(pos);
+					IBlockState state = world.getBlockState(pos.add(0, -1, 0));
+
+					if (state.getMaterial() == Material.GRASS) {
+						for (int ii = 0; ii < 8; ii++) {
+							ParticleTallGrass rain = new ParticleTallGrass(entP.world,
+									pos.getX()/* + rand.nextFloat()*/,
+									pos.getY() + 0.5D - 0.2D + ii,
+									pos.getZ()/* + rand.nextFloat()*/,
+									0D, 0D, 0D, ParticleRegistry.tallgrass);
+							rain.setCanCollide(true);
+							//hack
+							int color = 8763015;
+							color = 9551193;
+							rain.particleRed = (float) (color >> 16 & 255) / 255.0F;
+							rain.particleGreen = (float) (color >> 8 & 255) / 255.0F;
+							rain.particleBlue = (float) (color & 255) / 255.0F;
+
+
+							//rain.setPosY(pos.getY() + 0.5D + 0.01D);
+							//rain.setKillOnCollide(true);
+							//rain.setKillWhenUnderTopmostBlock(true);
+							//rain.setTicksFadeOutMaxOnDeath(5);
+
+							//rain.setDontRenderUnderTopmostBlock(true);
+							//rain.setExtraParticlesBaseAmount(5);
+							//rain.setDontRenderUnderTopmostBlock(true);
+
+							rain.isTransparent = false;
+
+							rain.windWeight = 99999F;
+							rain.setFacePlayer(false);
+							//SHADER COMPARE TEST
+							//rain.setFacePlayer(false);
+
+							rain.setScale(3F + (rand.nextFloat() * 3F));
+							rain.setScale(10F);
+							rain.setMaxAge(240);
+							rain.setGravity(0.0F);
+							//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+							rain.setTicksFadeInMax(4);
+							rain.setAlphaF(0);
+							rain.setTicksFadeOutMax(4);
+							rain.renderOrder = 2;
+
+							rain.rotationYaw = rain.getWorld().rand.nextInt(360) - 180F;
+							rain.rotationPitch = 0;
+							rain.setMotionY(0D);
+							rain.setMotionX(0);
+							rain.setMotionZ(0);
+							ExtendedRenderer.rotEffRenderer.addEffect(rain);
+							ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+						}
+					}
+				}
 			}
 
 			//check rules same way vanilla texture precip does
