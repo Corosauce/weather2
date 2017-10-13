@@ -427,10 +427,10 @@ public class SceneEnhancer implements Runnable {
 
 			//System.out.println("ClientTickEvent time: " + world.getTotalWorldTime());
 
-			boolean particleTest = false;
+			boolean particleTest = true;
 
 			if (particleTest) {
-				if (testParticle == null/* || testParticle.isExpired*/) {
+				if (testParticle == null || testParticle.isExpired) {
 					BlockPos pos = new BlockPos(entP);
 
 					//if (entP.getDistanceSq(pos) < 10D * 10D) continue;
@@ -456,7 +456,7 @@ public class SceneEnhancer implements Runnable {
 						//rain.setDontRenderUnderTopmostBlock(true);
 						rain.setSlantParticleToWind(false);
 						//rain.noExtraParticles = true;
-						rain.setExtraParticlesBaseAmount(2);
+						rain.setExtraParticlesBaseAmount(1);
 						rain.setSeverityOfRainRate(0);
 						rain.setDontRenderUnderTopmostBlock(true);
 
@@ -500,10 +500,10 @@ public class SceneEnhancer implements Runnable {
 
 				//TEST
 				if (testParticle != null) {
-					testParticle.setPosition(entP.posX + 1, entP.posY, entP.posZ - 4);
+					testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
 
-					testParticle.rotationPitch = 45;//world.getTotalWorldTime() % 360;
-					testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
+					testParticle.rotationPitch = 0;//world.getTotalWorldTime() % 360;
+					testParticle.rotationYaw = 0;//(world.getTotalWorldTime() % 360) * 6;
 
 					/*testParticle.posX = entP.posX + 10;
 					testParticle.posY = entP.posY;
@@ -550,7 +550,7 @@ public class SceneEnhancer implements Runnable {
 
 			}
 
-			boolean doGrass = true;
+			boolean doGrass = false;
 
 			if (doGrass) {
 				int spawnAreaSize = 80;
