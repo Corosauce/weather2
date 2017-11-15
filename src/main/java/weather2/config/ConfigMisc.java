@@ -86,6 +86,8 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Villager_MoveInsideForStorms = true;
 	public static int Villager_MoveInsideForStorms_Dist = 256;
 
+	public static double shaderParticleRateAmplifier = 3D;
+
 	public ConfigMisc() {
 		
 	}
