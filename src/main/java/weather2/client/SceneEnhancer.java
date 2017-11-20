@@ -444,10 +444,15 @@ public class SceneEnhancer implements Runnable {
 					//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
 					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
-						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
 								pos.getX() + rand.nextFloat(),
 								pos.getY() - 1 + 0.01D,
 								pos.getZ() + rand.nextFloat(),
+								0D, 0D, 0D, ParticleRegistry.test_texture);*/
+						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+								0,
+								5,
+								0,
 								0D, 0D, 0D, ParticleRegistry.test_texture);
 						//rain.setCanCollide(true);
 						//rain.setKillOnCollide(true);
@@ -464,11 +469,11 @@ public class SceneEnhancer implements Runnable {
 						//rain.noExtraParticles = true;
 						rain.setExtraParticlesBaseAmount(1);
 						rain.setSeverityOfRainRate(0);
-						rain.setDontRenderUnderTopmostBlock(true);
+						rain.setDontRenderUnderTopmostBlock(false);
 
 						boolean upward = rand.nextBoolean();
 
-						rain.windWeight = 8F;
+						rain.windWeight = 999999F;
 						rain.setFacePlayer(false);
 
 						rain.setScale(90F + (rand.nextFloat() * 3F));
@@ -500,6 +505,7 @@ public class SceneEnhancer implements Runnable {
 
 						//rain.setRBGColorF(1F, 1F, 1F);
 						rain.spawnAsWeatherEffect();
+						rain.weatherEffect = false;
 						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 
 						testParticle = rain;
@@ -508,10 +514,10 @@ public class SceneEnhancer implements Runnable {
 
 				//TEST
 				if (testParticle != null) {
-					testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
+					//testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
 
-					testParticle.rotationPitch = world.getTotalWorldTime() % 360;
-					testParticle.rotationYaw = (world.getTotalWorldTime() % 360) * 6;
+					//testParticle.rotationPitch = world.getTotalWorldTime() % 360;
+					//testParticle.rotationYaw = (world.getTotalWorldTime() % 360) * 6;
 
 					/*testParticle.posX = entP.posX + 10;
 					testParticle.posY = entP.posY;
@@ -521,7 +527,7 @@ public class SceneEnhancer implements Runnable {
 				//if (true) return;
 			}
 
-			boolean doFish = false;
+			boolean doFish = true;
 
 			if (doFish) {
 				int spawnTryCur = 0;

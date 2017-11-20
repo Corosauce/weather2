@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import extendedrenderer.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.resources.IResourceManager;
@@ -19,6 +20,8 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     {
     	
     	boolean overrideOn = ConfigMisc.Misc_proxyRenderOverrideEnabled;
+
+		//EventHandler.hookRenderShaders(par1);
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);
