@@ -6,8 +6,11 @@ import java.util.*;
 import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
+import extendedrenderer.foliage.Foliage;
+import extendedrenderer.foliage.FoliageClutter;
 import extendedrenderer.particle.ShaderManager;
 import extendedrenderer.particle.behavior.*;
+import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFire;
@@ -1336,12 +1339,12 @@ public class SceneEnhancer implements Runnable {
             return;
         }
 
-        if (threadLastWorldTickTime == worldRef.getWorldTime())
+        if (threadLastWorldTickTime == worldRef.getTotalWorldTime())
         {
             return;
         }
 
-        threadLastWorldTickTime = worldRef.getWorldTime();
+        threadLastWorldTickTime = worldRef.getTotalWorldTime();
         
         Random rand = new Random();
         
@@ -1369,6 +1372,8 @@ public class SceneEnhancer implements Runnable {
                 }
         	}
         }*/
+
+		profileForFoliageShader();
 
         if ((!ConfigParticle.Wind_Particle_leafs && !ConfigParticle.Wind_Particle_air && !ConfigParticle.Wind_Particle_sand && !ConfigParticle.Wind_Particle_waterfall)/* || weatherMan.wind.strength < 0.10*/)
         {
@@ -1655,6 +1660,76 @@ public class SceneEnhancer implements Runnable {
             }
         }
     }
+
+    public static synchronized void profileForFoliageShader() {
+
+    	World world = Minecraft.getMinecraft().world;
+    	Entity entityIn = Minecraft.getMinecraft().player;
+    	BlockPos pos = entityIn.getPosition();
+
+    	boolean add = true;
+    	boolean trim = true;
+
+		int radialRange = 30;
+
+		int xzRange = radialRange;
+		int yRange = 10;
+
+		boolean dirtyVBO2 = false;
+
+		//scan and add foliage around player
+		//TODO: firstly, dont do this per render tick geeze, secondly, thread it just like weather leaf block scan
+		//time here is a hack for now
+		if (add) {
+			for (int x = -xzRange; x <= xzRange; x++) {
+				for (int z = -xzRange; z <= xzRange; z++) {
+					for (int y = -yRange; y <= yRange; y++) {
+						BlockPos posScan = pos.add(x, y, z);
+						IBlockState state = entityIn.world.getBlockState(posScan.down());
+						if (!ExtendedRenderer.foliageRenderer.lookupPosToFoliage.containsKey(posScan) && !FoliageRenderer.foliageQueueAdd.contains(posScan)) {
+							if (validFoliageSpot(entityIn.world, posScan.down())) {
+								//if () {
+								if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
+
+
+									//ExtendedRenderer.foliageRenderer.lookupPosToFoliage.put(posScan, listClutter);
+									FoliageRenderer.foliageQueueAdd.add(posScan);
+
+									dirtyVBO2 = true;
+								}
+							}
+						} else {
+
+						}
+					}
+				}
+			}
+		}
+
+		//cleanup list
+		if (trim) {
+			Iterator<Map.Entry<BlockPos, List<Foliage>>> it = ExtendedRenderer.foliageRenderer.lookupPosToFoliage.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<BlockPos, List<Foliage>> entry = it.next();
+				if (!validFoliageSpot(world, entry.getKey().down())) {
+					//if (state.getMaterial() != Material.GRASS) {
+					//it.remove();
+					FoliageRenderer.foliageQueueRemove.add(entry.getKey());
+					dirtyVBO2 = true;
+				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
+					//it.remove();
+					FoliageRenderer.foliageQueueRemove.add(entry.getKey());
+					dirtyVBO2 = true;
+				}
+			}
+		}
+
+		FoliageRenderer.dirtyVBO2Flag = dirtyVBO2;
+	}
+
+	public static boolean validFoliageSpot(World world, BlockPos pos) {
+		return world.getBlockState(pos).getMaterial() == Material.GRASS && world.isAirBlock(pos.up());
+	}
 	
 	@SideOnly(Side.CLIENT)
     public static void tryWind(World world)
