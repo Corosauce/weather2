@@ -531,7 +531,7 @@ public class SceneEnhancer implements Runnable {
 				//if (true) return;
 			}
 
-			boolean doFish = true;
+			boolean doFish = false;
 
 			if (doFish) {
 				int spawnTryCur = 0;
@@ -685,6 +685,7 @@ public class SceneEnhancer implements Runnable {
 									//rain.setCanCollide(true);
 									//rain.setKillOnCollide(true);
 									rain.setKillWhenUnderTopmostBlock(true);
+									rain.setCanCollide(false);
 									rain.killWhenUnderCameraAtLeast = 5;
 									rain.setTicksFadeOutMaxOnDeath(5);
 									rain.setDontRenderUnderTopmostBlock(true);
@@ -758,7 +759,10 @@ public class SceneEnhancer implements Runnable {
 											pos.getY() - 1 + 0.01D,
 											pos.getZ() + rand.nextFloat(),
 											0D, 0D, 0D, ParticleRegistry.cloud256_6);
-									rain.setCanCollide(true);
+									//rain.setCanCollide(true);
+									rain.setKillWhenUnderTopmostBlock(true);
+									rain.setCanCollide(false);
+									rain.killWhenUnderCameraAtLeast = 5;
 									//rain.setKillOnCollide(true);
 									//rain.setKillWhenUnderTopmostBlock(true);
 									//rain.setTicksFadeOutMaxOnDeath(5);
@@ -819,6 +823,8 @@ public class SceneEnhancer implements Runnable {
 											0D, 0D, 0D, ParticleRegistry.downfall3);
 									//rain.setCanCollide(true);
 									//rain.setKillOnCollide(true);
+									rain.setCanCollide(false);
+									rain.killWhenUnderCameraAtLeast = 5;
 									rain.setKillWhenUnderTopmostBlock(true);
 									rain.setTicksFadeOutMaxOnDeath(5);
 
@@ -883,6 +889,7 @@ public class SceneEnhancer implements Runnable {
 									ParticleTexExtraRender snow = new ParticleTexExtraRender(entP.world, pos.getX(), pos.getY(), pos.getZ(),
 											0D, 0D, 0D, ParticleRegistry.snow);
 
+									snow.setCanCollide(false);
 									snow.setKillWhenUnderTopmostBlock(true);
 									snow.setTicksFadeOutMaxOnDeath(5);
 									snow.setDontRenderUnderTopmostBlock(true);
@@ -1670,7 +1677,7 @@ public class SceneEnhancer implements Runnable {
     	boolean add = true;
     	boolean trim = true;
 
-		int radialRange = 30;
+		int radialRange = 60;
 
 		int xzRange = radialRange;
 		int yRange = 10;
@@ -1678,8 +1685,6 @@ public class SceneEnhancer implements Runnable {
 		boolean dirtyVBO2 = false;
 
 		//scan and add foliage around player
-		//TODO: firstly, dont do this per render tick geeze, secondly, thread it just like weather leaf block scan
-		//time here is a hack for now
 		if (add) {
 			for (int x = -xzRange; x <= xzRange; x++) {
 				for (int z = -xzRange; z <= xzRange; z++) {
@@ -1728,7 +1733,7 @@ public class SceneEnhancer implements Runnable {
 	}
 
 	public static boolean validFoliageSpot(World world, BlockPos pos) {
-		return world.getBlockState(pos).getMaterial() == Material.GRASS && world.isAirBlock(pos.up());
+		return world.getBlockState(pos).getMaterial() == Material.GRASS && world.getBlockState(pos.up()).getBlock() == Blocks.TALLGRASS/*world.isAirBlock(pos.up())*/;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -2256,6 +2261,9 @@ public class SceneEnhancer implements Runnable {
 		} else {
 			adjustAmountSmooth = CoroUtilMisc.adjVal(adjustAmountSmooth, adjustAmountTarget, 0.02F);
 		}
+
+		//testing
+		//adjustAmountSmooth = 1F;
 
     	//update coroutil particle renderer fog state
         EventHandler.sandstormFogAmount = adjustAmountSmooth;
