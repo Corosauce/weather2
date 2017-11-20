@@ -5,6 +5,7 @@ import java.util.*;
 
 import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.*;
+import extendedrenderer.EventHandler;
 import extendedrenderer.particle.ShaderManager;
 import extendedrenderer.particle.behavior.*;
 import extendedrenderer.render.RotatingParticleManager;
@@ -2182,7 +2183,7 @@ public class SceneEnhancer implements Runnable {
 		}
 
     	//update coroutil particle renderer fog state
-        RotatingParticleManager.sandstormFogAmount = adjustAmountSmooth;
+        EventHandler.sandstormFogAmount = adjustAmountSmooth;
 
     	if (mc.world.getTotalWorldTime() % 20 == 0) {
     		//System.out.println(adjustAmount + " - " + distToStorm);

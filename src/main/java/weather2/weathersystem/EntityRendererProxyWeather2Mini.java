@@ -21,7 +21,14 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     	
     	boolean overrideOn = ConfigMisc.Misc_proxyRenderOverrideEnabled;
 
-		//EventHandler.hookRenderShaders(par1);
+		/**
+		 * why render here? because renderRainSnow provides better context, solves issues:
+		 * - translucent blocks rendered after
+		 * -- shaders are color adjusted when rendering on other side of
+		 * --- water
+		 * --- stained glass, etc
+		 */
+		EventHandler.hookRenderShaders(par1);
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);
