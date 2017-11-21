@@ -455,9 +455,9 @@ public class SceneEnhancer implements Runnable {
 								pos.getZ() + rand.nextFloat(),
 								0D, 0D, 0D, ParticleRegistry.test_texture);*/
 						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
-								0,
-								5,
-								0,
+								15608.5F,
+								70.5F,
+								235.5F,
 								0D, 0D, 0D, ParticleRegistry.test_texture);
 						//rain.setCanCollide(true);
 						//rain.setKillOnCollide(true);
@@ -521,12 +521,12 @@ public class SceneEnhancer implements Runnable {
 				if (testParticle != null) {
 					//testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
 
-					//testParticle.rotationPitch = world.getTotalWorldTime() % 360;
-					//testParticle.rotationYaw = (world.getTotalWorldTime() % 360) * 6;
+					testParticle.rotationPitch = 0;//world.getTotalWorldTime() % 360;
+					testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
 
-					/*testParticle.posX = entP.posX + 10;
-					testParticle.posY = entP.posY;
-					testParticle.posZ = entP.posZ;*/
+					testParticle.posX = 15608.2F;
+					testParticle.posY = 70.5F;
+					testParticle.posZ = 235.8F;
 				}
 
 				//if (true) return;
