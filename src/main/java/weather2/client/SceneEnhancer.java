@@ -19,6 +19,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -531,7 +532,7 @@ public class SceneEnhancer implements Runnable {
 				//if (true) return;
 			}
 
-			boolean doFish = false;
+			boolean doFish = true;
 
 			if (doFish) {
 				int spawnTryCur = 0;
@@ -2571,6 +2572,9 @@ public class SceneEnhancer implements Runnable {
 	}
     
     public static boolean isFogOverridding() {
+		Minecraft mc = Minecraft.getMinecraft();
+		IBlockState iblockstate = ActiveRenderInfo.getBlockStateAtEntityViewpoint(mc.world, mc.getRenderViewEntity(), 1F);
+		if (iblockstate.getMaterial().isLiquid()) return false;
     	return adjustAmountSmooth > 0;
     }
     

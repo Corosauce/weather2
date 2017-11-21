@@ -96,6 +96,16 @@ public class EventHandlerForge {
             event.setDensity(fogDensity);
             event.setDensity(0.5F);
         }
+
+        boolean test2 = false;
+        //test for underwater shaders that need LINEAR
+        if (test2) {
+			GlStateManager.setFogStart(0F);
+			GlStateManager.setFogEnd(7F);
+			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
+			event.setDensity(1F);
+			event.setCanceled(true);
+		}
         
         /*if (SceneEnhancer.isFogOverridding()) {
         	event.setCanceled(true);
@@ -118,6 +128,7 @@ public class EventHandlerForge {
         	event.setRed(SceneEnhancer.stormFogRed);
         	event.setGreen(SceneEnhancer.stormFogGreen);
         	event.setBlue(SceneEnhancer.stormFogBlue);
+			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
         }
 		
 	}
@@ -130,6 +141,7 @@ public class EventHandlerForge {
         	//event.setDensity(SceneEnhancer.stormFogDensity);
 
 			//TODO: make use of this, density only works with EXP or EXP 2 mode
+			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
         	/*GlStateManager.setFog(GlStateManager.FogMode.EXP2);
 			GlStateManager.setFogDensity(SceneEnhancer.stormFogDensity);*/
 			
