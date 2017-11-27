@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ServerTickHandler;
 import weather2.Weather;
+import weather2.api.EnvVars;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSnow;
 import weather2.config.ConfigStorm;
@@ -212,7 +213,7 @@ public class StormObject extends WeatherObject {
 		float temp = 1;
 		
 		if (bgb != null) {
-			temp = bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord)));
+			temp = bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord))) + EnvVars.environmentTemperature;
 		}
 		
 		//initial setting, more apparent than gradual adjustments
@@ -1005,7 +1006,7 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 				
-				if (!performBuildup && bgb != null && (isInOcean || bgb.biomeName.contains("Swamp") || bgb.biomeName.contains("Jungle") || bgb.biomeName.contains("River"))) {
+				if (!performBuildup && bgb != null && (isInOcean || isHumid(bgb))) {
 					performBuildup = true;
 				}
 			}
@@ -2379,6 +2380,10 @@ public class StormObject extends WeatherObject {
 		} else {
 			return super.getUpdateRateForNetwork();
 		}
+	}
+	
+	private boolean isHumid(Biome bgb){
+		return (bgb.getRainfall() + EnvVars.environmentHumidity) > 0.4;
 	}
 	
 	//notes moved to bottom\\
