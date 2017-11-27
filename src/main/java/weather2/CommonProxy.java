@@ -139,7 +139,7 @@ public class CommonProxy implements IGuiHandler
 
 	public void postInit() {
 		ResourceLocation group = new ResourceLocation(Weather.modID, "weather2_misc");
-
+		
 		if (!ConfigMisc.Item_WeatherItemNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_item), group,
 				new ItemStack(itemWeatherRecipe, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
 
@@ -165,7 +165,7 @@ public class CommonProxy implements IGuiHandler
 		if (!ConfigMisc.Block_SandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, "sand"), group,
 				new ItemStack(Blocks.SAND, 1), new Object[] {"DDD", "D D", "DDD", 'D', itemSandLayer});
 
-		if (!ConfigMisc.Item_PocketSandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, pocket_sand), group,
+	if (!ConfigMisc.Item_PocketSandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, pocket_sand), group,
 				new ItemStack(itemPocketSand, 8), new Object[] {"DDD", "DID", "DDD", 'D', itemSandLayer, 'I', itemWeatherRecipe});
 	}
     

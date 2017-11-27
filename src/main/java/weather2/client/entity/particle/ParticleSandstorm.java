@@ -1,6 +1,5 @@
 package weather2.client.entity.particle;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
