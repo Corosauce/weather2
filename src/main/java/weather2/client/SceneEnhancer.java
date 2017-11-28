@@ -3,24 +3,21 @@ package weather2.client;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.foliage.Foliage;
-import extendedrenderer.foliage.FoliageClutter;
-import extendedrenderer.particle.ShaderManager;
 import extendedrenderer.particle.behavior.*;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
+import extendedrenderer.shader.InstancedMeshFoliage;
+import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFire;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
@@ -188,6 +185,13 @@ public class SceneEnhancer implements Runnable {
 	//run from our newly created thread
 	public void tickClientThreaded() {
 		Minecraft mc = FMLClientHandler.instance().getClient();
+
+		//TEMP
+		/*try {
+			Thread.sleep(10000);
+		} catch (Throwable throwable) {
+			throwable.printStackTrace();
+		}*/
 
 		if (mc.world != null && mc.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.world.provider.getDimension())) {
 			profileSurroundings();
@@ -532,7 +536,7 @@ public class SceneEnhancer implements Runnable {
 				//if (true) return;
 			}
 
-			boolean doFish = true;
+			boolean doFish = false;
 
 			if (doFish) {
 				int spawnTryCur = 0;
@@ -1381,7 +1385,17 @@ public class SceneEnhancer implements Runnable {
         	}
         }*/
 
-		profileForFoliageShader();
+        if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
+			//System.out.println("vbo thread: lock got");
+			try {
+				profileForFoliageShader();
+			} finally {
+				ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
+			}
+		} else {
+			System.out.println("vbo thread: cant lock");
+		}
+
 
         if ((!ConfigParticle.Wind_Particle_leafs && !ConfigParticle.Wind_Particle_air && !ConfigParticle.Wind_Particle_sand && !ConfigParticle.Wind_Particle_waterfall)/* || weatherMan.wind.strength < 0.10*/)
         {
@@ -1669,7 +1683,7 @@ public class SceneEnhancer implements Runnable {
         }
     }
 
-    public static synchronized void profileForFoliageShader() {
+    public static void profileForFoliageShader() {
 
     	World world = Minecraft.getMinecraft().world;
     	Entity entityIn = Minecraft.getMinecraft().player;
@@ -1678,10 +1692,10 @@ public class SceneEnhancer implements Runnable {
     	boolean add = true;
     	boolean trim = true;
 
-		int radialRange = 60;
+		int radialRange = 40;
 
 		int xzRange = radialRange;
-		int yRange = 10;
+		int yRange = 15;
 
 		boolean dirtyVBO2 = false;
 
@@ -1691,7 +1705,7 @@ public class SceneEnhancer implements Runnable {
 				for (int z = -xzRange; z <= xzRange; z++) {
 					for (int y = -yRange; y <= yRange; y++) {
 						BlockPos posScan = pos.add(x, y, z);
-						IBlockState state = entityIn.world.getBlockState(posScan.down());
+						//IBlockState state = entityIn.world.getBlockState(posScan.down());
 						if (!ExtendedRenderer.foliageRenderer.lookupPosToFoliage.containsKey(posScan) && !FoliageRenderer.foliageQueueAdd.contains(posScan)) {
 							if (validFoliageSpot(entityIn.world, posScan.down())) {
 								//if () {
@@ -1730,11 +1744,56 @@ public class SceneEnhancer implements Runnable {
 			}
 		}
 
+		if (dirtyVBO2) {
+			//System.out.println("vbo thread: lock got and marking update");
+			updateVBO2Threaded();
+		}
+
 		FoliageRenderer.dirtyVBO2Flag = dirtyVBO2;
 	}
 
+	public static void updateVBO2Threaded() {
+
+		Minecraft mc = Minecraft.getMinecraft();
+		Entity entityIn = mc.getRenderViewEntity();
+
+		ExtendedRenderer.foliageRenderer.processQueue();
+
+		float partialTicks = 1F;
+
+		//set new static camera point for max precision and speed
+		/*Foliage.interpPosX = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * (double) partialTicks;
+		Foliage.interpPosY = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * (double) partialTicks;
+		Foliage.interpPosZ = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * (double) partialTicks;*/
+
+		Foliage.interpPosXThread = entityIn.posX;
+		Foliage.interpPosYThread = entityIn.posY;
+		Foliage.interpPosZThread = entityIn.posZ;
+
+		MeshBufferManagerFoliage.setupMeshIfMissing(ParticleRegistry.tallgrass);
+		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(ParticleRegistry.tallgrass);
+
+		mesh.curBufferPosVBO2 = 0;
+		mesh.instanceDataBufferVBO2.clear();
+
+		//System.out.println("foliage: " + ExtendedRenderer.foliageRenderer.lookupPosToFoliage.size() * FoliageClutter.clutterSize);
+
+		for (List<Foliage> listFoliage : ExtendedRenderer.foliageRenderer.lookupPosToFoliage.values()) {
+			for (Foliage foliage : listFoliage) {
+				foliage.updateQuaternion(entityIn);
+
+				//update vbo2
+				foliage.renderForShaderVBO2(mesh, ExtendedRenderer.foliageRenderer.transformation, null, entityIn, partialTicks);
+			}
+		}
+
+		mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
+
+		FoliageRenderer.vbo2BufferPos = mesh.curBufferPosVBO2;
+	}
+
 	public static boolean validFoliageSpot(World world, BlockPos pos) {
-		return world.getBlockState(pos).getMaterial() == Material.GRASS && world.getBlockState(pos.up()).getBlock() == Blocks.TALLGRASS/*world.isAirBlock(pos.up())*/;
+		return world.getBlockState(pos).getMaterial() == Material.GRASS/* && world.getBlockState(pos.up()).getBlock() == Blocks.TALLGRASS*//*world.isAirBlock(pos.up())*/;
 	}
 	
 	@SideOnly(Side.CLIENT)
