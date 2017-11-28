@@ -6,6 +6,7 @@ import java.util.*;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.foliage.Foliage;
+import extendedrenderer.foliage.FoliageClutter;
 import extendedrenderer.particle.behavior.*;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
@@ -1699,6 +1700,8 @@ public class SceneEnhancer implements Runnable {
 
 		boolean dirtyVBO2 = false;
 
+		FoliageClutter.clutterSize = 6;
+
 		//scan and add foliage around player
 		if (add) {
 			for (int x = -xzRange; x <= xzRange; x++) {
@@ -1776,7 +1779,7 @@ public class SceneEnhancer implements Runnable {
 		mesh.curBufferPosVBO2 = 0;
 		mesh.instanceDataBufferVBO2.clear();
 
-		//System.out.println("foliage: " + ExtendedRenderer.foliageRenderer.lookupPosToFoliage.size() * FoliageClutter.clutterSize);
+		//System.out.println("vbo 2 update");
 
 		for (List<Foliage> listFoliage : ExtendedRenderer.foliageRenderer.lookupPosToFoliage.values()) {
 			for (Foliage foliage : listFoliage) {
@@ -1787,9 +1790,12 @@ public class SceneEnhancer implements Runnable {
 			}
 		}
 
+		/*System.out.println("foliage: " + ExtendedRenderer.foliageRenderer.lookupPosToFoliage.size() * FoliageClutter.clutterSize);
+		System.out.println("vbo thread: mesh.curBufferPosVBO2: " + mesh.curBufferPosVBO2);*/
+
 		mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
 
-		FoliageRenderer.vbo2BufferPos = mesh.curBufferPosVBO2;
+
 	}
 
 	public static boolean validFoliageSpot(World world, BlockPos pos) {
