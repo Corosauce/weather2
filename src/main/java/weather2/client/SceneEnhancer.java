@@ -1696,9 +1696,26 @@ public class SceneEnhancer implements Runnable {
 		int radialRange = FoliageRenderer.radialRange;
 
 		int xzRange = radialRange;
-		int yRange = 15;
+		int yRange = radialRange;
 
 		boolean dirtyVBO2 = false;
+
+		//cleanup list
+		if (trim) {
+			Iterator<Map.Entry<BlockPos, List<Foliage>>> it = ExtendedRenderer.foliageRenderer.lookupPosToFoliage.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<BlockPos, List<Foliage>> entry = it.next();
+				if (!validFoliageSpot(world, entry.getKey().down())) {
+					it.remove();
+					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
+					dirtyVBO2 = true;
+				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
+					it.remove();
+					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
+					dirtyVBO2 = true;
+				}
+			}
+		}
 
 		//scan and add foliage around player
 		if (add) {
@@ -1707,14 +1724,15 @@ public class SceneEnhancer implements Runnable {
 					for (int y = -yRange; y <= yRange; y++) {
 						BlockPos posScan = pos.add(x, y, z);
 						//IBlockState state = entityIn.world.getBlockState(posScan.down());
-						if (!ExtendedRenderer.foliageRenderer.lookupPosToFoliage.containsKey(posScan) && !FoliageRenderer.foliageQueueAdd.contains(posScan)) {
+						if (!ExtendedRenderer.foliageRenderer.lookupPosToFoliage.containsKey(posScan)) {
 							if (validFoliageSpot(entityIn.world, posScan.down())) {
 								//if () {
 								if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
 
 
 									//ExtendedRenderer.foliageRenderer.lookupPosToFoliage.put(posScan, listClutter);
-									FoliageRenderer.foliageQueueAdd.add(posScan);
+									//FoliageRenderer.foliageQueueAdd.add(posScan);
+									ExtendedRenderer.foliageRenderer.addForPos(posScan);
 
 									dirtyVBO2 = true;
 								}
@@ -1723,24 +1741,6 @@ public class SceneEnhancer implements Runnable {
 
 						}
 					}
-				}
-			}
-		}
-
-		//cleanup list
-		if (trim) {
-			Iterator<Map.Entry<BlockPos, List<Foliage>>> it = ExtendedRenderer.foliageRenderer.lookupPosToFoliage.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<BlockPos, List<Foliage>> entry = it.next();
-				if (!validFoliageSpot(world, entry.getKey().down())) {
-					//if (state.getMaterial() != Material.GRASS) {
-					//it.remove();
-					FoliageRenderer.foliageQueueRemove.add(entry.getKey());
-					dirtyVBO2 = true;
-				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
-					//it.remove();
-					FoliageRenderer.foliageQueueRemove.add(entry.getKey());
-					dirtyVBO2 = true;
 				}
 			}
 		}
@@ -1758,7 +1758,7 @@ public class SceneEnhancer implements Runnable {
 		Minecraft mc = Minecraft.getMinecraft();
 		Entity entityIn = mc.getRenderViewEntity();
 
-		ExtendedRenderer.foliageRenderer.processQueue();
+		//ExtendedRenderer.foliageRenderer.processQueue();
 
 		float partialTicks = 1F;
 
