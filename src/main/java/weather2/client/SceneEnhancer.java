@@ -1693,14 +1693,12 @@ public class SceneEnhancer implements Runnable {
     	boolean add = true;
     	boolean trim = true;
 
-		int radialRange = 40;
+		int radialRange = FoliageRenderer.radialRange;
 
 		int xzRange = radialRange;
 		int yRange = 15;
 
 		boolean dirtyVBO2 = false;
-
-		FoliageClutter.clutterSize = 6;
 
 		//scan and add foliage around player
 		if (add) {
