@@ -1771,8 +1771,9 @@ public class SceneEnhancer implements Runnable {
 		Foliage.interpPosYThread = entityIn.posY;
 		Foliage.interpPosZThread = entityIn.posZ;
 
-		MeshBufferManagerFoliage.setupMeshIfMissing(ParticleRegistry.tallgrass);
+		//MeshBufferManagerFoliage.setupMeshIfMissing(ParticleRegistry.tallgrass);
 		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(ParticleRegistry.tallgrass);
+		if (mesh == null) return;
 
 		mesh.curBufferPosVBO2 = 0;
 		mesh.instanceDataBufferVBO2.clear();
