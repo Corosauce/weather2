@@ -1394,7 +1394,7 @@ public class SceneEnhancer implements Runnable {
 				ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
 			}
 		} else {
-			System.out.println("vbo thread: cant lock");
+			//System.out.println("vbo thread: cant lock");
 		}
 
 
