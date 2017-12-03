@@ -6,7 +6,6 @@ import java.util.*;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.foliage.Foliage;
-import extendedrenderer.foliage.FoliageClutter;
 import extendedrenderer.particle.behavior.*;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
@@ -1707,10 +1706,16 @@ public class SceneEnhancer implements Runnable {
 				Map.Entry<BlockPos, List<Foliage>> entry = it.next();
 				if (!validFoliageSpot(world, entry.getKey().down())) {
 					it.remove();
+					for (Foliage entry2 : entry.getValue()) {
+						ExtendedRenderer.foliageRenderer.listFoliage.remove(entry2);
+					}
 					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
 					dirtyVBO2 = true;
 				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
 					it.remove();
+					for (Foliage entry2 : entry.getValue()) {
+						ExtendedRenderer.foliageRenderer.listFoliage.remove(entry2);
+					}
 					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
 					dirtyVBO2 = true;
 				}
@@ -1780,14 +1785,21 @@ public class SceneEnhancer implements Runnable {
 
 		//System.out.println("vbo 2 update");
 
-		for (List<Foliage> listFoliage : ExtendedRenderer.foliageRenderer.lookupPosToFoliage.values()) {
+		for (Foliage foliage : ExtendedRenderer.foliageRenderer.listFoliage) {
+			foliage.updateQuaternion(entityIn);
+
+			//update vbo2
+			foliage.renderForShaderVBO2(mesh, ExtendedRenderer.foliageRenderer.transformation, null, entityIn, partialTicks);
+		}
+
+		/*for (List<Foliage> listFoliage : ExtendedRenderer.foliageRenderer.lookupPosToFoliage.values()) {
 			for (Foliage foliage : listFoliage) {
 				foliage.updateQuaternion(entityIn);
 
 				//update vbo2
 				foliage.renderForShaderVBO2(mesh, ExtendedRenderer.foliageRenderer.transformation, null, entityIn, partialTicks);
 			}
-		}
+		}*/
 
 		/*System.out.println("foliage: " + ExtendedRenderer.foliageRenderer.lookupPosToFoliage.size() * FoliageClutter.clutterSize);
 		System.out.println("vbo thread: mesh.curBufferPosVBO2: " + mesh.curBufferPosVBO2);*/
