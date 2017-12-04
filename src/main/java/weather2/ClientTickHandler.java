@@ -21,6 +21,7 @@ import org.lwjgl.input.Mouse;
 
 import weather2.api.WindReader;
 import weather2.client.SceneEnhancer;
+import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.client.gui.GuiEZConfig;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;

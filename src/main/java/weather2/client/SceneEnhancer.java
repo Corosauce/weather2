@@ -5,19 +5,14 @@ import java.util.*;
 
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
-import extendedrenderer.foliage.Foliage;
 import extendedrenderer.particle.behavior.*;
-import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
-import extendedrenderer.shader.InstancedMeshFoliage;
-import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
-import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -44,6 +39,7 @@ import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.client.entity.particle.ParticleFish;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.client.entity.particle.ParticleTallGrass;
+import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigStorm;
@@ -1386,16 +1382,7 @@ public class SceneEnhancer implements Runnable {
         	}
         }*/
 
-        if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
-			//System.out.println("vbo thread: lock got");
-			try {
-				profileForFoliageShader();
-			} finally {
-				ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
-			}
-		} else {
-			//System.out.println("vbo thread: cant lock");
-		}
+        FoliageEnhancerShader.tickThreaded();
 
 
         if ((!ConfigParticle.Wind_Particle_leafs && !ConfigParticle.Wind_Particle_air && !ConfigParticle.Wind_Particle_sand && !ConfigParticle.Wind_Particle_waterfall)/* || weatherMan.wind.strength < 0.10*/)
@@ -1683,159 +1670,6 @@ public class SceneEnhancer implements Runnable {
             }
         }
     }
-
-    public static void profileForFoliageShader() {
-
-    	World world = Minecraft.getMinecraft().world;
-    	Entity entityIn = Minecraft.getMinecraft().player;
-    	BlockPos pos = entityIn.getPosition();
-
-    	boolean add = true;
-    	boolean trim = true;
-
-		int radialRange = FoliageRenderer.radialRange;
-
-		int xzRange = radialRange;
-		int yRange = radialRange;
-		Random rand = new Random();
-
-		//boolean dirtyVBO2 = false;
-
-
-
-		//cleanup list
-		if (trim) {
-			Iterator<Map.Entry<BlockPos, List<Foliage>>> it = ExtendedRenderer.foliageRenderer.lookupPosToFoliage.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<BlockPos, List<Foliage>> entry = it.next();
-				if (!validFoliageSpot(world, entry.getKey().down())) {
-					it.remove();
-					for (Foliage entry2 : entry.getValue()) {
-						markMeshDirty(entry2.particleTexture, true);
-						ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
-					}
-				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
-					it.remove();
-					for (Foliage entry2 : entry.getValue()) {
-						markMeshDirty(entry2.particleTexture, true);
-						ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
-					}
-				}
-			}
-		}
-
-		//scan and add foliage around player
-		if (add) {
-			for (int x = -xzRange; x <= xzRange; x++) {
-				for (int z = -xzRange; z <= xzRange; z++) {
-					for (int y = -yRange; y <= yRange; y++) {
-						BlockPos posScan = pos.add(x, y, z);
-						//IBlockState state = entityIn.world.getBlockState(posScan.down());
-						if (!ExtendedRenderer.foliageRenderer.lookupPosToFoliage.containsKey(posScan)) {
-							if (validFoliageSpot(entityIn.world, posScan.down())) {
-								//if () {
-								if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
-
-									//TextureAtlasSprite sprite = ParticleRegistry.listFish.get(rand.nextInt(ParticleRegistry.listFish.size()));
-									//TextureAtlasSprite sprite = ParticleRegistry.tallgrass;
-
-									//ExtendedRenderer.foliageRenderer.addForPos(sprite, posScan);
-									ExtendedRenderer.foliageRenderer.addForPosSeaweed(posScan);
-									for (TextureAtlasSprite sprite : ParticleRegistry.listSeaweed) {
-										markMeshDirty(sprite, true);
-									}
-
-								}
-							}
-						} else {
-
-						}
-					}
-				}
-			}
-		}
-
-		Foliage.interpPosXThread = entityIn.posX;
-		Foliage.interpPosYThread = entityIn.posY;
-		Foliage.interpPosZThread = entityIn.posZ;
-
-		//update all vbos that were flagged dirty
-		for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
-			InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(entry.getKey());
-
-			if (mesh.dirtyVBO2Flag) {
-				updateVBO2Threaded(entry.getKey());
-			}
-		}
-	}
-
-	public static void markMeshDirty(TextureAtlasSprite sprite, boolean flag) {
-		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
-
-		//TODO: this is a patch, setup init better
-		if (mesh == null) {
-			MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
-			mesh = MeshBufferManagerFoliage.getMesh(sprite);
-		}
-
-		if (mesh != null) {
-			mesh.dirtyVBO2Flag = flag;
-		} else {
-			System.out.println("MESH NULL HERE, FIX INIT ORDER");
-		}
-	}
-
-	public static void updateVBO2Threaded(TextureAtlasSprite sprite) {
-
-		Minecraft mc = Minecraft.getMinecraft();
-		Entity entityIn = mc.getRenderViewEntity();
-
-		//ExtendedRenderer.foliageRenderer.processQueue();
-
-		float partialTicks = 1F;
-
-		//set new static camera point for max precision and speed
-		/*Foliage.interpPosX = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * (double) partialTicks;
-		Foliage.interpPosY = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * (double) partialTicks;
-		Foliage.interpPosZ = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * (double) partialTicks;*/
-
-		//MeshBufferManagerFoliage.setupMeshIfMissing(ParticleRegistry.tallgrass);
-		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
-		if (mesh == null) return;
-
-		mesh.curBufferPosVBO2 = 0;
-		mesh.instanceDataBufferVBO2.clear();
-
-		//System.out.println("vbo 2 update");
-
-		for (Foliage foliage : ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite)) {
-			foliage.updateQuaternion(entityIn);
-
-			//update vbo2
-			foliage.renderForShaderVBO2(mesh, ExtendedRenderer.foliageRenderer.transformation, null, entityIn, partialTicks);
-		}
-
-		/*for (List<Foliage> listFoliage : ExtendedRenderer.foliageRenderer.lookupPosToFoliage.values()) {
-			for (Foliage foliage : listFoliage) {
-				foliage.updateQuaternion(entityIn);
-
-				//update vbo2
-				foliage.renderForShaderVBO2(mesh, ExtendedRenderer.foliageRenderer.transformation, null, entityIn, partialTicks);
-			}
-		}*/
-
-		/*System.out.println("foliage: " + ExtendedRenderer.foliageRenderer.lookupPosToFoliage.size() * FoliageClutter.clutterSize);
-		System.out.println("vbo thread: mesh.curBufferPosVBO2: " + mesh.curBufferPosVBO2);*/
-
-		mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
-
-
-	}
-
-	public static boolean validFoliageSpot(World world, BlockPos pos) {
-		return world.getBlockState(pos).getMaterial() != Material.WATER && world.getBlockState(pos.up()).getMaterial() == Material.WATER;
-		//return world.getBlockState(pos).getMaterial() == Material.GRASS/* && world.getBlockState(pos.up()).getBlock() == Blocks.TALLGRASS*//*world.isAirBlock(pos.up())*/;
-	}
 	
 	@SideOnly(Side.CLIENT)
     public static void tryWind(World world)

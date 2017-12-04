@@ -2,6 +2,8 @@ package weather2;
 
 import java.nio.FloatBuffer;
 
+import extendedrenderer.ExtendedRenderer;
+import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;
@@ -36,6 +38,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import weather2.client.SceneEnhancer;
+import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigMisc;
 import weather2.entity.AI.EntityAIMoveIndoorsStorm;
 import weather2.util.UtilEntityBuffsMini;
@@ -250,5 +253,11 @@ public class EventHandlerForge {
 				UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
 			}
 		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void registerIcons(TextureStitchEvent.Post event) {
+		FoliageEnhancerShader.init();
 	}
 }
