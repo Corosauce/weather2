@@ -1737,10 +1737,13 @@ public class SceneEnhancer implements Runnable {
 								if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
 
 									//TextureAtlasSprite sprite = ParticleRegistry.listFish.get(rand.nextInt(ParticleRegistry.listFish.size()));
-									TextureAtlasSprite sprite = ParticleRegistry.tallgrass;
+									//TextureAtlasSprite sprite = ParticleRegistry.tallgrass;
 
-									ExtendedRenderer.foliageRenderer.addForPos(sprite, posScan);
-									markMeshDirty(sprite, true);
+									//ExtendedRenderer.foliageRenderer.addForPos(sprite, posScan);
+									ExtendedRenderer.foliageRenderer.addForPosSeaweed(posScan);
+									for (TextureAtlasSprite sprite : ParticleRegistry.listSeaweed) {
+										markMeshDirty(sprite, true);
+									}
 
 								}
 							}
@@ -1751,6 +1754,10 @@ public class SceneEnhancer implements Runnable {
 				}
 			}
 		}
+
+		Foliage.interpPosXThread = entityIn.posX;
+		Foliage.interpPosYThread = entityIn.posY;
+		Foliage.interpPosZThread = entityIn.posZ;
 
 		//update all vbos that were flagged dirty
 		for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
@@ -1792,10 +1799,6 @@ public class SceneEnhancer implements Runnable {
 		Foliage.interpPosY = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * (double) partialTicks;
 		Foliage.interpPosZ = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * (double) partialTicks;*/
 
-		Foliage.interpPosXThread = entityIn.posX;
-		Foliage.interpPosYThread = entityIn.posY;
-		Foliage.interpPosZThread = entityIn.posZ;
-
 		//MeshBufferManagerFoliage.setupMeshIfMissing(ParticleRegistry.tallgrass);
 		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
 		if (mesh == null) return;
@@ -1830,7 +1833,8 @@ public class SceneEnhancer implements Runnable {
 	}
 
 	public static boolean validFoliageSpot(World world, BlockPos pos) {
-		return world.getBlockState(pos).getMaterial() == Material.GRASS/* && world.getBlockState(pos.up()).getBlock() == Blocks.TALLGRASS*//*world.isAirBlock(pos.up())*/;
+		return world.getBlockState(pos).getMaterial() != Material.WATER && world.getBlockState(pos.up()).getMaterial() == Material.WATER;
+		//return world.getBlockState(pos).getMaterial() == Material.GRASS/* && world.getBlockState(pos.up()).getBlock() == Blocks.TALLGRASS*//*world.isAirBlock(pos.up())*/;
 	}
 	
 	@SideOnly(Side.CLIENT)
