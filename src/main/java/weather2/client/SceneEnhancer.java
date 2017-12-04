@@ -1697,10 +1697,11 @@ public class SceneEnhancer implements Runnable {
 
 		int xzRange = radialRange;
 		int yRange = radialRange;
+		Random rand = new Random();
 
-		boolean dirtyVBO2 = false;
+		//boolean dirtyVBO2 = false;
 
-		TextureAtlasSprite sprite = ParticleRegistry.tallgrass;
+
 
 		//cleanup list
 		if (trim) {
@@ -1710,17 +1711,15 @@ public class SceneEnhancer implements Runnable {
 				if (!validFoliageSpot(world, entry.getKey().down())) {
 					it.remove();
 					for (Foliage entry2 : entry.getValue()) {
-						ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite).remove(entry2);
+						markMeshDirty(entry2.particleTexture, true);
+						ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
 					}
-					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
-					dirtyVBO2 = true;
 				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
 					it.remove();
 					for (Foliage entry2 : entry.getValue()) {
-						ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite).remove(entry2);
+						markMeshDirty(entry2.particleTexture, true);
+						ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
 					}
-					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
-					dirtyVBO2 = true;
 				}
 			}
 		}
@@ -1737,12 +1736,11 @@ public class SceneEnhancer implements Runnable {
 								//if () {
 								if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
 
+									TextureAtlasSprite sprite = ParticleRegistry.listFish.get(rand.nextInt(ParticleRegistry.listFish.size()));
 
-									//ExtendedRenderer.foliageRenderer.lookupPosToFoliage.put(posScan, listClutter);
-									//FoliageRenderer.foliageQueueAdd.add(posScan);
 									ExtendedRenderer.foliageRenderer.addForPos(sprite, posScan);
+									markMeshDirty(sprite, true);
 
-									dirtyVBO2 = true;
 								}
 							}
 						} else {
@@ -1753,14 +1751,27 @@ public class SceneEnhancer implements Runnable {
 			}
 		}
 
-		if (dirtyVBO2) {
-			//System.out.println("vbo thread: lock got and marking update");
-			updateVBO2Threaded(sprite);
+		//update all vbos that were flagged dirty
+		for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
+			InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(entry.getKey());
+
+			if (mesh.dirtyVBO2Flag) {
+				updateVBO2Threaded(entry.getKey());
+			}
+		}
+	}
+
+	public static void markMeshDirty(TextureAtlasSprite sprite, boolean flag) {
+		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
+
+		//TODO: this is a patch, setup init better
+		if (mesh == null) {
+			MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
+			mesh = MeshBufferManagerFoliage.getMesh(sprite);
 		}
 
-		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
 		if (mesh != null) {
-			mesh.dirtyVBO2Flag = dirtyVBO2;
+			mesh.dirtyVBO2Flag = flag;
 		} else {
 			System.out.println("MESH NULL HERE, FIX INIT ORDER");
 		}
