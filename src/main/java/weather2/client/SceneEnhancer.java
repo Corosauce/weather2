@@ -17,6 +17,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -1699,6 +1700,8 @@ public class SceneEnhancer implements Runnable {
 
 		boolean dirtyVBO2 = false;
 
+		TextureAtlasSprite sprite = ParticleRegistry.tallgrass;
+
 		//cleanup list
 		if (trim) {
 			Iterator<Map.Entry<BlockPos, List<Foliage>>> it = ExtendedRenderer.foliageRenderer.lookupPosToFoliage.entrySet().iterator();
@@ -1707,14 +1710,14 @@ public class SceneEnhancer implements Runnable {
 				if (!validFoliageSpot(world, entry.getKey().down())) {
 					it.remove();
 					for (Foliage entry2 : entry.getValue()) {
-						ExtendedRenderer.foliageRenderer.listFoliage.remove(entry2);
+						ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite).remove(entry2);
 					}
 					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
 					dirtyVBO2 = true;
 				} else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
 					it.remove();
 					for (Foliage entry2 : entry.getValue()) {
-						ExtendedRenderer.foliageRenderer.listFoliage.remove(entry2);
+						ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite).remove(entry2);
 					}
 					//FoliageRenderer.foliageQueueRemove.add(entry.getKey());
 					dirtyVBO2 = true;
@@ -1737,7 +1740,7 @@ public class SceneEnhancer implements Runnable {
 
 									//ExtendedRenderer.foliageRenderer.lookupPosToFoliage.put(posScan, listClutter);
 									//FoliageRenderer.foliageQueueAdd.add(posScan);
-									ExtendedRenderer.foliageRenderer.addForPos(posScan);
+									ExtendedRenderer.foliageRenderer.addForPos(sprite, posScan);
 
 									dirtyVBO2 = true;
 								}
@@ -1752,13 +1755,18 @@ public class SceneEnhancer implements Runnable {
 
 		if (dirtyVBO2) {
 			//System.out.println("vbo thread: lock got and marking update");
-			updateVBO2Threaded();
+			updateVBO2Threaded(sprite);
 		}
 
-		FoliageRenderer.dirtyVBO2Flag = dirtyVBO2;
+		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
+		if (mesh != null) {
+			mesh.dirtyVBO2Flag = dirtyVBO2;
+		} else {
+			System.out.println("MESH NULL HERE, FIX INIT ORDER");
+		}
 	}
 
-	public static void updateVBO2Threaded() {
+	public static void updateVBO2Threaded(TextureAtlasSprite sprite) {
 
 		Minecraft mc = Minecraft.getMinecraft();
 		Entity entityIn = mc.getRenderViewEntity();
@@ -1777,7 +1785,7 @@ public class SceneEnhancer implements Runnable {
 		Foliage.interpPosZThread = entityIn.posZ;
 
 		//MeshBufferManagerFoliage.setupMeshIfMissing(ParticleRegistry.tallgrass);
-		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(ParticleRegistry.tallgrass);
+		InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
 		if (mesh == null) return;
 
 		mesh.curBufferPosVBO2 = 0;
@@ -1785,7 +1793,7 @@ public class SceneEnhancer implements Runnable {
 
 		//System.out.println("vbo 2 update");
 
-		for (Foliage foliage : ExtendedRenderer.foliageRenderer.listFoliage) {
+		for (Foliage foliage : ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite)) {
 			foliage.updateQuaternion(entityIn);
 
 			//update vbo2
