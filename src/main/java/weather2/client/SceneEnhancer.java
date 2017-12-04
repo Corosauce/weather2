@@ -1736,7 +1736,8 @@ public class SceneEnhancer implements Runnable {
 								//if () {
 								if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
 
-									TextureAtlasSprite sprite = ParticleRegistry.listFish.get(rand.nextInt(ParticleRegistry.listFish.size()));
+									//TextureAtlasSprite sprite = ParticleRegistry.listFish.get(rand.nextInt(ParticleRegistry.listFish.size()));
+									TextureAtlasSprite sprite = ParticleRegistry.tallgrass;
 
 									ExtendedRenderer.foliageRenderer.addForPos(sprite, posScan);
 									markMeshDirty(sprite, true);
