@@ -24,6 +24,8 @@ public class FoliageEnhancerShader {
 
     public static void init() {
         listFoliageReplacers.add(new FoliageReplacer1TallPlant(Blocks.TALLGRASS.getDefaultState(), ParticleRegistry.tallgrass));
+        listFoliageReplacers.add(new FoliageReplacerMultiTallPlant(Blocks.DOUBLE_PLANT.getDefaultState(), ParticleRegistry.double_plant_bottom));
+
         //listFoliageReplacers.add(new FoliageReplacerMultiTallPlant(Blocks.DOUBLE_PLANT.getDefaultState()));
     }
 
@@ -136,13 +138,20 @@ public class FoliageEnhancerShader {
             markMeshDirty(sprite, true);
         }*/
 
-        Foliage.interpPosXThread = entityIn.posX;
+        /*Foliage.interpPosXThread = entityIn.posX;
         Foliage.interpPosYThread = entityIn.posY;
-        Foliage.interpPosZThread = entityIn.posZ;
+        Foliage.interpPosZThread = entityIn.posZ;*/
 
         //update all vbos that were flagged dirty
         for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
             InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(entry.getKey());
+
+            mesh.interpPosXThread = entityIn.posX;
+            mesh.interpPosYThread = entityIn.posY;
+            mesh.interpPosZThread = entityIn.posZ;
+
+            //test
+            //mesh.dirtyVBO2Flag = true;
 
             if (mesh.dirtyVBO2Flag) {
                 updateVBO2Threaded(entry.getKey());
