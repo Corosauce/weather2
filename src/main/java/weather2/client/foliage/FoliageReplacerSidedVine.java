@@ -1,22 +1,16 @@
 package weather2.client.foliage;
 
 import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.foliage.FoliageReplacerBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class FoliageReplacerMultiTallPlant extends FoliageReplacerBase {
+public class FoliageReplacerSidedVine extends FoliageReplacerBase {
 
-    //TODO: variants on the plant type
-    public IBlockState state;
-    public TextureAtlasSprite sprite;
-
-    public FoliageReplacerMultiTallPlant(IBlockState state, TextureAtlasSprite sprite) {
-        this.state = state;
-        this.sprite = sprite;
+    public FoliageReplacerSidedVine(IBlockState state, TextureAtlasSprite sprite) {
+        super(state);
     }
 
     @Override
@@ -26,6 +20,6 @@ public class FoliageReplacerMultiTallPlant extends FoliageReplacerBase {
 
     @Override
     public void addForPos(World world, BlockPos pos) {
-        ExtendedRenderer.foliageRenderer.addForPos(this, sprite, pos);
+        FoliageEnhancerShader.addForPos(this, pos);
     }
 }

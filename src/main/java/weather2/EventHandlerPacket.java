@@ -38,28 +38,25 @@ public class EventHandlerPacket {
 			final String command = nbt.getString("command");
 			
 			//System.out.println("Weather2 packet command from server: " + packetCommand);
-			Minecraft.getMinecraft().addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					if (packetCommand.equals("WeatherData")) {
-						ClientTickHandler.checkClientWeather();
+			Minecraft.getMinecraft().addScheduledTask(() -> {
+                if (packetCommand.equals("WeatherData")) {
+                    ClientTickHandler.checkClientWeather();
 
-						//this line still gets NPE's despite it checking if its null right before it, wtf
-						ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
-					} else if (packetCommand.equals("EZGuiData")) {
+                    //this line still gets NPE's despite it checking if its null right before it, wtf
+                    ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
+                } else if (packetCommand.equals("EZGuiData")) {
 
-						Weather.dbg("receiving GUI data for client, command: " + command);
-						if (command.equals("syncUpdate")) {
+                    Weather.dbg("receiving GUI data for client, command: " + command);
+                    if (command.equals("syncUpdate")) {
 
-							WeatherUtilConfig.nbtReceiveServerDataForCache(nbt);
-						}
-					} else if (packetCommand.equals("PocketSandData")) {
-						if (command.equals("create")) {
-							ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
-						}
-					}
-				}
-			});
+                        WeatherUtilConfig.nbtReceiveServerDataForCache(nbt);
+                    }
+                } else if (packetCommand.equals("PocketSandData")) {
+                    if (command.equals("create")) {
+                        ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
+                    }
+                }
+            });
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

@@ -258,6 +258,6 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(TextureStitchEvent.Post event) {
-		FoliageEnhancerShader.init();
+		//FoliageEnhancerShader.init(event);
 	}
 }

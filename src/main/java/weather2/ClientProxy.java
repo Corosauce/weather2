@@ -1,5 +1,7 @@
 package weather2;
 
+import extendedrenderer.shader.IShaderListener;
+import extendedrenderer.shader.ShaderListenerRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -32,6 +34,7 @@ import weather2.client.block.TileEntityWindVaneRenderer;
 import weather2.client.entity.RenderFlyingBlock;
 import weather2.client.entity.RenderLightningBolt;
 import weather2.client.entity.RenderLightningBoltCustom;
+import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.entity.EntityLightningBoltCustom;
@@ -135,4 +138,25 @@ public class ClientProxy extends CommonProxy
             Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
 		}
 	}*/
+
+    @Override
+    public void postInit() {
+        super.postInit();
+    }
+
+    @Override
+    public void preInit() {
+        super.preInit();
+        ShaderListenerRegistry.addListener(new IShaderListener() {
+            @Override
+            public void init() {
+                FoliageEnhancerShader.setupReplacersAndMeshes();
+            }
+
+            @Override
+            public void reset() {
+                FoliageEnhancerShader.shadersReset();
+            }
+        });
+    }
 }
