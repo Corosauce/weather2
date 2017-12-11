@@ -20,6 +20,6 @@ public class FoliageReplacerSidedVine extends FoliageReplacerBase {
 
     @Override
     public void addForPos(World world, BlockPos pos) {
-        FoliageEnhancerShader.addForPos(this, pos);
+        FoliageEnhancerShader.addForPos(this, expectedHeight, pos);
     }
 }

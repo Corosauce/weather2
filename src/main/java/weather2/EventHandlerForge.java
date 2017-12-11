@@ -249,7 +249,7 @@ public class EventHandlerForge {
 			if (event.getEntity() instanceof EntityVillager) {
 				EntityVillager ent = (EntityVillager) event.getEntity();
 
-				Weather.dbg("applying villager storm AI");
+				//Weather.dbg("applying villager storm AI");
 				UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
 			}
 		}

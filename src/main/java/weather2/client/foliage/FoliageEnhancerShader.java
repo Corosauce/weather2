@@ -7,6 +7,8 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.shader.InstancedMeshFoliage;
 import extendedrenderer.shader.MeshBufferManagerFoliage;
+import net.minecraft.block.BlockCrops;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -15,11 +17,16 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtilConfig;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FoliageEnhancerShader {
+public class FoliageEnhancerShader implements Runnable {
+
+    public static boolean useThread = false;
 
     public static List<FoliageReplacerBase> listFoliageReplacers = new ArrayList<>();
 
@@ -32,12 +39,106 @@ public class FoliageEnhancerShader {
     public static void setupReplacersAndMeshes() {
         listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
                 .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass")));
+        /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DIAMOND_BLOCK.getDefaultState())
+                .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass")));*/
+
+        if (true) return;
+
         listFoliageReplacers.add(new FoliageReplacerCross(Blocks.YELLOW_FLOWER.getDefaultState())
-                .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion")));
+                .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion")).setBiomeColorize(false));
         List<TextureAtlasSprite> sprites = new ArrayList<>();
         sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_grass_bottom"));
         sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_grass_top"));
         listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites));
+        listFoliageReplacers.add(new FoliageReplacerCross(Blocks.REEDS.getDefaultState(), -1)
+                .setSprite(getMeshAndSetupSprite("minecraft:blocks/reeds"))
+                .setBaseMaterial(Material.SAND).setBiomeColorize(true).setRandomizeCoord(false));
+
+
+
+        //TODO: support modded blocks or avoid messing with base json files like crop.json, or modded blocks that use it will be invis
+
+        /**
+         * WeightedBakedModel:
+         * public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+         {
+         return this.getRandomModel(rand).getQuads(state, side, rand);
+         }
+
+         ^ relating to the random model variants that are based on position, eg dirt, maybe handy in future
+         */
+
+        for (int i = 0; i < 8; i++) {
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.WHEAT.getDefaultState())
+                    .setBaseMaterial(Material.GROUND)
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/wheat_stage_" + i))
+                    .setRandomizeCoord(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockCrops.AGE, i));*/
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
+                    /*.setBaseMaterial(Material.GROUND)*/
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/wheat_stage_" + i))
+                    .setRandomizeCoord(false)/*
+                    .setStateSensitive(true)
+                    .addComparable(BlockCrops.AGE, i)*/);
+        }
+
+
+
+        for (int i = 0; i < 4; i++) {
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.BEETROOTS.getDefaultState())
+                    .setBaseMaterial(Material.GROUND)
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + i))
+                    .setRandomizeCoord(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockCrops.AGE, i));*/
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
+                    /*.setBaseMaterial(Material.GROUND)*/
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + i))
+                    .setRandomizeCoord(false)
+                    /*.setStateSensitive(true)
+                    .addComparable(BlockCrops.AGE, i)*/);
+        }
+
+        //ugh
+        HashMap<Integer, Integer> lookupStateToModel = new HashMap<>();
+        lookupStateToModel.put(0, 0);
+        lookupStateToModel.put(1, 0);
+        lookupStateToModel.put(2, 1);
+        lookupStateToModel.put(3, 1);
+        lookupStateToModel.put(4, 2);
+        lookupStateToModel.put(5, 2);
+        lookupStateToModel.put(6, 2);
+        lookupStateToModel.put(7, 3);
+
+        for (Map.Entry<Integer, Integer> entrySet : lookupStateToModel.entrySet()) {
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.CARROTS.getDefaultState())
+                    .setBaseMaterial(Material.GROUND)
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/carrots_stage_" + entrySet.getValue()))
+                    *//*.setRandomizeCoord(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockCrops.AGE, entrySet.getKey())*//*);*/
+
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
+                    /*.setBaseMaterial(Material.GROUND)*/
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/carrots_stage_" + entrySet.getValue())));
+        }
+
+        for (Map.Entry<Integer, Integer> entrySet : lookupStateToModel.entrySet()) {
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.POTATOES.getDefaultState())
+                    .setBaseMaterial(Material.GROUND)
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/potatoes_stage_" + entrySet.getValue()))
+                    *//*.setRandomizeCoord(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockCrops.AGE, entrySet.getKey())*//*);*/
+
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
+                    /*.setBaseMaterial(Material.GROUND)*/
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/potatoes_stage_" + entrySet.getValue())));
+        }
+
+        System.out.println(MeshBufferManagerFoliage.lookupParticleToMesh.size());
+
     }
 
     /**
@@ -45,6 +146,7 @@ public class FoliageEnhancerShader {
      */
     public static void shadersReset() {
         //TODO: for resource and shader system resets
+        listFoliageReplacers.clear();
     }
 
     public static TextureAtlasSprite getMeshAndSetupSprite(String spriteLoc) {
@@ -54,15 +156,48 @@ public class FoliageEnhancerShader {
         return sprite;
     }
 
-    public static void tickThreaded() {
+    @Override
+    public void run() {
+        if (useThread) {
+            while (true) {
+                try {
+                    boolean gotLock = tickClientThreaded();
+                    if (gotLock) {
+                        Thread.sleep(ConfigMisc.Thread_Particle_Process_Delay);
+                    } else {
+                        //if we didnt get the lock, no work was done, aggressively retry until we get it
+                        Thread.sleep(20);
+                    }
+
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        }
+    }
+
+    //run from our newly created thread
+    public static boolean tickClientThreaded() {
+        Minecraft mc = FMLClientHandler.instance().getClient();
+
+        if (mc.world != null && mc.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.world.provider.getDimension())) {
+            return tickThreaded();
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean tickThreaded() {
         if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
             //System.out.println("vbo thread: lock got");
             try {
                 profileForFoliageShader();
             } finally {
                 ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
+                return true;
             }
         } else {
+            return false;
             //System.out.println("vbo thread: cant lock");
         }
     }
@@ -114,7 +249,7 @@ public class FoliageEnhancerShader {
             while (it.hasNext()) {
                 Map.Entry<BlockPos, FoliageLocationData> entry = it.next();
                 if (!entry.getValue().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
-                    //System.out.println("remove");
+                    System.out.println("remove");
                     it.remove();
                     //TODO: consider relocating Foliage list to within foliagereplacer, as there is some redundancy happening here
                     for (Foliage entry2 : entry.getValue().listFoliage) {
@@ -123,7 +258,7 @@ public class FoliageEnhancerShader {
                         ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
                     }
                 } else if (entityIn.getDistanceSq(entry.getKey()) > radialRange * radialRange) {
-                    //System.out.println("remove");
+                    System.out.println("remove");
                     it.remove();
                     for (Foliage entry2 : entry.getValue().listFoliage) {
                         //markMeshDirty(entry2.particleTexture, true);
@@ -143,9 +278,14 @@ public class FoliageEnhancerShader {
                         //IBlockState state = entityIn.world.getBlockState(posScan.down());
                         if (!lookupPosToFoliage.containsKey(posScan)) {
                             if (entityIn.getDistanceSq(posScan) <= radialRange * radialRange) {
-                                for (FoliageReplacerBase replacer : listFoliageReplacers) {
+
+                                //TEMP!!!
+                                List<FoliageReplacerBase> listFoliageReplacers2 = listFoliageReplacers;
+                                Collections.shuffle(listFoliageReplacers2);
+
+                                for (FoliageReplacerBase replacer : listFoliageReplacers2) {
                                     if (replacer.validFoliageSpot(entityIn.world, posScan.down())) {
-                                        //System.out.println("add");
+                                        System.out.println("add");
                                         replacer.addForPos(entityIn.world, posScan);
                                         replacer.markMeshesDirty();
 
@@ -194,12 +334,6 @@ public class FoliageEnhancerShader {
     public static void markMeshDirty(TextureAtlasSprite sprite, boolean flag) {
         InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
 
-        //TODO: this is a patch, setup init better
-        if (mesh == null) {
-            MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
-            mesh = MeshBufferManagerFoliage.getMesh(sprite);
-        }
-
         if (mesh != null) {
             mesh.dirtyVBO2Flag = flag;
         } else {
@@ -232,12 +366,22 @@ public class FoliageEnhancerShader {
 		/*System.out.println("foliage: " + ExtendedRenderer.foliageRenderer.lookupPosToFoliage.size() * FoliageClutter.clutterSize);
 		System.out.println("vbo thread: mesh.curBufferPosVBO2: " + mesh.curBufferPosVBO2);*/
 
-        mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
+        if (FoliageRenderer.testStaticLimit) {
+            mesh.instanceDataBufferVBO2.limit(30000 * mesh.INSTANCE_SIZE_FLOATS);
+        } else {
+            mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS);
+        }
+
+        //mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
 
 
     }
 
-    public static void addForPos(FoliageReplacerBase replacer, BlockPos pos) {
+    public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos) {
+        addForPos(replacer, height, pos, true, true);
+    }
+
+    public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos, boolean randPosVar, boolean biomeColorize) {
 
         World world = Minecraft.getMinecraft().world;
 
@@ -251,20 +395,21 @@ public class FoliageEnhancerShader {
         int heightIndex;
 
         float variance = 0.4F;
-        float randX = (rand.nextFloat() - rand.nextFloat()) * variance;
-        float randZ = (rand.nextFloat() - rand.nextFloat()) * variance;
+        float randX = randPosVar ? (rand.nextFloat() - rand.nextFloat()) * variance : 0;
+        float randZ = randPosVar ? (rand.nextFloat() - rand.nextFloat()) * variance : 0;
 
         int clutterSize = 2;
+        int meshesPerLayer = 2;
 
         if (replacer instanceof FoliageReplacerCross) {
-            clutterSize = 2 * ((FoliageReplacerCross) replacer).expectedHeight;
+            clutterSize = 2 * height;
         }
 
         for (int i = 0; i < clutterSize; i++) {
                     /*if (i >= 2) {
                         heightIndex = 1;
                     }*/
-            heightIndex = i / 2;
+            heightIndex = i / meshesPerLayer;
 
             TextureAtlasSprite sprite = replacer.sprites.get(0);
             if (replacer instanceof FoliageReplacerCross) {
@@ -311,10 +456,12 @@ public class FoliageEnhancerShader {
             //foliage.rotationPitch = rand.nextInt(90) - 45;
             foliage.particleScale /= 0.2;
 
-            int color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(state, world, pos.down(), 0);
-            foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
-            foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
-            foliage.particleBlue = (float) (color & 255) / 255.0F;
+            if (biomeColorize) {
+                int color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(world.getBlockState(pos), world, pos/*.down()*/, 0);
+                foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
+                foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
+                foliage.particleBlue = (float) (color & 255) / 255.0F;
+            }
 
             /*foliage.particleRed -= 0.2F;
             foliage.particleGreen -= 0.2F;

@@ -35,6 +35,7 @@ public class ClientTickHandler
 	
 	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
+	public static FoliageEnhancerShader foliageEnhancer;
 	
 	public boolean hasOpenedConfig = false;
 	
@@ -56,6 +57,10 @@ public class ClientTickHandler
 		if (sceneEnhancer == null) {
 			sceneEnhancer = new SceneEnhancer();
 			(new Thread(sceneEnhancer, "Weather2 Scene Enhancer")).start();
+		}
+		if (foliageEnhancer == null) {
+			foliageEnhancer = new FoliageEnhancerShader();
+			(new Thread(foliageEnhancer, "Weather2 Foliage Enhancer")).start();
 		}
 	}
 

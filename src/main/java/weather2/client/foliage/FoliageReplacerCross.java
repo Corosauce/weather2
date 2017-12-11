@@ -1,15 +1,23 @@
 package weather2.client.foliage;
 
 import extendedrenderer.ExtendedRenderer;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockCrops;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class FoliageReplacerCross extends FoliageReplacerBase {
+import java.util.Map;
 
-    public int expectedHeight = 1;
+/**
+ * 2 meshes diagonal cross
+ */
+public class FoliageReplacerCross extends FoliageReplacerBase {
 
     public FoliageReplacerCross(IBlockState state) {
         super(state);
@@ -22,12 +30,54 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
 
     @Override
     public boolean validFoliageSpot(World world, BlockPos pos) {
-        return world.getBlockState(pos).getMaterial() == Material.GRASS && world.getBlockState(pos.up()).getBlock() == state.getBlock();
+        if (world.getBlockState(pos).getMaterial() == baseMaterial) {
+            if (stateSensitive) {
+                IBlockState stateScan = world.getBlockState(pos.up());
+                if (stateScan.getBlock() == state.getBlock()) {
+                    boolean fail = false;
+                    for (Map.Entry<IProperty, Comparable> entrySet : lookupPropertiesToComparable.entrySet()) {
+                        if (stateScan.getValue(entrySet.getKey()) != entrySet.getValue()) {
+                            fail = true;
+                            break;
+                        }
+                    }
+                    if (fail) {
+                        return false;
+                    }
+                    return true;
+                    /*IProperty asdasd = BlockCrops.AGE;
+                    Comparable realValue = stateScan.getValue(BlockCrops.AGE);
+                    Comparable needValue = EnumFacing.WEST;
+                    needValue = 7;*/
+                } else {
+                    return false;
+                }
+                //return world.getBlockState(pos.up()) == state;
+                //return world.getBlockState(pos.up()).getBlock() == state.getBlock();
+            } else {
+                return world.getBlockState(pos.up()).getBlock() == state.getBlock();
+            }
+        } else {
+            return false;
+        }
+
     }
 
     @Override
     public void addForPos(World world, BlockPos pos) {
         //TODO: handle multi height cross detection here or make child class based off this one to do it
-        FoliageEnhancerShader.addForPos(this, pos);
+        int height = expectedHeight;
+        if (height == -1) {
+            Block block = state.getBlock();
+
+            //already verified up 1 == block needed
+            height = 0;
+
+            while (block == state.getBlock()) {
+                height++;
+                block = world.getBlockState(pos.up(height+1)).getBlock();
+            }
+        }
+        FoliageEnhancerShader.addForPos(this, height, pos, randomizeCoord, biomeColorize);
     }
 }

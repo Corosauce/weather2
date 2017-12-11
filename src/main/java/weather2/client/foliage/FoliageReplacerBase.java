@@ -1,12 +1,15 @@
 package weather2.client.foliage;
 
 import com.sun.xml.internal.bind.v2.TODO;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class FoliageReplacerBase {
@@ -36,6 +39,15 @@ public abstract class FoliageReplacerBase {
     //public TextureAtlasSprite sprite;
     public List<TextureAtlasSprite> sprites = new ArrayList<>();
 
+    public int expectedHeight = 1;
+
+    public Material baseMaterial = Material.GRASS;
+    public boolean biomeColorize = true;
+    public boolean randomizeCoord = true;
+
+    public boolean stateSensitive = false;
+    public HashMap<IProperty, Comparable> lookupPropertiesToComparable = new HashMap<>();
+
     public FoliageReplacerBase(IBlockState state) {
         this.state = state;
     }
@@ -47,6 +59,31 @@ public abstract class FoliageReplacerBase {
 
     public FoliageReplacerBase setSprite(TextureAtlasSprite sprite) {
         this.sprites.add(sprite);
+        return this;
+    }
+
+    public FoliageReplacerBase setBaseMaterial(Material material) {
+        this.baseMaterial = material;
+        return this;
+    }
+
+    public FoliageReplacerBase setBiomeColorize(boolean val) {
+        this.biomeColorize = val;
+        return this;
+    }
+
+    public FoliageReplacerBase setRandomizeCoord(boolean val) {
+        this.randomizeCoord = val;
+        return this;
+    }
+
+    public FoliageReplacerBase setStateSensitive(boolean val) {
+        this.stateSensitive = val;
+        return this;
+    }
+
+    public FoliageReplacerBase addComparable(IProperty property, Comparable comparable) {
+        lookupPropertiesToComparable.put(property, comparable);
         return this;
     }
 

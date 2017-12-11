@@ -7,6 +7,9 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * 4 meshes square crop
+ */
 public class FoliageReplacerCrop extends FoliageReplacerBase {
 
     public FoliageReplacerCrop(IBlockState state) {
@@ -20,6 +23,6 @@ public class FoliageReplacerCrop extends FoliageReplacerBase {
 
     @Override
     public void addForPos(World world, BlockPos pos) {
-        FoliageEnhancerShader.addForPos(this, pos);
+        FoliageEnhancerShader.addForPos(this, expectedHeight, pos);
     }
 }
