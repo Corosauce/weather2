@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FoliageEnhancerShader implements Runnable {
 
-    public static boolean useThread = false;
+    public static boolean useThread = true;
 
     public static List<FoliageReplacerBase> listFoliageReplacers = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public class FoliageEnhancerShader implements Runnable {
         /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DIAMOND_BLOCK.getDefaultState())
                 .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass")));*/
 
-        if (true) return;
+        //if (true) return;
 
         listFoliageReplacers.add(new FoliageReplacerCross(Blocks.YELLOW_FLOWER.getDefaultState())
                 .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion")).setBiomeColorize(false));
@@ -367,9 +367,9 @@ public class FoliageEnhancerShader implements Runnable {
 		System.out.println("vbo thread: mesh.curBufferPosVBO2: " + mesh.curBufferPosVBO2);*/
 
         if (FoliageRenderer.testStaticLimit) {
-            mesh.instanceDataBufferVBO2.limit(30000 * mesh.INSTANCE_SIZE_FLOATS);
+            mesh.instanceDataBufferVBO2.limit(30000 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
         } else {
-            mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS);
+            mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
         }
 
         //mesh.instanceDataBufferVBO2.limit(mesh.curBufferPosVBO2 * mesh.INSTANCE_SIZE_FLOATS_SELDOM);
