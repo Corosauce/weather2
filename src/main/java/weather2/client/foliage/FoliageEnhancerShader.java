@@ -262,6 +262,7 @@ public class FoliageEnhancerShader implements Runnable {
     public static void shadersReset() {
         //TODO: for resource and shader system resets
         listFoliageReplacers.clear();
+        lookupPosToFoliage.clear();
     }
 
     public static TextureAtlasSprite getMeshAndSetupSprite(String spriteLoc) {
