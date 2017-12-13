@@ -48,6 +48,8 @@ public abstract class FoliageReplacerBase {
     public boolean stateSensitive = false;
     public HashMap<IProperty, Comparable> lookupPropertiesToComparable = new HashMap<>();
 
+    public int animationID;
+
     public FoliageReplacerBase(IBlockState state) {
         this.state = state;
     }
