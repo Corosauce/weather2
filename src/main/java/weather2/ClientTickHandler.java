@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 
 import CoroUtil.packet.PacketHelper;
 import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.render.FoliageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -188,7 +187,7 @@ public class ClientTickHandler
 					}
 
 					if (smoothAngleRotationalVelAccel > 0.3 || smoothAngleRotationalVelAccel < -0.3) {
-						smoothAngle += smoothAngleRotationalVelAccel;
+						smoothAngle += smoothAngleRotationalVelAccel * 0.1F;
 					} else {
 						//smoothAngleRotationalVelAccel *= 0.9F;
 					}
@@ -198,7 +197,13 @@ public class ClientTickHandler
 			}
 
 			ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
-			ExtendedRenderer.foliageRenderer.windSpeed = windSpeed;
+			//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
+
+			if (ExtendedRenderer.foliageRenderer.windSpeedSmooth < windSpeed) {
+				ExtendedRenderer.foliageRenderer.windSpeedSmooth += 0.001F;
+			} else {
+				ExtendedRenderer.foliageRenderer.windSpeedSmooth -= 0.001F;
+			}
 
 		} else {
 			resetClientWeather();
