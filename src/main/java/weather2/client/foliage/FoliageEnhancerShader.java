@@ -657,7 +657,7 @@ public class FoliageEnhancerShader implements Runnable {
 
             Foliage foliage = new Foliage(sprite);
             foliage.setPosition(pos.add(0, 0, 0));
-            foliage.posY += 0.0F;
+            //foliage.posY += 0.5F;
             foliage.prevPosY = foliage.posY;
             foliage.heightIndex = heightIndex;
                                         /*foliage.posX += 0.5F + (rand.nextFloat() - rand.nextFloat()) * 0.8F;
@@ -685,11 +685,11 @@ public class FoliageEnhancerShader implements Runnable {
             }
 
             //for seaweed render
-            foliage.rotationYaw = 0;
+            /*foliage.rotationYaw = 0;
             if ((i+1) % 2 == 0) {
                 //use as a marker for GLSL
                 foliage.rotationYaw = 1;
-            }
+            }*/
 
             //foliage.rotationPitch = rand.nextInt(90) - 45;
             foliage.particleScale /= 0.2;
