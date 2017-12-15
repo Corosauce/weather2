@@ -17,13 +17,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.border.WorldBorder;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -258,6 +255,12 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(TextureStitchEvent.Post event) {
-		//FoliageEnhancerShader.init(event);
+		FoliageEnhancerShader.setupReplacers();
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void modelBake(ModelBakeEvent event) {
+		FoliageEnhancerShader.modelBakeEvent(event);
 	}
 }

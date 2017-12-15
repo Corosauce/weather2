@@ -1,6 +1,9 @@
 package weather2.client.foliage;
 
 import CoroUtil.util.CoroUtilBlockLightCache;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
 import extendedrenderer.particle.ParticleRegistry;
@@ -13,16 +16,28 @@ import net.minecraft.block.BlockFlower;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverride;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,10 +50,88 @@ public class FoliageEnhancerShader implements Runnable {
     //for position tracking mainly, to be used for all foliage types maybe?
     public static ConcurrentHashMap<BlockPos, FoliageLocationData> lookupPosToFoliage = new ConcurrentHashMap<>();
 
+    /*private static final Class<?> multipartModelClass;
+    private static final Class<?> vanillaModelWrapperClass;
+    private static final Field multipartPartModels;
+    private static final Field modelWrapperModel;
+    static {
+        try {
+            multipartModelClass = Class.forName("net.minecraftforge.client.model.ModelLoader$MultipartModel");
+            multipartPartModels = multipartModelClass.getDeclaredField("partModels");
+            multipartPartModels.setAccessible(true);
+            vanillaModelWrapperClass = Class.forName("net.minecraftforge.client.model.ModelLoader$VanillaModelWrapper");
+            modelWrapperModel = vanillaModelWrapperClass.getDeclaredField("model");
+            modelWrapperModel.setAccessible(true);
+        } catch (ClassNotFoundException | NoSuchFieldException | SecurityException e) {
+            throw Throwables.propagate(e);
+        }
+    }*/
+
+    public static void modelBakeEvent(ModelBakeEvent event) {
+
+        Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
+
+
+        IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
+
+        for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
+            IBakedModel bakedModel = event.getModelRegistry().getObject(res);
+            IModel model = stateModels.get(res);
+            Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
+            /*if (bakedModel.getOverrides() instanceof AnimationItemOverrideList) {
+                AnimationItemOverrideList obj1 = (AnimationItemOverrideList) bakedModel.getOverrides();
+                IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
+                if (multipartModelClass.isAssignableFrom(bakedModel.getClass())) {
+
+                }
+            }
+            for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
+
+            }*/
+
+            /**
+             * TODO: special cases: flower pots with the specific plant variants, needs partial shader thing...
+             */
+
+            escape:
+            if (!res.getVariant().equals("inventory")) {
+                for (FoliageReplacerBase replacer : listFoliageReplacers) {
+                    for (TextureAtlasSprite sprite : replacer.sprites) {
+                        //System.out.println(sprite.getIconName());
+                        for (ResourceLocation res2 : textures) {
+                            if (res2.toString().equals(sprite.getIconName())) {
+                                if (!res.toString().contains("flower_pot")) {
+                                    System.out.println("replacing " + res + " with blank model");
+                                    event.getModelRegistry().putObject(res, blank);
+                                    break escape;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Called from shaders listener
      */
+    public static void shadersInit() {
+        for (FoliageReplacerBase replacer : listFoliageReplacers) {
+            for (TextureAtlasSprite sprite : replacer.sprites) {
+                MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
+            }
+        }
+    }
+
     public static void setupReplacersAndMeshes() {
+
+    }
+
+    /**
+     * Called from TextureStitchEvent.Post
+     */
+    public static void setupReplacers() {
 
         boolean test = false;
 
@@ -100,10 +193,17 @@ public class FoliageEnhancerShader implements Runnable {
 
             for (int i = 0; i < 8; i++) {
                 int temp = i;
-                if (temp >= 4) temp = 3;
-                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.WHEAT.getDefaultState())
+                //if (temp >= 4) temp = 3;
+                /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.WHEAT.getDefaultState())
                         .setBaseMaterial(Material.GROUND)
                         .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + temp))
+                        .setRandomizeCoord(false)
+                        .setStateSensitive(true)
+                        .addComparable(BlockCrops.AGE, i));*/
+
+                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.WHEAT.getDefaultState())
+                        .setBaseMaterial(Material.GROUND)
+                        .setSprite(getMeshAndSetupSprite("minecraft:blocks/wheat_stage_" + temp))
                         .setRandomizeCoord(false)
                         .setStateSensitive(true)
                         .addComparable(BlockCrops.AGE, i));
@@ -261,14 +361,14 @@ public class FoliageEnhancerShader implements Runnable {
      */
     public static void shadersReset() {
         //TODO: for resource and shader system resets
-        listFoliageReplacers.clear();
+        //listFoliageReplacers.clear();
         lookupPosToFoliage.clear();
     }
 
     public static TextureAtlasSprite getMeshAndSetupSprite(String spriteLoc) {
         TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
         TextureAtlasSprite sprite = map.getAtlasSprite(spriteLoc);
-        MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
+        //MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
         return sprite;
     }
 
@@ -564,9 +664,10 @@ public class FoliageEnhancerShader implements Runnable {
                                         foliage.prevPosX = foliage.posX;
                                         foliage.posZ += 0.5F + (rand.nextFloat() - rand.nextFloat()) * 0.8F;
                                         foliage.prevPosZ = foliage.posZ;*/
-            foliage.posX += 0.5F + randX;
+            Vec3d vec = world.getBlockState(pos).getOffset(world, pos);
+            foliage.posX += 0.5F + /*randX + */vec.x;
             foliage.prevPosX = foliage.posX;
-            foliage.posZ += 0.5F + randZ;
+            foliage.posZ += 0.5F + /*randZ + */vec.z;
             foliage.prevPosZ = foliage.posZ;
             foliage.rotationYaw = 0;
             //foliage.rotationYaw = 90;

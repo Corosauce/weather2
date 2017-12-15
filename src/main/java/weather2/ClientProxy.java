@@ -150,7 +150,7 @@ public class ClientProxy extends CommonProxy
         ShaderListenerRegistry.addListener(new IShaderListener() {
             @Override
             public void init() {
-                FoliageEnhancerShader.setupReplacersAndMeshes();
+                FoliageEnhancerShader.shadersInit();
             }
 
             @Override
