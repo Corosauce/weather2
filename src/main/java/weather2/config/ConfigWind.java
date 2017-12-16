@@ -24,6 +24,8 @@ public class ConfigWind implements IConfigCategory {
     public static int highWindTimerEnableAmountRnd = 20*60*10;
     public static int highWindOddsTo1 = 20*400;
 
+    public static double globalWindChangeAmountRate = 1F;
+
     @Override
     public String getName() {
         return "Wind";

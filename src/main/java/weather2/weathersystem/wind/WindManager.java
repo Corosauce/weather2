@@ -284,7 +284,7 @@ public class WindManager {
 	            float randGustWindFactor = 1F;
 				
 	            //gust data
-	            if (this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
+	            if (false && this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
 	            {
 	                if (chanceOfWindGustEvent > 0F)
 	                {
@@ -307,7 +307,12 @@ public class WindManager {
 	            }
 	            
 				//global wind angle
-	            windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
+	            //windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
+				windAngleGlobal += (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate) - (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate);
+
+				//windAngleGlobal += 0.1;
+
+	            //windAngleGlobal = 0;
 				
 	            if (windAngleGlobal < -180)
 	            {
