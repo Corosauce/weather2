@@ -13,6 +13,7 @@ import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.BlockFlower;
+import net.minecraft.block.BlockTallGrass;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -34,6 +35,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.lwjgl.BufferUtils;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 
@@ -147,7 +149,9 @@ public class FoliageEnhancerShader implements Runnable {
 
         if (!test) {
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass")));
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass"))
+                    .setStateSensitive(true)
+                    .addComparable(BlockTallGrass.TYPE, BlockTallGrass.EnumType.GRASS));
 
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.YELLOW_FLOWER.getDefaultState())
                     .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion")).setBiomeColorize(false));
@@ -474,6 +478,12 @@ public class FoliageEnhancerShader implements Runnable {
         double centerY = entityIn.posY;
         double centerZ = entityIn.posZ;
 
+        for (TextureAtlasSprite sprite : ExtendedRenderer.foliageRenderer.foliage.keySet()) {
+            InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
+            mesh.lastAdditionCount = 0;
+            mesh.lastRemovalCount = 0;
+        }
+
         //cleanup list
         if (trim) {
             Iterator<Map.Entry<BlockPos, FoliageLocationData>> it = lookupPosToFoliage.entrySet().iterator();
@@ -487,6 +497,7 @@ public class FoliageEnhancerShader implements Runnable {
                         //markMeshDirty(entry2.particleTexture, true);
                         entry.getValue().foliageReplacer.markMeshesDirty();
                         ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
+                        MeshBufferManagerFoliage.getMesh(entry2.particleTexture).lastRemovalCount++;
                     }
                 } else if (entry.getKey().distanceSq(centerX, centerY, centerZ)/*entityIn.getDistanceSq(entry.getKey())*/ > radialRange * radialRange) {
                     //System.out.println("remove");
@@ -495,6 +506,7 @@ public class FoliageEnhancerShader implements Runnable {
                         //markMeshDirty(entry2.particleTexture, true);
                         entry.getValue().foliageReplacer.markMeshesDirty();
                         ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
+                        MeshBufferManagerFoliage.getMesh(entry2.particleTexture).lastRemovalCount++;
                     }
                 }
             }
@@ -523,6 +535,10 @@ public class FoliageEnhancerShader implements Runnable {
                                             //System.out.println("add");
                                             replacer.addForPos(entityIn.world, posScan);
                                             replacer.markMeshesDirty();
+
+                                            for (TextureAtlasSprite sprite : replacer.sprites) {
+                                                MeshBufferManagerFoliage.getMesh(sprite).lastAdditionCount++;
+                                            }
 
 
                                             //avoid more things trying to add foliage to spot?
@@ -594,12 +610,36 @@ public class FoliageEnhancerShader implements Runnable {
 
         InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
         if (mesh == null) {
-            System.out.println("MESH NULL HERE, WHY???");
+            System.out.println("MESH NULL HERE, WHY???"); //only during hotreloading, need to thread block command until thread done
             return;
         }
 
+        int lastPos = mesh.curBufferPosVBO2;
+
         mesh.curBufferPosVBO2 = 0;
         mesh.instanceDataBufferVBO2.clear();
+
+        //isnt factoring in the amount of meshes each foliage replacer adds, so lets just amp it up for a dirty hack for now
+        int guessAtExtraMeshesPerFoliage = 4;
+        int extraMeshes = (mesh.lastAdditionCount * guessAtExtraMeshesPerFoliage) - (mesh.lastRemovalCount * guessAtExtraMeshesPerFoliage);
+
+
+
+        if (lastPos + extraMeshes > mesh.numInstances) {
+            System.out.println((lastPos + extraMeshes) + " vs " + mesh.numInstances);
+            //catch huge jumps and grow it enough
+            if (mesh.numInstances * 2 < lastPos + extraMeshes) {
+                mesh.numInstances = (int)(Math.ceil((float)(lastPos + extraMeshes) / 10000F) * 10000F);
+            } else {
+                mesh.numInstances *= 2;
+            }
+
+            System.out.println("hit max mesh count, doubling in size to " + mesh.numInstances);
+            mesh.instanceDataBufferVBO2 = BufferUtils.createFloatBuffer(mesh.numInstances * InstancedMeshFoliage.INSTANCE_SIZE_FLOATS_SELDOM);
+            mesh.instanceDataBufferVBO2.clear();
+
+            mesh.instanceDataBufferVBO1 = BufferUtils.createFloatBuffer(mesh.numInstances * InstancedMeshFoliage.INSTANCE_SIZE_FLOATS);
+        }
 
         //System.out.println("vbo 2 update");
 
