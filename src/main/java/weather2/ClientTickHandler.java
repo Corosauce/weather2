@@ -141,7 +141,7 @@ public class ClientTickHandler
 			float windDir = WindReader.getWindAngle(world, null);
 			float windSpeed = WindReader.getWindSpeed(world, null);
 
-			//windDir = 45;
+			windDir = 0;
 
 			float give = 30;
 
@@ -200,14 +200,17 @@ public class ClientTickHandler
 
 			if (!Minecraft.getMinecraft().isGamePaused()) {
 
-				//ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
-				ExtendedRenderer.foliageRenderer.windDir++;
+				//ExtendedRenderer.foliageRenderer.windDir = -165;//smoothAngle;
+				ExtendedRenderer.foliageRenderer.windDir-=2;
+
+				//ExtendedRenderer.foliageRenderer.windDir = 90;
 
 
 				//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
 
-				windSpeed = 0.99F;
-				//windSpeed = 0F;
+				windSpeed = 1.3F;
+				//windSpeed = 0.2F;
+				//windSpeed = 0.1F;
 
 				float rate = 0.005F;
 
