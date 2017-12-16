@@ -284,7 +284,7 @@ public class WindManager {
 	            float randGustWindFactor = 1F;
 				
 	            //gust data
-	            if (false && this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
+	            if (this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
 	            {
 	                if (chanceOfWindGustEvent > 0F)
 	                {
