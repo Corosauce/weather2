@@ -1,6 +1,5 @@
 package weather2.client.foliage;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;

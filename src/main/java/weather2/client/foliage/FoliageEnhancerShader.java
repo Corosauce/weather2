@@ -69,41 +69,45 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
-        Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
+        boolean replaceVanillaModels = true;
+
+        if (replaceVanillaModels) {
+            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
 
 
-        IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
+            IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
 
-        for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
-            IBakedModel bakedModel = event.getModelRegistry().getObject(res);
-            IModel model = stateModels.get(res);
-            Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
-            /*if (bakedModel.getOverrides() instanceof AnimationItemOverrideList) {
-                AnimationItemOverrideList obj1 = (AnimationItemOverrideList) bakedModel.getOverrides();
-                IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
-                if (multipartModelClass.isAssignableFrom(bakedModel.getClass())) {
+            for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
+                IBakedModel bakedModel = event.getModelRegistry().getObject(res);
+                IModel model = stateModels.get(res);
+                Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
+                /*if (bakedModel.getOverrides() instanceof AnimationItemOverrideList) {
+                    AnimationItemOverrideList obj1 = (AnimationItemOverrideList) bakedModel.getOverrides();
+                    IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
+                    if (multipartModelClass.isAssignableFrom(bakedModel.getClass())) {
 
+                    }
                 }
-            }
-            for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
+                for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
 
-            }*/
+                }*/
 
-            /**
-             * TODO: special cases: flower pots with the specific plant variants, needs partial shader thing...
-             */
+                /**
+                 * TODO: special cases: flower pots with the specific plant variants, needs partial shader thing...
+                 */
 
-            escape:
-            if (!res.getVariant().equals("inventory")) {
-                for (FoliageReplacerBase replacer : listFoliageReplacers) {
-                    for (TextureAtlasSprite sprite : replacer.sprites) {
-                        //System.out.println(sprite.getIconName());
-                        for (ResourceLocation res2 : textures) {
-                            if (res2.toString().equals(sprite.getIconName())) {
-                                if (!res.toString().contains("flower_pot")) {
-                                    System.out.println("replacing " + res + " with blank model");
-                                    event.getModelRegistry().putObject(res, blank);
-                                    break escape;
+                escape:
+                if (!res.getVariant().equals("inventory")) {
+                    for (FoliageReplacerBase replacer : listFoliageReplacers) {
+                        for (TextureAtlasSprite sprite : replacer.sprites) {
+                            //System.out.println(sprite.getIconName());
+                            for (ResourceLocation res2 : textures) {
+                                if (res2.toString().equals(sprite.getIconName())) {
+                                    if (!res.toString().contains("flower_pot")) {
+                                        System.out.println("replacing " + res + " with blank model");
+                                        event.getModelRegistry().putObject(res, blank);
+                                        break escape;
+                                    }
                                 }
                             }
                         }

@@ -6,7 +6,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.api.WindReader;
+import weather2.util.WindReader;
 import weather2.util.WeatherUtilEntity;
 import CoroUtil.util.Vec3;
 

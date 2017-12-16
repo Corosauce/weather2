@@ -15,7 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import org.lwjgl.opengl.GL11;
 
 import weather2.ClientProxy;
-import weather2.api.WindReader;
+import weather2.util.WindReader;
 import weather2.block.TileEntityWeatherForecast;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
@@ -49,8 +49,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	String descSeverity = "";
     	String descDist = "";
     	String descWindAngleCloud = "Wind Angle Clouds: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.CLOUD);
-    	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.DOMINANT);
-    	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorld(), pos, WindReader.WindType.DOMINANT) * 100F)) / 100F);
+    	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.PRIORITY);
+    	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorld(), pos, WindReader.WindType.PRIORITY) * 100F)) / 100F);
     	
     	String progression = "";
 

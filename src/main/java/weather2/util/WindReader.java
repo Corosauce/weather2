@@ -1,4 +1,4 @@
-package weather2.api;
+package weather2.util;
 
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,14 +31,14 @@ public class WindReader {
 	 */
 	
 	public enum WindType {
-		DOMINANT,
+		PRIORITY,
 		EVENT,
 		GUST,
 		CLOUD
 	}
 
 	public static float getWindAngle(World parWorld, Vec3 parLocation) {
-		return getWindAngle(parWorld, parLocation, WindType.DOMINANT);
+		return getWindAngle(parWorld, parLocation, WindType.PRIORITY);
 	}
 	
 	public static float getWindAngle(World parWorld, Vec3 parLocation, WindType parWindType) {
@@ -50,7 +50,7 @@ public class WindReader {
 		}
 		
 		if (wMan != null) {
-			if (parWindType == WindType.DOMINANT) {
+			if (parWindType == WindType.PRIORITY) {
 				return wMan.windMan.getWindAngleForPriority();
 			} else if (parWindType == WindType.EVENT) {
 				return wMan.windMan.getWindAngleForEvents();
@@ -67,7 +67,7 @@ public class WindReader {
 	}
 	
 	public static float getWindSpeed(World parWorld, Vec3 parLocation) {
-		return getWindSpeed(parWorld, parLocation, WindType.DOMINANT);
+		return getWindSpeed(parWorld, parLocation, WindType.PRIORITY);
 	}
 	
 	public static float getWindSpeed(World parWorld, Vec3 parLocation, WindType parWindType) {
@@ -79,7 +79,7 @@ public class WindReader {
 		}
 		
 		if (wMan != null) {
-			if (parWindType == WindType.DOMINANT) {
+			if (parWindType == WindType.PRIORITY) {
 				return wMan.windMan.getWindSpeedForPriority();
 			} else if (parWindType == WindType.EVENT) {
 				return wMan.windMan.getWindSpeedForEvents();

@@ -9,7 +9,7 @@ import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerBase;
 
-public class WeatherData {
+public class WeatherDataHelper {
 
     /**
      * Check if precipitation occurring at position.
@@ -27,7 +27,7 @@ public class WeatherData {
 	        weatherManager = ServerTickHandler.getWeatherSystemForDim(world.provider.getDimension());
         }
         if (weatherManager != null) {
-	        return weatherManager.isPrecipitatingAt(new Vec3(position));
+	        return weatherManager.isPrecipitatingAt(position);
         }
 	    return false;
     }

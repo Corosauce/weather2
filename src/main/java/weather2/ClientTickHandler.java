@@ -18,7 +18,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.lwjgl.input.Mouse;
 
-import weather2.api.WindReader;
+import weather2.util.WindReader;
 import weather2.client.SceneEnhancer;
 import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.client.gui.GuiEZConfig;
@@ -200,8 +200,8 @@ public class ClientTickHandler
 
 			if (!Minecraft.getMinecraft().isGamePaused()) {
 
-				//ExtendedRenderer.foliageRenderer.windDir = -165;//smoothAngle;
-				ExtendedRenderer.foliageRenderer.windDir-=2;
+				ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
+				//ExtendedRenderer.foliageRenderer.windDir-=2;
 
 				//ExtendedRenderer.foliageRenderer.windDir = 90;
 
