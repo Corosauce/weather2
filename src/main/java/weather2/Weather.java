@@ -56,6 +56,7 @@ public class Weather {
 		ConfigMod.addConfigFile(event, addConfig(new ConfigStorm()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigTornado()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigParticle()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigFoliage()));
     	WeatherUtilConfig.nbtLoadDataAll();
 
 		proxy.preInit();

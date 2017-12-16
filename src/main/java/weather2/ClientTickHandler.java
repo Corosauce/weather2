@@ -141,7 +141,7 @@ public class ClientTickHandler
 			float windDir = WindReader.getWindAngle(world, null);
 			float windSpeed = WindReader.getWindSpeed(world, null);
 
-			windDir = 0;
+			//windDir = 0;
 
 			float give = 30;
 
@@ -208,7 +208,7 @@ public class ClientTickHandler
 
 				//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
 
-				windSpeed = 1.3F;
+				//windSpeed = 1.3F;
 				//windSpeed = 0.2F;
 				//windSpeed = 0.1F;
 

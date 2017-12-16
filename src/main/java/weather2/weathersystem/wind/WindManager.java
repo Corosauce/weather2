@@ -291,7 +291,13 @@ public class WindManager {
 	                    if (rand.nextInt((int)((100 - chanceOfWindGustEvent) * randGustWindFactor)) == 0)
 	                    {
 	                    	windSpeedGust = windSpeedGlobal + rand.nextFloat() * 0.6F;
-	                        windAngleGust = rand.nextInt(360) - 180;
+	                        boolean randomDirectionGust = false;
+	                        if (randomDirectionGust) {
+								windAngleGust = rand.nextInt(360) - 180;
+							} else {
+								windAngleGust = windAngleGlobal + rand.nextInt(120) - 60;
+							}
+
 	                        setWindTimeGust(rand.nextInt(windGustEventTimeRand));
 	                        //windEventTime += windTime;
 	                        //unneeded since priority system determines wind to use

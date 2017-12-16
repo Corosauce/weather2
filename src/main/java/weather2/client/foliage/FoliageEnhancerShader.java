@@ -36,6 +36,7 @@ import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.BufferUtils;
+import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 
@@ -393,7 +394,7 @@ public class FoliageEnhancerShader implements Runnable {
                 try {
                     boolean gotLock = tickClientThreaded();
                     if (gotLock) {
-                        Thread.sleep(ConfigMisc.Thread_Particle_Process_Delay);
+                        Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);
                     } else {
                         //if we didnt get the lock, no work was done, aggressively retry until we get it
                         Thread.sleep(20);
@@ -465,7 +466,7 @@ public class FoliageEnhancerShader implements Runnable {
         boolean add = true;
         boolean trim = true;
 
-        int radialRange = FoliageRenderer.radialRange;
+        int radialRange = ConfigFoliage.foliageShaderRange;
 
         int xzRange = radialRange;
         int yRange = radialRange;
