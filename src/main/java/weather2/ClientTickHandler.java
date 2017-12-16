@@ -196,14 +196,44 @@ public class ClientTickHandler
 				}
 			}
 
-			ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
-			//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
+			if (!Minecraft.getMinecraft().isGamePaused()) {
 
-			if (ExtendedRenderer.foliageRenderer.windSpeedSmooth < windSpeed) {
-				ExtendedRenderer.foliageRenderer.windSpeedSmooth += 0.001F;
-			} else {
-				ExtendedRenderer.foliageRenderer.windSpeedSmooth -= 0.001F;
+				ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
+				//ExtendedRenderer.foliageRenderer.windDir++;
+
+
+				//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
+
+				//windSpeed = 0.99F;
+				//windSpeed = 0.1F;
+
+				float rate = 0.005F;
+
+				if (ExtendedRenderer.foliageRenderer.windSpeedSmooth != windSpeed) {
+					if (ExtendedRenderer.foliageRenderer.windSpeedSmooth < windSpeed) {
+						if (ExtendedRenderer.foliageRenderer.windSpeedSmooth + rate > windSpeed) {
+							ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
+						} else {
+							ExtendedRenderer.foliageRenderer.windSpeedSmooth += rate;
+						}
+					} else {
+						if (ExtendedRenderer.foliageRenderer.windSpeedSmooth - rate < windSpeed) {
+							ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
+						} else {
+							ExtendedRenderer.foliageRenderer.windSpeedSmooth -= rate;
+						}
+					}
+				}
+
+				float baseTimeChangeRate = 60F;
+
+
+				ExtendedRenderer.foliageRenderer.windTime += 0 + (baseTimeChangeRate * ExtendedRenderer.foliageRenderer.windSpeedSmooth);
 			}
+			//System.out.println(ExtendedRenderer.foliageRenderer.windTime + " - " + ExtendedRenderer.foliageRenderer.windSpeedSmooth);
+			//ExtendedRenderer.foliageRenderer.windTime = 0;
+
+
 
 		} else {
 			resetClientWeather();
