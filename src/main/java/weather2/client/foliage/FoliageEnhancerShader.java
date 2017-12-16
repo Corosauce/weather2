@@ -117,6 +117,10 @@ public class FoliageEnhancerShader implements Runnable {
      * Called from shaders listener
      */
     public static void shadersInit() {
+
+        //temp? for sake of hot reloading replacers
+        FoliageEnhancerShader.setupReplacers();
+
         for (FoliageReplacerBase replacer : listFoliageReplacers) {
             for (TextureAtlasSprite sprite : replacer.sprites) {
                 MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
@@ -134,6 +138,8 @@ public class FoliageEnhancerShader implements Runnable {
     public static void setupReplacers() {
 
         boolean test = false;
+
+        listFoliageReplacers.clear();
 
         if (!test) {
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
@@ -175,7 +181,7 @@ public class FoliageEnhancerShader implements Runnable {
 
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.REEDS.getDefaultState(), -1)
                     .setSprite(getMeshAndSetupSprite("minecraft:blocks/reeds"))
-                    .setBaseMaterial(Material.SAND).setBiomeColorize(true).setRandomizeCoord(false));
+                    .setBaseMaterial(Material.SAND).setBiomeColorize(true).setRandomizeCoord(false).setLooseness(0.3F));
 
 
 
@@ -683,6 +689,8 @@ public class FoliageEnhancerShader implements Runnable {
             if ((i+1) % 2 == 0) {
                 foliage.rotationYaw += 90;
             }
+
+            foliage.looseness = replacer.looseness;
 
             //for seaweed render
             /*foliage.rotationYaw = 0;

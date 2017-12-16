@@ -49,6 +49,7 @@ public abstract class FoliageReplacerBase {
     public HashMap<IProperty, Comparable> lookupPropertiesToComparable = new HashMap<>();
 
     public int animationID;
+    public float looseness = 1F;
 
     public FoliageReplacerBase(IBlockState state) {
         this.state = state;
@@ -97,6 +98,11 @@ public abstract class FoliageReplacerBase {
         for (TextureAtlasSprite sprite : sprites) {
             FoliageEnhancerShader.markMeshDirty(sprite, true);
         }
+    }
+
+    public FoliageReplacerBase setLooseness(float val) {
+        this.looseness = val;
+        return this;
     }
 
 }
