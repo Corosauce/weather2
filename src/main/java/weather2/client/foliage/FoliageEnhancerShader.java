@@ -422,7 +422,7 @@ public class FoliageEnhancerShader implements Runnable {
         if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
             //System.out.println("vbo thread: lock got");
             try {
-                profileForFoliageShader();
+                return profileForFoliageShader();
             } finally {
                 ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
                 return true;
@@ -433,7 +433,7 @@ public class FoliageEnhancerShader implements Runnable {
         }
     }
 
-    public static void profileForFoliageShader() {
+    public static boolean profileForFoliageShader() {
 
         /**
          *
@@ -579,17 +579,26 @@ public class FoliageEnhancerShader implements Runnable {
         }*/
 
         //update all vbos that were flagged dirty
-        for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
-            InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(entry.getKey());
+        //if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
+            try {
+                for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
+                    InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(entry.getKey());
 
-            if (mesh.dirtyVBO2Flag) {
-                mesh.interpPosXThread = entityIn.posX;
-                mesh.interpPosYThread = entityIn.posY;
-                mesh.interpPosZThread = entityIn.posZ;
+                    if (mesh.dirtyVBO2Flag) {
+                        mesh.interpPosXThread = entityIn.posX;
+                        mesh.interpPosYThread = entityIn.posY;
+                        mesh.interpPosZThread = entityIn.posZ;
 
-                updateVBO2Threaded(entry.getKey());
+                        updateVBO2Threaded(entry.getKey());
+                    }
+                }
+            } finally {
+                //ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
+                return true;
             }
-        }
+        /*} else {
+            return false;
+        }*/
     }
 
     public static void markMeshDirty(TextureAtlasSprite sprite, boolean flag) {
