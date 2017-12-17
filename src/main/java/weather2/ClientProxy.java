@@ -158,5 +158,7 @@ public class ClientProxy extends CommonProxy
                 FoliageEnhancerShader.shadersReset();
             }
         });
+
+        //IReload
     }
 }

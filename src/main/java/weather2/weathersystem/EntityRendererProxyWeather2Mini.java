@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import CoroUtil.config.ConfigCoroAI;
 import extendedrenderer.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -28,7 +29,9 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
 		 * --- water
 		 * --- stained glass, etc
 		 */
-		EventHandler.hookRenderShaders(par1);
+		if (ConfigCoroAI.useEntityRenderHookForShaders) {
+			EventHandler.hookRenderShaders(par1);
+		}
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);

@@ -1,7 +1,5 @@
 package weather2.config;
 
-import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.render.FoliageRenderer;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -34,6 +32,6 @@ public class ConfigFoliage implements IConfigCategory {
 
     @Override
     public void hookUpdatedValues() {
-        FoliageRenderer.radialRange = foliageShaderRange;
+
     }
 }
