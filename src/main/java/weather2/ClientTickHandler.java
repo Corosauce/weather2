@@ -201,7 +201,7 @@ public class ClientTickHandler
 			if (!Minecraft.getMinecraft().isGamePaused()) {
 
 				ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
-				//ExtendedRenderer.foliageRenderer.windDir-=2;
+				//ExtendedRenderer.foliageRenderer.windDir-=1;
 
 				//ExtendedRenderer.foliageRenderer.windDir = 90;
 
@@ -209,7 +209,7 @@ public class ClientTickHandler
 				//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
 
 				//windSpeed = 1.3F;
-				//windSpeed = 0.2F;
+				//windSpeed = 0.9F;
 				//windSpeed = 0.1F;
 
 				float rate = 0.005F;

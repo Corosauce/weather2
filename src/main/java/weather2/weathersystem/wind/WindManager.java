@@ -46,7 +46,7 @@ public class WindManager {
 	public int windSpeedGlobalRandChangeDelay = 10;
 	
 	//generic?
-	public float windSpeedMin = 0.01F;
+	public float windSpeedMin = 0.00001F;
 	public float windSpeedMax = 1F;
 	
 	//events - design derp, we're making this client side, so its set based on closest storm to the client side player
