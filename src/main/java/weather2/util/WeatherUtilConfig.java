@@ -214,9 +214,10 @@ public class WeatherUtilConfig {
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_LOCK)) {
-				if (LIST_LOCK.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_LOCK)).equalsIgnoreCase("on")) {
+				int val = nbtServerData.getInteger("btn_" + CMD_BTN_COMP_LOCK);
+				if (val == 1) {
 					ConfigMisc.lockServerWeatherMode = 1;
-				} else if (LIST_LOCK.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_LOCK)).equalsIgnoreCase("off")) {
+				} else if (val == 0) {
 					ConfigMisc.lockServerWeatherMode = 0;
 				} else {
 					ConfigMisc.lockServerWeatherMode = -1;
@@ -224,9 +225,9 @@ public class WeatherUtilConfig {
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS)) {
-				boolean val = LIST_TOGGLE.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS)).equalsIgnoreCase("on");
+				boolean val = nbtServerData.getInteger("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS) == 1;
 				ConfigSnow.Snow_PerformSnowfall = val;
-				ConfigSnow.Snow_ExtraPileUp = val;
+				//ConfigSnow.Snow_ExtraPileUp = val;
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_RATEOFSTORM)) {
