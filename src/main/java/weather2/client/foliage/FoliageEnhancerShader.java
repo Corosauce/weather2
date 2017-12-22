@@ -1,5 +1,6 @@
 package weather2.client.foliage;
 
+import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.CoroUtilBlockLightCache;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
@@ -72,7 +73,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
-        boolean replaceVanillaModels = true;
+        boolean replaceVanillaModels = ConfigCoroAI.foliageShaders;
 
         if (replaceVanillaModels) {
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
@@ -367,7 +368,7 @@ public class FoliageEnhancerShader implements Runnable {
             }
         }
 
-        System.out.println(MeshBufferManagerFoliage.lookupParticleToMesh.size());
+        //System.out.println(MeshBufferManagerFoliage.lookupParticleToMesh.size());
 
     }
 
@@ -392,14 +393,17 @@ public class FoliageEnhancerShader implements Runnable {
         if (useThread) {
             while (true) {
                 try {
-                    boolean gotLock = tickClientThreaded();
-                    if (gotLock) {
-                        Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);
+                    if (ConfigCoroAI.foliageShaders) {
+                        boolean gotLock = tickClientThreaded();
+                        if (gotLock) {
+                            Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);
+                        } else {
+                            //if we didnt get the lock, no work was done, aggressively retry until we get it
+                            Thread.sleep(20);
+                        }
                     } else {
-                        //if we didnt get the lock, no work was done, aggressively retry until we get it
-                        Thread.sleep(20);
+                        Thread.sleep(5000);
                     }
-
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }

@@ -46,8 +46,8 @@ public class WindManager {
 	public int windSpeedGlobalRandChangeDelay = 10;
 	
 	//generic?
-	public float windSpeedMin = 0.00001F;
-	public float windSpeedMax = 1F;
+	/*public float windSpeedMin = 0.00001F;
+	public float windSpeedMax = 1F;*/
 	
 	//events - design derp, we're making this client side, so its set based on closest storm to the client side player
 	public float windAngleEvent = 0;
@@ -242,14 +242,14 @@ public class WindManager {
                 }
 				
 				//enforce mins and maxs of wind speed
-				if (windSpeedGlobal < windSpeedMin)
+				if (windSpeedGlobal < ConfigWind.windSpeedMin)
 	            {
-					windSpeedGlobal = windSpeedMin;
+					windSpeedGlobal = (float)ConfigWind.windSpeedMin;
 	            }
 	
-	            if (windSpeedGlobal > windSpeedMax)
+	            if (windSpeedGlobal > ConfigWind.windSpeedMax)
 	            {
-	            	windSpeedGlobal = windSpeedMax;
+	            	windSpeedGlobal = (float)ConfigWind.windSpeedMax;
 	            }
 	            
 	            if (windTimeGust > 0) {

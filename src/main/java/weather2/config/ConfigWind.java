@@ -1,5 +1,6 @@
 package weather2.config;
 
+import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 import weather2.util.WeatherUtil;
@@ -25,6 +26,9 @@ public class ConfigWind implements IConfigCategory {
     public static int highWindOddsTo1 = 20*400;
 
     public static double globalWindChangeAmountRate = 1F;
+
+    public static double windSpeedMin = 0.00001D;
+    public static double windSpeedMax = 1D;
 
     @Override
     public String getName() {
