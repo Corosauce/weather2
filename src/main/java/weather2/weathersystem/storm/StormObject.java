@@ -24,6 +24,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.CommonProxy;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
@@ -45,6 +46,7 @@ import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
+import weather2.weathersystem.wind.WindManager;
 
 public class StormObject extends WeatherObject {
 
@@ -764,79 +766,95 @@ public class StormObject extends WeatherObject {
 			
 			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.SNOW.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
-			            	boolean perform = false;
-			            	Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
-			            	int meta = 0;
-			            	if (id.getMaterial(id.getDefaultState()) == Material.SNOW) {
-			            		if (ConfigSnow.Snow_ExtraPileUp) {
-			            			IBlockState state = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z));
-				            		meta = state.getBlock().getMetaFromState(state);
-				            		if (meta < snowMetaMax) {
-				            			perform = true;
-					            		meta += 1;
-				            		} else {
-				            			if (ConfigSnow.Snow_MaxBlockBuildupHeight > 1) {
-				            				int i;
-				            				int originalSetBlockHeight = setBlockHeight;
-				            				for (i = 0; i < ConfigSnow.Snow_MaxBlockBuildupHeight; i++) {
-				            					Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
-				            					if (checkID.getMaterial(checkID.getDefaultState()) == Material.SNOW) {
-				            						IBlockState state2 = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z));
-				            						meta = state2.getBlock().getMetaFromState(state2);
-				            						if (meta < snowMetaMax) {
-				            							setBlockHeight = originalSetBlockHeight + i;
-				    			            			perform = true;
-				    				            		meta += 1;
-				    				            		break;
-				            						} else {
-				            							//let it continue to next height
-				            						}
-				            					} else if (CoroUtilBlock.isAir(checkID)) {
-				            						meta = 0;
-				            						setBlockHeight = originalSetBlockHeight + i;
-			    			            			perform = true;
-			    			            			break;
-				            					}
-				            				}
-				            				//if the loop went past the max height
-				            				if (i == ConfigSnow.Snow_MaxBlockBuildupHeight) {
-				            					perform = false;
-				            				}
-				            			}
-				            		}
-			            		}
-			            	} else {
-			            		perform = true;
-			            	}
-			            	if (perform) {
-			            		//Weather.dbg("set data: " + setBlockHeight + " - meta: " + meta);
-			            		if (ConfigSnow.Snow_SmoothOutPlacement) {
-			            			//spread out as it was trying to go from ...
-			            			int origMeta = Math.max(0, meta-1);
-			            			if (origMeta > snowMetaMax - 4/*snowMetaMax / 2*/) {
-			            				//Weather.dbg("SMOOTHING TRY!");
-				            			ChunkCoordinatesBlock coords = getSnowfallEvenOutAdjustCheck(xxx + x, setBlockHeight, zzz + z, origMeta);
-				            			//if detected a smooth out requirement
-				            			if (coords.posX != 0 || coords.posZ != 0) {
-				            				if (meta != coords.meta + 1) {
-					            				//Weather.dbg("SMOOTHING PERFORM! - meta was: " + origMeta + " - is now coords.meta: " + coords.meta);
-					            				xxx = coords.posX;
-					            				zzz = coords.posZ;
-					            				meta = coords.meta + 1;
-				            				} else {
-				            					perform = false;
-				            					//Weather.dbg("false positive! wasted work!");
-				            				}
-				            			} else {
-				            				//Weather.dbg("SMOOTHING DENY!");
-				            			}
-			            			}
-			            		}
-			            	}
-			            	
-			            	if (perform) {
-			            		world.setBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z), id.getStateFromMeta(meta), 3);
-			            	}
+							boolean betterBuildup = true;
+							if (betterBuildup) {
+								WindManager windMan = manager.getWindManager();
+								float angle = windMan.getWindAngleForClouds();
+
+								Vec3 vecPos = new Vec3(xxx + x, setBlockHeight, zzz + z);
+
+								//int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.xCoord, 0, vecPos.zCoord)).getY();
+								//vecPos.yCoord = y;
+
+								//avoid unloaded areas
+								if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
+
+								WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW_LAYER);
+							} else {
+								boolean perform = false;
+								Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
+								int meta = 0;
+								if (id.getMaterial(id.getDefaultState()) == Material.SNOW) {
+									if (ConfigSnow.Snow_ExtraPileUp) {
+										IBlockState state = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z));
+										meta = state.getBlock().getMetaFromState(state);
+										if (meta < snowMetaMax) {
+											perform = true;
+											meta += 1;
+										} else {
+											if (ConfigSnow.Snow_MaxBlockBuildupHeight > 1) {
+												int i;
+												int originalSetBlockHeight = setBlockHeight;
+												for (i = 0; i < ConfigSnow.Snow_MaxBlockBuildupHeight; i++) {
+													Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
+													if (checkID.getMaterial(checkID.getDefaultState()) == Material.SNOW) {
+														IBlockState state2 = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z));
+														meta = state2.getBlock().getMetaFromState(state2);
+														if (meta < snowMetaMax) {
+															setBlockHeight = originalSetBlockHeight + i;
+															perform = true;
+															meta += 1;
+															break;
+														} else {
+															//let it continue to next height
+														}
+													} else if (CoroUtilBlock.isAir(checkID)) {
+														meta = 0;
+														setBlockHeight = originalSetBlockHeight + i;
+														perform = true;
+														break;
+													}
+												}
+												//if the loop went past the max height
+												if (i == ConfigSnow.Snow_MaxBlockBuildupHeight) {
+													perform = false;
+												}
+											}
+										}
+									}
+								} else {
+									perform = true;
+								}
+								if (perform) {
+									//Weather.dbg("set data: " + setBlockHeight + " - meta: " + meta);
+									if (ConfigSnow.Snow_SmoothOutPlacement) {
+										//spread out as it was trying to go from ...
+										int origMeta = Math.max(0, meta - 1);
+										if (origMeta > snowMetaMax - 4/*snowMetaMax / 2*/) {
+											//Weather.dbg("SMOOTHING TRY!");
+											ChunkCoordinatesBlock coords = getSnowfallEvenOutAdjustCheck(xxx + x, setBlockHeight, zzz + z, origMeta);
+											//if detected a smooth out requirement
+											if (coords.posX != 0 || coords.posZ != 0) {
+												if (meta != coords.meta + 1) {
+													//Weather.dbg("SMOOTHING PERFORM! - meta was: " + origMeta + " - is now coords.meta: " + coords.meta);
+													xxx = coords.posX;
+													zzz = coords.posZ;
+													meta = coords.meta + 1;
+												} else {
+													perform = false;
+													//Weather.dbg("false positive! wasted work!");
+												}
+											} else {
+												//Weather.dbg("SMOOTHING DENY!");
+											}
+										}
+									}
+								}
+
+								if (perform) {
+									world.setBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z), id.getStateFromMeta(meta), 3);
+								}
+							}
 			            }
 			        }
 				}
@@ -902,6 +920,8 @@ public class StormObject extends WeatherObject {
 		World world = manager.getWorld();
 		
 		Biome biomegenbase = world.getBiome(new BlockPos(par1, 0, par3));
+
+		BlockPos pos = new BlockPos(par1, par2, par3);
         
         if (biomegenbase == null) return false;
         
@@ -915,13 +935,19 @@ public class StormObject extends WeatherObject {
         {
             if (par2 >= 0 && par2 < 256 && world.getLightFor(EnumSkyBlock.BLOCK, new BlockPos(par1, par2, par3)) < 10)
             {
-                Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
+                /*Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
 
-                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.SNOW)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ICE && l.getMaterial(l.getDefaultState()).blocksMovement())
+                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.SNOW_LAYER)*//* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*//* && CoroUtilBlock.isAir(l) && l != Blocks.ICE && l.getMaterial(l.getDefaultState()).blocksMovement())
                 {
                     return true;
-                }
+                }*/
+				IBlockState iblockstate1 = world.getBlockState(pos);
+
+				if ((iblockstate1.getBlock().isAir(iblockstate1, world, pos) || iblockstate1.getBlock() == Blocks.SNOW_LAYER) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos))
+				{
+					return true;
+				}
             }
 
             return false;

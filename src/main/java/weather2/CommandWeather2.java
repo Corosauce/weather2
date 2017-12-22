@@ -261,7 +261,7 @@ public class CommandWeather2 extends CommandBase {
 						if (doLowOn) {
 							wm.windMan.startLowWindEvent();
 							//cancel any low wind state if there is one
-							wm.windMan.lowWindTimer = 0;
+							wm.windMan.highWindTimer = 0;
 							sendCommandSenderMsg(var1, "started low wind event");
 						} else if (doLowOff) {
 							wm.windMan.stopLowWindEvent();
