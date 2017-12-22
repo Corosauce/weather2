@@ -273,8 +273,15 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	public void isRainingAt(WorldEvent.RainingAt event) {
 		if (!event.getWorld().isRemote) {
-			//System.out.println("event isRainingAt");
-			//event.setResult(Event.Result.ALLOW);
+			System.out.println("event isRainingAt - " + event.getWorld().getTotalWorldTime());
+			/*for (int i = 0; i < 100000; i++) {
+				event.getWorld().thunderingStrength = 1F;
+				event.getWorld().rainingStrength = 1F;
+			}*/
+			/*event.getWorld().thunderingStrength = 1F;
+			event.getWorld().rainingStrength = 1F;*/
+			event.setResult(Event.Result.ALLOW);
+
 		}
 
 	}
