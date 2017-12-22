@@ -212,7 +212,7 @@ public class WeatherUtilConfig {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_STORM)) {
 				ConfigMisc.overcastMode = LIST_STORMSWHEN.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_STORM)).equalsIgnoreCase("Global Overcast");
 			}
-			
+
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_LOCK)) {
 				if (LIST_LOCK.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_LOCK)).equalsIgnoreCase("on")) {
 					ConfigMisc.lockServerWeatherMode = 1;

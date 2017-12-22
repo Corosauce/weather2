@@ -23,8 +23,10 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -266,5 +268,14 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
 	public void modelBake(ModelBakeEvent event) {
 		FoliageEnhancerShader.modelBakeEvent(event);
+	}
+
+	@SubscribeEvent
+	public void isRainingAt(WorldEvent.RainingAt event) {
+		if (!event.getWorld().isRemote) {
+			//System.out.println("event isRainingAt");
+			//event.setResult(Event.Result.ALLOW);
+		}
+
 	}
 }
