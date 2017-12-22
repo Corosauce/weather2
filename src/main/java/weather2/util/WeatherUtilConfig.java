@@ -227,7 +227,7 @@ public class WeatherUtilConfig {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS)) {
 				boolean val = nbtServerData.getInteger("btn_" + CMD_BTN_COMP_SNOWFALLBLOCKS) == 1;
 				ConfigSnow.Snow_PerformSnowfall = val;
-				ConfigSnow.Snow_ExtraPileUp = val;
+				//ConfigSnow.Snow_ExtraPileUp = val;
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_RATEOFSTORM)) {

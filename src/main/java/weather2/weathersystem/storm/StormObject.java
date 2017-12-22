@@ -781,79 +781,7 @@ public class StormObject extends WeatherObject {
 
 								WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW_LAYER);
 							} else {
-								boolean perform = false;
-								Block id = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z)).getBlock();
-								int meta = 0;
-								if (id.getMaterial(id.getDefaultState()) == Material.SNOW) {
-									if (ConfigSnow.Snow_ExtraPileUp) {
-										IBlockState state = world.getBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z));
-										meta = state.getBlock().getMetaFromState(state);
-										if (meta < snowMetaMax) {
-											perform = true;
-											meta += 1;
-										} else {
-											if (ConfigSnow.Snow_MaxBlockBuildupHeight > 1) {
-												int i;
-												int originalSetBlockHeight = setBlockHeight;
-												for (i = 0; i < ConfigSnow.Snow_MaxBlockBuildupHeight; i++) {
-													Block checkID = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z)).getBlock();
-													if (checkID.getMaterial(checkID.getDefaultState()) == Material.SNOW) {
-														IBlockState state2 = world.getBlockState(new BlockPos(xxx + x, originalSetBlockHeight + i, zzz + z));
-														meta = state2.getBlock().getMetaFromState(state2);
-														if (meta < snowMetaMax) {
-															setBlockHeight = originalSetBlockHeight + i;
-															perform = true;
-															meta += 1;
-															break;
-														} else {
-															//let it continue to next height
-														}
-													} else if (CoroUtilBlock.isAir(checkID)) {
-														meta = 0;
-														setBlockHeight = originalSetBlockHeight + i;
-														perform = true;
-														break;
-													}
-												}
-												//if the loop went past the max height
-												if (i == ConfigSnow.Snow_MaxBlockBuildupHeight) {
-													perform = false;
-												}
-											}
-										}
-									}
-								} else {
-									perform = true;
-								}
-								if (perform) {
-									//Weather.dbg("set data: " + setBlockHeight + " - meta: " + meta);
-									if (ConfigSnow.Snow_SmoothOutPlacement) {
-										//spread out as it was trying to go from ...
-										int origMeta = Math.max(0, meta - 1);
-										if (origMeta > snowMetaMax - 4/*snowMetaMax / 2*/) {
-											//Weather.dbg("SMOOTHING TRY!");
-											ChunkCoordinatesBlock coords = getSnowfallEvenOutAdjustCheck(xxx + x, setBlockHeight, zzz + z, origMeta);
-											//if detected a smooth out requirement
-											if (coords.posX != 0 || coords.posZ != 0) {
-												if (meta != coords.meta + 1) {
-													//Weather.dbg("SMOOTHING PERFORM! - meta was: " + origMeta + " - is now coords.meta: " + coords.meta);
-													xxx = coords.posX;
-													zzz = coords.posZ;
-													meta = coords.meta + 1;
-												} else {
-													perform = false;
-													//Weather.dbg("false positive! wasted work!");
-												}
-											} else {
-												//Weather.dbg("SMOOTHING DENY!");
-											}
-										}
-									}
-								}
 
-								if (perform) {
-									world.setBlockState(new BlockPos(xxx + x, setBlockHeight, zzz + z), id.getStateFromMeta(meta), 3);
-								}
 							}
 			            }
 			        }
