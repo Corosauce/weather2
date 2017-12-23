@@ -798,9 +798,12 @@ public class StormObject {
 		            //world.theProfiler.startSection("getChunk");
 		            
 		            //afterthought, for weather 2.3.7
-		            if (!world.getChunkProvider().chunkExists(xx, zz)) {
+		            if (!world.blockExists(xx, 0, zz)) {
 		            	continue;
 		            }
+		            /*if (!world.getChunkProvider().chunkExists(chunkX, chunkZ)) {
+		            	continue;
+		            }*/
 		            
 		            Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
 		            //world.moodSoundAndLightCheck(k, l, chunk);
@@ -910,7 +913,7 @@ public class StormObject {
 			            	}
 			            	
 			            	if (perform) {
-			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, id, meta, 3);
+			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, Blocks.snow_layer, meta, 3);
 			            	}
 			            }
 			        }
@@ -989,13 +992,20 @@ public class StormObject {
         {
             if (par2 >= 0 && par2 < 256 && world.getSavedLightValue(EnumSkyBlock.Block, par1, par2, par3) < 10)
             {
-                Block l = world.getBlock(par1, par2 - 1, par3);
+                /*Block l = world.getBlock(par1, par2 - 1, par3);
                 Block i1 = world.getBlock(par1, par2, par3);
 
-                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.snow)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ice && l.getMaterial().blocksMovement())
+                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.snow) && CoroUtilBlock.isAir(l) && l != Blocks.ice && l.getMaterial().blocksMovement())
                 {
                     return true;
-                }
+                }*/
+
+				Block block = world.getBlock(par1, par2, par3);
+
+				if ((block.isAir(world, par1, par2, par3) || block == Blocks.snow_layer) && Blocks.snow_layer.canPlaceBlockAt(world, par1, par2, par3))
+				{
+					return true;
+				}
             }
 
             return false;
