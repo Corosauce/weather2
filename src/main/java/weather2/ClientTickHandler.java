@@ -189,7 +189,7 @@ public class ClientTickHandler
 					}
 
 					if (smoothAngleRotationalVelAccel > 0.3 || smoothAngleRotationalVelAccel < -0.3) {
-						smoothAngle += smoothAngleRotationalVelAccel * 0.1F;
+						smoothAngle += smoothAngleRotationalVelAccel * 0.3F;
 					} else {
 						//smoothAngleRotationalVelAccel *= 0.9F;
 					}

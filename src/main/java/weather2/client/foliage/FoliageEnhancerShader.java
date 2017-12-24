@@ -10,10 +10,7 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.shader.InstancedMeshFoliage;
 import extendedrenderer.shader.MeshBufferManagerFoliage;
-import net.minecraft.block.BlockCrops;
-import net.minecraft.block.BlockDoublePlant;
-import net.minecraft.block.BlockFlower;
-import net.minecraft.block.BlockTallGrass;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -112,9 +109,6 @@ public class FoliageEnhancerShader implements Runnable {
                                                     String tex = res2.toString().split(":")[1];
                                                     model2.textures.put("particle", tex);
                                                 }
-                                                if (multipartModelClass.isAssignableFrom(bakedModel.getClass())) {
-
-                                                }
                                             }
                                         }
 
@@ -158,74 +152,119 @@ public class FoliageEnhancerShader implements Runnable {
 
         listFoliageReplacers.clear();
 
+        /**
+         * MUST MAKE SUPER SUPER SURE YOU ARE USING CORRECT COMPARABLE FOR A BLOCK!
+         * if you dont, foliage shader breaks weirdly with no rendering and crashes
+         *
+         * case example for beetroots:
+         * .addComparable(BlockCrops.AGE, i)); = everything explode,
+         * .addComparable(BlockBeetroot.BEETROOT_AGE, i)); = everything good
+         */
+
+        /*System.out.println("plants: ");
+        for (Block block : Block.REGISTRY) {
+            if (block.getMaterial(block.getDefaultState()) == Material.PLANTS) {
+                System.out.println(block + " - " + block.getClass());
+            }
+        }
+
+        System.out.println("grass: ");
+        for (Block block : Block.REGISTRY) {
+            if (block.getMaterial(block.getDefaultState()) == Material.GRASS) {
+                System.out.println(block + " - " + block.getClass());
+            }
+        }
+
+        System.out.println("leaves: ");
+        for (Block block : Block.REGISTRY) {
+            if (block.getMaterial(block.getDefaultState()) == Material.LEAVES) {
+                System.out.println(block + " - " + block.getClass());
+            }
+        }
+
+        System.out.println("vine: ");
+        for (Block block : Block.REGISTRY) {
+            if (block.getMaterial(block.getDefaultState()) == Material.VINE) {
+                System.out.println(block + " - " + block.getClass());
+            }
+        }
+
+        System.out.println("coral: ");
+        for (Block block : Block.REGISTRY) {
+            if (block.getMaterial(block.getDefaultState()) == Material.CORAL) {
+                System.out.println(block + " - " + block.getClass());
+            }
+        }*/
+
         if (!test) {
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass"))
-                    .setStateSensitive(true)
-                    .addComparable(BlockTallGrass.TYPE, BlockTallGrass.EnumType.GRASS));
+            HashMap<Comparable, String> lookup = new HashMap<>();
+
+            lookup.clear();
+            lookup.put(BlockPlanks.EnumType.OAK, "minecraft:blocks/sapling_oak");
+            lookup.put(BlockPlanks.EnumType.SPRUCE, "minecraft:blocks/sapling_spruce");
+            lookup.put(BlockPlanks.EnumType.BIRCH, "minecraft:blocks/sapling_birch");
+            lookup.put(BlockPlanks.EnumType.JUNGLE, "minecraft:blocks/sapling_jungle");
+            lookup.put(BlockPlanks.EnumType.ACACIA, "minecraft:blocks/sapling_acacia");
+            lookup.put(BlockPlanks.EnumType.DARK_OAK, "minecraft:blocks/sapling_roofed_oak");
+
+            for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
+                boolean colorize = false;
+                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.SAPLING.getDefaultState())
+                        .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                        .setStateSensitive(true)
+                        .setBiomeColorize(colorize)
+                        .addComparable(BlockSapling.TYPE, entrySet.getKey()));
+            }
+
+            lookup.clear();
+            lookup.put(BlockTallGrass.EnumType.DEAD_BUSH, "minecraft:blocks/deadbush");
+            lookup.put(BlockTallGrass.EnumType.GRASS, "minecraft:blocks/tallgrass");
+            lookup.put(BlockTallGrass.EnumType.FERN, "minecraft:blocks/fern");
+
+            for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
+                boolean colorize = entrySet.getKey() == BlockTallGrass.EnumType.DEAD_BUSH ? false : true;
+                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
+                        .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                        .setStateSensitive(true)
+                        .setBiomeColorize(colorize)
+                        .addComparable(BlockTallGrass.TYPE, entrySet.getKey()));
+            }
 
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.YELLOW_FLOWER.getDefaultState())
                     .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion")).setBiomeColorize(false));
 
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_allium")).setBiomeColorize(false)
-                    .setStateSensitive(true)
-                    .addComparable(Blocks.RED_FLOWER.getTypeProperty(), BlockFlower.EnumFlowerType.ALLIUM));
+            lookup.clear();
+            lookup.put(BlockFlower.EnumFlowerType.ALLIUM, "minecraft:blocks/flower_allium");
+            lookup.put(BlockFlower.EnumFlowerType.BLUE_ORCHID, "minecraft:blocks/flower_blue_orchid");
+            lookup.put(BlockFlower.EnumFlowerType.HOUSTONIA, "minecraft:blocks/flower_houstonia");
+            lookup.put(BlockFlower.EnumFlowerType.ORANGE_TULIP, "minecraft:blocks/flower_tulip_orange");
+            lookup.put(BlockFlower.EnumFlowerType.OXEYE_DAISY, "minecraft:blocks/flower_oxeye_daisy");
+            lookup.put(BlockFlower.EnumFlowerType.PINK_TULIP, "minecraft:blocks/flower_tulip_pink");
+            lookup.put(BlockFlower.EnumFlowerType.POPPY, "minecraft:blocks/flower_rose");
+            lookup.put(BlockFlower.EnumFlowerType.RED_TULIP, "minecraft:blocks/flower_tulip_red");
+            lookup.put(BlockFlower.EnumFlowerType.WHITE_TULIP, "minecraft:blocks/flower_tulip_white");
 
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_blue_orchid")).setBiomeColorize(false)
-                    .setStateSensitive(true)
-                    .addComparable(Blocks.RED_FLOWER.getTypeProperty(), BlockFlower.EnumFlowerType.BLUE_ORCHID));
+            for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
+                boolean colorize = false;
+                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
+                        .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                        .setStateSensitive(true)
+                        .setBiomeColorize(colorize)
+                        .addComparable(Blocks.RED_FLOWER.getTypeProperty(), entrySet.getKey()));
+            }
 
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_rose")).setBiomeColorize(false)
-                    .setStateSensitive(true)
-                    .addComparable(Blocks.RED_FLOWER.getTypeProperty(), BlockFlower.EnumFlowerType.POPPY));
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.BROWN_MUSHROOM.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/mushroom_brown"))
+                    .setBaseMaterial(null)
+                    .setBiomeColorize(false));
 
-            List<TextureAtlasSprite> sprites = new ArrayList<>();
-            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_grass_bottom"));
-            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_grass_top"));
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
-                    .setStateSensitive(true)
-                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.GRASS));
-
-            sprites = new ArrayList<>();
-            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_rose_bottom"));
-            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_rose_top"));
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
-                    .setBiomeColorize(false)
-                    .setStateSensitive(true)
-                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.ROSE));
-
-
-            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.REEDS.getDefaultState(), -1)
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/reeds"))
-                    .setBaseMaterial(Material.SAND).setBiomeColorize(true).setRandomizeCoord(false).setLooseness(0.3F));
-
-
-
-            //TODO: support modded blocks or avoid messing with base json files like crop.json, or modded blocks that use it will be invis
-
-            /**
-             * WeightedBakedModel:
-             * public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
-             {
-             return this.getRandomModel(rand).getQuads(state, side, rand);
-             }
-
-             ^ relating to the random model variants that are based on position, eg dirt, maybe handy in future
-             */
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_MUSHROOM.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/mushroom_red"))
+                    .setBaseMaterial(null)
+                    .setBiomeColorize(false));*/
 
             for (int i = 0; i < 8; i++) {
                 int temp = i;
-                //if (temp >= 4) temp = 3;
-                /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.WHEAT.getDefaultState())
-                        .setBaseMaterial(Material.GROUND)
-                        .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + temp))
-                        .setRandomizeCoord(false)
-                        .setStateSensitive(true)
-                        .addComparable(BlockCrops.AGE, i));*/
-
                 listFoliageReplacers.add(new FoliageReplacerCross(Blocks.WHEAT.getDefaultState())
                         .setBaseMaterial(Material.GROUND)
                         .setSprite(getMeshAndSetupSprite("minecraft:blocks/wheat_stage_" + temp))
@@ -234,18 +273,9 @@ public class FoliageEnhancerShader implements Runnable {
                         .addComparable(BlockCrops.AGE, i));
             }
 
-
-
-            /*for (int i = 0; i < 4; i++) {
-                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.BEETROOTS.getDefaultState())
-                        .setBaseMaterial(Material.GROUND)
-                        .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + i))
-                        .setRandomizeCoord(false)
-                        .setStateSensitive(true)
-                        .addComparable(BlockCrops.AGE, i));
-            }*/
-
-            //if (true) return;
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.REEDS.getDefaultState(), -1)
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/reeds"))
+                    .setBaseMaterial(Material.SAND).setBiomeColorize(true).setRandomizeCoord(false).setLooseness(0.3F));
 
             //ugh
             HashMap<Integer, Integer> lookupStateToModel = new HashMap<>();
@@ -275,6 +305,100 @@ public class FoliageEnhancerShader implements Runnable {
                         .setStateSensitive(true)
                         .addComparable(BlockCrops.AGE, entrySet.getKey()));
             }
+
+            for (int i = 0; i < 4; i++) {
+                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.BEETROOTS.getDefaultState())
+                        .setBaseMaterial(Material.GROUND)
+                        .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + i))
+                        .setRandomizeCoord(false)
+                        .setStateSensitive(true)
+                        .addComparable(BlockBeetroot.BEETROOT_AGE, i));
+            }
+
+            List<TextureAtlasSprite> sprites = new ArrayList<>();
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_grass_bottom"));
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_grass_top"));
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
+                    .setStateSensitive(true)
+                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.GRASS));
+
+            sprites = new ArrayList<>();
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_rose_bottom"));
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_rose_top"));
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
+                    .setBiomeColorize(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.ROSE));
+
+            sprites = new ArrayList<>();
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_fern_bottom"));
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_fern_top"));
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
+                    .setBiomeColorize(true)
+                    .setStateSensitive(true)
+                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.FERN));
+
+            sprites = new ArrayList<>();
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_paeonia_bottom"));
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_paeonia_top"));
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
+                    .setBiomeColorize(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.PAEONIA));
+
+            sprites = new ArrayList<>();
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_syringa_bottom"));
+            sprites.add(getMeshAndSetupSprite("minecraft:blocks/double_plant_syringa_top"));
+            listFoliageReplacers.add(new FoliageReplacerCross(Blocks.DOUBLE_PLANT.getDefaultState(),2).setSprites(sprites)
+                    .setBiomeColorize(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.SYRINGA));
+
+
+
+            //TODO: support modded blocks or avoid messing with base json files like crop.json, or modded blocks that use it will be invis
+
+            /**
+             * WeightedBakedModel:
+             * public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+             {
+             return this.getRandomModel(rand).getQuads(state, side, rand);
+             }
+
+             ^ relating to the random model variants that are based on position, eg dirt, maybe handy in future
+             */
+
+
+
+
+
+            /*for (int i = 0; i < 4; i++) {
+                listFoliageReplacers.add(new FoliageReplacerCross(Blocks.BEETROOTS.getDefaultState())
+                        .setBaseMaterial(Material.GROUND)
+                        .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_" + i))
+                        .setRandomizeCoord(false)
+                        .setStateSensitive(true)
+                        .addComparable(BlockCrops.AGE, i));
+            }*/
+
+            //if (true) return;
+
+
+
+
+
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_0")).setBiomeColorize(false)
+                    .setStateSensitive(true)
+                    .addComparable(Blocks.RED_FLOWER.getTypeProperty(), BlockFlower.EnumFlowerType.PINK_TULIP));*/
+
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.BEETROOTS.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/beetroots_stage_0")).setBiomeColorize(false)
+                    .setStateSensitive(true)
+                    .addComparable(BlockBeetroot.BEETROOT_AGE, 0));*/
+
+            /*listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_tulip_pink")).setBiomeColorize(false));*/
         } else {
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
                     .setSprite(getMeshAndSetupSprite("minecraft:blocks/tallgrass")));

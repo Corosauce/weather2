@@ -7,6 +7,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -30,7 +31,7 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
 
     @Override
     public boolean validFoliageSpot(World world, BlockPos pos) {
-        if (world.getBlockState(pos).getMaterial() == baseMaterial) {
+        if (baseMaterial == null || world.getBlockState(pos).getMaterial() == baseMaterial) {
             if (stateSensitive) {
                 IBlockState stateScan = world.getBlockState(pos.up());
                 if (stateScan.getBlock() == state.getBlock()) {
@@ -68,6 +69,7 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
         //TODO: handle multi height cross detection here or make child class based off this one to do it
         int height = expectedHeight;
         if (height == -1) {
+            //Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
             Block block = state.getBlock();
 
             //already verified up 1 == block needed
@@ -77,6 +79,9 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
                 height++;
                 block = world.getBlockState(pos.up(height+1)).getBlock();
             }
+
+            //fix
+            height++;
         }
         FoliageEnhancerShader.addForPos(this, height, pos, randomizeCoord, biomeColorize);
     }

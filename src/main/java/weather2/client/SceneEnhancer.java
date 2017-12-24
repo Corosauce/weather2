@@ -2122,8 +2122,8 @@ public class SceneEnhancer implements Runnable {
     	if (adjustAmountTarget < 0F) adjustAmountTarget = 0F;
     	if (adjustAmountTarget > 1F) adjustAmountTarget = 1F;
 
-        //debug
-        //adjustAmountTarget = 1F;
+        //test debug sandstorm fog
+        //adjustAmountTarget = 0.95F;
         //adjustAmountTarget = 0F;
 
 
