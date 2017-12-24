@@ -3,7 +3,6 @@ package weather2.client.foliage;
 import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.CoroUtilBlockLightCache;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
@@ -18,10 +17,7 @@ import net.minecraft.block.BlockTallGrass;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemOverride;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
@@ -38,7 +34,6 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.BufferUtils;
 import weather2.config.ConfigFoliage;
-import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 
 import java.lang.reflect.Field;
@@ -54,8 +49,8 @@ public class FoliageEnhancerShader implements Runnable {
     //for position tracking mainly, to be used for all foliage types maybe?
     public static ConcurrentHashMap<BlockPos, FoliageLocationData> lookupPosToFoliage = new ConcurrentHashMap<>();
 
-    /*private static final Class<?> multipartModelClass;
-    private static final Class<?> vanillaModelWrapperClass;
+    private static final Class multipartModelClass;
+    private static final Class vanillaModelWrapperClass;
     private static final Field multipartPartModels;
     private static final Field modelWrapperModel;
     static {
@@ -69,11 +64,13 @@ public class FoliageEnhancerShader implements Runnable {
         } catch (ClassNotFoundException | NoSuchFieldException | SecurityException e) {
             throw Throwables.propagate(e);
         }
-    }*/
+    }
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
         boolean replaceVanillaModels = ConfigCoroAI.foliageShaders;
+
+        boolean textureFix = false;
 
         if (replaceVanillaModels) {
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
@@ -85,14 +82,8 @@ public class FoliageEnhancerShader implements Runnable {
                 IBakedModel bakedModel = event.getModelRegistry().getObject(res);
                 IModel model = stateModels.get(res);
                 Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
-                /*if (bakedModel.getOverrides() instanceof AnimationItemOverrideList) {
-                    AnimationItemOverrideList obj1 = (AnimationItemOverrideList) bakedModel.getOverrides();
-                    IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
-                    if (multipartModelClass.isAssignableFrom(bakedModel.getClass())) {
 
-                    }
-                }
-                for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
+                /*for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
 
                 }*/
 
@@ -109,6 +100,24 @@ public class FoliageEnhancerShader implements Runnable {
                                 if (res2.toString().equals(sprite.getIconName())) {
                                     if (!res.toString().contains("flower_pot")) {
                                         System.out.println("replacing " + res + " with blank model");
+
+                                        //not working for fixing particle texture, why?
+                                        //aside from me reusing same blank model and updating its particle each time, it should at least not be the missing texture
+                                        if (textureFix) {
+                                            if (blank.getOverrides() instanceof AnimationItemOverrideList) {
+                                                AnimationItemOverrideList obj1 = (AnimationItemOverrideList) blank.getOverrides();
+                                                IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
+                                                if (vanillaModelWrapperClass.isAssignableFrom(model1.getClass())) {
+                                                    ModelBlock model2 = (ModelBlock) ReflectionHelper.getPrivateValue(vanillaModelWrapperClass, model1, "model");
+                                                    String tex = res2.toString().split(":")[1];
+                                                    model2.textures.put("particle", tex);
+                                                }
+                                                if (multipartModelClass.isAssignableFrom(bakedModel.getClass())) {
+
+                                                }
+                                            }
+                                        }
+
                                         event.getModelRegistry().putObject(res, blank);
                                         break escape;
                                     }
@@ -411,22 +420,37 @@ public class FoliageEnhancerShader implements Runnable {
         }
     }
 
-    //run from our newly created thread
-    public static boolean tickClientThreaded() {
+    /**
+     * TODO: For faster updating close to player, however it still gets locked out by thread, that needs solving
+     *
+     * @return
+     */
+    public static boolean tickClientCloseToPlayer() {
         Minecraft mc = FMLClientHandler.instance().getClient();
 
         if (mc.world != null && mc.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.world.provider.getDimension())) {
-            return tickThreaded();
+            return tickFoliage(5, false);
         } else {
             return true;
         }
     }
 
-    public static boolean tickThreaded() {
+    //run from our newly created thread
+    public static boolean tickClientThreaded() {
+        Minecraft mc = FMLClientHandler.instance().getClient();
+
+        if (mc.world != null && mc.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(mc.world.provider.getDimension())) {
+            return tickFoliage(ConfigFoliage.foliageShaderRange, true);
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean tickFoliage(int radialRange, boolean trimRange) {
         if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
             //System.out.println("vbo thread: lock got");
             try {
-                return profileForFoliageShader();
+                return profileForFoliageShader(radialRange, trimRange);
             } finally {
                 ExtendedRenderer.foliageRenderer.lockVBO2.unlock();
                 return true;
@@ -437,7 +461,7 @@ public class FoliageEnhancerShader implements Runnable {
         }
     }
 
-    public static boolean profileForFoliageShader() {
+    public static boolean profileForFoliageShader(int radialRange, boolean trimRange) {
 
         /**
          *
@@ -470,7 +494,7 @@ public class FoliageEnhancerShader implements Runnable {
         boolean add = true;
         boolean trim = true;
 
-        int radialRange = ConfigFoliage.foliageShaderRange;
+        //int radialRange = ConfigFoliage.foliageShaderRange;
 
         int xzRange = radialRange;
         int yRange = radialRange;
@@ -504,7 +528,7 @@ public class FoliageEnhancerShader implements Runnable {
                         ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
                         MeshBufferManagerFoliage.getMesh(entry2.particleTexture).lastRemovalCount++;
                     }
-                } else if (entry.getKey().distanceSq(centerX, centerY, centerZ)/*entityIn.getDistanceSq(entry.getKey())*/ > radialRange * radialRange) {
+                } else if (trimRange && entry.getKey().distanceSq(centerX, centerY, centerZ)/*entityIn.getDistanceSq(entry.getKey())*/ > radialRange * radialRange) {
                     //System.out.println("remove");
                     it.remove();
                     for (Foliage entry2 : entry.getValue().listFoliage) {

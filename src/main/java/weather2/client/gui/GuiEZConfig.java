@@ -189,6 +189,10 @@ public class GuiEZConfig extends GuiScreen {
 			this.drawString(this.fontRenderer, "Cloud/Storm effects", xStart+7, yStart2+8, 16777215);
 			this.drawString(this.fontRenderer, "Nature effects", xStart+7, yStart2+8+yEleSize*1, 16777215);
 			this.drawString(this.fontRenderer, "Particle precipitation rate", xStart+7, yStart2+8+yEleSize*2, 16777215);
+			this.drawString(this.fontRenderer, "Experimental Particle Shaders", xStart+7, yStart2+8+yEleSize*3, 16777215);
+			this.drawString(this.fontRenderer, "Experimental Foliage Shaders", xStart+7, yStart2+8+yEleSize*4, 16777215);
+
+			this.drawString(this.fontRenderer, "Reloads resources", xStart+xOP, yStart2+8+yEleSize*4, 16777215);
 		} else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
 			this.drawString(this.fontRenderer, "Storms when", xStart+7, yStart2+8, 16777215);
 			this.drawString(this.fontRenderer, "Server side rain state", xStart+7, yStart2+8+yEleSize*1, 16777215);
@@ -391,6 +395,8 @@ public class GuiEZConfig extends GuiScreen {
 			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_STORM)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_STORM));
 			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_NATURE)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_NATURE)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_NATURE));
 			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE));
+			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_SHADERS_PARTICLE)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_SHADERS_PARTICLE)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_SHADERS_PARTICLE));
+			if (WeatherUtilConfig.nbtClientData.hasKey("btn_" + WeatherUtilConfig.CMD_BTN_PERF_SHADERS_FOLIAGE)) ((GuiButtonCycle)buttonsLookup.get(WeatherUtilConfig.CMD_BTN_PERF_SHADERS_FOLIAGE)).setIndex(WeatherUtilConfig.nbtClientData.getInteger("btn_" + WeatherUtilConfig.CMD_BTN_PERF_SHADERS_FOLIAGE));
 			
 		} else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
 			//Weather.dbg("WeatherUtilConfig.nbtClientCache: " + serverDataCache);
@@ -533,6 +539,8 @@ public class GuiEZConfig extends GuiScreen {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 1));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_NATURE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 1));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_PRECIPRATE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES2, 1));
+			addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_SHADERS_PARTICLE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*3, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 0));
+			addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_SHADERS_FOLIAGE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*4, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 0));
         } else if (guiCur.equals(GUI_SUBGUI_COMPATIBILITY)) {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_STORMSWHEN, 0));
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_COMP_LOCK, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*1, btnWidth, btnHeight, WeatherUtilConfig.LIST_LOCK, 0));

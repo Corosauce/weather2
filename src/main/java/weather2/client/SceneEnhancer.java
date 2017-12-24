@@ -3,6 +3,7 @@ package weather2.client;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
@@ -34,6 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
+import weather2.config.ConfigFoliage;
 import weather2.util.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.client.entity.particle.ParticleFish;
@@ -176,11 +178,18 @@ public class SceneEnhancer implements Runnable {
 			}
 			particleBehavior.tickUpdateList();
 
-			if (!FoliageEnhancerShader.useThread) {
-				if (mc.world.getTotalWorldTime() % 40 == 0) {
-					FoliageEnhancerShader.tickClientThreaded();
+			if (ConfigCoroAI.foliageShaders) {
+				if (!FoliageEnhancerShader.useThread) {
+					if (mc.world.getTotalWorldTime() % 40 == 0) {
+						FoliageEnhancerShader.tickClientThreaded();
+					}
 				}
+
+				//if (mc.world.getTotalWorldTime() % 5 == 0) {
+					FoliageEnhancerShader.tickClientCloseToPlayer();
+				//}
 			}
+
 		}
 	}
 	

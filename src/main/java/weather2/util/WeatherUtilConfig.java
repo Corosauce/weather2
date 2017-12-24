@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import CoroUtil.config.ConfigCoroAI;
 import modconfig.ConfigMod;
 import modconfig.IConfigCategory;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -33,6 +34,8 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PERF_STORM = 2;
 	public static int CMD_BTN_PERF_NATURE = 3;
 	public static int CMD_BTN_PERF_PRECIPRATE = 12;
+	public static int CMD_BTN_PERF_SHADERS_PARTICLE = 18;
+	public static int CMD_BTN_PERF_SHADERS_FOLIAGE = 19;
 	
 	public static int CMD_BTN_COMP_STORM = 4;
 	public static int CMD_BTN_COMP_LOCK = 5;
@@ -49,7 +52,7 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PREF_SANDSTORMS = 16;
 	public static int CMD_BTN_PREF_GLOBALRATE = 17;
 	
-	public static int CMD_BTN_HIGHEST_ID = 17;
+	public static int CMD_BTN_HIGHEST_ID = 19;
 
 	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
 	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
@@ -76,6 +79,8 @@ public class WeatherUtilConfig {
 		listSettingsClient.add(CMD_BTN_COMP_PARTICLEPRECIP);
 		listSettingsClient.add(CMD_BTN_PERF_PRECIPRATE);
 		listSettingsClient.add(CMD_BTN_COMP_PARTICLESNOMODS);
+		listSettingsClient.add(CMD_BTN_PERF_SHADERS_PARTICLE);
+		listSettingsClient.add(CMD_BTN_PERF_SHADERS_FOLIAGE);
 		
 		
 		listSettingsServer.add(CMD_BTN_COMP_STORM);
@@ -153,6 +158,24 @@ public class WeatherUtilConfig {
 			
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)) {
 				ConfigParticle.Particle_VanillaAndWeatherOnly = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)).equalsIgnoreCase("on");
+			}
+
+			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_SHADERS_PARTICLE)) {
+				int val = nbtClientData.getInteger("btn_" + CMD_BTN_PERF_SHADERS_PARTICLE);
+				if (val == 0) {
+					ConfigCoroAI.particleShaders = false;
+				} else if (val == 1) {
+					ConfigCoroAI.particleShaders = true;
+				}
+			}
+
+			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_SHADERS_FOLIAGE)) {
+				int val = nbtClientData.getInteger("btn_" + CMD_BTN_PERF_SHADERS_FOLIAGE);
+				if (val == 0) {
+					ConfigCoroAI.foliageShaders = false;
+				} else if (val == 1) {
+					ConfigCoroAI.foliageShaders = true;
+				}
 			}
 			
 			NBTTagCompound nbtDims = nbtClientData.getCompoundTag("dimData");

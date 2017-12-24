@@ -8,7 +8,7 @@ import java.io.File;
 public class ConfigFoliage implements IConfigCategory {
 
     public static int foliageShaderRange = 40;
-    public static int Thread_Foliage_Process_Delay = 400;
+    public static int Thread_Foliage_Process_Delay = 1000;
 
     @Override
     public String getName() {
