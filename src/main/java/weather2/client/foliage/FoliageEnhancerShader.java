@@ -2,6 +2,7 @@ package weather2.client.foliage;
 
 import CoroUtil.config.ConfigCoroAI;
 import CoroUtil.util.CoroUtilBlockLightCache;
+import CoroUtil.util.Vec3;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import extendedrenderer.ExtendedRenderer;
@@ -230,7 +231,9 @@ public class FoliageEnhancerShader implements Runnable {
         }
 
         listFoliageReplacers.add(new FoliageReplacerCross(Blocks.YELLOW_FLOWER.getDefaultState())
-                .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion")).setBiomeColorize(false));
+                .setSprite(getMeshAndSetupSprite("minecraft:blocks/flower_dandelion"))
+                .setRandomizeCoord(false)
+                .setBiomeColorize(false));
 
         lookup.clear();
         lookup.put(BlockFlower.EnumFlowerType.ALLIUM, "minecraft:blocks/flower_allium");
@@ -247,6 +250,7 @@ public class FoliageEnhancerShader implements Runnable {
             boolean colorize = false;
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
                     .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                    .setRandomizeCoord(false)
                     .setStateSensitive(true)
                     .setBiomeColorize(colorize)
                     .addComparable(Blocks.RED_FLOWER.getTypeProperty(), entrySet.getKey()));
@@ -369,6 +373,27 @@ public class FoliageEnhancerShader implements Runnable {
 
 
         //System.out.println(MeshBufferManagerFoliage.lookupParticleToMesh.size());
+
+        if (ConfigFoliage.extraGrass) {
+            listFoliageReplacers.add(new FoliageReplacerCrossGrass(Blocks.AIR.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite(ExtendedRenderer.modid + ":particles/grass"))
+                    .setRandomizeCoord(true)
+                    .setBiomeColorize(true));
+
+            lookup.clear();
+            lookup.put(BlockTallGrass.EnumType.DEAD_BUSH, "minecraft:blocks/deadbush");
+            lookup.put(BlockTallGrass.EnumType.GRASS, "minecraft:blocks/tallgrass");
+            lookup.put(BlockTallGrass.EnumType.FERN, "minecraft:blocks/fern");
+
+            for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
+                boolean colorize = true;
+                listFoliageReplacers.add(new FoliageReplacerCrossGrass(Blocks.TALLGRASS.getDefaultState())
+                        .setSprite(getMeshAndSetupSprite(ExtendedRenderer.modid + ":particles/grass"))
+                        .setStateSensitive(true)
+                        .setBiomeColorize(colorize)
+                        .addComparable(BlockTallGrass.TYPE, entrySet.getKey()));
+            }
+        }
 
     }
 
@@ -657,10 +682,10 @@ public class FoliageEnhancerShader implements Runnable {
         if (lastPos + extraMeshes > mesh.numInstances) {
             System.out.println((lastPos + extraMeshes) + " vs " + mesh.numInstances);
             //catch huge jumps and grow it enough
-            if (mesh.numInstances * 2 < lastPos + extraMeshes) {
+            if (mesh.numInstances * 4 < lastPos + extraMeshes) {
                 mesh.numInstances = (int)(Math.ceil((float)(lastPos + extraMeshes) / 10000F) * 10000F);
             } else {
-                mesh.numInstances *= 2;
+                mesh.numInstances *= 4;
             }
 
             System.out.println("hit max mesh count, doubling in size to " + mesh.numInstances);
@@ -694,10 +719,18 @@ public class FoliageEnhancerShader implements Runnable {
     }
 
     public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos) {
-        addForPos(replacer, height, pos, true, true);
+        addForPos(replacer, height, pos, new Vec3(0.4, 0, 0.4), true, 0);
     }
 
-    public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos, boolean randPosVar, boolean biomeColorize) {
+    public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos, Vec3 randPosVar, boolean biomeColorize) {
+        addForPos(replacer, height, pos, randPosVar, biomeColorize, 0);
+    }
+
+    public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos, Vec3 randPosVar, boolean biomeColorize, int colorizeOffset) {
+        addForPos(replacer, height, pos, randPosVar, biomeColorize, colorizeOffset, null);
+    }
+
+    public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos, Vec3 randPosVar, boolean biomeColorize, int colorizeOffset, Vec3 extraPos) {
 
         World world = Minecraft.getMinecraft().world;
 
@@ -710,9 +743,14 @@ public class FoliageEnhancerShader implements Runnable {
 
         int heightIndex;
 
-        float variance = 0.4F;
-        float randX = randPosVar ? (rand.nextFloat() - rand.nextFloat()) * variance : 0;
-        float randZ = randPosVar ? (rand.nextFloat() - rand.nextFloat()) * variance : 0;
+
+        //float variance = 0.4F;
+        float randX = 0;
+        float randZ = 0;
+        if (randPosVar != null) {
+            randX = (rand.nextFloat() - rand.nextFloat()) * (float) randPosVar.xCoord;
+            randZ = (rand.nextFloat() - rand.nextFloat()) * (float) randPosVar.zCoord;
+        }
 
         int clutterSize = 2;
         int meshesPerLayer = 2;
@@ -721,11 +759,19 @@ public class FoliageEnhancerShader implements Runnable {
             clutterSize = 2 * height;
         }
 
+        if (replacer instanceof FoliageReplacerCrossGrass) {
+            clutterSize = 4;
+        }
+
         for (int i = 0; i < clutterSize; i++) {
                     /*if (i >= 2) {
                         heightIndex = 1;
                     }*/
             heightIndex = i / meshesPerLayer;
+
+            if (replacer instanceof FoliageReplacerCrossGrass) {
+                heightIndex = 0;
+            }
 
             TextureAtlasSprite sprite = replacer.sprites.get(0);
             if (replacer instanceof FoliageReplacerCross) {
@@ -744,9 +790,13 @@ public class FoliageEnhancerShader implements Runnable {
                                         foliage.posZ += 0.5F + (rand.nextFloat() - rand.nextFloat()) * 0.8F;
                                         foliage.prevPosZ = foliage.posZ;*/
             Vec3d vec = world.getBlockState(pos).getOffset(world, pos);
-            foliage.posX += 0.5F + /*randX + */vec.x;
+            foliage.posX += 0.5F + randX + vec.x;
             foliage.prevPosX = foliage.posX;
-            foliage.posZ += 0.5F + /*randZ + */vec.z;
+            foliage.posZ += 0.5F + randZ + vec.z;
+            if (extraPos != null) {
+                foliage.posX += extraPos.xCoord;
+                foliage.posZ += extraPos.zCoord;
+            }
             foliage.prevPosZ = foliage.posZ;
             foliage.rotationYaw = 0;
             //foliage.rotationYaw = 90;
@@ -757,10 +807,30 @@ public class FoliageEnhancerShader implements Runnable {
                         foliage.rotationYaw = (listClutter.get(0).rotationYaw + 90) % 360;
                     }*/
 
-            //temp?
-            foliage.rotationYaw = 45;
+            foliage.rotationYaw = 45/* + rand.nextInt(45) - rand.nextInt(45)*/;
             if ((i+1) % 2 == 0) {
                 foliage.rotationYaw += 90;
+            }
+
+
+            if (replacer instanceof FoliageReplacerCrossGrass) {
+                foliage.rotationYaw = 45;
+                double dist = 0.17;
+                if (i == 0) {
+                    foliage.rotationYaw += 90;
+                    foliage.posX += dist;
+                    foliage.posZ += dist;
+                } else if (i == 1) {
+                    foliage.rotationYaw += 90;
+                    foliage.posX -= dist;
+                    foliage.posZ -= dist;
+                } else if (i == 2) {
+                    foliage.posX += dist;
+                    foliage.posZ -= dist;
+                } else if (i == 3) {
+                    foliage.posX -= dist;
+                    foliage.posZ += dist;
+                }
             }
 
             foliage.looseness = replacer.looseness;
@@ -776,10 +846,21 @@ public class FoliageEnhancerShader implements Runnable {
             foliage.particleScale /= 0.2;
 
             if (biomeColorize) {
-                int color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(world.getBlockState(pos), world, pos/*.down()*/, 0);
+                int color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(world.getBlockState(pos.up(colorizeOffset)), world, pos.up(colorizeOffset)/*.down()*/, 0);
                 foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
                 foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
                 foliage.particleBlue = (float) (color & 255) / 255.0F;
+
+                if (replacer instanceof FoliageReplacerCrossGrass) {
+                    /*foliage.particleRed += 0.05F;
+                    foliage.particleGreen += 0.05F;
+                    foliage.particleBlue += 0.05F;*/
+
+                    color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(Blocks.TALLGRASS.getDefaultState().withProperty(BlockTallGrass.TYPE, BlockTallGrass.EnumType.GRASS), world, pos.up(colorizeOffset)/*.down()*/, 0);
+                    foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
+                    foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
+                    foliage.particleBlue = (float) (color & 255) / 255.0F;
+                }
             }
 
             /*foliage.particleRed -= 0.2F;

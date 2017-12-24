@@ -1,5 +1,6 @@
 package weather2.config;
 
+import extendedrenderer.EventHandler;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -9,6 +10,9 @@ public class ConfigFoliage implements IConfigCategory {
 
     public static int foliageShaderRange = 40;
     public static int Thread_Foliage_Process_Delay = 1000;
+    public static boolean extraGrass = false;
+
+    public boolean extraGrassLast = false;
 
     @Override
     public String getName() {
@@ -32,6 +36,9 @@ public class ConfigFoliage implements IConfigCategory {
 
     @Override
     public void hookUpdatedValues() {
-
+        if (extraGrassLast != extraGrass) {
+            extraGrassLast = extraGrass;
+            EventHandler.flagFoliageUpdate = true;
+        }
     }
 }

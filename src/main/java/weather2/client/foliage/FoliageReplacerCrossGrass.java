@@ -1,33 +1,18 @@
 package weather2.client.foliage;
 
 import CoroUtil.util.Vec3;
-import extendedrenderer.ExtendedRenderer;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockCrops;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Map;
 
-/**
- * 2 meshes diagonal cross
- */
-public class FoliageReplacerCross extends FoliageReplacerBase {
+public class FoliageReplacerCrossGrass extends FoliageReplacerCross {
 
-    public FoliageReplacerCross(IBlockState state) {
+    public FoliageReplacerCrossGrass(IBlockState state) {
         super(state);
-    }
-
-    public FoliageReplacerCross(IBlockState state, int expectedHeight) {
-        super(state);
-        this.expectedHeight = expectedHeight;
     }
 
     @Override
@@ -81,6 +66,17 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
                 block = world.getBlockState(pos.up(height)).getBlock();
             }
         }
-        FoliageEnhancerShader.addForPos(this, height, pos, randomizeCoord ? new Vec3(0.4, 0, 0.4) : null, biomeColorize);
+
+
+        /*Vec3 vec = new Vec3(0.1, 0, 0.1);
+        FoliageEnhancerShader.addForPos(this, height, pos, vec, biomeColorize, -1, new Vec3(0.25, 0, 0));
+        FoliageEnhancerShader.addForPos(this, height, pos, vec, biomeColorize, -1, new Vec3(-0.25, 0, 0));
+        FoliageEnhancerShader.addForPos(this, height, pos, vec, biomeColorize, -1, new Vec3(0, 0, 0.25));
+        FoliageEnhancerShader.addForPos(this, height, pos, vec, biomeColorize, -1, new Vec3(0, 0, -0.25));*/
+
+        Vec3 vec = new Vec3(0.2, 0, 0.2);
+        //vec = new Vec3(0.0, 0, 0.0);
+        FoliageEnhancerShader.addForPos(this, height, pos, vec, biomeColorize, -1, new Vec3(0, 0, 0));
+        //FoliageEnhancerShader.addForPos(this, height, pos, vec, biomeColorize, -1, new Vec3(0, 0, 0));
     }
 }
