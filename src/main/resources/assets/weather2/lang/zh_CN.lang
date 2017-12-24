@@ -1,0 +1,12 @@
+itemGroup.Weather2=Weather2|功能性
+tile.weather2.tornado_sensor.name=龙卷风传感器
+tile.weather2.tornado_siren.name=天气预警器
+tile.weather2.wind_vane.name=风向标
+tile.weather2.weather_forecast.name=气象雷达
+tile.weather2.weather_machine.name=气象预报机 （右键以进行循环）
+tile.weather2.weather_deflector.name=天气导流板
+tile.weather2.anemometer.name=测风仪
+tile.weather2.sand_layer.name=沙层
+item.weather2.weather_item.name=Weather Item
+item.weather2.sand_layer_placeable.name=沙层
+item.weather2.pocket_sand.name=风沙！
