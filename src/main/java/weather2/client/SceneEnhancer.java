@@ -841,6 +841,7 @@ public class SceneEnhancer implements Runnable {
 									snow.setTicksFadeOutMaxOnDeath(5);
 									snow.setDontRenderUnderTopmostBlock(true);
 									snow.setExtraParticlesBaseAmount(10);
+									snow.killWhenFarFromCameraAtLeast = 20;
 
 									snow.setMotionY(-0.1D);
 									snow.setScale(1.3F);
@@ -1382,6 +1383,16 @@ public class SceneEnhancer implements Runnable {
         //Wind_Particle_leafs = true;
         //debug = true;
         //if (true) return;
+
+		double particleAmp = 1F;
+		if (RotatingParticleManager.useShaders) {
+			particleAmp = ConfigMisc.shaderParticleRateAmplifier * 3D;
+			//ConfigCoroAI.optimizedCloudRendering = true;
+		} else {
+			//ConfigCoroAI.optimizedCloudRendering = false;
+		}
+
+		spawnRate = (int)((double)spawnRate / particleAmp);
         
         //if (debug) System.out.println("windStr: " + windStr + " chance: " + uh);
         //Semi intensive area scanning code
@@ -1397,7 +1408,8 @@ public class SceneEnhancer implements Runnable {
                             
                             //if (block != null && block.getMaterial() == Material.leaves)
                             
-                            if (/*id == ((Block)p_blocks_leaf.get(i)).blockID*/block != null && (block.getMaterial(block.getDefaultState()) == Material.LEAVES || block.getMaterial(block.getDefaultState()) == Material.VINE))
+                            if (block != null && (block.getMaterial(block.getDefaultState()) == Material.LEAVES
+									|| block.getMaterial(block.getDefaultState()) == Material.VINE))
                             {
                             	
                             	lastTickFoundBlocks++;
@@ -1405,14 +1417,19 @@ public class SceneEnhancer implements Runnable {
                             	if (/*true || *//*worldRef.rand.nextInt(5) == 0 || */worldRef.rand.nextInt(spawnRate) == 0)
                                 {
                             		//bottom of tree check || air beside vine check
-	                                if (ConfigParticle.Wind_Particle_leafs && (CoroUtilBlock.isAir(getBlock(worldRef, xx, yy - 1, zz)) || CoroUtilBlock.isAir(getBlock(worldRef, xx - 1, yy, zz))))
+	                                if (ConfigParticle.Wind_Particle_leafs &&
+											(CoroUtilBlock.isAir(getBlock(worldRef, xx, yy - 1, zz))/* ||
+													CoroUtilBlock.isAir(getBlock(worldRef, xx - 1, yy, zz))*/))
 	                                {
 	                                	
 	                                    //EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
 	                                    EntityRotFX var31 = new ParticleTexLeafColor(worldRef, (double)xx, (double)yy/* - 0.5*/, (double)zz, 0D, 0D, 0D, ParticleRegistry.leaf);
 	                                    //ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
-	                                    var31.setGravity(0.1F);
+	                                    var31.setGravity(0.05F);
 	                                    var31.setCanCollide(true);
+	                                    var31.killWhenUnderCameraAtLeast = 20;
+	                                    var31.killWhenFarFromCameraAtLeast = 20;
+
 	                                    //System.out.println("add particle");
 	                                    //Minecraft.getMinecraft().effectRenderer.addEffect(var31);
 	                                    //ExtendedRenderer.rotEffRenderer.addEffect(test);
@@ -1701,10 +1718,10 @@ public class SceneEnhancer implements Runnable {
 						{
 							if (entity1.getMotionX() < 0.01F && entity1.getMotionZ() < 0.01F)
 							{
-								entity1.setMotionY(entity1.getMotionY() + rand.nextDouble() * 0.02);
+								entity1.setMotionY(entity1.getMotionY() + rand.nextDouble() * 0.02 * ((ParticleTexFX) entity1).particleGravity);
 							}
 
-							entity1.setMotionY(entity1.getMotionY() - 0.01F);
+							entity1.setMotionY(entity1.getMotionY() - 0.01F * ((ParticleTexFX) entity1).particleGravity);
 
 						}
 					}
