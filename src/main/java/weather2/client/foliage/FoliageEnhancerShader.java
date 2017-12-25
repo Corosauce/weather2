@@ -226,6 +226,7 @@ public class FoliageEnhancerShader implements Runnable {
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
                     .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
                     .setStateSensitive(true)
+                    .setRandomizeCoord(false)
                     .setBiomeColorize(colorize)
                     .addComparable(BlockTallGrass.TYPE, entrySet.getKey()));
         }
@@ -380,7 +381,8 @@ public class FoliageEnhancerShader implements Runnable {
                     .setRandomizeCoord(true)
                     .setBiomeColorize(true));
 
-            lookup.clear();
+            //TODO: use of this to add grass within tallgrass causes the actual tallgrass to not get removed, why?
+            /*lookup.clear();
             lookup.put(BlockTallGrass.EnumType.DEAD_BUSH, "minecraft:blocks/deadbush");
             lookup.put(BlockTallGrass.EnumType.GRASS, "minecraft:blocks/tallgrass");
             lookup.put(BlockTallGrass.EnumType.FERN, "minecraft:blocks/fern");
@@ -392,7 +394,15 @@ public class FoliageEnhancerShader implements Runnable {
                         .setStateSensitive(true)
                         .setBiomeColorize(colorize)
                         .addComparable(BlockTallGrass.TYPE, entrySet.getKey()));
-            }
+            }*/
+        }
+
+        boolean extraLeaves = false;
+
+        if (extraLeaves) {
+            listFoliageReplacers.add(new FoliageReplacerCrossLeaves(Blocks.LEAVES.getDefaultState())
+                    .setSprite(getMeshAndSetupSprite(/*ExtendedRenderer.modid + ":particles/grass"*/"minecraft:blocks/tallgrass"))
+                    .setBiomeColorize(true));
         }
 
     }
