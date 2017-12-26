@@ -446,14 +446,14 @@ public class SceneEnhancer implements Runnable {
 			//System.out.println("ClientTickEvent time: " + world.getTotalWorldTime());
 
 			double particleAmp = 1F;
-			if (RotatingParticleManager.useShaders) {
+			if (RotatingParticleManager.useShaders && ConfigCoroAI.particleShaders) {
 				particleAmp = ConfigMisc.shaderParticleRateAmplifier;
 				//ConfigCoroAI.optimizedCloudRendering = true;
 			} else {
 				//ConfigCoroAI.optimizedCloudRendering = false;
 			}
 
-			boolean particleTest = true;
+			boolean particleTest = false;
 
 			if (particleTest) {
 				if (testParticle == null || testParticle.isExpired) {
@@ -641,7 +641,7 @@ public class SceneEnhancer implements Runnable {
 									rain.setSlantParticleToWind(true);
 									rain.windWeight = 1F;
 
-									if (!RotatingParticleManager.useShaders) {
+									if (!RotatingParticleManager.useShaders || !ConfigCoroAI.particleShaders) {
 										//old slanty rain way
 										rain.setFacePlayer(true);
 										rain.setSlantParticleToWind(true);
@@ -1385,8 +1385,8 @@ public class SceneEnhancer implements Runnable {
         //if (true) return;
 
 		double particleAmp = 1F;
-		if (RotatingParticleManager.useShaders) {
-			particleAmp = ConfigMisc.shaderParticleRateAmplifier * 3D;
+		if (RotatingParticleManager.useShaders && ConfigCoroAI.particleShaders) {
+			particleAmp = ConfigMisc.shaderParticleRateAmplifier * 2D;
 			//ConfigCoroAI.optimizedCloudRendering = true;
 		} else {
 			//ConfigCoroAI.optimizedCloudRendering = false;
