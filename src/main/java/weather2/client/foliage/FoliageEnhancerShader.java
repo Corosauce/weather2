@@ -5,10 +5,12 @@ import CoroUtil.util.CoroUtilBlockLightCache;
 import CoroUtil.util.Vec3;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
+import extendedrenderer.EventHandler;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.render.FoliageRenderer;
+import extendedrenderer.render.RotatingParticleManager;
 import extendedrenderer.shader.InstancedMeshFoliage;
 import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.block.*;
@@ -31,6 +33,7 @@ import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.BufferUtils;
+import weather2.Weather;
 import weather2.config.ConfigFoliage;
 import weather2.util.WeatherUtilConfig;
 
@@ -66,7 +69,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
-        boolean replaceVanillaModels = ConfigCoroAI.foliageShaders;
+        boolean replaceVanillaModels = ConfigCoroAI.foliageShaders && EventHandler.queryUseOfShaders();
 
         boolean textureFix = false;
 
@@ -97,7 +100,7 @@ public class FoliageEnhancerShader implements Runnable {
                             for (ResourceLocation res2 : textures) {
                                 if (res2.toString().equals(sprite.getIconName())) {
                                     if (!res.toString().contains("flower_pot")) {
-                                        System.out.println("replacing " + res + " with blank model");
+                                        //System.out.println("replacing " + res + " with blank model");
 
                                         //not working for fixing particle texture, why?
                                         //aside from me reusing same blank model and updating its particle each time, it should at least not be the missing texture
@@ -428,7 +431,7 @@ public class FoliageEnhancerShader implements Runnable {
         if (useThread) {
             while (true) {
                 try {
-                    if (ConfigCoroAI.foliageShaders) {
+                    if (ConfigCoroAI.foliageShaders && RotatingParticleManager.useShaders) {
                         boolean gotLock = tickClientThreaded();
                         if (gotLock) {
                             Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);
@@ -661,7 +664,7 @@ public class FoliageEnhancerShader implements Runnable {
         if (mesh != null) {
             mesh.dirtyVBO2Flag = flag;
         } else {
-            System.out.println("MESH NULL HERE, FIX INIT ORDER");
+            Weather.dbg("MESH NULL HERE, FIX INIT ORDER");
         }
     }
 
@@ -674,7 +677,7 @@ public class FoliageEnhancerShader implements Runnable {
 
         InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(sprite);
         if (mesh == null) {
-            System.out.println("MESH NULL HERE, WHY???"); //only during hotreloading, need to thread block command until thread done
+            //System.out.println("MESH NULL HERE, WHY???"); //only during hotreloading, need to thread block command until thread done
             return;
         }
 
@@ -690,7 +693,7 @@ public class FoliageEnhancerShader implements Runnable {
 
 
         if (lastPos + extraMeshes > mesh.numInstances) {
-            System.out.println((lastPos + extraMeshes) + " vs " + mesh.numInstances);
+            //System.out.println((lastPos + extraMeshes) + " vs " + mesh.numInstances);
             //catch huge jumps and grow it enough
             if (mesh.numInstances * 4 < lastPos + extraMeshes) {
                 mesh.numInstances = (int)(Math.ceil((float)(lastPos + extraMeshes) / 10000F) * 10000F);
@@ -698,7 +701,7 @@ public class FoliageEnhancerShader implements Runnable {
                 mesh.numInstances *= 4;
             }
 
-            System.out.println("hit max mesh count, doubling in size to " + mesh.numInstances);
+            //System.out.println("hit max mesh count, doubling in size to " + mesh.numInstances);
             mesh.instanceDataBufferVBO2 = BufferUtils.createFloatBuffer(mesh.numInstances * InstancedMeshFoliage.INSTANCE_SIZE_FLOATS_SELDOM);
             mesh.instanceDataBufferVBO2.clear();
 

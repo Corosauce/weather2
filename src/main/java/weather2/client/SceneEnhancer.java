@@ -178,7 +178,7 @@ public class SceneEnhancer implements Runnable {
 			}
 			particleBehavior.tickUpdateList();
 
-			if (ConfigCoroAI.foliageShaders) {
+			if (ConfigCoroAI.foliageShaders && EventHandler.queryUseOfShaders()) {
 				if (!FoliageEnhancerShader.useThread) {
 					if (mc.world.getTotalWorldTime() % 40 == 0) {
 						FoliageEnhancerShader.tickClientThreaded();
