@@ -82,42 +82,44 @@ public class FoliageEnhancerShader implements Runnable {
             for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
                 IBakedModel bakedModel = event.getModelRegistry().getObject(res);
                 IModel model = stateModels.get(res);
-                Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
+                if (model != null) {
+                    Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
 
-                /*for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
+                    /*for (ItemOverride list : bakedModel.getOverrides().getOverrides()) {
 
-                }*/
+                    }*/
 
-                /**
-                 * TODO: special cases: flower pots with the specific plant variants, needs partial shader thing...
-                 */
+                    /**
+                     * TODO: special cases: flower pots with the specific plant variants, needs partial shader thing...
+                     */
 
-                escape:
-                if (!res.getVariant().equals("inventory")) {
-                    for (FoliageReplacerBase replacer : listFoliageReplacers) {
-                        for (TextureAtlasSprite sprite : replacer.sprites) {
-                            //System.out.println(sprite.getIconName());
-                            for (ResourceLocation res2 : textures) {
-                                if (res2.toString().equals(sprite.getIconName())) {
-                                    if (!res.toString().contains("flower_pot")) {
-                                        //System.out.println("replacing " + res + " with blank model");
+                    escape:
+                    if (!res.getVariant().equals("inventory")) {
+                        for (FoliageReplacerBase replacer : listFoliageReplacers) {
+                            for (TextureAtlasSprite sprite : replacer.sprites) {
+                                //System.out.println(sprite.getIconName());
+                                for (ResourceLocation res2 : textures) {
+                                    if (res2.toString().equals(sprite.getIconName())) {
+                                        if (!res.toString().contains("flower_pot")) {
+                                            //System.out.println("replacing " + res + " with blank model");
 
-                                        //not working for fixing particle texture, why?
-                                        //aside from me reusing same blank model and updating its particle each time, it should at least not be the missing texture
-                                        if (textureFix) {
-                                            if (blank.getOverrides() instanceof AnimationItemOverrideList) {
-                                                AnimationItemOverrideList obj1 = (AnimationItemOverrideList) blank.getOverrides();
-                                                IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
-                                                if (vanillaModelWrapperClass.isAssignableFrom(model1.getClass())) {
-                                                    ModelBlock model2 = (ModelBlock) ReflectionHelper.getPrivateValue(vanillaModelWrapperClass, model1, "model");
-                                                    String tex = res2.toString().split(":")[1];
-                                                    model2.textures.put("particle", tex);
+                                            //not working for fixing particle texture, why?
+                                            //aside from me reusing same blank model and updating its particle each time, it should at least not be the missing texture
+                                            if (textureFix) {
+                                                if (blank.getOverrides() instanceof AnimationItemOverrideList) {
+                                                    AnimationItemOverrideList obj1 = (AnimationItemOverrideList) blank.getOverrides();
+                                                    IModel model1 = ReflectionHelper.getPrivateValue(AnimationItemOverrideList.class, obj1, "model");
+                                                    if (vanillaModelWrapperClass.isAssignableFrom(model1.getClass())) {
+                                                        ModelBlock model2 = (ModelBlock) ReflectionHelper.getPrivateValue(vanillaModelWrapperClass, model1, "model");
+                                                        String tex = res2.toString().split(":")[1];
+                                                        model2.textures.put("particle", tex);
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        event.getModelRegistry().putObject(res, blank);
-                                        break escape;
+                                            event.getModelRegistry().putObject(res, blank);
+                                            break escape;
+                                        }
                                     }
                                 }
                             }
