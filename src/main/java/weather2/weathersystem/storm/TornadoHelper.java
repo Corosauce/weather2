@@ -454,7 +454,7 @@ public class TornadoHelper {
     {
 		//performance debug testing vars:
 		//relocated to be created upon snapshot update (so 
-        boolean createEntity = false;
+
         boolean tryRip = true;
 		BlockPos pos = new BlockPos(tryX, tryY, tryZ);
 		if (listBlockUpdateQueue.containsKey(pos)) {
@@ -472,62 +472,28 @@ public class TornadoHelper {
         Block blockID = state.getBlock();
 
         //System.out.println(parWorld.getHeightValue(tryX, tryZ));
-        if (( /*(canGrab(blockID)) &&blockID != 0 ||*/
-                ((WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
-						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX + 1, 0, tryZ)).getY() - 1 < tryY ||
-						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
-						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
-						WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))
-                /*(parWorld.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
-                 parWorld.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
-                 parWorld.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||
-                 parWorld.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
-                 parWorld.getBlockStateId(tryX,tryY,tryZ-1) == 0 ||
-                 parWorld.getBlockStateId(tryX+1,tryY+1,tryZ) == 0 ||
-                 parWorld.getBlockStateId(tryX,tryY+1,tryZ+1) == 0 ||
-                 parWorld.getBlockStateId(tryX-1,tryY+1,tryZ) == 0 ||
-                 parWorld.getBlockStateId(tryX,tryY+1,tryZ-1) == 0)*/
-           )
-        {
+        if ((((WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
+		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX + 1, 0, tryZ)).getY() - 1 < tryY ||
+		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
+		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
+		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))) {
             
 
-            if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) && /*mod_EntMover.getFPS() > mod_EntMover.safetyCutOffFPS && */blockCount <= ConfigTornado.Storm_Tornado_maxBlocksPerStorm && lastGrabTime < System.currentTimeMillis() && tickGrabCount < ConfigTornado.Storm_Tornado_maxBlocksGrabbedPerTick)
-            {
+            if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) &&
+				blockCount <= ConfigTornado.Storm_Tornado_maxBlocksPerStorm &&
+				lastGrabTime < System.currentTimeMillis() &&
+				tickGrabCount < ConfigTornado.Storm_Tornado_maxBlocksGrabbedPerTick) {
+
                 lastGrabTime = System.currentTimeMillis() - 5;
-                //int blockMeta = this.parWorld.getBlockStateMetadata(tryX,tryY,tryZ);
-                //rip noise, nm, forces particles
-                //parWorld.playAuxSFX(2001, tryX, tryY, tryZ, blockID + blockMeta * 256);
 
-                if (blockID != Blocks.SNOW && blockID != Blocks.GLASS)
+                if (blockID != Blocks.SNOW)
                 {
-                    EntityMovingBlock mBlock = null;
-
-                    if (parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140, false) != null) {
-                    	if (createEntity) {
-		                    if (blockID == Blocks.GRASS)
-		                    {
-		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, Blocks.DIRT, storm);
-		                    }
-		                    else
-		                    {
-		                        mBlock = new EntityMovingBlock(parWorld, tryX, tryY, tryZ, blockID, storm);
-		                    }
-                    	}
+                	boolean playerClose = parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140, false) != null;
+                    if (playerClose) {
 	                    
 	                    blockCount++;
 	                    
 	                    //if (WeatherMod.debug && parWorld.getWorldTime() % 60 == 0) System.out.println("ripping, count: " + WeatherMod.blockCount);
-
-	                    if (mBlock != null) {
-	                    	mBlock.setPosition(tryX, tryY, tryZ);
-	                    }
-	                    
-	                    if (createEntity) {
-		                    if (!parWorld.isRemote)
-		                    {
-		                        parWorld.spawnEntity(mBlock);
-		                    }
-	                    }
 
 	                    //this.activeBlocks.add(mBlock);
 	                    tickGrabCount++;
@@ -543,37 +509,24 @@ public class TornadoHelper {
 	                    }
 
 	                    //mBlock.controller = this;
-	                    if (mBlock != null) {
-	                    	mBlock.type = 0;
-	                    }
 	                    seesLight = true;
+
+
+
+
                     }
 
-                    
-                }
-                else
-                {
-                    if (blockID == Blocks.GLASS)
-                    {
-                        parWorld.playSound(null, new BlockPos(tryX, tryY, tryZ), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.AMBIENT, 5.0F, 1.0F);
-                    }
-                }
-            }
-            
-            if (WeatherUtil.shouldRemoveBlock(blockID))
-            {
-                removeCount++;
+					if (WeatherUtil.shouldRemoveBlock(blockID))
+					{
+						removeCount++;
 
-                /*if (notify)
-                {
-                    parWorld.setBlockState(pos, Blocks.air.getDefaultState(), 3);
+						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.AIR.getDefaultState(), state, pos, playerClose));
+					}
                 }
-                else
-                {
-                    parWorld.setBlockState(pos, Blocks.air.getDefaultState(), 0);
-                }*/
-                
-                listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.AIR.getDefaultState(), state, pos, true));
+				if (blockID == Blocks.GLASS)
+				{
+					parWorld.playSound(null, new BlockPos(tryX, tryY, tryZ), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.AMBIENT, 5.0F, 1.0F);
+				}
             }
         }
 
