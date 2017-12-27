@@ -219,6 +219,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				}
 			}
 
+			boolean test = world.getWorldInfo().isRaining();
+
 			if (ConfigStorm.preventServerThunderstorms) {
 				world.getWorldInfo().setThundering(false);
 			}

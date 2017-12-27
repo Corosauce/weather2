@@ -1,6 +1,7 @@
 package weather2.client.foliage;
 
 import CoroUtil.config.ConfigCoroAI;
+import CoroUtil.forge.CULog;
 import CoroUtil.util.CoroUtilBlockLightCache;
 import CoroUtil.util.Vec3;
 import com.google.common.base.Throwables;
@@ -31,6 +32,7 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.BufferUtils;
 import weather2.Weather;
@@ -74,12 +76,17 @@ public class FoliageEnhancerShader implements Runnable {
         boolean textureFix = false;
 
         if (replaceVanillaModels) {
+
+            String str = "Weather2: Replacing shaderized models";
+
+            CULog.log(str);
+            ProgressManager.ProgressBar prog = ProgressManager.push(str, event.getModelRegistry().getKeys().size());
+
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
-
-
             IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
 
             for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
+                prog.step(res.toString());
                 IBakedModel bakedModel = event.getModelRegistry().getObject(res);
                 IModel model = stateModels.get(res);
                 if (model != null) {
@@ -132,6 +139,8 @@ public class FoliageEnhancerShader implements Runnable {
                     }
                 }
             }
+
+            ProgressManager.pop(prog);
         }
     }
 
@@ -142,6 +151,8 @@ public class FoliageEnhancerShader implements Runnable {
 
         //temp? for sake of hot reloading replacers
         FoliageEnhancerShader.setupReplacers();
+
+        CULog.log("Weather2: Setting up meshes for foliage shader");
 
         for (FoliageReplacerBase replacer : listFoliageReplacers) {
             for (TextureAtlasSprite sprite : replacer.sprites) {
@@ -158,6 +169,8 @@ public class FoliageEnhancerShader implements Runnable {
      * Called from TextureStitchEvent.Post
      */
     public static void setupReplacers() {
+
+        CULog.log("Weather2: Setting up foliage replacers");
 
         boolean test = false;
 
