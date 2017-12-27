@@ -40,7 +40,9 @@ public class ConfigStorm implements IConfigCategory {
 	
 	//per server storm settings
 	public static boolean Server_Storm_Deadly_UseGlobalRate = false;
+	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, replaces use of Player_Storm_Deadly_OddsTo1")
 	public static int Server_Storm_Deadly_OddsTo1 = 30;
+	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, replaces use of Player_Storm_Deadly_TimeBetweenInTicks")
 	public static int Server_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3;
 	public static boolean preventServerThunderstorms = true;
 	//lightning

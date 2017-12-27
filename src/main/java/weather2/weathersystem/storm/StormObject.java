@@ -1140,87 +1140,89 @@ public class StormObject extends WeatherObject {
             }
 
 			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimension()) && tryFormStorm) {
-				//if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigMisc.Player_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
-					int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
-					int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
-					
-					if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
-						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
-						
-						if (entP != null) {
-							initRealStorm(entP, null);
-						} else {
-							initRealStorm(null, null);
-						}
-						
-						if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
-							wm.lastStormFormed = world.getTotalWorldTime();
-						} else {
-							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
-						}
-					} else if (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0) {
-						EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
-						
-						if (entP != null) {
-							initRealStorm(entP, null);
-						} else {
-							initRealStorm(null, null);
-						}
-						
-						if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
-							wm.lastStormFormed = world.getTotalWorldTime();
-						} else {
-							playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
-						}
-					} else if (rand.nextInt(randomChanceOfCollide) == 0) {
-						for (int i = 0; i < manager.getStormObjects().size(); i++) {
-							WeatherObject wo = manager.getStormObjects().get(i);
-							
-							if (wo instanceof StormObject) {
-								StormObject so = (StormObject) wo;
+				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
+				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
+
+				if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
+					randomChanceOfCollide = ConfigStorm.Server_Storm_Deadly_OddsTo1;
+				}
+
+				if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
+					EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+
+					if (entP != null) {
+						initRealStorm(entP, null);
+					} else {
+						initRealStorm(null, null);
+					}
+
+					if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
+						wm.lastStormFormed = world.getTotalWorldTime();
+					} else {
+						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+					}
+				} else if (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0) {
+					EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+
+					if (entP != null) {
+						initRealStorm(entP, null);
+					} else {
+						initRealStorm(null, null);
+					}
+
+					if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
+						wm.lastStormFormed = world.getTotalWorldTime();
+					} else {
+						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+					}
+				} else if (rand.nextInt(randomChanceOfCollide) == 0) {
+					for (int i = 0; i < manager.getStormObjects().size(); i++) {
+						WeatherObject wo = manager.getStormObjects().get(i);
+
+						if (wo instanceof StormObject) {
+							StormObject so = (StormObject) wo;
 
 
 
-								boolean startStorm = false;
-								
-								if (so.ID != this.ID && so.levelCurIntensityStage <= 0 && !so.isCloudlessStorm() && !so.weatherMachineControlled) {
-									if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
-										if (this.levelTemperature < 0) {
-											if (so.levelTemperature > 0) {
-												startStorm = true;
-											}
-										} else if (this.levelTemperature > 0) {
-											if (so.levelTemperature < 0) {
-												startStorm = true;
-											}
+							boolean startStorm = false;
+
+							if (so.ID != this.ID && so.levelCurIntensityStage <= 0 && !so.isCloudlessStorm() && !so.weatherMachineControlled) {
+								if (so.pos.distanceTo(pos) < stormFrontCollideDist) {
+									if (this.levelTemperature < 0) {
+										if (so.levelTemperature > 0) {
+											startStorm = true;
+										}
+									} else if (this.levelTemperature > 0) {
+										if (so.levelTemperature < 0) {
+											startStorm = true;
 										}
 									}
 								}
-								
-								if (startStorm) {
-									
-									//Weather.dbg("start storm!");
-									
-									playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
-									
-									//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
-									EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
-									
-									if (entP != null) {
-										initRealStorm(entP, so);
-									} else {
-										initRealStorm(null, so);
-										//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
-										//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
-									}
-									
-									break;
-								}
 							}
-							
+
+							if (startStorm) {
+
+								//Weather.dbg("start storm!");
+
+								playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
+
+								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
+								EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+
+								if (entP != null) {
+									initRealStorm(entP, so);
+								} else {
+									initRealStorm(null, so);
+									//can happen, chunkloaded emtpy overworld, let the storm do what it must without a player
+									//Weather.dbg("Weather2 WARNING!!!! Failed to get a player object for new tornado, this shouldnt happen");
+								}
+
+								break;
+							}
 						}
+
 					}
-				//}
+				}
 			}
 			
 			if (isRealStorm()) {
