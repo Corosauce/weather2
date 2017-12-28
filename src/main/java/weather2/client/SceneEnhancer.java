@@ -9,6 +9,7 @@ import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
 import extendedrenderer.render.RotatingParticleManager;
+import extendedrenderer.shader.Matrix4fe;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -36,7 +37,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.*;
-import org.lwjgl.util.vector.Vector3f;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.config.ConfigFoliage;
@@ -60,6 +60,9 @@ import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.particle.entity.ParticleTexLeafColor;
+
+import javax.vecmath.Vector3f;
+
 import static CoroUtil.util.CoroUtilMisc.adjVal;
 
 @SideOnly(Side.CLIENT)
@@ -532,6 +535,8 @@ public class SceneEnhancer implements Runnable {
 						rain.weatherEffect = false;
 						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 
+						rain.isTransparent = false;
+
 						rain.quatControl = true;
 
 						testParticle = rain;
@@ -568,22 +573,39 @@ public class SceneEnhancer implements Runnable {
 						Quaternion.mul(q, qNewRot, q);
 					}
 
-					System.out.println("q: " + q.x + ", " + q.y + ", " + q.z + ", " + q.w);
+					//System.out.println("q: " + q.x + ", " + q.y + ", " + q.z + ", " + q.w);
 
 					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
 						q.setIdentity();
 					}
 
 					//testing
-					float scale = 2F;
+					float scale = 3F;
 					float xAdj = q.x * scale;
 					float yAdj = q.y * scale;
 					float zAdj = q.z * scale;
 
-					Matrix4f matrix = new Matrix4f();
+					Matrix4fe matrix = new Matrix4fe();
 					//matrix.
-					matrix.translate(new Vector3f(0, 5, 0));
+					//set to in players face
+					matrix.translate(new Vector3f(0, 1.5F, 0));
+
+					//player rotations
+					matrix.rotateY(-(float)Math.toRadians(entP.rotationYaw + 90));
+					matrix.rotateZ(-(float)Math.toRadians(entP.rotationPitch));
+					//matrix.rotateX((float)Math.toRadians(45));
+
+					//push away from face in direction player is looking
+					matrix.translate(new Vector3f(2, 0, 0));
 					//matrix.
+
+					Vector3f pos = matrix.getTranslation();
+
+					//q.setFromMatrix(matrix.toLWJGLMathMatrix());
+
+					xAdj = pos.x;
+					yAdj = pos.y;
+					zAdj = pos.z;
 
 					testParticle.setPosition(entP.posX + xAdj, entP.posY + yAdj, entP.posZ + zAdj);
 
