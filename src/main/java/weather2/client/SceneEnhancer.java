@@ -5,6 +5,7 @@ import java.util.*;
 
 import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.forge.CULog;
+import CoroUtil.physics.MatrixRotation;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
@@ -36,6 +37,9 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.util.vector.*;
+import org.lwjgl.util.vector.Vector3f;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.util.WindReader;
@@ -545,7 +549,7 @@ public class SceneEnhancer implements Runnable {
 				//ConfigCoroAI.optimizedCloudRendering = false;
 			}
 
-			boolean particleTest = false;
+			boolean particleTest = true;
 
 			if (particleTest) {
 				if (testParticle == null || testParticle.isExpired) {
@@ -556,16 +560,16 @@ public class SceneEnhancer implements Runnable {
 					//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
 					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
-						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
 								pos.getX() + rand.nextFloat(),
 								pos.getY() - 1 + 0.01D,
 								pos.getZ() + rand.nextFloat(),
-								0D, 0D, 0D, ParticleRegistry.test_texture);*/
-						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+								0D, 0D, 0D, ParticleRegistry.test_texture);
+						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
 								15608.5F,
 								70.5F,
 								235.5F,
-								0D, 0D, 0D, ParticleRegistry.test_texture);
+								0D, 0D, 0D, ParticleRegistry.test_texture);*/
 						//rain.setCanCollide(true);
 						//rain.setKillOnCollide(true);
 						//rain.setKillWhenUnderTopmostBlock(true);
@@ -600,7 +604,7 @@ public class SceneEnhancer implements Runnable {
 						 */
 						rain.setScale(5F);
 						//rain.setScale(25F);
-						rain.setMaxAge(60);
+						rain.setMaxAge(1600);
 						rain.setGravity(0.0F);
 						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
 						rain.setTicksFadeInMax(20);
@@ -620,6 +624,8 @@ public class SceneEnhancer implements Runnable {
 						rain.weatherEffect = false;
 						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
 
+						rain.quatControl = true;
+
 						testParticle = rain;
 					}
 				}
@@ -629,11 +635,57 @@ public class SceneEnhancer implements Runnable {
 					//testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
 
 					testParticle.rotationPitch = 0;//world.getTotalWorldTime() % 360;
-					testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
+					//testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
 
-					testParticle.posX = 15608.2F;
+					Quaternion q = testParticle.getQuaternion();
+
+					float amp1 = (float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 1) % 360));
+					float amp2 = (float)Math.cos(Math.toRadians((world.getTotalWorldTime() * 3) % 360));
+
+					Quaternion qNewRot = new Quaternion();
+					qNewRot.setFromAxisAngle(new Vector4f(1, 0, 0, (float)Math.toRadians(5F)));
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
+						Quaternion.mul(q, qNewRot, q);
+					}
+
+					qNewRot = new Quaternion();
+					qNewRot.setFromAxisAngle(new Vector4f(0, 1, 0, (float)Math.toRadians(5F)));
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
+						Quaternion.mul(q, qNewRot, q);
+					}
+
+					qNewRot = new Quaternion();
+					qNewRot.setFromAxisAngle(new Vector4f(0, 0, 1, (float)Math.toRadians(5F)));
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
+						Quaternion.mul(q, qNewRot, q);
+					}
+
+					System.out.println("q: " + q.x + ", " + q.y + ", " + q.z + ", " + q.w);
+
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
+						q.setIdentity();
+					}
+
+					//testing
+					float scale = 2F;
+					float xAdj = q.x * scale;
+					float yAdj = q.y * scale;
+					float zAdj = q.z * scale;
+
+					Matrix4f matrix = new Matrix4f();
+					//matrix.
+					matrix.translate(new Vector3f(0, 5, 0));
+					//matrix.
+
+					testParticle.setPosition(entP.posX + xAdj, entP.posY + yAdj, entP.posZ + zAdj);
+
+					//testParticle.getQuaternion().
+
+					//testParticle.rotationYaw++;
+
+					/*testParticle.posX = 15608.2F;
 					testParticle.posY = 70.5F;
-					testParticle.posZ = 235.8F;
+					testParticle.posZ = 235.8F;*/
 				}
 
 				//if (true) return;
