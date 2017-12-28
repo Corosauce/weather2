@@ -148,6 +148,14 @@ public class SceneEnhancer implements Runnable {
 	private static List<BlockPos> listPosRandom = new ArrayList<>();
 
 
+	public static List<ParticleTexExtraRender> testParticles = new ArrayList<>();
+
+	public static Matrix4fe matrix = new Matrix4fe();
+	public static Matrix4fe matrix2 = new Matrix4fe();
+
+	public static Vector3f vec = new Vector3f();
+	public static Vector3f vec2 = new Vector3f();
+
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
 
@@ -565,7 +573,7 @@ public class SceneEnhancer implements Runnable {
 					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
 						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
 								pos.getX() + rand.nextFloat(),
-								pos.getY() - 1 + 0.01D,
+								pos.getY(),
 								pos.getZ() + rand.nextFloat(),
 								0D, 0D, 0D, ParticleRegistry.test_texture);
 						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
@@ -635,14 +643,177 @@ public class SceneEnhancer implements Runnable {
 					}
 				}
 
+				if (false && (testParticle2 == null || testParticle2.isExpired)) {
+					BlockPos pos = new BlockPos(entP);
+
+					//if (entP.getDistanceSq(pos) < 10D * 10D) continue;
+
+					//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
+
+					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+								pos.getX() + rand.nextFloat(),
+								pos.getY(),
+								pos.getZ() + rand.nextFloat(),
+								0D, 0D, 0D, ParticleRegistry.test_texture);
+						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+								15608.5F,
+								70.5F,
+								235.5F,
+								0D, 0D, 0D, ParticleRegistry.test_texture);*/
+						//rain.setCanCollide(true);
+						//rain.setKillOnCollide(true);
+						//rain.setKillWhenUnderTopmostBlock(true);
+						//rain.setTicksFadeOutMaxOnDeath(5);
+
+						//rain.particleTextureJitterX = 0;
+						//rain.particleTextureJitterY = 0;
+
+						//rain.setDontRenderUnderTopmostBlock(true);
+						//rain.setExtraParticlesBaseAmount(5);
+						//rain.setDontRenderUnderTopmostBlock(true);
+						rain.setSlantParticleToWind(false);
+						//rain.noExtraParticles = true;
+						rain.setExtraParticlesBaseAmount(1);
+						rain.setSeverityOfRainRate(0);
+						rain.setDontRenderUnderTopmostBlock(false);
+
+						boolean upward = rand.nextBoolean();
+
+						rain.windWeight = 999999F;
+						rain.setFacePlayer(false);
+
+						rain.setScale(90F + (rand.nextFloat() * 3F));
+
+
+						/**
+						 * 64x64 particle, 18 blocks high exactly when scale 90 used
+						 * 64x64 particle, 1 blocks high exactly when scale 5 used
+						 * particle texture file size doesnt matter,
+						 * scale 5 = 1 block size
+						 *
+						 */
+						rain.setScale(5F);
+						//rain.setScale(25F);
+						rain.setMaxAge(1600);
+						rain.setGravity(0.0F);
+						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+						rain.setTicksFadeInMax(20);
+						rain.setAlphaF(0);
+						rain.setTicksFadeOutMax(20);
+
+						rain.rotationYaw = 0;//rain.getWorld().rand.nextInt(360) - 180F;
+						rain.rotationPitch = 90;
+						rain.setMotionY(-0D);
+									/*rain.setMotionX(0);
+									rain.setMotionZ(0);*/
+						rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+						rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
+
+						//rain.setRBGColorF(1F, 1F, 1F);
+						rain.spawnAsWeatherEffect();
+						rain.weatherEffect = false;
+						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+
+						rain.isTransparent = false;
+
+						rain.quatControl = true;
+
+						//testParticle2 = rain;
+					}
+				}
+
+				int particleCount = 10 * 8;
+
+				if (testParticles.size() < particleCount) {
+					BlockPos pos = new BlockPos(entP);
+
+					//if (entP.getDistanceSq(pos) < 10D * 10D) continue;
+
+					//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
+
+					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+								pos.getX() + rand.nextFloat(),
+								pos.getY(),
+								pos.getZ() + rand.nextFloat(),
+								0D, 0D, 0D, ParticleRegistry.test_texture);
+						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+								15608.5F,
+								70.5F,
+								235.5F,
+								0D, 0D, 0D, ParticleRegistry.test_texture);*/
+						//rain.setCanCollide(true);
+						//rain.setKillOnCollide(true);
+						//rain.setKillWhenUnderTopmostBlock(true);
+						//rain.setTicksFadeOutMaxOnDeath(5);
+
+						//rain.particleTextureJitterX = 0;
+						//rain.particleTextureJitterY = 0;
+
+						//rain.setDontRenderUnderTopmostBlock(true);
+						//rain.setExtraParticlesBaseAmount(5);
+						//rain.setDontRenderUnderTopmostBlock(true);
+						rain.setSlantParticleToWind(false);
+						//rain.noExtraParticles = true;
+						rain.setExtraParticlesBaseAmount(1);
+						rain.setSeverityOfRainRate(0);
+						rain.setDontRenderUnderTopmostBlock(false);
+
+						boolean upward = rand.nextBoolean();
+
+						rain.windWeight = 999999F;
+						rain.setFacePlayer(false);
+
+						rain.setScale(90F + (rand.nextFloat() * 3F));
+
+
+						/**
+						 * 64x64 particle, 18 blocks high exactly when scale 90 used
+						 * 64x64 particle, 1 blocks high exactly when scale 5 used
+						 * particle texture file size doesnt matter,
+						 * scale 5 = 1 block size
+						 *
+						 */
+						rain.setScale(5F);
+						//rain.setScale(25F);
+						rain.setMaxAge(100);
+						rain.setGravity(0.0F);
+						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+						rain.setTicksFadeInMax(20);
+						rain.setAlphaF(0);
+						rain.setTicksFadeOutMax(20);
+
+						rain.rotationYaw = 0;//rain.getWorld().rand.nextInt(360) - 180F;
+						rain.rotationPitch = 90;
+						rain.setMotionY(-0D);
+									/*rain.setMotionX(0);
+									rain.setMotionZ(0);*/
+						rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+						rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
+
+						//rain.setRBGColorF(1F, 1F, 1F);
+						rain.spawnAsWeatherEffect();
+						rain.weatherEffect = false;
+						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
+
+						rain.isTransparent = false;
+
+						rain.quatControl = true;
+
+						testParticles.add(rain);
+					}
+				}
+
 				//TEST
-				if (testParticle != null) {
+				if (testParticle != null && testParticle2 != null) {
 					//testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
 
 					testParticle.rotationPitch = 0;//world.getTotalWorldTime() % 360;
 					//testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
 
 					Quaternion q = testParticle.getQuaternion();
+					Quaternion q2 = testParticle2.getQuaternion();
 
 					float amp1 = (float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 1) % 360));
 					float amp2 = (float)Math.cos(Math.toRadians((world.getTotalWorldTime() * 3) % 360));
@@ -650,19 +821,19 @@ public class SceneEnhancer implements Runnable {
 					Quaternion qNewRot = new Quaternion();
 					qNewRot.setFromAxisAngle(new Vector4f(1, 0, 0, (float)Math.toRadians(5F)));
 					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
-						Quaternion.mul(q, qNewRot, q);
+						//Quaternion.mul(q, qNewRot, q);
 					}
 
 					qNewRot = new Quaternion();
 					qNewRot.setFromAxisAngle(new Vector4f(0, 1, 0, (float)Math.toRadians(5F)));
 					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
-						Quaternion.mul(q, qNewRot, q);
+						//Quaternion.mul(q, qNewRot, q);
 					}
 
 					qNewRot = new Quaternion();
 					qNewRot.setFromAxisAngle(new Vector4f(0, 0, 1, (float)Math.toRadians(5F)));
 					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
-						Quaternion.mul(q, qNewRot, q);
+						//Quaternion.mul(q, qNewRot, q);
 					}
 
 					//System.out.println("q: " + q.x + ", " + q.y + ", " + q.z + ", " + q.w);
@@ -677,29 +848,95 @@ public class SceneEnhancer implements Runnable {
 					float yAdj = q.y * scale;
 					float zAdj = q.z * scale;
 
-					Matrix4fe matrix = new Matrix4fe();
+					//Matrix4fe matrix = new Matrix4fe();
+					//matrix.setIdentity();
 					//matrix.
 					//set to in players face
-					matrix.translate(new Vector3f(0, 1.5F, 0));
+					//matrix.translate(new Vector3f(0, 1.5F, 0));
 
 					//player rotations
-					matrix.rotateY(-(float)Math.toRadians(entP.rotationYaw + 90));
-					matrix.rotateZ(-(float)Math.toRadians(entP.rotationPitch));
-					//matrix.rotateX((float)Math.toRadians(45));
+					//matrix.rotateY(-(float)Math.toRadians(entP.rotationYaw + 90));
+					//matrix.rotateZ(-(float)Math.toRadians(entP.rotationPitch));
+
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
+						vec.x += (float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F);
+						//matrix.rotateX((float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F));
+					}
+
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
+						vec.y += (float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F);
+						//matrix.rotateY((float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F));
+					}
+
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
+						vec.z += (float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F);
+						//matrix.rotateZ((float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F));
+					}
+
+					vec.y += (float)Math.toRadians(30);
+
+
+
+					float ampz1 = (float)-Math.sin(Math.toRadians(((world.getTotalWorldTime() + 20) * 5) % 360)) * 0.3F;
+					float ampz2 = (float)Math.cos(Math.toRadians((world.getTotalWorldTime() * 3) % 360)) * 0.3F;
+
+					//ampz2 = (float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 3) % 360)) * 1F;
+
+					ampz1 = (float)-Math.sin(Math.toRadians(0));
+					ampz2 = (float)Math.sin(Math.toRadians(30));
+
+					vec.x = ampz1;
+					vec.z = ampz2;
+
+					matrix.setIdentity();
+
+					//extra y test
+					matrix.rotateZ((float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 3) % 360)) * 0.5F);
+					matrix.rotateX((float)Math.sin(Math.toRadians(((world.getTotalWorldTime() - 40) * 3) % 360)) * 0.5F);
+
+					//matrix.rotateX(vec.x);
+					//matrix.rotateZ(vec.z);
+					//y last
+					matrix.rotateY(vec.y);
+					matrix.translate(new Vector3f(2, 0, 0));
+					//matrix.translate(new Vector3f(0, 0, 2));
+
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
+						vec = new Vector3f();
+						matrix.setIdentity();
+						//matrix.translate(new Vector3f(3, 0, 0));
+					}
+
+					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD5)) {
+						//matrix.setIdentity();
+						matrix.m30 = 0;
+						matrix.m31 = 0;
+						matrix.m32 = 0;
+						matrix.translate(new Vector3f(3, 0, 0));
+					}
 
 					//push away from face in direction player is looking
-					matrix.translate(new Vector3f(2, 0, 0));
+					//matrix.translate(new Vector3f(2, 0, 0));
 					//matrix.
 
+					//matrix.setIdentity();
+
+
 					Vector3f pos = matrix.getTranslation();
+					Vector3f pos2 = matrix2.getTranslation();
+
+					//matrix.translate(new Vector3f(-2, 0, 0));
 
 					//q.setFromMatrix(matrix.toLWJGLMathMatrix());
+					//q2.setFromMatrix(matrix2.toLWJGLMathMatrix());
 
-					xAdj = pos.x;
-					yAdj = pos.y;
+					xAdj = -pos.x;
+					yAdj = -pos.y;
 					zAdj = pos.z;
 
-					testParticle.setPosition(entP.posX + xAdj, entP.posY + yAdj, entP.posZ + zAdj);
+					//testParticle.setPosition(entP.posX + 0, entP.posY + 0, entP.posZ + 4);
+
+					testParticle2.setPosition(testParticle.posX + xAdj, testParticle.posY + yAdj, testParticle.posZ + zAdj);
 
 					//testParticle.getQuaternion().
 
@@ -708,6 +945,47 @@ public class SceneEnhancer implements Runnable {
 					/*testParticle.posX = 15608.2F;
 					testParticle.posY = 70.5F;
 					testParticle.posZ = 235.8F;*/
+
+					testParticle.setAge(40);
+					testParticle2.setAge(40000);
+				}
+
+				if (testParticle != null) {
+					testParticle.setAge(40);
+				}
+
+				Iterator<ParticleTexExtraRender> it = testParticles.iterator();
+				int i = 0;
+				while (it.hasNext()) {
+					ParticleTexExtraRender part = it.next();
+					if (part.isExpired) {
+						it.remove();
+					} else {
+
+						int amountPerLayer = 10;
+						int yIndex = i / amountPerLayer;
+						int rotIndex = i % amountPerLayer;
+						int yCount = particleCount / amountPerLayer;
+
+						Matrix4fe matrix = new Matrix4fe();
+						matrix.rotateZ((float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 3) % 360)) * 0.5F);
+						matrix.rotateX((float)Math.sin(Math.toRadians(((world.getTotalWorldTime() - 40) * 3) % 360)) * 0.5F);
+						matrix.rotateY((float)Math.toRadians((world.getTotalWorldTime() * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
+
+						matrix.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
+
+						matrix.translate(new Vector3f(0, yIndex - (yCount/2), 0));
+
+						part.rotation.setFromMatrix(matrix.toLWJGLMathMatrix());
+
+						Vector3f pos = matrix.getTranslation();
+
+						part.setPosition(testParticle.posX + pos.x, testParticle.posY + pos.y, testParticle.posZ + pos.z);
+
+						part.setAge(40);
+					}
+
+					i++;
 				}
 
 				//if (true) return;
