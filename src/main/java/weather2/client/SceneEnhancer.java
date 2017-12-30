@@ -509,8 +509,9 @@ public class SceneEnhancer implements Runnable {
 			//check rules same way vanilla texture precip does
             if (biomegenbase != null && (biomegenbase.canRain() || biomegenbase.getEnableSnow()))
             {
-			
-				float temperature = biomegenbase.getFloatTemperature(new BlockPos(MathHelper.floor(entP.posX), MathHelper.floor(entP.posY), MathHelper.floor(entP.posZ)));
+
+            	//biomegenbase.getFloatTemperature(new BlockPos(MathHelper.floor(entP.posX), MathHelper.floor(entP.posY), MathHelper.floor(entP.posZ)));
+				float temperature = CoroUtilCompatibility.getAdjustedTemperature(world, biomegenbase, entP.getPosition());
 	            double d3;
 	            float f10;
 
