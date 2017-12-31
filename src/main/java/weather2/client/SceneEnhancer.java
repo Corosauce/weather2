@@ -1427,7 +1427,7 @@ public class SceneEnhancer implements Runnable {
                             {
                             	
                             	//null check biome in future if used
-                            	float temp = worldRef.getBiome(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
+                            	//float temp = worldRef.getBiome(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
                             	
                             	//System.out.println(temp);
                             	

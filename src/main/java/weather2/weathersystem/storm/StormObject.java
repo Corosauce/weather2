@@ -2,6 +2,7 @@ package weather2.weathersystem.storm;
 
 import java.util.*;
 
+import CoroUtil.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
@@ -37,11 +38,6 @@ import weather2.player.PlayerData;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
-import CoroUtil.util.ChunkCoordinatesBlock;
-import CoroUtil.util.CoroUtilBlock;
-import CoroUtil.util.CoroUtilEntOrParticle;
-import CoroUtil.util.CoroUtilEntity;
-import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
@@ -214,7 +210,8 @@ public class StormObject extends WeatherObject {
 		float temp = 1;
 		
 		if (bgb != null) {
-			temp = bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord)));
+			//temp = bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord)));
+			temp = CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord)));
 		}
 		
 		//initial setting, more apparent than gradual adjustments
@@ -779,6 +776,17 @@ public class StormObject extends WeatherObject {
 								//avoid unloaded areas
 								if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
 
+								//make sure vanilla style 1 layer of snow everywhere can also happen
+								//but only when we arent in global overcast mode
+								if (!ConfigMisc.overcastMode) {
+
+									//since our version canSnowAtBody returns true for existing snow layers, we need to check we have air here for basic 1 layer place
+									if (world.isAirBlock(vecPos.toBlockPos())) {
+										world.setBlockState(vecPos.toBlockPos(), Blocks.SNOW_LAYER.getDefaultState());
+									}
+								}
+
+								//do wind/wall based snowfall
 								WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW_LAYER);
 							} else {
 
@@ -852,16 +860,18 @@ public class StormObject extends WeatherObject {
 		BlockPos pos = new BlockPos(par1, par2, par3);
         
         if (biomegenbase == null) return false;
-        
-        float f = biomegenbase.getFloatTemperature(new BlockPos(par1, par2, par3));
 
-        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && biomegenbase.getFloatTemperature(new BlockPos(par1, par2, par3)) > 0.15F))
+        //float f = biomegenbase.getFloatTemperature(pos);
+
+        float temperature = CoroUtilCompatibility.getAdjustedTemperature(world, biomegenbase, pos);
+
+        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && temperature > 0.15F))
         {
             return false;
         }
         else
         {
-            if (par2 >= 0 && par2 < 256 && world.getLightFor(EnumSkyBlock.BLOCK, new BlockPos(par1, par2, par3)) < 10)
+            if (par2 >= 0 && par2 < 256 && world.getLightFor(EnumSkyBlock.BLOCK, pos) < 10)
             {
                 /*Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
@@ -929,7 +939,8 @@ public class StormObject extends WeatherObject {
 				
 				isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
 				
-				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord))));
+				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord))));
+				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord), MathHelper.floor(pos.zCoord))));
 				if (levelTemperature > biomeTempAdj) {
 					levelTemperature -= tempAdjustRate;
 				} else {
