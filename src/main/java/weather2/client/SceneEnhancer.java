@@ -678,7 +678,7 @@ public class SceneEnhancer implements Runnable {
 						//curPrecipVal max is 0.5 atm
 
 						if (world.getTotalWorldTime() % 60 == 0) {
-							System.out.println(curPrecipVal);
+							//System.out.println(curPrecipVal);
 							//System.out.println("spawnCount: " + spawnCount);
 						}
 

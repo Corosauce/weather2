@@ -1001,6 +1001,9 @@ public class StormObject extends WeatherObject {
                 }*/
 				IBlockState iblockstate1 = world.getBlockState(pos);
 
+				//TODO: incoming new way to detect if blocks can be snowed on https://github.com/MinecraftForge/MinecraftForge/pull/4569/files
+				//might not require any extra work from me?
+
 				if ((iblockstate1.getBlock().isAir(iblockstate1, world, pos) || iblockstate1.getBlock() == Blocks.SNOW_LAYER) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos))
 				{
 					return true;
