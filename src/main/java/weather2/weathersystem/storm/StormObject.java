@@ -898,6 +898,7 @@ public class StormObject extends WeatherObject {
 								//but only when we arent in global overcast mode
 								if (!ConfigMisc.overcastMode) {
 
+								    //TODO: consider letting this run outside of ConfigSnow.Snow_PerformSnowfall config option
 									//since our version canSnowAtBody returns true for existing snow layers, we need to check we have air here for basic 1 layer place
 									if (world.isAirBlock(vecPos.toBlockPos())) {
 										world.setBlockState(vecPos.toBlockPos(), Blocks.SNOW_LAYER.getDefaultState());
