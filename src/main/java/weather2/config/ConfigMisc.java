@@ -57,6 +57,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static double volWindScale = 0.05D;
 	public static double volWaterfallScale = 0.5D;
 	public static double volWindTreesScale = 0.5D;
+	public static double volWindLightningScale = 1D;
 	
 	//blocks
 	public static double sirenActivateDistance = 256D;

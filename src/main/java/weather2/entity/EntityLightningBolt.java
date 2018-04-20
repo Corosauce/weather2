@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
@@ -162,7 +163,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     public void updateSoundEffect() {
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	if (mc.player != null && mc.player.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
-    		this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 64.0F, 0.8F + this.rand.nextFloat() * 0.2F, false);
+    		this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 64.0F * (float)ConfigMisc.volWindLightningScale, 0.8F + this.rand.nextFloat() * 0.2F, false);
             this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.rand.nextFloat() * 0.2F, false);
     	}
     }
