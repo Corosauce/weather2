@@ -1012,7 +1012,7 @@ public class StormObject extends WeatherObject {
 			
 			boolean tryFormStorm = false;
 			
-			if (this.canBeDeadly) {
+			if (this.canBeDeadly && this.levelCurIntensityStage == STATE_NORMAL) {
 				if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
 					if (ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
 						if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks < world.getTotalWorldTime()) {
