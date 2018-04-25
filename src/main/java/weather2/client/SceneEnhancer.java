@@ -842,8 +842,8 @@ public class SceneEnhancer implements Runnable {
 						//if (true) return;
 
 						spawnAreaSize = 20;
-						//downfall
-						if (curPrecipVal > 0.3) {
+						//downfall - at just above 0.3 cause rainstorms lock at 0.3 but flicker a bit above and below
+						if (curPrecipVal > 0.32) {
 							for (int i = 0; downfall == true && i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 								BlockPos pos = new BlockPos(
 										entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
