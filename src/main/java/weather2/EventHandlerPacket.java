@@ -55,6 +55,11 @@ public class EventHandlerPacket {
                     if (command.equals("create")) {
                         ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
                     }
+                } else if (packetCommand.equals("ClientConfigData")) {
+                    if (command.equals("syncUpdate")) {
+                        ClientTickHandler.clientConfigData.readNBT(nbt);
+                        //ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
+                    }
                 }
             });
 		} catch (Exception ex) {

@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import weather2.entity.EntityLightningBolt;
 import weather2.util.WeatherUtilBlock;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
@@ -23,8 +24,6 @@ import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
 
 public class CommandWeather2 extends CommandBase {
-
-	//TODO: FIX FOR COMMAND BLOCKS, apparently permission issues
 	
 	@Override
 	public String getName() {
@@ -67,6 +66,12 @@ public class CommandWeather2 extends CommandBase {
 							sendCommandSenderMsg(var1, "can only make volcanos on main overworld");
 						}
 					}
+				} else if (var2[0].equals("lightningTest")) {
+					EntityLightningBolt ent = new EntityLightningBolt(world, posBlock.getX(), posBlock.getY(), posBlock.getZ());
+					WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+					wm.getWorld().weatherEffects.add(ent);
+					wm.syncLightningNew(ent, false);
+					sendCommandSenderMsg(var1, "spawned lightning");
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
 						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);

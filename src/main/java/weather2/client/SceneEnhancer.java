@@ -944,9 +944,9 @@ public class SceneEnhancer implements Runnable {
 
     	float sizeToUse = 0;
 	    
-	    float overcastModeMinPrecip = 0.2F;
+	    float overcastModeMinPrecip = 0.23F;
 	    
-	    //evaluate if storms size is big enough to over over player
+	    //evaluate if storms size is big enough to be over player
 	    if (storm != null) {
 	    	
 	    	sizeToUse = storm.size;
@@ -988,7 +988,7 @@ public class SceneEnhancer implements Runnable {
 	    	}
 	    	//mc.world.thunderingStrength = (float) stormIntensity;
 	    } else {
-	    	if (!ConfigMisc.overcastMode) {
+	    	if (!ClientTickHandler.clientConfigData.overcastMode) {
 		    	mc.world.getWorldInfo().setRaining(false);
 		    	mc.world.getWorldInfo().setThundering(false);
 		    	
@@ -1093,130 +1093,6 @@ public class SceneEnhancer implements Runnable {
 
 	public static void controlVanillaPrecipVisuals(EntityPlayer entP, boolean forOvercast) {
 
-	}
-
-	public static void tickPrecipAdjusting(EntityPlayer entP, boolean forOvercast) {
-
-		Minecraft mc = FMLClientHandler.instance().getClient();
-
-		double maxStormDist = 512 / 4 * 3;
-		Vec3 plPos = new Vec3(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
-
-		ClientTickHandler.checkClientWeather();
-
-		StormObject storm = getClosestStormCached(entP);
-
-		boolean closeEnough = false;
-		double stormDist = 9999;
-		float tempAdj = 1F;
-
-		float sizeToUse = 0;
-
-		float overcastModeMinPrecip = 0.2F;
-
-		if (closeEnough) {
-
-
-			double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
-
-			tempAdj = storm.levelTemperature > 0 ? 1F : -1F;
-
-			//limit plain rain clouds to light intensity
-			if (storm.levelCurIntensityStage == StormObject.STATE_NORMAL) {
-				if (stormIntensity > 0.3) stormIntensity = 0.3;
-			}
-
-			if (ConfigStorm.Storm_NoRainVisual) {
-				stormIntensity = 0;
-			}
-
-			//System.out.println("intensity: " + stormIntensity);
-			mc.world.getWorldInfo().setRaining(true);
-			mc.world.getWorldInfo().setThundering(true);
-			if (forOvercast) {
-				curOvercastStrTarget = (float) stormIntensity;
-			} else {
-				curPrecipStrTarget = (float) stormIntensity;
-			}
-			//mc.world.thunderingStrength = (float) stormIntensity;
-		} else {
-			if (!ConfigMisc.overcastMode) {
-				mc.world.getWorldInfo().setRaining(false);
-				mc.world.getWorldInfo().setThundering(false);
-
-				if (forOvercast) {
-					curOvercastStrTarget = 0;
-				} else {
-					curPrecipStrTarget = 0;
-				}
-			} else {
-				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-					mc.world.getWorldInfo().setRaining(true);
-					mc.world.getWorldInfo().setThundering(true);
-
-					if (forOvercast) {
-						curOvercastStrTarget = overcastModeMinPrecip;
-					} else {
-						curPrecipStrTarget = overcastModeMinPrecip;
-					}
-				} else {
-					if (forOvercast) {
-						curOvercastStrTarget = 0;
-					} else {
-						curPrecipStrTarget = 0;
-					}
-				}
-
-
-			}
-
-			//mc.world.setRainStrength(0);
-			//mc.world.thunderingStrength = 0;
-		}
-
-		if (forOvercast) {
-
-	    	/*if (ConfigMisc.overcastMode) {
-	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-	    			if (curOvercastStrTarget < overcastModeMinPrecip) {
-	    				curOvercastStrTarget = overcastModeMinPrecip;
-	    			}
-	    		}
-	    	}*/
-
-			//mc.world.setRainStrength(curOvercastStr);
-
-			if (curOvercastStr > curOvercastStrTarget) {
-				curOvercastStr -= 0.001F;
-			} else if (curOvercastStr < curOvercastStrTarget) {
-				curOvercastStr += 0.001F;
-			}
-
-			if (curOvercastStr < 0.0001 && curOvercastStr > -0.0001F) {
-				curOvercastStr = 0;
-			}
-		} else {
-
-	    	/*if (ConfigMisc.overcastMode) {
-	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-	    			if (curPrecipStrTarget < overcastModeMinPrecip) {
-	    				curPrecipStrTarget = overcastModeMinPrecip;
-	    			}
-	    		}
-	    	}*/
-
-			//mc.world.setRainStrength(curPrecipStr);
-
-			if (curPrecipStr > curPrecipStrTarget) {
-				curPrecipStr -= 0.001F;
-			} else if (curPrecipStr < curPrecipStrTarget) {
-				curPrecipStr += 0.001F;
-			}
-
-			if (curPrecipStr < 0.0001 && curPrecipStr > -0.0001F) {
-				curPrecipStr = 0;
-			}
-		}
 	}
 
 	public static StormObject getClosestStormCached(EntityPlayer entP) {

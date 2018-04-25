@@ -15,10 +15,12 @@ import net.minecraft.tileentity.TileEntity;
 import org.lwjgl.opengl.GL11;
 
 import weather2.ClientProxy;
+import weather2.ClientTickHandler;
 import weather2.util.WindReader;
 import weather2.block.TileEntityWeatherForecast;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigMisc;
+import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
@@ -142,11 +144,20 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         if (ConfigMisc.radarCloudDebug) {
             EntityPlayer entP = Minecraft.getMinecraft().player;
             if (entP != null) {
+                WeatherManagerClient wm = ClientTickHandler.weatherManager;
+
                 String rainThunder = entP.world.rainingStrength + " / " + entP.world.thunderingStrength;
+                renderLivingLabel("\u00A7" + " client weather: " +
+                                (entP.world.isRaining() ? "raining, " : "") + (entP.world.isThundering() ? "thundering" : "")
+                        , x, y + 2.0F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+                renderLivingLabel("\u00A7" + " server weather: " +
+                                (wm.isVanillaRainActiveOnServer ? "raining, " : "") + (wm.isVanillaThunderActiveOnServer ? "thundering" : "")
+                        , x, y + 2.1F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 renderLivingLabel("\u00A7" + " precip str: " + SceneEnhancer.getRainStrengthAndControlVisuals(entP), x, y + 2.2F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 renderLivingLabel("\u00A7" + " levelWater: " + levelWater, x, y + 2.3F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 renderLivingLabel("\u00A7" + " dist: " + descDist, x, y + 2.4F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
                 renderLivingLabel("\u00A7" + " rainThunder: " + rainThunder, x, y + 2.5F, z, 1, 10, 10, Minecraft.getMinecraft().getRenderManager().playerViewY);
+
             }
         }
         

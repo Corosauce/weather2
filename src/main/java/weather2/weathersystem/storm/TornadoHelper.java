@@ -27,6 +27,8 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.ClientConfigData;
+import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigTornado;
 import weather2.entity.EntityMovingBlock;
@@ -544,25 +546,34 @@ public class TornadoHelper {
     }
 
     public boolean canGrabEntity(Entity ent) {
+		ClientConfigData clientConfig = ClientTickHandler.clientConfigData;
     	if (ent instanceof EntityPlayer) {
-			if (ConfigTornado.Storm_Tornado_grabPlayer) {
+			if ((!ent.world.isRemote && ConfigTornado.Storm_Tornado_grabPlayer) ||
+					(ent.world.isRemote && clientConfig.Storm_Tornado_grabPlayer)) {
 				return true;
 			} else {
 				return false;
 			}
 		} else {
-    		if (ConfigTornado.Storm_Tornado_grabPlayersOnly) {
+    		if ((!ent.world.isRemote && ConfigTornado.Storm_Tornado_grabPlayersOnly) ||
+					(ent.world.isRemote && clientConfig.Storm_Tornado_grabPlayersOnly)) {
     			return false;
 			}
-			if (ent instanceof INpc && ConfigTornado.Storm_Tornado_grabVillagers) {
+			if (ent instanceof INpc &&
+					(!ent.world.isRemote && ConfigTornado.Storm_Tornado_grabVillagers) ||
+					(ent.world.isRemote && clientConfig.Storm_Tornado_grabVillagers)) {
 				return true;
 			}
 
-			if (ent instanceof IMob && ConfigTornado.Storm_Tornado_grabMobs) {
+			if (ent instanceof IMob &&
+					(!ent.world.isRemote && ConfigTornado.Storm_Tornado_grabMobs) ||
+					(ent.world.isRemote && clientConfig.Storm_Tornado_grabMobs)) {
 				return true;
 			}
 
-			if (ent instanceof EntityAnimal && ConfigTornado.Storm_Tornado_grabAnimals) {
+			if (ent instanceof EntityAnimal &&
+					(!ent.world.isRemote && ConfigTornado.Storm_Tornado_grabAnimals) ||
+					(ent.world.isRemote && clientConfig.Storm_Tornado_grabAnimals)) {
 				return true;
 			}
 		}

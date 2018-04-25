@@ -138,13 +138,16 @@ public class EntityLightningBolt extends EntityWeatherEffect
             }
             else
             {
+                //vanilla compat to call onStruckByLightning on entities, with effectOnly set to true to prevent fires
+                net.minecraft.entity.effect.EntityLightningBolt vanillaBolt =
+                        new net.minecraft.entity.effect.EntityLightningBolt(world, this.posX, this.posY, this.posZ, true);
                 double d0 = 3.0D;
                 List list = this.world.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - d0, this.posY - d0, this.posZ - d0, this.posX + d0, this.posY + 6.0D + d0, this.posZ + d0));
 
                 for (int l = 0; l < list.size(); ++l)
                 {
                     Entity entity = (Entity)list.get(l);
-                    //entity.onStruckByLightning(this);
+                    entity.onStruckByLightning(vanillaBolt);
                 }
             }
         }

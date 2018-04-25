@@ -46,6 +46,7 @@ public class WeatherManagerBase {
 	
 	//for client only
 	public boolean isVanillaRainActiveOnServer = false;
+	public boolean isVanillaThunderActiveOnServer = false;
 	
 	public long lastStormFormed = 0;
 

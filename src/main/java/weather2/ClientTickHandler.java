@@ -35,6 +35,8 @@ public class ClientTickHandler
 	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
 	public static FoliageEnhancerShader foliageEnhancer;
+
+	public static ClientConfigData clientConfigData;
 	
 	public boolean hasOpenedConfig = false;
 	
@@ -61,6 +63,8 @@ public class ClientTickHandler
 			foliageEnhancer = new FoliageEnhancerShader();
 			(new Thread(foliageEnhancer, "Weather2 Foliage Enhancer")).start();
 		}
+
+		clientConfigData = new ClientConfigData();
 	}
 
     public void onRenderScreenTick()

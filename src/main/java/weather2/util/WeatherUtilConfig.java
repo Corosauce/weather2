@@ -19,6 +19,7 @@ import net.minecraftforge.common.DimensionManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.*;
 import CoroUtil.util.CoroUtilFile;
@@ -234,6 +235,7 @@ public class WeatherUtilConfig {
 		try {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_STORM)) {
 				ConfigMisc.overcastMode = LIST_STORMSWHEN.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_STORM)).equalsIgnoreCase("Global Overcast");
+				ServerTickHandler.syncServerConfigToClient();
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_LOCK)) {

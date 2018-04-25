@@ -30,6 +30,8 @@ public class WeatherManagerClient extends WeatherManagerBase {
 
 	public static StormObject closestStormCached;
 
+
+
 	public WeatherManagerClient(int parDim) {
 		super(parDim);
 	}
@@ -174,6 +176,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			
 			//NBTTagCompound nbt = parNBT.getCompoundTag("data");
 			isVanillaRainActiveOnServer = parNBT.getBoolean("isVanillaRainActiveOnServer");
+			isVanillaThunderActiveOnServer = parNBT.getBoolean("isVanillaThunderActiveOnServer");
 			
 			//windMan.nbtSyncFromServer(nbt);
 		}
