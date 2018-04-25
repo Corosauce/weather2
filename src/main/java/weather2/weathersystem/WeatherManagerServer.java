@@ -245,14 +245,22 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (world.getTotalWorldTime() % 200 == 0) {
 				Random rand = new Random();
 				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
-				if (cloudIntensity < ConfigMisc.Cloud_Coverage_Min_Percent / 100F) {
-					cloudIntensity = (float)ConfigMisc.Cloud_Coverage_Min_Percent / 100F;
-				} else if (cloudIntensity > ConfigMisc.Cloud_Coverage_Max_Percent / 100F) {
-					cloudIntensity = (float)ConfigMisc.Cloud_Coverage_Max_Percent / 100F;
+				if (ConfigMisc.overcastMode && world.isRaining()) {
+					cloudIntensity = 1;
+				} else {
+					if (cloudIntensity < ConfigMisc.Cloud_Coverage_Min_Percent / 100F) {
+						cloudIntensity = (float) ConfigMisc.Cloud_Coverage_Min_Percent / 100F;
+					} else if (cloudIntensity > ConfigMisc.Cloud_Coverage_Max_Percent / 100F) {
+						cloudIntensity = (float) ConfigMisc.Cloud_Coverage_Max_Percent / 100F;
+					}
 				}
 				if (world.getTotalWorldTime() % 2000 == 0) {
 					//Weather.dbg("cloudIntensity FORCED MAX: " + cloudIntensity);
 				}
+
+				//force full cloudIntensity if server side raining
+				//note: storms also revert to clouded storms for same condition
+
 			}
 
 			//temp lock to max for fps comparisons

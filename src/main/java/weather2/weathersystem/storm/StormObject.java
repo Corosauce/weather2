@@ -552,6 +552,12 @@ public class StormObject extends WeatherObject {
 			}
 		} else {
 
+			if (isCloudlessStorm()) {
+				if (ConfigMisc.overcastMode && manager.getWorld().isRaining()) {
+					this.setCloudlessStorm(false);
+				}
+			}
+
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 				tornadoHelper.tick(manager.getWorld());
 			}
