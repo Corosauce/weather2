@@ -80,12 +80,37 @@ public class CommandWeather2 extends CommandBase {
 						for (int i = 0; i < listStorms.size(); i++) {
 							WeatherObject wo = listStorms.get(i);
 							if (wo instanceof WeatherObject) {
-								WeatherObject so = (WeatherObject) wo;
+								WeatherObject so = wo;
 								Weather.dbg("force killing storm ID: " + so.ID);
 								so.setDead();
-								/*wm.syncStormRemove(so);
-								wm.removeStormObject(so.ID);
-								*/
+							}
+						}
+					} else if (var2[1].equalsIgnoreCase("killDeadly")) {
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+						sendCommandSenderMsg(var1, "killing all deadly storms");
+						List<WeatherObject> listStorms = wm.getStormObjects();
+						for (int i = 0; i < listStorms.size(); i++) {
+							WeatherObject wo = listStorms.get(i);
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject)wo;
+								if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
+									Weather.dbg("force killing storm ID: " + so.ID);
+									so.setDead();
+								}
+							}
+						}
+					} else if (var2[1].equalsIgnoreCase("killRain") || var2[1].equalsIgnoreCase("killStorm")) {
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+						sendCommandSenderMsg(var1, "killing all raining or deadly storms");
+						List<WeatherObject> listStorms = wm.getStormObjects();
+						for (int i = 0; i < listStorms.size(); i++) {
+							WeatherObject wo = listStorms.get(i);
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject)wo;
+								if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER || so.attrib_precipitation) {
+									Weather.dbg("force killing storm ID: " + so.ID);
+									so.setDead();
+								}
 							}
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {

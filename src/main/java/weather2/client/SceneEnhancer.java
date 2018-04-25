@@ -945,6 +945,7 @@ public class SceneEnhancer implements Runnable {
     	float sizeToUse = 0;
 	    
 	    float overcastModeMinPrecip = 0.23F;
+		//overcastModeMinPrecip = 0.05F;
 	    
 	    //evaluate if storms size is big enough to be over player
 	    if (storm != null) {
@@ -977,6 +978,10 @@ public class SceneEnhancer implements Runnable {
 		    if (ConfigStorm.Storm_NoRainVisual) {
 		    	stormIntensity = 0;
 		    }
+
+		    if (stormIntensity < overcastModeMinPrecip) {
+		    	stormIntensity = overcastModeMinPrecip;
+			}
 		    
 		    //System.out.println("intensity: " + stormIntensity);
 	    	mc.world.getWorldInfo().setRaining(true);
