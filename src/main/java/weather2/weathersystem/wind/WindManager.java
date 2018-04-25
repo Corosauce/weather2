@@ -193,7 +193,7 @@ public class WindManager {
 				if (!ConfigWind.Wind_LowWindEvents) {
 					lowWindTimer = 0;
 				}
-				
+
 				if (lowWindTimer <= 0) {
 					if (windSpeedGlobalRandChangeTimer-- <= 0)
 		            {
@@ -259,6 +259,12 @@ public class WindManager {
 	            		syncData();
 	            	}
 	            }
+
+				if (ConfigMisc.overcastMode && manager.getWorld().isRaining()) {
+					if (windSpeedGlobal < ConfigWind.windSpeedMinGlobalOvercastRaining) {
+						windSpeedGlobal = (float) ConfigWind.windSpeedMinGlobalOvercastRaining;
+					}
+				}
 				
 	            //smooth use
 				/*if (windSpeed > windSpeedSmooth)

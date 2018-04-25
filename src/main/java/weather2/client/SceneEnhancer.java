@@ -20,8 +20,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -35,7 +37,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
-import weather2.config.ConfigFoliage;
 import weather2.util.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.client.entity.particle.ParticleFish;
@@ -133,6 +134,7 @@ public class SceneEnhancer implements Runnable {
     public static ParticleBehaviorSandstorm particleBehavior;
 
     public static ParticleTexExtraRender testParticle;
+	private int rainSoundCounter;
 
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -155,6 +157,7 @@ public class SceneEnhancer implements Runnable {
 	public void tickClient() {
 		if (!WeatherUtil.isPaused()) {
 			tryParticleSpawning();
+			tickRainRates();
 			tickParticlePrecipitation();
 			trySoundPlaying();
 
@@ -295,6 +298,84 @@ public class SceneEnhancer implements Runnable {
 	                    }
 	            	}
 	            }
+			}
+
+
+			Minecraft mc = Minecraft.getMinecraft();
+
+			float vanillaCutoff = 0.2F;
+			float precipStrength = Math.abs(getRainStrengthAndControlVisuals(mc.player, ClientTickHandler.clientConfigData.overcastMode));
+
+			//if less than vanilla sound playing amount
+			if (precipStrength <= vanillaCutoff) {
+
+				float volAmp = 0.2F + ((precipStrength / vanillaCutoff) * 0.8F);
+
+				Random random = new Random();
+
+				float f = mc.world.getRainStrength(1.0F);
+
+				if (!mc.gameSettings.fancyGraphics) {
+					f /= 2.0F;
+				}
+
+				if (f != 0.0F) {
+					//random.setSeed((long)this.rendererUpdateCount * 312987231L);
+					Entity entity = mc.getRenderViewEntity();
+					World world = mc.world;
+					BlockPos blockpos = new BlockPos(entity);
+					int i = 10;
+					double d0 = 0.0D;
+					double d1 = 0.0D;
+					double d2 = 0.0D;
+					int j = 0;
+					int k = 3;//(int) (400.0F * f * f);
+
+					if (mc.gameSettings.particleSetting == 1) {
+						k >>= 1;
+					} else if (mc.gameSettings.particleSetting == 2) {
+						k = 0;
+					}
+
+					for (int l = 0; l < k; ++l) {
+						BlockPos blockpos1 = world.getPrecipitationHeight(blockpos.add(random.nextInt(10) - random.nextInt(10), 0, random.nextInt(10) - random.nextInt(10)));
+						Biome biome = world.getBiome(blockpos1);
+						BlockPos blockpos2 = blockpos1.down();
+						IBlockState iblockstate = world.getBlockState(blockpos2);
+
+						if (blockpos1.getY() <= blockpos.getY() + 10 && blockpos1.getY() >= blockpos.getY() - 10 && biome.canRain() && biome.getFloatTemperature(blockpos1) >= 0.15F) {
+							double d3 = random.nextDouble();
+							double d4 = random.nextDouble();
+							AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
+
+							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA) {
+								if (iblockstate.getMaterial() != Material.AIR) {
+									++j;
+
+									if (random.nextInt(j) == 0) {
+										d0 = (double) blockpos2.getX() + d3;
+										d1 = (double) ((float) blockpos2.getY() + 0.1F) + axisalignedbb.maxY - 1.0D;
+										d2 = (double) blockpos2.getZ() + d4;
+									}
+
+									mc.world.spawnParticle(EnumParticleTypes.WATER_DROP, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + axisalignedbb.maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+								}
+							} else {
+								mc.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - axisalignedbb.minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+							}
+						}
+					}
+
+					if (j > 0 && random.nextInt(3) < this.rainSoundCounter++) {
+						this.rainSoundCounter = 0;
+
+						if (d1 > (double) (blockpos.getY() + 1) && world.getPrecipitationHeight(blockpos).getY() > MathHelper.floor((float) blockpos.getY())) {
+							mc.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN_ABOVE, SoundCategory.WEATHER, 0.1F * volAmp, 0.5F, false);
+						} else {
+							mc.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN, SoundCategory.WEATHER, 0.2F * volAmp, 1.0F, false);
+						}
+					}
+				}
 			}
 		} catch (Exception ex) {
     		System.out.println("Weather2: Error handling sound play queue: ");
@@ -607,6 +688,16 @@ public class SceneEnhancer implements Runnable {
 					int spawnNeed = (int)(curPrecipVal * 40F * ConfigParticle.Precipitation_Particle_effect_rate * particleAmp);
 					int safetyCutout = 100;
 
+					int extraRenderCount = 15;
+
+					//attempt to fix the cluttering issue more noticable when barely anything spawning
+					if (curPrecipVal < 0.1) {
+						//swap rates
+						int oldVal = extraRenderCount;
+						extraRenderCount = spawnNeed;
+						spawnNeed = oldVal;
+					}
+
 					//rain
 					if (entP.world.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
 
@@ -637,7 +728,7 @@ public class SceneEnhancer implements Runnable {
 									rain.killWhenUnderCameraAtLeast = 5;
 									rain.setTicksFadeOutMaxOnDeath(5);
 									rain.setDontRenderUnderTopmostBlock(true);
-									rain.setExtraParticlesBaseAmount(15);
+									rain.setExtraParticlesBaseAmount(extraRenderCount);
 									rain.fastLight = true;
 									rain.setSlantParticleToWind(true);
 									rain.windWeight = 1F;
@@ -945,7 +1036,8 @@ public class SceneEnhancer implements Runnable {
     	float sizeToUse = 0;
 	    
 	    float overcastModeMinPrecip = 0.23F;
-		//overcastModeMinPrecip = 0.05F;
+		//overcastModeMinPrecip = 0.16F;
+		overcastModeMinPrecip = (float)ConfigStorm.Storm_Rain_Overcast_Amount;
 	    
 	    //evaluate if storms size is big enough to be over player
 	    if (storm != null) {
@@ -1026,59 +1118,37 @@ public class SceneEnhancer implements Runnable {
 	    	//mc.world.setRainStrength(0);
 	    	//mc.world.thunderingStrength = 0;
 	    }
-	    
+
 	    if (forOvercast) {
-	    	
-	    	/*if (ConfigMisc.overcastMode) {
-	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-	    			if (curOvercastStrTarget < overcastModeMinPrecip) {
-	    				curOvercastStrTarget = overcastModeMinPrecip;
-	    			}
-	    		}
-	    	}*/
-	    	
-	    	//mc.world.setRainStrength(curOvercastStr);
-	    	
-	    	if (curOvercastStr > curOvercastStrTarget) {
-	    		curOvercastStr -= 0.001F;
-		    } else if (curOvercastStr < curOvercastStrTarget) {
-		    	curOvercastStr += 0.001F;
-		    }
-	    	
-	    	if (curOvercastStr < 0.0001 && curOvercastStr > -0.0001F) {
-	    		curOvercastStr = 0;
-	    	}
-	    	
-	    	return curOvercastStr * tempAdj;
+			if (curOvercastStr < 0.001 && curOvercastStr > -0.001F) {
+				return 0;
+			} else {
+				return curOvercastStr * tempAdj;
+			}
 	    } else {
-	    	
-	    	/*if (ConfigMisc.overcastMode) {
-	    		if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-	    			if (curPrecipStrTarget < overcastModeMinPrecip) {
-	    				curPrecipStrTarget = overcastModeMinPrecip;
-	    			}
-	    		}
-	    	}*/
-	    	
-	    	//mc.world.setRainStrength(curPrecipStr);
-	    	
-	    	if (curPrecipStr > curPrecipStrTarget) {
-		    	curPrecipStr -= 0.001F;
-		    } else if (curPrecipStr < curPrecipStrTarget) {
-		    	curPrecipStr += 0.001F;
-		    }
-	    	
-	    	if (curPrecipStr < 0.0001 && curPrecipStr > -0.0001F) {
-	    		curPrecipStr = 0;
-	    	}
-	    	
-	    	//Weather.dbg("curPrecipStr: " + curPrecipStr);
-	    	
-	    	return curPrecipStr * tempAdj;
+			if (curPrecipStr < 0.001 && curPrecipStr > -0.001F) {
+				return 0;
+			} else {
+				return curPrecipStr * tempAdj;
+			}
 	    }
-	    
-	    
-	    
+	}
+
+	public static void tickRainRates() {
+
+		float rateChange = 0.0005F;
+
+		if (curOvercastStr > curOvercastStrTarget) {
+			curOvercastStr -= rateChange;
+		} else if (curOvercastStr < curOvercastStrTarget) {
+			curOvercastStr += rateChange;
+		}
+
+		if (curPrecipStr > curPrecipStrTarget) {
+			curPrecipStr -= rateChange;
+		} else if (curPrecipStr < curPrecipStrTarget) {
+			curPrecipStr += rateChange;
+		}
 	}
 
 	public static float getPrecipStrength(EntityPlayer entP, boolean forOvercast) {

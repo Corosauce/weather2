@@ -646,7 +646,36 @@ public class StormObject extends WeatherObject {
 		//storm movement via wind
 		float angle = getAdjustedAngle();
 
+		if (angleIsOverridden) {
+			angle = angleMovementTornadoOverride;
+			//debug
+			/*if (manager.getWorld().getTotalWorldTime() % 20 == 0) {
+				EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
+				if (entP != null) {
 
+					//even more debug, heat seak test
+					//Random rand = new Random();
+					double var11 = entP.posX - pos.xCoord;
+		            double var15 = entP.posZ - pos.zCoord;
+		            float yaw = -((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI;
+		            //weather override!
+		            //yaw = weatherMan.wind.direction;
+		            //int size = ConfigMisc.Storm_Tornado_aimAtPlayerAngleVariance;
+		            //yaw += rand.nextInt(size) - (size / 2);
+
+					angleMovementTornadoOverride = yaw;
+
+					Weather.dbg("angle override: " + angle + " - dist from player: " + entP.getDistance(pos.xCoord, pos.yCoord, pos.zCoord));
+				}
+
+			}*/
+		}
+
+		//despite overridden angle, still avoid obstacles
+
+		//slight randomness to angle
+		Random rand = new Random();
+		angle += (rand.nextFloat() - rand.nextFloat()) * 0.15F;
 
 		//avoid large obstacles
 		double scanDist = 50;
@@ -661,31 +690,6 @@ public class StormObject extends WeatherObject {
 				angleAdj = -45;
 			}
 			angle += angleAdj;
-		}
-
-		if (angleIsOverridden) {
-			angle = angleMovementTornadoOverride;
-			//debug
-			/*if (manager.getWorld().getTotalWorldTime() % 20 == 0) {
-				EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
-				if (entP != null) {
-					
-					//even more debug, heat seak test
-					//Random rand = new Random();
-					double var11 = entP.posX - pos.xCoord;
-		            double var15 = entP.posZ - pos.zCoord;
-		            float yaw = -((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI;
-		            //weather override!
-		            //yaw = weatherMan.wind.direction;
-		            //int size = ConfigMisc.Storm_Tornado_aimAtPlayerAngleVariance;
-		            //yaw += rand.nextInt(size) - (size / 2);
-					
-					angleMovementTornadoOverride = yaw;
-					
-					Weather.dbg("angle override: " + angle + " - dist from player: " + entP.getDistance(pos.xCoord, pos.yCoord, pos.zCoord));
-				}
-					
-			}*/
 		}
 		
 		//Weather.dbg("cur angle: " + angle);
@@ -1048,6 +1052,8 @@ public class StormObject extends WeatherObject {
 		int levelWaterSpendRate = ConfigStorm.Storm_Rain_WaterSpendRate;
 		int randomChanceOfWaterBuildFromWater = ConfigStorm.Storm_Rain_WaterBuildUpOddsTo1FromSource;
 		int randomChanceOfWaterBuildFromNothing = ConfigStorm.Storm_Rain_WaterBuildUpOddsTo1FromNothing;
+		int randomChanceOfWaterBuildFromOvercastRaining = ConfigStorm.Storm_Rain_WaterBuildUpOddsTo1FromOvercastRaining;
+		randomChanceOfWaterBuildFromOvercastRaining = 10;
 		//int randomChanceOfRain = ConfigMisc.Player_Storm_Rain_OddsTo1;
 		
 		boolean isInOcean = false;
@@ -1083,6 +1089,11 @@ public class StormObject extends WeatherObject {
 			if (!isPrecipitating() && rand.nextInt(randomChanceOfWaterBuildFromNothing) == 0) {
 				performBuildup = true;
 			}
+
+			if (!isPrecipitating() && ConfigMisc.overcastMode && manager.getWorld().isRaining() &&
+					rand.nextInt(randomChanceOfWaterBuildFromOvercastRaining) == 0) {
+				performBuildup = true;
+			}
 			
 			Block blockID = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), currentTopYBlock-1, MathHelper.floor(pos.zCoord))).getBlock();
 			if (!CoroUtilBlock.isAir(blockID)) {
@@ -1106,7 +1117,7 @@ public class StormObject extends WeatherObject {
 			if (performBuildup) {
 				//System.out.println("RAIN BUILD TEMP OFF");
 				levelWater += levelWaterBuildRate;
-				//Weather.dbg("building rain: " + levelWater);
+				Weather.dbg("building rain: " + levelWater);
 			}
 			
 			//water values adjust when raining
@@ -1124,14 +1135,22 @@ public class StormObject extends WeatherObject {
 					Weather.dbg("ending raining for: " + ID);
 				}
 			} else {
-				if (!ConfigMisc.overcastMode || manager.getWorld().isRaining()) {
-					if (levelWater >= levelWaterStartRaining) {
-						if (ConfigStorm.Player_Storm_Rain_OddsTo1 != -1 && rand.nextInt(ConfigStorm.Player_Storm_Rain_OddsTo1) == 0) {
+				if (levelWater >= levelWaterStartRaining) {
+					if (ConfigMisc.overcastMode) {
+						if (manager.getWorld().isRaining()) {
+							if (ConfigStorm.Storm_Rain_Overcast_OddsTo1 != -1 && rand.nextInt(ConfigStorm.Storm_Rain_Overcast_OddsTo1) == 0) {
+								setPrecipitating(true);
+								Weather.dbg("starting raining for: " + ID);
+							}
+						}
+					} else {
+						if (ConfigStorm.Storm_Rain_OddsTo1 != -1 && rand.nextInt(ConfigStorm.Storm_Rain_OddsTo1) == 0) {
 							setPrecipitating(true);
 							Weather.dbg("starting raining for: " + ID);
 						}
 					}
 				}
+
 			}
 			
 			//actual storm formation chance
@@ -1277,7 +1296,7 @@ public class StormObject extends WeatherObject {
 				float minIntensityToProgress = 0.6F;
 				int oddsTo1OfIntensityProgressionBase = ConfigStorm.Storm_OddsTo1OfProgressionBase;
 				
-				//speed up forming and greater progression
+				//speed up forming and greater progression when past forming state
 				if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
 					levelStormIntensityRate *= 3;
 					oddsTo1OfIntensityProgressionBase /= 3;

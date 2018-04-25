@@ -287,13 +287,17 @@ public class WeatherUtilConfig {
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)) {
 				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("high")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = 150;
+					ConfigStorm.Storm_Rain_OddsTo1 = 150;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = ConfigStorm.Storm_Rain_OddsTo1 / 3;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("medium")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = 300;
+					ConfigStorm.Storm_Rain_OddsTo1 = 300;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = ConfigStorm.Storm_Rain_OddsTo1 / 3;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("low")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = 450;
+					ConfigStorm.Storm_Rain_OddsTo1 = 450;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = ConfigStorm.Storm_Rain_OddsTo1 / 3;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("none")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = -1;
+					ConfigStorm.Storm_Rain_OddsTo1 = -1;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = -1;
 				}
 			}
 			

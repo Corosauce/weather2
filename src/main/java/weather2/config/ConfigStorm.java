@@ -23,6 +23,7 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Storm_Rain_WaterSpendRate = 3;
 	public static int Storm_Rain_WaterBuildUpOddsTo1FromSource = 15;
 	public static int Storm_Rain_WaterBuildUpOddsTo1FromNothing = 100;
+	public static int Storm_Rain_WaterBuildUpOddsTo1FromOvercastRaining = 30;
 	//public static int Storm_Rain_WaterBuildUp = 150;
 	public static double Storm_TemperatureAdjustRate = 0.1D;
 	//public static double Storm_Deadly_MinIntensity = 5.3D;
@@ -36,7 +37,6 @@ public class ConfigStorm implements IConfigCategory {
 	//per player storm settings
 	public static int Player_Storm_Deadly_OddsTo1 = 30;
 	public static int Player_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3; //3 mc days
-	public static int Player_Storm_Rain_OddsTo1 = 150;
 	
 	//per server storm settings
 	public static boolean Server_Storm_Deadly_UseGlobalRate = false;
@@ -58,6 +58,12 @@ public class ConfigStorm implements IConfigCategory {
     public static int Storm_Deflector_MinStageRemove = 1;
     public static boolean Storm_Deflector_RemoveRainstorms = false;
     public static boolean Storm_Deflector_RemoveSandstorms = true;
+
+	@ConfigComment("Minimum amount of visual rain shown when its raining globally during overcast mode")
+    public static double Storm_Rain_Overcast_Amount = 0.01D;
+	public static int Storm_Rain_Overcast_OddsTo1 = 50;
+
+	public static int Storm_Rain_OddsTo1 = 150;
 
     @Override
     public String getName() {
