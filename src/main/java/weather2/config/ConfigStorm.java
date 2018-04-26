@@ -30,8 +30,23 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Storm_HailPerTick = 10;
 	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
 	public static int Storm_OddsTo1OfLandBasedStorm = -1;
-	public static int Storm_OddsTo1OfProgressionBase = 15;
-	public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
+	//public static int Storm_OddsTo1OfProgressionBase = 15;
+	//public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
+	public static int Storm_PercentChanceOf_HighWind = 90;
+	public static int Storm_PercentChanceOf_Hail = 80;
+	public static int Storm_PercentChanceOf_F0_Tornado = 70;
+	public static int Storm_PercentChanceOf_C0_Cyclone = 70;
+	public static int Storm_PercentChanceOf_F1_Tornado = 50;
+	public static int Storm_PercentChanceOf_C1_Cyclone = 50;
+	public static int Storm_PercentChanceOf_F2_Tornado = 40;
+	public static int Storm_PercentChanceOf_C2_Cyclone = 40;
+	public static int Storm_PercentChanceOf_F3_Tornado = 30;
+	public static int Storm_PercentChanceOf_C3_Cyclone = 30;
+	public static int Storm_PercentChanceOf_F4_Tornado = 20;
+	public static int Storm_PercentChanceOf_C4_Cyclone = 20;
+	public static int Storm_PercentChanceOf_F5_Tornado = 10;
+	@ConfigComment("Also known as full blown hurricane")
+	public static int Storm_PercentChanceOf_C5_Cyclone = 10;
 	public static int Storm_ParticleSpawnDelay = 3;
 	
 	//per player storm settings

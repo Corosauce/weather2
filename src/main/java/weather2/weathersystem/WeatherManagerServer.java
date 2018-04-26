@@ -229,6 +229,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (world.getTotalWorldTime() % 40 == 0) {
 				isVanillaRainActiveOnServer = getWorld().isRaining();
 				isVanillaThunderActiveOnServer = getWorld().isThundering();
+				vanillaRainTimeOnServer = getWorld().getWorldInfo().getRainTime();
 				syncWeatherVanilla();
 			}
 			//}
@@ -611,6 +612,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.setString("command", "syncWeatherUpdate");
 		data.setBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
 		data.setBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
+		data.setInteger("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 	}
 	

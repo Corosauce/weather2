@@ -177,7 +177,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			//NBTTagCompound nbt = parNBT.getCompoundTag("data");
 			isVanillaRainActiveOnServer = parNBT.getBoolean("isVanillaRainActiveOnServer");
 			isVanillaThunderActiveOnServer = parNBT.getBoolean("isVanillaThunderActiveOnServer");
-			
+			vanillaRainTimeOnServer = parNBT.getInteger("vanillaRainTimeOnServer");
 			//windMan.nbtSyncFromServer(nbt);
 		}
 	}

@@ -105,7 +105,7 @@ public class StormObject extends WeatherObject {
 	public int levelWaterStartRaining = 100;
 	
 	//storm data, used when its determined a storm will happen from cloud front collisions
-	//public float levelStormIntensityMax = 0; //calculated from colliding warm and cold fronts, used to determine how crazy a storm _will_ get
+	public int levelStormIntensityMax = 0; //calculated from colliding warm and cold fronts, used to determine how crazy a storm _will_ get
 	
 	//revision, ints for each stage of intensity, and a float for the intensity of THAT current stage
 	public int levelCurIntensityStage = 0; //since we want storms to build up to a climax still, this will start from 0 and peak to levelStormIntensityMax
@@ -1294,16 +1294,18 @@ public class StormObject extends WeatherObject {
 				
 				float levelStormIntensityRate = 0.02F;
 				float minIntensityToProgress = 0.6F;
-				int oddsTo1OfIntensityProgressionBase = ConfigStorm.Storm_OddsTo1OfProgressionBase;
+				//change since storms have a predetermined max now, nevermind, storms take too long, limited simbox area
+				//minIntensityToProgress = 0.8F;
+				//int oddsTo1OfIntensityProgressionBase = ConfigStorm.Storm_OddsTo1OfProgressionBase;
 				
 				//speed up forming and greater progression when past forming state
 				if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
 					levelStormIntensityRate *= 3;
-					oddsTo1OfIntensityProgressionBase /= 3;
+					//oddsTo1OfIntensityProgressionBase /= 3;
 				}
 
-				int oddsTo1OfIntensityProgression = oddsTo1OfIntensityProgressionBase + (levelCurIntensityStage * ConfigStorm.Storm_OddsTo1OfProgressionStageMultiplier);
-				
+				//int oddsTo1OfIntensityProgression = oddsTo1OfIntensityProgressionBase + (levelCurIntensityStage * ConfigStorm.Storm_OddsTo1OfProgressionStageMultiplier);
+
 				if (!hasStormPeaked) {
 					
 					levelCurStagesIntensity += levelStormIntensityRate;
@@ -1311,7 +1313,7 @@ public class StormObject extends WeatherObject {
 					if (levelCurIntensityStage < maxIntensityStage && (!ConfigTornado.Storm_NoTornadosOrCyclones || levelCurIntensityStage < STATE_FORMING-1)) {
 						if (levelCurStagesIntensity >= minIntensityToProgress) {
 							//Weather.dbg("storm ID: " + this.ID + " trying to hit next stage");
-							if (alwaysProgresses || rand.nextInt(oddsTo1OfIntensityProgression) == 0) {
+							if (alwaysProgresses || levelCurIntensityStage < levelStormIntensityMax/*rand.nextInt(oddsTo1OfIntensityProgression) == 0*/) {
 								stageNext();
 								Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage);
 								//mark is tropical cyclone if needed! and never unmark it!
@@ -1320,6 +1322,10 @@ public class StormObject extends WeatherObject {
 									if (levelCurIntensityStage == STATE_FORMING) {
 										Weather.dbg("storm ID: " + this.ID + " marked as tropical cyclone!");
 										stormType = TYPE_WATER;
+
+										//reroll dice on ocean storm since we only just define it here
+										levelStormIntensityMax = rollDiceOnMaxIntensity();
+										Weather.dbg("rerolled odds for ocean storm, max stage will be: " + levelStormIntensityMax);
 									}
 								}
 							}
@@ -1327,7 +1333,7 @@ public class StormObject extends WeatherObject {
 					}
 					
 					
-					//Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage + " at intensity: " + levelCurStagesIntensity);
+					Weather.dbg("storm ID: " + this.ID + " - growing, stage " + levelCurIntensityStage + " of max " + levelStormIntensityMax + ", at intensity: " + levelCurStagesIntensity);
 					
 					if (levelCurStagesIntensity >= 1F) {
 						Weather.dbg("storm peaked at: " + levelCurIntensityStage);
@@ -1444,6 +1450,10 @@ public class StormObject extends WeatherObject {
 				levelStormIntensityMax = (float)ConfigMisc.Storm_Deadly_MinIntensity;
 			}*/
 		}
+
+		this.levelStormIntensityMax = rollDiceOnMaxIntensity();
+		Weather.dbg("rolled odds for storm, unless it becomes ocean storm, max stage will be: " + levelStormIntensityMax);
+
 		this.attrib_precipitation = true;
 
 		if (stormToAbsorb != null) {
@@ -1456,11 +1466,55 @@ public class StormObject extends WeatherObject {
 		
 		if (ConfigTornado.Storm_Tornado_aimAtPlayerOnSpawn) {
 			
-			if (entP != null) {
+			//if (entP != null) {
 				aimStormAtClosestOrProvidedPlayer(entP);
-			}
+			//}
 			
 		}
+	}
+
+	public int rollDiceOnMaxIntensity() {
+		Random rand = new Random();
+		int randVal = rand.nextInt(100);
+		if (stormType == TYPE_LAND) {
+			if (randVal <= ConfigStorm.Storm_PercentChanceOf_F5_Tornado) {
+				return STATE_STAGE5;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_F4_Tornado) {
+				return STATE_STAGE4;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_F3_Tornado) {
+				return STATE_STAGE3;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_F2_Tornado) {
+				return STATE_STAGE2;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_F1_Tornado) {
+				return STATE_STAGE1;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_F0_Tornado) {
+				return STATE_FORMING;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_Hail) {
+				return STATE_HAIL;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_HighWind) {
+				return STATE_HIGHWIND;
+			}
+		} else if (stormType == TYPE_WATER) {
+			if (randVal <= ConfigStorm.Storm_PercentChanceOf_C5_Cyclone) {
+				return STATE_STAGE5;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_C4_Cyclone) {
+				return STATE_STAGE4;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_C3_Cyclone) {
+				return STATE_STAGE3;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_C2_Cyclone) {
+				return STATE_STAGE2;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_C1_Cyclone) {
+				return STATE_STAGE1;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_C0_Cyclone) {
+				return STATE_FORMING;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_Hail) {
+				return STATE_HAIL;
+			} else if (randVal <= ConfigStorm.Storm_PercentChanceOf_HighWind) {
+				return STATE_HIGHWIND;
+			}
+		}
+
+		return STATE_THUNDER;
 	}
 	
 	public void aimStormAtClosestOrProvidedPlayer(EntityPlayer entP) {

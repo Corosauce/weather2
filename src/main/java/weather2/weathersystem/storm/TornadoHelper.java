@@ -13,7 +13,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.INpc;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -43,7 +42,7 @@ public class TornadoHelper {
 	
 	public StormObject storm;
 	
-	public int blockCount = 0;
+	//public int blockCount = 0;
 	
 	public int ripCount = 0;
 
@@ -66,6 +65,11 @@ public class TornadoHelper {
      */
     private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<BlockPos, BlockUpdateSnapshot>();
     private int queueProcessRate = 10;
+
+	public static boolean isOutsideCached = false;
+
+	public static HashMap<Integer, Long> flyingBlock_LastQueryTime = new HashMap<>();
+	public static HashMap<Integer, Integer> flyingBlock_LastCount = new HashMap<>();
     
     public static class BlockUpdateSnapshot {
     	private int dimID;
@@ -161,17 +165,19 @@ public class TornadoHelper {
 					if (world != null) {
 						world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
 						if (snapshot.getState().getBlock() == Blocks.AIR) {
-							if (count % entityCreateStaggerRate == 0) {
-								EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
-								double speed = 1D;
-								mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
-								mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
-								mBlock.motionY = 1D;
-								/*if (mBlock != null) {
-			                    	mBlock.setPosition(tryX, tryY, tryZ);
-			                    }*/
-								parWorld.spawnEntity(mBlock);
-							}
+							//if (count % entityCreateStaggerRate == 0) {
+								if (snapshot.isCreateEntityForBlockRemoval()) {
+									EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
+									double speed = 1D;
+									mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
+									mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
+									mBlock.motionY = 1D;
+									/*if (mBlock != null) {
+										mBlock.setPosition(tryX, tryY, tryZ);
+									}*/
+									parWorld.spawnEntity(mBlock);
+								}
+							//}
 						}
 					}
 					count++;
@@ -479,10 +485,11 @@ public class TornadoHelper {
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))) {
-            
 
+        	int blockCount = getBlockCountForDim(parWorld);
+
+			//old per storm blockCount seems glitched... lets use a global we cache count of
             if (parWorld.isBlockLoaded(new BlockPos(storm.pos.xCoord, 128, storm.pos.zCoord)) &&
-				blockCount <= ConfigTornado.Storm_Tornado_maxBlocksPerStorm &&
 				lastGrabTime < System.currentTimeMillis() &&
 				tickGrabCount < ConfigTornado.Storm_Tornado_maxBlocksGrabbedPerTick) {
 
@@ -493,7 +500,7 @@ public class TornadoHelper {
                 	boolean playerClose = parWorld.getClosestPlayer(storm.posBaseFormationPos.xCoord, storm.posBaseFormationPos.yCoord, storm.posBaseFormationPos.zCoord, 140, false) != null;
                     if (playerClose) {
 	                    
-	                    blockCount++;
+	                    //blockCount++;
 	                    
 	                    //if (WeatherMod.debug && parWorld.getWorldTime() % 60 == 0) System.out.println("ripping, count: " + WeatherMod.blockCount);
 
@@ -522,7 +529,8 @@ public class TornadoHelper {
 					{
 						removeCount++;
 
-						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.AIR.getDefaultState(), state, pos, playerClose));
+						boolean shouldEntityify = blockCount <= ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks;
+						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.AIR.getDefaultState(), state, pos, playerClose && shouldEntityify));
 					}
                 }
 				if (blockID == Blocks.GLASS)
@@ -664,14 +672,13 @@ public class TornadoHelper {
                 {*/
                     if (entity1 instanceof EntityMovingBlock)
                     {
-                        if (blockCount + 5 > ConfigTornado.Storm_Tornado_maxBlocksPerStorm)
+                        /*if (blockCount + 5 > ConfigTornado.Storm_Tornado_maxBlocks)
                         {
                             if (entity1.posY > 255)
                             {
                                 entity1.setDead();
-                                //System.out.println(blockCount);
                             }
-                        }
+                        }*/
 
                         /*if (entity1.motionX < 0.3F && entity1.motionY < 0.3F && entity1.motionZ < 0.3F && getFPS() < 20 && killCount < 20)
                         {
@@ -768,7 +775,15 @@ public class TornadoHelper {
 
         if (distToPlayer < far)
         {
-            if (playFarSound) tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, volScaleFar, far);
+            if (playFarSound) {
+				if (mc.world.getTotalWorldTime() % 40 == 0) {
+					isOutsideCached = WeatherUtilEntity.isPosOutside(mc.world,
+							new Vec3(mc.player.getPosition().getX()+0.5F, mc.player.getPosition().getY()+0.5F, mc.player.getPosition().getZ()+0.5F));
+				}
+				if (isOutsideCached) {
+					tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, volScaleFar, far);
+				}
+			}
             //tryPlaySound(snd_dmg_close[0], 0);
             //tryPlaySound(snd_dmg_close[0], 0);
             if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, volScaleClose, close);
@@ -778,37 +793,6 @@ public class TornadoHelper {
                 tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, volScaleClose, close);
             }
         }
-
-        /*if (distToPlayer < far && WeatherUtilSound.lastSoundPositionUpdate < System.currentTimeMillis())
-        {
-            //System.out.println(sndSys);
-            //int j = (int)(field.getFloat(item)
-        	WeatherUtilSound.lastSoundPositionUpdate = System.currentTimeMillis() + 100;
-
-            //float gameVol = mc.gameSettings.soundVolume;
-            if (WeatherUtilSound.soundID[0] > -1 && WeatherUtilSound.soundTimer[0] < System.currentTimeMillis())
-            {
-            	WeatherUtilSound.setVolume(new StringBuilder().append("sound_" + WeatherUtilSound.soundID[0]).toString(), volScaleClose);
-            }
-
-            if (WeatherUtilSound.soundID[1] > -1 && WeatherUtilSound.soundTimer[1] < System.currentTimeMillis())
-            {
-            	WeatherUtilSound.setVolume(new StringBuilder().append("sound_" + WeatherUtilSound.soundID[1]).toString(), volScaleClose);
-            }
-
-            if (WeatherUtilSound.soundID[2] > -1 && WeatherUtilSound.soundTimer[2] < System.currentTimeMillis())
-            {
-            	WeatherUtilSound.setVolume(new StringBuilder().append("sound_" + WeatherUtilSound.soundID[2]).toString(), volScaleFar);
-            }
-        }*/
-
-        //System.out.println(volScaleClose);
-        //System.out.println(distToPlayer);
-        //world.playRecord("destruction2", (int)posX, (int)posY, (int)posZ);
-        //world.playSoundEffect(posX, posY, posZ, "tornado.destruction", 1F, 1.0F);
-        //world.playSoundAtEntity(mc.player, "tornado.destruction", 1.0F, 1.0F);
-        //world.playRecord("tornado.destruction", (int)mc.player.posX, (int)mc.player.posY, (int)mc.player.posZ);
-        //mc.ingameGUI.recordPlayingUpFor = 0;
     }
 
     public boolean tryPlaySound(String[] sound, int arrIndex, Entity source, float vol, float parCutOffRange)
@@ -835,4 +819,47 @@ public class TornadoHelper {
 
         return false;
     }
+
+	/**
+	 * Will abort out of counting if it hits the min amount required as per config
+	 *
+	 * @param world
+	 * @return
+	 */
+	public static int getBlockCountForDim(World world) {
+    	int queryRate = 20;
+    	boolean perform = false;
+		int flyingBlockCount = 0;
+    	int dimID = world.provider.getDimension();
+    	if (!flyingBlock_LastCount.containsKey(dimID) || !flyingBlock_LastQueryTime.containsKey(dimID)) {
+			//System.out.println("perform for missing");
+			perform = true;
+		} else if (flyingBlock_LastQueryTime.get(dimID) + queryRate < world.getTotalWorldTime()) {
+			//System.out.println("perform for time");
+			perform = true;
+		}
+
+		if (perform) {
+
+			//Weather.dbg("getting moving block count");
+
+			List<Entity> entities = world.getLoadedEntityList();
+    		for (int i = 0; i < entities.size(); i++) {
+    			Entity ent = entities.get(i);
+				if (ent instanceof EntityMovingBlock) {
+					flyingBlockCount++;
+
+					if (flyingBlockCount > ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks) {
+						break;
+					}
+					//save time if we already hit the max
+				}
+			}
+
+			flyingBlock_LastQueryTime.put(dimID, world.getTotalWorldTime());
+    		flyingBlock_LastCount.put(dimID, flyingBlockCount);
+		}
+
+		return flyingBlock_LastCount.get(dimID);
+	}
 }

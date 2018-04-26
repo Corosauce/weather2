@@ -531,7 +531,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void setDead()
     {
-    	if (!world.isRemote) {
+    	/*if (!world.isRemote) {
     		if (owner != null && owner.tornadoHelper != null) {
     			--owner.tornadoHelper.blockCount;
     			
@@ -541,7 +541,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     	        }
     		}
 	        
-    	}
+    	}*/
     	
     	owner = null;
         super.setDead();
