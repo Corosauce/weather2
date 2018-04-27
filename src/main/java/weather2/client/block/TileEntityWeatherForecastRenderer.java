@@ -118,7 +118,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 		
 		GlStateManager.pushMatrix();
         GlStateManager.translate((float)x + 0.5F, (float)y+1.1F, (float)z + 0.5F);
-        GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+        GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
+        //GL11.glNormal3f(0.0F, 1.0F, 0.0F);
         GlStateManager.disableLighting();
         //GlStateManager.depthMask(false);
         //GlStateManager.disableDepth();
@@ -142,7 +143,9 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         GlStateManager.disableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
-        
+
+        //if (true) return;
+
         float playerViewY = Minecraft.getMinecraft().getRenderManager().playerViewY;
 		
         renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, playerViewY);
@@ -174,8 +177,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
 		for (int i = 0; i < tEnt.storms.size(); i++) {
 
             WeatherObject wo = tEnt.storms.get(i);
-			
-			GL11.glPushMatrix();
+
+            GlStateManager.pushMatrix();
 			
             Vec3 posRenderOffset = new Vec3(wo.pos.xCoord - tEnt.getPos().getX(), 0, wo.pos.zCoord - tEnt.getPos().getZ());
             posRenderOffset.xCoord /= sizeSimBoxDiameter;
@@ -185,8 +188,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             posRenderOffset.zCoord *= sizeRenderBoxDiameter;
             
             //Icon particleIcon = CommonProxy.blockWeatherDeflector.getBlockTextureFromSide(0);
-            
-            GL11.glTranslated(posRenderOffset.xCoord, 0, posRenderOffset.zCoord);
+
+            GlStateManager.translate(posRenderOffset.xCoord, 0, posRenderOffset.zCoord);
 
             if (wo instanceof StormObject) {
                 StormObject storm = (StormObject)wo;
@@ -248,10 +251,10 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             }
             
         	//renderLivingLabel("r", x, y + 1.4F, z, 1, 10, 10, playerViewY);
-            
-            GL11.glTranslated(-posRenderOffset.xCoord, 0, -posRenderOffset.zCoord);
-            
-            GL11.glPopMatrix();
+
+            GlStateManager.translate(-posRenderOffset.xCoord, 0, -posRenderOffset.zCoord);
+
+            GlStateManager.popMatrix();
 		}
     }
     
@@ -262,26 +265,35 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     
     protected void renderLivingLabel(String par2Str, double par3, double par5, double par7, int par9, int width, int height, float angle)
     {
+
         int borderSize = 2;
-        
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+        GlStateManager.disableCull();
+        GlStateManager.disableTexture2D();
     	
         FontRenderer var11 = Minecraft.getMinecraft().getRenderManager().getFontRenderer();
         float var12 = 0.6F;
         float var13 = 0.016666668F * var12;
-        GL11.glPushMatrix();
-        GL11.glTranslatef((float)par3 + 0.5F, (float)par5, (float)par7 + 0.5F);
-        GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-        GL11.glRotatef(-angle, 0.0F, 1.0F, 0.0F);
-        GL11.glScalef(-var13, -var13, var13);
-        GL11.glDisable(GL11.GL_LIGHTING);
+        GlStateManager.pushMatrix();
+        //GL11.glPushMatrix();
+        GlStateManager.translate(par3 + 0.5F, par5, par7 + 0.5F);
+        //GL11.glTranslatef((float)par3 + 0.5F, (float)par5, (float)par7 + 0.5F);
+        GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
+        //GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(-angle, 0.0F, 1.0F, 0.0F);
+        //GL11.glRotatef(-angle, 0.0F, 1.0F, 0.0F);
+        GlStateManager.scale(-var13, -var13, var13);
+        //GL11.glScalef(-var13, -var13, var13);
+        GlStateManager.disableLighting();
+        //GL11.glDisable(GL11.GL_LIGHTING);
         
         if (par9 == 0) {
-            GL11.glDepthMask(false);
+            //GL11.glDepthMask(false);
             //GL11.glDisable(GL11.GL_DEPTH_TEST);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.enableBlend();
+            //GL11.glEnable(GL11.GL_BLEND);
+            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             Tessellator var14 = Tessellator.getInstance();
             BufferBuilder worldrenderer = var14.getBuffer();
             byte var15 = 0;
@@ -314,16 +326,22 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             
             var14.draw();
         }
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
+        GlStateManager.enableTexture2D();
+        //GL11.glEnable(GL11.GL_TEXTURE_2D);
+        //GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //GL11.glDepthMask(true);
         var11.drawString(par2Str, -width/2+borderSize, 0, 0xFFFFFF);
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glPopMatrix();
-        
-        GL11.glEnable(GL11.GL_CULL_FACE);
+        GlStateManager.enableLighting();
+        //GL11.glEnable(GL11.GL_LIGHTING);
+        GlStateManager.enableBlend();
+        //GL11.glDisable(GL11.GL_BLEND);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        //GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.popMatrix();
+        //GL11.glPopMatrix();
+
+        GlStateManager.enableCull();
+        //GL11.glEnable(GL11.GL_CULL_FACE);
     }
     
     public void renderIconNew(double x, double y, double z, int width, int height, float angle, TextureAtlasSprite parIcon) {
@@ -336,7 +354,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         float var13 = 0.016666668F * var12;
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)x + 0.5F, (float)y, (float)z + 0.5F);
-        GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+        GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
+        //GL11.glNormal3f(0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-angle, 0.0F, 1.0F, 0.0F);
         GlStateManager.scale(-var13, -var13, var13);
         
@@ -376,7 +395,8 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         .color(r, g, b, 1.0F).endVertex();
         
         tessellator.draw();
-        
-        GL11.glPopMatrix();
+
+        GlStateManager.popMatrix();
+        //GL11.glPopMatrix();
     }
 }
