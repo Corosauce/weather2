@@ -3,7 +3,7 @@ package weather2.client;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import CoroUtil.config.ConfigCoroAI;
+import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
@@ -181,7 +181,7 @@ public class SceneEnhancer implements Runnable {
 			}
 			particleBehavior.tickUpdateList();
 
-			if (ConfigCoroAI.foliageShaders && EventHandler.queryUseOfShaders()) {
+			if (ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders()) {
 				if (!FoliageEnhancerShader.useThread) {
 					if (mc.world.getTotalWorldTime() % 40 == 0) {
 						FoliageEnhancerShader.tickClientThreaded();
@@ -527,7 +527,7 @@ public class SceneEnhancer implements Runnable {
 			//System.out.println("ClientTickEvent time: " + world.getTotalWorldTime());
 
 			double particleAmp = 1F;
-			if (RotatingParticleManager.useShaders && ConfigCoroAI.particleShaders) {
+			if (RotatingParticleManager.useShaders && ConfigCoroUtil.particleShaders) {
 				particleAmp = ConfigMisc.shaderParticleRateAmplifier;
 				//ConfigCoroAI.optimizedCloudRendering = true;
 			} else {
@@ -733,7 +733,7 @@ public class SceneEnhancer implements Runnable {
 									rain.setSlantParticleToWind(true);
 									rain.windWeight = 1F;
 
-									if (!RotatingParticleManager.useShaders || !ConfigCoroAI.particleShaders) {
+									if (!RotatingParticleManager.useShaders || !ConfigCoroUtil.particleShaders) {
 										//old slanty rain way
 										rain.setFacePlayer(true);
 										rain.setSlantParticleToWind(true);
@@ -1349,7 +1349,7 @@ public class SceneEnhancer implements Runnable {
         //if (true) return;
 
 		double particleAmp = 1F;
-		if (RotatingParticleManager.useShaders && ConfigCoroAI.particleShaders) {
+		if (RotatingParticleManager.useShaders && ConfigCoroUtil.particleShaders) {
 			particleAmp = ConfigMisc.shaderParticleRateAmplifier * 2D;
 			//ConfigCoroAI.optimizedCloudRendering = true;
 		} else {

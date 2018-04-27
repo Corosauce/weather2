@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import CoroUtil.config.ConfigCoroAI;
+import CoroUtil.config.ConfigCoroUtil;
 import modconfig.ConfigMod;
 import modconfig.IConfigCategory;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -164,18 +164,18 @@ public class WeatherUtilConfig {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_SHADERS_PARTICLE)) {
 				int val = nbtClientData.getInteger("btn_" + CMD_BTN_PERF_SHADERS_PARTICLE);
 				if (val == 0) {
-					ConfigCoroAI.particleShaders = false;
+					ConfigCoroUtil.particleShaders = false;
 				} else if (val == 1) {
-					ConfigCoroAI.particleShaders = true;
+					ConfigCoroUtil.particleShaders = true;
 				}
 			}
 
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_SHADERS_FOLIAGE)) {
 				int val = nbtClientData.getInteger("btn_" + CMD_BTN_PERF_SHADERS_FOLIAGE);
 				if (val == 0) {
-					ConfigCoroAI.foliageShaders = false;
+					ConfigCoroUtil.foliageShaders = false;
 				} else if (val == 1) {
-					ConfigCoroAI.foliageShaders = true;
+					ConfigCoroUtil.foliageShaders = true;
 				}
 			}
 			

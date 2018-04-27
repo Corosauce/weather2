@@ -2,10 +2,9 @@ package weather2.weathersystem.storm;
 
 import java.util.*;
 
-import CoroUtil.config.ConfigCoroAI;
+import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.util.*;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -27,7 +26,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import weather2.CommonProxy;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
@@ -295,6 +293,8 @@ public class StormObject extends WeatherObject {
 
 		angleIsOverridden = var1.getBoolean("angleIsOverridden");
 		angleMovementTornadoOverride = var1.getFloat("angleMovementTornadoOverride");
+
+		userSpawnedFor = var1.getString("userSpawnedFor");
     }
 
     @Override
@@ -308,6 +308,8 @@ public class StormObject extends WeatherObject {
 
 		nbt.setBoolean("angleIsOverridden", angleIsOverridden);
 		nbt.setFloat("angleMovementTornadoOverride", angleMovementTornadoOverride);
+
+		nbt.setString("userSpawnedFor", userSpawnedFor);
 
     }
 	
@@ -352,6 +354,7 @@ public class StormObject extends WeatherObject {
 		//formingStrength = parNBT.getFloat("formingStrength");
 
 		levelCurIntensityStage = parNBT.getInteger("levelCurIntensityStage");
+		levelStormIntensityMax = parNBT.getInteger("levelStormIntensityMax");
 		levelCurStagesIntensity = parNBT.getFloat("levelCurStagesIntensity");
 		stormType = parNBT.getInteger("stormType");
 		
@@ -400,6 +403,7 @@ public class StormObject extends WeatherObject {
 		
 		data.setInteger("levelCurIntensityStage", levelCurIntensityStage);
 		data.setFloat("levelCurStagesIntensity", levelCurStagesIntensity);
+		data.setFloat("levelStormIntensityMax", levelStormIntensityMax);
 		data.setInteger("stormType", stormType);
 		
 		data.setBoolean("hasStormPeaked", hasStormPeaked);
@@ -1705,7 +1709,7 @@ public class StormObject extends WeatherObject {
 
 
 		//spawn clouds
-		if (ConfigCoroAI.optimizedCloudRendering) {
+		if (ConfigCoroUtil.optimizedCloudRendering) {
 
 			//1 in middle, 8 around it
 			int count = 8+1;
@@ -1775,7 +1779,7 @@ public class StormObject extends WeatherObject {
 
 					listParticlesCloud.add(particle);
 				}*/
-				if (!ConfigCoroAI.optimizedCloudRendering && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
+				if (!ConfigCoroUtil.optimizedCloudRendering && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
 					double spawnRad = size;
 					
 					/*if (layer != 0) {
@@ -1818,7 +1822,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (!ConfigCoroAI.optimizedCloudRendering && levelCurIntensityStage >= STATE_HIGHWIND) {
+		if (!ConfigCoroUtil.optimizedCloudRendering && levelCurIntensityStage >= STATE_HIGHWIND) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
@@ -2570,12 +2574,12 @@ public class StormObject extends WeatherObject {
 		}
 
 		//temp?
-		if (ConfigCoroAI.optimizedCloudRendering) {
+		if (ConfigCoroUtil.optimizedCloudRendering) {
 			entityfx.setMaxAge(400);
 		}
     	
     	float randFloat = (rand.nextFloat() * 0.6F);
-		if (ConfigCoroAI.optimizedCloudRendering) {
+		if (ConfigCoroUtil.optimizedCloudRendering) {
 			randFloat = (rand.nextFloat() * 0.4F);
 		}
 		float baseBright = 0.7F;

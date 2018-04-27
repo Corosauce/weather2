@@ -1,6 +1,6 @@
 package weather2.client.foliage;
 
-import CoroUtil.config.ConfigCoroAI;
+import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.forge.CULog;
 import CoroUtil.util.CoroUtilBlockLightCache;
 import CoroUtil.util.Vec3;
@@ -71,7 +71,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
-        boolean replaceVanillaModels = ConfigCoroAI.foliageShaders && EventHandler.queryUseOfShaders();
+        boolean replaceVanillaModels = ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders();
 
         boolean textureFix = false;
 
@@ -451,7 +451,7 @@ public class FoliageEnhancerShader implements Runnable {
         if (useThread) {
             while (true) {
                 try {
-                    if (ConfigCoroAI.foliageShaders && RotatingParticleManager.useShaders) {
+                    if (ConfigCoroUtil.foliageShaders && RotatingParticleManager.useShaders) {
                         boolean gotLock = tickClientThreaded();
                         if (gotLock) {
                             Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);
