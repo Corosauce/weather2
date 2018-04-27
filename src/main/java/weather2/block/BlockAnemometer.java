@@ -20,6 +20,8 @@ public class BlockAnemometer extends BlockContainer
     public BlockAnemometer()
     {
         super(Material.CIRCUITS);
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
     
     @Override

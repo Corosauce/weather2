@@ -54,12 +54,15 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
     	String descWindAngleCloud = "Wind Angle Clouds: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.CLOUD);
     	String descWindAngle = "Wind Angle Effect: " + (int)WindReader.getWindAngle(var1.getWorld(), pos, WindReader.WindType.PRIORITY);
     	String descWindSpeed = "Wind Speed Effect: " + (((int)(WindReader.getWindSpeed(var1.getWorld(), pos, WindReader.WindType.PRIORITY) * 100F)) / 100F);
+    	String descStage = "";
     	
     	String progression = "";
 
     	float levelWater = 0;
     	
     	if (so != null) {
+
+            descStage = "" + so.levelCurIntensityStage;
     		
     		progression = "Growing ";
     		if (so.hasStormPeaked) {
@@ -162,7 +165,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
                         , x, y + 2.1F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " precip str: " + SceneEnhancer.getRainStrengthAndControlVisuals(entP), x, y + 2.2F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " levelWater: " + levelWater, x, y + 2.3F, z, 1, 10, 10, playerViewY);
-                renderLivingLabel("\u00A7" + " precip dist: " + descDist, x, y + 2.4F, z, 1, 10, 10, playerViewY);
+                renderLivingLabel("\u00A7" + " precip dist: " + descDist + ", stage: " + descStage, x, y + 2.4F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " rainThunder: " + rainThunder, x, y + 2.5F, z, 1, 10, 10, playerViewY);
 
             }

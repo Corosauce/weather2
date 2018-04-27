@@ -80,6 +80,9 @@ public class ConfigStorm implements IConfigCategory {
 
 	public static int Storm_Rain_OddsTo1 = 150;
 
+	@ConfigComment("How often in ticks, a rainstorm updates its list of entities under the rainstorm to extinguish. Extinguishes entities under rainclouds when globalOvercast is off. Set to 0 or less to disable")
+	public static int Storm_Rain_TrackAndExtinguishEntitiesRate = 200;
+
     @Override
     public String getName() {
         return "Storm";

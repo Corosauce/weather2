@@ -17,6 +17,7 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
@@ -197,6 +198,8 @@ public class StormObject extends WeatherObject {
 	public float cachedAngleAvoidance = 0;
 
 	public boolean isFirenado = false;
+
+	public List<EntityLivingBase> listEntitiesUnderClouds = new ArrayList<>();
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -794,8 +797,32 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		}
-		
-		
+
+		trackAndExtinguishEntities();
+	}
+
+	public void trackAndExtinguishEntities() {
+
+		if (ConfigStorm.Storm_Rain_TrackAndExtinguishEntitiesRate <= 0) return;
+
+		if (isPrecipitating()) {
+
+			//efficient caching
+			if ((manager.getWorld().getTotalWorldTime() + (ID * 20)) % ConfigStorm.Storm_Rain_TrackAndExtinguishEntitiesRate == 0) {
+				listEntitiesUnderClouds.clear();
+				BlockPos posBP = new BlockPos(posGround.xCoord, posGround.yCoord, posGround.zCoord);
+				List<EntityLivingBase> listEnts = manager.getWorld().getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(posBP).grow(size));
+				for (EntityLivingBase ent : listEnts) {
+					if (ent.world.canBlockSeeSky(ent.getPosition())) {
+						listEntitiesUnderClouds.add(ent);
+					}
+				}
+			}
+
+			for (EntityLivingBase ent : listEntitiesUnderClouds) {
+				ent.extinguish();
+			}
+		}
 	}
 	
 	public void tickSnowFall() {
@@ -2386,7 +2413,10 @@ public class StormObject extends WeatherObject {
             if (ent.motionY > 0.3F) ent.motionY = 0.3F;
 
             if (forTornado) ent.onGround = false;
-            
+
+            //its always raining during these, might as well extinguish them
+            ent.extinguish();
+
             //System.out.println(adjPull);
         }
         

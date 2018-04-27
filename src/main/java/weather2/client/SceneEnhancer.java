@@ -844,17 +844,28 @@ public class SceneEnhancer implements Runnable {
 						spawnAreaSize = 20;
 						//downfall - at just above 0.3 cause rainstorms lock at 0.3 but flicker a bit above and below
 						if (curPrecipVal > 0.32) {
+
+							int scanAheadRange = 0;
+							//quick is outside check, prevent them spawning right near ground
+							//and especially right above the roof so they have enough space to fade out
+							//results in not seeing them through roofs
+							if (entP.world.canBlockSeeSky(entP.getPosition())) {
+								scanAheadRange = 3;
+							} else {
+								scanAheadRange = 10;
+							}
+
 							for (int i = 0; downfall == true && i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 								BlockPos pos = new BlockPos(
 										entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
-										entP.posY - 5 + rand.nextInt(25),
+										entP.posY + 5 + rand.nextInt(15),
 										entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
 								if (entP.getDistanceSq(pos) < 10D * 10D) continue;
 
 								//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
-								if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+								if (canPrecipitateAt(world, pos.up(-scanAheadRange))/*world.isRainingAt(pos)*/) {
 									ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
 											pos.getX() + rand.nextFloat(),
 											pos.getY() - 1 + 0.01D,
@@ -865,7 +876,8 @@ public class SceneEnhancer implements Runnable {
 									rain.setCanCollide(false);
 									rain.killWhenUnderCameraAtLeast = 5;
 									rain.setKillWhenUnderTopmostBlock(true);
-									rain.setTicksFadeOutMaxOnDeath(5);
+									rain.setKillWhenUnderTopmostBlock_ScanAheadRange(scanAheadRange);
+									rain.setTicksFadeOutMaxOnDeath(10);
 
 									//rain.particleTextureJitterX = 0;
 									//rain.particleTextureJitterY = 0;

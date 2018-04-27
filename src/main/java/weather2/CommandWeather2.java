@@ -1,6 +1,7 @@
 package weather2;
 
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -66,8 +67,10 @@ public class CommandWeather2 extends CommandBase {
 							sendCommandSenderMsg(var1, "can only make volcanos on main overworld");
 						}
 					}
-				} else if (var2[0].equals("lightningTest")) {
-					EntityLightningBolt ent = new EntityLightningBolt(world, posBlock.getX(), posBlock.getY(), posBlock.getZ());
+				} else if (var2[0].equals("testLightning")) {
+					Random rand = new Random();
+					EntityLightningBolt ent = new EntityLightningBolt(world, posBlock.getX() + rand.nextInt(2) -  + rand.nextInt(2)
+							, posBlock.getY(), posBlock.getZ() + rand.nextInt(2) -  + rand.nextInt(2));
 					WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
 					wm.getWorld().weatherEffects.add(ent);
 					wm.syncLightningNew(ent, false);
