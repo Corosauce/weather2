@@ -135,6 +135,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         worldrenderer.pos((double)(sizeRenderBoxDiameter/2), 0, (double)(sizeRenderBoxDiameter/2)).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         worldrenderer.pos((double)(sizeRenderBoxDiameter/2), 0, -(double)(sizeRenderBoxDiameter/2)).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         tessellator.draw();
+        GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         //GlStateManager.enableDepth();
         //GlStateManager.depthMask(true);
