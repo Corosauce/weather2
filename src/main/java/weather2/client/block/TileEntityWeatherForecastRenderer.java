@@ -148,19 +148,21 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
             EntityPlayer entP = Minecraft.getMinecraft().player;
             if (entP != null) {
                 WeatherManagerClient wm = ClientTickHandler.weatherManager;
+                float precipStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP, true));
+                boolean clientWeather2Rain = precipStr > 0;
 
                 String rainThunder = entP.world.rainingStrength + " / " + entP.world.thunderingStrength;
                 renderLivingLabel("\u00A7" + " rain/clear time: " + wm.vanillaRainTimeOnServer
                         , x, y + 1.9F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " client weather: " +
-                                (entP.world.isRaining() ? "raining, " : "") + (entP.world.isThundering() ? "thundering" : "")
+                                (entP.world.isRaining() ? "raining, " : (clientWeather2Rain ? "light rain" : "")) + (entP.world.isThundering() ? "thundering" : "")
                         , x, y + 2.0F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " server weather: " +
                                 (wm.isVanillaRainActiveOnServer ? "raining, " : "") + (wm.isVanillaThunderActiveOnServer ? "thundering" : "")
                         , x, y + 2.1F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " precip str: " + SceneEnhancer.getRainStrengthAndControlVisuals(entP), x, y + 2.2F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " levelWater: " + levelWater, x, y + 2.3F, z, 1, 10, 10, playerViewY);
-                renderLivingLabel("\u00A7" + " dist: " + descDist, x, y + 2.4F, z, 1, 10, 10, playerViewY);
+                renderLivingLabel("\u00A7" + " precip dist: " + descDist, x, y + 2.4F, z, 1, 10, 10, playerViewY);
                 renderLivingLabel("\u00A7" + " rainThunder: " + rainThunder, x, y + 2.5F, z, 1, 10, 10, playerViewY);
 
             }
