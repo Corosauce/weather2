@@ -89,6 +89,8 @@ public class ConfigMisc implements IConfigCategory {
 
 	public static double shaderParticleRateAmplifier = 3D;
 
+	public static boolean blockBreakingInvokesCancellableEvent = false;
+
 	public ConfigMisc() {
 		
 	}

@@ -1,10 +1,8 @@
 package weather2.weathersystem.storm;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -21,14 +19,19 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientConfigData;
 import weather2.ClientTickHandler;
 import weather2.Weather;
+import weather2.config.ConfigMisc;
 import weather2.config.ConfigTornado;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
@@ -70,6 +73,8 @@ public class TornadoHelper {
 
 	public static HashMap<Integer, Long> flyingBlock_LastQueryTime = new HashMap<>();
 	public static HashMap<Integer, Integer> flyingBlock_LastCount = new HashMap<>();
+
+	public static GameProfile fakePlayerProfile = null;
     
     public static class BlockUpdateSnapshot {
     	private int dimID;
@@ -300,13 +305,8 @@ public class TornadoHelper {
 	                        
 	                        boolean performed = false;
 	
-	                        if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID)/* && Block.blocksList[blockID].blockMaterial == Material.ground*//* && world.getHeightValue(tryX, tryZ)-1 == tryY*/)
+	                        if (canGrab(parWorld, state, pos))
 	                        {
-	                            /*if (blockID != 0 && canGrab(blockID) && (world.getBlockStateId(tryX,tryY+1,tryZ) == 0 ||
-	                                    world.getBlockStateId(tryX+1,tryY,tryZ) == 0 ||
-	                                    world.getBlockStateId(tryX,tryY,tryZ+1) == 0 ||
-	                                    world.getBlockStateId(tryX-1,tryY,tryZ) == 0 ||
-	                                    world.getBlockStateId(tryX,tryY,tryZ-1) == 0)) {*/
 	                            tryRipCount++;
 	                            seesLight = tryRip(parWorld, tryX, tryY, tryZ);
 	                            
@@ -362,9 +362,10 @@ public class TornadoHelper {
 	                    if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax)
 	                    {
 	                    	BlockPos pos = new BlockPos(tryX, tryY, tryZ);
-	                        Block blockID = parWorld.getBlockState(pos).getBlock();
+	                    	IBlockState state = parWorld.getBlockState(pos);
+	                        Block blockID = state.getBlock();
 
-							if (!CoroUtilBlock.isAir(blockID) && canGrab(parWorld, blockID))
+							if (canGrab(parWorld, state, pos))
 							{
 								tryRipCount++;
 								tryRip(parWorld, tryX, tryY, tryZ);
@@ -543,15 +544,29 @@ public class TornadoHelper {
         return seesLight;
     }
 
-    public boolean canGrab(World parWorld, Block blockID)
+    public boolean canGrab(World parWorld, IBlockState state, BlockPos pos)
     {
-        if (!CoroUtilBlock.isAir(blockID) && WeatherUtil.shouldGrabBlock(parWorld, blockID) && blockID != Blocks.FIRE)
+        if (!CoroUtilBlock.isAir(state.getBlock()) && WeatherUtil.shouldGrabBlock(parWorld, state.getBlock()) && state.getBlock() != Blocks.FIRE)
         {
-            return true;
+        	return canGrabEventCheck(parWorld, state, pos);
         }
 
         return false;
     }
+
+    public boolean canGrabEventCheck(World world, IBlockState state, BlockPos pos) {
+    	if (!ConfigMisc.blockBreakingInvokesCancellableEvent) return true;
+    	if (world instanceof WorldServer) {
+			if (fakePlayerProfile == null) {
+				fakePlayerProfile = new GameProfile(UUID.fromString("1396b887-2570-4948-86e9-0633d1d22946"), "weather2FakePlayer");
+			}
+			BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, FakePlayerFactory.get((WorldServer) world, fakePlayerProfile));
+			MinecraftForge.EVENT_BUS.post(event);
+			return !event.isCanceled();
+		} else {
+    		return false;
+		}
+	}
 
     public boolean canGrabEntity(Entity ent) {
 		ClientConfigData clientConfig = ClientTickHandler.clientConfigData;

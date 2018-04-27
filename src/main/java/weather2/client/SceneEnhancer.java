@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import CoroUtil.config.ConfigCoroUtil;
+import CoroUtil.forge.CULog;
 import CoroUtil.util.*;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
@@ -1223,7 +1224,7 @@ public class SceneEnhancer implements Runnable {
 	            }
 	        }
     	} catch (Exception ex) {
-    		System.out.println("Weather2: Error handling particle spawn queue: ");
+    		CULog.err("Weather2: Error handling particle spawn queue: ");
     		ex.printStackTrace();
     	}
 
@@ -1370,42 +1371,98 @@ public class SceneEnhancer implements Runnable {
                             	
                             	lastTickFoundBlocks++;
                             	
-                            	if (/*true || *//*worldRef.rand.nextInt(5) == 0 || */worldRef.rand.nextInt(spawnRate) == 0)
+                            	if (worldRef.rand.nextInt(spawnRate) == 0)
                                 {
                             		//bottom of tree check || air beside vine check
-	                                if (ConfigParticle.Wind_Particle_leafs &&
-											(CoroUtilBlock.isAir(getBlock(worldRef, xx, yy - 1, zz))/* ||
-													CoroUtilBlock.isAir(getBlock(worldRef, xx - 1, yy, zz))*/))
-	                                {
-	                                	
-	                                    //EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
-	                                    EntityRotFX var31 = new ParticleTexLeafColor(worldRef, (double)xx, (double)yy/* - 0.5*/, (double)zz, 0D, 0D, 0D, ParticleRegistry.leaf);
-	                                    //ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
-	                                    var31.setGravity(0.05F);
-	                                    var31.setCanCollide(true);
-	                                    var31.killWhenUnderCameraAtLeast = 20;
-	                                    var31.killWhenFarFromCameraAtLeast = 20;
+	                                if (ConfigParticle.Wind_Particle_leafs) {
 
-	                                    //System.out.println("add particle");
-	                                    //Minecraft.getMinecraft().effectRenderer.addEffect(var31);
-	                                    //ExtendedRenderer.rotEffRenderer.addEffect(test);
-	                                    //ExtendedRenderer.rotEffRenderer.addEffect(var31);
-	                                    //WeatherUtil.setParticleGravity((EntityFX)var31, 0.1F);
-	
-	                                    //worldRef.spawnParticle(EnumParticleTypes.FALLING_DUST, (double)xx, (double)yy, (double)zz, 0.0D, 0.0D, 0.0D, 0);
-	                                    
-	                                    /*for (int ii = 0; ii < 10; ii++)
-	                                    {
-	                                        applyWindForce(var31);
-	                                    }*/
-	
-	                                    var31.rotationYaw = rand.nextInt(360);
-	                                    var31.rotationPitch = rand.nextInt(360);
-	                                    //var31.spawnAsWeatherEffect();
-	                                    
-	                                    
-	                                    
-	                                    spawnQueue.add(var31);
+	                                	boolean foundAir = false;
+
+	                                	double xxx = 0;
+										double yyy = 0;
+										double zzz = 0;
+
+										Block blockCheck = getBlock(worldRef, xx, yy - 1, zz);
+
+										if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
+											yyy = -0.65D;
+											foundAir = true;
+										}
+
+										if (!foundAir) {
+											blockCheck = getBlock(worldRef, xx + 1, yy, zz);
+
+											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
+												xxx = 0.65D;
+												foundAir = true;
+											}
+										}
+
+										if (!foundAir) {
+											blockCheck = getBlock(worldRef, xx - 1, yy, zz);
+
+											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
+												xxx = -0.65D;
+												foundAir = true;
+											}
+										}
+
+										if (!foundAir) {
+											blockCheck = getBlock(worldRef, xx, yy, zz + 1);
+
+											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
+												zzz = 0.65D;
+												foundAir = true;
+											}
+										}
+
+										if (!foundAir) {
+											blockCheck = getBlock(worldRef, xx, yy, zz - 1);
+
+											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
+												zzz = 0.65D;
+												foundAir = true;
+											}
+										}
+
+
+
+	                                	if (foundAir) {
+											//EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
+											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx, yy/* - 0.5*/, zz, 0D, 0D, 0D, ParticleRegistry.leaf);
+											var31.setPosition(xx + 0.5D + xxx, yy + 0.5D + yyy/* - 0.5*/, zz + 0.5D + zzz);
+											var31.setPrevPosX(var31.posX);
+											var31.setPrevPosY(var31.posY);
+											var31.setPrevPosZ(var31.posZ);
+											//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
+											var31.setGravity(0.05F);
+											var31.setCanCollide(true);
+											var31.setKillOnCollide(true);
+											var31.killWhenUnderCameraAtLeast = 20;
+											var31.killWhenFarFromCameraAtLeast = 20;
+											//var31.setSize(1, 1);
+											//var31.setKillWhenUnderTopmostBlock(true);
+
+											//System.out.println("add particle");
+											//Minecraft.getMinecraft().effectRenderer.addEffect(var31);
+											//ExtendedRenderer.rotEffRenderer.addEffect(test);
+											//ExtendedRenderer.rotEffRenderer.addEffect(var31);
+											//WeatherUtil.setParticleGravity((EntityFX)var31, 0.1F);
+
+											//worldRef.spawnParticle(EnumParticleTypes.FALLING_DUST, (double)xx, (double)yy, (double)zz, 0.0D, 0.0D, 0.0D, 0);
+
+											/*for (int ii = 0; ii < 10; ii++)
+											{
+												applyWindForce(var31);
+											}*/
+
+											var31.rotationYaw = rand.nextInt(360);
+											var31.rotationPitch = rand.nextInt(360);
+											//var31.spawnAsWeatherEffect();
+
+
+											spawnQueue.add(var31);
+										}
 	                                    
 	                                }
 	                                else
