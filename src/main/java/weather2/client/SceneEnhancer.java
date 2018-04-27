@@ -765,23 +765,15 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 
-						//TODO: make downfall used only for more intense rain
-						//curPrecipVal max is 0.5 atm
-
-						if (world.getTotalWorldTime() % 60 == 0) {
-							//System.out.println(curPrecipVal);
-							//System.out.println("spawnCount: " + spawnCount);
-						}
-
-						boolean groundSplash = true;
-						boolean downfall = true;
+						boolean groundSplash = ConfigParticle.Particle_Rain_GroundSplash;
+						boolean downfall = ConfigParticle.Particle_Rain_DownfallSheet;
 
 						//TODO: make ground splash and downfall use spawnNeed var style design
 
 						spawnAreaSize = 40;
 						//ground splash
-						if (curPrecipVal > 0.15) {
-							for (int i = 0; groundSplash == true && i < 30F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate * particleAmp * 4F; i++) {
+						if (groundSplash == true && curPrecipVal > 0.15) {
+							for (int i = 0; i < 30F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate * particleAmp * 4F; i++) {
 								BlockPos pos = new BlockPos(
 										entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 										entP.posY - 5 + rand.nextInt(15),
@@ -843,7 +835,7 @@ public class SceneEnhancer implements Runnable {
 
 						spawnAreaSize = 20;
 						//downfall - at just above 0.3 cause rainstorms lock at 0.3 but flicker a bit above and below
-						if (curPrecipVal > 0.32) {
+						if (downfall == true && curPrecipVal > 0.32) {
 
 							int scanAheadRange = 0;
 							//quick is outside check, prevent them spawning right near ground
@@ -855,7 +847,7 @@ public class SceneEnhancer implements Runnable {
 								scanAheadRange = 10;
 							}
 
-							for (int i = 0; downfall == true && i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
+							for (int i = 0; i < 2F * curPrecipVal * ConfigParticle.Precipitation_Particle_effect_rate; i++) {
 								BlockPos pos = new BlockPos(
 										entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 										entP.posY + 5 + rand.nextInt(15),
