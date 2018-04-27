@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import CoroUtil.config.ConfigCoroUtil;
+import CoroUtil.forge.CoroUtil;
 import modconfig.ConfigMod;
 import modconfig.IConfigCategory;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -105,7 +106,8 @@ public class WeatherUtilConfig {
 		
 		Weather.dbg("nbtClientData: " + nbtClientData);
 		
-		String modID = "weather2Misc";
+		String modIDWeather = Weather.configMisc.getRegistryName();
+		String modIDCoroUtil = CoroUtil.configCoroUtil.getRegistryName();
 		
 		try {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLEPRECIP)) {
@@ -213,8 +215,11 @@ public class WeatherUtilConfig {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
-		ConfigMod.configLookup.get(modID).writeConfigFile(true);
+
+
+		/*ConfigMod.configLookup.get(modIDWeather).writeConfigFile(true);
+		ConfigMod.configLookup.get(modIDCoroUtil).writeConfigFile(true);*/
+		ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 		
 		//work lists here
 		

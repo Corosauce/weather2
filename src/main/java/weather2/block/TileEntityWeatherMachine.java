@@ -2,7 +2,6 @@ package weather2.block;
 
 import java.util.Random;
 
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;

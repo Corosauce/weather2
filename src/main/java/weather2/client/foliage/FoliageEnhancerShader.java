@@ -80,7 +80,7 @@ public class FoliageEnhancerShader implements Runnable {
             String str = "Weather2: Replacing shaderized models";
 
             CULog.log(str);
-            ProgressManager.ProgressBar prog = ProgressManager.push(str, event.getModelRegistry().getKeys().size());
+            ProgressManager.ProgressBar prog = ProgressManager.push(str, event.getModelRegistry().getKeys().size(), true);
 
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
             IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
