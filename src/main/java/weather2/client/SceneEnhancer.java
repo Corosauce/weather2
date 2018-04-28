@@ -1435,11 +1435,27 @@ public class SceneEnhancer implements Runnable {
 										double relAdj = 0.70D;
 
 										BlockPos pos = getRandomWorkingPos(worldRef, new BlockPos(xx, yy, zz));
+										double xRand = 0;
+										double yRand = 0;
+										double zRand = 0;
 
 	                                	if (pos != null) {
 
+											if (pos.getY() != 0) {
+												xRand = rand.nextDouble() - 0.5D;
+												zRand = rand.nextDouble() - 0.5D;
+											} else if (pos.getX() != 0) {
+												yRand = rand.nextDouble() - 0.5D;
+												zRand = rand.nextDouble() - 0.5D;
+											} else if (pos.getZ() != 0) {
+												yRand = rand.nextDouble() - 0.5D;
+												xRand = rand.nextDouble() - 0.5D;
+											}
+
 											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx + pos.getX(), yy + pos.getY(), zz + pos.getZ(), 0D, 0D, 0D, ParticleRegistry.leaf);
-											var31.setPosition(xx + 0.5D + (pos.getX() * relAdj), yy + 0.5D + (pos.getY() * relAdj), zz + 0.5D + (pos.getZ() * relAdj));
+											var31.setPosition(xx + 0.5D + (pos.getX() * relAdj) + xRand,
+													yy + 0.5D + (pos.getY() * relAdj) + yRand,
+													zz + 0.5D + (pos.getZ() * relAdj) + zRand);
 											var31.setPrevPosX(var31.posX);
 											var31.setPrevPosY(var31.posY);
 											var31.setPrevPosZ(var31.posZ);
@@ -1476,7 +1492,7 @@ public class SceneEnhancer implements Runnable {
 
 											spawnQueue.add(var31);
 										}
-	                                    
+
 	                                }
 	                                else
 	                                {
