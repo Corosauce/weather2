@@ -138,9 +138,18 @@ public class SceneEnhancer implements Runnable {
 	public static EntityRotFX testParticle2;
 	private int rainSoundCounter;
 
+	private static List<BlockPos> listPosRandom = new ArrayList<>();
+
+
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
 
+		listPosRandom.clear();
+		listPosRandom.add(new BlockPos(0, -1, 0));
+		listPosRandom.add(new BlockPos(1, 0, 0));
+		listPosRandom.add(new BlockPos(-1, 0, 0));
+		listPosRandom.add(new BlockPos(0, 0, 1));
+		listPosRandom.add(new BlockPos(0, 0, -1));
 	}
 	
 	@Override
@@ -1421,68 +1430,28 @@ public class SceneEnhancer implements Runnable {
                             		//bottom of tree check || air beside vine check
 	                                if (ConfigParticle.Wind_Particle_leafs) {
 
-	                                	boolean foundAir = false;
+	                                	//far out enough to avoid having the AABB already inside the block letting it phase through more
+										//close in as much as we can to make it look like it came from the block
+										double relAdj = 0.70D;
 
-	                                	double xxx = 0;
-										double yyy = 0;
-										double zzz = 0;
+										BlockPos pos = getRandomWorkingPos(worldRef, new BlockPos(xx, yy, zz));
 
-										Block blockCheck = getBlock(worldRef, xx, yy - 1, zz);
+	                                	if (pos != null) {
 
-										if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
-											yyy = -0.65D;
-											foundAir = true;
-										}
-
-										if (!foundAir) {
-											blockCheck = getBlock(worldRef, xx + 1, yy, zz);
-
-											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
-												xxx = 0.65D;
-												foundAir = true;
-											}
-										}
-
-										if (!foundAir) {
-											blockCheck = getBlock(worldRef, xx - 1, yy, zz);
-
-											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
-												xxx = -0.65D;
-												foundAir = true;
-											}
-										}
-
-										if (!foundAir) {
-											blockCheck = getBlock(worldRef, xx, yy, zz + 1);
-
-											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
-												zzz = 0.65D;
-												foundAir = true;
-											}
-										}
-
-										if (!foundAir) {
-											blockCheck = getBlock(worldRef, xx, yy, zz - 1);
-
-											if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
-												zzz = 0.65D;
-												foundAir = true;
-											}
-										}
-
-
-
-	                                	if (foundAir) {
-											//EntityRotFX var31 = new EntityTexBiomeColorFX(worldRef, (double)xx, (double)yy - 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, WeatherUtilParticle.effLeafID, getBlockMetadata(worldRef, xx, yy, zz), xx, yy, zz);
-											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx, yy/* - 0.5*/, zz, 0D, 0D, 0D, ParticleRegistry.leaf);
-											var31.setPosition(xx + 0.5D + xxx, yy + 0.5D + yyy/* - 0.5*/, zz + 0.5D + zzz);
+											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx + pos.getX(), yy + pos.getY(), zz + pos.getZ(), 0D, 0D, 0D, ParticleRegistry.leaf);
+											var31.setPosition(xx + 0.5D + (pos.getX() * relAdj), yy + 0.5D + (pos.getY() * relAdj), zz + 0.5D + (pos.getZ() * relAdj));
 											var31.setPrevPosX(var31.posX);
 											var31.setPrevPosY(var31.posY);
 											var31.setPrevPosZ(var31.posZ);
+											var31.setMotionX(0);
+											var31.setMotionY(0);
+											var31.setMotionZ(0);
+											var31.setSize(0.1F, 0.1F);
 											//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
 											var31.setGravity(0.05F);
 											var31.setCanCollide(true);
 											var31.setKillOnCollide(false);
+											var31.collisionSpeedDampen = false;
 											var31.killWhenUnderCameraAtLeast = 20;
 											var31.killWhenFarFromCameraAtLeast = 20;
 											//var31.setSize(1, 1);
@@ -1503,9 +1472,8 @@ public class SceneEnhancer implements Runnable {
 
 											var31.rotationYaw = rand.nextInt(360);
 											var31.rotationPitch = rand.nextInt(360);
-											//var31.spawnAsWeatherEffect();
+											var31.updateQuaternion(null);
 
-											//TODO: TEMP OFF WHILE TESTING
 											spawnQueue.add(var31);
 										}
 	                                    
@@ -1613,83 +1581,34 @@ public class SceneEnhancer implements Runnable {
                         			//pm.particles.add(entityfx);
                             	}
                             }
-                            else if (false && CoroUtilBlock.isAir(block))
-                            {
-                            	
-                            	//null check biome in future if used
-                            	//float temp = worldRef.getBiome(new BlockPos(xx, 0, zz)).getFloatTemperature(new BlockPos(xx, yy, zz));
-                            	
-                            	//System.out.println(temp);
-                            	
-                            	//Snow!
-                            	/*if (false && ConfigMisc.Wind_Particle_snow && player.getDistance(xx, yy, zz) < 20 && (worldRef.rand.nextInt(100) == 0) && yy == ((int)player.posY+8) && temp <= 0.15F) {
-	                            	EntityRotFX snow = new EntitySnowFX(worldRef, (double)xx, (double)yy + 0.5, (double)zz, 0D, 0D, 0D, 1F);
-	                            	
-	                            	snow.particleGravity = 0.0F;
-	                            	//WeatherUtil.setParticleGravity((EntityFX)snow, 0.0F);
-	                            	snow.noClip = true;
-	                            	snow.particleScale = 0.2F;
-	                                //WeatherUtil.setParticleScale((EntityFX)snow, 0.2F);
-	                                snow.rotationYaw = rand.nextInt(360);
-	                                snow.motionY = -0.1F;
-	                                //var31.spawnAsWeatherEffect();
-	                                spawnQueue.add(snow);
-                            	}
-                            	
-                                if (ConfigMisc.Wind_Particle_air && windStr > 0.05 && worldRef.canBlockSeeTheSky(curX, curY, curZ))
-                                {
-                                	
-                                	
-                                	
-                                	int chance = 200 - (int)(windStr * 100);
-                                	if (chance <= 0) chance = 1;
-                                    if ((worldRef.rand.nextInt(uh + 0) == 0) && worldRef.rand.nextInt(chance) == 0)
-                                    {
-                                        //EntityFX var31 = new EntitySmokeFX(worldRef, (double)xx, (double)yy+0.5, (double)zz, 0D, 0D, 0D);
-                                        EntityRotFX var31 = new EntityTexFX(worldRef, (double)xx, (double)yy + 0.5, (double)zz, 0D, 0D, 0D, 10D, 0, effWind2ID);
-                                        //var31.particleGravity = 0.3F;
-                                        //mod_ExtendedRenderer.rotEffRenderer.addEffect(var31);
-
-                                        for (int ii = 0; ii < 20; ii++)
-                                        {
-                                            applyWindForce(var31);
-                                        }
-
-                                        var31.particleGravity = 0.0F;
-                                        //WeatherUtil.setParticleGravity((EntityFX)var31, 0.0F);
-                                        var31.noClip = true;
-                                        var31.particleScale = 0.2F;
-                                        //WeatherUtil.setParticleScale((EntityFX)var31, 0.2F);
-                                        var31.rotationYaw = rand.nextInt(360);
-                                        //var31.spawnAsWeatherEffect();
-                                        spawnQueue.add(var31);
-                                    }
-                                }*/
-                            }
                         //}
 
-                        /*if (Wind_Particle_sand) {
-                        	int id = getBlockId(xx, yy, zz);
-                        	if (id == ((Block)p_blocks_sand.get(0)).blockID) {
-                        		if (id == Block.sand.blockID) {
-                        			if (getBlockId(xx, yy+1, zz) == 0) {
-                        				c_w_EntityTexFX var31 = new c_w_EntityTexFX(worldRef, (double)xx, (double)yy+0.5, (double)zz, 0D, 0D, 0D, 10D, 0, effSandID);
-                        				//var31 = new EntityWindFX(worldRef, (double)xx, (double)yy+1.2, (double)zz, 0D, 0.0D, 0D, 9.5D, 1);
-                        				var31.rotationYaw = rand.nextInt(360)-180F;
-                        				var31.type = 1;
-                        				c_CoroWeatherUtil.setParticleGravity((EntityFX)var31, 0.6F);
-                        				c_CoroWeatherUtil.setParticleScale((EntityFX)var31, 0.3F);
-                                        //var31.spawnAsWeatherEffect();
-                        				spawnQueue.add(var31);
-                        			}
-                        		}
-                        	}
-                        }*/
+
                     
                 }
             }
         }
     }
+
+	/**
+	 * Returns the successful relative position
+	 *
+	 * @param world
+	 * @param posOrigin
+	 * @return
+	 */
+    public static BlockPos getRandomWorkingPos(World world, BlockPos posOrigin) {
+		Collections.shuffle(listPosRandom);
+		for (BlockPos posRel : listPosRandom) {
+			Block blockCheck = getBlock(world, posOrigin.add(posRel));
+
+			if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
+				return posRel;
+			}
+		}
+
+		return null;
+	}
 	
 	@SideOnly(Side.CLIENT)
     public static void tryWind(World world)
@@ -1958,6 +1877,13 @@ public class SceneEnhancer implements Runnable {
     }
 	
 	//Thread safe functions
+
+	@SideOnly(Side.CLIENT)
+	private static Block getBlock(World parWorld, BlockPos pos)
+	{
+		return getBlock(parWorld, pos.getX(), pos.getY(), pos.getZ());
+	}
+
     @SideOnly(Side.CLIENT)
     private static Block getBlock(World parWorld, int x, int y, int z)
     {
