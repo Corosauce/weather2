@@ -135,6 +135,7 @@ public class SceneEnhancer implements Runnable {
     public static ParticleBehaviorSandstorm particleBehavior;
 
     public static ParticleTexExtraRender testParticle;
+	public static EntityRotFX testParticle2;
 	private int rainSoundCounter;
 
 	public SceneEnhancer() {
@@ -627,6 +628,50 @@ public class SceneEnhancer implements Runnable {
 				}
 
 				//if (true) return;
+			}
+
+			boolean testLeaf = false;
+			if (testLeaf) {
+				if (testParticle2 == null || testParticle2.isExpired) {
+					BlockPos pos = new BlockPos(entP);
+					EntityRotFX var31 = new ParticleTexLeafColor(world, pos.getX(), pos.getY(), pos.getZ(), 0D, 0D, 0D, ParticleRegistry.leaf);
+					var31.setPosition(pos.getX() + 1, pos.getY() + 1, pos.getZ());
+					var31.setPrevPosX(var31.posX);
+					var31.setPrevPosY(var31.posY);
+					var31.setPrevPosZ(var31.posZ);
+					var31.setMotionX(0);
+					var31.setMotionY(0);
+					var31.setMotionZ(0);
+					//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
+					var31.setGravity(0.05F);
+					var31.setCanCollide(true);
+					var31.setKillOnCollide(true);
+					var31.killWhenUnderCameraAtLeast = 20;
+					var31.killWhenFarFromCameraAtLeast = 20;
+					//var31.setSize(1, 1);
+					//var31.setKillWhenUnderTopmostBlock(true);
+
+					//System.out.println("add particle");
+					//Minecraft.getMinecraft().effectRenderer.addEffect(var31);
+					//ExtendedRenderer.rotEffRenderer.addEffect(test);
+					//ExtendedRenderer.rotEffRenderer.addEffect(var31);
+					//WeatherUtil.setParticleGravity((EntityFX)var31, 0.1F);
+
+					//worldRef.spawnParticle(EnumParticleTypes.FALLING_DUST, (double)xx, (double)yy, (double)zz, 0.0D, 0.0D, 0.0D, 0);
+
+												/*for (int ii = 0; ii < 10; ii++)
+												{
+													applyWindForce(var31);
+												}*/
+
+					var31.rotationYaw = rand.nextInt(360);
+					var31.rotationPitch = rand.nextInt(360);
+
+					testParticle2 = var31;
+
+					var31.spawnAsWeatherEffect();
+					ClientTickHandler.weatherManager.addWeatheredParticle(var31);
+				}
 			}
 
 			boolean doFish = false;
@@ -1437,7 +1482,7 @@ public class SceneEnhancer implements Runnable {
 											//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
 											var31.setGravity(0.05F);
 											var31.setCanCollide(true);
-											var31.setKillOnCollide(true);
+											var31.setKillOnCollide(false);
 											var31.killWhenUnderCameraAtLeast = 20;
 											var31.killWhenFarFromCameraAtLeast = 20;
 											//var31.setSize(1, 1);
@@ -1460,7 +1505,7 @@ public class SceneEnhancer implements Runnable {
 											var31.rotationPitch = rand.nextInt(360);
 											//var31.spawnAsWeatherEffect();
 
-
+											//TODO: TEMP OFF WHILE TESTING
 											spawnQueue.add(var31);
 										}
 	                                    
