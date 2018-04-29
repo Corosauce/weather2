@@ -2,6 +2,9 @@ package weather2;
 
 import java.nio.FloatBuffer;
 
+import extendedrenderer.ExtendedRenderer;
+import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.render.FoliageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;
@@ -15,14 +18,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.border.WorldBorder;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -36,9 +37,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import weather2.client.SceneEnhancer;
+import weather2.client.foliage.FoliageEnhancerShader;
+import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
 import weather2.entity.AI.EntityAIMoveIndoorsStorm;
 import weather2.util.UtilEntityBuffsMini;
+import weather2.weathersystem.storm.TornadoHelper;
 
 public class EventHandlerForge {
 
@@ -54,6 +58,8 @@ public class EventHandlerForge {
 		ClientTickHandler.checkClientWeather();
 		ClientTickHandler.weatherManager.tickRender(event.getPartialTicks());
 		SceneEnhancer.renderWorldLast(event);
+
+		FoliageRenderer.radialRange = ConfigFoliage.foliageShaderRange;
     }
 	
 	@SubscribeEvent
@@ -96,6 +102,16 @@ public class EventHandlerForge {
             event.setDensity(fogDensity);
             event.setDensity(0.5F);
         }
+
+        boolean test2 = false;
+        //test for underwater shaders that need LINEAR
+        if (test2) {
+			GlStateManager.setFogStart(0F);
+			GlStateManager.setFogEnd(7F);
+			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
+			event.setDensity(1F);
+			event.setCanceled(true);
+		}
         
         /*if (SceneEnhancer.isFogOverridding()) {
         	event.setCanceled(true);
@@ -118,6 +134,7 @@ public class EventHandlerForge {
         	event.setRed(SceneEnhancer.stormFogRed);
         	event.setGreen(SceneEnhancer.stormFogGreen);
         	event.setBlue(SceneEnhancer.stormFogBlue);
+			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
         }
 		
 	}
@@ -130,6 +147,7 @@ public class EventHandlerForge {
         	//event.setDensity(SceneEnhancer.stormFogDensity);
 
 			//TODO: make use of this, density only works with EXP or EXP 2 mode
+			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
         	/*GlStateManager.setFog(GlStateManager.FogMode.EXP2);
 			GlStateManager.setFogDensity(SceneEnhancer.stormFogDensity);*/
 			
@@ -234,8 +252,30 @@ public class EventHandlerForge {
 			if (event.getEntity() instanceof EntityVillager) {
 				EntityVillager ent = (EntityVillager) event.getEntity();
 
-				Weather.dbg("applying villager storm AI");
+				//Weather.dbg("applying villager storm AI");
 				UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
+			}
+		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void registerIcons(TextureStitchEvent.Post event) {
+		FoliageEnhancerShader.setupReplacers();
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void modelBake(ModelBakeEvent event) {
+		FoliageEnhancerShader.modelBakeEvent(event);
+	}
+
+	@SubscribeEvent
+	public void onBlockBreakTry(BlockEvent.BreakEvent event) {
+		boolean testBreakCancel = false;
+		if (testBreakCancel) {
+			if (event.getPlayer().getName().equals(TornadoHelper.fakePlayerProfile.getName())) {
+				event.setCanceled(true);
 			}
 		}
 	}

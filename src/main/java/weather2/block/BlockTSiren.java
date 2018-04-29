@@ -23,6 +23,8 @@ public class BlockTSiren extends BlockContainer
     {
         super(Material.CLAY);
         this.setDefaultState(this.blockState.getBaseState().withProperty(ENABLED, Boolean.valueOf(true)));
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
 
     @Override

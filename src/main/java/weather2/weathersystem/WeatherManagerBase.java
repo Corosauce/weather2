@@ -8,6 +8,7 @@ import java.util.*;
 import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import org.apache.commons.io.FileUtils;
@@ -45,6 +46,8 @@ public class WeatherManagerBase {
 	
 	//for client only
 	public boolean isVanillaRainActiveOnServer = false;
+	public boolean isVanillaThunderActiveOnServer = false;
+	public int vanillaRainTimeOnServer = 0;
 	
 	public long lastStormFormed = 0;
 
@@ -279,6 +282,10 @@ public class WeatherManagerBase {
 		}
 		
 		return closestStorm;
+	}
+
+	public boolean isPrecipitatingAt(BlockPos pos) {
+		return isPrecipitatingAt(new Vec3(pos));
 	}
 
 	/**

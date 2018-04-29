@@ -1,5 +1,7 @@
 package weather2.weathersystem;
 
+import CoroUtil.config.ConfigCoroUtil;
+import extendedrenderer.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.resources.IResourceManager;
@@ -19,6 +21,17 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     {
     	
     	boolean overrideOn = ConfigMisc.Misc_proxyRenderOverrideEnabled;
+
+		/**
+		 * why render here? because renderRainSnow provides better context, solves issues:
+		 * - translucent blocks rendered after
+		 * -- shaders are color adjusted when rendering on other side of
+		 * --- water
+		 * --- stained glass, etc
+		 */
+		if (ConfigCoroUtil.useEntityRenderHookForShaders) {
+			EventHandler.hookRenderShaders(par1);
+		}
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);

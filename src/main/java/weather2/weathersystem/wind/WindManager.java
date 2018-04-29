@@ -36,8 +36,6 @@ public class WindManager {
 	//- gusts are server side global, as planned
 	//- events are client side player, required small adjustments
 	
-	//TODO: save wind state to disk
-	
 	public WeatherManagerBase manager;
 	
 	//global
@@ -48,8 +46,8 @@ public class WindManager {
 	public int windSpeedGlobalRandChangeDelay = 10;
 	
 	//generic?
-	public float windSpeedMin = 0.01F;
-	public float windSpeedMax = 1F;
+	/*public float windSpeedMin = 0.00001F;
+	public float windSpeedMax = 1F;*/
 	
 	//events - design derp, we're making this client side, so its set based on closest storm to the client side player
 	public float windAngleEvent = 0;
@@ -195,7 +193,7 @@ public class WindManager {
 				if (!ConfigWind.Wind_LowWindEvents) {
 					lowWindTimer = 0;
 				}
-				
+
 				if (lowWindTimer <= 0) {
 					if (windSpeedGlobalRandChangeTimer-- <= 0)
 		            {
@@ -244,14 +242,14 @@ public class WindManager {
                 }
 				
 				//enforce mins and maxs of wind speed
-				if (windSpeedGlobal < windSpeedMin)
+				if (windSpeedGlobal < ConfigWind.windSpeedMin)
 	            {
-					windSpeedGlobal = windSpeedMin;
+					windSpeedGlobal = (float)ConfigWind.windSpeedMin;
 	            }
 	
-	            if (windSpeedGlobal > windSpeedMax)
+	            if (windSpeedGlobal > ConfigWind.windSpeedMax)
 	            {
-	            	windSpeedGlobal = windSpeedMax;
+	            	windSpeedGlobal = (float)ConfigWind.windSpeedMax;
 	            }
 	            
 	            if (windTimeGust > 0) {
@@ -261,6 +259,12 @@ public class WindManager {
 	            		syncData();
 	            	}
 	            }
+
+				if (ConfigMisc.overcastMode && manager.getWorld().isRaining()) {
+					if (windSpeedGlobal < ConfigWind.windSpeedMinGlobalOvercastRaining) {
+						windSpeedGlobal = (float) ConfigWind.windSpeedMinGlobalOvercastRaining;
+					}
+				}
 				
 	            //smooth use
 				/*if (windSpeed > windSpeedSmooth)
@@ -286,14 +290,20 @@ public class WindManager {
 	            float randGustWindFactor = 1F;
 				
 	            //gust data
-	            if (this.windTimeGust == 0 && lowWindTimer <= 0 && highWindTimer <= 0)
+	            if (this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
 	            {
 	                if (chanceOfWindGustEvent > 0F)
 	                {
 	                    if (rand.nextInt((int)((100 - chanceOfWindGustEvent) * randGustWindFactor)) == 0)
 	                    {
 	                    	windSpeedGust = windSpeedGlobal + rand.nextFloat() * 0.6F;
-	                        windAngleGust = rand.nextInt(360) - 180;
+	                        boolean randomDirectionGust = false;
+	                        if (randomDirectionGust) {
+								windAngleGust = rand.nextInt(360) - 180;
+							} else {
+								windAngleGust = windAngleGlobal + rand.nextInt(120) - 60;
+							}
+
 	                        setWindTimeGust(rand.nextInt(windGustEventTimeRand));
 	                        //windEventTime += windTime;
 	                        //unneeded since priority system determines wind to use
@@ -303,7 +313,12 @@ public class WindManager {
 	            }
 	            
 				//global wind angle
-	            windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
+	            //windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
+				windAngleGlobal += (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate) - (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate);
+
+				//windAngleGlobal += 0.1;
+
+	            //windAngleGlobal = 0;
 				
 	            if (windAngleGlobal < -180)
 	            {

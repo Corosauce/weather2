@@ -22,7 +22,7 @@ import CoroUtil.util.CoroUtilFile;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil@[1.12.1-1.1.24,)")
+@Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil@[1.12.1-1.2.3,)")
 public class Weather {
 	
 	@Mod.Instance( value = Weather.modID )
@@ -41,6 +41,8 @@ public class Weather {
 
 	public static List<IConfigCategory> listConfigs = new ArrayList<>();
 
+	public static ConfigMisc configMisc = null;
+
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -48,14 +50,16 @@ public class Weather {
     	
     	MinecraftForge.EVENT_BUS.register(new EventHandlerFML());
 		MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
-		
-    	ConfigMod.addConfigFile(event, addConfig(new ConfigMisc()));
+
+		configMisc = new ConfigMisc();
+    	ConfigMod.addConfigFile(event, addConfig(configMisc));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigWind()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigSand()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigSnow()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigStorm()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigTornado()));
 		ConfigMod.addConfigFile(event, addConfig(new ConfigParticle()));
+		ConfigMod.addConfigFile(event, addConfig(new ConfigFoliage()));
     	WeatherUtilConfig.nbtLoadDataAll();
 
 		proxy.preInit();

@@ -26,7 +26,8 @@ public class WeatherObject {
 	public Vec3 pos = new Vec3(0, 0, 0);
 	public Vec3 posGround = new Vec3(0, 0, 0);
 	public Vec3 motion = new Vec3(0, 0, 0);
-	
+
+	//used as radius
 	public int size = 50;
 	public int maxSize = 0;
 	
@@ -98,6 +99,8 @@ public class WeatherObject {
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
 		pos = new Vec3(parNBT.getDouble("posX"), parNBT.getDouble("posY"), parNBT.getDouble("posZ"));
+		//motion = new Vec3(parNBT.getDouble("motionX"), parNBT.getDouble("motionY"), parNBT.getDouble("motionZ"));
+		motion = new Vec3(parNBT.getDouble("vecX"), parNBT.getDouble("vecY"), parNBT.getDouble("vecZ"));
 		size = parNBT.getInteger("size");
 		maxSize = parNBT.getInteger("maxSize");
 		this.weatherObjectType = EnumWeatherObjectType.get(parNBT.getInteger("weatherObjectType"));
@@ -108,6 +111,13 @@ public class WeatherObject {
 		nbt.setDouble("posX", pos.xCoord);
 		nbt.setDouble("posY", pos.yCoord);
 		nbt.setDouble("posZ", pos.zCoord);
+
+		/*nbt.setDouble("motionX", motion.xCoord);
+		nbt.setDouble("motionY", motion.yCoord);
+		nbt.setDouble("motionZ", motion.zCoord);*/
+		nbt.setDouble("vecX", motion.xCoord);
+		nbt.setDouble("vecY", motion.yCoord);
+		nbt.setDouble("vecZ", motion.zCoord);
 
 		nbt.setLong("ID", ID);
 		//just blind set ID into non cached data so client always has it, no need to check for forced state and restore orig state

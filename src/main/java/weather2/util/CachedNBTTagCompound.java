@@ -80,6 +80,19 @@ public class CachedNBTTagCompound {
 		cachedData.setShort(key, newVal);
 	}
 
+	public String getString(String key) {
+		if (!newData.hasKey(key))
+			newData.setString(key, cachedData.getString(key));
+		return newData.getString(key);
+	}
+
+	public void setString(String key, String newVal) {
+		if (!cachedData.hasKey(key) || cachedData.getString(key) != newVal || forced) {
+			newData.setString(key, newVal);
+		}
+		cachedData.setString(key, newVal);
+	}
+
 	public boolean getBoolean(String key) {
 		if (!newData.hasKey(key))
 			newData.setBoolean(key, cachedData.getBoolean(key));

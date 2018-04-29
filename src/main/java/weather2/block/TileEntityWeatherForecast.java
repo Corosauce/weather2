@@ -36,8 +36,8 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
     public void update()
     {
     	if (world.isRemote) {
-    		if (world.getTotalWorldTime() % 200 == 0) {
-    			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024, StormObject.STATE_THUNDER, true);
+    		if (world.getTotalWorldTime() % 200 == 0 || storms.size() == 0) {
+    			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024, StormObject.STATE_FORMING, true);
 
     			if (ConfigMisc.radarCloudDebug) {
     				//storms.clear();

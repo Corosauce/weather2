@@ -1,6 +1,7 @@
 package weather2;
 
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -12,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import weather2.entity.EntityLightningBolt;
 import weather2.util.WeatherUtilBlock;
 import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.WeatherManagerServer;
@@ -23,8 +25,6 @@ import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.util.Vec3;
 
 public class CommandWeather2 extends CommandBase {
-
-	//TODO: FIX FOR COMMAND BLOCKS, apparently permission issues
 	
 	@Override
 	public String getName() {
@@ -67,6 +67,14 @@ public class CommandWeather2 extends CommandBase {
 							sendCommandSenderMsg(var1, "can only make volcanos on main overworld");
 						}
 					}
+				} else if (var2[0].equals("testLightning")) {
+					Random rand = new Random();
+					EntityLightningBolt ent = new EntityLightningBolt(world, posBlock.getX() + rand.nextInt(2) -  + rand.nextInt(2)
+							, posBlock.getY(), posBlock.getZ() + rand.nextInt(2) -  + rand.nextInt(2));
+					WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+					wm.getWorld().weatherEffects.add(ent);
+					wm.syncLightningNew(ent, false);
+					sendCommandSenderMsg(var1, "spawned lightning");
 				} else if (var2[0].equals("storm")) {
 					if (var2[1].equalsIgnoreCase("killAll")) {
 						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
@@ -75,12 +83,37 @@ public class CommandWeather2 extends CommandBase {
 						for (int i = 0; i < listStorms.size(); i++) {
 							WeatherObject wo = listStorms.get(i);
 							if (wo instanceof WeatherObject) {
-								WeatherObject so = (WeatherObject) wo;
+								WeatherObject so = wo;
 								Weather.dbg("force killing storm ID: " + so.ID);
 								so.setDead();
-								/*wm.syncStormRemove(so);
-								wm.removeStormObject(so.ID);
-								*/
+							}
+						}
+					} else if (var2[1].equalsIgnoreCase("killDeadly")) {
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+						sendCommandSenderMsg(var1, "killing all deadly storms");
+						List<WeatherObject> listStorms = wm.getStormObjects();
+						for (int i = 0; i < listStorms.size(); i++) {
+							WeatherObject wo = listStorms.get(i);
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject)wo;
+								if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
+									Weather.dbg("force killing storm ID: " + so.ID);
+									so.setDead();
+								}
+							}
+						}
+					} else if (var2[1].equalsIgnoreCase("killRain") || var2[1].equalsIgnoreCase("killStorm")) {
+						WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(dimension);
+						sendCommandSenderMsg(var1, "killing all raining or deadly storms");
+						List<WeatherObject> listStorms = wm.getStormObjects();
+						for (int i = 0; i < listStorms.size(); i++) {
+							WeatherObject wo = listStorms.get(i);
+							if (wo instanceof StormObject) {
+								StormObject so = (StormObject)wo;
+								if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER || so.attrib_precipitation) {
+									Weather.dbg("force killing storm ID: " + so.ID);
+									so.setDead();
+								}
 							}
 						}
 					} else if (var2[1].equals("create") || var2[1].equals("spawn")) {
@@ -260,7 +293,7 @@ public class CommandWeather2 extends CommandBase {
 						WeatherManagerServer wm = ServerTickHandler.getWeatherSystemForDim(dimension);
 						if (doLowOn) {
 							wm.windMan.startLowWindEvent();
-							//cancel any low wind state if there is one
+							//cancel any high wind state if there is one
 							wm.windMan.highWindTimer = 0;
 							sendCommandSenderMsg(var1, "started low wind event");
 						} else if (doLowOff) {

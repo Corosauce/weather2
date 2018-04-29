@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
@@ -114,16 +115,14 @@ public class EntityLightningBolt extends EntityWeatherEffect
                 this.lightningState = 1;
                 this.boltVertex = this.rand.nextLong();
 
-                if (!this.world.isRemote && rand.nextInt(fireChance) == 0 && this.world.getGameRules().getBoolean("doFireTick") && this.world.isAreaLoaded(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.posY), MathHelper.floor(this.posZ)), 10))
+                if (ConfigStorm.Lightning_StartsFires && !this.world.isRemote && rand.nextInt(fireChance) == 0 && this.world.getGameRules().getBoolean("doFireTick") && this.world.isAreaLoaded(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.posY), MathHelper.floor(this.posZ)), 10))
                 {
                     int i = MathHelper.floor(this.posX);
                     int j = MathHelper.floor(this.posY);
                     int k = MathHelper.floor(this.posZ);
 
-                    if (ConfigStorm.Lightning_StartsFires) {
-                        if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(world, new BlockPos(i, j, k))) {
-                            world.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
-                        }
+                    if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(world, new BlockPos(i, j, k))) {
+                        world.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
                     }
                 }
             }
@@ -137,13 +136,16 @@ public class EntityLightningBolt extends EntityWeatherEffect
             }
             else
             {
+                //vanilla compat to call onStruckByLightning on entities, with effectOnly set to true to prevent fires
+                net.minecraft.entity.effect.EntityLightningBolt vanillaBolt =
+                        new net.minecraft.entity.effect.EntityLightningBolt(world, this.posX, this.posY, this.posZ, true);
                 double d0 = 3.0D;
                 List list = this.world.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - d0, this.posY - d0, this.posZ - d0, this.posX + d0, this.posY + 6.0D + d0, this.posZ + d0));
 
                 for (int l = 0; l < list.size(); ++l)
                 {
                     Entity entity = (Entity)list.get(l);
-                    //entity.onStruckByLightning(this);
+                    entity.onStruckByLightning(vanillaBolt);
                 }
             }
         }
@@ -162,7 +164,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     public void updateSoundEffect() {
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	if (mc.player != null && mc.player.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
-    		this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 64.0F, 0.8F + this.rand.nextFloat() * 0.2F, false);
+    		this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 64.0F * (float)ConfigMisc.volWindLightningScale, 0.8F + this.rand.nextFloat() * 0.2F, false);
             this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.rand.nextFloat() * 0.2F, false);
     	}
     }

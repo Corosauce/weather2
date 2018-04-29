@@ -38,28 +38,30 @@ public class EventHandlerPacket {
 			final String command = nbt.getString("command");
 			
 			//System.out.println("Weather2 packet command from server: " + packetCommand);
-			Minecraft.getMinecraft().addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					if (packetCommand.equals("WeatherData")) {
-						ClientTickHandler.checkClientWeather();
+			Minecraft.getMinecraft().addScheduledTask(() -> {
+                if (packetCommand.equals("WeatherData")) {
+                    ClientTickHandler.checkClientWeather();
 
-						//this line still gets NPE's despite it checking if its null right before it, wtf
-						ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
-					} else if (packetCommand.equals("EZGuiData")) {
+                    //this line still gets NPE's despite it checking if its null right before it, wtf
+                    ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
+                } else if (packetCommand.equals("EZGuiData")) {
 
-						Weather.dbg("receiving GUI data for client, command: " + command);
-						if (command.equals("syncUpdate")) {
+                    Weather.dbg("receiving GUI data for client, command: " + command);
+                    if (command.equals("syncUpdate")) {
 
-							WeatherUtilConfig.nbtReceiveServerDataForCache(nbt);
-						}
-					} else if (packetCommand.equals("PocketSandData")) {
-						if (command.equals("create")) {
-							ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
-						}
-					}
-				}
-			});
+                        WeatherUtilConfig.nbtReceiveServerDataForCache(nbt);
+                    }
+                } else if (packetCommand.equals("PocketSandData")) {
+                    if (command.equals("create")) {
+                        ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
+                    }
+                } else if (packetCommand.equals("ClientConfigData")) {
+                    if (command.equals("syncUpdate")) {
+                        ClientTickHandler.clientConfigData.readNBT(nbt);
+                        //ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
+                    }
+                }
+            });
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -78,40 +80,37 @@ public class EventHandlerPacket {
 			
 			Weather.dbg("Weather2 packet command from client: " + packetCommand + " - " + command);
 
-			entP.mcServer.addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					if (packetCommand.equals("WeatherData")) {
+			entP.mcServer.addScheduledTask(() -> {
+                if (packetCommand.equals("WeatherData")) {
 
-						if (command.equals("syncFull")) {
-							ServerTickHandler.playerClientRequestsFullSync(entP);
-						}
+                    if (command.equals("syncFull")) {
+                        ServerTickHandler.playerClientRequestsFullSync(entP);
+                    }
 
-					} else if (packetCommand.equals("EZGuiData")) {
+                } else if (packetCommand.equals("EZGuiData")) {
 
 
-						Weather.dbg("packet handling command: " + command);
+                    Weather.dbg("packet handling command: " + command);
 
-						if (command.equals("syncRequest")) {
-							Weather.dbg("EZGUI syncRequest");
-							NBTTagCompound sendNBT = new NBTTagCompound();
-							sendNBT.setString("packetCommand", "EZGuiData");
-							sendNBT.setString("command", "syncUpdate");
-							sendNBT.setBoolean("markUpdated", true);
-							sendNBT.setBoolean("isPlayerOP", FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile()));
-							sendNBT.setTag("data", WeatherUtilConfig.nbtServerData);
-							sendNBT.setTag("dimListing", WeatherUtilConfig.createNBTDimensionListing());
+                    if (command.equals("syncRequest")) {
+                        Weather.dbg("EZGUI syncRequest");
+                        NBTTagCompound sendNBT = new NBTTagCompound();
+                        sendNBT.setString("packetCommand", "EZGuiData");
+                        sendNBT.setString("command", "syncUpdate");
+                        sendNBT.setBoolean("markUpdated", true);
+                        sendNBT.setBoolean("isPlayerOP", FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile()));
+                        sendNBT.setTag("data", WeatherUtilConfig.nbtServerData);
+                        sendNBT.setTag("dimListing", WeatherUtilConfig.createNBTDimensionListing());
 
-							Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(sendNBT, Weather.eventChannelName), entP);
-							//PacketDispatcher.sendPacketToPlayer(WeatherPacketHelper.createPacketForServerToClientSerialization("EZGuiData", sendNBT), player);
-						} else if (command.equals("applySettings")) {
-							if (FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile())) {
-								WeatherUtilConfig.nbtReceiveClientData(nbt.getCompoundTag("guiData"));
-							}
-						}
-					}
-				}
-			});
+                        Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(sendNBT, Weather.eventChannelName), entP);
+                        //PacketDispatcher.sendPacketToPlayer(WeatherPacketHelper.createPacketForServerToClientSerialization("EZGuiData", sendNBT), player);
+                    } else if (command.equals("applySettings")) {
+                        if (FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile())) {
+                            WeatherUtilConfig.nbtReceiveClientData(nbt.getCompoundTag("guiData"));
+                        }
+                    }
+                }
+            });
 			
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import CoroUtil.config.ConfigCoroUtil;
+import CoroUtil.forge.CoroUtil;
 import modconfig.ConfigMod;
 import modconfig.IConfigCategory;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -18,6 +20,7 @@ import net.minecraftforge.common.DimensionManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.*;
 import CoroUtil.util.CoroUtilFile;
@@ -33,6 +36,8 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PERF_STORM = 2;
 	public static int CMD_BTN_PERF_NATURE = 3;
 	public static int CMD_BTN_PERF_PRECIPRATE = 12;
+	public static int CMD_BTN_PERF_SHADERS_PARTICLE = 18;
+	public static int CMD_BTN_PERF_SHADERS_FOLIAGE = 19;
 	
 	public static int CMD_BTN_COMP_STORM = 4;
 	public static int CMD_BTN_COMP_LOCK = 5;
@@ -49,7 +54,7 @@ public class WeatherUtilConfig {
 	public static int CMD_BTN_PREF_SANDSTORMS = 16;
 	public static int CMD_BTN_PREF_GLOBALRATE = 17;
 	
-	public static int CMD_BTN_HIGHEST_ID = 17;
+	public static int CMD_BTN_HIGHEST_ID = 19;
 
 	public static List<String> LIST_RATES = new ArrayList<String>(Arrays.asList("High", "Medium", "Low"));
 	public static List<String> LIST_RATES2 = new ArrayList<String>(Arrays.asList("High", "Medium", "Low", "None"));
@@ -76,6 +81,8 @@ public class WeatherUtilConfig {
 		listSettingsClient.add(CMD_BTN_COMP_PARTICLEPRECIP);
 		listSettingsClient.add(CMD_BTN_PERF_PRECIPRATE);
 		listSettingsClient.add(CMD_BTN_COMP_PARTICLESNOMODS);
+		listSettingsClient.add(CMD_BTN_PERF_SHADERS_PARTICLE);
+		listSettingsClient.add(CMD_BTN_PERF_SHADERS_FOLIAGE);
 		
 		
 		listSettingsServer.add(CMD_BTN_COMP_STORM);
@@ -99,7 +106,8 @@ public class WeatherUtilConfig {
 		
 		Weather.dbg("nbtClientData: " + nbtClientData);
 		
-		String modID = "weather2Misc";
+		String modIDWeather = Weather.configMisc.getRegistryName();
+		String modIDCoroUtil = CoroUtil.configCoroUtil.getRegistryName();
 		
 		try {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLEPRECIP)) {
@@ -154,6 +162,24 @@ public class WeatherUtilConfig {
 			if (nbtClientData.hasKey("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)) {
 				ConfigParticle.Particle_VanillaAndWeatherOnly = LIST_TOGGLE.get(nbtClientData.getInteger("btn_" + CMD_BTN_COMP_PARTICLESNOMODS)).equalsIgnoreCase("on");
 			}
+
+			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_SHADERS_PARTICLE)) {
+				int val = nbtClientData.getInteger("btn_" + CMD_BTN_PERF_SHADERS_PARTICLE);
+				if (val == 0) {
+					ConfigCoroUtil.particleShaders = false;
+				} else if (val == 1) {
+					ConfigCoroUtil.particleShaders = true;
+				}
+			}
+
+			if (nbtClientData.hasKey("btn_" + CMD_BTN_PERF_SHADERS_FOLIAGE)) {
+				int val = nbtClientData.getInteger("btn_" + CMD_BTN_PERF_SHADERS_FOLIAGE);
+				if (val == 0) {
+					ConfigCoroUtil.foliageShaders = false;
+				} else if (val == 1) {
+					ConfigCoroUtil.foliageShaders = true;
+				}
+			}
 			
 			NBTTagCompound nbtDims = nbtClientData.getCompoundTag("dimData");
 			//Iterator it = nbtDims.getTags().iterator();
@@ -189,8 +215,11 @@ public class WeatherUtilConfig {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
-		ConfigMod.configLookup.get(modID).writeConfigFile(true);
+
+
+		/*ConfigMod.configLookup.get(modIDWeather).writeConfigFile(true);
+		ConfigMod.configLookup.get(modIDCoroUtil).writeConfigFile(true);*/
+		ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 		
 		//work lists here
 		
@@ -211,6 +240,7 @@ public class WeatherUtilConfig {
 		try {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_STORM)) {
 				ConfigMisc.overcastMode = LIST_STORMSWHEN.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_STORM)).equalsIgnoreCase("Global Overcast");
+				ServerTickHandler.syncServerConfigToClient();
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_LOCK)) {
@@ -262,13 +292,17 @@ public class WeatherUtilConfig {
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)) {
 				if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("high")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = 150;
+					ConfigStorm.Storm_Rain_OddsTo1 = 150;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = ConfigStorm.Storm_Rain_OddsTo1 / 3;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("medium")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = 300;
+					ConfigStorm.Storm_Rain_OddsTo1 = 300;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = ConfigStorm.Storm_Rain_OddsTo1 / 3;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("low")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = 450;
+					ConfigStorm.Storm_Rain_OddsTo1 = 450;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = ConfigStorm.Storm_Rain_OddsTo1 / 3;
 				} else if (LIST_RATES2.get(nbtServerData.getInteger("btn_" + CMD_BTN_PREF_CHANCEOFRAIN)).equalsIgnoreCase("none")) {
-					ConfigStorm.Player_Storm_Rain_OddsTo1 = -1;
+					ConfigStorm.Storm_Rain_OddsTo1 = -1;
+					ConfigStorm.Storm_Rain_Overcast_OddsTo1 = -1;
 				}
 			}
 			

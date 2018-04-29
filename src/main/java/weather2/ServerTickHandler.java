@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.Vec3;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -21,11 +22,13 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
+import weather2.weathersystem.wind.WindManager;
 
 public class ServerTickHandler
 {   
@@ -87,6 +90,11 @@ public class ServerTickHandler
         		lookupDimToWeatherMan.get(worlds[i].provider.getDimension()).tick();
         	}
         }
+
+        //TODO: only sync when things change?
+		if (world.getTotalWorldTime() % 60 == 0) {
+			syncServerConfigToClient();
+		}
         
         boolean testRainRequest = false;
         if (testRainRequest) {
@@ -223,4 +231,21 @@ public class ServerTickHandler
     public static WeatherManagerServer getWeatherSystemForDim(int dimID) {
     	return lookupDimToWeatherMan.get(dimID);
     }
+
+	public static void syncServerConfigToClient() {
+		//packets
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("packetCommand", "ClientConfigData");
+		data.setString("command", "syncUpdate");
+		//data.setTag("data", parManager.nbtSyncForClient());
+
+		data.setBoolean("overcastMode", ConfigMisc.overcastMode);
+		data.setBoolean("Storm_Tornado_grabPlayer", ConfigTornado.Storm_Tornado_grabPlayer);
+		data.setBoolean("Storm_Tornado_grabPlayersOnly", ConfigTornado.Storm_Tornado_grabPlayersOnly);
+		data.setBoolean("Storm_Tornado_grabMobs", ConfigTornado.Storm_Tornado_grabMobs);
+		data.setBoolean("Storm_Tornado_grabAnimals", ConfigTornado.Storm_Tornado_grabAnimals);
+		data.setBoolean("Storm_Tornado_grabVillagers", ConfigTornado.Storm_Tornado_grabVillagers);
+
+		Weather.eventChannel.sendToAll(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+	}
 }

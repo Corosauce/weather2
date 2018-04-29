@@ -38,7 +38,8 @@ public class ConfigTornado implements IConfigCategory {
 	public static boolean Storm_Tornado_GrabListBlacklistMode = false;
 	@ConfigComment("Enable GrabCond_List to use, add registered block names to list, use commas to separate values")
 	public static String Storm_Tornado_GrabList = "planks, leaves";
-	public static int Storm_Tornado_maxBlocksPerStorm = 200;
+	@ConfigComment("Max amount of flying entity blocks allowed active, if it goes over this, it stops turning destroyed blocks into entities")
+	public static int Storm_Tornado_maxFlyingEntityBlocks = 200;
 	public static int Storm_Tornado_maxBlocksGrabbedPerTick = 5;
 	@ConfigComment("How rarely a block will be removed while spinning around a tornado")
 	public static int Storm_Tornado_rarityOfDisintegrate = 15;

@@ -1,5 +1,6 @@
 package weather2.config;
 
+import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -18,7 +19,10 @@ public class ConfigParticle implements IConfigCategory {
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
 	public static boolean Wind_Particle_fire = true;
+	@ConfigComment("Enables or disables all precipitation particle types")
 	public static boolean Particle_RainSnow = true;
+    public static boolean Particle_Rain_GroundSplash = true;
+    public static boolean Particle_Rain_DownfallSheet = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;
 	public static double Precipitation_Particle_effect_rate = 1D;
 	public static double Sandstorm_Particle_Debris_effect_rate = 0.6D;
