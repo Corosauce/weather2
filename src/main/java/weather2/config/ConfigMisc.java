@@ -69,6 +69,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Block_WeatherMachineNoRecipe = false;
 	public static boolean Block_SensorNoRecipe = false;
 	public static boolean Block_SirenNoRecipe = false;
+	public static boolean Block_SirenManualNoRecipe = false;
 	public static boolean Block_WindVaneNoRecipe = false;
 	public static boolean Block_AnemometerNoRecipe = false;
 	public static boolean Block_WeatherForecastNoRecipe = false;
