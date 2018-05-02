@@ -86,9 +86,9 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 		String modeMsg = "";
 
 		if (mode == MODE_KILLSTORMS) {
-			modeMsg = "Kill Storms";
+			modeMsg = "Kill storms, thunderstorms or deadlier";
 		} else if (mode == MODE_NOBLOCKDAMAGE) {
-			modeMsg = "Prevent Block Damage";
+			modeMsg = "Prevent block damage only";
 			maintainBlockDamageDeflect();
 		}
 
