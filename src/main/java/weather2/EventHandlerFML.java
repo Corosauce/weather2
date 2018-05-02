@@ -1,7 +1,7 @@
 package weather2;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -10,10 +10,15 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import weather2.config.ConfigMisc;
 
 public class EventHandlerFML {
 
-	public static World lastWorld = null;
+	public static boolean sleepFlag = false;
+	public static boolean wasRain = false;
+	public static int rainTime = 0;
+	public static boolean wasThunder = false;
+	public static int thunderTime = 0;
 
 	@SubscribeEvent
 	public void tickWorld(WorldTickEvent event) {
@@ -28,6 +33,36 @@ public class EventHandlerFML {
 		if (event.phase == Phase.START) {
 			//System.out.println("tick weather2");
 			ServerTickHandler.onTickInGame();
+		}
+
+		if (ConfigMisc.Global_Overcast_Prevent_Rain_Reset_On_Sleep) {
+			WorldServer world = DimensionManager.getWorld(0);
+			if (world != null) {
+				if (event.phase == Phase.START) {
+					if (world.areAllPlayersAsleep()) {
+						sleepFlag = true;
+						/*System.out.println("start: all players asleep");
+						System.out.println("start rain: " + world.getWorldInfo().isRaining());
+						System.out.println("start rain time: " + world.getWorldInfo().getRainTime());*/
+						wasRain = world.getWorldInfo().isRaining();
+						wasThunder = world.getWorldInfo().isThundering();
+						rainTime = world.getWorldInfo().getRainTime();
+						thunderTime = world.getWorldInfo().getThunderTime();
+					} else {
+						sleepFlag = false;
+					}
+				} else {
+					if (sleepFlag) {
+						/*System.out.println("end: sleep flag trigger");
+						System.out.println("end rain: " + world.getWorldInfo().isRaining());
+						System.out.println("end rain time: " + world.getWorldInfo().getRainTime());*/
+						world.getWorldInfo().setRaining(wasRain);
+						world.getWorldInfo().setRainTime(rainTime);
+						world.getWorldInfo().setThundering(wasThunder);
+						world.getWorldInfo().setThunderTime(thunderTime);
+					}
+				}
+			}
 		}
 
 	}
