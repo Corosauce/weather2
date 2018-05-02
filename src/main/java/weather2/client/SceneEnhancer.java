@@ -1452,7 +1452,7 @@ public class SceneEnhancer implements Runnable {
 												xRand = rand.nextDouble() - 0.5D;
 											}
 
-											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx + pos.getX(), yy + pos.getY(), zz + pos.getZ(), 0D, 0D, 0D, ParticleRegistry.leaf);
+											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx, yy, zz, 0D, 0D, 0D, ParticleRegistry.leaf);
 											var31.setPosition(xx + 0.5D + (pos.getX() * relAdj) + xRand,
 													yy + 0.5D + (pos.getY() * relAdj) + yRand,
 													zz + 0.5D + (pos.getZ() * relAdj) + zRand);
