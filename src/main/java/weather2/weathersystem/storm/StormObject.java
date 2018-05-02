@@ -2625,7 +2625,9 @@ public class StormObject extends WeatherObject {
 	@Override
 	public void cleanup() {
 		super.cleanup();
-		if (tornadoHelper != null) tornadoHelper.storm = null;
+		if (tornadoHelper != null) {
+			tornadoHelper.cleanup();
+		}
 		tornadoHelper = null;
 	}
 	
