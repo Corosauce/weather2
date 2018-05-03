@@ -32,6 +32,7 @@ import weather2.ClientConfigData;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigStorm;
 import weather2.config.ConfigTornado;
 import weather2.entity.EntityMovingBlock;
 import weather2.util.WeatherUtil;
@@ -40,6 +41,7 @@ import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
+import weather2.weathersystem.WeatherManagerBase;
 
 public class TornadoHelper {
 	
@@ -69,8 +71,14 @@ public class TornadoHelper {
     private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<BlockPos, BlockUpdateSnapshot>();
     private int queueProcessRate = 10;
 
+    //for client player, for use of playing sounds
 	public static boolean isOutsideCached = false;
 
+	//for caching query on if a block damage preventer block is nearby, also assume blocked at first for safety
+	public boolean isBlockGrabbingBlockedCached = true;
+	public long isBlockGrabbingBlockedCached_LastCheck = 0;
+
+	//static because its a shared list for the whole dimension
 	public static HashMap<Integer, Long> flyingBlock_LastQueryTime = new HashMap<>();
 	public static HashMap<Integer, Integer> flyingBlock_LastCount = new HashMap<>();
 
@@ -314,7 +322,7 @@ public class TornadoHelper {
 	                        }
 	                        
 	                        if (!performed && ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-	                        	if (blockID == Blocks.GRASS) {
+	                        	if (blockID == Blocks.GRASS && canGrab(parWorld, state, pos)) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
 	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.DIRT.getDefaultState(), state, pos, false));
@@ -546,7 +554,10 @@ public class TornadoHelper {
 
     public boolean canGrab(World parWorld, IBlockState state, BlockPos pos)
     {
-        if (!CoroUtilBlock.isAir(state.getBlock()) && WeatherUtil.shouldGrabBlock(parWorld, state.getBlock()) && state.getBlock() != Blocks.FIRE)
+        if (!CoroUtilBlock.isAir(state.getBlock()) &&
+				state.getBlock() != Blocks.FIRE &&
+				WeatherUtil.shouldGrabBlock(parWorld, state.getBlock()) &&
+				!isBlockGrabbingBlocked(parWorld, state, pos))
         {
         	return canGrabEventCheck(parWorld, state, pos);
         }
@@ -901,5 +912,30 @@ public class TornadoHelper {
 		}
 
 		return flyingBlock_LastCount.get(dimID);
+	}
+
+	public boolean isBlockGrabbingBlocked(World world, IBlockState state, BlockPos pos) {
+		int queryRate = 40;
+		if (isBlockGrabbingBlockedCached_LastCheck + queryRate < world.getTotalWorldTime()) {
+			isBlockGrabbingBlockedCached_LastCheck = world.getTotalWorldTime();
+
+			isBlockGrabbingBlockedCached = false;
+
+			for (Long hash : storm.manager.getListWeatherBlockDamageDeflector()) {
+				BlockPos posDeflect = BlockPos.fromLong(hash);
+
+				if (pos.distanceSq(posDeflect) < ConfigStorm.Storm_Deflector_RadiusOfStormRemoval * ConfigStorm.Storm_Deflector_RadiusOfStormRemoval) {
+					isBlockGrabbingBlockedCached = true;
+					break;
+				}
+			}
+		}
+
+		return isBlockGrabbingBlockedCached;
+	}
+
+	public void cleanup() {
+		listBlockUpdateQueue.clear();
+		storm = null;
 	}
 }

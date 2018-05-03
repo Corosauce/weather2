@@ -94,6 +94,9 @@ public class ConfigMisc implements IConfigCategory {
 
 	public static boolean blockBreakingInvokesCancellableEvent = false;
 
+	@ConfigComment("If true, will cancel vanilla behavior of setting clear weather when the player sleeps, for global overcast mode")
+	public static boolean Global_Overcast_Prevent_Rain_Reset_On_Sleep = true;
+
 	public ConfigMisc() {
 		
 	}
