@@ -9,7 +9,9 @@ import com.google.common.collect.Sets;
 import extendedrenderer.EventHandler;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
+import extendedrenderer.foliage.FoliageData;
 import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.entity.ParticleTexLeafColor;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
 import extendedrenderer.shader.InstancedMeshFoliage;
@@ -31,6 +33,7 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
+import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -77,6 +80,8 @@ public class FoliageEnhancerShader implements Runnable {
 
         if (replaceVanillaModels) {
 
+            FoliageData.backupBakedModelStore.clear();
+
             String str = "Weather2: Replacing shaderized models";
 
             CULog.log(str);
@@ -84,6 +89,22 @@ public class FoliageEnhancerShader implements Runnable {
 
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
             IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
+
+            //shortcut to getting the data loaded into bakedModelStore, is empty on first minecraft run otherwise
+            //would this cause bugs for mods that use ModelBakeEvent? meaning we might miss their models if we shaderize them
+            event.getModelLoader().blockModelShapes.reloadModels();
+
+            CULog.dbg("bakedModelStore size: " + event.getModelLoader().blockModelShapes.bakedModelStore.size());
+
+            //make backup
+            for (Map.Entry<IBlockState, IBakedModel> entry : event.getModelLoader().blockModelShapes.bakedModelStore.entrySet()) {
+                IBlockState state = entry.getKey();
+                if (state instanceof IExtendedBlockState) {
+                    state = ((IExtendedBlockState) state).getClean();
+                }
+                //CULog.dbg("state to IBakedModel: " + state.toString() + " - " + entry.getValue().toString());
+                FoliageData.backupBakedModelStore.put(state, entry.getValue());
+            }
 
             for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
                 prog.step(res.toString());
@@ -141,6 +162,8 @@ public class FoliageEnhancerShader implements Runnable {
             }
 
             ProgressManager.pop(prog);
+
+            ParticleTexLeafColor.clearColorCache();
         }
     }
 
