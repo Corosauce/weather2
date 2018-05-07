@@ -1420,7 +1420,8 @@ public class SceneEnhancer implements Runnable {
                             //if (block != null && block.getMaterial() == Material.leaves)
                             
                             if (block != null && (block.getMaterial(block.getDefaultState()) == Material.LEAVES
-									|| block.getMaterial(block.getDefaultState()) == Material.VINE))
+									|| block.getMaterial(block.getDefaultState()) == Material.VINE ||
+							block.getMaterial(block.getDefaultState()) == Material.PLANTS))
                             {
                             	
                             	lastTickFoundBlocks++;
