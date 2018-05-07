@@ -51,7 +51,7 @@ public class WindReader {
 		
 		if (wMan != null) {
 			if (parWindType == WindType.PRIORITY) {
-				return wMan.windMan.getWindAngleForPriority();
+				return wMan.windMan.getWindAngleForPriority(null);
 			} else if (parWindType == WindType.EVENT) {
 				return wMan.windMan.getWindAngleForEvents();
 			} else if (parWindType == WindType.GUST) {

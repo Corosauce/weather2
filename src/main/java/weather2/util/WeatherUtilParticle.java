@@ -32,13 +32,15 @@ public class WeatherUtilParticle {
     //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static int getParticleAge(Particle ent)
     {
-        return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge");
+        return ent.particleAge;
+        //return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge");
     }
 
     //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static void setParticleAge(Particle ent, int val)
     {
-        OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge", val);
+        ent.particleAge = val;
+        //OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge", val);
     }
 
     @SideOnly(Side.CLIENT)

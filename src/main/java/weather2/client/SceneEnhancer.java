@@ -199,9 +199,9 @@ public class SceneEnhancer implements Runnable {
 					}
 				}
 
-				//if (mc.world.getTotalWorldTime() % 5 == 0) {
+				if (mc.world.getTotalWorldTime() % 5 == 0) {
 					FoliageEnhancerShader.tickClientCloseToPlayer();
-				//}
+				}
 			}
 
 		}
@@ -746,7 +746,7 @@ public class SceneEnhancer implements Runnable {
 					int extraRenderCount = 15;
 
 					//attempt to fix the cluttering issue more noticable when barely anything spawning
-					if (curPrecipVal < 0.1) {
+					if (curPrecipVal < 0.1 && ConfigParticle.Precipitation_Particle_effect_rate > 0) {
 						//swap rates
 						int oldVal = extraRenderCount;
 						extraRenderCount = spawnNeed;
@@ -1698,14 +1698,14 @@ public class SceneEnhancer implements Runnable {
 					if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor(entity1.getPosX()), 0, MathHelper.floor(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
 					{
 						if (entity1 instanceof IWindHandler) {
-							if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+							if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
 							{
-								WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
+								WeatherUtilParticle.setParticleAge(entity1, WeatherUtilParticle.getParticleAge(entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
 							}
 						}
-						else if (WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+						else if (WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
 						{
-							WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 1);
+							WeatherUtilParticle.setParticleAge(entity1, WeatherUtilParticle.getParticleAge(entity1) + 1);
 						}
 
 						if ((entity1 instanceof ParticleTexFX) && ((ParticleTexFX)entity1).getParticleTexture() == ParticleRegistry.leaf/*((ParticleTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID*/)
@@ -1741,7 +1741,7 @@ public class SceneEnhancer implements Runnable {
                 	for (Particle entity1 : WeatherUtilParticle.fxLayers[layer][i])
                     {
                 	
-	                    //Particle entity1 = (Particle)WeatherUtilParticle.fxLayers[layer][i].get(j);
+	                    //Particle entity1 = WeatherUtilParticle.fxLayers[layer][i].get(j);
 	                    
 	                    if (ConfigParticle.Particle_VanillaAndWeatherOnly) {
 	                    	String className = entity1.getClass().getName();
@@ -1758,17 +1758,20 @@ public class SceneEnhancer implements Runnable {
 	                    {
 	                        if ((entity1 instanceof ParticleFlame))
 	                        {
-	                        	if (windMan.getWindSpeedForPriority() >= 0.50) WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
+	                        	if (windMan.getWindSpeedForPriority() >= 0.50) {
+	                        		entity1.particleAge += 2;
+	                        		//WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
+								}
 	                        }
 	                        else if (entity1 instanceof IWindHandler) {
-	                        	if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+	                        	if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
 	                            {
-	                        		WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
+	                        		entity1.particleAge += ((IWindHandler)entity1).getParticleDecayExtra();
 	                            }
 	                        }
-	                        else if (WeatherUtilParticle.getParticleAge((Particle)entity1) % 2 == 0)
+	                        else if (WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
 	                        {
-	                        	WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 1);
+								entity1.particleAge += 1;
 	                        }
 	
 	                        //rustle!
@@ -1845,52 +1848,6 @@ public class SceneEnhancer implements Runnable {
                 setVolume(new StringBuilder().append("sound_" + soundID[2]).toString(), volScaleFar);
             }
         }*/
-    }
-	
-	public static void applyWindForce(Object ent)
-    {
-        applyWindForce(ent, 1D, 1D);
-    }
-	
-    public static void applyWindForce(Object entOrParticle, double multiplier, double maxSpeed)
-    {
-    	WindManager windMan = ClientTickHandler.weatherManager.windMan;
-    	
-    	float windSpeed = windMan.getWindSpeedForPriority();
-    	float windAngle = windMan.getWindAngleForPriority();
-    	
-        double speed = windSpeed * 0.1D / WeatherUtilEntity.getWeight(entOrParticle);
-        speed *= multiplier;
-
-        if (entOrParticle instanceof Entity) {
-        	Entity ent = (Entity) entOrParticle;
-        	if ((ent.onGround && windSpeed < 0.7) && speed < 0.3)
-            {
-                speed = 0D;
-            }
-        }
-        
-        double vecX = CoroUtilEntOrParticle.getMotionX(entOrParticle);
-        double vecY = CoroUtilEntOrParticle.getMotionY(entOrParticle);
-        double vecZ = CoroUtilEntOrParticle.getMotionZ(entOrParticle);
-        
-        double speedCheck = (Math.abs(vecX)/* + Math.abs(vecY)*/ + Math.abs(vecZ)) / 2D;
-        if (speedCheck < maxSpeed) {
-        	CoroUtilEntOrParticle.setMotionX(entOrParticle, CoroUtilEntOrParticle.getMotionX(entOrParticle) + speed * (double)(-MathHelper.sin(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
-            CoroUtilEntOrParticle.setMotionZ(entOrParticle, CoroUtilEntOrParticle.getMotionZ(entOrParticle) + speed * (double)(MathHelper.cos(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
-        }
-        
-        
-        /*if (ent instanceof EntityKoaManly) {
-        	System.out.println("wind move speed: " + speed + " | " + ent.world.isRemote);
-        }*/
-
-        
-        /*entOrParticle.motionX += speed * (double)(-MathHelper.sin(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0FweatherMan.wind.yDirection / 180.0F * (float)Math.PI));
-        entOrParticle.motionZ += speed * (double)(MathHelper.cos(windAngle / 180.0F * (float)Math.PI) * MathHelper.cos(0FweatherMan.wind.yDirection / 180.0F * (float)Math.PI));*/
-        
-        //commented out for weather2, yStrength was 0
-        //ent.motionY += weatherMan.wind.yStrength * 0.1D * (double)(-MathHelper.sin((weatherMan.wind.yDirection) / 180.0F * (float)Math.PI));
     }
 	
 	//Thread safe functions
