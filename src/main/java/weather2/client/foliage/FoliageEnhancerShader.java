@@ -162,8 +162,6 @@ public class FoliageEnhancerShader implements Runnable {
             }
 
             ProgressManager.pop(prog);
-
-            ParticleTexLeafColor.clearColorCache();
         }
     }
 
