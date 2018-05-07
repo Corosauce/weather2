@@ -84,10 +84,7 @@ publishing {
 
 jar {
 	manifest {
-	    attributes 'FMLAT': 'weather2_at.cfg',
-                "FMLCorePlugin": 'weather2.asm.Weather2LoadingPlugin',
-                "FMLCorePluginContainsFMLMod": 'true',
-                "ForceLoadAsMod": 'true'
+	    attributes 'FMLAT': 'weather2_at.cfg'
 
 	}
 }
