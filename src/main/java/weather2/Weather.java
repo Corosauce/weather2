@@ -22,7 +22,7 @@ import CoroUtil.util.CoroUtilFile;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil@[1.12.1-1.2.7,)")
+@Mod(modid = "weather2", name="weather2", version=Weather.version, dependencies="required-after:coroutil@[1.12.1-1.2.8,)")
 public class Weather {
 	
 	@Mod.Instance( value = Weather.modID )
