@@ -166,7 +166,7 @@ public class SceneEnhancer implements Runnable {
 
 	//run from client side _mc_ thread
 	public void tickClient() {
-		if (!WeatherUtil.isPaused()) {
+		if (!WeatherUtil.isPaused() && !ConfigMisc.Client_PotatoPC_Mode) {
 			tryParticleSpawning();
 			tickRainRates();
 			tickParticlePrecipitation();
@@ -2437,6 +2437,9 @@ public class SceneEnhancer implements Runnable {
     }
 
     public static void renderTick(TickEvent.RenderTickEvent event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		if (event.phase == TickEvent.Phase.START) {
 			Minecraft mc = FMLClientHandler.instance().getClient();
 			EntityPlayer entP = mc.player;

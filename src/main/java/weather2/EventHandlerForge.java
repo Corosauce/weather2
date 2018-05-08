@@ -55,6 +55,9 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
     public void worldRender(RenderWorldLastEvent event)
     {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		ClientTickHandler.checkClientWeather();
 		ClientTickHandler.weatherManager.tickRender(event.getPartialTicks());
 		SceneEnhancer.renderWorldLast(event);
@@ -81,6 +84,9 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
     public void onFogDensity(FogDensity event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		float fogDensity = 0;
 		int delay = 5000;
 		long time = System.currentTimeMillis() % delay;
@@ -125,6 +131,8 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
     public void onFogColors(FogColors event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
 		
         if (SceneEnhancer.isFogOverridding()) {
 			//backup original fog colors that are actively being adjusted based on time of day
@@ -142,6 +150,9 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onFogRender(RenderFogEvent event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		if (SceneEnhancer.isFogOverridding()) {
         	//event.setCanceled(true);
         	//event.setDensity(SceneEnhancer.stormFogDensity);

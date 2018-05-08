@@ -94,6 +94,9 @@ public class ClientTickHandler
     
     public void onTickInGame()
     {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
         Minecraft mc = FMLClientHandler.instance().getClient();
         World world = mc.world;
         

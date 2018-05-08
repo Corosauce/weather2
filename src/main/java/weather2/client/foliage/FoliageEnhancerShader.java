@@ -40,6 +40,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.BufferUtils;
 import weather2.Weather;
 import weather2.config.ConfigFoliage;
+import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 
 import java.lang.reflect.Field;
@@ -74,7 +75,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
-        boolean replaceVanillaModels = ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders();
+        boolean replaceVanillaModels = ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders() && !ConfigMisc.Client_PotatoPC_Mode;
 
         boolean textureFix = false;
 
@@ -472,7 +473,7 @@ public class FoliageEnhancerShader implements Runnable {
         if (useThread) {
             while (true) {
                 try {
-                    if (ConfigCoroUtil.foliageShaders && RotatingParticleManager.useShaders) {
+                    if (ConfigCoroUtil.foliageShaders && RotatingParticleManager.useShaders && !ConfigMisc.Client_PotatoPC_Mode) {
                         boolean gotLock = tickClientThreaded();
                         if (gotLock) {
                             Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);

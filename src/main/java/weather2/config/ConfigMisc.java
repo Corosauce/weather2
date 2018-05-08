@@ -97,6 +97,12 @@ public class ConfigMisc implements IConfigCategory {
 	@ConfigComment("If true, will cancel vanilla behavior of setting clear weather when the player sleeps, for global overcast mode")
 	public static boolean Global_Overcast_Prevent_Rain_Reset_On_Sleep = true;
 
+	@ConfigComment("Use if you are on a server with weather but want it ALL off client side for performance reasons, overrides basically every client based setting")
+	public static boolean Client_PotatoPC_Mode = false;
+
+	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems")
+	public static boolean Aesthetic_Only_Mode = false;
+
 	public ConfigMisc() {
 		
 	}
