@@ -1442,15 +1442,20 @@ public class SceneEnhancer implements Runnable {
 
 	                                	if (pos != null) {
 
+	                                		//further limit the spawn position along the face side to prevent it clipping into perpendicular blocks
+	                                		float particleAABB = 0.1F;
+											float particleAABBAndBuffer = particleAABB + 0.05F;
+											float invert = 1F - (particleAABBAndBuffer * 2F);
+
 											if (pos.getY() != 0) {
-												xRand = rand.nextDouble() - 0.5D;
-												zRand = rand.nextDouble() - 0.5D;
+												xRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+												zRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
 											} else if (pos.getX() != 0) {
-												yRand = rand.nextDouble() - 0.5D;
-												zRand = rand.nextDouble() - 0.5D;
+												yRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+												zRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
 											} else if (pos.getZ() != 0) {
-												yRand = rand.nextDouble() - 0.5D;
-												xRand = rand.nextDouble() - 0.5D;
+												yRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+												xRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
 											}
 
 											EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx, yy, zz, 0D, 0D, 0D, ParticleRegistry.leaf);
@@ -1463,7 +1468,7 @@ public class SceneEnhancer implements Runnable {
 											var31.setMotionX(0);
 											var31.setMotionY(0);
 											var31.setMotionZ(0);
-											var31.setSize(0.1F, 0.1F);
+											var31.setSize(particleAABB, particleAABB);
 											//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
 											var31.setGravity(0.05F);
 											var31.setCanCollide(true);
