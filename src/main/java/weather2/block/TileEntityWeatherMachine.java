@@ -122,7 +122,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 					}
 				}
     			
-    			if (lastTickStormObject == null) {
+    			if (lastTickStormObject == null && !ConfigMisc.Aesthetic_Only_Mode) {
     				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
     				
     				if (manager != null) {

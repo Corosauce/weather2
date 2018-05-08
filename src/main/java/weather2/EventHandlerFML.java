@@ -1,5 +1,6 @@
 package weather2;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -89,6 +90,9 @@ public class EventHandlerFML {
 
 	@SubscribeEvent
 	public void playerLoggedIn(PlayerLoggedInEvent event) {
+		if (event.player instanceof EntityPlayerMP) {
+			ServerTickHandler.syncServerConfigToClientPlayer((EntityPlayerMP) event.player);
+		}
 		//Weather.dbg("Weather2: PlayerLoggedInEvent: " + event.player.getName());
 		//ServerTickHandler.playerJoinedServerSyncFull((EntityPlayerMP) event.player);
 	}

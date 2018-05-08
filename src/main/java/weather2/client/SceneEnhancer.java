@@ -1471,6 +1471,7 @@ public class SceneEnhancer implements Runnable {
 											var31.collisionSpeedDampen = false;
 											var31.killWhenUnderCameraAtLeast = 20;
 											var31.killWhenFarFromCameraAtLeast = 20;
+											var31.isTransparent = false;
 											//var31.setSize(1, 1);
 											//var31.setKillWhenUnderTopmostBlock(true);
 

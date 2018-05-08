@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import CoroUtil.forge.CULog;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.Vec3;
+import modconfig.ConfigMod;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -91,8 +93,18 @@ public class ServerTickHandler
         	}
         }
 
-        //TODO: only sync when things change?
-		if (world.getTotalWorldTime() % 60 == 0) {
+        if (ConfigMisc.Aesthetic_Only_Mode) {
+        	if (!ConfigMisc.overcastMode) {
+        		ConfigMisc.overcastMode = true;
+				CULog.dbg("detected Aesthetic_Only_Mode on, setting overcast mode on");
+				WeatherUtilConfig.setOvercastModeServerSide(ConfigMisc.overcastMode);
+				ConfigMod.forceSaveAllFilesFromRuntimeSettings();
+				syncServerConfigToClient();
+			}
+		}
+
+        //TODO: only sync when things change? is now sent via PlayerLoggedInEvent at least
+		if (world.getTotalWorldTime() % 200 == 0) {
 			syncServerConfigToClient();
 		}
         
@@ -239,13 +251,20 @@ public class ServerTickHandler
 		data.setString("command", "syncUpdate");
 		//data.setTag("data", parManager.nbtSyncForClient());
 
-		data.setBoolean("overcastMode", ConfigMisc.overcastMode);
-		data.setBoolean("Storm_Tornado_grabPlayer", ConfigTornado.Storm_Tornado_grabPlayer);
-		data.setBoolean("Storm_Tornado_grabPlayersOnly", ConfigTornado.Storm_Tornado_grabPlayersOnly);
-		data.setBoolean("Storm_Tornado_grabMobs", ConfigTornado.Storm_Tornado_grabMobs);
-		data.setBoolean("Storm_Tornado_grabAnimals", ConfigTornado.Storm_Tornado_grabAnimals);
-		data.setBoolean("Storm_Tornado_grabVillagers", ConfigTornado.Storm_Tornado_grabVillagers);
+		ClientConfigData.writeNBT(data);
 
 		Weather.eventChannel.sendToAll(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+	}
+
+	public static void syncServerConfigToClientPlayer(EntityPlayerMP player) {
+		//packets
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("packetCommand", "ClientConfigData");
+		data.setString("command", "syncUpdate");
+		//data.setTag("data", parManager.nbtSyncForClient());
+
+		ClientConfigData.writeNBT(data);
+
+		Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), player);
 	}
 }

@@ -122,7 +122,7 @@ public class ClientTickHandler
 
 			weatherManager.tick();
 
-			if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
+			if (!clientConfigData.Aesthetic_Only_Mode && ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
 				mc.gameSettings.clouds = 0;
 			}
 

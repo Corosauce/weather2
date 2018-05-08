@@ -240,7 +240,6 @@ public class WeatherUtilConfig {
 		try {
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_STORM)) {
 				ConfigMisc.overcastMode = LIST_STORMSWHEN.get(nbtServerData.getInteger("btn_" + CMD_BTN_COMP_STORM)).equalsIgnoreCase("Global Overcast");
-				ServerTickHandler.syncServerConfigToClient();
 			}
 			
 			if (nbtServerData.hasKey("btn_" + CMD_BTN_COMP_LOCK)) {
@@ -407,6 +406,8 @@ public class WeatherUtilConfig {
 			//ConfigMod.populateData(config.getRegistryName());
 		}
 
+		ServerTickHandler.syncServerConfigToClient();
+
 		//ConfigMod.configLookup.get(modID).writeConfigFile(true);
 		//ConfigMod.populateData(modID);
 		
@@ -549,6 +550,11 @@ public class WeatherUtilConfig {
 			Weather.dbg("Error reading Weather2 EZ GUI data");
 		}
 		return data;
+	}
+
+	public static void setOvercastModeServerSide(boolean val) {
+		nbtServerData.setInteger("btn_" + CMD_BTN_COMP_STORM, val ? 1 : 0);
+		nbtSaveDataServer();
 	}
 	
 }

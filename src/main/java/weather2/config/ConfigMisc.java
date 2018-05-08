@@ -100,7 +100,7 @@ public class ConfigMisc implements IConfigCategory {
 	@ConfigComment("Use if you are on a server with weather but want it ALL off client side for performance reasons, overrides basically every client based setting")
 	public static boolean Client_PotatoPC_Mode = false;
 
-	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems")
+	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems, turns overcast mode on")
 	public static boolean Aesthetic_Only_Mode = false;
 
 	public ConfigMisc() {
