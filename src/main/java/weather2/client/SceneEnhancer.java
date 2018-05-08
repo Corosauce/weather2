@@ -834,15 +834,21 @@ public class SceneEnhancer implements Runnable {
 										entP.posY - 5 + rand.nextInt(15),
 										entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
-								pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
+
+								//get the block on the topmost ground
+								pos = world.getPrecipitationHeight(pos).down()/*.add(0, 1, 0)*/;
+
+								IBlockState state = world.getBlockState(pos);
+								AxisAlignedBB axisalignedbb = state.getBoundingBox(world, pos);
 
 								if (pos.getDistance(MathHelper.floor(entP.posX), MathHelper.floor(entP.posY), MathHelper.floor(entP.posZ)) > spawnAreaSize / 2)
 									continue;
 
-								if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
+								//block above topmost ground
+								if (canPrecipitateAt(world, pos.up())/*world.isRainingAt(pos)*/) {
 									ParticleTexFX rain = new ParticleTexFX(entP.world,
 											pos.getX() + rand.nextFloat(),
-											pos.getY() - 1 + 0.01D,
+											pos.getY() + 0.01D + axisalignedbb.maxY,
 											pos.getZ() + rand.nextFloat(),
 											0D, 0D, 0D, ParticleRegistry.cloud256_6);
 									//rain.setCanCollide(true);
