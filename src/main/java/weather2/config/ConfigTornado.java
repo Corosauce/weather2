@@ -51,6 +51,8 @@ public class ConfigTornado implements IConfigCategory {
 	@ConfigComment("Accuracy of tornado aimed at player")
 	public static int Storm_Tornado_aimAtPlayerAngleVariance = 5;
 
+	public static boolean Storm_Tornado_grabbedBlocksRepairOverTime = false;
+
     @Override
     public String getName() {
         return "Tornado";

@@ -2,6 +2,8 @@ package weather2.weathersystem.storm;
 
 import java.util.*;
 
+import CoroUtil.block.TileEntityRepairingBlock;
+import CoroUtil.forge.CommonProxy;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -176,7 +178,13 @@ public class TornadoHelper {
 					BlockUpdateSnapshot snapshot = it.next();
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
-						world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
+
+						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime) {
+							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos());
+						} else {
+							world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
+						}
+
 						if (snapshot.getState().getBlock() == Blocks.AIR) {
 							//if (count % entityCreateStaggerRate == 0) {
 								if (snapshot.isCreateEntityForBlockRemoval()) {
@@ -556,6 +564,7 @@ public class TornadoHelper {
     {
         if (!CoroUtilBlock.isAir(state.getBlock()) &&
 				state.getBlock() != Blocks.FIRE &&
+				state.getBlock() != CommonProxy.blockRepairingBlock &&
 				WeatherUtil.shouldGrabBlock(parWorld, state.getBlock()) &&
 				!isBlockGrabbingBlocked(parWorld, state, pos))
         {
