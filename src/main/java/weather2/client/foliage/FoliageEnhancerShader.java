@@ -79,9 +79,9 @@ public class FoliageEnhancerShader implements Runnable {
 
         boolean textureFix = false;
 
-        if (replaceVanillaModels) {
+        FoliageData.backupBakedModelStore.clear();
 
-            FoliageData.backupBakedModelStore.clear();
+        if (replaceVanillaModels) {
 
             String str = "Weather2: Replacing shaderized models";
 
