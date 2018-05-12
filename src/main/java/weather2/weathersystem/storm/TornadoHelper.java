@@ -182,7 +182,7 @@ public class TornadoHelper {
 					if (world != null) {
 
 						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
-							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos());
+							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos(), ConfigTornado.Storm_Tornado_TicksToRepairBlock);
 							//world.setBlockState(snapshot.getPos(), Blocks.LEAVES.getDefaultState(), 3);
 						} else {
 							CULog.dbg("cant use repairing block on: " + snapshot.statePrev);
@@ -192,7 +192,7 @@ public class TornadoHelper {
 						if (snapshot.getState().getBlock() == Blocks.AIR) {
 							//if (count % entityCreateStaggerRate == 0) {
 								if (snapshot.isCreateEntityForBlockRemoval()) {
-									EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev.getBlock(), storm);
+									EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev, storm);
 									double speed = 1D;
 									mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
 									mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
@@ -425,7 +425,7 @@ public class TornadoHelper {
 				if (CoroUtilBlock.isAir(state.getBlock())) {
 					//parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
 
-					EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY(), posUp.getZ(), Blocks.FIRE, storm);
+					EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY(), posUp.getZ(), Blocks.FIRE.getDefaultState(), storm);
 					mBlock.metadata = 15;
 					double speed = 2D;
 					mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
@@ -501,7 +501,7 @@ public class TornadoHelper {
         IBlockState state = parWorld.getBlockState(pos);
         Block blockID = state.getBlock();
 
-		CULog.dbg("tryRip: " + blockID);
+		//CULog.dbg("tryRip: " + blockID);
 
         //System.out.println(parWorld.getHeightValue(tryX, tryZ));
         if ((((WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||

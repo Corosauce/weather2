@@ -51,7 +51,11 @@ public class ConfigTornado implements IConfigCategory {
 	@ConfigComment("Accuracy of tornado aimed at player")
 	public static int Storm_Tornado_aimAtPlayerAngleVariance = 5;
 
+	@ConfigComment("experimental idea, places the WIP repairing block where a tornado does damage instead of removing the block, causes tornado damage to self repair")
 	public static boolean Storm_Tornado_grabbedBlocksRepairOverTime = false;
+
+	@ConfigComment("Used if Storm_Tornado_grabbedBlocksRepairOverTime is true, minimum of 600 ticks (30 seconds) required")
+	public static int Storm_Tornado_TicksToRepairBlock = 20*60*5;
 
     @Override
     public String getName() {
