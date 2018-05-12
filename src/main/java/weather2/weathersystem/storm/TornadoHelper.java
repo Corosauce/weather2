@@ -3,6 +3,7 @@ package weather2.weathersystem.storm;
 import java.util.*;
 
 import CoroUtil.block.TileEntityRepairingBlock;
+import CoroUtil.forge.CULog;
 import CoroUtil.forge.CommonProxy;
 import CoroUtil.util.UtilMining;
 import com.mojang.authlib.GameProfile;
@@ -180,9 +181,10 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 
-						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
+						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime/* && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)*/) {
 							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos());
 						} else {
+							CULog.dbg("cant use repairing block on: " + snapshot.statePrev);
 							world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
 						}
 
@@ -478,6 +480,7 @@ public class TornadoHelper {
 
 	public boolean tryRip(World parWorld, int tryX, int tryY, int tryZ/*, boolean notify*/)
     {
+
 		//performance debug testing vars:
 		//relocated to be created upon snapshot update (so 
 
@@ -496,6 +499,8 @@ public class TornadoHelper {
         boolean seesLight = false;
         IBlockState state = parWorld.getBlockState(pos);
         Block blockID = state.getBlock();
+
+		CULog.dbg("tryRip: " + blockID);
 
         //System.out.println(parWorld.getHeightValue(tryX, tryZ));
         if ((((WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
