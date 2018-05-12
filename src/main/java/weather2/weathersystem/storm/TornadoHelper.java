@@ -181,8 +181,9 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 
-						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime/* && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)*/) {
+						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
 							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos());
+							//world.setBlockState(snapshot.getPos(), Blocks.LEAVES.getDefaultState(), 3);
 						} else {
 							CULog.dbg("cant use repairing block on: " + snapshot.statePrev);
 							world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);

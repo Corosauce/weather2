@@ -99,7 +99,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         if (this.tileentity != null)
         {
             //var1.setBlockStateTileEntity(var2, var3, var4, ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(var1));
-            var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.AIR.getDefaultState(), 2);
+            //var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.AIR.getDefaultState(), 2);
         }
     }
 
