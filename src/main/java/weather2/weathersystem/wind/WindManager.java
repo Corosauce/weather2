@@ -142,7 +142,7 @@ public class WindManager {
 		if (pos != null && !windOriginEvent.equals(BlockPos.ORIGIN)) {
 			double var11 = windOriginEvent.getX() + 0.5D - pos.xCoord;
 			double var15 = windOriginEvent.getZ() + 0.5D - pos.zCoord;
-			return (-((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI) - 15;
+			return (-((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI) - 45;
 		} else {
 			return windAngleEvent;
 		}

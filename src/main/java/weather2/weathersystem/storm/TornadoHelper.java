@@ -4,6 +4,7 @@ import java.util.*;
 
 import CoroUtil.block.TileEntityRepairingBlock;
 import CoroUtil.forge.CommonProxy;
+import CoroUtil.util.UtilMining;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -179,7 +180,7 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 
-						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime) {
+						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
 							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos());
 						} else {
 							world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
