@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.INpc;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -605,16 +606,17 @@ public class TornadoHelper {
 				if (ConfigTornado.Storm_Tornado_grabPlayersOnly) {
 					return false;
 				}
-				if (ent instanceof INpc && ConfigTornado.Storm_Tornado_grabVillagers) {
-					return true;
+				if (ent instanceof INpc) {
+					return ConfigTornado.Storm_Tornado_grabVillagers;
 				}
-
-				if (ent instanceof IMob && ConfigTornado.Storm_Tornado_grabMobs) {
-					return true;
+				if (ent instanceof EntityItem) {
+					return ConfigTornado.Storm_Tornado_grabItems;
 				}
-
-				if (ent instanceof EntityAnimal && ConfigTornado.Storm_Tornado_grabAnimals) {
-					return true;
+				if (ent instanceof IMob) {
+					return ConfigTornado.Storm_Tornado_grabMobs;
+				}
+				if (ent instanceof EntityAnimal) {
+					return ConfigTornado.Storm_Tornado_grabAnimals;
 				}
 			}
 			//for moving blocks, other non livings
@@ -636,16 +638,17 @@ public class TornadoHelper {
 			if (clientConfig.Storm_Tornado_grabPlayersOnly) {
 				return false;
 			}
-			if (ent instanceof INpc && clientConfig.Storm_Tornado_grabVillagers) {
-				return true;
+			if (ent instanceof INpc) {
+				return clientConfig.Storm_Tornado_grabVillagers;
 			}
-
-			if (ent instanceof IMob && clientConfig.Storm_Tornado_grabMobs) {
-				return true;
+			if (ent instanceof EntityItem) {
+				return clientConfig.Storm_Tornado_grabItems;
 			}
-
-			if (ent instanceof EntityAnimal && clientConfig.Storm_Tornado_grabAnimals) {
-				return true;
+			if (ent instanceof IMob) {
+				return clientConfig.Storm_Tornado_grabMobs;
+			}
+			if (ent instanceof EntityAnimal) {
+				return clientConfig.Storm_Tornado_grabAnimals;
 			}
 		}
 		//for moving blocks, other non livings
@@ -687,20 +690,9 @@ public class TornadoHelper {
 								if (WeatherUtilEntity.isEntityOutside(entity1)) {
 									//Weather.dbg("entity1.motionY: " + entity1.motionY);
 									storm.spinEntity(entity1);
-									//spin(entity, conf, entity1);
 									foundEnt = true;
-
-									//Weather.dbg("spin player! client side?: " + entity1.world.isRemote);
-
 								}
-								//} else {
-
-								//this should match the amount in spinEntity
-                        			/*if (entity1.motionY > -0.8) {
-                                        entity1.fallDistance = 0F;
-                                    }*/
-								//}
-							} else if (entity1 instanceof EntityLivingBase && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
+							} else if ((entity1 instanceof EntityLivingBase || entity1 instanceof EntityItem) && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
 								//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
 								//if (!entity1.world.isRemote) {
 								storm.spinEntity(entity1);
@@ -711,56 +703,6 @@ public class TornadoHelper {
 						}
 					}
 				}
-
-                /*if ((!(entity1 instanceof EntityPlayer) || ConfigTornado.Storm_Tornado_grabPlayer))
-                {
-                	if (!(entity1 instanceof EntityPlayer) && ConfigTornado.Storm_Tornado_grabPlayersOnly) {
-                		continue;
-                	}
-
-                }*/
-
-                if (entity1 instanceof EntityMovingBlock && !entity1.isDead)
-                {
-                    int var3 = MathHelper.floor(entity1.posX);
-                    int var4 = MathHelper.floor(entity1.posZ);
-                    byte var5 = 32;
-                    /*if(!entity1.world.checkChunksExist(var3 - var5, 0, var4 - var5, var3 + var5, 128, var4 + var5) || !entity1.addedToChunk) {
-                        entity1.setEntityDead();
-                        mod_EntMover.blockCount--;
-                    }*/
-                }
-
-                /*if (entity instanceof EntTornado)
-                {*/
-                    if (entity1 instanceof EntityMovingBlock)
-                    {
-                        /*if (blockCount + 5 > ConfigTornado.Storm_Tornado_maxBlocks)
-                        {
-                            if (entity1.posY > 255)
-                            {
-                                entity1.setDead();
-                            }
-                        }*/
-
-                        /*if (entity1.motionX < 0.3F && entity1.motionY < 0.3F && entity1.motionZ < 0.3F && getFPS() < 20 && killCount < 20)
-                        {
-                            killCount++;
-                            entity1.setDead();
-                        }*/
-                    }
-                //}
-
-                //deactivated for weather2
-                //if (entity1 instanceof EntityItem && player != null)
-                //{
-                    //if (entity1.getDistanceToEntity(player) > 32F)
-                    //{
-                        //if ((((EntityItem) entity).item.itemID) == Block.sand.blockID) {
-                        //entity1.setDead();
-                        //}
-                    //}
-                //}
             }
         }
 

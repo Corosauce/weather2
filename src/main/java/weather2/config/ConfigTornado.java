@@ -28,6 +28,8 @@ public class ConfigTornado implements IConfigCategory {
 	public static boolean Storm_Tornado_grabVillagers = true;
 	@ConfigComment("Tear up blocks from the ground based on conditions defined")
 	public static boolean Storm_Tornado_grabBlocks = true;
+	@ConfigComment("Grab entity items, overridden by Storm_Tornado_grabPlayersOnly")
+	public static boolean Storm_Tornado_grabItems = false;
 	@ConfigComment("Grab blocks based on how well a diamond axe can mine the block, so mostly wooden blocks")
 	public static boolean Storm_Tornado_GrabCond_StrengthGrabbing = true;
 	@ConfigComment("Use a list of blocks instead of grabbing based on calculated strength of block, if true this overrides StrengthGrabbing and RefinedGrabRules")

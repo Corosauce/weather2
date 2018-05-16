@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -2529,6 +2530,12 @@ public class StormObject extends WeatherObject {
         	Entity ent = (Entity) entity;
         	ent.setPosition(ent.posX + ent.motionX * 5F, ent.posY, ent.posZ + ent.motionZ * 5F);
         }
+
+		/*if (entity instanceof EntityItem)
+		{
+			Entity ent = (Entity) entity;
+			ent.setPosition(ent.posX, ent.posY + ent.motionY, ent.posZ);
+		}*/
     }
 
 	@SideOnly(Side.CLIENT)

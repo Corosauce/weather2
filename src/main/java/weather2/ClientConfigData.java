@@ -14,6 +14,7 @@ public class ClientConfigData {
     public boolean Storm_Tornado_grabPlayersOnly = false;
     public boolean Storm_Tornado_grabMobs = true;
     public boolean Storm_Tornado_grabAnimals = true;
+    public boolean Storm_Tornado_grabItems = false;
     public boolean Storm_Tornado_grabVillagers = true;
     public boolean Aesthetic_Only_Mode = false;
 
@@ -29,6 +30,7 @@ public class ClientConfigData {
         Storm_Tornado_grabMobs = nbt.getBoolean("Storm_Tornado_grabMobs");
         Storm_Tornado_grabAnimals = nbt.getBoolean("Storm_Tornado_grabAnimals");
         Storm_Tornado_grabVillagers = nbt.getBoolean("Storm_Tornado_grabVillagers");
+        Storm_Tornado_grabItems = nbt.getBoolean("Storm_Tornado_grabItems");
         Aesthetic_Only_Mode = nbt.getBoolean("Aesthetic_Only_Mode");
     }
 
@@ -45,6 +47,7 @@ public class ClientConfigData {
         data.setBoolean("Storm_Tornado_grabMobs", ConfigTornado.Storm_Tornado_grabMobs);
         data.setBoolean("Storm_Tornado_grabAnimals", ConfigTornado.Storm_Tornado_grabAnimals);
         data.setBoolean("Storm_Tornado_grabVillagers", ConfigTornado.Storm_Tornado_grabVillagers);
+        data.setBoolean("Storm_Tornado_grabItems", ConfigTornado.Storm_Tornado_grabItems);
         data.setBoolean("Aesthetic_Only_Mode", ConfigMisc.Aesthetic_Only_Mode);
 
 
