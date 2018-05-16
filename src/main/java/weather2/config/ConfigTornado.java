@@ -11,7 +11,7 @@ public class ConfigTornado implements IConfigCategory {
 
 
 
-    @ConfigComment("Prevents tearing up of dirt, grass, sand and logs, overrides all other conditions")
+    @ConfigComment("Prevents tearing up of dirt, grass, sand and logs, overrides strength based grabbing")
 	public static boolean Storm_Tornado_RefinedGrabRules = true;
 	@ConfigComment("Makes weather boring! or peacefull?")
 	public static boolean Storm_NoTornadosOrCyclones = false;

@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import CoroUtil.util.CoroUtilCompatibility;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockTallGrass;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -40,13 +42,13 @@ public class WeatherUtil {
     }
     
     //Terrain grabbing
-    public static boolean shouldGrabBlock(World parWorld, Block id)
+    public static boolean shouldGrabBlock(World parWorld, IBlockState state)
     {
         try
         {
         	ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
-            Block block = id;
+            Block block = state.getBlock();
             
         	boolean result = true;
             
@@ -56,13 +58,13 @@ public class WeatherUtil {
 
                     if (!ConfigTornado.Storm_Tornado_GrabListBlacklistMode)
                     {
-                        if (!((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
+                        if (!((Boolean)blockIDToUseMapping.get(block)).booleanValue()) {
                         	result = false;
                         }
                     }
                     else
                     {
-                        if (((Boolean)blockIDToUseMapping.get(id)).booleanValue()) {
+                        if (((Boolean)blockIDToUseMapping.get(block)).booleanValue()) {
                         	result = false;
                         }
                     }
@@ -104,13 +106,16 @@ public class WeatherUtil {
                 }
                 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                	if (id == Blocks.DIRT || id == Blocks.GRASS || id == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                	if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
                 		result = false;
                 	}
+                	if (!CoroUtilCompatibility.canTornadoGrabBlockRefinedRules(state)) {
+                	    result = false;
+                    }
                 }
             }
             
-            if (id == CommonProxy.blockWeatherMachine) {
+            if (block == CommonProxy.blockWeatherMachine) {
             	result = false;
             }
             

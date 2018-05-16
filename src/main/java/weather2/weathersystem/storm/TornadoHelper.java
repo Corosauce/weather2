@@ -572,7 +572,7 @@ public class TornadoHelper {
         if (!CoroUtilBlock.isAir(state.getBlock()) &&
 				state.getBlock() != Blocks.FIRE &&
 				state.getBlock() != CommonProxy.blockRepairingBlock &&
-				WeatherUtil.shouldGrabBlock(parWorld, state.getBlock()) &&
+				WeatherUtil.shouldGrabBlock(parWorld, state) &&
 				!isBlockGrabbingBlocked(parWorld, state, pos))
         {
         	return canGrabEventCheck(parWorld, state, pos);
