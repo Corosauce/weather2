@@ -131,51 +131,11 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 				byte damage = 5;
 				
 				movingobjectposition.entityHit.attackEntityFrom(DamageSource.FALLING_BLOCK, damage);
-				
-				/*if (movingobjectposition.entityHit instanceof EntityLiving) {
-					((EntityLiving)movingobjectposition.entityHit).knockBack(par1Entity, par2, par3, par5)
-				}*/
-				//movingobjectposition.entityHit.setFire(10);
 
-				/*if (movingobjectposition.entityHit instanceof EntityBlaze)
-            {
-                byte0 = 3;
-            }*/
-            /*     if (movingobjectposition.entityHit instanceof EntityKoaMember && thrower instanceof EntityKoaMember) {
-    			if (((EntityKoaMember) thrower).dipl_team != ((EntityKoaMember) movingobjectposition.entityHit).dipl_team) {
-    				movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), byte0);
-    			} else {
-
-    			}
-    		}
-            else if (!(movingobjectposition.entityHit instanceof EntityKoaMemberNew)) { 
-            	if (!movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), byte0));
-            	if (thrower instanceof EntityPlayer) {
-            		int what = 0;
-            	}
-            } else if (movingobjectposition.entityHit instanceof EntityKoaMemberNew && thrower instanceof EntityKoaMemberNew) {
-    			if (((EntityKoaMemberNew) thrower).dipl_team != ((EntityKoaMemberNew) movingobjectposition.entityHit).dipl_team) {
-    				movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), byte0);
-    			} else {
-
-    			}
-    		}
-        } 
-        for (int i = 0; i < 30; i++)
-        {
-            //world.spawnParticle("snowballpoof", posX, posY, posZ, 0.0D, 0.0D, 0.0D);
-        	double speed = 0.01D;
-        	EntityTexFX var31 = new EntityTexFX(world, posX, posY, posZ, rand.nextGaussian()*rand.nextGaussian()*speed, rand.nextGaussian()*speed, rand.nextGaussian()*rand.nextGaussian()*speed, (rand.nextInt(80)/10), 0, mod_EntMover.effLeafID);
-            var31.setGravity(0.3F);
-            Random rand = new Random();
-            var31.rotationYaw = rand.nextInt(360);
-            mod_ExtendedRenderer.rotEffRenderer.addEffect(var31);
-        }
-             */
 				if (!world.isRemote) {
 					setDead();
 				}
-				
+
 			}
 		}
 		

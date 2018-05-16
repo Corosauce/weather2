@@ -1348,7 +1348,7 @@ public class SceneEnhancer implements Runnable {
         //FoliageEnhancerShader.tickThreaded();
 
 
-        if ((!ConfigParticle.Wind_Particle_leafs && !ConfigParticle.Wind_Particle_air && !ConfigParticle.Wind_Particle_sand && !ConfigParticle.Wind_Particle_waterfall)/* || weatherMan.wind.strength < 0.10*/)
+        if ((!ConfigParticle.Wind_Particle_leafs && !ConfigParticle.Wind_Particle_waterfall)/* || weatherMan.wind.strength < 0.10*/)
         {
             return;
         }

@@ -14,8 +14,6 @@ public class ConfigParticle implements IConfigCategory {
     //particles
 	public static boolean Wind_Particle_leafs = true;
 	public static double Wind_Particle_effect_rate = 0.7D;
-	public static boolean Wind_Particle_air = true;
-	public static boolean Wind_Particle_sand = true;//not used since 1.3.2
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
 	public static boolean Wind_Particle_fire = true;
