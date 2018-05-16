@@ -60,6 +60,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
     public boolean killNextTick = false;
 
+    public IBlockState stateCached = null;
+
     public EntityMovingBlock(World var1)
     {
         super(var1);
@@ -92,6 +94,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.tile = state.getBlock();
         this.metadata = state.getBlock().getMetaFromState(state);
         this.material = tile.getMaterial(tile.getDefaultState());
+        this.stateCached = state;
         //this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
 
         owner = parOwner;
@@ -559,5 +562,6 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     {
     	tile = Block.REGISTRY.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
         metadata = data.readInt();
+        stateCached = tile.getStateFromMeta(metadata);
     }
 }

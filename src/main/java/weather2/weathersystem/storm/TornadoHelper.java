@@ -181,7 +181,7 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 
-						if (ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
+						if (snapshot.getState().getBlock() == Blocks.AIR && ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
 							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos(), ConfigTornado.Storm_Tornado_TicksToRepairBlock);
 							//world.setBlockState(snapshot.getPos(), Blocks.LEAVES.getDefaultState(), 3);
 						} else {
@@ -189,20 +189,16 @@ public class TornadoHelper {
 							world.setBlockState(snapshot.getPos(), snapshot.getState(), 3);
 						}
 
-						if (snapshot.getState().getBlock() == Blocks.AIR) {
-							//if (count % entityCreateStaggerRate == 0) {
-								if (snapshot.isCreateEntityForBlockRemoval()) {
-									EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev, storm);
-									double speed = 1D;
-									mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
-									mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
-									mBlock.motionY = 1D;
+						if (snapshot.isCreateEntityForBlockRemoval()) {
+							EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev, storm);
+							double speed = 1D;
+							mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
+							mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
+							mBlock.motionY = 1D;
 									/*if (mBlock != null) {
 										mBlock.setPosition(tryX, tryY, tryZ);
 									}*/
-									parWorld.spawnEntity(mBlock);
-								}
-							//}
+							parWorld.spawnEntity(mBlock);
 						}
 					}
 					count++;
@@ -334,7 +330,7 @@ public class TornadoHelper {
 	                        }
 	                        
 	                        if (!performed && ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-	                        	if (blockID == Blocks.GRASS && canGrab(parWorld, state, pos)) {
+	                        	if (blockID == Blocks.GRASS/* && canGrab(parWorld, state, pos)*/) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
 	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.provider.getDimension(), Blocks.DIRT.getDefaultState(), state, pos, false));

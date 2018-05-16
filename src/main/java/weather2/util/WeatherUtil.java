@@ -88,7 +88,12 @@ public class WeatherUtil {
     	                float strVsBlock = block.getBlockHardness(block.getDefaultState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.getDefaultState()) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
-    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) || (block.getMaterial(block.getDefaultState()) == Material.WOOD) || block.getMaterial(block.getDefaultState()) == Material.CLOTH || block.getMaterial(block.getDefaultState()) == Material.PLANTS || block instanceof BlockTallGrass)
+    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||
+                                (block.getMaterial(block.getDefaultState()) == Material.WOOD) ||
+                                block.getMaterial(block.getDefaultState()) == Material.CLOTH ||
+                                block.getMaterial(block.getDefaultState()) == Material.PLANTS ||
+                                block.getMaterial(block.getDefaultState()) == Material.VINE ||
+                                block instanceof BlockTallGrass)
     	                {
     	                    /*if (block.blockMaterial == Material.water) {
     	                    	return false;
