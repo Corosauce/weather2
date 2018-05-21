@@ -13,6 +13,7 @@ public class ConfigParticle implements IConfigCategory {
 
     //particles
 	public static boolean Wind_Particle_leafs = true;
+    @ConfigComment("Currently used for rates of leaf, waterfall, and fire particles")
 	public static double Wind_Particle_effect_rate = 0.7D;
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
