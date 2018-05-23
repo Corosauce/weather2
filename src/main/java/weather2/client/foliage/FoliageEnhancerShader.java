@@ -28,6 +28,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.IModel;
@@ -73,7 +74,35 @@ public class FoliageEnhancerShader implements Runnable {
         }
     }
 
+    public static ModelLoader modelLoader;
+    public static IRegistry<ModelResourceLocation, IBakedModel> modelRegistry;
+    public static HashMap<ModelResourceLocation, IBakedModel> lookupBackupReplacedModels = new HashMap<>();
+
     public static void modelBakeEvent(ModelBakeEvent event) {
+        modelLoader = event.getModelLoader();
+        modelRegistry = event.getModelRegistry();
+
+        processModels();
+    }
+
+    /**
+     *
+     * Hacky attempt to live edit model data, not working, im still missing something...
+     *
+     */
+    public static void liveReloadModels() {
+        processModels();
+        modelLoader.blockModelShapes.reloadModels();
+        Minecraft.getMinecraft().renderGlobal.loadRenderers();
+    }
+
+    public static void processModels() {
+
+        if (modelLoader == null || modelRegistry == null) {
+            CULog.err("modelLoader or modelRegistry null, aborting");
+        }
+
+        boolean hackyLiveReplace = false;
 
         /**
          * ways to avoid a full resource pack reload and just invoke chunk render changes
@@ -92,22 +121,27 @@ public class FoliageEnhancerShader implements Runnable {
 
         if (replaceVanillaModels) {
 
+            lookupBackupReplacedModels.clear();
+
             String str = "Weather2: Replacing shaderized models";
 
-            CULog.log(str);
-            ProgressManager.ProgressBar prog = ProgressManager.push(str, event.getModelRegistry().getKeys().size(), true);
+            //ModelLoader.
+            //ModelManager mm =
 
-            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
-            IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
+            CULog.log(str);
+            ProgressManager.ProgressBar prog = ProgressManager.push(str, modelRegistry.getKeys().size(), true);
+
+            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, modelLoader, "stateModels");
+            IBakedModel blank = modelRegistry.getObject(new ModelResourceLocation("coroutil:blank", "normal"));
 
             //shortcut to getting the data loaded into bakedModelStore, is empty on first minecraft run otherwise
             //would this cause bugs for mods that use ModelBakeEvent? meaning we might miss their models if we shaderize them
-            event.getModelLoader().blockModelShapes.reloadModels();
+            modelLoader.blockModelShapes.reloadModels();
 
-            CULog.dbg("bakedModelStore size: " + event.getModelLoader().blockModelShapes.bakedModelStore.size());
+            CULog.dbg("bakedModelStore size: " + modelLoader.blockModelShapes.bakedModelStore.size());
 
             //make backup
-            for (Map.Entry<IBlockState, IBakedModel> entry : event.getModelLoader().blockModelShapes.bakedModelStore.entrySet()) {
+            for (Map.Entry<IBlockState, IBakedModel> entry : modelLoader.blockModelShapes.bakedModelStore.entrySet()) {
                 IBlockState state = entry.getKey();
                 if (state instanceof IExtendedBlockState) {
                     state = ((IExtendedBlockState) state).getClean();
@@ -116,9 +150,9 @@ public class FoliageEnhancerShader implements Runnable {
                 FoliageData.backupBakedModelStore.put(state, entry.getValue());
             }
 
-            for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
+            for (ModelResourceLocation res : modelRegistry.getKeys()) {
                 prog.step(res.toString());
-                IBakedModel bakedModel = event.getModelRegistry().getObject(res);
+                IBakedModel bakedModel = modelRegistry.getObject(res);
                 IModel model = stateModels.get(res);
                 if (model != null) {
                     //just in case of any cross mod weirdness
@@ -157,7 +191,9 @@ public class FoliageEnhancerShader implements Runnable {
                                                     }
                                                 }
 
-                                                event.getModelRegistry().putObject(res, blank);
+                                                lookupBackupReplacedModels.put(res, modelRegistry.getObject(res));
+
+                                                modelRegistry.putObject(res, blank);
                                                 break escape;
                                             }
                                         }
@@ -172,6 +208,55 @@ public class FoliageEnhancerShader implements Runnable {
             }
 
             ProgressManager.pop(prog);
+        } else {
+
+            if (!hackyLiveReplace) {
+                return;
+            }
+
+            //restore
+            if (lookupBackupReplacedModels.size() == 0) {
+                return;
+            }
+
+            /*for (Map.Entry<ModelResourceLocation, IBakedModel> entry : lookupBackupReplacedModels.entrySet()) {
+                modelRegistry.putObject(entry.getKey(), lookupBackupReplacedModels.get(entry.getKey()));
+            }*/
+
+
+
+            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, modelLoader, "stateModels");
+
+            for (ModelResourceLocation res : modelRegistry.getKeys()) {
+                IModel model = stateModels.get(res);
+                if (model != null) {
+                    //just in case of any cross mod weirdness
+                    try {
+                        Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
+
+                        escape:
+                        if (!res.getVariant().equals("inventory")) {
+                            for (FoliageReplacerBase replacer : listFoliageReplacers) {
+                                for (TextureAtlasSprite sprite : replacer.sprites) {
+                                    //System.out.println(sprite.getIconName());
+                                    for (ResourceLocation res2 : textures) {
+                                        if (res2.toString().equals(sprite.getIconName())) {
+                                            if (!res.toString().contains("flower_pot")) {
+
+                                                modelRegistry.putObject(res, lookupBackupReplacedModels.get(res));
+                                                break escape;
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
         }
     }
 

@@ -1,9 +1,12 @@
 package weather2;
 
+import CoroUtil.forge.CULog;
+import extendedrenderer.EventHandler;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
 import extendedrenderer.shader.InstancedMeshFoliage;
 import extendedrenderer.shader.MeshBufferManagerFoliage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
@@ -106,6 +109,15 @@ public class EventHandlerFML {
 
 					//repopulate the list with or without grass
 					//FoliageEnhancerShader.setupReplacers();
+				}
+
+				boolean hackyLiveReplace = false;
+
+				if (hackyLiveReplace && EventHandler.flagFoliageUpdate) {
+					CULog.dbg("CoroUtil detected a need to reload resource packs, initiating");
+					EventHandler.flagFoliageUpdate = false;
+					//Minecraft.getMinecraft().refreshResources();
+					FoliageEnhancerShader.liveReloadModels();
 				}
 
 			} catch (Exception e) {
