@@ -1,17 +1,24 @@
 package weather2;
 
+import extendedrenderer.ExtendedRenderer;
+import extendedrenderer.foliage.Foliage;
+import extendedrenderer.shader.InstancedMeshFoliage;
+import extendedrenderer.shader.MeshBufferManagerFoliage;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.*;
+import weather2.client.foliage.FoliageEnhancerShader;
+import weather2.client.foliage.FoliageReplacerBase;
+import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
+
+import java.util.List;
+import java.util.Map;
 
 public class EventHandlerFML {
 
@@ -20,6 +27,9 @@ public class EventHandlerFML {
 	public static int rainTime = 0;
 	public static boolean wasThunder = false;
 	public static int thunderTime = 0;
+
+	//initialized at post init after configs loaded in
+	public static boolean extraGrassLast;
 
 	@SubscribeEvent
 	public void tickWorld(WorldTickEvent event) {
@@ -71,9 +81,33 @@ public class EventHandlerFML {
 	@SubscribeEvent
 	public void tickClient(ClientTickEvent event) {
 		if (event.phase == Phase.START) {
-			//1.8: new scenario where this will tick even if world is unloaded?
 			try {
 				ClientProxy.clientTickHandler.onTickInGame();
+
+				if (extraGrassLast != ConfigFoliage.extraGrass) {
+					extraGrassLast = ConfigFoliage.extraGrass;
+
+					//note: foliage shaders var tracking will handle the reload if foliageShaders val changes
+					//also extra grass doesnt actually replace a vanilla block, why do we invoke a reset
+					/*if (ConfigCoroUtil.foliageShaders) {
+						EventHandler.flagFoliageUpdate = true;
+					}*/
+					//clear the active grass etc
+					//FoliageEnhancerShader.shadersReset();
+
+					/*for (FoliageReplacerBase replacer : FoliageEnhancerShader.listFoliageReplacers) {
+						replacer.markMeshesDirty();
+					}*/
+					/*for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
+						InstancedMeshFoliage mesh = MeshBufferManagerFoliage.getMesh(entry.getKey());
+
+						mesh.dirtyVBO2Flag = true;
+					}*/
+
+					//repopulate the list with or without grass
+					//FoliageEnhancerShader.setupReplacers();
+				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

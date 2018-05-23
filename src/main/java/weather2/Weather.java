@@ -86,6 +86,9 @@ public class Weather {
 	public void postInit(FMLPostInitializationEvent event)
 	{
 		proxy.postInit();
+
+		//setting last state to track after configs load, but before ticking that uses it
+		EventHandlerFML.extraGrassLast = ConfigFoliage.extraGrass;
 	}
     
     @Mod.EventHandler

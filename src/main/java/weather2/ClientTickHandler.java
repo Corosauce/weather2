@@ -18,6 +18,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.lwjgl.input.Mouse;
 
+import weather2.config.ConfigFoliage;
 import weather2.util.WindReader;
 import weather2.client.SceneEnhancer;
 import weather2.client.foliage.FoliageEnhancerShader;
@@ -52,6 +53,8 @@ public class ClientTickHandler
 	public float smoothAngleAdj = 0.1F;
 
 	public int prevDir = 0;
+
+	public boolean extraGrassLast = ConfigFoliage.extraGrass;
 	
 	public ClientTickHandler() {
 		//this constructor gets called multiple times when created from proxy, this prevents multiple inits

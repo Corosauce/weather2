@@ -75,6 +75,15 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void modelBakeEvent(ModelBakeEvent event) {
 
+        /**
+         * ways to avoid a full resource pack reload and just invoke chunk render changes
+         * - tterrag: you might also be able to do some delegating nonsense to avoid it entirely
+         * - tterrag: check the config at runtime, if false just return vanilla quads
+         *
+         * - then finally do:
+         * -- this.mc.renderGlobal.loadRenderers();
+         */
+
         boolean replaceVanillaModels = ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders() && !ConfigMisc.Client_PotatoPC_Mode;
 
         boolean textureFix = false;
@@ -421,7 +430,12 @@ public class FoliageEnhancerShader implements Runnable {
         //System.out.println(MeshBufferManagerFoliage.lookupParticleToMesh.size());
 
         if (ConfigFoliage.extraGrass) {
-            listFoliageReplacers.add(new FoliageReplacerCrossGrass(Blocks.AIR.getDefaultState())
+            listFoliageReplacers.add(new FoliageReplacerCrossGrass(Blocks.AIR.getDefaultState()) {
+                @Override
+                public boolean isActive() {
+                    return ConfigFoliage.extraGrass;
+                }
+            }
                     .setSprite(getMeshAndSetupSprite(ExtendedRenderer.modid + ":particles/grass"))
                     .setRandomizeCoord(true)
                     .setBiomeColorize(true));
@@ -589,7 +603,7 @@ public class FoliageEnhancerShader implements Runnable {
             Iterator<Map.Entry<BlockPos, FoliageLocationData>> it = lookupPosToFoliage.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<BlockPos, FoliageLocationData> entry = it.next();
-                if (!entry.getValue().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
+                if (!entry.getValue().foliageReplacer.isActive() || !entry.getValue().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
                     //System.out.println("remove");
                     it.remove();
                     //TODO: consider relocating Foliage list to within foliagereplacer, as there is some redundancy happening here
@@ -631,7 +645,7 @@ public class FoliageEnhancerShader implements Runnable {
                                 if (tryAll) {
                                     for (FoliageReplacerBase replacer : listFoliageReplacers) {
 
-                                        if (replacer.validFoliageSpot(entityIn.world, posScan.down())) {
+                                        if (replacer.isActive() && replacer.validFoliageSpot(entityIn.world, posScan.down())) {
                                             //System.out.println("add");
                                             replacer.addForPos(entityIn.world, posScan);
                                             replacer.markMeshesDirty();
@@ -648,7 +662,7 @@ public class FoliageEnhancerShader implements Runnable {
                                 } else {
                                     int randTry = rand.nextInt(listFoliageReplacers.size());
                                     FoliageReplacerBase replacer = listFoliageReplacers.get(randTry);
-                                    if (replacer.validFoliageSpot(entityIn.world, posScan.down())) {
+                                    if (replacer.isActive() && replacer.validFoliageSpot(entityIn.world, posScan.down())) {
                                         //System.out.println("add");
                                         replacer.addForPos(entityIn.world, posScan);
                                         replacer.markMeshesDirty();
