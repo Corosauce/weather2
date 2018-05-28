@@ -553,15 +553,26 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void writeSpawnData(ByteBuf data)
     {
-    	ByteBufUtils.writeUTF8String(data, Block.REGISTRY.getNameForObject(tile).toString());
+        String str = "blank";
+        if (tile != null && Block.REGISTRY.getNameForObject(tile) != null) {
+            str = Block.REGISTRY.getNameForObject(tile).toString();
+        }
+    	ByteBufUtils.writeUTF8String(data, str);
         data.writeInt(metadata);
     }
 
     @Override
     public void readSpawnData(ByteBuf data)
     {
-    	tile = Block.REGISTRY.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
-        metadata = data.readInt();
+        String str = ByteBufUtils.readUTF8String(data);
+        if (!str.equals("blank")) {
+            tile = Block.REGISTRY.getObject(new ResourceLocation(str));
+            metadata = data.readInt();
+        } else {
+            tile = Blocks.STONE;
+            metadata = 0;
+        }
+
         stateCached = tile.getStateFromMeta(metadata);
     }
 }
