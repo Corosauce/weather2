@@ -209,7 +209,7 @@ public class CommandWeather2 extends CommandBase {
 								
 								sandstorm.initFirstTime();
 								sandstorm.initSandstormSpawn(pos);
-								
+
 								
 								wm.addStormObject(sandstorm);
 								wm.syncStormNew(sandstorm);
@@ -238,6 +238,10 @@ public class CommandWeather2 extends CommandBase {
 							
 							if (spawnCloudStorm) {
 								so.initFirstTime();
+
+								//lock it to current stage or less
+								so.levelStormIntensityMax = so.levelCurIntensityStage;
+
 								wm.addStormObject(so);
 								wm.syncStormNew(so);
 							}
