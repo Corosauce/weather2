@@ -725,6 +725,8 @@ public class SceneEnhancer implements Runnable {
 
 				int particleCount = 10 * 8;
 
+				//particleCount = 1;
+
 				if (testParticles.size() < particleCount) {
 					BlockPos pos = new BlockPos(entP);
 
@@ -967,20 +969,44 @@ public class SceneEnhancer implements Runnable {
 						int rotIndex = i % amountPerLayer;
 						int yCount = particleCount / amountPerLayer;
 
-						Matrix4fe matrix = new Matrix4fe();
-						matrix.rotateZ((float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 3) % 360)) * 0.5F);
-						matrix.rotateX((float)Math.sin(Math.toRadians(((world.getTotalWorldTime() - 40) * 3) % 360)) * 0.5F);
-						matrix.rotateY((float)Math.toRadians((world.getTotalWorldTime() * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
+						//need 2 matrix maybe?
+						//relative to center matrix that uses translation and rotation
+						//relative to self matrix that uses rotation
 
-						matrix.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
+						long time = world.getTotalWorldTime();
+						//time = 0;
 
-						matrix.translate(new Vector3f(0, yIndex - (yCount/2), 0));
+						float speed = 5;
 
-						part.rotation.setFromMatrix(matrix.toLWJGLMathMatrix());
+						Matrix4fe matrixFunnel = new Matrix4fe();
+						matrixFunnel.rotateZ((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
+						matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
+						//matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
+						matrixFunnel.rotateY((float)Math.toRadians((time * speed) + (360F / (float)amountPerLayer * (float)rotIndex)));
 
-						Vector3f pos = matrix.getTranslation();
+						//matrixFunnel.rotateY((float)Math.toRadians((5 * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
+
+						//matrixFunnel.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
+						//matrixFunnel.translate(new Vector3f(1.53F, 0, 0));
+						matrixFunnel.translate(new Vector3f(2 + (float) Math.sin(Math.toRadians((time * 3) % 360)), 0, 0));
+						matrixFunnel.translate(new Vector3f(0, yIndex - (yCount/2), 0));
+
+						Vector3f pos = matrixFunnel.getTranslation();
 
 						part.setPosition(testParticle.posX + pos.x, testParticle.posY + pos.y, testParticle.posZ + pos.z);
+
+
+						Matrix4fe matrixSelf = new Matrix4fe();
+
+
+
+						matrixSelf.rotateY((float)Math.toRadians(90 + (-time * speed) - (360F / (float)amountPerLayer * (float)rotIndex)));
+						matrixSelf.rotateX((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
+						matrixSelf.rotateZ((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
+						//matrixSelf.rotateX((float)Math.sin(Math.toRadians(((-time - 40) * 3) % 360)) * 0.5F);
+
+
+						part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
 
 						part.setAge(40);
 					}
