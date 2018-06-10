@@ -723,7 +723,8 @@ public class SceneEnhancer implements Runnable {
 					}
 				}
 
-				int particleCount = 10 * 8;
+				int amountPerLayer = 30;
+				int particleCount = amountPerLayer * 20;
 
 				//particleCount = 1;
 
@@ -739,7 +740,7 @@ public class SceneEnhancer implements Runnable {
 								pos.getX() + rand.nextFloat(),
 								pos.getY(),
 								pos.getZ() + rand.nextFloat(),
-								0D, 0D, 0D, ParticleRegistry.test_texture);
+								0D, 0D, 0D, ParticleRegistry.white_square);
 						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
 								15608.5F,
 								70.5F,
@@ -964,7 +965,6 @@ public class SceneEnhancer implements Runnable {
 						it.remove();
 					} else {
 
-						int amountPerLayer = 10;
 						int yIndex = i / amountPerLayer;
 						int rotIndex = i % amountPerLayer;
 						int yCount = particleCount / amountPerLayer;
@@ -974,22 +974,26 @@ public class SceneEnhancer implements Runnable {
 						//relative to self matrix that uses rotation
 
 						long time = world.getTotalWorldTime();
+						long time2 = world.getTotalWorldTime() * 2;
+						long time3 = world.getTotalWorldTime() * 3;
 						//time = 0;
 
 						float speed = 5;
 
 						Matrix4fe matrixFunnel = new Matrix4fe();
 						matrixFunnel.rotateZ((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
-						matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
+						matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time2 * 3) % 360)) * 0.5F);
 						//matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
 						matrixFunnel.rotateY((float)Math.toRadians((time * speed) + (360F / (float)amountPerLayer * (float)rotIndex)));
 
 						//matrixFunnel.rotateY((float)Math.toRadians((5 * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
 
-						//matrixFunnel.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
-						//matrixFunnel.translate(new Vector3f(1.53F, 0, 0));
-						matrixFunnel.translate(new Vector3f(2 + (float) Math.sin(Math.toRadians((time * 3) % 360)), 0, 0));
-						matrixFunnel.translate(new Vector3f(0, yIndex - (yCount/2), 0));
+						matrixFunnel.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
+						//matrixFunnel.translate(new Vector3f(4.4F, 0, 0));
+						//matrixFunnel.translate(new Vector3f(1.45F, 0, 0));
+						//matrixFunnel.translate(new Vector3f(2 + (float) Math.sin(Math.toRadians((time * 3) % 360)), 0, 0));
+
+						matrixFunnel.translate(new Vector3f(0, (yIndex - (yCount/2)) * 0.95F, 0));
 
 						Vector3f pos = matrixFunnel.getTranslation();
 
@@ -1001,7 +1005,7 @@ public class SceneEnhancer implements Runnable {
 
 
 						matrixSelf.rotateY((float)Math.toRadians(90 + (-time * speed) - (360F / (float)amountPerLayer * (float)rotIndex)));
-						matrixSelf.rotateX((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
+						matrixSelf.rotateX((float)Math.sin(Math.toRadians((-time2 * 3) % 360)) * 0.5F);
 						matrixSelf.rotateZ((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
 						//matrixSelf.rotateX((float)Math.sin(Math.toRadians(((-time - 40) * 3) % 360)) * 0.5F);
 
@@ -1009,6 +1013,20 @@ public class SceneEnhancer implements Runnable {
 						part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
 
 						part.setAge(40);
+
+						float r = 1F;
+						float g = 0F;
+						float b = 0F;
+
+						float stages = 100;
+
+						r = ((time + i*1) % stages) * (1F / stages);
+						g = ((time2 + i*1) % stages) * (1F / stages);
+						b = ((time3 + i*1) % stages) * (1F / stages);
+
+						part.setRBGColorF(0F, 0F, 0F);
+						part.setRBGColorF(r, g, b);
+						//part.setParticleTexture(ParticleRegistry.squareGrey);
 					}
 
 					i++;
