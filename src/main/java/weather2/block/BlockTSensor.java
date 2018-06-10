@@ -30,6 +30,8 @@ public class BlockTSensor extends Block
         super(Material.CLAY);
         this.setDefaultState(this.blockState.getBaseState().withProperty(POWER, Integer.valueOf(0)));
         this.setTickRandomly(true);
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
 
     @Override

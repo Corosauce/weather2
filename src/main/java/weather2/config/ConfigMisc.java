@@ -34,7 +34,9 @@ public class ConfigMisc implements IConfigCategory {
 	@ConfigComment("Used if overcastMode is off, 1 = lock weather on, 0 = lock weather off, -1 = dont lock anything, let server do whatever")
 	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
 	//clouds
+	@ConfigComment("How many ticks between cloud particle spawning")
 	public static int Cloud_ParticleSpawnDelay = 2;
+	@ConfigComment("Distance between cloud formations, not particles, this includes invisible cloudless formations used during partial cloud coverage")
 	public static int Cloud_Formation_MinDistBetweenSpawned = 300;
 	@ConfigComment("For a second layer of passive non storm progressing clouds")
 	public static boolean Cloud_Layer1_Enable = false;
@@ -43,7 +45,7 @@ public class ConfigMisc implements IConfigCategory {
 	@ConfigComment("Not used at the moment")
 	public static int Cloud_Layer2_Height = 500;
 
-	@ConfigComment("How much to randomly change cloud coverage amount, performed every 10 seconds")
+	@ConfigComment("How much to randomly change cloud coverage % amount, performed every 10 seconds")
 	public static double Cloud_Coverage_Random_Change_Amount = 0.05D;
 
 	@ConfigComment("Minimum percent of cloud coverage, supports negative for extended cloudless sky coverage")
@@ -57,6 +59,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static double volWindScale = 0.05D;
 	public static double volWaterfallScale = 0.5D;
 	public static double volWindTreesScale = 0.5D;
+	public static double volWindLightningScale = 1D;
 	
 	//blocks
 	public static double sirenActivateDistance = 256D;
@@ -66,6 +69,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Block_WeatherMachineNoRecipe = false;
 	public static boolean Block_SensorNoRecipe = false;
 	public static boolean Block_SirenNoRecipe = false;
+	public static boolean Block_SirenManualNoRecipe = false;
 	public static boolean Block_WindVaneNoRecipe = false;
 	public static boolean Block_AnemometerNoRecipe = false;
 	public static boolean Block_WeatherForecastNoRecipe = false;
@@ -87,6 +91,17 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Villager_MoveInsideForStorms_Dist = 256;
 
 	public static double shaderParticleRateAmplifier = 3D;
+
+	public static boolean blockBreakingInvokesCancellableEvent = false;
+
+	@ConfigComment("If true, will cancel vanilla behavior of setting clear weather when the player sleeps, for global overcast mode")
+	public static boolean Global_Overcast_Prevent_Rain_Reset_On_Sleep = true;
+
+	@ConfigComment("Use if you are on a server with weather but want it ALL off client side for performance reasons, overrides basically every client based setting")
+	public static boolean Client_PotatoPC_Mode = false;
+
+	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems, turns overcast mode on")
+	public static boolean Aesthetic_Only_Mode = false;
 
 	public ConfigMisc() {
 		

@@ -23,6 +23,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -41,6 +42,7 @@ import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
 import weather2.entity.AI.EntityAIMoveIndoorsStorm;
 import weather2.util.UtilEntityBuffsMini;
+import weather2.weathersystem.storm.TornadoHelper;
 
 public class EventHandlerForge {
 
@@ -53,6 +55,9 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
     public void worldRender(RenderWorldLastEvent event)
     {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		ClientTickHandler.checkClientWeather();
 		ClientTickHandler.weatherManager.tickRender(event.getPartialTicks());
 		SceneEnhancer.renderWorldLast(event);
@@ -79,6 +84,9 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
     public void onFogDensity(FogDensity event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		float fogDensity = 0;
 		int delay = 5000;
 		long time = System.currentTimeMillis() % delay;
@@ -123,6 +131,8 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
     public void onFogColors(FogColors event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
 		
         if (SceneEnhancer.isFogOverridding()) {
 			//backup original fog colors that are actively being adjusted based on time of day
@@ -140,6 +150,9 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onFogRender(RenderFogEvent event) {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
 		if (SceneEnhancer.isFogOverridding()) {
         	//event.setCanceled(true);
         	//event.setDensity(SceneEnhancer.stormFogDensity);
@@ -266,5 +279,15 @@ public class EventHandlerForge {
 	@SideOnly(Side.CLIENT)
 	public void modelBake(ModelBakeEvent event) {
 		FoliageEnhancerShader.modelBakeEvent(event);
+	}
+
+	@SubscribeEvent
+	public void onBlockBreakTry(BlockEvent.BreakEvent event) {
+		boolean testBreakCancel = false;
+		if (testBreakCancel) {
+			if (event.getPlayer().getName().equals(TornadoHelper.fakePlayerProfile.getName())) {
+				event.setCanceled(true);
+			}
+		}
 	}
 }

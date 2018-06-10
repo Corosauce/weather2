@@ -19,6 +19,8 @@ public class BlockWindVane extends BlockContainer
     public BlockWindVane()
     {
         super(Material.CIRCUITS);
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
     
     @Override

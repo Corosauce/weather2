@@ -60,6 +60,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
     public boolean killNextTick = false;
 
+    public IBlockState stateCached = null;
+
     public EntityMovingBlock(World var1)
     {
         super(var1);
@@ -70,7 +72,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.gravityDelay = 60;
     }
 
-    public EntityMovingBlock(World var1, int var2, int var3, int var4, Block var5, StormObject parOwner)
+    public EntityMovingBlock(World var1, int var2, int var3, int var4, IBlockState state, StormObject parOwner)
     {
         super(var1);
         this.mode = 1;
@@ -79,27 +81,28 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.noCollision = false;
         this.gravityDelay = 60;
         this.noCollision = true;
-        this.tile = var5;
         this.setSize(0.9F, 0.9F);
         //this.yOffset = this.height / 2.0F;
-        this.setPosition((double)var2 + 0.5D, (double)var3 + 0.5D, (double)var4 + 0.5D);
+        this.setPosition(var2 + 0.5D, var3 + 0.5D, var4 + 0.5D);
         this.motionX = 0.0D;
         this.motionY = 0.0D;
         this.motionZ = 0.0D;
-        this.prevPosX = (double)((float)var2 + 0.5F);
-        this.prevPosY = (double)((float)var3 + 0.5F);
-        this.prevPosZ = (double)((float)var4 + 0.5F);
-        this.material = tile.getMaterial(tile.getDefaultState());
-        this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
-        IBlockState state = var1.getBlockState(new BlockPos(var2, var3, var4));
+        this.prevPosX = (var2 + 0.5F);
+        this.prevPosY = (var3 + 0.5F);
+        this.prevPosZ = (double)(var4 + 0.5F);
+
+        this.tile = state.getBlock();
         this.metadata = state.getBlock().getMetaFromState(state);
+        this.material = tile.getMaterial(tile.getDefaultState());
+        this.stateCached = state;
+        //this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
 
         owner = parOwner;
         
         if (this.tileentity != null)
         {
             //var1.setBlockStateTileEntity(var2, var3, var4, ((BlockContainer)Block.blocksList[this.tile]).createNewTileEntity(var1));
-            var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.AIR.getDefaultState(), 2);
+            //var1.setBlockState(new BlockPos(var2, var3, var4), Blocks.AIR.getDefaultState(), 2);
         }
     }
 
@@ -107,7 +110,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     public boolean isInRangeToRenderDist(double var1)
     {
         //return super.isInRangeToRenderDist(var1);
-        return var1 < 128D * 128D;
+        return var1 < 256D * 256D;
     }
 
     @Override
@@ -471,10 +474,10 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
             if (var6)
             {
                 //Block.blocksList[this.tile].onBlockPlacedBy(this.world, var1, var2, var3, var4, this);
-                if (this.tileentity != null)
+                /*if (this.tileentity != null)
                 {
                     this.world.setTileEntity(new BlockPos(var1, var2, var3), this.tileentity);
-                }
+                }*/
             }
         }
     }
@@ -531,7 +534,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void setDead()
     {
-    	if (!world.isRemote) {
+    	/*if (!world.isRemote) {
     		if (owner != null && owner.tornadoHelper != null) {
     			--owner.tornadoHelper.blockCount;
     			
@@ -541,7 +544,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     	        }
     		}
 	        
-    	}
+    	}*/
     	
     	owner = null;
         super.setDead();
@@ -550,14 +553,26 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     public void writeSpawnData(ByteBuf data)
     {
-    	ByteBufUtils.writeUTF8String(data, Block.REGISTRY.getNameForObject(tile).toString());
+        String str = "blank";
+        if (tile != null && Block.REGISTRY.getNameForObject(tile) != null) {
+            str = Block.REGISTRY.getNameForObject(tile).toString();
+        }
+    	ByteBufUtils.writeUTF8String(data, str);
         data.writeInt(metadata);
     }
 
     @Override
     public void readSpawnData(ByteBuf data)
     {
-    	tile = Block.REGISTRY.getObject(new ResourceLocation(ByteBufUtils.readUTF8String(data)));
-        metadata = data.readInt();
+        String str = ByteBufUtils.readUTF8String(data);
+        if (!str.equals("blank")) {
+            tile = Block.REGISTRY.getObject(new ResourceLocation(str));
+            metadata = data.readInt();
+        } else {
+            tile = Blocks.STONE;
+            metadata = 0;
+        }
+
+        stateCached = tile.getStateFromMeta(metadata);
     }
 }

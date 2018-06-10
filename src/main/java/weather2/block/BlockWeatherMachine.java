@@ -21,6 +21,8 @@ public class BlockWeatherMachine extends BlockContainer
     public BlockWeatherMachine()
     {
         super(Material.CLAY);
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
 
     @Override
@@ -42,9 +44,11 @@ public class BlockWeatherMachine extends BlockContainer
 	    	TileEntity tEnt = par1World.getTileEntity(pos);
 	    	
 	    	if (tEnt instanceof TileEntityWeatherMachine) {
-	    		((TileEntityWeatherMachine) tEnt).cycleWeatherType();
-	    		String msg = "rain";
-	    		if (((TileEntityWeatherMachine) tEnt).weatherType == 2) {
+	    		((TileEntityWeatherMachine) tEnt).cycleWeatherType(par5EntityPlayer.isSneaking());
+	    		String msg = "Off";
+                if (((TileEntityWeatherMachine) tEnt).weatherType == 1) {
+                    msg = "Rain";
+                } else if (((TileEntityWeatherMachine) tEnt).weatherType == 2) {
 	    			msg = "Lightning";
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 3) {
 	    			msg = "High wind";
@@ -55,14 +59,20 @@ public class BlockWeatherMachine extends BlockContainer
 	    		} else if (((TileEntityWeatherMachine) tEnt).weatherType == 6) {
 	    			msg = "Stage 1 Tropical Cyclone";
 	    		}
-	    		CoroUtilMisc.sendCommandSenderMsg((EntityPlayerMP) par5EntityPlayer, "Weather Machine set to " + msg);
+	    		CoroUtilMisc.sendCommandSenderMsg(par5EntityPlayer, "Weather Machine set to " + msg);
 	    		return true;
 	    	}
     	}
     	
     	return true;
     }
-    
+
+    @Override
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn) {
+        System.out.println("clicked");
+        super.onBlockClicked(worldIn, pos, playerIn);
+    }
+
     /**
      * The type of render function called. 3 for standard block models, 2 for TESR's, 1 for liquids, -1 is no render
      */

@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import CoroUtil.forge.CULog;
+import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.Vec3;
+import modconfig.ConfigMod;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,11 +24,13 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import weather2.config.ConfigMisc;
+import weather2.config.ConfigTornado;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerBase;
 import weather2.weathersystem.WeatherManagerServer;
+import weather2.weathersystem.wind.WindManager;
 
 public class ServerTickHandler
 {   
@@ -87,6 +92,21 @@ public class ServerTickHandler
         		lookupDimToWeatherMan.get(worlds[i].provider.getDimension()).tick();
         	}
         }
+
+        if (ConfigMisc.Aesthetic_Only_Mode) {
+        	if (!ConfigMisc.overcastMode) {
+        		ConfigMisc.overcastMode = true;
+				CULog.dbg("detected Aesthetic_Only_Mode on, setting overcast mode on");
+				WeatherUtilConfig.setOvercastModeServerSide(ConfigMisc.overcastMode);
+				ConfigMod.forceSaveAllFilesFromRuntimeSettings();
+				syncServerConfigToClient();
+			}
+		}
+
+        //TODO: only sync when things change? is now sent via PlayerLoggedInEvent at least
+		if (world.getTotalWorldTime() % 200 == 0) {
+			syncServerConfigToClient();
+		}
         
         boolean testRainRequest = false;
         if (testRainRequest) {
@@ -223,4 +243,28 @@ public class ServerTickHandler
     public static WeatherManagerServer getWeatherSystemForDim(int dimID) {
     	return lookupDimToWeatherMan.get(dimID);
     }
+
+	public static void syncServerConfigToClient() {
+		//packets
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("packetCommand", "ClientConfigData");
+		data.setString("command", "syncUpdate");
+		//data.setTag("data", parManager.nbtSyncForClient());
+
+		ClientConfigData.writeNBT(data);
+
+		Weather.eventChannel.sendToAll(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+	}
+
+	public static void syncServerConfigToClientPlayer(EntityPlayerMP player) {
+		//packets
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("packetCommand", "ClientConfigData");
+		data.setString("command", "syncUpdate");
+		//data.setTag("data", parManager.nbtSyncForClient());
+
+		ClientConfigData.writeNBT(data);
+
+		Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), player);
+	}
 }

@@ -104,4 +104,8 @@ public abstract class FoliageReplacerBase {
         return this;
     }
 
+    public boolean isActive() {
+        return true;
+    }
+
 }

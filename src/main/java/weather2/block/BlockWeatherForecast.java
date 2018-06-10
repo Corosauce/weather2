@@ -12,6 +12,8 @@ public class BlockWeatherForecast extends BlockContainer
     public BlockWeatherForecast()
     {
         super(Material.CLAY);
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
 
     @Override

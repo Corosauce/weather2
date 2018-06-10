@@ -1,6 +1,6 @@
 package weather2.client.foliage;
 
-import CoroUtil.config.ConfigCoroAI;
+import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.forge.CULog;
 import CoroUtil.util.CoroUtilBlockLightCache;
 import CoroUtil.util.Vec3;
@@ -9,7 +9,9 @@ import com.google.common.collect.Sets;
 import extendedrenderer.EventHandler;
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
+import extendedrenderer.foliage.FoliageData;
 import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.entity.ParticleTexLeafColor;
 import extendedrenderer.render.FoliageRenderer;
 import extendedrenderer.render.RotatingParticleManager;
 import extendedrenderer.shader.InstancedMeshFoliage;
@@ -26,17 +28,20 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
+import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.BufferUtils;
 import weather2.Weather;
 import weather2.config.ConfigFoliage;
+import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
 
 import java.lang.reflect.Field;
@@ -69,25 +74,85 @@ public class FoliageEnhancerShader implements Runnable {
         }
     }
 
-    public static void modelBakeEvent(ModelBakeEvent event) {
+    public static ModelLoader modelLoader;
+    public static IRegistry<ModelResourceLocation, IBakedModel> modelRegistry;
+    public static HashMap<ModelResourceLocation, IBakedModel> lookupBackupReplacedModels = new HashMap<>();
 
-        boolean replaceVanillaModels = ConfigCoroAI.foliageShaders && EventHandler.queryUseOfShaders();
+    public static void modelBakeEvent(ModelBakeEvent event) {
+        modelLoader = event.getModelLoader();
+        modelRegistry = event.getModelRegistry();
+
+        processModels();
+    }
+
+    /**
+     *
+     * Hacky attempt to live edit model data, not working, im still missing something...
+     *
+     */
+    public static void liveReloadModels() {
+        processModels();
+        modelLoader.blockModelShapes.reloadModels();
+        Minecraft.getMinecraft().renderGlobal.loadRenderers();
+    }
+
+    public static void processModels() {
+
+        if (modelLoader == null || modelRegistry == null) {
+            CULog.err("modelLoader or modelRegistry null, aborting");
+        }
+
+        boolean hackyLiveReplace = false;
+
+        /**
+         * ways to avoid a full resource pack reload and just invoke chunk render changes
+         * - tterrag: you might also be able to do some delegating nonsense to avoid it entirely
+         * - tterrag: check the config at runtime, if false just return vanilla quads
+         *
+         * - then finally do:
+         * -- this.mc.renderGlobal.loadRenderers();
+         */
+
+        boolean replaceVanillaModels = ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders() && !ConfigMisc.Client_PotatoPC_Mode;
 
         boolean textureFix = false;
 
+        FoliageData.backupBakedModelStore.clear();
+
         if (replaceVanillaModels) {
+
+            lookupBackupReplacedModels.clear();
 
             String str = "Weather2: Replacing shaderized models";
 
+            //ModelLoader.
+            //ModelManager mm =
+
             CULog.log(str);
-            ProgressManager.ProgressBar prog = ProgressManager.push(str, event.getModelRegistry().getKeys().size());
+            ProgressManager.ProgressBar prog = ProgressManager.push(str, modelRegistry.getKeys().size(), true);
 
-            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, event.getModelLoader(), "stateModels");
-            IBakedModel blank = event.getModelRegistry().getObject(new ModelResourceLocation("coroutil:blank", "normal"));
+            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, modelLoader, "stateModels");
+            IBakedModel blank = modelRegistry.getObject(new ModelResourceLocation("coroutil:blank", "normal"));
 
-            for (ModelResourceLocation res : event.getModelRegistry().getKeys()) {
+            //shortcut to getting the data loaded into bakedModelStore, is empty on first minecraft run otherwise
+            //would this cause bugs for mods that use ModelBakeEvent? meaning we might miss their models if we shaderize them
+            modelLoader.blockModelShapes.reloadModels();
+
+            CULog.dbg("bakedModelStore size: " + modelLoader.blockModelShapes.bakedModelStore.size());
+
+            //make backup
+            for (Map.Entry<IBlockState, IBakedModel> entry : modelLoader.blockModelShapes.bakedModelStore.entrySet()) {
+                IBlockState state = entry.getKey();
+                if (state instanceof IExtendedBlockState) {
+                    state = ((IExtendedBlockState) state).getClean();
+                }
+                //CULog.dbg("state to IBakedModel: " + state.toString() + " - " + entry.getValue().toString());
+                FoliageData.backupBakedModelStore.put(state, entry.getValue());
+            }
+
+            for (ModelResourceLocation res : modelRegistry.getKeys()) {
                 prog.step(res.toString());
-                IBakedModel bakedModel = event.getModelRegistry().getObject(res);
+                IBakedModel bakedModel = modelRegistry.getObject(res);
                 IModel model = stateModels.get(res);
                 if (model != null) {
                     //just in case of any cross mod weirdness
@@ -126,7 +191,9 @@ public class FoliageEnhancerShader implements Runnable {
                                                     }
                                                 }
 
-                                                event.getModelRegistry().putObject(res, blank);
+                                                lookupBackupReplacedModels.put(res, modelRegistry.getObject(res));
+
+                                                modelRegistry.putObject(res, blank);
                                                 break escape;
                                             }
                                         }
@@ -141,6 +208,55 @@ public class FoliageEnhancerShader implements Runnable {
             }
 
             ProgressManager.pop(prog);
+        } else {
+
+            if (!hackyLiveReplace) {
+                return;
+            }
+
+            //restore
+            if (lookupBackupReplacedModels.size() == 0) {
+                return;
+            }
+
+            /*for (Map.Entry<ModelResourceLocation, IBakedModel> entry : lookupBackupReplacedModels.entrySet()) {
+                modelRegistry.putObject(entry.getKey(), lookupBackupReplacedModels.get(entry.getKey()));
+            }*/
+
+
+
+            Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, modelLoader, "stateModels");
+
+            for (ModelResourceLocation res : modelRegistry.getKeys()) {
+                IModel model = stateModels.get(res);
+                if (model != null) {
+                    //just in case of any cross mod weirdness
+                    try {
+                        Set<ResourceLocation> textures = Sets.newHashSet(model.getTextures());
+
+                        escape:
+                        if (!res.getVariant().equals("inventory")) {
+                            for (FoliageReplacerBase replacer : listFoliageReplacers) {
+                                for (TextureAtlasSprite sprite : replacer.sprites) {
+                                    //System.out.println(sprite.getIconName());
+                                    for (ResourceLocation res2 : textures) {
+                                        if (res2.toString().equals(sprite.getIconName())) {
+                                            if (!res.toString().contains("flower_pot")) {
+
+                                                modelRegistry.putObject(res, lookupBackupReplacedModels.get(res));
+                                                break escape;
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
@@ -399,7 +515,12 @@ public class FoliageEnhancerShader implements Runnable {
         //System.out.println(MeshBufferManagerFoliage.lookupParticleToMesh.size());
 
         if (ConfigFoliage.extraGrass) {
-            listFoliageReplacers.add(new FoliageReplacerCrossGrass(Blocks.AIR.getDefaultState())
+            listFoliageReplacers.add(new FoliageReplacerCrossGrass(Blocks.AIR.getDefaultState()) {
+                @Override
+                public boolean isActive() {
+                    return ConfigFoliage.extraGrass;
+                }
+            }
                     .setSprite(getMeshAndSetupSprite(ExtendedRenderer.modid + ":particles/grass"))
                     .setRandomizeCoord(true)
                     .setBiomeColorize(true));
@@ -451,7 +572,7 @@ public class FoliageEnhancerShader implements Runnable {
         if (useThread) {
             while (true) {
                 try {
-                    if (ConfigCoroAI.foliageShaders && RotatingParticleManager.useShaders) {
+                    if (ConfigCoroUtil.foliageShaders && RotatingParticleManager.useShaders && !ConfigMisc.Client_PotatoPC_Mode) {
                         boolean gotLock = tickClientThreaded();
                         if (gotLock) {
                             Thread.sleep(ConfigFoliage.Thread_Foliage_Process_Delay);
@@ -567,7 +688,7 @@ public class FoliageEnhancerShader implements Runnable {
             Iterator<Map.Entry<BlockPos, FoliageLocationData>> it = lookupPosToFoliage.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<BlockPos, FoliageLocationData> entry = it.next();
-                if (!entry.getValue().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
+                if (!entry.getValue().foliageReplacer.isActive() || !entry.getValue().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
                     //System.out.println("remove");
                     it.remove();
                     //TODO: consider relocating Foliage list to within foliagereplacer, as there is some redundancy happening here
@@ -609,7 +730,7 @@ public class FoliageEnhancerShader implements Runnable {
                                 if (tryAll) {
                                     for (FoliageReplacerBase replacer : listFoliageReplacers) {
 
-                                        if (replacer.validFoliageSpot(entityIn.world, posScan.down())) {
+                                        if (replacer.isActive() && replacer.validFoliageSpot(entityIn.world, posScan.down())) {
                                             //System.out.println("add");
                                             replacer.addForPos(entityIn.world, posScan);
                                             replacer.markMeshesDirty();
@@ -626,7 +747,7 @@ public class FoliageEnhancerShader implements Runnable {
                                 } else {
                                     int randTry = rand.nextInt(listFoliageReplacers.size());
                                     FoliageReplacerBase replacer = listFoliageReplacers.get(randTry);
-                                    if (replacer.validFoliageSpot(entityIn.world, posScan.down())) {
+                                    if (replacer.isActive() && replacer.validFoliageSpot(entityIn.world, posScan.down())) {
                                         //System.out.println("add");
                                         replacer.addForPos(entityIn.world, posScan);
                                         replacer.markMeshesDirty();

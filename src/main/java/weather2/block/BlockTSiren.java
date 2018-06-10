@@ -21,8 +21,15 @@ public class BlockTSiren extends BlockContainer
 
     public BlockTSiren()
     {
-        super(Material.CLAY);
+        this(Material.CLAY);
         this.setDefaultState(this.blockState.getBaseState().withProperty(ENABLED, Boolean.valueOf(true)));
+    }
+
+    public BlockTSiren(Material mat)
+    {
+        super(mat);
+        setHardness(0.6F);
+        setResistance(10.0F);
     }
 
     @Override
@@ -81,7 +88,7 @@ public class BlockTSiren extends BlockContainer
         this.updateState(worldIn, pos, state);
     }
 
-    private void updateState(World worldIn, BlockPos pos, IBlockState state)
+    public void updateState(World worldIn, BlockPos pos, IBlockState state)
     {
         boolean flag = !worldIn.isBlockPowered(pos);
 

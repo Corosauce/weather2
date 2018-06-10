@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-
+apply plugin: 'maven-publish'
 
 group= "${mod_name}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${mod_name}"
@@ -66,8 +66,25 @@ processResources {
     }
 }
 
+publishing {
+    tasks.publish.dependsOn 'build'
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.corosus'
+            artifactId 'weather2'
+            artifact jar
+            artifact sourceJar
+        }
+    }
+
+    repositories {
+        maven { url "$buildDir/../../maven" }
+    }
+}
+
 jar {
 	manifest {
 	    attributes 'FMLAT': 'weather2_at.cfg'
+
 	}
 }

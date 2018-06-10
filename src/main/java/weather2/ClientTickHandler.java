@@ -18,6 +18,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.lwjgl.input.Mouse;
 
+import weather2.config.ConfigFoliage;
 import weather2.util.WindReader;
 import weather2.client.SceneEnhancer;
 import weather2.client.foliage.FoliageEnhancerShader;
@@ -35,6 +36,8 @@ public class ClientTickHandler
 	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
 	public static FoliageEnhancerShader foliageEnhancer;
+
+	public static ClientConfigData clientConfigData;
 	
 	public boolean hasOpenedConfig = false;
 	
@@ -50,6 +53,8 @@ public class ClientTickHandler
 	public float smoothAngleAdj = 0.1F;
 
 	public int prevDir = 0;
+
+	public boolean extraGrassLast = ConfigFoliage.extraGrass;
 	
 	public ClientTickHandler() {
 		//this constructor gets called multiple times when created from proxy, this prevents multiple inits
@@ -61,6 +66,8 @@ public class ClientTickHandler
 			foliageEnhancer = new FoliageEnhancerShader();
 			(new Thread(foliageEnhancer, "Weather2 Foliage Enhancer")).start();
 		}
+
+		clientConfigData = new ClientConfigData();
 	}
 
     public void onRenderScreenTick()
@@ -90,6 +97,9 @@ public class ClientTickHandler
     
     public void onTickInGame()
     {
+
+		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
         Minecraft mc = FMLClientHandler.instance().getClient();
         World world = mc.world;
         
@@ -115,7 +125,7 @@ public class ClientTickHandler
 
 			weatherManager.tick();
 
-			if (ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
+			if (!clientConfigData.Aesthetic_Only_Mode && ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
 				mc.gameSettings.clouds = 0;
 			}
 

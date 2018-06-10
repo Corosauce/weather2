@@ -15,20 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import weather2.block.BlockAnemometer;
-import weather2.block.BlockSandLayer;
-import weather2.block.BlockTSensor;
-import weather2.block.BlockTSiren;
-import weather2.block.BlockWeatherDeflector;
-import weather2.block.BlockWeatherForecast;
-import weather2.block.BlockWeatherMachine;
-import weather2.block.BlockWindVane;
-import weather2.block.TileEntityAnemometer;
-import weather2.block.TileEntityTSiren;
-import weather2.block.TileEntityWeatherDeflector;
-import weather2.block.TileEntityWeatherForecast;
-import weather2.block.TileEntityWeatherMachine;
-import weather2.block.TileEntityWindVane;
+import weather2.block.*;
 import weather2.config.ConfigMisc;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
@@ -46,6 +33,7 @@ public class CommonProxy implements IGuiHandler
 
 	public static final String tornado_sensor = "tornado_sensor";
 	public static final String tornado_siren = "tornado_siren";
+	public static final String tornado_siren_manual = "tornado_siren_manual";
 	public static final String wind_vane = "wind_vane";
 	public static final String weather_forecast = "weather_forecast";
 	public static final String weather_machine = "weather_machine";
@@ -59,25 +47,37 @@ public class CommonProxy implements IGuiHandler
 
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + tornado_sensor)
 	public static Block blockTSensor;
+
+	@GameRegistry.ObjectHolder(Weather.modID + ":" + tornado_siren_manual)
+	public static Block blockTSirenManual;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + tornado_siren)
 	public static Block blockTSiren;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + wind_vane)
 	public static Block blockWindVane;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + anemometer)
 	public static Block blockAnemometer;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_forecast)
 	public static Block blockWeatherForecast;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_machine)
 	public static Block blockWeatherMachine;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_deflector)
 	public static Block blockWeatherDeflector;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + sand_layer)
 	public static Block blockSandLayer;
 
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + sand_layer_placeable)
 	public static Item itemSandLayer;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_item)
 	public static Item itemWeatherRecipe;
+
 	@GameRegistry.ObjectHolder(Weather.modID + ":" + pocket_sand)
 	public static Item itemPocketSand;
 	
@@ -92,6 +92,7 @@ public class CommonProxy implements IGuiHandler
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
 		Weather.proxy.addBlock(event, blockTSensor = (new BlockTSensor()), tornado_sensor);
 		Weather.proxy.addBlock(event, blockTSiren = (new BlockTSiren()), TileEntityTSiren.class, tornado_siren);
+		Weather.proxy.addBlock(event, blockTSirenManual = (new BlockTSirenManual()), TileEntityTSirenManual.class, tornado_siren_manual);
 		Weather.proxy.addBlock(event, blockWindVane = (new BlockWindVane()), TileEntityWindVane.class, wind_vane);
 		Weather.proxy.addBlock(event, blockWeatherForecast = (new BlockWeatherForecast()), TileEntityWeatherForecast.class, weather_forecast);
 		Weather.proxy.addBlock(event, blockWeatherMachine = (new BlockWeatherMachine()), TileEntityWeatherMachine.class, weather_machine);
@@ -108,6 +109,7 @@ public class CommonProxy implements IGuiHandler
 
 		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSensor).setRegistryName(blockTSensor.getRegistryName()));
 		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSiren).setRegistryName(blockTSiren.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSirenManual).setRegistryName(blockTSirenManual.getRegistryName()));
 		Weather.proxy.addItemBlock(event, new ItemBlock(blockWindVane).setRegistryName(blockWindVane.getRegistryName()));
 		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherForecast).setRegistryName(blockWeatherForecast.getRegistryName()));
 		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherMachine).setRegistryName(blockWeatherMachine.getRegistryName()));
@@ -147,6 +149,9 @@ public class CommonProxy implements IGuiHandler
 				new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', itemWeatherRecipe, 'X', Items.IRON_INGOT});
 		if (!ConfigMisc.Block_SirenNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, tornado_siren), group,
 				new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
+
+		if (!ConfigMisc.Block_SirenManualNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, tornado_siren_manual), group,
+				new ItemStack(blockTSirenManual, 1), new Object[] {"XLX", "DID", "XLX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT, 'L', Blocks.LEVER});
 
 		if (!ConfigMisc.Block_WindVaneNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, wind_vane), group,
 				new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.REDSTONE, 'X', itemWeatherRecipe});

@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
+import weather2.config.ConfigMisc;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityMovingBlock;
 import CoroUtil.util.CoroUtilParticle;
@@ -53,61 +54,77 @@ public class RenderFlyingBlock extends Render<Entity>
 		IBlockState state = null;
 
 		if (entity instanceof EntityMovingBlock) {
-			state = ((EntityMovingBlock) entity).tile.getDefaultState();
+			if (((EntityMovingBlock) entity).stateCached != null) {
+				state = ((EntityMovingBlock) entity).stateCached;
+			} else {
+				state = ((EntityMovingBlock) entity).tile.getDefaultState();
+			}
 		} else {
 			if (renderBlock != null) {
 				state = renderBlock.getDefaultState();
 			}
 		}
 
-		if (state != null)
-		{
-			IBlockState iblockstate = state;
-
-			int age = entity.ticksExisted * 5;
-
-			if (iblockstate.getRenderType() == EnumBlockRenderType.MODEL)
+		try {
+			if (state != null)
 			{
-				World world = entity.world;
+				IBlockState iblockstate = state;
 
-				if (iblockstate != world.getBlockState(new BlockPos(entity)) && iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE)
+				int age = entity.ticksExisted * 5;
+
+				if (iblockstate.getRenderType() == EnumBlockRenderType.MODEL)
 				{
-					this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-					GlStateManager.pushMatrix();
-					GlStateManager.disableLighting();
-					Tessellator tessellator = Tessellator.getInstance();
-					BufferBuilder bufferbuilder = tessellator.getBuffer();
+					World world = entity.world;
 
-					if (this.renderOutlines)
+					if (iblockstate != world.getBlockState(new BlockPos(entity)) && iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE)
 					{
-						GlStateManager.enableColorMaterial();
-						GlStateManager.enableOutlineMode(this.getTeamColor(entity));
+						this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+						GlStateManager.pushMatrix();
+						GlStateManager.disableLighting();
+						Tessellator tessellator = Tessellator.getInstance();
+						BufferBuilder bufferbuilder = tessellator.getBuffer();
+
+						if (this.renderOutlines)
+						{
+							GlStateManager.enableColorMaterial();
+							GlStateManager.enableOutlineMode(this.getTeamColor(entity));
+						}
+
+						bufferbuilder.begin(7, DefaultVertexFormats.BLOCK);
+						BlockPos blockpos = new BlockPos(entity.posX, entity.getEntityBoundingBox().maxY, entity.posZ);
+						//GlStateManager.translate((float)(x - (double)blockpos.getX() - 0.5D), (float)(y - (double)blockpos.getY()), (float)(z - (double)blockpos.getZ() - 0.5D));
+						GlStateManager.translate((float)(x), (float)(y), (float)(z));
+						bufferbuilder.setTranslation((double)((float)(-blockpos.getX()) - 0.5F), (double)(-blockpos.getY()), (double)((float)(-blockpos.getZ()) - 0.5F));
+						GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+						GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+						GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+						if (entity instanceof EntityIceBall) {
+							float iceScale = 0.3F;
+							GlStateManager.scale(iceScale, iceScale, iceScale);
+						}
+						BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+						blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModelForState(iblockstate), iblockstate, blockpos, bufferbuilder, false, MathHelper.getPositionRandom(entity.getPosition()));
+						bufferbuilder.setTranslation(0.0D, 0.0D, 0.0D);
+						tessellator.draw();
+
+						if (this.renderOutlines)
+						{
+							GlStateManager.disableOutlineMode();
+							GlStateManager.disableColorMaterial();
+						}
+
+						GlStateManager.enableLighting();
+						GlStateManager.popMatrix();
+						super.doRender(entity, x, y, z, entityYaw, partialTicks);
 					}
-
-					bufferbuilder.begin(7, DefaultVertexFormats.BLOCK);
-					BlockPos blockpos = new BlockPos(entity.posX, entity.getEntityBoundingBox().maxY, entity.posZ);
-					//GlStateManager.translate((float)(x - (double)blockpos.getX() - 0.5D), (float)(y - (double)blockpos.getY()), (float)(z - (double)blockpos.getZ() - 0.5D));
-					GlStateManager.translate((float)(x), (float)(y), (float)(z));
-					bufferbuilder.setTranslation((double)((float)(-blockpos.getX()) - 0.5F), (double)(-blockpos.getY()), (double)((float)(-blockpos.getZ()) - 0.5F));
-					GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
-					GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
-					GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
-					BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-					blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModelForState(iblockstate), iblockstate, blockpos, bufferbuilder, false, MathHelper.getPositionRandom(entity.getPosition()));
-					bufferbuilder.setTranslation(0.0D, 0.0D, 0.0D);
-					tessellator.draw();
-
-					if (this.renderOutlines)
-					{
-						GlStateManager.disableOutlineMode();
-						GlStateManager.disableColorMaterial();
-					}
-
-					GlStateManager.enableLighting();
-					GlStateManager.popMatrix();
-					super.doRender(entity, x, y, z, entityYaw, partialTicks);
 				}
 			}
+		} catch (Exception ex) {
+			if (ConfigMisc.consoleDebug) {
+				ex.printStackTrace();
+			}
 		}
+
+
     }
 }

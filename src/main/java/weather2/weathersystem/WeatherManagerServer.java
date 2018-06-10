@@ -97,16 +97,16 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			
 			//sim box work
 			int rate = 20;
-			if (WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension()) && world.getTotalWorldTime() % rate == 0) {
+			if (world.getTotalWorldTime() % rate == 0) {
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
 					EntityPlayer closestPlayer = WeatherUtilEntity.getClosestPlayerAny(world, so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
 					
 					//isDead check is done in WeatherManagerBase
-					if (closestPlayer == null) {
+					if (closestPlayer == null || ConfigMisc.Aesthetic_Only_Mode) {
 						so.ticksSinceNoNearPlayer += rate;
 						//finally remove if nothing near for 30 seconds, gives multiplayer server a chance to get players in
-						if (so.ticksSinceNoNearPlayer > 20 * 30) {
+						if (so.ticksSinceNoNearPlayer > 20 * 30 || ConfigMisc.Aesthetic_Only_Mode) {
 							if (world.playerEntities.size() == 0) {
 								Weather.dbg("removing distant storm: " + so.ID + ", running without players");
 							} else {
@@ -153,27 +153,29 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				System.out.println("cloud/cloudless/max count: " + countDbg + "/" + countDbg2 + "/" + (ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()));*/
 				
 				//cloud formation spawning - REFINE ME!
-				for (int i = 0; i < world.playerEntities.size(); i++) {
-					EntityPlayer entP = (EntityPlayer) world.playerEntities.get(i);
-					
-					//Weather.dbg("getStormObjects().size(): " + getStormObjects().size());
+				if (!ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension())) {
+					for (int i = 0; i < world.playerEntities.size(); i++) {
+						EntityPlayer entP = world.playerEntities.get(i);
 
-					//layer 0
-					if (getStormObjectsByLayer(0).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
-						if (rand.nextInt(5) == 0) {
-							//if (rand.nextFloat() <= cloudIntensity) {
-								trySpawnStormCloudNearPlayerForLayer(entP, 0);
-							//}
-						}
-					}
+						//Weather.dbg("getStormObjects().size(): " + getStormObjects().size());
 
-					//layer 1
-					if (getStormObjectsByLayer(1).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
-						if (ConfigMisc.Cloud_Layer1_Enable) {
+						//layer 0
+						if (getStormObjectsByLayer(0).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
 							if (rand.nextInt(5) == 0) {
 								//if (rand.nextFloat() <= cloudIntensity) {
-									trySpawnStormCloudNearPlayerForLayer(entP, 1);
+								trySpawnStormCloudNearPlayerForLayer(entP, 0);
 								//}
+							}
+						}
+
+						//layer 1
+						if (getStormObjectsByLayer(1).size() < ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()) {
+							if (ConfigMisc.Cloud_Layer1_Enable) {
+								if (rand.nextInt(5) == 0) {
+									//if (rand.nextFloat() <= cloudIntensity) {
+									trySpawnStormCloudNearPlayerForLayer(entP, 1);
+									//}
+								}
 							}
 						}
 					}
@@ -181,7 +183,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
-			if (!ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
+			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
@@ -226,8 +228,10 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//if (ConfigMisc.overcastMode) {
-			if (world.getTotalWorldTime() % 400 == 0) {
+			if (world.getTotalWorldTime() % 40 == 0) {
 				isVanillaRainActiveOnServer = getWorld().isRaining();
+				isVanillaThunderActiveOnServer = getWorld().isThundering();
+				vanillaRainTimeOnServer = getWorld().getWorldInfo().getRainTime();
 				syncWeatherVanilla();
 			}
 			//}
@@ -244,14 +248,22 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (world.getTotalWorldTime() % 200 == 0) {
 				Random rand = new Random();
 				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
-				if (cloudIntensity < ConfigMisc.Cloud_Coverage_Min_Percent / 100F) {
-					cloudIntensity = (float)ConfigMisc.Cloud_Coverage_Min_Percent / 100F;
-				} else if (cloudIntensity > ConfigMisc.Cloud_Coverage_Max_Percent / 100F) {
-					cloudIntensity = (float)ConfigMisc.Cloud_Coverage_Max_Percent / 100F;
+				if (ConfigMisc.overcastMode && world.isRaining()) {
+					cloudIntensity = 1;
+				} else {
+					if (cloudIntensity < ConfigMisc.Cloud_Coverage_Min_Percent / 100F) {
+						cloudIntensity = (float) ConfigMisc.Cloud_Coverage_Min_Percent / 100F;
+					} else if (cloudIntensity > ConfigMisc.Cloud_Coverage_Max_Percent / 100F) {
+						cloudIntensity = (float) ConfigMisc.Cloud_Coverage_Max_Percent / 100F;
+					}
 				}
 				if (world.getTotalWorldTime() % 2000 == 0) {
 					//Weather.dbg("cloudIntensity FORCED MAX: " + cloudIntensity);
 				}
+
+				//force full cloudIntensity if server side raining
+				//note: storms also revert to clouded storms for same condition
+
 			}
 
 			//temp lock to max for fps comparisons
@@ -601,6 +613,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncWeatherUpdate");
 		data.setBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
+		data.setBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
+		data.setInteger("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 	}
 	

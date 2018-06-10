@@ -27,12 +27,8 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	 * 
 	 */
 	
-	//0 = snow (no, dont use anymore), 1 = rain, 2 = F1 tornado, 3 = stage 1 cyclone
+	//0 = off, 1 = rain, 2 = thunder, etc
 	public int weatherType = 1;
-	//0 = lightning, 1 = F1, 2 = F2, etc (snow would use this to increase snow rate maaaaaaaybbbeeeeee, needs more vars in StormObject)
-	public int weatherIntensity = 0;
-	//0 = uhh
-	public int weatherRate = 0;
 	//ya
 	public int weatherSize = 50;
 	//prevent storm moving via wind
@@ -44,39 +40,65 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	//for tracking between world reloads
 	public long lastTickStormObjectID = -1;
 
-	public void cycleWeatherType() {
-		weatherType++;
+	public void cycleWeatherType(boolean reverse) {
+
 		int maxID = 6;
 		if (ConfigTornado.Storm_NoTornadosOrCyclones || ConfigMisc.Block_WeatherMachineNoTornadosOrCyclones) {
 			maxID = 4;
 		}
-		if (weatherType > maxID) {
-			weatherType = 1; //skip snow
+
+		int minID = 0;
+
+		if (!reverse) {
+
+			weatherType++;
+
+			if (weatherType > maxID) {
+				weatherType = minID;
+			}
+		} else {
+			weatherType--;
+
+			if (weatherType < minID) {
+				weatherType = maxID;
+			}
 		}
 	}
 	
 	@Override
 	public void invalidate() {
 		super.invalidate();
-		
+
+		killStorm();
+	}
+
+	public void killStorm() {
 		WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
 		if (wm != null) {
-    		//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
-    		
-    		if (lastTickStormObject != null) {
-			
+			//StormObject lastTickStormObject = wm.getClosestStorm(new Vec3(xCoord, StormObject.layers.get(0), zCoord), deflectorRadius, StormObject.STATE_NORMAL, true);
+
+			if (lastTickStormObject != null) {
+
 				wm.removeStormObject(lastTickStormObject.ID);
-    			wm.syncStormRemove(lastTickStormObject);
+				wm.syncStormRemove(lastTickStormObject);
+				lastTickStormObject = null;
 			}
-    	}
+		}
 	}
 	
 	@Override
     public void update()
     {
     	if (!world.isRemote) {
+
+    		if (weatherType == 0) {
+    			if (lastTickStormObject != null) {
+					killStorm();
+				}
+				return;
+			}
     		
-    		//TEMP
+    		//TEMP...?
     		weatherSize = 100;
     		
     		//weatherType = 3;
@@ -100,7 +122,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 					}
 				}
     			
-    			if (lastTickStormObject == null) {
+    			if (lastTickStormObject == null && !ConfigMisc.Aesthetic_Only_Mode) {
     				WeatherManagerServer manager = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
     				
     				if (manager != null) {

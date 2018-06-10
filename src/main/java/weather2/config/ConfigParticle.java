@@ -1,5 +1,6 @@
 package weather2.config;
 
+import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -12,15 +13,17 @@ public class ConfigParticle implements IConfigCategory {
 
     //particles
 	public static boolean Wind_Particle_leafs = true;
-	public static double Wind_Particle_effect_rate = 1D;
-	public static boolean Wind_Particle_air = true;
-	public static boolean Wind_Particle_sand = true;//not used since 1.3.2
+    @ConfigComment("Currently used for rates of leaf, waterfall, and fire particles")
+	public static double Wind_Particle_effect_rate = 0.7D;
 	public static boolean Wind_Particle_waterfall = true;
 	//public static boolean Wind_Particle_snow = false;
 	public static boolean Wind_Particle_fire = true;
+	@ConfigComment("Enables or disables all precipitation particle types")
 	public static boolean Particle_RainSnow = true;
+    public static boolean Particle_Rain_GroundSplash = true;
+    public static boolean Particle_Rain_DownfallSheet = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;
-	public static double Precipitation_Particle_effect_rate = 1D;
+	public static double Precipitation_Particle_effect_rate = 0.7D;
 	public static double Sandstorm_Particle_Debris_effect_rate = 0.6D;
 	public static double Sandstorm_Particle_Dust_effect_rate = 0.6D;
 

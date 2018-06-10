@@ -26,7 +26,8 @@ public class WeatherObject {
 	public Vec3 pos = new Vec3(0, 0, 0);
 	public Vec3 posGround = new Vec3(0, 0, 0);
 	public Vec3 motion = new Vec3(0, 0, 0);
-	
+
+	//used as radius
 	public int size = 50;
 	public int maxSize = 0;
 	

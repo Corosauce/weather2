@@ -46,6 +46,8 @@ public class WeatherManagerBase {
 	
 	//for client only
 	public boolean isVanillaRainActiveOnServer = false;
+	public boolean isVanillaThunderActiveOnServer = false;
+	public int vanillaRainTimeOnServer = 0;
 	
 	public long lastStormFormed = 0;
 
@@ -54,12 +56,14 @@ public class WeatherManagerBase {
 	//0 = none, 1 = usual max overcast
 	public float cloudIntensity = 1F;
 
+	private HashSet<Long> listWeatherBlockDamageDeflector = new HashSet<>();
+
 	public WeatherManagerBase(int parDim) {
 		dim = parDim;
 		windMan = new WindManager(this);
-		lookupStormObjectsByLayer.put(0, new ArrayList<StormObject>());
-		lookupStormObjectsByLayer.put(1, new ArrayList<StormObject>());
-		lookupStormObjectsByLayer.put(2, new ArrayList<StormObject>());
+		lookupStormObjectsByLayer.put(0, new ArrayList<>());
+		lookupStormObjectsByLayer.put(1, new ArrayList<>());
+		lookupStormObjectsByLayer.put(2, new ArrayList<>());
 	}
 	
 	public void reset() {
@@ -633,5 +637,13 @@ public class WeatherManagerBase {
 	
 	public WindManager getWindManager() {
 		return this.windMan;
+	}
+
+	public HashSet<Long> getListWeatherBlockDamageDeflector() {
+		return listWeatherBlockDamageDeflector;
+	}
+
+	public void setListWeatherBlockDamageDeflector(HashSet<Long> listWeatherBlockDamageDeflector) {
+		this.listWeatherBlockDamageDeflector = listWeatherBlockDamageDeflector;
 	}
 }
