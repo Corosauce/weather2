@@ -806,14 +806,14 @@ public class SceneEnhancer implements Runnable {
 				}
 
 				//TEST
-				if (testParticle != null && testParticle2 != null) {
+				if (testParticle != null/* && testParticle2 != null*/) {
 					//testParticle.setPosition(entP.posX, entP.posY + 1, entP.posZ + 3);
 
 					testParticle.rotationPitch = 0;//world.getTotalWorldTime() % 360;
 					//testParticle.rotationYaw = 45;//(world.getTotalWorldTime() % 360) * 6;
 
 					Quaternion q = testParticle.getQuaternion();
-					Quaternion q2 = testParticle2.getQuaternion();
+					//Quaternion q2 = testParticle2.getQuaternion();
 
 					float amp1 = (float)Math.sin(Math.toRadians((world.getTotalWorldTime() * 1) % 360));
 					float amp2 = (float)Math.cos(Math.toRadians((world.getTotalWorldTime() * 3) % 360));
@@ -936,7 +936,7 @@ public class SceneEnhancer implements Runnable {
 
 					//testParticle.setPosition(entP.posX + 0, entP.posY + 0, entP.posZ + 4);
 
-					testParticle2.setPosition(testParticle.posX + xAdj, testParticle.posY + yAdj, testParticle.posZ + zAdj);
+					if (testParticle2 != null) testParticle2.setPosition(testParticle.posX + xAdj, testParticle.posY + yAdj, testParticle.posZ + zAdj);
 
 					//testParticle.getQuaternion().
 
@@ -947,7 +947,7 @@ public class SceneEnhancer implements Runnable {
 					testParticle.posZ = 235.8F;*/
 
 					testParticle.setAge(40);
-					testParticle2.setAge(40000);
+					if (testParticle2 != null) testParticle2.setAge(40000);
 				}
 
 				if (testParticle != null) {
