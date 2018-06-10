@@ -724,7 +724,7 @@ public class SceneEnhancer implements Runnable {
 				}
 
 				int amountPerLayer = 30;
-				int particleCount = amountPerLayer * 20;
+				int particleCount = amountPerLayer * 50;
 
 				//particleCount = 1;
 
@@ -976,14 +976,16 @@ public class SceneEnhancer implements Runnable {
 						long time = world.getTotalWorldTime();
 						long time2 = world.getTotalWorldTime() * 2;
 						long time3 = world.getTotalWorldTime() * 3;
-						//time = 0;
+						/*time = 0;
+						time2 = 0;
+						time3 = 0;*/
 
-						float speed = 5;
+						float speed = 1;
 
 						Matrix4fe matrixFunnel = new Matrix4fe();
-						matrixFunnel.rotateZ((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
-						matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time2 * 3) % 360)) * 0.5F);
-						//matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
+						//matrixFunnel.rotateZ((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
+						//matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time2 * 3) % 360)) * 0.5F);
+						////matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
 						matrixFunnel.rotateY((float)Math.toRadians((time * speed) + (360F / (float)amountPerLayer * (float)rotIndex)));
 
 						//matrixFunnel.rotateY((float)Math.toRadians((5 * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
@@ -1002,12 +1004,17 @@ public class SceneEnhancer implements Runnable {
 
 						Matrix4fe matrixSelf = new Matrix4fe();
 
+						//angle it to match funnel shape, done before y
+						matrixSelf.rotateX((float)Math.toRadians(17.5F));
 
-
+						//rotate rest
 						matrixSelf.rotateY((float)Math.toRadians(90 + (-time * speed) - (360F / (float)amountPerLayer * (float)rotIndex)));
-						matrixSelf.rotateX((float)Math.sin(Math.toRadians((-time2 * 3) % 360)) * 0.5F);
-						matrixSelf.rotateZ((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
-						//matrixSelf.rotateX((float)Math.sin(Math.toRadians(((-time - 40) * 3) % 360)) * 0.5F);
+						//matrixSelf.rotateX((float)Math.sin(Math.toRadians((-time2 * 3) % 360)) * 0.5F);
+						//matrixSelf.rotateZ((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
+
+
+
+						////matrixSelf.rotateX((float)Math.sin(Math.toRadians(((-time - 40) * 3) % 360)) * 0.5F);
 
 
 						part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
