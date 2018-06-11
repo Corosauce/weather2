@@ -42,6 +42,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.*;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
+import weather2.client.tornado.TornadoFunnel;
 import weather2.util.WindReader;
 import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.client.entity.particle.ParticleFish;
@@ -148,13 +149,15 @@ public class SceneEnhancer implements Runnable {
 
 	private static List<BlockPos> listPosRandom = new ArrayList<>();
 
-	public static List<ParticleTexExtraRender> testParticles = new ArrayList<>();
+	public static List<EntityRotFX> testParticles = new ArrayList<>();
 
 	public static Matrix4fe matrix = new Matrix4fe();
 	public static Matrix4fe matrix2 = new Matrix4fe();
 
 	public static Vector3f vec = new Vector3f();
 	public static Vector3f vec2 = new Vector3f();
+
+	public static TornadoFunnel funnel;
 
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -723,90 +726,9 @@ public class SceneEnhancer implements Runnable {
 					}
 				}
 
-				int amountPerLayer = 30;
-				int particleCount = amountPerLayer * 50;
-
 				//particleCount = 1;
 
-				if (testParticles.size() < particleCount) {
-					BlockPos pos = new BlockPos(entP);
 
-					//if (entP.getDistanceSq(pos) < 10D * 10D) continue;
-
-					//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
-
-					if (canPrecipitateAt(world, pos)/*world.isRainingAt(pos)*/) {
-						ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
-								pos.getX() + rand.nextFloat(),
-								pos.getY(),
-								pos.getZ() + rand.nextFloat(),
-								0D, 0D, 0D, ParticleRegistry.white_square);
-						/*ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
-								15608.5F,
-								70.5F,
-								235.5F,
-								0D, 0D, 0D, ParticleRegistry.test_texture);*/
-						//rain.setCanCollide(true);
-						//rain.setKillOnCollide(true);
-						//rain.setKillWhenUnderTopmostBlock(true);
-						//rain.setTicksFadeOutMaxOnDeath(5);
-
-						//rain.particleTextureJitterX = 0;
-						//rain.particleTextureJitterY = 0;
-
-						//rain.setDontRenderUnderTopmostBlock(true);
-						//rain.setExtraParticlesBaseAmount(5);
-						//rain.setDontRenderUnderTopmostBlock(true);
-						rain.setSlantParticleToWind(false);
-						//rain.noExtraParticles = true;
-						rain.setExtraParticlesBaseAmount(1);
-						rain.setSeverityOfRainRate(0);
-						rain.setDontRenderUnderTopmostBlock(false);
-
-						boolean upward = rand.nextBoolean();
-
-						rain.windWeight = 999999F;
-						rain.setFacePlayer(false);
-
-						rain.setScale(90F + (rand.nextFloat() * 3F));
-
-
-						/**
-						 * 64x64 particle, 18 blocks high exactly when scale 90 used
-						 * 64x64 particle, 1 blocks high exactly when scale 5 used
-						 * particle texture file size doesnt matter,
-						 * scale 5 = 1 block size
-						 *
-						 */
-						rain.setScale(5F);
-						//rain.setScale(25F);
-						rain.setMaxAge(100);
-						rain.setGravity(0.0F);
-						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
-						rain.setTicksFadeInMax(20);
-						rain.setAlphaF(0);
-						rain.setTicksFadeOutMax(20);
-
-						rain.rotationYaw = 0;//rain.getWorld().rand.nextInt(360) - 180F;
-						rain.rotationPitch = 90;
-						rain.setMotionY(-0D);
-									/*rain.setMotionX(0);
-									rain.setMotionZ(0);*/
-						rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
-						rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
-
-						//rain.setRBGColorF(1F, 1F, 1F);
-						rain.spawnAsWeatherEffect();
-						rain.weatherEffect = false;
-						//ClientTickHandler.weatherManager.addWeatheredParticle(rain);
-
-						rain.isTransparent = false;
-
-						rain.quatControl = true;
-
-						testParticles.add(rain);
-					}
-				}
 
 				//TEST
 				if (testParticle != null/* && testParticle2 != null*/) {
@@ -957,90 +879,17 @@ public class SceneEnhancer implements Runnable {
 					testParticle.setAge(40);
 				}
 
-				Iterator<ParticleTexExtraRender> it = testParticles.iterator();
-				int i = 0;
-				while (it.hasNext()) {
-					ParticleTexExtraRender part = it.next();
-					if (part.isExpired) {
-						it.remove();
-					} else {
 
-						int yIndex = i / amountPerLayer;
-						int rotIndex = i % amountPerLayer;
-						int yCount = particleCount / amountPerLayer;
-
-						//need 2 matrix maybe?
-						//relative to center matrix that uses translation and rotation
-						//relative to self matrix that uses rotation
-
-						long time = world.getTotalWorldTime();
-						long time2 = world.getTotalWorldTime() * 2;
-						long time3 = world.getTotalWorldTime() * 3;
-						/*time = 0;
-						time2 = 0;
-						time3 = 0;*/
-
-						float speed = 1;
-
-						Matrix4fe matrixFunnel = new Matrix4fe();
-						//matrixFunnel.rotateZ((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
-						//matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time2 * 3) % 360)) * 0.5F);
-						////matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
-						matrixFunnel.rotateY((float)Math.toRadians((time * speed) + (360F / (float)amountPerLayer * (float)rotIndex)));
-
-						//matrixFunnel.rotateY((float)Math.toRadians((5 * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
-
-						matrixFunnel.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
-						//matrixFunnel.translate(new Vector3f(4.4F, 0, 0));
-						//matrixFunnel.translate(new Vector3f(1.45F, 0, 0));
-						//matrixFunnel.translate(new Vector3f(2 + (float) Math.sin(Math.toRadians((time * 3) % 360)), 0, 0));
-
-						matrixFunnel.translate(new Vector3f(0, (yIndex - (yCount/2)) * 0.95F, 0));
-
-						Vector3f pos = matrixFunnel.getTranslation();
-
-						part.setPosition(testParticle.posX + pos.x, testParticle.posY + pos.y, testParticle.posZ + pos.z);
-
-
-						Matrix4fe matrixSelf = new Matrix4fe();
-
-						//angle it to match funnel shape, done before y
-						matrixSelf.rotateX((float)Math.toRadians(17.5F));
-
-						//rotate rest
-						matrixSelf.rotateY((float)Math.toRadians(90 + (-time * speed) - (360F / (float)amountPerLayer * (float)rotIndex)));
-						//matrixSelf.rotateX((float)Math.sin(Math.toRadians((-time2 * 3) % 360)) * 0.5F);
-						//matrixSelf.rotateZ((float)Math.sin(Math.toRadians((-time * 3) % 360)) * 0.5F);
-
-
-
-						////matrixSelf.rotateX((float)Math.sin(Math.toRadians(((-time - 40) * 3) % 360)) * 0.5F);
-
-
-						part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
-
-						part.setAge(40);
-
-						float r = 1F;
-						float g = 0F;
-						float b = 0F;
-
-						float stages = 100;
-
-						r = ((time + i*1) % stages) * (1F / stages);
-						g = ((time2 + i*1) % stages) * (1F / stages);
-						b = ((time3 + i*1) % stages) * (1F / stages);
-
-						part.setRBGColorF(0F, 0F, 0F);
-						part.setRBGColorF(r, g, b);
-						//part.setParticleTexture(ParticleRegistry.squareGrey);
-					}
-
-					i++;
-				}
 
 				//if (true) return;
 			}
+
+			if (funnel == null) {
+				funnel = new TornadoFunnel();
+				funnel.pos = new Vec3d(entP.posX, entP.posY, entP.posZ);
+			}
+
+			funnel.tickGame();
 
 			boolean testLeaf = false;
 			if (testLeaf) {
