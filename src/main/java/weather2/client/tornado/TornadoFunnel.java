@@ -11,6 +11,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector4f;
 
 import javax.vecmath.Vector3f;
 import java.util.*;
@@ -310,14 +312,48 @@ public class TornadoFunnel {
 
                     angleY = (float)(Math.atan2(vec.z, vec.x)/* - Math.toRadians(90)*/);
 
-                    //matrixSelf.rotateX(angleX);
-                    matrixSelf.rotateY(angleY);
-                    matrixSelf.rotateX((float) Math.toRadians((360F / (float)amountPerLayer * (float)rotIndex) + 90));
+                    //angleX = (float) Math.toRadians(45F);
 
+
+
+                    //matrixSelf.rotateX(angleX);
+                    //matrixSelf.rotateY(angleY);
+                    //matrixSelf.rotateY((float) Math.toRadians(45F));
+                    //matrixSelf.rotateX((float) Math.toRadians(0));
+                    //matrixSelf.rotate(angleX, 1F, 0F, 0F);
+                    //matrixSelf.rotateTranslation(angleX, 1F, 0F, 0F, matrixSelf);
+                    //matrixSelf.rotateX(angleX);
+                    //matrixSelf.rotateX((float) Math.toRadians((360F / (float)amountPerLayer * (float)rotIndex) + 90));
+                    //matrixSelf.rotateX((float) Math.toRadians(90F));
 
                     ////matrixSelf.rotateX((float)Math.sin(Math.toRadians(((-time - 40) * 3) % 360)) * 0.5F);
 
-                    part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
+                    //Matrix4fe matrixSelf2 = new Matrix4fe();
+                    //matrixSelf2.rotateX(angleX);
+
+                    //matrixSelf.mul(matrixSelf2);
+
+                    //part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
+
+                    //this works!
+
+                    Quaternion qY = new Quaternion();
+                    Quaternion qX = new Quaternion();
+                    Quaternion qZ = new Quaternion();
+                    qY.setFromAxisAngle(new Vector4f(0, 1, 0, -angleY));
+
+                    qZ.setFromAxisAngle(new Vector4f(0, 0, 1, -angleX));
+                    Quaternion.mul(qY, qZ, part.rotation);
+
+                    //rotate on y axis again, ok
+                    angleZ = (float)Math.toRadians(90F + (360F / (float)amountPerLayer * (float)rotIndex));
+                    qX.setFromAxisAngle(new Vector4f(0, 1, 0, angleZ));
+                    Quaternion.mul(part.rotation, qX, part.rotation);
+
+
+
+                    //part.rotation = new Quaternion();
+                    //part.rotation = setEulerAnglesRad(angleY, angleX, angleZ);
 
                     part.setAge(40);
 
@@ -343,6 +379,52 @@ public class TornadoFunnel {
 
     public void addPieceToEnd(FunnelPiece piece) {
         listFunnel.addLast(piece);
+    }
+
+    public static Vec3d rotateVectorCC(Vec3d vec, Vec3d axis, double theta){
+        double x, y, z;
+        double u, v, w;
+        x=vec.x;y=vec.y;z=vec.z;
+        u=axis.x;v=axis.y;w=axis.z;
+        double xPrime = u*(u*x + v*y + w*z)*(1d - Math.cos(theta))
+                + x*Math.cos(theta)
+                + (-w*y + v*z)*Math.sin(theta);
+        double yPrime = v*(u*x + v*y + w*z)*(1d - Math.cos(theta))
+                + y*Math.cos(theta)
+                + (w*x - u*z)*Math.sin(theta);
+        double zPrime = w*(u*x + v*y + w*z)*(1d - Math.cos(theta))
+                + z*Math.cos(theta)
+                + (-v*x + u*y)*Math.sin(theta);
+        return new Vec3d(xPrime, yPrime, zPrime);
+    }
+
+    /** Sets the quaternion to the given euler angles in radians.
+     * @param yaw the rotation around the y axis in radians
+     * @param pitch the rotation around the x axis in radians
+     * @param roll the rotation around the z axis in radians
+     * @return this quaternion */
+    public Quaternion setEulerAnglesRad (float yaw, float pitch, float roll) {
+        final float hr = roll * 0.5f;
+        final float shr = (float)Math.sin(hr);
+        final float chr = (float)Math.cos(hr);
+        final float hp = pitch * 0.5f;
+        final float shp = (float)Math.sin(hp);
+        final float chp = (float)Math.cos(hp);
+        final float hy = yaw * 0.5f;
+        final float shy = (float)Math.sin(hy);
+        final float chy = (float)Math.cos(hy);
+        final float chy_shp = chy * shp;
+        final float shy_chp = shy * chp;
+        final float chy_chp = chy * chp;
+        final float shy_shp = shy * shp;
+
+        Quaternion q = new Quaternion();
+
+        q.x = (chy_shp * chr) + (shy_chp * shr); // cos(yaw/2) * sin(pitch/2) * cos(roll/2) + sin(yaw/2) * cos(pitch/2) * sin(roll/2)
+        q.y = (shy_chp * chr) - (chy_shp * shr); // sin(yaw/2) * cos(pitch/2) * cos(roll/2) - cos(yaw/2) * sin(pitch/2) * sin(roll/2)
+        q.z = (chy_chp * shr) - (shy_shp * chr); // cos(yaw/2) * cos(pitch/2) * sin(roll/2) - sin(yaw/2) * sin(pitch/2) * cos(roll/2)
+        q.w = (chy_chp * chr) + (shy_shp * shr); // cos(yaw/2) * cos(pitch/2) * cos(roll/2) + sin(yaw/2) * sin(pitch/2) * sin(roll/2)
+        return q;
     }
 
 }
