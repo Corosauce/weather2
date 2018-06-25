@@ -30,14 +30,20 @@ public class TornadoFunnel {
 
     public int amountPerLayer = 30;
     public int particleCount = amountPerLayer * 50;
-    public int funnelPieces = 1;
+    public int funnelPieces = 2;
 
     static class FunnelPiece {
 
         public List<EntityRotFX> listParticles = new ArrayList<>();
 
         public Vec3d posStart = new Vec3d(0, 0, 0);
-        public Vec3d posEnd = new Vec3d(0, 0, 0);
+        public Vec3d posEnd = new Vec3d(0, 20, 0);
+
+        //public Vec3d vecDir = new Vec3d(0, 0, 0);
+        public float vecDirX = 0;
+        public float vecDirZ = 0;
+
+        public boolean needInit = true;
 
     }
 
@@ -49,7 +55,7 @@ public class TornadoFunnel {
 
         amountPerLayer = 30;
         particleCount = amountPerLayer * 50;
-        funnelPieces = 1;
+        funnelPieces = 20;
 
 
 
@@ -67,15 +73,34 @@ public class TornadoFunnel {
             addPieceToEnd(new FunnelPiece());
         }
 
-        for (FunnelPiece piece : listFunnel) {
+        //for (FunnelPiece piece : listFunnel) {
+        for (int i = 0; i < listFunnel.size(); i++) {
+            FunnelPiece piece = listFunnel.get(i);
 
-            //temp
-            //TODO: LINK TO PREVIOUS OR NEXT PIECE IF THERE IS ONE
-            if (piece.posStart.x == 0) {
-                piece.posStart = new Vec3d(entP.posX, entP.posY, entP.posZ);
-                piece.posEnd = new Vec3d(entP.posX + 20, entP.posY + 30, entP.posZ);
+            if (piece.needInit) {
+                piece.needInit = false;
+
+                int height = 10;
+                //temp
+                //TODO: LINK TO PREVIOUS OR NEXT PIECE IF THERE IS ONE
+                if (i == 0) {
+                    piece.posStart = new Vec3d(entP.posX, entP.posY, entP.posZ);
+                    piece.posEnd = new Vec3d(entP.posX, entP.posY + height, entP.posZ);
+                    //piece.posEnd = new Vec3d(entP.posX, entP.posY + entP.getEyeHeight(), entP.posZ);
+
+                } else {
+                    Vec3d prev = listFunnel.get(i-1).posEnd;
+                    piece.posStart = new Vec3d(prev.x, prev.y, prev.z);
+                    piece.posEnd = new Vec3d(piece.posStart.x, piece.posStart.y + height, piece.posStart.z);
+                }
+
+                if (i == funnelPieces - 1) {
+                    piece.posEnd = new Vec3d(piece.posStart.x, piece.posStart.y + height, piece.posStart.z);
+                }
+
+                piece.vecDirX = rand.nextBoolean() ? 1 : -1;
+                piece.vecDirZ = rand.nextBoolean() ? 1 : -1;
             }
-            piece.posEnd = new Vec3d(entP.posX, entP.posY + entP.getEyeHeight(), entP.posZ);
 
             double dist = piece.posStart.distanceTo(piece.posEnd);
 
@@ -91,11 +116,11 @@ public class TornadoFunnel {
 
             while (piece.listParticles.size() > particleCount) {
                 piece.listParticles.get(piece.listParticles.size() - 1).setExpired();
-                piece.listParticles.remove(0);
+                piece.listParticles.remove(piece.listParticles.size() - 1);
             }
 
             while (piece.listParticles.size() < particleCount) {
-                BlockPos pos = new BlockPos(entP);
+                BlockPos pos = new BlockPos(piece.posEnd.x, piece.posEnd.y, piece.posEnd.z);
 
                 //if (entP.getDistanceSq(pos) < 10D * 10D) continue;
 
@@ -173,6 +198,18 @@ public class TornadoFunnel {
             }
         }
 
+        //reset
+        /*for (int i = 0; i < listFunnel.size(); i++) {
+            FunnelPiece piece = listFunnel.get(i);
+
+            while (piece.listParticles.size() > particleCount) {
+                piece.listParticles.get(piece.listParticles.size() - 1).setExpired();
+                piece.listParticles.remove(piece.listParticles.size() - 1);
+            }
+        }*/
+        //listFunnel.clear();
+
+
     }
 
     private void tickUpdateFunnel() {
@@ -180,7 +217,66 @@ public class TornadoFunnel {
         World world = Minecraft.getMinecraft().world;
         EntityPlayer player = Minecraft.getMinecraft().player;
 
-        for (FunnelPiece piece : listFunnel) {
+        //for (FunnelPiece piece : listFunnel) {
+        for (int ii = 0; ii < listFunnel.size(); ii++) {
+            FunnelPiece piece = listFunnel.get(ii);
+
+            /*if (ii == listFunnel.size() - 1) {
+                piece.posEnd = new Vec3d(piece.posStart.x, piece.posStart.y + 20, piece.posStart.z);
+            }*/
+
+            double rate = 0.5F/* + (ii * 0.1F)*/;
+            double distMax = 20;
+
+            Random rand = new Random();
+
+            //piece.posEnd = piece.posEnd.addVector(rate * piece.vecDirX, 0, rate * piece.vecDirZ);
+            piece.posEnd = piece.posEnd.addVector(rate * rand.nextFloat() * piece.vecDirX, 0, rate * rand.nextFloat() * piece.vecDirZ);
+
+            int offset = 360 / listFunnel.size();
+            long timeC = (world.getTotalWorldTime() * (ii+1) + (offset * ii)) * 1;
+            float range = 35F;
+
+            //piece.posEnd = new Vec3d(piece.posStart.x + Math.sin(Math.toRadians(timeC % 360)) * range, piece.posStart.y + 3, piece.posStart.z + Math.cos(Math.toRadians(timeC % 360)) * range);
+
+            //piece.posEnd.
+
+            //piece.posEnd = piece.posEnd.addVector(-1, 0, 0);
+
+            double xx = piece.posEnd.x - piece.posStart.x;
+            double zz = piece.posEnd.z - piece.posStart.z;
+            double xzDist2 = (double)MathHelper.sqrt(xx * xx + zz * zz);
+
+            if (xzDist2 > distMax) {
+                if (piece.posEnd.x - piece.posStart.x > 0) {
+                    piece.vecDirX = -1;
+                }
+
+                if (piece.posEnd.x - piece.posStart.x < 0) {
+                    piece.vecDirX = 1;
+                }
+
+                if (piece.posEnd.z - piece.posStart.z > 0) {
+                    piece.vecDirZ = -1;
+                }
+
+                if (piece.posEnd.z - piece.posStart.z < 0) {
+                    piece.vecDirZ = 1;
+                }
+            }
+
+            /*if (Math.abs(piece.posStart.x - piece.posEnd.x) > distMax) {
+                piece.vecDirX *= -1;
+            }
+
+            if (Math.abs(piece.posStart.z - piece.posEnd.z) > distMax) {
+                piece.vecDirZ *= -1;
+            }*/
+
+            if (ii > 0) {
+                Vec3d prev = listFunnel.get(ii-1).posEnd;
+                piece.posStart = new Vec3d(prev.x, prev.y, prev.z);
+            }
 
             double dist = piece.posStart.distanceTo(piece.posEnd);
 
@@ -260,6 +356,10 @@ public class TornadoFunnel {
                     float spinAngle = 360F / amountPerLayer * rotIndex;
                     float radius = 3F;
 
+                    spinAngle += time3 * 1;
+
+
+
                     ////matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
 
                     //old testing
@@ -268,7 +368,7 @@ public class TornadoFunnel {
                     //matrixFunnel.rotateY((float)Math.toRadians((time * speed) + (360F / (float)amountPerLayer * (float)rotIndex)));
 
                     matrixFunnel.rotateY(angleY);
-                    //matrixFunnel.rotateZ(angleZ);
+                    ////matrixFunnel.rotateZ(angleZ);
                     matrixFunnel.rotateX(angleX);
                     matrixFunnel.translate(new Vector3f((float)Math.sin(Math.toRadians(spinAngle)) * radius,
                             0,
@@ -346,7 +446,7 @@ public class TornadoFunnel {
                     Quaternion.mul(qY, qZ, part.rotation);
 
                     //rotate on y axis again, ok
-                    angleZ = (float)Math.toRadians(90F + (360F / (float)amountPerLayer * (float)rotIndex));
+                    angleZ = (float)Math.toRadians(90F + spinAngle);
                     qX.setFromAxisAngle(new Vector4f(0, 1, 0, angleZ));
                     Quaternion.mul(part.rotation, qX, part.rotation);
 
@@ -369,6 +469,9 @@ public class TornadoFunnel {
 
                     part.setRBGColorF(0F, 0F, 0F);
                     part.setRBGColorF(r, g, b);
+                    if (ii == 0) {
+                        //part.setRBGColorF(r, 0, 0);
+                    }
                     //part.setParticleTexture(ParticleRegistry.squareGrey);
                 }
 
