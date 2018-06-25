@@ -435,7 +435,12 @@ public class TornadoFunnel {
 
                     //part.rotation.setFromMatrix(matrixSelf.toLWJGLMathMatrix());
 
-                    //this works!
+
+                    /*angleX = (float) Math.toRadians((time * 20) % 360);
+                    angleY = (float) Math.toRadians((time * 30) % 360);
+                    angleZ = (float) Math.toRadians((time * 40) % 360);*/
+
+                    part.rotationPrev = new Quaternion(part.rotation);
 
                     Quaternion qY = new Quaternion();
                     Quaternion qX = new Quaternion();
