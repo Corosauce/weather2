@@ -3,7 +3,9 @@ package weather2.client.tornado;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.ParticleCustomMatrix;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
+import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.shader.Matrix4fe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,7 +36,7 @@ public class TornadoFunnel {
 
     static class FunnelPiece {
 
-        public List<EntityRotFX> listParticles = new ArrayList<>();
+        public List<ParticleCustomMatrix> listParticles = new ArrayList<>();
 
         public Vec3d posStart = new Vec3d(0, 0, 0);
         public Vec3d posEnd = new Vec3d(0, 20, 0);
@@ -55,7 +57,7 @@ public class TornadoFunnel {
 
         amountPerLayer = 30;
         particleCount = amountPerLayer * 50;
-        funnelPieces = 20;
+        funnelPieces = 2;
 
 
 
@@ -126,7 +128,7 @@ public class TornadoFunnel {
 
                 //pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
-                ParticleTexExtraRender rain = new ParticleTexExtraRender(entP.world,
+                ParticleCustomMatrix rain = new ParticleCustomMatrix(entP.world,
                         pos.getX() + rand.nextFloat(),
                         pos.getY(),
                         pos.getZ() + rand.nextFloat(),
@@ -149,8 +151,8 @@ public class TornadoFunnel {
                 //rain.setDontRenderUnderTopmostBlock(true);
                 rain.setSlantParticleToWind(false);
                 //rain.noExtraParticles = true;
-                rain.setExtraParticlesBaseAmount(1);
-                rain.setSeverityOfRainRate(0);
+                //rain.setExtraParticlesBaseAmount(1);
+                //rain.setSeverityOfRainRate(0);
                 rain.setDontRenderUnderTopmostBlock(false);
 
                 boolean upward = rand.nextBoolean();
@@ -193,6 +195,7 @@ public class TornadoFunnel {
                 rain.isTransparent = false;
 
                 rain.quatControl = true;
+                rain.useRotationAroundCenter = true;
 
                 piece.listParticles.add(rain);
             }
@@ -231,7 +234,7 @@ public class TornadoFunnel {
             Random rand = new Random();
 
             //piece.posEnd = piece.posEnd.addVector(rate * piece.vecDirX, 0, rate * piece.vecDirZ);
-            piece.posEnd = piece.posEnd.addVector(rate * rand.nextFloat() * piece.vecDirX, 0, rate * rand.nextFloat() * piece.vecDirZ);
+            //piece.posEnd = piece.posEnd.addVector(rate * rand.nextFloat() * piece.vecDirX, 0, rate * rand.nextFloat() * piece.vecDirZ);
 
             int offset = 360 / listFunnel.size();
             long timeC = (world.getTotalWorldTime() * (ii+1) + (offset * ii)) * 1;
@@ -295,10 +298,10 @@ public class TornadoFunnel {
 
             particleCount = layers * amountPerLayer;
 
-            Iterator<EntityRotFX> it = piece.listParticles.iterator();
+            Iterator<ParticleCustomMatrix> it = piece.listParticles.iterator();
             int i = 0;
             while (it.hasNext()) {
-                EntityRotFX part = it.next();
+                ParticleCustomMatrix part = it.next();
                 if (part.isExpired) {
                     it.remove();
                 } else {
@@ -351,46 +354,48 @@ public class TornadoFunnel {
 
                     //System.out.println(angleY);
 
-                    Matrix4fe matrixFunnel = new Matrix4fe();
+                    //Matrix4fe matrixFunnel = new Matrix4fe();
 
-                    float spinAngle = 360F / amountPerLayer * rotIndex;
+                    float spinAngle = (360F / amountPerLayer) * rotIndex;
                     float radius = 3F;
 
-                    spinAngle += time3 * 1;
+                    spinAngle += time3 * 12F;
 
+                    /*if (spinAngle > 360) {
+                        spinAngle -= 360;
+                    }*/
+                    spinAngle = spinAngle % 360;
+                    //spinAngle = 1;
 
-
-                    ////matrixFunnel.rotateX((float)Math.sin(Math.toRadians(((time - 40) * 3) % 360)) * 0.5F);
-
-                    //old testing
-                    //matrixFunnel.rotateZ((float)Math.sin(Math.toRadians((time * 3) % 360)) * 0.5F);
-                    //matrixFunnel.rotateX((float)Math.sin(Math.toRadians((time2 * 3) % 360)) * 0.5F);
-                    //matrixFunnel.rotateY((float)Math.toRadians((time * speed) + (360F / (float)amountPerLayer * (float)rotIndex)));
-
-                    matrixFunnel.rotateY(angleY);
-                    ////matrixFunnel.rotateZ(angleZ);
-                    matrixFunnel.rotateX(angleX);
-                    matrixFunnel.translate(new Vector3f((float)Math.sin(Math.toRadians(spinAngle)) * radius,
-                            0,
-                            (float)Math.cos(Math.toRadians(spinAngle)) * radius));
-                    //matrixFunnel.rotateY(angleY + (float)Math.toRadians(360F / (float)amountPerLayer * (float)rotIndex));
                     //matrixFunnel.rotateY(angleY);
-
-                    //matrixFunnel.rotateY((float)Math.toRadians((5 * 10) + (360F / (float)amountPerLayer * (float)rotIndex)));
-
-                    ////matrixFunnel.translate(new Vector3f((yIndex + 1) * 0.3F, 0, 0));
-                    //matrixFunnel.translate(new Vector3f(4.4F, 0, 0));
-                    ////matrixFunnel.translate(new Vector3f(1.45F, 0, 0));
-                    ////matrixFunnel.translate(new Vector3f(2 + (float) Math.sin(Math.toRadians((time * 3) % 360)), 0, 0));
+                    ////matrixFunnel.rotateZ(angleZ);
+                    //matrixFunnel.rotateX(angleX);
 
                     float yy = yIndex;
 
-                    //matrixFunnel.translate(new Vector3f(0, (yIndex - (yCount/2)) * 0.95F, 0));
-                    matrixFunnel.translate(new Vector3f(0, yy, 0));
+                    ////matrixFunnel.translate(new Vector3f(0, (yIndex - (yCount/2)) * 0.95F, 0));
+                    //matrixFunnel.translate(new Vector3f(0, yy, 0));
 
-                    Vector3f posParticle = matrixFunnel.getTranslation();
+                    //replaced with interpolatable version
+                    /*matrixFunnel.translate(new Vector3f((float)Math.sin(Math.toRadians(spinAngle)) * radius,
+                            0,
+                            (float)Math.cos(Math.toRadians(spinAngle)) * radius));*/
 
-                    part.setPosition(piece.posStart.x + posParticle.x, piece.posStart.y + posParticle.y, piece.posStart.z + posParticle.z);
+                    part.rotationAroundCenterPrev = part.rotationAroundCenter;
+                    part.rotationAroundCenter = spinAngle;
+                    part.rotationDistAroundCenter = radius;
+
+                    part.yy = yy;
+                    part.angleX = angleX;
+                    part.angleY = angleY;
+                    part.angleZ = angleZ;
+
+                    //Vector3f posParticle = matrixFunnel.getTranslation();
+
+                    //part.setPosition(piece.posStart.x + posParticle.x, piece.posStart.y + posParticle.y, piece.posStart.z + posParticle.z);
+
+                    //instead setup base position and calculate rest in render for interpolation sake
+                    part.setPosition(piece.posStart.x, piece.posStart.y, piece.posStart.z);
 
                     Matrix4fe matrixSelf = new Matrix4fe();
 
