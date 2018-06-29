@@ -349,6 +349,9 @@ public class WindManager {
 	            tickClient();
 			}
 		}
+
+		/*windSpeedGlobal = 0.3F;
+		windAngleGlobal = 0;*/
 		
 	}
 	

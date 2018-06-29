@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.EntityAIMoveIndoors;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,6 +24,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -36,6 +38,7 @@ import org.lwjgl.opengl.EXTFogCoord;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
+import weather2.api.WeatherUtilData;
 import weather2.client.SceneEnhancer;
 import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigFoliage;
@@ -43,6 +46,7 @@ import weather2.config.ConfigMisc;
 import weather2.entity.AI.EntityAIMoveIndoorsStorm;
 import weather2.util.UtilEntityBuffsMini;
 import weather2.weathersystem.storm.TornadoHelper;
+import weather2.weathersystem.wind.WindManager;
 
 public class EventHandlerForge {
 
@@ -289,5 +293,18 @@ public class EventHandlerForge {
 				event.setCanceled(true);
 			}
 		}
+	}
+
+	@SubscribeEvent
+	public void onEntityLivingUpdate(LivingEvent.LivingUpdateEvent event) {
+
+		Entity ent = event.getEntity();
+		if (!ent.world.isRemote) {
+			if (WeatherUtilData.isWindAffected(ent)) {
+				WindManager windMan = ServerTickHandler.getWeatherSystemForDim(ent.world.provider.getDimension()).windMan;
+				windMan.applyWindForceNew(ent, 1F / 20F, 0.5F);
+			}
+		}
+
 	}
 }

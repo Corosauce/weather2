@@ -17,6 +17,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import weather2.ClientTickHandler;
+import weather2.api.WeatherUtilData;
 import weather2.entity.EntityMovingBlock;
 import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
@@ -129,14 +130,24 @@ public class WeatherUtilEntity {
             //System.out.println(((EntityLivingBase)entity1).entityAge+150);
             //int age = ((Integer)entToAge.get(entity1)).intValue();
             //System.out.println(age);
-            if (forTornado) {
-            	//System.out.println(1.0F + ((c_CoroWeatherUtil.getEntityAge((EntityLivingBase)entity1) + 150) / 50));
-            	//Weather.dbg("airTime: " + airTime);
-            	return 0.5F + (((float)airTime) / 800F);
-            } else {
-            	return 500.0F + (livingEnt.onGround ? 2.0F : 0.0F) + ((airTime) / 400);
-            }
             
+        }
+
+        if (entity1 instanceof Entity) {
+            Entity ent = (Entity) entity1;
+            if (WeatherUtilData.isWindWeightSet(ent) && (forTornado || WeatherUtilData.isWindAffected(ent))) {
+                return WeatherUtilData.getWindWeight(ent);
+            }
+        }
+
+        if (entity1 instanceof EntityLivingBase) {
+            EntityLivingBase livingEnt = (EntityLivingBase) entity1;
+            int airTime = livingEnt.getEntityData().getInteger("timeInAir");
+            if (forTornado) {
+                return 0.5F + (((float)airTime) / 800F);
+            } else {
+                return 500.0F + (livingEnt.onGround ? 2.0F : 0.0F) + ((airTime) / 400);
+            }
         }
 
         if (/*entity1 instanceof EntitySurfboard || */entity1 instanceof EntityBoat || entity1 instanceof EntityItem/* || entity1 instanceof EntityTropicalFishHook*/ || entity1 instanceof EntityFishHook)

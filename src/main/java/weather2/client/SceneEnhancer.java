@@ -2076,7 +2076,7 @@ public class SceneEnhancer implements Runnable {
             }*/
         }
 
-        //this was code to push play around if really windy, lets not do this anymore, who slides around in wind IRL?
+        //this was code to push player around if really windy, lets not do this anymore, who slides around in wind IRL?
         //maybe maybe if a highwind/hurricane state is active, adjust their ACTIVE movement to adhere to wind vector
         /*if (windMan.getWindSpeedForPriority() >= 0.70)
         {
@@ -2087,6 +2087,7 @@ public class SceneEnhancer implements Runnable {
         }*/
 
         //NEEEEEEEED TO STOP WIND WHEN UNDERGROUND!
+		//we kinda did, is it good enough?
         float volScaleFar = windMan.getWindSpeedForPriority() * 1F;
 
         if (windMan.getWindSpeedForPriority() <= 0.07F)
