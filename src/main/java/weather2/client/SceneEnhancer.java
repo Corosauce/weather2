@@ -563,7 +563,7 @@ public class SceneEnhancer implements Runnable {
 				//ConfigCoroAI.optimizedCloudRendering = false;
 			}
 
-			boolean particleTest = true;
+			boolean particleTest = false;
 
 			if (particleTest) {
 				if (testParticle == null || testParticle.isExpired) {
@@ -889,7 +889,7 @@ public class SceneEnhancer implements Runnable {
 				funnel.pos = new Vec3d(entP.posX, entP.posY, entP.posZ);
 			}
 
-			funnel.tickGame();
+			//funnel.tickGame();
 
 			boolean testLeaf = false;
 			if (testLeaf) {
