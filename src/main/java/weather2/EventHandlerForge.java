@@ -1,6 +1,7 @@
 package weather2;
 
 import java.nio.FloatBuffer;
+import java.util.List;
 
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
@@ -13,10 +14,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIMoveIndoors;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraftforge.client.event.*;
@@ -304,6 +307,25 @@ public class EventHandlerForge {
 				WindManager windMan = ServerTickHandler.getWeatherSystemForDim(ent.world.provider.getDimension()).windMan;
 				windMan.applyWindForceNew(ent, 1F / 20F, 0.5F);
 			}
+
+			//test, clean example of spin entity around other entity
+			/*if (ent instanceof EntityPlayer) {
+				EntityPlayer player = (EntityPlayer) ent;
+				List<EntityLivingBase> ents = ent.world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(ent.getPosition()).grow(10, 10, 10));
+				for (Entity entToSpin : ents) {
+					//get the vector of x and z
+					double vecX = player.posX - entToSpin.posX;
+					double vecZ = player.posZ - entToSpin.posZ;
+					//atan2 will give you the angle for yaw, for how minecraft works this will be 90 degrees off from an angle that will aim it directly at center entity
+					float yawDegrees = (float)(Math.toDegrees(Math.atan2(vecZ, vecX)));
+					//make the spin a bit tighter around the center entity, subtracting a full 90 degrees pulls it right towards you
+					yawDegrees -= 10;
+					float speed = 0.2F;
+					entToSpin.motionX += -Math.sin(Math.toRadians(yawDegrees)) * speed;
+					entToSpin.motionZ += Math.cos(Math.toRadians(yawDegrees)) * speed;
+				}
+
+			}*/
 		}
 
 	}

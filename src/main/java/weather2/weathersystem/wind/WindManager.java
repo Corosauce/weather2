@@ -350,8 +350,8 @@ public class WindManager {
 			}
 		}
 
-		/*windSpeedGlobal = 0.3F;
-		windAngleGlobal = 0;*/
+		/*windSpeedGlobal = 0.9F;
+		windAngleGlobal = 270;*/
 		
 	}
 	

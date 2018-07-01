@@ -2022,9 +2022,8 @@ public class SceneEnhancer implements Runnable {
 	                    {
 	                        if ((entity1 instanceof ParticleFlame))
 	                        {
-	                        	if (windMan.getWindSpeedForPriority() >= 0.50) {
-	                        		entity1.particleAge += 2;
-	                        		//WeatherUtilParticle.setParticleAge((Particle)entity1, WeatherUtilParticle.getParticleAge((Particle)entity1) + 2);
+	                        	if (windMan.getWindSpeedForPriority() >= 0.20) {
+	                        		entity1.particleAge += 1;
 								}
 	                        }
 	                        else if (entity1 instanceof IWindHandler) {
@@ -2032,11 +2031,11 @@ public class SceneEnhancer implements Runnable {
 	                            {
 	                        		entity1.particleAge += ((IWindHandler)entity1).getParticleDecayExtra();
 	                            }
-	                        }
+	                        }/*
 	                        else if (WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
 	                        {
 								entity1.particleAge += 1;
-	                        }
+	                        }*/
 	
 	                        //rustle!
 	                        if (!(entity1 instanceof EntityWaterfallFX)) {
