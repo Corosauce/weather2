@@ -38,6 +38,12 @@ public class WeatherUtilEntity {
     public static float getWeight(Object entity1, boolean forTornado)
     {
     	World world = CoroUtilEntOrParticle.getWorld(entity1);
+
+    	//fixes issue #270
+        if (world == null) {
+            return 1F;
+        }
+
     	if (entity1 instanceof IWindHandler) {
     		return ((IWindHandler) entity1).getWindWeight();
     	}
