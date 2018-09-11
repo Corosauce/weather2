@@ -1,0 +1,13 @@
+itemGroup.Weather2=Weather2
+tile.weather2.tornado_sensor.name=暴风传感器
+tile.weather2.tornado_siren.name=天气警报器
+tile.weather2.tornado_siren_manual.name=红石警报器
+tile.weather2.wind_vane.name=风向标
+tile.weather2.weather_forecast.name=气象雷达
+tile.weather2.weather_machine.name=天气生成器(右击切换)
+tile.weather2.weather_deflector.name=天气偏转器
+tile.weather2.anemometer.name=风速计
+tile.weather2.sand_layer.name=可放置沙层
+item.weather2.weather_item.name=天气道具
+item.weather2.sand_layer_placeable.name=可放置沙层
+item.weather2.pocket_sand.name=便携式沙子
