@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import CoroUtil.forge.CULog;
 import net.minecraft.util.math.*;
 import weather2.CommonProxy;
 import weather2.block.BlockSandLayer;
@@ -453,7 +454,7 @@ public class WeatherUtilBlock {
 			}
 		}
 		
-		System.out.println("leftover: " + amountWeHave);
+		CULog.dbg("leftover: " + amountWeHave);
 	}
 	
 	public static int tryTakeFromPos(World world, BlockPos posTakeFrom, int amount, int amountAllowedToTakeForXZ, int maxDropAllowed, Block blockLayerable) {
@@ -569,7 +570,7 @@ public class WeatherUtilBlock {
 		//at this point the block we are about to work with is solid facing up, or snow
 		if (!stateCheckPlaceable.isSideSolid(world, posCheckPlaceable, EnumFacing.UP) && 
 					stateCheckPlaceable.getBlock() != blockLayerable) {
-			System.out.println("shouldnt be, failed a check somewhere!");
+			CULog.err("sandstorm: shouldnt be, failed a check somewhere!");
 			return amount;
 		}
 		
@@ -644,12 +645,12 @@ public class WeatherUtilBlock {
 					statePlaceLayerable = world.getBlockState(posPlaceLayerable);
 				}
 			} else {
-				System.out.println("wat! - " + statePlaceLayerable);
+				CULog.dbg("wat! - " + statePlaceLayerable);
 			}
 		}
 		
 		if (amountAllowedToAdd < 0) {
-			System.out.println("wat");
+			CULog.dbg("wat");
 		}
 		int amountAdded = amountToAdd - amountAllowedToAdd;
 		amount -= amountAdded;
@@ -741,8 +742,8 @@ public class WeatherUtilBlock {
 		boolean foundSpotToSpread = false;
 		
 		int heightToUse = getHeightForLayeredBlock(state);
-		
-		System.out.println("try smooth out");
+
+		CULog.dbg("try smooth out");
 		
 		if (heightToUse > 2) {
 			for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
