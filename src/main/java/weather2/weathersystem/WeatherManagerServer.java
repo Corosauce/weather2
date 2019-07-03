@@ -1,7 +1,11 @@
 package weather2.weathersystem;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -65,16 +69,19 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//sync storms
 			
 			//System.out.println("getStormObjects().size(): " + getStormObjects().size());
-			
-			for (int i = 0; i < getStormObjects().size(); i++) {
+
+			/*for (int i = 0; i < getStormObjects().size(); i++) {
 				WeatherObject wo = getStormObjects().get(i);
 				int updateRate = wo.getUpdateRateForNetwork();
 				if (world.getTotalWorldTime() % updateRate == 0) {
 					syncStormUpdate(wo);
 				}
-			}
-			
-			
+			}*/
+
+			getStormObjects().stream()
+					.filter(wo -> world.getTotalWorldTime() % wo.getUpdateRateForNetwork() == 0)
+					.forEach(this::syncStormUpdate);
+
 			//sync volcanos
 			if (world.getTotalWorldTime() % 40 == 0) {
 				for (int i = 0; i < getVolcanoObjects().size(); i++) {
@@ -98,7 +105,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//sim box work
 			int rate = 20;
 			if (world.getTotalWorldTime() % rate == 0) {
-				for (int i = 0; i < getStormObjects().size(); i++) {
+				/*for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
 					EntityPlayer closestPlayer = WeatherUtilEntity.getClosestPlayerAny(world, so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
 					
@@ -119,7 +126,39 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					} else {
 						so.ticksSinceNoNearPlayer = 0;
 					}
+				}*/
+
+				if (world.getTotalWorldTime() % rate == 0) {
+					if (ConfigMisc.Aesthetic_Only_Mode) {
+						getStormObjects().stream().forEach(this::removeWeatherObjectAndSync);
+					} else {
+						/*getStormObjects().stream()
+								.filter(wo -> WeatherUtilEntity.getClosestPlayerAny(world, wo.posGround.xCoord, wo.posGround.yCoord, wo.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff) == null)
+								.peek(wo -> wo.ticksSinceNoNearPlayer += rate)
+								.filter(wo -> wo.ticksSinceNoNearPlayer > 20 * 30)
+								.forEach(this::removeWeatherObjectAndSync);*/
+
+						//streams are probably not actually ideal for this situation since we need to run code on both states of player presence
+						//and streams work best for just filtering out instead of splitting, and running .stream() 3 times is costly probably
+
+						//split weather objects into list of ones near player and ones not
+						Map<Boolean, List<WeatherObject>> playersNearWeatherObjects = getStormObjects()
+								.stream()
+								.collect(Collectors.partitioningBy(wo -> WeatherUtilEntity.getClosestPlayerAny(world, wo.posGround.xCoord, wo.posGround.yCoord, wo.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff) != null));
+
+						//ones near
+						playersNearWeatherObjects.get(true).stream()
+								.forEach(wo -> wo.ticksSinceNoNearPlayer = 0);
+
+						//ones not near
+						playersNearWeatherObjects.get(false).stream()
+								.peek(wo -> wo.ticksSinceNoNearPlayer += rate)
+								.filter(wo -> wo.ticksSinceNoNearPlayer > 20 * 30)
+								.forEach(this::removeWeatherObjectAndSync);
+					}
 				}
+
+
 
 				Random rand = new Random();
 
@@ -616,6 +655,16 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.setBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
 		data.setInteger("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+	}
+
+	public void removeWeatherObjectAndSync(WeatherObject parStorm) {
+		if (getWorld().playerEntities.size() == 0) {
+			Weather.dbg("removing distant storm: " + parStorm.ID + ", running without players");
+		} else {
+			Weather.dbg("removing distant storm: " + parStorm.ID);
+		}
+		removeStormObject(parStorm.ID);
+		syncStormRemove(parStorm);
 	}
 	
 }
