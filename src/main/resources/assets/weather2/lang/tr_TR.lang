@@ -1,0 +1,12 @@
+itemGroup.Weather2=Weather 2 Eşyaları
+tile.weather2.tornado_sensor.name=Kasırga Sensörü
+tile.weather2.tornado_siren.name=Hava Sireni
+tile.weather2.wind_vane.name=Rüzgar Gülü
+tile.weather2.weather_forecast.name=Hava Radarı
+tile.weather2.weather_machine.name=Hava Makinesi (döngü için sağ tıklayın)
+tile.weather2.weather_deflector.name=Hava Deflektörü
+tile.weather2.anemometer.name=Rüzgarölçer
+tile.weather2.sand_layer.name=Yerleştirilebilir Kum Tabaka
+item.weather2.weather_item.name=Hava Eşyası
+item.weather2.sand_layer_placeable.name=Yerleştirilebilir Kum Tabaka
+item.weather2.pocket_sand.name=Bir Tutam Kum!
