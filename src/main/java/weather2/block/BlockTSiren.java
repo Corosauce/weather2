@@ -66,7 +66,7 @@ public class BlockTSiren extends ContainerBlock
     {
         int i = 0;
 
-        if (!((Boolean)state.getValue(ENABLED)).booleanValue())
+        if (!((Boolean)state.get(ENABLED)).booleanValue())
         {
             i |= 8;
         }
@@ -95,7 +95,7 @@ public class BlockTSiren extends ContainerBlock
     {
         boolean flag = !worldIn.isBlockPowered(pos);
 
-        if (flag != ((Boolean)state.getValue(ENABLED)).booleanValue())
+        if (flag != ((Boolean)state.get(ENABLED)).booleanValue())
         {
             worldIn.setBlockState(pos, state.withProperty(ENABLED, Boolean.valueOf(flag)), 3);
         }
@@ -107,3 +107,4 @@ public class BlockTSiren extends ContainerBlock
         this.updateState(worldIn, pos, state);
     }
 }
+

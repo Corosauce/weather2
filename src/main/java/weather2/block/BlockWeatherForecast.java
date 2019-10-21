@@ -44,3 +44,4 @@ public class BlockWeatherForecast extends ContainerBlock
         return BlockRenderType.MODEL;
     }
 }
+

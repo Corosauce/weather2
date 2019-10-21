@@ -108,3 +108,4 @@ public class WeatherTypes {
         weatherEntTypes.add(sConf);*/
 	}
 }
+

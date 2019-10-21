@@ -71,12 +71,12 @@ public class ClientProxy extends CommonProxy
     	
     	//TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
         
-        addMapping(EntityIceBall.class, new RenderFlyingBlock(Minecraft.getMinecraft().getRenderManager(), Blocks.ICE));
-        addMapping(EntityMovingBlock.class, new RenderFlyingBlock(Minecraft.getMinecraft().getRenderManager(), null));
-        addMapping(EntityLightningBolt.class, new RenderLightningBolt(Minecraft.getMinecraft().getRenderManager()));
-        addMapping(EntityLightningBoltCustom.class, new RenderLightningBoltCustom(Minecraft.getMinecraft().getRenderManager()));
-        /*addMapping(EntityFallingRainFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));
-        addMapping(EntityFallingSnowFX.class, new RenderNull(Minecraft.getMinecraft().getRenderManager()));*/
+        addMapping(EntityIceBall.class, new RenderFlyingBlock(Minecraft.getInstance().getRenderManager(), Blocks.ICE));
+        addMapping(EntityMovingBlock.class, new RenderFlyingBlock(Minecraft.getInstance().getRenderManager(), null));
+        addMapping(EntityLightningBolt.class, new RenderLightningBolt(Minecraft.getInstance().getRenderManager()));
+        addMapping(EntityLightningBoltCustom.class, new RenderLightningBoltCustom(Minecraft.getInstance().getRenderManager()));
+        /*addMapping(EntityFallingRainFX.class, new RenderNull(Minecraft.getInstance().getRenderManager()));
+        addMapping(EntityFallingSnowFX.class, new RenderNull(Minecraft.getInstance().getRenderManager()));*/
         
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTSiren.class, new TileEntityTSirenRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWindVane.class, new TileEntityWindVaneRenderer());
@@ -122,20 +122,20 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomModelResourceLocation(item, meta, location);
 
         //using this for now
-        //Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
+        //Minecraft.getInstance().getItemRenderer().getItemModelMesher().register(item, meta, location);
     }
     
     /*@Override
 	public void registerItemVariantModel(Item item, String name, int metadata) {
 		if (item != null) {
-            Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
+            Minecraft.getInstance().getItemRenderer().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
 		}
 	}
 
 	@Override
 	public void registerItemVariantModel(Item item, String registryName, int metadata, String variantName) {
 		if (item != null) {
-            Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
+            Minecraft.getInstance().getItemRenderer().getItemModelMesher().register(item, metadata, new ModelResourceLocation(Weather.modID + ":" + variantName, null));
 		}
 	}*/
 
@@ -162,3 +162,4 @@ public class ClientProxy extends CommonProxy
         //IReload
     }
 }
+

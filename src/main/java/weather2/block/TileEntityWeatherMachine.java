@@ -67,8 +67,8 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	}
 	
 	@Override
-	public void invalidate() {
-		super.invalidate();
+	public void remove() {
+		super.remove();
 
 		killStorm();
 	}
@@ -88,7 +88,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
 	}
 	
 	@Override
-    public void update()
+    public void tick()
     {
     	if (!world.isRemote) {
 
@@ -104,7 +104,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     		
     		//weatherType = 3;
     		
-    		if (world.getTotalWorldTime() % 40 == 0) {
+    		if (world.getGameTime() % 40 == 0) {
     			
     			if (lastTickStormObject != null && lastTickStormObject.isDead) {
     				lastTickStormObject = null;
@@ -193,21 +193,22 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     }
 
 	@Override
-    public CompoundNBT writeToNBT(CompoundNBT var1)
+    public CompoundNBT write(CompoundNBT var1)
     {
-        var1.setInteger("weatherType", weatherType);
-        var1.setLong("lastTickStormObjectID", lastTickStormObjectID);
-        return super.writeToNBT(var1);
+        var1.putInt("weatherType", weatherType);
+        var1.putLong("lastTickStormObjectID", lastTickStormObjectID);
+        return super.write(var1);
     }
 
 	@Override
-    public void readFromNBT(CompoundNBT var1)
+    public void read(CompoundNBT var1)
     {
-        super.readFromNBT(var1);
-        weatherType = var1.getInteger("weatherType");
-        if (var1.hasKey("lastTickStormObjectID")) {
+        super.read(var1);
+        weatherType = var1.getInt("weatherType");
+        if (var1.contains("lastTickStormObjectID")) {
 			lastTickStormObjectID = var1.getLong("lastTickStormObjectID");
 		}
 
     }
 }
+

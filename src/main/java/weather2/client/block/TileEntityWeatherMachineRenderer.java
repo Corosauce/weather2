@@ -11,3 +11,4 @@ public class TileEntityWeatherMachineRenderer extends TileEntityRenderer
     	
     }
 }
+

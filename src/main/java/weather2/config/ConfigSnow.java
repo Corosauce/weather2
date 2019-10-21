@@ -41,3 +41,4 @@ public class ConfigSnow implements IConfigCategory {
 
     }
 }
+

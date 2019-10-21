@@ -101,3 +101,4 @@ public class TileEntityAnemometerRenderer extends TileEntityRenderer
     	
     }
 }
+

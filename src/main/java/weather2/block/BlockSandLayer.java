@@ -52,13 +52,13 @@ public class BlockSandLayer extends Block
     @Override
     public AxisAlignedBB getBoundingBox(BlockState state, IBlockAccess source, BlockPos pos)
     {
-        return SAND_AABB[((Integer)state.getValue(LAYERS)).intValue()];
+        return SAND_AABB[((Integer)state.get(LAYERS)).intValue()];
     }
 
     @Override
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
-        return ((Integer)worldIn.getBlockState(pos).getValue(LAYERS)).intValue() < 5;
+        return ((Integer)worldIn.getBlockState(pos).get(LAYERS)).intValue() < 5;
     }
 
     /**
@@ -67,15 +67,15 @@ public class BlockSandLayer extends Block
     @Override
     public boolean isTopSolid(BlockState state)
     {
-        //return ((Integer)state.getValue(LAYERS)).intValue() == 7;
-    	return ((Integer)state.getValue(LAYERS)).intValue() == 8;
+        //return ((Integer)state.get(LAYERS)).intValue() == 7;
+    	return ((Integer)state.get(LAYERS)).intValue() == 8;
     }
 
     @Override
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(BlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
-        int i = ((Integer)blockState.getValue(LAYERS)).intValue();
+        int i = ((Integer)blockState.get(LAYERS)).intValue();
         float f = 0.125F;
         AxisAlignedBB axisalignedbb = blockState.getBoundingBox(worldIn, pos);
         return new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.maxX, (double)((float)i * 0.125F), axisalignedbb.maxZ);
@@ -87,27 +87,27 @@ public class BlockSandLayer extends Block
     @Override
     public boolean isOpaqueCube(BlockState state)
     {
-        return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
+        return ((Integer)state.get(LAYERS)).intValue() >= 8;
     }
 
     @Override
     public boolean isFullCube(BlockState state)
     {
-        return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
+        return ((Integer)state.get(LAYERS)).intValue() >= 8;
     }
     
     //TODO: for testing heightmap issue
     /*@Override
     public boolean isFullBlock(IBlockState state) {
-    	return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
+    	return ((Integer)state.get(LAYERS)).intValue() >= 8;
     }*/
 
     @Override
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         BlockState iblockstate = worldIn.getBlockState(pos.down());
-        Block block = iblockstate.getBlock();
-        return /*block != Blocks.ICE && block != Blocks.PACKED_ICE ? */(iblockstate.getBlock().isLeaves(iblockstate, worldIn, pos.down()) ? true : (block == this && ((Integer)iblockstate.getValue(LAYERS)).intValue() >= 7 ? true : iblockstate.isOpaqueCube() && iblockstate.getMaterial().blocksMovement()))/* : false*/;
+        Block block = iblockstate.getOwner();
+        return /*block != Blocks.ICE && block != Blocks.PACKED_ICE ? */(iblockstate.getOwner().isLeaves(iblockstate, worldIn, pos.down()) ? true : (block == this && ((Integer)iblockstate.get(LAYERS)).intValue() >= 7 ? true : iblockstate.isOpaqueCube() && iblockstate.getMaterial().blocksMovement()))/* : false*/;
     }
 
     /**
@@ -161,7 +161,7 @@ public class BlockSandLayer extends Block
     }
 
 
-    /*public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    /*public void tick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
         if (worldIn.getLightFor(EnumSkyBlock.BLOCK, pos) > 11)
         {
@@ -180,7 +180,7 @@ public class BlockSandLayer extends Block
         else
         {
             BlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
-            return iblockstate.getBlock() == this && ((Integer)iblockstate.getValue(LAYERS)).intValue() >= ((Integer)blockState.getValue(LAYERS)).intValue() ? true : super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+            return iblockstate.getOwner() == this && ((Integer)iblockstate.get(LAYERS)).intValue() >= ((Integer)blockState.get(LAYERS)).intValue() ? true : super.shouldSideBeRendered(blockState, blockAccess, pos, side);
         }
     }
 
@@ -199,7 +199,7 @@ public class BlockSandLayer extends Block
     @Override
     public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
     {
-        return ((Integer)worldIn.getBlockState(pos).getValue(LAYERS)).intValue() == 1;
+        return ((Integer)worldIn.getBlockState(pos).get(LAYERS)).intValue() == 1;
     }
 
     /**
@@ -208,10 +208,10 @@ public class BlockSandLayer extends Block
     @Override
     public int getMetaFromState(BlockState state)
     {
-        return ((Integer)state.getValue(LAYERS)).intValue() - 1;
+        return ((Integer)state.get(LAYERS)).intValue() - 1;
     }
 
-    @Override public int quantityDropped(BlockState state, int fortune, Random random){ return ((Integer)state.getValue(LAYERS)); }
+    @Override public int quantityDropped(BlockState state, int fortune, Random random){ return ((Integer)state.get(LAYERS)); }
 
     @Override
     protected BlockStateContainer createBlockState()
@@ -224,7 +224,7 @@ public class BlockSandLayer extends Block
     public boolean isSideSolid(IBlockState base_state, IBlockAccess world,
     		BlockPos pos, EnumFacing side) {
     	IBlockState state = this.getActualState(base_state, world, pos);
-        return ((Integer)state.getValue(LAYERS)) >= 8;
+        return ((Integer)state.get(LAYERS)) >= 8;
     }*/
 
     @Override

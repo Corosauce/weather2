@@ -110,7 +110,7 @@ public class EventHandlerFML {
 				if (hackyLiveReplace && EventHandler.flagFoliageUpdate) {
 					CULog.dbg("CoroUtil detected a need to reload resource packs, initiating");
 					EventHandler.flagFoliageUpdate = false;
-					//Minecraft.getMinecraft().refreshResources();
+					//Minecraft.getInstance().refreshResources();
 					FoliageEnhancerShader.liveReloadModels();
 				}
 
@@ -171,3 +171,4 @@ public class EventHandlerFML {
 
 	}
 }
+

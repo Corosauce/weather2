@@ -34,19 +34,19 @@ public class ItemSandLayer extends ItemBlockBetter
         if (!stack.isEmpty() && playerIn.canPlayerEdit(pos, facing, stack))
         {
             BlockState iblockstate = worldIn.getBlockState(pos);
-            Block block = iblockstate.getBlock();
+            Block block = iblockstate.getOwner();
             BlockPos blockpos = pos;
 
             if ((facing != Direction.UP || block != this.block) && !block.isReplaceable(worldIn, pos))
             {
                 blockpos = pos.offset(facing);
                 iblockstate = worldIn.getBlockState(blockpos);
-                block = iblockstate.getBlock();
+                block = iblockstate.getOwner();
             }
 
             if (block == this.block)
             {
-                int i = ((Integer)iblockstate.getValue(BlockSandLayer.LAYERS)).intValue();
+                int i = ((Integer)iblockstate.get(BlockSandLayer.LAYERS)).intValue();
 
                 if (i <= 7)
                 {
@@ -86,6 +86,6 @@ public class ItemSandLayer extends ItemBlockBetter
     public boolean canPlaceBlockOnSide(World world, BlockPos pos, Direction side, PlayerEntity player, ItemStack stack)
     {
         BlockState state = world.getBlockState(pos);
-        return (state.getBlock() != CommonProxy.blockSandLayer || ((Integer)state.getValue(BlockSandLayer.LAYERS)) > 7) ? super.canPlaceBlockOnSide(world, pos, side, player, stack) : true;
+        return (state.getOwner() != CommonProxy.blockSandLayer || ((Integer)state.get(BlockSandLayer.LAYERS)) > 7) ? super.canPlaceBlockOnSide(world, pos, side, player, stack) : true;
     }
 }

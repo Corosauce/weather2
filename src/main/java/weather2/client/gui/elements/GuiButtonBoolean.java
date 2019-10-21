@@ -44,14 +44,14 @@ public class GuiButtonBoolean extends Button
     }
     
     public void setBooleanToggle() {
-    	setBoolean(!getBoolean());
+    	putBoolean(!getBoolean());
     }
     
     public boolean getBoolean() {
     	return boolState;
     }
     
-    public void setBoolean(boolean val) {
+    public void putBoolean(boolean val) {
     	boolState = val;
     }
 
@@ -136,3 +136,4 @@ public class GuiButtonBoolean extends Button
         return /*this.enabled && */this.visible && par2 >= this.x && par3 >= this.y && par2 < this.x + this.width && par3 < this.y + this.height;
     }
 }
+

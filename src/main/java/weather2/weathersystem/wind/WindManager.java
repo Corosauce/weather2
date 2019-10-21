@@ -384,7 +384,7 @@ public class WindManager {
 		
 		//event data
 		if (entP != null) {
-	        if (manager.getWorld().getTotalWorldTime() % 10 == 0) {
+	        if (manager.getWorld().getGameTime() % 10 == 0) {
 	        	StormObject so = manager.getClosestStorm(new Vec3(entP.posX, StormObject.layers.get(0), entP.posZ), 256, StormObject.STATE_HIGHWIND);
 
 	        	if (so != null) {
@@ -414,16 +414,16 @@ public class WindManager {
 		
 		//idea: only sync the wind data client cares about (the active priority wind)
 		
-		data.setFloat("windSpeedGlobal", windSpeedGlobal);
-		data.setFloat("windAngleGlobal", windAngleGlobal);
-		data.setFloat("windSpeedGust", windSpeedGust);
-		data.setFloat("windAngleGust", windAngleGust);
+		data.putFloat("windSpeedGlobal", windSpeedGlobal);
+		data.putFloat("windAngleGlobal", windAngleGlobal);
+		data.putFloat("windSpeedGust", windSpeedGust);
+		data.putFloat("windAngleGust", windAngleGust);
 		
-		/*data.setFloat("windSpeedEvent", windSpeedEvent);
-		data.setFloat("windAngleEvent", windAngleEvent);
-		data.setInteger("windTimeEvent", windTimeEvent);*/
+		/*data.putFloat("windSpeedEvent", windSpeedEvent);
+		data.putFloat("windAngleEvent", windAngleEvent);
+		data.putInt("windTimeEvent", windTimeEvent);*/
 		
-		data.setInteger("windTimeGust", windTimeGust);
+		data.putInt("windTimeGust", windTimeGust);
 		
 		return data;
 	}
@@ -437,9 +437,9 @@ public class WindManager {
 		
 		/*windSpeedEvent = parNBT.getFloat("windSpeedEvent");
 		windAngleEvent = parNBT.getFloat("windAngleEvent");
-		windTimeEvent = parNBT.getInteger("windTimeEvent");*/
+		windTimeEvent = parNBT.getInt("windTimeEvent");*/
 		
-		windTimeGust = parNBT.getInteger("windTimeGust");
+		windTimeGust = parNBT.getInt("windTimeGust");
 	}
 	
 	public void syncData() {
@@ -569,37 +569,37 @@ public class WindManager {
 		return new Vec3(windX, 0, windZ);
 	}
 
-    public void readFromNBT(CompoundNBT data) {
+    public void read(CompoundNBT data) {
         windSpeedGlobal = data.getFloat("windSpeedGlobal");
         windAngleGlobal = data.getFloat("windAngleGlobal");
 
         windSpeedGust = data.getFloat("windSpeedGust");
         windAngleGust = data.getFloat("windAngleGust");
-        windTimeGust = data.getInteger("windTimeGust");
+        windTimeGust = data.getInt("windTimeGust");
 
 		windSpeedEvent = data.getFloat("windSpeedEvent");
 		windAngleEvent = data.getFloat("windAngleEvent");
-		windTimeEvent = data.getInteger("windTimeEvent");
+		windTimeEvent = data.getInt("windTimeEvent");
 
-        lowWindTimer = data.getInteger("lowWindTimer");
-        highWindTimer = data.getInteger("highWindTimer");
+        lowWindTimer = data.getInt("lowWindTimer");
+        highWindTimer = data.getInt("highWindTimer");
 
     }
 
-    public CompoundNBT writeToNBT(CompoundNBT data) {
-        data.setFloat("windSpeedGlobal", windSpeedGlobal);
-        data.setFloat("windAngleGlobal", windAngleGlobal);
+    public CompoundNBT write(CompoundNBT data) {
+        data.putFloat("windSpeedGlobal", windSpeedGlobal);
+        data.putFloat("windAngleGlobal", windAngleGlobal);
 
-        data.setFloat("windSpeedGust", windSpeedGust);
-        data.setFloat("windAngleGust", windAngleGust);
-        data.setInteger("windTimeGust", windTimeGust);
+        data.putFloat("windSpeedGust", windSpeedGust);
+        data.putFloat("windAngleGust", windAngleGust);
+        data.putInt("windTimeGust", windTimeGust);
 
-		data.setFloat("windSpeedEvent", windSpeedEvent);
-		data.setFloat("windAngleEvent", windAngleEvent);
-		data.setInteger("windTimeEvent", windTimeEvent);
+		data.putFloat("windSpeedEvent", windSpeedEvent);
+		data.putFloat("windAngleEvent", windAngleEvent);
+		data.putInt("windTimeEvent", windTimeEvent);
 
-        data.setInteger("lowWindTimer", lowWindTimer);
-        data.setInteger("highWindTimer", highWindTimer);
+        data.putInt("lowWindTimer", lowWindTimer);
+        data.putInt("highWindTimer", highWindTimer);
 
 
 
@@ -607,3 +607,4 @@ public class WindManager {
         return data;
     }
 }
+

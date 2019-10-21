@@ -212,7 +212,7 @@ public class ClientTickHandler
 				}
 			}
 
-			if (!Minecraft.getMinecraft().isGamePaused()) {
+			if (!Minecraft.getInstance().isGamePaused()) {
 
 				ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
 				//ExtendedRenderer.foliageRenderer.windDir-=1;
@@ -294,8 +294,8 @@ public class ClientTickHandler
 
 		//request a full sync from server
 		CompoundNBT data = new CompoundNBT();
-		data.setString("command", "syncFull");
-		data.setString("packetCommand", "WeatherData");
+		data.putString("command", "syncFull");
+		data.putString("packetCommand", "WeatherData");
 		Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
     }
 
@@ -309,3 +309,4 @@ public class ClientTickHandler
         field.set(null, newValue);
     }
 }
+

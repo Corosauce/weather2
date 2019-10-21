@@ -37,7 +37,7 @@ public class EventHandlerPacket {
 			final String command = nbt.getString("command");
 			
 			//System.out.println("Weather2 packet command from server: " + packetCommand);
-			Minecraft.getMinecraft().addScheduledTask(() -> {
+			Minecraft.getInstance().addScheduledTask(() -> {
                 if (packetCommand.equals("WeatherData")) {
                     ClientTickHandler.checkClientWeather();
 
@@ -56,7 +56,7 @@ public class EventHandlerPacket {
                     }
                 } else if (packetCommand.equals("ClientConfigData")) {
                     if (command.equals("syncUpdate")) {
-                        ClientTickHandler.clientConfigData.readNBT(nbt);
+                        ClientTickHandler.clientConfigData.read(nbt);
                         //ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
                     }
                 }
@@ -94,10 +94,10 @@ public class EventHandlerPacket {
                     if (command.equals("syncRequest")) {
                         Weather.dbg("EZGUI syncRequest");
                         CompoundNBT sendNBT = new CompoundNBT();
-                        sendNBT.setString("packetCommand", "EZGuiData");
-                        sendNBT.setString("command", "syncUpdate");
-                        sendNBT.setBoolean("markUpdated", true);
-                        sendNBT.setBoolean("isPlayerOP", FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile()));
+                        sendNBT.putString("packetCommand", "EZGuiData");
+                        sendNBT.putString("command", "syncUpdate");
+                        sendNBT.putBoolean("markUpdated", true);
+                        sendNBT.putBoolean("isPlayerOP", FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile()));
                         sendNBT.setTag("data", WeatherUtilConfig.nbtServerData);
                         sendNBT.setTag("dimListing", WeatherUtilConfig.createNBTDimensionListing());
 
@@ -105,7 +105,7 @@ public class EventHandlerPacket {
                         //PacketDispatcher.sendPacketToPlayer(WeatherPacketHelper.createPacketForServerToClientSerialization("EZGuiData", sendNBT), player);
                     } else if (command.equals("applySettings")) {
                         if (FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() || FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(entP.getGameProfile())) {
-                            WeatherUtilConfig.nbtReceiveClientData(nbt.getCompoundTag("guiData"));
+                            WeatherUtilConfig.nbtReceiveClientData(nbt.getCompound("guiData"));
                         }
                     }
                 }
@@ -120,7 +120,8 @@ public class EventHandlerPacket {
     
     @OnlyIn(Dist.CLIENT)
     public String getSelfUsername() {
-    	return CoroUtilEntity.getName(Minecraft.getMinecraft().player);
+    	return CoroUtilEntity.getName(Minecraft.getInstance().player);
     }
 	
 }
+

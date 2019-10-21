@@ -38,3 +38,4 @@ public class ConfigFoliage implements IConfigCategory {
 
     }
 }
+

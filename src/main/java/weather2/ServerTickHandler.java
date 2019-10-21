@@ -73,7 +73,7 @@ public class ServerTickHandler
         
         //regularly save data
         if (world != null) {
-        	if (world.getTotalWorldTime() % ConfigMisc.Misc_AutoDataSaveIntervalInTicks == 0) {
+        	if (world.getGameTime() % ConfigMisc.Misc_AutoDataSaveIntervalInTicks == 0) {
         		Weather.writeOutData(false);
         	}
         }
@@ -108,7 +108,7 @@ public class ServerTickHandler
 		}
 
         //TODO: only sync when things change? is now sent via PlayerLoggedInEvent at least
-		if (world.getTotalWorldTime() % 200 == 0) {
+		if (world.getGameTime() % 200 == 0) {
 			syncServerConfigToClient();
 		}
         
@@ -126,7 +126,7 @@ public class ServerTickHandler
 	    			CompoundNBT nbt = listMsgs.get(i).getNBTValue();
 	    			
 	    			String replyMod = nbt.getString("replymod");
-					nbt.setBoolean("isRaining", true);
+					nbt.putBoolean("isRaining", true);
 					
 					FMLInterModComms.sendRuntimeMessage(replyMod, replyMod, "weather.raining", nbt);
 	    			
@@ -152,7 +152,7 @@ public class ServerTickHandler
         
         boolean testCustomLightning = false;
         if (testCustomLightning) {
-        	if (world.getTotalWorldTime() % 20 == 0) {
+        	if (world.getGameTime() % 20 == 0) {
 	        	PlayerEntity player = world.getClosestPlayer(0, 0, 0, -1, false);
 	        	if (player != null) {
 	        		EntityLightningBoltCustom lightning = new EntityLightningBoltCustom(world, player.posX, player.posY, player.posZ);
@@ -164,7 +164,7 @@ public class ServerTickHandler
 
         boolean derp = false;
         if (derp) {
-        	if (world.getTotalWorldTime() % 2 == 0) {
+        	if (world.getGameTime() % 2 == 0) {
 	        	PlayerEntity player = world.getClosestPlayer(0, 0, 0, -1, false);
 	        	if (player != null) {
 	        		ItemStack is = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
@@ -172,8 +172,8 @@ public class ServerTickHandler
 	        			int y = world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY();
 						System.out.println("y " + y);
 	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
-		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getEntityBoundingBox().minY-1, player.posZ));
-		        		//if (state.getBlock() != Blocks.SAND) {
+		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getBoundingBox().minY-1, player.posZ));
+		        		//if (state.getOwner() != Blocks.SAND) {
 		        			//WeatherUtilBlock.floodAreaWithLayerableBlock(player.world, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
 		        			WeatherUtilBlock.fillAgainstWallSmoothly(player.world, new Vec3(player.posX, y + 0.5D, player.posZ/*player.posX, player.posY, player.posZ*/), player.rotationYawHead, 15, 2, CommonProxy.blockSandLayer);
 		        		//}
@@ -251,11 +251,11 @@ public class ServerTickHandler
 	public static void syncServerConfigToClient() {
 		//packets
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "ClientConfigData");
-		data.setString("command", "syncUpdate");
+		data.putString("packetCommand", "ClientConfigData");
+		data.putString("command", "syncUpdate");
 		//data.setTag("data", parManager.nbtSyncForClient());
 
-		ClientConfigData.writeNBT(data);
+		ClientConfigData.write(data);
 
 		Weather.eventChannel.sendToAll(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
 	}
@@ -263,12 +263,13 @@ public class ServerTickHandler
 	public static void syncServerConfigToClientPlayer(ServerPlayerEntity player) {
 		//packets
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "ClientConfigData");
-		data.setString("command", "syncUpdate");
+		data.putString("packetCommand", "ClientConfigData");
+		data.putString("command", "syncUpdate");
 		//data.setTag("data", parManager.nbtSyncForClient());
 
-		ClientConfigData.writeNBT(data);
+		ClientConfigData.write(data);
 
 		Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), player);
 	}
 }
+

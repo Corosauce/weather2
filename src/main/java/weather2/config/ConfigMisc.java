@@ -140,3 +140,4 @@ public class ConfigMisc implements IConfigCategory {
 	}
 
 }
+

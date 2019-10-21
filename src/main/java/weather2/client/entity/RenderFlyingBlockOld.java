@@ -117,7 +117,7 @@ public class RenderFlyingBlockOld extends EntityRenderer
         {
             this.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
             BlockState iblockstate = state;
-            Block block = iblockstate.getBlock();
+            Block block = iblockstate.getOwner();
             BlockPos blockpos = new BlockPos(entity);
             World world = var11;
 
@@ -140,8 +140,8 @@ public class RenderFlyingBlockOld extends EntityRenderer
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
-    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
+    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModel(iblockstate/*, world, (BlockPos)null*/);
     	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
     	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
     	                    tessellator.draw();
@@ -167,8 +167,8 @@ public class RenderFlyingBlockOld extends EntityRenderer
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
     	                    GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
-    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(iblockstate/*, world, (BlockPos)null*/);
+    	                    BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+    	                    IBakedModel ibakedmodel = blockrendererdispatcher.getModel(iblockstate/*, world, (BlockPos)null*/);
     	                    blockrendererdispatcher.getBlockModelRenderer().renderModel(world, ibakedmodel, iblockstate, blockpos, worldrenderer, false);
     	                    worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
     	                    tessellator.draw();
@@ -187,3 +187,4 @@ public class RenderFlyingBlockOld extends EntityRenderer
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 }
+

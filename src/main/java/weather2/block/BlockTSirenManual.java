@@ -24,7 +24,7 @@ public class BlockTSirenManual extends BlockTSiren {
     {
         boolean flag = worldIn.isBlockPowered(pos);
 
-        if (flag != ((Boolean)state.getValue(ENABLED)).booleanValue())
+        if (flag != ((Boolean)state.get(ENABLED)).booleanValue())
         {
             worldIn.setBlockState(pos, state.withProperty(ENABLED, Boolean.valueOf(flag)), 3);
         }
@@ -36,3 +36,4 @@ public class BlockTSirenManual extends BlockTSiren {
         return this.getDefaultState().withProperty(ENABLED, Boolean.valueOf(false));
     }
 }
+

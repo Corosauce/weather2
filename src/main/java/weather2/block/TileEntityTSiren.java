@@ -21,7 +21,7 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     public long lastPlayTime = 0L;
 
     @Override
-    public void update()
+    public void tick()
     {
     	if (world.isRemote) {
     	    int meta = CommonProxy.blockTSiren.getMetaFromState(this.world.getBlockState(this.getPos()));
@@ -78,3 +78,4 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     }
     
 }
+

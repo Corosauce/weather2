@@ -66,7 +66,7 @@ public class TornadoHelper {
     public boolean lastTickPlayerClose;
     
     /**
-     * this update queue isnt perfect, created to reduce chunk updates on client, but not removing block right away messes with block rip logic:
+     * this tick queue isnt perfect, created to reduce chunk updates on client, but not removing block right away messes with block rip logic:
      * - wont dig for blocks under this block until current is removed
      * - initially, entries were spam added as the block still existed, changed list to hashmap to allow for blockpos hash lookup before adding another entry
      * - entity creation relocated to queue processing to initially prevent entity spam, but with entry lookup, not needed, other issues like collision are now the reason why we still relocated entity creation to queue process
@@ -170,7 +170,7 @@ public class TornadoHelper {
 	public void tick(World parWorld) {
 		
 		if (!parWorld.isRemote) {
-			if (parWorld.getTotalWorldTime() % queueProcessRate == 0) {
+			if (parWorld.getGameTime() % queueProcessRate == 0) {
 				Iterator<BlockUpdateSnapshot> it = listBlockUpdateQueue.values().iterator();
 				int count = 0;
 				int entityCreateStaggerRate = 3;
@@ -180,7 +180,7 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 
-						if (snapshot.getState().getBlock() == Blocks.AIR && ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
+						if (snapshot.getState().getOwner() == Blocks.AIR && ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
 							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos(), ConfigTornado.Storm_Tornado_TicksToRepairBlock);
 							//world.setBlockState(snapshot.getPos(), Blocks.LEAVES.getDefaultState(), 3);
 						} else {
@@ -197,7 +197,7 @@ public class TornadoHelper {
 									/*if (mBlock != null) {
 										mBlock.setPosition(tryX, tryY, tryZ);
 									}*/
-							parWorld.spawnEntity(mBlock);
+							parWorld.addEntity0(mBlock);
 						}
 					}
 					count++;
@@ -259,7 +259,7 @@ public class TornadoHelper {
         	
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/heightVariation is correct, guessing we can just not factor in variation
-        	if (bgb != null && (bgb.getBaseHeight()/* + bgb.getHeightVariation()*/ <= 0.7 || storm.isFirenado)) {
+        	if (bgb != null && (bgb.getDepth()/* + bgb.getScale()*/ <= 0.7 || storm.isFirenado)) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -316,7 +316,7 @@ public class TornadoHelper {
 	                    {
 	                    	
 	                    	BlockState state = parWorld.getBlockState(pos);
-	                        Block blockID = state.getBlock();
+	                        Block blockID = state.getOwner();
 	                        
 	                        boolean performed = false;
 	
@@ -378,7 +378,7 @@ public class TornadoHelper {
 	                    {
 	                    	BlockPos pos = new BlockPos(tryX, tryY, tryZ);
 	                    	BlockState state = parWorld.getBlockState(pos);
-	                        Block blockID = state.getBlock();
+	                        Block blockID = state.getOwner();
 
 							if (canGrab(parWorld, state, pos))
 							{
@@ -417,7 +417,7 @@ public class TornadoHelper {
 			for (int i = 0; i < firesPerTickMax; i++) {
 				BlockPos posUp = new BlockPos(storm.posGround.xCoord, storm.posGround.yCoord + rand.nextInt(30), storm.posGround.zCoord);
 				BlockState state = parWorld.getBlockState(posUp);
-				if (CoroUtilBlock.isAir(state.getBlock())) {
+				if (CoroUtilBlock.isAir(state.getOwner())) {
 					//parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
 
 					EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY(), posUp.getZ(), Blocks.FIRE.getDefaultState(), storm);
@@ -427,7 +427,7 @@ public class TornadoHelper {
 					mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
 					mBlock.motionY = 1D;
 					mBlock.mode = 0;
-					parWorld.spawnEntity(mBlock);
+					parWorld.addEntity0(mBlock);
 				}
 			}
 
@@ -445,9 +445,9 @@ public class TornadoHelper {
 
 			if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax) {
 				BlockPos pos = new BlockPos(tryX, tryY, tryZ);
-				Block block = parWorld.getBlockState(pos).getBlock();
+				Block block = parWorld.getBlockState(pos).getOwner();
 				BlockPos posUp = new BlockPos(tryX, tryY+1, tryZ);
-				Block blockUp = parWorld.getBlockState(posUp).getBlock();
+				Block blockUp = parWorld.getBlockState(posUp).getOwner();
 
 				if (!CoroUtilBlock.isAir(block) && CoroUtilBlock.isAir(blockUp))
 				{
@@ -478,7 +478,7 @@ public class TornadoHelper {
     {
 
 		//performance debug testing vars:
-		//relocated to be created upon snapshot update (so 
+		//relocated to be created upon snapshot tick (so 
 
         boolean tryRip = true;
 		BlockPos pos = new BlockPos(tryX, tryY, tryZ);
@@ -494,7 +494,7 @@ public class TornadoHelper {
 
         boolean seesLight = false;
         BlockState state = parWorld.getBlockState(pos);
-        Block blockID = state.getBlock();
+        Block blockID = state.getOwner();
 
 		//CULog.dbg("tryRip: " + blockID);
 
@@ -521,7 +521,7 @@ public class TornadoHelper {
 	                    
 	                    //blockCount++;
 	                    
-	                    //if (WeatherMod.debug && parWorld.getWorldTime() % 60 == 0) System.out.println("ripping, count: " + WeatherMod.blockCount);
+	                    //if (WeatherMod.debug && parWorld.getDayTime() % 60 == 0) System.out.println("ripping, count: " + WeatherMod.blockCount);
 
 	                    //this.activeBlocks.add(mBlock);
 	                    tickGrabCount++;
@@ -564,9 +564,9 @@ public class TornadoHelper {
 
     public boolean canGrab(World parWorld, BlockState state, BlockPos pos)
     {
-        if (!CoroUtilBlock.isAir(state.getBlock()) &&
-				state.getBlock() != Blocks.FIRE &&
-				state.getBlock() != CommonProxy.blockRepairingBlock &&
+        if (!CoroUtilBlock.isAir(state.getOwner()) &&
+				state.getOwner() != Blocks.FIRE &&
+				state.getOwner() != CommonProxy.blockRepairingBlock &&
 				WeatherUtil.shouldGrabBlock(parWorld, state) &&
 				!isBlockGrabbingBlocked(parWorld, state, pos))
         {
@@ -779,7 +779,7 @@ public class TornadoHelper {
         if (distToPlayer < far)
         {
             if (playFarSound) {
-				if (mc.world.getTotalWorldTime() % 40 == 0) {
+				if (mc.world.getGameTime() % 40 == 0) {
 					isOutsideCached = WeatherUtilEntity.isPosOutside(mc.world,
 							new Vec3(mc.player.getPosition().getX()+0.5F, mc.player.getPosition().getY()+0.5F, mc.player.getPosition().getZ()+0.5F));
 				}
@@ -837,7 +837,7 @@ public class TornadoHelper {
     	if (!flyingBlock_LastCount.containsKey(dimID) || !flyingBlock_LastQueryTime.containsKey(dimID)) {
 			//System.out.println("perform for missing");
 			perform = true;
-		} else if (flyingBlock_LastQueryTime.get(dimID) + queryRate < world.getTotalWorldTime()) {
+		} else if (flyingBlock_LastQueryTime.get(dimID) + queryRate < world.getGameTime()) {
 			//System.out.println("perform for time");
 			perform = true;
 		}
@@ -859,7 +859,7 @@ public class TornadoHelper {
 				}
 			}
 
-			flyingBlock_LastQueryTime.put(dimID, world.getTotalWorldTime());
+			flyingBlock_LastQueryTime.put(dimID, world.getGameTime());
     		flyingBlock_LastCount.put(dimID, flyingBlockCount);
 		}
 
@@ -868,8 +868,8 @@ public class TornadoHelper {
 
 	public boolean isBlockGrabbingBlocked(World world, BlockState state, BlockPos pos) {
 		int queryRate = 40;
-		if (isBlockGrabbingBlockedCached_LastCheck + queryRate < world.getTotalWorldTime()) {
-			isBlockGrabbingBlockedCached_LastCheck = world.getTotalWorldTime();
+		if (isBlockGrabbingBlockedCached_LastCheck + queryRate < world.getGameTime()) {
+			isBlockGrabbingBlockedCached_LastCheck = world.getGameTime();
 
 			isBlockGrabbingBlockedCached = false;
 
@@ -891,3 +891,4 @@ public class TornadoHelper {
 		storm = null;
 	}
 }
+

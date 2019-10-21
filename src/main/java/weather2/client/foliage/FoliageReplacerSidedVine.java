@@ -15,7 +15,7 @@ public class FoliageReplacerSidedVine extends FoliageReplacerBase {
 
     @Override
     public boolean validFoliageSpot(World world, BlockPos pos) {
-        return world.getBlockState(pos).getMaterial() == Material.GRASS && world.getBlockState(pos.up()).getBlock() == state.getBlock();
+        return world.getBlockState(pos).getMaterial() == Material.GRASS && world.getBlockState(pos.up()).getOwner() == state.getOwner();
     }
 
     @Override
@@ -23,3 +23,4 @@ public class FoliageReplacerSidedVine extends FoliageReplacerBase {
         FoliageEnhancerShader.addForPos(this, expectedHeight, pos);
     }
 }
+

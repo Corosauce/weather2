@@ -28,11 +28,11 @@ public class TileEntityWindVane extends TileEntity implements ITickable
 	public boolean isOutsideCached = false;
 
 	@Override
-    public void update()
+    public void tick()
     {
     	if (world.isRemote) {
     		
-    		if (world.getTotalWorldTime() % 40 == 0) {
+    		if (world.getGameTime() % 40 == 0) {
     			isOutsideCached = WeatherUtilEntity.isPosOutside(world, new Vec3(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
     		}
     		
@@ -89,14 +89,15 @@ public class TileEntityWindVane extends TileEntity implements ITickable
     	return new AxisAlignedBB(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 3, getPos().getZ() + 1);
     }
 
-    public CompoundNBT writeToNBT(CompoundNBT var1)
+    public CompoundNBT write(CompoundNBT var1)
     {
-        return super.writeToNBT(var1);
+        return super.write(var1);
     }
 
-    public void readFromNBT(CompoundNBT var1)
+    public void read(CompoundNBT var1)
     {
-        super.readFromNBT(var1);
+        super.read(var1);
 
     }
 }
+

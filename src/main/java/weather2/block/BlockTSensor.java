@@ -38,7 +38,7 @@ public class BlockTSensor extends Block
     }
 
     @Override
-    public void updateTick(World world, BlockPos pos, BlockState state, Random rand)
+    public void tick(World world, BlockPos pos, BlockState state, Random rand)
     {
     	
     	if (world.isRemote) return;
@@ -81,7 +81,7 @@ public class BlockTSensor extends Block
     @Override
     public int getWeakPower(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side)
     {
-        return ((Integer)blockState.getValue(POWER)).intValue();
+        return ((Integer)blockState.get(POWER)).intValue();
     }
     
     @Override
@@ -103,7 +103,7 @@ public class BlockTSensor extends Block
      */
     public int getMetaFromState(BlockState state)
     {
-        return ((Integer)state.getValue(POWER)).intValue();
+        return ((Integer)state.get(POWER)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
@@ -111,3 +111,4 @@ public class BlockTSensor extends Block
         return new BlockStateContainer(this, new IProperty[] {POWER});
     }
 }
+

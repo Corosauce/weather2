@@ -11,3 +11,4 @@ public class TileEntityTSirenRenderer extends TileEntityRenderer
 		//super.render(te, x, y, z, partialTicks, destroyStage, alpha);
 	}
 }
+

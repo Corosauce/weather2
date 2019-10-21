@@ -194,9 +194,9 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void onScreenEvent(RenderGameOverlayEvent.Pre event) {
-		if (false && event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-			Minecraft mc = Minecraft.getMinecraft();
-			//System.out.println(event.getType());
+		if (false && event.getMinecartType() == RenderGameOverlayEvent.ElementType.ALL) {
+			Minecraft mc = Minecraft.getInstance();
+			//System.out.println(event.getMinecartType());
 			float lightLevel = 0.4F/* - lightLevel*/;
 			lightLevel = MathHelper.clamp(lightLevel, 0.0F, 1.0F);
 			WorldBorder worldborder = mc.world.getWorldBorder();
@@ -324,3 +324,4 @@ public class EventHandlerForge {
 
 	}
 }
+

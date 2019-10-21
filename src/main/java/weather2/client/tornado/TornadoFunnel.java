@@ -68,7 +68,7 @@ public class TornadoFunnel {
 
     private void tickGameTestCreate() {
 
-        PlayerEntity entP = Minecraft.getMinecraft().player;
+        PlayerEntity entP = Minecraft.getInstance().player;
 
         Random rand = new Random();
 
@@ -188,7 +188,7 @@ public class TornadoFunnel {
                 rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
                 rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 
-                //rain.setRBGColorF(1F, 1F, 1F);
+                //rain.setColor(1F, 1F, 1F);
                 rain.spawnAsWeatherEffect();
                 rain.weatherEffect = false;
                 //ClientTickHandler.weatherManager.addWeatheredParticle(rain);
@@ -218,8 +218,8 @@ public class TornadoFunnel {
 
     private void tickUpdateFunnel() {
 
-        World world = Minecraft.getMinecraft().world;
-        PlayerEntity player = Minecraft.getMinecraft().player;
+        World world = Minecraft.getInstance().world;
+        PlayerEntity player = Minecraft.getInstance().player;
 
         //for (FunnelPiece piece : listFunnel) {
         for (int ii = 0; ii < listFunnel.size(); ii++) {
@@ -234,18 +234,18 @@ public class TornadoFunnel {
 
             Random rand = new Random();
 
-            //piece.posEnd = piece.posEnd.addVector(rate * piece.vecDirX, 0, rate * piece.vecDirZ);
-            //piece.posEnd = piece.posEnd.addVector(rate * rand.nextFloat() * piece.vecDirX, 0, rate * rand.nextFloat() * piece.vecDirZ);
+            //piece.posEnd = piece.posEnd.add(rate * piece.vecDirX, 0, rate * piece.vecDirZ);
+            //piece.posEnd = piece.posEnd.add(rate * rand.nextFloat() * piece.vecDirX, 0, rate * rand.nextFloat() * piece.vecDirZ);
 
             int offset = 360 / listFunnel.size();
-            long timeC = (world.getTotalWorldTime() * (ii+1) + (offset * ii)) * 1;
+            long timeC = (world.getGameTime() * (ii+1) + (offset * ii)) * 1;
             float range = 35F;
 
             //piece.posEnd = new Vec3d(piece.posStart.x + Math.sin(Math.toRadians(timeC % 360)) * range, piece.posStart.y + 3, piece.posStart.z + Math.cos(Math.toRadians(timeC % 360)) * range);
 
             //piece.posEnd.
 
-            //piece.posEnd = piece.posEnd.addVector(-1, 0, 0);
+            //piece.posEnd = piece.posEnd.add(-1, 0, 0);
 
             double xx = piece.posEnd.x - piece.posStart.x;
             double zz = piece.posEnd.z - piece.posStart.z;
@@ -315,9 +315,9 @@ public class TornadoFunnel {
                     //relative to center matrix that uses translation and rotation
                     //relative to self matrix that uses rotation
 
-                    long time = world.getTotalWorldTime();
-                    long time2 = world.getTotalWorldTime() * 2;
-                    long time3 = world.getTotalWorldTime() * 3;
+                    long time = world.getGameTime();
+                    long time2 = world.getGameTime() * 2;
+                    long time3 = world.getGameTime() * 3;
 						/*time = 0;
 						time2 = 0;
 						time3 = 0;*/
@@ -351,7 +351,7 @@ public class TornadoFunnel {
 
                     //double dp = piece.posStart.dotProduct(piece.posEnd);
                     //dp = (new Vec3d(0, 0, 0)).dotProduct(vec);
-                    //angleX = (float) Math.acos(dp / (piece.posStart.lengthVector() * piece.posEnd.lengthVector()));
+                    //angleX = (float) Math.acos(dp / (piece.posStart.length() * piece.posEnd.length()));
 
                     //System.out.println(angleY);
 
@@ -478,10 +478,10 @@ public class TornadoFunnel {
                     g = ((time2 + i*1) % stages) * (1F / stages);
                     b = ((time3 + i*1) % stages) * (1F / stages);
 
-                    part.setRBGColorF(0F, 0F, 0F);
-                    part.setRBGColorF(r, g, b);
+                    part.setColor(0F, 0F, 0F);
+                    part.setColor(r, g, b);
                     if (ii == 0) {
-                        //part.setRBGColorF(r, 0, 0);
+                        //part.setColor(r, 0, 0);
                     }
                     //part.setParticleTexture(ParticleRegistry.squareGrey);
                 }
@@ -542,3 +542,4 @@ public class TornadoFunnel {
     }
 
 }
+

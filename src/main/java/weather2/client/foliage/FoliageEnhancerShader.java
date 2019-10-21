@@ -95,7 +95,7 @@ public class FoliageEnhancerShader implements Runnable {
     public static void liveReloadModels() {
         processModels();
         modelLoader.blockModelShapes.reloadModels();
-        Minecraft.getMinecraft().renderGlobal.loadRenderers();
+        Minecraft.getInstance().renderGlobal.loadRenderers();
     }
 
     public static void processModels() {
@@ -131,10 +131,10 @@ public class FoliageEnhancerShader implements Runnable {
             //ModelManager mm =
 
             CULog.log(str);
-            ProgressManager.ProgressBar prog = ProgressManager.push(str, modelRegistry.getKeys().size(), true);
+            ProgressManager.ProgressBar prog = ProgressManager.push(str, modelRegistry.keySet().size(), true);
 
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, modelLoader, "stateModels");
-            IBakedModel blank = modelRegistry.getObject(new ModelResourceLocation("coroutil:blank", "normal"));
+            IBakedModel blank = modelRegistry.getOrDefault(new ModelResourceLocation("coroutil:blank", "normal"));
 
             //shortcut to getting the data loaded into bakedModelStore, is empty on first minecraft run otherwise
             //would this cause bugs for mods that use ModelBakeEvent? meaning we might miss their models if we shaderize them
@@ -148,13 +148,13 @@ public class FoliageEnhancerShader implements Runnable {
                 if (state instanceof IExtendedBlockState) {
                     state = ((IExtendedBlockState) state).getClean();
                 }
-                //CULog.dbg("state to IBakedModel: " + state.toString() + " - " + entry.getValue().toString());
-                FoliageData.backupBakedModelStore.put(state, entry.getValue());
+                //CULog.dbg("state to IBakedModel: " + state.toString() + " - " + entry.get().toString());
+                FoliageData.backupBakedModelStore.put(state, entry.get());
             }
 
-            for (ModelResourceLocation res : modelRegistry.getKeys()) {
+            for (ModelResourceLocation res : modelRegistry.keySet()) {
                 prog.step(res.toString());
-                IBakedModel bakedModel = modelRegistry.getObject(res);
+                IBakedModel bakedModel = modelRegistry.getOrDefault(res);
                 IModel model = stateModels.get(res);
                 if (model != null) {
                     //just in case of any cross mod weirdness
@@ -193,7 +193,7 @@ public class FoliageEnhancerShader implements Runnable {
                                                     }
                                                 }
 
-                                                lookupBackupReplacedModels.put(res, modelRegistry.getObject(res));
+                                                lookupBackupReplacedModels.put(res, modelRegistry.getOrDefault(res));
 
                                                 modelRegistry.putObject(res, blank);
                                                 break escape;
@@ -229,7 +229,7 @@ public class FoliageEnhancerShader implements Runnable {
 
             Map<ModelResourceLocation, IModel> stateModels = ReflectionHelper.getPrivateValue(ModelLoader.class, modelLoader, "stateModels");
 
-            for (ModelResourceLocation res : modelRegistry.getKeys()) {
+            for (ModelResourceLocation res : modelRegistry.keySet()) {
                 IModel model = stateModels.get(res);
                 if (model != null) {
                     //just in case of any cross mod weirdness
@@ -351,7 +351,7 @@ public class FoliageEnhancerShader implements Runnable {
         for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
             boolean colorize = false;
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.SAPLING.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                    .setSprite(getMeshAndSetupSprite(entrySet.get()))
                     .setStateSensitive(true)
                     .setBiomeColorize(colorize)
                     .addComparable(SaplingBlock.TYPE, entrySet.getKey()));
@@ -365,7 +365,7 @@ public class FoliageEnhancerShader implements Runnable {
         for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
             boolean colorize = entrySet.getKey() == TallGrassBlock.EnumType.DEAD_BUSH ? false : true;
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.TALLGRASS.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                    .setSprite(getMeshAndSetupSprite(entrySet.get()))
                     .setStateSensitive(true)
                     .setRandomizeCoord(false)
                     .setBiomeColorize(colorize)
@@ -391,7 +391,7 @@ public class FoliageEnhancerShader implements Runnable {
         for (Map.Entry<Comparable, String> entrySet : lookup.entrySet()) {
             boolean colorize = false;
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.RED_FLOWER.getDefaultState())
-                    .setSprite(getMeshAndSetupSprite(entrySet.getValue()))
+                    .setSprite(getMeshAndSetupSprite(entrySet.get()))
                     .setRandomizeCoord(false)
                     .setStateSensitive(true)
                     .setBiomeColorize(colorize)
@@ -436,7 +436,7 @@ public class FoliageEnhancerShader implements Runnable {
         for (Map.Entry<Integer, Integer> entrySet : lookupStateToModel.entrySet()) {
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.CARROTS.getDefaultState())
                     .setBaseMaterial(Material.GROUND)
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/carrots_stage_" + entrySet.getValue()))
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/carrots_stage_" + entrySet.get()))
                     .setRandomizeCoord(false)
                     .setStateSensitive(true)
                     .addComparable(CropsBlock.AGE, entrySet.getKey()));
@@ -445,7 +445,7 @@ public class FoliageEnhancerShader implements Runnable {
         for (Map.Entry<Integer, Integer> entrySet : lookupStateToModel.entrySet()) {
             listFoliageReplacers.add(new FoliageReplacerCross(Blocks.POTATOES.getDefaultState())
                     .setBaseMaterial(Material.GROUND)
-                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/potatoes_stage_" + entrySet.getValue()))
+                    .setSprite(getMeshAndSetupSprite("minecraft:blocks/potatoes_stage_" + entrySet.get()))
                     .setRandomizeCoord(false)
                     .setStateSensitive(true)
                     .addComparable(CropsBlock.AGE, entrySet.getKey()));
@@ -563,7 +563,7 @@ public class FoliageEnhancerShader implements Runnable {
     }
 
     public static TextureAtlasSprite getMeshAndSetupSprite(String spriteLoc) {
-        AtlasTexture map = Minecraft.getMinecraft().getTextureMapBlocks();
+        AtlasTexture map = Minecraft.getInstance().getTextureMap();
         TextureAtlasSprite sprite = map.getAtlasSprite(spriteLoc);
         //MeshBufferManagerFoliage.setupMeshIfMissing(sprite);
         return sprite;
@@ -659,8 +659,8 @@ public class FoliageEnhancerShader implements Runnable {
          *
          */
 
-        World world = Minecraft.getMinecraft().world;
-        Entity entityIn = Minecraft.getMinecraft().player;
+        World world = Minecraft.getInstance().world;
+        Entity entityIn = Minecraft.getInstance().player;
         BlockPos pos = entityIn.getPosition();
 
         boolean add = true;
@@ -690,22 +690,22 @@ public class FoliageEnhancerShader implements Runnable {
             Iterator<Map.Entry<BlockPos, FoliageLocationData>> it = lookupPosToFoliage.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<BlockPos, FoliageLocationData> entry = it.next();
-                if (!entry.getValue().foliageReplacer.isActive() || !entry.getValue().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
+                if (!entry.get().foliageReplacer.isActive() || !entry.get().foliageReplacer.validFoliageSpot(world, entry.getKey().down())) {
                     //System.out.println("remove");
                     it.remove();
                     //TODO: consider relocating Foliage list to within foliagereplacer, as there is some redundancy happening here
-                    for (Foliage entry2 : entry.getValue().listFoliage) {
+                    for (Foliage entry2 : entry.get().listFoliage) {
                         //markMeshDirty(entry2.particleTexture, true);
-                        entry.getValue().foliageReplacer.markMeshesDirty();
+                        entry.get().foliageReplacer.markMeshesDirty();
                         ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
                         MeshBufferManagerFoliage.getMesh(entry2.particleTexture).lastRemovalCount++;
                     }
                 } else if (trimRange && entry.getKey().distanceSq(centerX, centerY, centerZ)/*entityIn.getDistanceSq(entry.getKey())*/ > radialRange * radialRange) {
                     //System.out.println("remove");
                     it.remove();
-                    for (Foliage entry2 : entry.getValue().listFoliage) {
+                    for (Foliage entry2 : entry.get().listFoliage) {
                         //markMeshDirty(entry2.particleTexture, true);
-                        entry.getValue().foliageReplacer.markMeshesDirty();
+                        entry.get().foliageReplacer.markMeshesDirty();
                         ExtendedRenderer.foliageRenderer.getFoliageForSprite(entry2.particleTexture).remove(entry2);
                         MeshBufferManagerFoliage.getMesh(entry2.particleTexture).lastRemovalCount++;
                     }
@@ -778,7 +778,7 @@ public class FoliageEnhancerShader implements Runnable {
             markMeshDirty(sprite, true);
         }*/
 
-        //update all vbos that were flagged dirty
+        //tick all vbos that were flagged dirty
         //if (ExtendedRenderer.foliageRenderer.lockVBO2.tryLock()) {
             try {
                 for (Map.Entry<TextureAtlasSprite, List<Foliage>> entry : ExtendedRenderer.foliageRenderer.foliage.entrySet()) {
@@ -813,7 +813,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void updateVBO2Threaded(TextureAtlasSprite sprite) {
 
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         Entity entityIn = mc.getRenderViewEntity();
 
         float partialTicks = 1F;
@@ -851,12 +851,12 @@ public class FoliageEnhancerShader implements Runnable {
             mesh.instanceDataBufferVBO1 = BufferUtils.createFloatBuffer(mesh.numInstances * InstancedMeshFoliage.INSTANCE_SIZE_FLOATS);
         }
 
-        //System.out.println("vbo 2 update");
+        //System.out.println("vbo 2 tick");
 
         for (Foliage foliage : ExtendedRenderer.foliageRenderer.getFoliageForSprite(sprite)) {
             foliage.updateQuaternion(entityIn);
 
-            //update vbo2
+            //tick vbo2
             foliage.renderForShaderVBO2(mesh, ExtendedRenderer.foliageRenderer.transformation, null, entityIn, partialTicks);
         }
 
@@ -888,7 +888,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public static void addForPos(FoliageReplacerBase replacer, int height, BlockPos pos, Vec3 randPosVar, boolean biomeColorize, int colorizeOffset, Vec3 extraPos) {
 
-        World world = Minecraft.getMinecraft().world;
+        World world = Minecraft.getInstance().world;
 
         Random rand = new Random();
         //for (BlockPos pos : foliageQueueAdd) {
@@ -1002,7 +1002,7 @@ public class FoliageEnhancerShader implements Runnable {
             foliage.particleScale /= 0.2;
 
             if (biomeColorize) {
-                int color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(world.getBlockState(pos.up(colorizeOffset)), world, pos.up(colorizeOffset)/*.down()*/, 0);
+                int color = Minecraft.getInstance().getBlockColors().getColor(world.getBlockState(pos.up(colorizeOffset)), world, pos.up(colorizeOffset)/*.down()*/, 0);
                 foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
                 foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
                 foliage.particleBlue = (float) (color & 255) / 255.0F;
@@ -1012,7 +1012,7 @@ public class FoliageEnhancerShader implements Runnable {
                     foliage.particleGreen += 0.05F;
                     foliage.particleBlue += 0.05F;*/
 
-                    color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(Blocks.TALLGRASS.getDefaultState().withProperty(TallGrassBlock.TYPE, TallGrassBlock.EnumType.GRASS), world, pos.up(colorizeOffset)/*.down()*/, 0);
+                    color = Minecraft.getInstance().getBlockColors().getColor(Blocks.TALLGRASS.getDefaultState().withProperty(TallGrassBlock.TYPE, TallGrassBlock.EnumType.GRASS), world, pos.up(colorizeOffset)/*.down()*/, 0);
                     foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
                     foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
                     foliage.particleBlue = (float) (color & 255) / 255.0F;
@@ -1054,7 +1054,7 @@ public class FoliageEnhancerShader implements Runnable {
 
     public void addForPosSeaweed(BlockPos pos) {
 
-        World world = Minecraft.getMinecraft().world;
+        World world = Minecraft.getInstance().world;
 
         Random rand = new Random();
         //for (BlockPos pos : foliageQueueAdd) {
@@ -1116,7 +1116,7 @@ public class FoliageEnhancerShader implements Runnable {
             //foliage.rotationPitch = rand.nextInt(90) - 45;
             foliage.particleScale /= 0.2;
 
-            int color = Minecraft.getMinecraft().getBlockColors().colorMultiplier(state, world, pos.down(), 0);
+            int color = Minecraft.getInstance().getBlockColors().getColor(state, world, pos.down(), 0);
             foliage.particleRed = (float) (color >> 16 & 255) / 255.0F;
             foliage.particleGreen = (float) (color >> 8 & 255) / 255.0F;
             foliage.particleBlue = (float) (color & 255) / 255.0F;
@@ -1155,3 +1155,4 @@ public class FoliageEnhancerShader implements Runnable {
     }
 
 }
+

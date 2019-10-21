@@ -29,3 +29,4 @@ public class ParticleSandstorm extends ParticleTexFX {
 		super.renderParticle(worldRendererIn, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
 	}
 }
+

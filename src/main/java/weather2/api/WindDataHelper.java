@@ -129,3 +129,4 @@ public class WindDataHelper {
 		return ClientTickHandler.weatherManager;
 	}
 }
+

@@ -58,3 +58,4 @@ public class ConfigWind implements IConfigCategory {
 
     }
 }
+

@@ -12,3 +12,4 @@ public enum EnumWeatherObjectType {
     static { for(EnumWeatherObjectType e : EnumSet.allOf(EnumWeatherObjectType.class)) { lookup.put(e.ordinal(), e); } }
     public static EnumWeatherObjectType get(int intValue) { return lookup.get(intValue); }
 }
+

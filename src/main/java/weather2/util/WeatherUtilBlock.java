@@ -54,10 +54,10 @@ public class WeatherUtilBlock {
 		
 		//fix for starting on a layerable block
 		BlockState stateTest = world.getBlockState(posSource.toBlockPos());
-		if (stateTest.getBlock() == blockLayerable) {
+		if (stateTest.getOwner() == blockLayerable) {
 			int heightTest = getHeightForAnyBlock(stateTest);
 			if (heightTest < 8) {
-				//posSource = new Vec3(posSource.addVector(0, -1, 0));
+				//posSource = new Vec3(posSource.add(0, -1, 0));
 			}
 		}
 		
@@ -98,7 +98,7 @@ public class WeatherUtilBlock {
 				state.addCollisionBoxToList(world, pos, aabbCompare, listAABBCollision, null, false);
 
 				//if solid ground we can place on
-	    		if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS && (!state.getBlock().isReplaceable(world, pos) && !listAABBCollision.isEmpty())) {
+	    		if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS && (!state.getOwner().isReplaceable(world, pos) && !listAABBCollision.isEmpty())) {
 	    			BlockPos posUp = new BlockPos(x, y + 1, z);
 	    			BlockState stateUp = world.getBlockState(posUp);
 					//if above it is air
@@ -154,8 +154,8 @@ public class WeatherUtilBlock {
 			BlockState state4 = world.getBlockState(posLastNonWall.toBlockPos().add(0, 0, -1));
 
 			//check all around place spot for cactus and cancel if true, to prevent cactus pop off when we place next to it
-			if (state.getBlock() == Blocks.CACTUS || state1.getBlock() == Blocks.CACTUS ||
-					state22.getBlock() == Blocks.CACTUS || state3.getBlock() == Blocks.CACTUS || state4.getBlock() == Blocks.CACTUS) {
+			if (state.getOwner() == Blocks.CACTUS || state1.getOwner() == Blocks.CACTUS ||
+					state22.getOwner() == Blocks.CACTUS || state3.getOwner() == Blocks.CACTUS || state4.getOwner() == Blocks.CACTUS) {
 				return;
 			}
 			
@@ -437,7 +437,7 @@ public class WeatherUtilBlock {
 			    		BlockPos pos = new BlockPos(x, y, z);
 			    		
 			    		//scan a bit higher than positions for better result
-			    		Vec3d sourceTest = posSource.addVector(0, 1D, 0).toMCVec();
+			    		Vec3d sourceTest = posSource.add(0, 1D, 0).toMCVec();
 			    		Vec3d destTest = new Vec3d(x + 0.5F, y + 1.5F, z + 0.5F);
 			    		
 			    		RayTraceResult destFound = world.rayTraceBlocks(sourceTest, destTest, false);
@@ -464,16 +464,16 @@ public class WeatherUtilBlock {
 		BlockState statePos = world.getBlockState(posTakeFrom);
 		
 		//
-		if (!isLayeredOrVanillaVersionOfBlock(statePos, blockLayerable) && statePos.getBlock() != Blocks.AIR) {
+		if (!isLayeredOrVanillaVersionOfBlock(statePos, blockLayerable) && statePos.getOwner() != Blocks.AIR) {
 			return amount;
 		}
 		
 		int dropDist = 0;
 		BlockPos posScan = new BlockPos(posTakeFrom);
-		while (statePos.getBlock() == Blocks.AIR && dropDist++ < maxDropAllowed) {
+		while (statePos.getOwner() == Blocks.AIR && dropDist++ < maxDropAllowed) {
 			posScan = posScan.add(0, -1, 0);
 			statePos = world.getBlockState(posScan);
-			if (!isLayeredOrVanillaVersionOfBlock(statePos, blockLayerable) && statePos.getBlock() != Blocks.AIR) {
+			if (!isLayeredOrVanillaVersionOfBlock(statePos, blockLayerable) && statePos.getOwner() != Blocks.AIR) {
 				return amount;
 			}
 		}
@@ -481,7 +481,7 @@ public class WeatherUtilBlock {
 		//statePos should now be blockLayerable type
 		int amountLeftToTake = amountAllowedToTakeForXZ;
 		while (amountTaken < amountAllowedToTakeForXZ) {
-			int amountReturn = takeHeightFromLayerableBlock(world, posScan, blockLayerable/*statePos.getBlock()*/, amountLeftToTake);
+			int amountReturn = takeHeightFromLayerableBlock(world, posScan, blockLayerable/*statePos.getOwner()*/, amountLeftToTake);
 			amountTaken += amountReturn;
 			posScan = posScan.add(0, -1, 0);
 			statePos = world.getBlockState(posScan);
@@ -546,14 +546,14 @@ public class WeatherUtilBlock {
 			List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
 			stateCheckPlaceable.addCollisionBoxToList(world, posCheckPlaceable, aabbCompare, listAABBCollision, null, false);
 
-			if (stateCheckPlaceable.getBlock() != blockLayerable && stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable) && listAABBCollision.isEmpty()) {
+			if (stateCheckPlaceable.getOwner() != blockLayerable && stateCheckPlaceable.getOwner().isReplaceable(world, posCheckPlaceable) && listAABBCollision.isEmpty()) {
 				posCheckPlaceable = posCheckPlaceable.add(0, -1, 0);
 				stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
 				distForPlaceableBlocks++;
 				continue;
 			//if its the kind of solid we want, break loop
 			} else if (stateCheckPlaceable.isSideSolid(world, posCheckPlaceable, Direction.UP) ||
-					stateCheckPlaceable.getBlock() == blockLayerable) {
+					stateCheckPlaceable.getOwner() == blockLayerable) {
 				break;
 			//its something we cant stack onto
 			} else {
@@ -569,7 +569,7 @@ public class WeatherUtilBlock {
 		
 		//at this point the block we are about to work with is solid facing up, or snow
 		if (!stateCheckPlaceable.isSideSolid(world, posCheckPlaceable, Direction.UP) &&
-					stateCheckPlaceable.getBlock() != blockLayerable) {
+					stateCheckPlaceable.getOwner() != blockLayerable) {
 			CULog.err("sandstorm: shouldnt be, failed a check somewhere!");
 			return amount;
 		}
@@ -595,7 +595,7 @@ public class WeatherUtilBlock {
 				break;
 			}
 			//if its snow we can add snow to
-			if (statePlaceLayerable.getBlock() == blockLayerable && getHeightForLayeredBlock(statePlaceLayerable) < layerableHeightPropMax) {
+			if (statePlaceLayerable.getOwner() == blockLayerable && getHeightForLayeredBlock(statePlaceLayerable) < layerableHeightPropMax) {
 				int height = getHeightForLayeredBlock(statePlaceLayerable);
 				//if (height < snowMetaMax) {
 					height += amountAllowedToAdd;
@@ -666,7 +666,7 @@ public class WeatherUtilBlock {
 	 * @return
 	 */
 	public static boolean isLayeredOrVanillaVersionOfBlock(BlockState state, Block blockLayerable) {
-		Block block = state.getBlock();
+		Block block = state.getOwner();
 		if (block == blockLayerable) {
 			return true;
 		}
@@ -680,11 +680,11 @@ public class WeatherUtilBlock {
 	}
 	
 	public static int getHeightForAnyBlock(BlockState state) {
-		Block block = state.getBlock();
+		Block block = state.getOwner();
 		if (block == Blocks.SNOW_LAYER) {
-			return ((Integer)state.getValue(SnowBlock.LAYERS)).intValue();
+			return ((Integer)state.get(SnowBlock.LAYERS)).intValue();
 		} else if (block == CommonProxy.blockSandLayer) {
-			return ((Integer)state.getValue(BlockSandLayer.LAYERS)).intValue();
+			return ((Integer)state.get(BlockSandLayer.LAYERS)).intValue();
 		} else if (block == Blocks.SAND || block == Blocks.SNOW) {
 			return 8;
 		} else if (block instanceof SlabBlock) {
@@ -697,11 +697,11 @@ public class WeatherUtilBlock {
 	}
 	
 	public static int getHeightForLayeredBlock(BlockState state) {
-		if (state.getBlock() == Blocks.SNOW_LAYER) {
-			return ((Integer)state.getValue(SnowBlock.LAYERS)).intValue();
-		} else if (state.getBlock() == CommonProxy.blockSandLayer) {
-			return ((Integer)state.getValue(BlockSandLayer.LAYERS)).intValue();
-		} else if (state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.SNOW) {
+		if (state.getOwner() == Blocks.SNOW_LAYER) {
+			return ((Integer)state.get(SnowBlock.LAYERS)).intValue();
+		} else if (state.getOwner() == CommonProxy.blockSandLayer) {
+			return ((Integer)state.get(BlockSandLayer.LAYERS)).intValue();
+		} else if (state.getOwner() == Blocks.SAND || state.getOwner() == Blocks.SNOW) {
 			return 8;
 		} else {
 			//missing implementation
@@ -756,16 +756,16 @@ public class WeatherUtilBlock {
 	            	int addAmount = 1;
 		            
 		            //do height comparison if its sand already
-		            if (stateCheck.getBlock() == state.getBlock()) {
+		            if (stateCheck.getOwner() == state.getOwner()) {
 		            	int heightCheck = getHeightForLayeredBlock(stateCheck);
 			            if (heightCheck + 2 <= heightToUse) {
 			            	heightToUse -= addAmount;
-			            	addHeightToLayerableBLock(worldIn, posCheck, stateCheck.getBlock(), heightCheck, addAmount);
+			            	addHeightToLayerableBLock(worldIn, posCheck, stateCheck.getOwner(), heightCheck, addAmount);
 			            	foundSpotToSpread = true;
 			            }
 			        //else, do the usual
 		            }/* else if (stateCheck.getMaterial() == Material.AIR) {
-		            	int returnVal = trySpreadOnPos2(worldIn, posCheck, addAmount, addAmount, 10, stateCheck.getBlock());
+		            	int returnVal = trySpreadOnPos2(worldIn, posCheck, addAmount, addAmount, 10, stateCheck.getOwner());
 		            	//TODO: factor in partial addition not just fully used
 		            	if (returnVal == 0) {
 		            		heightToUse -= addAmount;
@@ -777,7 +777,7 @@ public class WeatherUtilBlock {
 		}
 		
 		if (foundSpotToSpread) {
-			worldIn.setBlockState(pos, setBlockWithLayerState(state.getBlock(), heightToUse));
+			worldIn.setBlockState(pos, setBlockWithLayerState(state.getOwner(), heightToUse));
 		}
 		
 		return foundSpotToSpread;
@@ -855,3 +855,4 @@ public class WeatherUtilBlock {
 		}
 	}
 }
+

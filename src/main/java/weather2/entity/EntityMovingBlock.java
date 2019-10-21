@@ -93,8 +93,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosY = (var3 + 0.5F);
         this.prevPosZ = (double)(var4 + 0.5F);
 
-        this.tile = state.getBlock();
-        this.metadata = state.getBlock().getMetaFromState(state);
+        this.tile = state.getOwner();
+        this.metadata = state.getOwner().getMetaFromState(state);
         this.material = tile.getMaterial(tile.getDefaultState());
         this.stateCached = state;
         //this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
@@ -122,7 +122,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    public void entityInit() {}
+    public void registerData() {}
 
     @Override
     public boolean canBePushed()
@@ -137,23 +137,23 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
     	//new kill off when distant method
     	if (!world.isRemote) {
     	    if (killNextTick) {
-    	        setDead();
+    	        remove();
             }
 	    	if (this.world.getClosestPlayer(this.posX, 50, this.posZ, 512, false) == null) {
-				setDead();
+				remove();
 				//return;
 			}
     	}
     	
         if (CoroUtilBlock.isAir(this.tile))
         {
-            this.setDead();
+            this.remove();
             //return;
         }
         else
@@ -166,7 +166,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
                 if (this.tileentity == null && ConfigTornado.Storm_Tornado_rarityOfDisintegrate != -1 && this.rand.nextInt((ConfigTornado.Storm_Tornado_rarityOfDisintegrate + 1 + (owner != null && owner.isFirenado ? 100 : 0)) * 20) == 0)
                 {
-                    this.setDead();
+                    this.remove();
                     //return;
                 }
 
@@ -227,7 +227,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (this.age > this.gravityDelay / 4)
             {
-                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(this.motionX, this.motionY, this.motionZ));
+                var5 = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox().grow(this.motionX, this.motionY, this.motionZ));
             }
 
             double var6 = 0.0D;
@@ -287,7 +287,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                     }
 
                     float var16 = 0.3F;
-                    AxisAlignedBB var19 = var10.getEntityBoundingBox().grow((double)var16, (double)var16, (double)var16);
+                    AxisAlignedBB var19 = var10.getBoundingBox().grow((double)var16, (double)var16, (double)var16);
                     RayTraceResult var13 = var19.calculateIntercept(var1, var2);
 
                     if (var13 != null)
@@ -406,7 +406,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
             if (!this.world.isBlockLoaded(new BlockPos(var11, var20, var21)))
             {
-                this.setDead();
+                this.remove();
                 //return;
             }
 
@@ -443,9 +443,9 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
         //if (true) return;
         if (this.world.isRemote) return;
-        this.setDead();
+        this.remove();
 
-        Block var5 = this.world.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
+        Block var5 = this.world.getBlockState(new BlockPos(var1, var2, var3)).getOwner();
 
         if (this.tileentity != null || this.type != 0 || ConfigTornado.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigTornado.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {
@@ -492,14 +492,14 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     @Override
     protected void writeEntityToNBT(CompoundNBT var1)
     {
-        var1.setString("Tile", Block.REGISTRY.getNameForObject(tile).toString());
-        var1.setByte("Metadata", (byte)this.metadata);
-        var1.setInteger("blocktype", type);
+        var1.putString("Tile", Block.REGISTRY.getKey(tile).toString());
+        var1.putByte("Metadata", (byte)this.metadata);
+        var1.putInt("blocktype", type);
         CompoundNBT var2 = new CompoundNBT();
 
         if (this.tileentity != null)
         {
-            this.tileentity.writeToNBT(var2);
+            this.tileentity.write(var2);
         }
 
         var1.setTag("TileEntity", var2);
@@ -508,22 +508,22 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    protected void readEntityFromNBT(CompoundNBT var1)
+    protected void readAdditional(CompoundNBT var1)
     {
-        this.tile = (Block)Block.REGISTRY.getObject(new ResourceLocation(var1.getString("Tile")));
+        this.tile = (Block)Block.REGISTRY.getOrDefault(new ResourceLocation(var1.getString("Tile")));
         this.metadata = var1.getByte("Metadata") & 15;
-        this.type = var1.getInteger("blocktype");
+        this.type = var1.getInt("blocktype");
         this.tileentity = null;
 
         if (this.tile instanceof ContainerBlock)
         {
             this.tileentity = ((ContainerBlock)this.tile).createNewTileEntity(world, metadata);
-            CompoundNBT var2 = var1.getCompoundTag("TileEntity");
-            this.tileentity.readFromNBT(var2);
+            CompoundNBT var2 = var1.getCompound("TileEntity");
+            this.tileentity.read(var2);
         }
         
         if (type == 0) {
-            //setDead(); //kill flying block on reload for tornado spazing fix
+            //remove(); //kill flying block on reload for tornado spazing fix
             killNextTick = true;
         }
     }
@@ -534,7 +534,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    public void setDead()
+    public void remove()
     {
     	/*if (!world.isRemote) {
     		if (owner != null && owner.tornadoHelper != null) {
@@ -549,15 +549,15 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     	}*/
     	
     	owner = null;
-        super.setDead();
+        super.remove();
     }
 
     @Override
     public void writeSpawnData(ByteBuf data)
     {
         String str = "blank";
-        if (tile != null && Block.REGISTRY.getNameForObject(tile) != null) {
-            str = Block.REGISTRY.getNameForObject(tile).toString();
+        if (tile != null && Block.REGISTRY.getKey(tile) != null) {
+            str = Block.REGISTRY.getKey(tile).toString();
         }
     	ByteBufUtils.writeUTF8String(data, str);
         data.writeInt(metadata);
@@ -568,7 +568,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     {
         String str = ByteBufUtils.readUTF8String(data);
         if (!str.equals("blank")) {
-            tile = Block.REGISTRY.getObject(new ResourceLocation(str));
+            tile = Block.REGISTRY.getOrDefault(new ResourceLocation(str));
             metadata = data.readInt();
         } else {
             tile = Blocks.STONE;
@@ -578,3 +578,4 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         stateCached = tile.getStateFromMeta(metadata);
     }
 }
+

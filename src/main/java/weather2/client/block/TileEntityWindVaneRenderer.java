@@ -91,3 +91,4 @@ public class TileEntityWindVaneRenderer extends TileEntityRenderer
     	
     }
 }
+

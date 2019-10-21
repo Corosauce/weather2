@@ -129,16 +129,16 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
     }
 
     @Override
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
         
         float adj = 0.08F * rand.nextFloat();
-        //this.motionX += adj * Math.sin(world.getWorldTime());
-        //this.motionZ += adj * Math.sin(world.getWorldTime());
-        //this.motionY += adj * Math.cos(world.getWorldTime());
+        //this.motionX += adj * Math.sin(world.getDayTime());
+        //this.motionZ += adj * Math.sin(world.getDayTime());
+        //this.motionY += adj * Math.cos(world.getDayTime());
 
         if (particleRed < 255) particleRed += 0.01F;
         if (particleGreen < 255) particleGreen += 0.01F;
@@ -153,7 +153,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         //this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         
-        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getBlock();
+        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getOwner();
         //int id2 = this.world.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
         
         
@@ -191,7 +191,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         	
     		BlockState state = this.world.getBlockState(pos);
     		
-    		meta = state.getBlock().getMetaFromState(state);
+    		meta = state.getOwner().getMetaFromState(state);
     		
         	//meta = this.world.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
@@ -215,10 +215,10 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         	}
         	
         } else {
-        	//setDead();
+        	//remove();
         	
         	this.motionY -= 0.05000000074505806D * this.particleGravity * 1.5F;
-        	//if (this.onGround) this.setDead();
+        	//if (this.onGround) this.remove();
         }
         
         if (this.motionY > 0.03F) this.motionY = 0.03F;
@@ -255,3 +255,4 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
 		return 0;
 	}
 }
+

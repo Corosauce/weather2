@@ -46,3 +46,4 @@ public class EntityRendererProxyWeather2Mini extends EntityRenderer
     	}
     }
 }
+

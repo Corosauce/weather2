@@ -35,7 +35,7 @@ public class BlockWindVane extends ContainerBlock
         return 90;
     }
 
-    public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
+    public void tick(World var1, int var2, int var3, int var4, Random var5) {}
 
     @Override
     public TileEntity createNewTileEntity(World var1, int meta)
@@ -60,3 +60,4 @@ public class BlockWindVane extends ContainerBlock
         return false;
     }
 }
+

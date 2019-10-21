@@ -17,8 +17,8 @@ public class ParticleFish extends ParticleTexFX {
     }
 
     @Override
-    public void onUpdate() {
-        super.onUpdate();
+    public void tick() {
+        super.tick();
     }
 
     @Override
@@ -26,3 +26,4 @@ public class ParticleFish extends ParticleTexFX {
         super.renderParticleForShader(mesh, transformation, viewMatrix, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 }
+

@@ -36,10 +36,10 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
         if (baseMaterial == null || world.getBlockState(pos).getMaterial() == baseMaterial) {
             if (stateSensitive) {
                 BlockState stateScan = world.getBlockState(pos.up());
-                if (stateScan.getBlock() == state.getBlock()) {
+                if (stateScan.getOwner() == state.getOwner()) {
                     boolean fail = false;
                     for (Map.Entry<IProperty, Comparable> entrySet : lookupPropertiesToComparable.entrySet()) {
-                        if (stateScan.getValue(entrySet.getKey()) != entrySet.getValue()) {
+                        if (stateScan.get(entrySet.getKey()) != entrySet.get()) {
                             fail = true;
                             break;
                         }
@@ -49,16 +49,16 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
                     }
                     return true;
                     /*IProperty asdasd = BlockCrops.AGE;
-                    Comparable realValue = stateScan.getValue(BlockCrops.AGE);
+                    Comparable realValue = stateScan.get(BlockCrops.AGE);
                     Comparable needValue = EnumFacing.WEST;
                     needValue = 7;*/
                 } else {
                     return false;
                 }
                 //return world.getBlockState(pos.up()) == state;
-                //return world.getBlockState(pos.up()).getBlock() == state.getBlock();
+                //return world.getBlockState(pos.up()).getOwner() == state.getOwner();
             } else {
-                return world.getBlockState(pos.up()).getBlock() == state.getBlock();
+                return world.getBlockState(pos.up()).getOwner() == state.getOwner();
             }
         } else {
             return false;
@@ -71,17 +71,18 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
         //TODO: handle multi height cross detection here or make child class based off this one to do it
         int height = expectedHeight;
         if (height == -1) {
-            //Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
-            Block block = state.getBlock();
+            //Minecraft.getInstance().mouseHelper.ungrabMouseCursor();
+            Block block = state.getOwner();
 
             //already verified up 1 == block needed
             height = 0;
 
-            while (block == state.getBlock()) {
+            while (block == state.getOwner()) {
                 height++;
-                block = world.getBlockState(pos.up(height)).getBlock();
+                block = world.getBlockState(pos.up(height)).getOwner();
             }
         }
         FoliageEnhancerShader.addForPos(this, height, pos, randomizeCoord ? new Vec3(0.4, 0, 0.4) : null, biomeColorize);
     }
 }
+

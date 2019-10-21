@@ -11,3 +11,4 @@ public class TileEntityWeatherDeflectorRenderer extends TileEntityRenderer
     	
     }
 }
+

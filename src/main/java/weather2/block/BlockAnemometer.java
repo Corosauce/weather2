@@ -37,7 +37,7 @@ public class BlockAnemometer extends ContainerBlock
         return 90;
     }
 
-    public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
+    public void tick(World var1, int var2, int var3, int var4, Random var5) {}
     
     @Override
     public boolean isOpaqueCube(BlockState state) {
@@ -60,3 +60,4 @@ public class BlockAnemometer extends ContainerBlock
 		return new TileEntityAnemometer();
 	}
 }
+

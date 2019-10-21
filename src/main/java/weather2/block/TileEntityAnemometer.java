@@ -1,6 +1,7 @@
 package weather2.block;
 
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -10,7 +11,7 @@ import weather2.util.WindReader;
 import weather2.util.WeatherUtilEntity;
 import CoroUtil.util.Vec3;
 
-public class TileEntityAnemometer extends TileEntity implements ITickable
+public class TileEntityAnemometer extends TileEntity implements ITickableTileEntity
 {
 	
 	//since client receives data every couple seconds, we need to smooth out everything for best visual
@@ -28,11 +29,11 @@ public class TileEntityAnemometer extends TileEntity implements ITickable
 	public boolean isOutsideCached = false;
 
 	@Override
-    public void update()
+    public void tick()
     {
     	if (world.isRemote) {
     		
-    		if (world.getTotalWorldTime() % 40 == 0) {
+    		if (world.getGameTime() % 40 == 0) {
     			isOutsideCached = WeatherUtilEntity.isPosOutside(world, new Vec3(getPos().getX()+0.5F, getPos().getY()+0.5F, getPos().getZ()+0.5F));
     		}
     		
@@ -77,14 +78,15 @@ public class TileEntityAnemometer extends TileEntity implements ITickable
     	return new AxisAlignedBB(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 3, getPos().getZ() + 1);
     }
 
-    public CompoundNBT writeToNBT(CompoundNBT var1)
+    public CompoundNBT write(CompoundNBT var1)
     {
-        return super.writeToNBT(var1);
+        return super.write(var1);
     }
 
-    public void readFromNBT(CompoundNBT var1)
+    public void read(CompoundNBT var1)
     {
-        super.readFromNBT(var1);
+        super.read(var1);
 
     }
 }
+

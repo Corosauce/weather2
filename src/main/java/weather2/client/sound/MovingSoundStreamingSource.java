@@ -25,7 +25,7 @@ public class MovingSoundStreamingSource extends TickableSound {
 
         this.lockToPlayer = lockToPlayer;
 
-        update();
+        tick();
     }
 
 	//constructor for non moving sounds
@@ -39,7 +39,7 @@ public class MovingSoundStreamingSource extends TickableSound {
         realSource = parPos;
         
         //sync position
-        update();
+        tick();
     }
     
     //constructor for moving sounds
@@ -53,10 +53,10 @@ public class MovingSoundStreamingSource extends TickableSound {
         cutOffRange = parCutOffRange;
         
         //sync position
-        update();
+        tick();
     }
 
-    public void update()
+    public void tick()
     {
     	PlayerEntity entP = FMLClientHandler.instance().getClient().player;
     	
@@ -93,3 +93,4 @@ public class MovingSoundStreamingSource extends TickableSound {
     }
 
 }
+

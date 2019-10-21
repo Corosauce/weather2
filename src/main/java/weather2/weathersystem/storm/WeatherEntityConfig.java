@@ -17,3 +17,4 @@ public class WeatherEntityConfig
     public int tornadoTime = 2500;
     public boolean grabsBlocks = true;
 }
+

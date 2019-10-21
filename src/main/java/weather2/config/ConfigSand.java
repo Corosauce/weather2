@@ -19,7 +19,7 @@ public class ConfigSand implements IConfigCategory {
 	@ConfigComment("Time between sandstorms for either each player or entire server depending on if global rate is on, default: 3 mc days")
 	public static int Sandstorm_TimeBetweenInTicks = 20*60*20*3;
 
-    @ConfigComment("Amount of game ticks between sand buildup iterations, keep it high to prevent client side chunk update spam that destroys FPS")
+    @ConfigComment("Amount of game ticks between sand buildup iterations, keep it high to prevent client side chunk tick spam that destroys FPS")
     public static int Sandstorm_Sand_Buildup_TickRate = 40;
 
     @ConfigComment("Base amount of loops done per iteration, scaled by the sandstorms intensity (value given here is the max possible)")
@@ -55,3 +55,4 @@ public class ConfigSand implements IConfigCategory {
 
     }
 }
+

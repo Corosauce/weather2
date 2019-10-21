@@ -47,7 +47,7 @@ public class ItemPocketSand extends Item {
                     itemStackIn.shrink(1);
                 }
             }
-            int y = (int) player.getEntityBoundingBox().minY;
+            int y = (int) player.getBoundingBox().minY;
             double randSize = 20;
             double randAngle = player.world.rand.nextDouble() * randSize - player.world.rand.nextDouble() * randSize;
             WeatherUtilBlock.fillAgainstWallSmoothly(player.world, new Vec3(player.posX, y + 0.5D, player.posZ), player.rotationYawHead + (float)randAngle, 15, 2, CommonProxy.blockSandLayer, 2);
@@ -85,11 +85,11 @@ public class ItemPocketSand extends Item {
         BlockPos pos = new BlockPos(player.posX + vecXCast, player.posY + vecYCast, player.posZ + vecZCast);
         //pos = new BlockPos(player.getLookVec().add(new Vec3d(player.posX, player.posY, player.posZ)));
 
-        double dist = Math.sqrt(Minecraft.getMinecraft().player.getDistanceSq(pos));
+        double dist = Math.sqrt(Minecraft.getInstance().player.getDistanceSq(pos));
 
         //System.out.println(dist);
 
-        if (Minecraft.getMinecraft().player != player && dist < 7) {
+        if (Minecraft.getInstance().player != player && dist < 7) {
             SceneEnhancer.adjustAmountTargetPocketSandOverride = 1.3F;
         }
 
@@ -124,7 +124,7 @@ public class ItemPocketSand extends Item {
             part.setGravity(0.09F);
             part.setAlphaF(1F);
             float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-            part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+            part.setColor(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
             part.setScale(20);
 
             part.aboveGroundHeight = 0.5D;
@@ -145,13 +145,13 @@ public class ItemPocketSand extends Item {
     }
 
     @Override
-    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void tick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
         if (worldIn.isRemote) {
             tickClient(stack, worldIn, entityIn, itemSlot, isSelected);
         }
 
-        super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
+        super.tick(stack, worldIn, entityIn, itemSlot, isSelected);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -164,19 +164,20 @@ public class ItemPocketSand extends Item {
 
     public static void particulateToClients(World world, LivingEntity player) {
         CompoundNBT data = new CompoundNBT();
-        data.setString("packetCommand", "PocketSandData");
-        data.setString("command", "create");
-        data.setString("playerName", player.getName());
+        data.putString("packetCommand", "PocketSandData");
+        data.putString("command", "create");
+        data.putString("playerName", player.getName());
         Weather.eventChannel.sendToAllAround(PacketHelper.getNBTPacket(data, Weather.eventChannelName),
                 new NetworkRegistry.TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 50));
     }
 
     @OnlyIn(Dist.CLIENT)
     public static void particulateFromServer(String username) {
-        World world = Minecraft.getMinecraft().world;
+        World world = Minecraft.getInstance().world;
         PlayerEntity player = world.getPlayerEntityByName(username);
         if (player != null) {
             particulate(world, player);
         }
     }
 }
+

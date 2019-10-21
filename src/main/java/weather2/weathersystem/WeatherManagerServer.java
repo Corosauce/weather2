@@ -76,29 +76,29 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			/*for (int i = 0; i < getStormObjects().size(); i++) {
 				WeatherObject wo = getStormObjects().get(i);
 				int updateRate = wo.getUpdateRateForNetwork();
-				if (world.getTotalWorldTime() % updateRate == 0) {
+				if (world.getGameTime() % updateRate == 0) {
 					syncStormUpdate(wo);
 				}
 			}*/
 
 			getStormObjects().stream()
-					.filter(wo -> world.getTotalWorldTime() % wo.getUpdateRateForNetwork() == 0)
+					.filter(wo -> world.getGameTime() % wo.getUpdateRateForNetwork() == 0)
 					.forEach(this::syncStormUpdate);
 
 			//sync volcanos
-			if (world.getTotalWorldTime() % 40 == 0) {
+			if (world.getGameTime() % 40 == 0) {
 				for (int i = 0; i < getVolcanoObjects().size(); i++) {
 					syncVolcanoUpdate(getVolcanoObjects().get(i));
 				}
 			}
 			
 			//sync wind
-			if (world.getTotalWorldTime() % 60 == 0) {
+			if (world.getGameTime() % 60 == 0) {
 				syncWindUpdate(windMan);
 			}
 			
 			//IMC
-			if (world.getTotalWorldTime() % 60 == 0) {
+			if (world.getGameTime() % 60 == 0) {
 				nbtStormsForIMC();
 			}
 			
@@ -107,7 +107,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			
 			//sim box work
 			int rate = 20;
-			if (world.getTotalWorldTime() % rate == 0) {
+			if (world.getGameTime() % rate == 0) {
 				/*for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
 					EntityPlayer closestPlayer = WeatherUtilEntity.getClosestPlayerAny(world, so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
@@ -131,7 +131,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					}
 				}*/
 
-				if (world.getTotalWorldTime() % rate == 0) {
+				if (world.getGameTime() % rate == 0) {
 					if (ConfigMisc.Aesthetic_Only_Mode) {
 						getStormObjects().stream().forEach(this::removeWeatherObjectAndSync);
 					} else {
@@ -225,7 +225,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
-			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getTotalWorldTime() % 200 == 0 && windMan.isHighWindEventActive()) {
+			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.provider.getDimension()) && world.getGameTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
@@ -235,7 +235,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 
 							boolean sandstormMade = trySandstormForPlayer(entP, lastSandstormFormed);
 							if (sandstormMade) {
-								lastSandstormFormed = world.getTotalWorldTime();
+								lastSandstormFormed = world.getGameTime();
 							}
 						}
 					} else {
@@ -244,7 +244,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 							CompoundNBT playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(entP));
 							boolean sandstormMade = trySandstormForPlayer(entP, playerNBT.getLong("lastSandstormTime"));
 							if (sandstormMade) {
-								playerNBT.setLong("lastSandstormTime", world.getTotalWorldTime());
+								playerNBT.putLong("lastSandstormTime", world.getGameTime());
 							}
 						}
 					}
@@ -270,7 +270,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 
 			//if (ConfigMisc.overcastMode) {
-			if (world.getTotalWorldTime() % 40 == 0) {
+			if (world.getGameTime() % 40 == 0) {
 				isVanillaRainActiveOnServer = getWorld().isRaining();
 				isVanillaThunderActiveOnServer = getWorld().isThundering();
 				vanillaRainTimeOnServer = getWorld().getWorldInfo().getRainTime();
@@ -278,7 +278,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 			//}
 
-			if (world.getTotalWorldTime() % 400 == 0) {
+			if (world.getGameTime() % 400 == 0) {
 				//Weather.dbg("for dim: " + world.provider.dimensionId + " - is server dimension raining?: " + world.isRaining() + " time: " + world.getWorldInfo().getRainTime());
 			}
 
@@ -287,7 +287,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//windMan.stopLowWindEvent();
 			//cloudIntensity = 0.3F;
 
-			if (world.getTotalWorldTime() % 200 == 0) {
+			if (world.getGameTime() % 200 == 0) {
 				Random rand = new Random();
 				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
 				if (ConfigMisc.overcastMode && world.isRaining()) {
@@ -299,7 +299,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 						cloudIntensity = (float) ConfigMisc.Cloud_Coverage_Max_Percent / 100F;
 					}
 				}
-				if (world.getTotalWorldTime() % 2000 == 0) {
+				if (world.getGameTime() % 2000 == 0) {
 					//Weather.dbg("cloudIntensity FORCED MAX: " + cloudIntensity);
 				}
 
@@ -315,7 +315,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 
 	public boolean trySandstormForPlayer(PlayerEntity player, long lastSandstormTime) {
 		boolean sandstormMade = false;
-		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.getEntityWorld().getTotalWorldTime()) {
+		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.getEntityWorld().getGameTime()) {
 			sandstormMade = trySpawnSandstormNearPos(player.getEntityWorld(), new Vec3(player.getPositionVector()));
 		}
 		return sandstormMade;
@@ -380,7 +380,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				double tickDist = 10;
 				
 				while (world.isBlockLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
-					//update last good
+					//tick last good
 					posFindLastGoodUpwind = new BlockPos(posFind);
 					
 					//scan against wind (upwind)
@@ -394,7 +394,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				posFind = new BlockPos(foundPos);
 				
 				while (world.isBlockLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
-					//update last good
+					//tick last good
 					posFindLastGoodDownwind = new BlockPos(posFind);
 					
 					//scan with wind (downwind)
@@ -529,14 +529,14 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncLightningNew(Entity parEnt, boolean custom) {
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncLightningNew");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncLightningNew");
 		CompoundNBT nbt = new CompoundNBT();
-		nbt.setInteger("posX", MathHelper.floor(parEnt.posX/* * 32.0D*/));
-		nbt.setInteger("posY", MathHelper.floor(parEnt.posY/* * 32.0D*/));
-		nbt.setInteger("posZ", MathHelper.floor(parEnt.posZ/* * 32.0D*/));
-		nbt.setInteger("entityID", parEnt.getEntityId());
-		nbt.setBoolean("custom", custom);
+		nbt.putInt("posX", MathHelper.floor(parEnt.posX/* * 32.0D*/));
+		nbt.putInt("posY", MathHelper.floor(parEnt.posY/* * 32.0D*/));
+		nbt.putInt("posZ", MathHelper.floor(parEnt.posZ/* * 32.0D*/));
+		nbt.putInt("entityID", parEnt.getEntityId());
+		nbt.putBoolean("custom", custom);
 		data.setTag("data", nbt);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.lightning", data);
@@ -545,8 +545,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	public void syncWindUpdate(WindManager parManager) {
 		//packets
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncWindUpdate");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncWindUpdate");
 		data.setTag("data", parManager.nbtSyncForClient());
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.wind", data);
@@ -558,8 +558,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncStormNew(WeatherObject parStorm, ServerPlayerEntity entP) {
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncStormNew");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncStormNew");
 
 		CachedNBTTagCompound cache = parStorm.getNbtCache();
 		cache.setUpdateForced(true);
@@ -578,24 +578,24 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	public void syncStormUpdate(WeatherObject parStorm) {
 		//packets
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncStormUpdate");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncStormUpdate");
 		parStorm.getNbtCache().setNewNBT(new CompoundNBT());
 		parStorm.nbtSyncForClient();
 		data.setTag("data", parStorm.getNbtCache().getNewNBT());
 		boolean testNetworkData = false;
 		if (testNetworkData) {
-			System.out.println("sending to client: " + parStorm.getNbtCache().getNewNBT().getKeySet().size());
+			System.out.println("sending to client: " + parStorm.getNbtCache().getNewNBT().keySet().size());
 			if (parStorm instanceof StormObject) {
 				System.out.println("Real: " + ((StormObject) parStorm).levelCurIntensityStage);
-				if (parStorm.getNbtCache().getNewNBT().hasKey("levelCurIntensityStage")) {
-					System.out.println(" vs " + parStorm.getNbtCache().getNewNBT().getInteger("levelCurIntensityStage"));
+				if (parStorm.getNbtCache().getNewNBT().contains("levelCurIntensityStage")) {
+					System.out.println(" vs " + parStorm.getNbtCache().getNewNBT().getInt("levelCurIntensityStage"));
 				} else {
 					System.out.println("no key!");
 				}
 			}
 
-			Iterator iterator = parStorm.getNbtCache().getNewNBT().getKeySet().iterator();
+			Iterator iterator = parStorm.getNbtCache().getNewNBT().keySet().iterator();
 			String keys = "";
 			while (iterator.hasNext()) {
 				keys = keys.concat((String) iterator.next() + "; ");
@@ -608,13 +608,13 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	public void syncStormRemove(WeatherObject parStorm) {
 		//packets
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncStormRemove");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncStormRemove");
 		parStorm.nbtSyncForClient();
 		data.setTag("data", parStorm.getNbtCache().getNewNBT());
 		//data.setTag("data", parStorm.nbtSyncForClient(new NBTTagCompound()));
 		//fix for client having broken states
-		data.getCompoundTag("data").setBoolean("isDead", true);
+		data.getCompound("data").putBoolean("isDead", true);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 	}
 	
@@ -624,8 +624,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncVolcanoNew(VolcanoObject parStorm, ServerPlayerEntity entP) {
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncVolcanoNew");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncVolcanoNew");
 		data.setTag("data", parStorm.nbtSyncForClient());
 		
 		if (entP == null) {
@@ -639,8 +639,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	public void syncVolcanoUpdate(VolcanoObject parStorm) {
 		//packets
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncVolcanoUpdate");
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncVolcanoUpdate");
 		data.setTag("data", parStorm.nbtSyncForClient());
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 	}
@@ -652,11 +652,11 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	public void syncWeatherVanilla() {
 		
 		CompoundNBT data = new CompoundNBT();
-		data.setString("packetCommand", "WeatherData");
-		data.setString("command", "syncWeatherUpdate");
-		data.setBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
-		data.setBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
-		data.setInteger("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncWeatherUpdate");
+		data.putBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
+		data.putBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
+		data.putInt("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
 		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
 	}
 
@@ -671,3 +671,4 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	}
 	
 }
+

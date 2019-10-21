@@ -147,3 +147,4 @@ public class GuiButtonCycle extends Button
         return /*this.enabled && */this.visible && par2 >= this.x && par3 >= this.y && par2 < this.x + this.width && par3 < this.y + this.height;
     }
 }
+

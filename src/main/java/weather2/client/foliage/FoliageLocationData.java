@@ -14,3 +14,4 @@ public class FoliageLocationData {
         this.foliageReplacer = foliageReplacer;
     }
 }
+
