@@ -16,14 +16,14 @@ public class CreativeTabWeather extends ItemGroup {
 	 * the itemID for the item to be displayed on the tab
 	 */
 	@Override
-	public ItemStack getIconItemStack()
+	public ItemStack getIcon()
 	{
 		return new ItemStack(CommonProxy.blockTSensor);
 	}
 
 	@Override
-	public ItemStack getTabIconItem() {
-		return getIconItemStack();
+	public ItemStack createIcon() {
+		return getIcon();
 	}
 	
 	

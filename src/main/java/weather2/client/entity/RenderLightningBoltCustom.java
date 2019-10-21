@@ -80,7 +80,7 @@ public class RenderLightningBoltCustom extends EntityRenderer<EntityLightningBol
         double sizeRadius = 0.3D;
 
         //temp - visualize sandstorm
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         PlayerEntity player = mc.player;
         World world = mc.world;
         Vec3 posPlayer = new Vec3(mc.player.posX, 0/*mc.player.posY*/, mc.player.posZ);
@@ -92,7 +92,7 @@ public class RenderLightningBoltCustom extends EntityRenderer<EntityLightningBol
                 Vec3d wat3 = new Vec3d(wat2.xCoord - player.posX, -10, wat2.zCoord - player.posZ);
                 entity.listVec.add(wat3);
 
-                /*if (world.getTotalWorldTime() % 20 == 0) {
+                /*if (world.getGameTime() % 20 == 0) {
                     System.out.println("wat: " + wat3);
                 }*/
             }
@@ -100,7 +100,7 @@ public class RenderLightningBoltCustom extends EntityRenderer<EntityLightningBol
 
         }
 
-        if (world.getTotalWorldTime() % 20 == 0) {
+        if (world.getGameTime() % 20 == 0) {
             //System.out.println("----------");
         }
 
@@ -108,7 +108,7 @@ public class RenderLightningBoltCustom extends EntityRenderer<EntityLightningBol
         	Vec3d vec = entity.listVec.get(i);
         	Vec3d vec2 = entity.listVec.get(i+1);
 
-            if (world.getTotalWorldTime() % 20 == 0) {
+            if (world.getGameTime() % 20 == 0) {
                 //System.out.println("wat: " + vec + " --- " + vec2);
             }
 

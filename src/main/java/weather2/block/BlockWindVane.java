@@ -19,7 +19,7 @@ public class BlockWindVane extends ContainerBlock
 	
     public BlockWindVane()
     {
-        super(Material.CIRCUITS);
+        super(Material.MISCELLANEOUS);
         setHardness(0.6F);
         setResistance(10.0F);
     }
@@ -35,7 +35,7 @@ public class BlockWindVane extends ContainerBlock
         return 90;
     }
 
-    public void updateTick(World var1, int var2, int var3, int var4, Random var5) {}
+    public void tick(World var1, int var2, int var3, int var4, Random var5) {}
 
     @Override
     public TileEntity createNewTileEntity(World var1, int meta)

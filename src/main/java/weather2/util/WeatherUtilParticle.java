@@ -32,15 +32,15 @@ public class WeatherUtilParticle {
     //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static int getParticleAge(Particle ent)
     {
-        return ent.particleAge;
-        //return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge");
+        return ent.age;
+        //return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "age");
     }
 
     //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static void setParticleAge(Particle ent, int val)
     {
-        ent.particleAge = val;
-        //OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge", val);
+        ent.age = val;
+        //OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "age", val);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -53,7 +53,7 @@ public class WeatherUtilParticle {
         {
             field = (ParticleManager.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
+            fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().particles);
         }
         catch (Exception ex)
         {
@@ -63,7 +63,7 @@ public class WeatherUtilParticle {
             {
                 field = (ParticleManager.class).getDeclaredField("fxLayers");
                 field.setAccessible(true);
-                fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().effectRenderer);
+                fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().particles);
             }
             catch (Exception ex2)
             {

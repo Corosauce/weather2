@@ -108,17 +108,17 @@ public class ClientTickHandler
         World world = mc.world;
         
         if (ConfigMisc.Misc_proxyRenderOverrideEnabled) {
-        	if (!(mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
-				oldRenderer = mc.entityRenderer;
+        	if (!(mc.gameRenderer instanceof EntityRendererProxyWeather2Mini)) {
+				oldRenderer = mc.gameRenderer;
         		EntityRendererProxyWeather2Mini temp = new EntityRendererProxyWeather2Mini(mc, mc.getResourceManager());
-		        mc.entityRenderer = temp;
+		        mc.gameRenderer = temp;
         	}
     	} else {
-    		if ((mc.entityRenderer instanceof EntityRendererProxyWeather2Mini)) {
+    		if ((mc.gameRenderer instanceof EntityRendererProxyWeather2Mini)) {
     			if (oldRenderer != null) {
-    				mc.entityRenderer = oldRenderer;
+    				mc.gameRenderer = oldRenderer;
 				} else {
-					mc.entityRenderer = new EntityRenderer(mc, mc.getResourceManager());
+					mc.gameRenderer = new EntityRenderer(mc, mc.getResourceManager());
 				}
 
     		}
@@ -130,7 +130,7 @@ public class ClientTickHandler
 			weatherManager.tick();
 
 			if (!clientConfigData.Aesthetic_Only_Mode && ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
-				mc.gameSettings.clouds = 0;
+				mc.gameSettings.cloudOption = 0;
 			}
 
 			//TODO: split logic up a bit better for this, if this is set to false mid sandstorm, fog is stuck on,
@@ -212,7 +212,7 @@ public class ClientTickHandler
 				}
 			}
 
-			if (!Minecraft.getMinecraft().isGamePaused()) {
+			if (!Minecraft.getInstance().isGamePaused()) {
 
 				ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
 				//ExtendedRenderer.foliageRenderer.windDir-=1;
@@ -294,8 +294,8 @@ public class ClientTickHandler
 
 		//request a full sync from server
 		CompoundNBT data = new CompoundNBT();
-		data.setString("command", "syncFull");
-		data.setString("packetCommand", "WeatherData");
+		data.putString("command", "syncFull");
+		data.putString("packetCommand", "WeatherData");
 		Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
     }
 

@@ -89,7 +89,7 @@ public class RenderFlyingBlock extends EntityRenderer<Entity>
 						}
 
 						bufferbuilder.begin(7, DefaultVertexFormats.BLOCK);
-						BlockPos blockpos = new BlockPos(entity.posX, entity.getEntityBoundingBox().maxY, entity.posZ);
+						BlockPos blockpos = new BlockPos(entity.posX, entity.getBoundingBox().maxY, entity.posZ);
 						//GlStateManager.translate((float)(x - (double)blockpos.getX() - 0.5D), (float)(y - (double)blockpos.getY()), (float)(z - (double)blockpos.getZ() - 0.5D));
 						GlStateManager.translate((float)(x), (float)(y), (float)(z));
 						bufferbuilder.setTranslation((double)((float)(-blockpos.getX()) - 0.5F), (double)(-blockpos.getY()), (double)((float)(-blockpos.getZ()) - 0.5F));
@@ -100,8 +100,8 @@ public class RenderFlyingBlock extends EntityRenderer<Entity>
 							float iceScale = 0.3F;
 							GlStateManager.scale(iceScale, iceScale, iceScale);
 						}
-						BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-						blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModelForState(iblockstate), iblockstate, blockpos, bufferbuilder, false, MathHelper.getPositionRandom(entity.getPosition()));
+						BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+						blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModel(iblockstate), iblockstate, blockpos, bufferbuilder, false, MathHelper.getPositionRandom(entity.getPosition()));
 						bufferbuilder.setTranslation(0.0D, 0.0D, 0.0D);
 						tessellator.draw();
 

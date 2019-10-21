@@ -175,42 +175,42 @@ public class CommonProxy implements IGuiHandler
 				new ItemStack(itemPocketSand, 8), new Object[] {"DDD", "DID", "DDD", 'D', itemSandLayer, 'I', itemWeatherRecipe});
 	}
     
-    /*public void addItem(Item is, String unlocalizedName) {
-		addItem(is, unlocalizedName, "");
+    /*public void addItem(Item is, String translationKey) {
+		addItem(is, translationKey, "");
 	}
 	
-	public void addItem(Item is, String unlocalizedName, String itemNameBase) {
+	public void addItem(Item is, String translationKey, String itemNameBase) {
 		
 		Item item = is;//.getItem();
 		
 		//vanilla calls
-		item.setUnlocalizedName(Weather.modID + ":" + unlocalizedName);
-		//item.setTextureName(Weather.modID + ":" + unlocalizedName);
+		item.setUnlocalizedName(Weather.modID + ":" + translationKey);
+		//item.setTextureName(Weather.modID + ":" + translationKey);
 		item.setCreativeTab(tab);
 		//LanguageRegistry.addName(item, itemNameBase); //really not usefull, since its dynamic from nbt
 		
 		
 	}*/
     
-	public void addBlock(RegistryEvent.Register<Block> event, Block block, Class tEnt, String unlocalizedName) {
-		addBlock(event, block, tEnt, unlocalizedName, true);
+	public void addBlock(RegistryEvent.Register<Block> event, Block block, Class tEnt, String translationKey) {
+		addBlock(event, block, tEnt, translationKey, true);
 	}
 	
-    public void addBlock(RegistryEvent.Register<Block> event, Block block, Class tEnt, String unlocalizedName, boolean creativeTab) {
-		addBlock(event, block, unlocalizedName, creativeTab);
-		GameRegistry.registerTileEntity(tEnt, unlocalizedName);
+    public void addBlock(RegistryEvent.Register<Block> event, Block block, Class tEnt, String translationKey, boolean creativeTab) {
+		addBlock(event, block, translationKey, creativeTab);
+		GameRegistry.registerTileEntity(tEnt, translationKey);
 	}
 	
-    public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String unlocalizedName) {
-    	addBlock(event, parBlock, unlocalizedName, true);
+    public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String translationKey) {
+    	addBlock(event, parBlock, translationKey, true);
     }
     
-	public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String unlocalizedName, boolean creativeTab) {
+	public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String translationKey, boolean creativeTab) {
 		//vanilla calls
-		//GameRegistry.registerBlock(parBlock, unlocalizedName);
+		//GameRegistry.registerBlock(parBlock, translationKey);
 		
-		parBlock.setUnlocalizedName(Weather.modID + "." + unlocalizedName);
-		parBlock.setRegistryName(/*Weather.modID + ":" + */unlocalizedName);
+		parBlock.setUnlocalizedName(Weather.modID + "." + translationKey);
+		parBlock.setRegistryName(/*Weather.modID + ":" + */translationKey);
 		
 		if (creativeTab) {
 			parBlock.setCreativeTab(tab);

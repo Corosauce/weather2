@@ -50,22 +50,22 @@ public class WeatherManagerClient extends WeatherManagerBase {
 		//check command
 		//commands:
 		//new storm
-		//update storm
+		//tick storm
 		//remove storm
 		
 		//new volcano
-		//update volcano
+		//tick volcano
 		//remove volcano???
 		
 		String command = parNBT.getString("command");
 		
 		if (command.equals("syncStormNew")) {
 			//Weather.dbg("creating client side storm");
-			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 			Weather.dbg("syncStormNew, ID: " + ID);
 			
-			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInteger("weatherObjectType"));
+			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInt("weatherObjectType"));
 			
 			WeatherObject wo = null;
 			if (weatherObjectType == EnumWeatherObjectType.CLOUD) {
@@ -82,7 +82,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			addStormObject(wo);
 		} else if (command.equals("syncStormRemove")) {
 			//Weather.dbg("removing client side storm");
-			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 			
 			WeatherObject so = lookupStormObjectsByID.get(ID);
@@ -93,7 +93,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncStormUpdate")) {
 			//Weather.dbg("updating client side storm");
-			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 			
 			WeatherObject so = lookupStormObjectsByID.get(ID);
@@ -107,7 +107,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncVolcanoNew")) {
 			Weather.dbg("creating client side volcano");
-			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompound("data");
 			//long ID = stormNBT.getLong("ID");
 			
 			VolcanoObject so = new VolcanoObject(ClientTickHandler.weatherManager);
@@ -116,7 +116,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			addVolcanoObject(so);
 		} else if (command.equals("syncVolcanoRemove")) {
 			Weather.dbg("removing client side volcano");
-			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 			
 			VolcanoObject so = lookupVolcanoes.get(ID);
@@ -125,7 +125,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncVolcanoUpdate")) {
 			Weather.dbg("updating client side volcano");
-			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 			
 			VolcanoObject so = lookupVolcanoes.get(ID);
@@ -137,17 +137,17 @@ public class WeatherManagerClient extends WeatherManagerBase {
 		} else if (command.equals("syncWindUpdate")) {
 			//Weather.dbg("updating client side wind");
 			
-			CompoundNBT nbt = parNBT.getCompoundTag("data");
+			CompoundNBT nbt = parNBT.getCompound("data");
 			
 			windMan.nbtSyncFromServer(nbt);
 		} else if (command.equals("syncLightningNew")) {
 			//Weather.dbg("updating client side wind");
 			
-			CompoundNBT nbt = parNBT.getCompoundTag("data");
+			CompoundNBT nbt = parNBT.getCompound("data");
 			
-			int posXS = nbt.getInteger("posX");
-			int posYS = nbt.getInteger("posY");
-			int posZS = nbt.getInteger("posZ");
+			int posXS = nbt.getInt("posX");
+			int posYS = nbt.getInt("posY");
+			int posZS = nbt.getInt("posZ");
 			
 			boolean custom = nbt.getBoolean("custom");
 			
@@ -169,15 +169,15 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			ent.serverPosZ = posZS;
 			ent.rotationYaw = 0.0F;
 			ent.rotationPitch = 0.0F;
-			ent.setEntityId(nbt.getInteger("entityID"));
+			ent.setEntityId(nbt.getInt("entityID"));
 			getWorld().addWeatherEffect(ent);
 		} else if (command.equals("syncWeatherUpdate")) {
 			//Weather.dbg("updating client side wind");
 			
-			//NBTTagCompound nbt = parNBT.getCompoundTag("data");
+			//NBTTagCompound nbt = parNBT.getCompound("data");
 			isVanillaRainActiveOnServer = parNBT.getBoolean("isVanillaRainActiveOnServer");
 			isVanillaThunderActiveOnServer = parNBT.getBoolean("isVanillaThunderActiveOnServer");
-			vanillaRainTimeOnServer = parNBT.getInteger("vanillaRainTimeOnServer");
+			vanillaRainTimeOnServer = parNBT.getInt("vanillaRainTimeOnServer");
 			//windMan.nbtSyncFromServer(nbt);
 		}
 	}

@@ -47,7 +47,7 @@ public class WeatherUtil {
         {
         	ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
-            Block block = state.getBlock();
+            Block block = state.getOwner();
             
         	boolean result = true;
             
@@ -89,12 +89,12 @@ public class WeatherUtil {
     	                //System.out.println(strVsBlock);
     	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||
                                 (block.getMaterial(block.getDefaultState()) == Material.WOOD) ||
-                                block.getMaterial(block.getDefaultState()) == Material.CLOTH ||
+                                block.getMaterial(block.getDefaultState()) == Material.WOOL ||
                                 block.getMaterial(block.getDefaultState()) == Material.PLANTS ||
-                                block.getMaterial(block.getDefaultState()) == Material.VINE ||
+                                block.getMaterial(block.getDefaultState()) == Material.TALL_PLANTS ||
                                 block instanceof TallGrassBlock)
     	                {
-    	                    /*if (block.blockMaterial == Material.water) {
+    	                    /*if (block.material == Material.water) {
     	                    	return false;
     	                    }*/
     	                    if (!safetyCheck(block))
@@ -110,7 +110,7 @@ public class WeatherUtil {
                 }
                 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                	if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || block instanceof LogBlock/* || block.blockMaterial == Material.wood*/) {
+                	if (block == Blocks.DIRT || block == Blocks.ORGANIC || block == Blocks.SAND || block instanceof LogBlock/* || block.material == Material.wood*/) {
                 		result = false;
                 	}
                 	if (!CoroUtilCompatibility.canTornadoGrabBlockRefinedRules(state)) {
@@ -239,7 +239,7 @@ public class WeatherUtil {
         //System.out.println("?!?!" + Block.blocksList.length);
         blockIDToUseMapping.put(Blocks.AIR, false);
 
-        Set set = Block.REGISTRY.getKeys();
+        Set set = Block.REGISTRY.keySet();
         Iterator it = set.iterator();
         while (it.hasNext()) {
         	Object obj = it.next();
@@ -247,8 +247,8 @@ public class WeatherUtil {
         	ResourceLocation tagName = ((ResourceLocation)obj);
         	
         	
-        	Block block = (Block) Block.REGISTRY.getObject(tagName);
-        	//if (dbgShow) System.out.println("??? " + Block.REGISTRY.getNameForObject(block));
+        	Block block = (Block) Block.REGISTRY.getOrDefault(tagName);
+        	//if (dbgShow) System.out.println("??? " + Block.REGISTRY.getKey(block));
         	
         	if (block != null)
             {
@@ -258,17 +258,17 @@ public class WeatherUtil {
                 {
                 	if (ConfigTornado.Storm_Tornado_GrabCond_List_PartialMatches) {
                 		if (tagName.toString().contains(splEnts[j])) {
-                			dbg += Block.REGISTRY.getNameForObject(block) + ", ";
+                			dbg += Block.REGISTRY.getKey(block) + ", ";
                 			foundEnt = true;
                 			break;
                 		}
                 	} else {
-	                    Block blockEntry = (Block)Block.REGISTRY.getObject(new ResourceLocation(splEnts[j]));
+	                    Block blockEntry = (Block)Block.REGISTRY.getOrDefault(new ResourceLocation(splEnts[j]));
 	
 	                    if (blockEntry != null && block == blockEntry)
 	                    {
 	                        foundEnt = true;
-	                        dbg += Block.REGISTRY.getNameForObject(block) + ", ";
+	                        dbg += Block.REGISTRY.getKey(block) + ", ";
 	                        //blackList.append(s + " ");
 	                        //System.out.println("adding to list: " + blocks[j]);
 	                        break;

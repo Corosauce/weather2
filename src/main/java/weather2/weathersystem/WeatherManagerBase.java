@@ -109,7 +109,7 @@ public class WeatherManagerBase {
 			List<WeatherObject> list = getStormObjects();
 			for (int i = 0; i < list.size(); i++) {
 				WeatherObject so = list.get(i);
-				if (this instanceof WeatherManagerServer && so.isDead) {
+				if (this instanceof WeatherManagerServer && so.removed) {
 					removeStormObject(so.ID);
 					((WeatherManagerServer)this).syncStormRemove(so);
 				} else {
@@ -119,12 +119,12 @@ public class WeatherManagerBase {
 						removeStormObject(so.ID);
 						
 						//if it failed still
-						if (!so.isDead) {
+						if (!so.removed) {
 							for (int ii = 0; ii < listStormObjects.size(); ii++) {
 								StormObject so2 = listStormObjects.get(ii);
 								if (so2 == so) {
 									Weather.dbg("second attempt removal via list iteration");
-									so2.setDead();
+									so2.remove();
 									listStormObjects.remove(so2);
 									lookupStormObjectsByID.remove(so2.ID);
 									lookupStormObjectsByLayer.get(so2.layer).remove(so2);
@@ -134,11 +134,11 @@ public class WeatherManagerBase {
 						}
 					} else {*/
 					
-						if (!so.isDead) {
+						if (!so.removed) {
 							so.tick();
 						} else {
 							if (getWorld().isRemote) {
-								Weather.dbg("WARNING!!! - detected isDead storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly removed via main channels");
+								Weather.dbg("WARNING!!! - detected removed storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly removed via main channels");
 								removeStormObject(so.ID);
 							}
 							//Weather.dbg("client storm is dead and still in list, bug?");
@@ -212,7 +212,7 @@ public class WeatherManagerBase {
 		WeatherObject so = lookupStormObjectsByID.get(ID);
 		
 		if (so != null) {
-			so.setDead();
+			so.remove();
 			listStormObjects.remove(so);
 			lookupStormObjectsByID.remove(ID);
 			if (so instanceof StormObject) {
@@ -241,7 +241,7 @@ public class WeatherManagerBase {
 		VolcanoObject vo = lookupVolcanoes.get(ID);
 		
 		if (vo != null) {
-			vo.setDead();
+			vo.remove();
 			listVolcanoes.remove(vo);
 			lookupVolcanoes.remove(ID);
 			
@@ -268,7 +268,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
-				if (storm == null || storm.isDead) continue;
+				if (storm == null || storm.removed) continue;
 				double dist = storm.pos.distanceTo(parPos);
 				*//*if (getWorld().isRemote) {
 					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
@@ -288,7 +288,7 @@ public class WeatherManagerBase {
 		//not sure i can avoid a double use of distance calculation adding to iteration cost, this method might not be stream worthy
 		return getStormObjects().stream()
 				.map(wo -> (StormObject)wo)
-				.filter(so -> !so.isDead)
+				.filter(so -> !so.removed)
 				.filter(so -> (so.attrib_precipitation && orRain) || (severityFlagMin == -1 || so.levelCurIntensityStage >= severityFlagMin))
 				.filter(so -> so.pos.distanceTo(parPos) < maxDist)
 				.min(Comparator.comparing(so -> so.pos.distanceTo(parPos))).get();
@@ -311,7 +311,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
-				if (storm == null || storm.isDead) continue;
+				if (storm == null || storm.removed) continue;
 				if (storm.attrib_precipitation) {
 					double dist = storm.pos.distanceTo(parPos);
 					if (dist < storm.size) {
@@ -325,7 +325,7 @@ public class WeatherManagerBase {
 
 		return getStormObjects().stream()
 				.map(wo -> (StormObject)wo)
-				.anyMatch(so -> !so.isDead && so.attrib_precipitation && so.pos.distanceTo(parPos) < so.size);
+				.anyMatch(so -> !so.removed && so.attrib_precipitation && so.pos.distanceTo(parPos) < so.size);
 	}
 
 	/**
@@ -346,7 +346,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
-				if (storm == null || storm.isDead) continue;
+				if (storm == null || storm.removed) continue;
 				double dist = storm.pos.distanceTo(parPos);
 				/*if (getWorld().isRemote) {
 					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
@@ -382,13 +382,13 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
-				if (sandstorm == null || sandstorm.isDead) continue;
+				if (sandstorm == null || sandstorm.removed) continue;
 
-				List<Vec3> points = sandstorm.getSandstormAsShape();
+				List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
 
 				double scale = sandstorm.getSandstormScale();
-				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, points);
-				double dist = CoroUtilPhysics.getDistanceToShape(parPos, points);
+				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, field_75884_a);
+				double dist = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
 				//if best is within storm, compare intensity
 				if (inStorm) {
 					//System.out.println("in storm");
@@ -418,7 +418,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = getStormObjects().get(i);
 			if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
-				if (storm.isDead) continue;
+				if (storm.removed) continue;
 
 				if (storm.pos.distanceTo(parPos) < maxDist) {
 					storms.add(storm);
@@ -434,7 +434,7 @@ public class WeatherManagerBase {
 
         for (int i = 0; i < getStormObjects().size(); i++) {
             WeatherObject wo = getStormObjects().get(i);
-            if (wo.isDead) continue;
+            if (wo.removed) continue;
             if (wo instanceof StormObject) {
                 StormObject storm = (StormObject) wo;
                 if (storm.pos.distanceTo(parPos) < maxDist && ((storm.attrib_precipitation && ConfigStorm.Storm_Deflector_RemoveRainstorms) || storm.levelCurIntensityStage >= ConfigStorm.Storm_Deflector_MinStageRemove)) {
@@ -442,8 +442,8 @@ public class WeatherManagerBase {
                 }
             } else if (wo instanceof WeatherObjectSandstorm && ConfigStorm.Storm_Deflector_RemoveSandstorms) {
                 WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
-                List<Vec3> points = sandstorm.getSandstormAsShape();
-                double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
+                List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
+                double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
                 if (distToStorm < maxDist) {
                     storms.add(wo);
                 }
@@ -458,7 +458,7 @@ public class WeatherManagerBase {
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
-			if (wo.isDead) continue;
+			if (wo.removed) continue;
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
 				if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
@@ -466,8 +466,8 @@ public class WeatherManagerBase {
 				}
 			} else if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
-				List<Vec3> points = sandstorm.getSandstormAsShape();
-				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, points);
+				List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
+				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
 				if (distToStorm < maxDist) {
 					storms.add(wo);
 				}
@@ -483,30 +483,30 @@ public class WeatherManagerBase {
 		for (int i = 0; i < listVolcanoes.size(); i++) {
 			VolcanoObject td = listVolcanoes.get(i);
 			CompoundNBT teamNBT = new CompoundNBT();
-			td.writeToNBT(teamNBT);
-			listVolcanoesNBT.setTag("volcano_" + td.ID, teamNBT);
+			td.write(teamNBT);
+			listVolcanoesNBT.put("volcano_" + td.ID, teamNBT);
 		}
-		mainNBT.setTag("volcanoData", listVolcanoesNBT);
-		mainNBT.setLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);
+		mainNBT.put("volcanoData", listVolcanoesNBT);
+		mainNBT.putLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);
 		
 		CompoundNBT listStormsNBT = new CompoundNBT();
 		for (int i = 0; i < listStormObjects.size(); i++) {
 			WeatherObject obj = listStormObjects.get(i);
 			obj.getNbtCache().setUpdateForced(true);
-			obj.writeToNBT();
+			obj.write();
 			obj.getNbtCache().setUpdateForced(false);
-			listStormsNBT.setTag("storm_" + obj.ID, obj.getNbtCache().getNewNBT());
+			listStormsNBT.put("storm_" + obj.ID, obj.getNbtCache().getNewNBT());
 		}
-		mainNBT.setTag("stormData", listStormsNBT);
-		mainNBT.setLong("lastUsedIDStorm", WeatherObject.lastUsedStormID);
+		mainNBT.put("stormData", listStormsNBT);
+		mainNBT.putLong("lastUsedIDStorm", WeatherObject.lastUsedStormID);
 		
-		mainNBT.setLong("lastStormFormed", lastStormFormed);
+		mainNBT.putLong("lastStormFormed", lastStormFormed);
 
-		mainNBT.setLong("lastSandstormFormed", lastSandstormFormed);
+		mainNBT.putLong("lastSandstormFormed", lastSandstormFormed);
 
-		mainNBT.setFloat("cloudIntensity", this.cloudIntensity);
+		mainNBT.putFloat("cloudIntensity", this.cloudIntensity);
 
-		mainNBT.setTag("windMan", windMan.writeToNBT(new CompoundNBT()));
+		mainNBT.put("windMan", windMan.write(new CompoundNBT()));
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
 		
@@ -567,26 +567,26 @@ public class WeatherManagerBase {
 		lastSandstormFormed = rtsNBT.getLong("lastSandstormFormed");
 
 		//prevent setting to 0 for worlds updating to new weather version
-		if (rtsNBT.hasKey("cloudIntensity")) {
+		if (rtsNBT.contains("cloudIntensity")) {
 			cloudIntensity = rtsNBT.getFloat("cloudIntensity");
 		}
 		
 		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
 		WeatherObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
 
-		windMan.readFromNBT(rtsNBT.getCompoundTag("windMan"));
+		windMan.read(rtsNBT.getCompound("windMan"));
 		
-		CompoundNBT nbtVolcanoes = rtsNBT.getCompoundTag("volcanoData");
+		CompoundNBT nbtVolcanoes = rtsNBT.getCompound("volcanoData");
 		
-		Iterator it = nbtVolcanoes.getKeySet().iterator();
+		Iterator it = nbtVolcanoes.keySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			CompoundNBT teamData = nbtVolcanoes.getCompoundTag(tagName);
+			CompoundNBT teamData = nbtVolcanoes.getCompound(tagName);
 			
 			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0)/*-1, -1, null*/);
 			try {
-				to.readFromNBT(teamData);
+				to.read(teamData);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -602,25 +602,25 @@ public class WeatherManagerBase {
 			to.initPost();
 		}
 		
-		CompoundNBT nbtStorms = rtsNBT.getCompoundTag("stormData");
+		CompoundNBT nbtStorms = rtsNBT.getCompound("stormData");
 		
-		it = nbtStorms.getKeySet().iterator();
+		it = nbtStorms.keySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			CompoundNBT data = nbtStorms.getCompoundTag(tagName);
+			CompoundNBT data = nbtStorms.getCompound(tagName);
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
                 WeatherObject wo = null;
-                if (data.getInteger("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
+                if (data.getInt("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
                     wo = new StormObject(this/*-1, -1, null*/);
-                } else if (data.getInteger("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
+                } else if (data.getInt("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
                     wo = new WeatherObjectSandstorm(this);
                     //initStormNew???
                 }
 				try {
 					wo.getNbtCache().setNewNBT(data);
-					wo.readFromNBT();
+					wo.read();
 					wo.getNbtCache().updateCacheFromNew();
 				} catch (Exception ex) {
 					ex.printStackTrace();

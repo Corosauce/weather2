@@ -183,14 +183,14 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			int sizeAdjRate = 10;
 			
 			if (isFrontGrowing) {
-				if (world.getTotalWorldTime() % sizeAdjRate == 0) {
+				if (world.getGameTime() % sizeAdjRate == 0) {
 					if (size < maxSize) {
 						size++;
 						//System.out.println("size: " + size);
 					}
 				}
 			} else {
-				if (world.getTotalWorldTime() % sizeAdjRate == 0) {
+				if (world.getGameTime() % sizeAdjRate == 0) {
 					if (size > 0) {
 						size--;
 						//System.out.println("size: " + size);
@@ -202,7 +202,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					ageFadeout++;
 				} else {
 					//System.out.println("sandstorm died");
-					this.setDead();
+					this.remove();
 				}
 			}
 			
@@ -213,7 +213,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			//System.out.println("sandstorm age: " + age);
 			//will die once it builds down
 			/*if (age >= maxAge) {
-				this.setDead();
+				this.remove();
 				return;
 			}*/
 			
@@ -228,7 +228,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		 * Movement
 		 */
 		
-		//clouds move at 0.2 amp of actual wind speed
+		//cloudOption move at 0.2 amp of actual wind speed
 		
 		double vecX = -Math.sin(Math.toRadians(angle));
 		double vecZ = Math.cos(Math.toRadians(angle));
@@ -259,7 +259,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		float angle = windMan.getWindAngleForClouds();
 		
-		//keep it set to do a lot of work only occasionally, prevents chunk render update spam for client which kills fps 
+		//keep it set to do a lot of work only occasionally, prevents chunk render tick spam for client which kills fps 
 		int delay = ConfigSand.Sandstorm_Sand_Buildup_TickRate;
 		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getSandstormScale());
 		
@@ -267,7 +267,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		//sand block buildup
 		if (!world.isRemote) {
-			if (world.getTotalWorldTime() % delay == 0) {
+			if (world.getGameTime() % delay == 0) {
 				
 		    	for (int i = 0; i < loop; i++) {
 		    		
@@ -348,7 +348,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		//moved
 		//if (WeatherUtil.isPaused()) return;
 		
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		World world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
 		
@@ -386,7 +386,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double degRate = 360D / (circ / distBetweenParticles);
     	
-    	if (mc.world.getTotalWorldTime() % 40 == 0) {
+    	if (mc.world.getGameTime() % 40 == 0) {
     		//System.out.println("circ: " + circ);
     		//System.out.println("degRate: " + degRate);
     	}
@@ -396,7 +396,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	this.height = this.size / 4;
     	int heightLayers = Math.max(1, this.height / (int) distBetweenParticles);
     	
-    	if ((mc.world.getTotalWorldTime()) % 10 == 0) {
+    	if ((mc.world.getGameTime()) % 10 == 0) {
     		//System.out.println(heightLayers);
     	}
     	
@@ -433,7 +433,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 			    //for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
 	    			double i = directionAngleDeg + (rand.nextDouble() * 180D);
-			    	if ((mc.world.getTotalWorldTime()) % 2 == 0) {
+			    	if ((mc.world.getGameTime()) % 2 == 0) {
 
 						if (rand.nextDouble() >= sandstormParticleRateDust) continue;
 
@@ -468,7 +468,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		part.setGravity(0.09F);
 			    		part.setAlphaF(1F);
 			    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-			    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+			    		part.setColor(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 			    		part.setScale(100);
 			    		
 			    		//part.windWeight = 5F;
@@ -483,7 +483,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		//only need for non managed particles
 			    		//ClientTickHandler.weatherManager.addWeatheredParticle(part);
 			    		
-			    		//mc.effectRenderer.addEffect(part);
+			    		//mc.particles.addEffect(part);
 			    		
 			    		
 			    	}
@@ -497,7 +497,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     		spawnedThisTick = 0;
     	}
     	
-    	if ((mc.world.getTotalWorldTime()) % 20 == 0) {
+    	if ((mc.world.getGameTime()) % 20 == 0) {
     		//System.out.println("sandstormScale: " + sandstormScale + " - size: " + size);
     	}
     	
@@ -514,7 +514,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
-    	if ((mc.world.getTotalWorldTime()) % 3 == 0) {
+    	if ((mc.world.getGameTime()) % 3 == 0) {
     		
     		//System.out.println(this.particleBehavior.particles.size());
     		
@@ -558,7 +558,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		part.setGravity(0.09F);
 	    		part.setAlphaF(1F);
 	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
-	    		part.setRBGColorF(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+	    		part.setColor(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 	    		part.setScale(100);
 	    		
 	    		part.setKillOnCollide(true);
@@ -735,21 +735,21 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 		CachedNBTTagCompound data = this.getNbtCache();
 		
-		data.setDouble("posSpawnX", posSpawn.xCoord);
-		data.setDouble("posSpawnY", posSpawn.yCoord);
-		data.setDouble("posSpawnZ", posSpawn.zCoord);
+		data.putDouble("posSpawnX", posSpawn.xCoord);
+		data.putDouble("posSpawnY", posSpawn.yCoord);
+		data.putDouble("posSpawnZ", posSpawn.zCoord);
 		
-		data.setInteger("ageFadeout", this.ageFadeout);
-		data.setInteger("ageFadeoutMax", this.ageFadeoutMax);
+		data.putInt("ageFadeout", this.ageFadeout);
+		data.putInt("ageFadeoutMax", this.ageFadeoutMax);
 		
-		data.setInteger("sizePeak", sizePeak);
-		data.setInteger("age", age);
+		data.putInt("sizePeak", sizePeak);
+		data.putInt("age", age);
 		
-		data.setBoolean("isFrontGrowing", isFrontGrowing);
+		data.putBoolean("isFrontGrowing", isFrontGrowing);
 		
-		/*data.setLong("ID", ID);
-		data.setInteger("size", size);
-		data.setInteger("maxSize", maxSize);*/
+		/*data.putLong("ID", ID);
+		data.putInt("size", size);
+		data.putInt("maxSize", maxSize);*/
 
 	}
 	
@@ -761,19 +761,19 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
 		
-		this.ageFadeout = parNBT.getInteger("ageFadeout");
-		this.ageFadeoutMax = parNBT.getInteger("ageFadeoutMax");
+		this.ageFadeout = parNBT.getInt("ageFadeout");
+		this.ageFadeoutMax = parNBT.getInt("ageFadeoutMax");
 		
-		this.sizePeak = parNBT.getInteger("sizePeak");
-		this.age = parNBT.getInteger("age");
+		this.sizePeak = parNBT.getInt("sizePeak");
+		this.age = parNBT.getInt("age");
 		
 		this.isFrontGrowing = parNBT.getBoolean("isFrontGrowing");
 	}
 
 	@Override
-	public void readFromNBT()
+	public void read()
 	{
-		super.readFromNBT();
+		super.read();
 		nbtSyncFromServer();
 
 		CachedNBTTagCompound var1 = this.getNbtCache();
@@ -782,16 +782,16 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	}
 
 	@Override
-	public void writeToNBT()
+	public void write()
 	{
-		super.writeToNBT();
+		super.write();
 		nbtSyncForClient();
 
 		CachedNBTTagCompound nbt = this.getNbtCache();
 
-		nbt.setDouble("vecX", motion.xCoord);
-		nbt.setDouble("vecY", motion.yCoord);
-		nbt.setDouble("vecZ", motion.zCoord);
+		nbt.putDouble("vecX", motion.xCoord);
+		nbt.putDouble("vecY", motion.yCoord);
+		nbt.putDouble("vecZ", motion.zCoord);
 
 	}
 

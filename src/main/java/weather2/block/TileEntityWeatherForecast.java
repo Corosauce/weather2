@@ -5,14 +5,14 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.ITickableTileEntity;
 import weather2.ClientTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import weather2.weathersystem.storm.WeatherObject;
 
-public class TileEntityWeatherForecast extends TileEntity implements ITickable
+public class TileEntityWeatherForecast extends TileEntity implements ITickableTileEntity
 {
 	
 	//since client receives data every couple seconds, we need to smooth out everything for best visual
@@ -33,10 +33,10 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
 	//public MapHandler mapHandler;
 	
 	@Override
-    public void update()
+    public void tick()
     {
     	if (world.isRemote) {
-    		if (world.getTotalWorldTime() % 200 == 0 || storms.size() == 0) {
+    		if (world.getGameTime() % 200 == 0 || storms.size() == 0) {
     			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024, StormObject.STATE_FORMING, true);
 
     			if (ConfigMisc.radarCloudDebug) {
@@ -60,14 +60,14 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
     	}
     }
 
-    public CompoundNBT writeToNBT(CompoundNBT var1)
+    public CompoundNBT write(CompoundNBT var1)
     {
-        return super.writeToNBT(var1);
+        return super.write(var1);
     }
 
-    public void readFromNBT(CompoundNBT var1)
+    public void read(CompoundNBT var1)
     {
-        super.readFromNBT(var1);
+        super.read(var1);
 
     }
 }

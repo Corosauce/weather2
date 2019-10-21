@@ -35,9 +35,9 @@ public class ItemBlockBetter extends Item
      * Sets the unlocalized name of this item to the string passed as the parameter, prefixed by "item."
      */
     @Override
-    public ItemBlockBetter setUnlocalizedName(String unlocalizedName)
+    public ItemBlockBetter setUnlocalizedName(String translationKey)
     {
-        super.setUnlocalizedName(unlocalizedName);
+        super.setUnlocalizedName(translationKey);
         return this;
     }
 
@@ -48,7 +48,7 @@ public class ItemBlockBetter extends Item
     public ActionResultType onItemUse(PlayerEntity playerIn, World worldIn, BlockPos pos, Hand hand, Direction facing, float hitX, float hitY, float hitZ)
     {
         BlockState iblockstate = worldIn.getBlockState(pos);
-        Block block = iblockstate.getBlock();
+        Block block = iblockstate.getOwner();
 
         ItemStack stack = playerIn.getHeldItem(hand);
 
@@ -64,7 +64,7 @@ public class ItemBlockBetter extends Item
 
             if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
             {
-                SoundType soundtype = worldIn.getBlockState(pos).getBlock().getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn);
+                SoundType soundtype = worldIn.getBlockState(pos).getOwner().getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn);
                 worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                 stack.shrink(1);
             }
@@ -79,7 +79,7 @@ public class ItemBlockBetter extends Item
 
     public static boolean setTileEntityNBT(World worldIn, @Nullable PlayerEntity player, BlockPos pos, ItemStack stackIn)
     {
-        MinecraftServer minecraftserver = worldIn.getMinecraftServer();
+        MinecraftServer minecraftserver = worldIn.getServer();
 
         if (minecraftserver == null)
         {
@@ -87,7 +87,7 @@ public class ItemBlockBetter extends Item
         }
         else
         {
-            if (stackIn.hasTagCompound() && stackIn.getTagCompound().hasKey("BlockEntityTag", 10))
+            if (stackIn.hasTag() && stackIn.getTag().contains("BlockEntityTag", 10))
             {
                 TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -98,17 +98,17 @@ public class ItemBlockBetter extends Item
                         return false;
                     }
 
-                    CompoundNBT nbttagcompound = tileentity.writeToNBT(new CompoundNBT());
+                    CompoundNBT nbttagcompound = tileentity.write(new CompoundNBT());
                     CompoundNBT nbttagcompound1 = nbttagcompound.copy();
-                    CompoundNBT nbttagcompound2 = (CompoundNBT)stackIn.getTagCompound().getTag("BlockEntityTag");
+                    CompoundNBT nbttagcompound2 = (CompoundNBT)stackIn.getTag().get("BlockEntityTag");
                     nbttagcompound.merge(nbttagcompound2);
-                    nbttagcompound.setInteger("x", pos.getX());
-                    nbttagcompound.setInteger("y", pos.getY());
-                    nbttagcompound.setInteger("z", pos.getZ());
+                    nbttagcompound.putInt("x", pos.getX());
+                    nbttagcompound.putInt("y", pos.getY());
+                    nbttagcompound.putInt("z", pos.getZ());
 
                     if (!nbttagcompound.equals(nbttagcompound1))
                     {
-                        tileentity.readFromNBT(nbttagcompound);
+                        tileentity.read(nbttagcompound);
                         tileentity.markDirty();
                         return true;
                     }
@@ -122,7 +122,7 @@ public class ItemBlockBetter extends Item
     @OnlyIn(Dist.CLIENT)
     public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, Direction side, PlayerEntity player, ItemStack stack)
     {
-        Block block = worldIn.getBlockState(pos).getBlock();
+        Block block = worldIn.getBlockState(pos).getOwner();
 
         if (block == Blocks.SNOW_LAYER && block.isReplaceable(worldIn, pos))
         {
@@ -140,24 +140,24 @@ public class ItemBlockBetter extends Item
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    /*public String getUnlocalizedName(ItemStack stack)
+    /*public String getTranslationKey(ItemStack stack)
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }*/
 
     /**
      * Returns the unlocalized name of this item.
      */
-    /*public String getUnlocalizedName()
+    /*public String getTranslationKey()
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }*/
 
     /**
      * gets the CreativeTab this item is displayed on
      */
     /*@SideOnly(Side.CLIENT)
-    public CreativeTabs getCreativeTab()
+    public CreativeTabs getGroup()
     {
         return this.block.getCreativeTabToDisplayOn();
     }*/
@@ -167,12 +167,12 @@ public class ItemBlockBetter extends Item
      */
     /*@SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems)
+    public void fillItemGroup(CreativeTabs tab, NonNullList<ItemStack> subItems)
     {
-        this.block.getSubBlocks(tab, subItems);
+        this.block.fillItemGroup(tab, subItems);
     }*/
 
-    public Block getBlock()
+    public Block getOwner()
     {
         return this.block;
     }
@@ -190,7 +190,7 @@ public class ItemBlockBetter extends Item
         if (!world.setBlockState(pos, newState, 3)) return false;
 
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() == this.block)
+        if (state.getOwner() == this.block)
         {
             setTileEntityNBT(world, player, pos, stack);
             this.block.onBlockPlacedBy(world, pos, state, player, stack);

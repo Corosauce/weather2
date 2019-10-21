@@ -33,12 +33,12 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean overcastMode = false;
 	@ConfigComment("Used if overcastMode is off, 1 = lock weather on, 0 = lock weather off, -1 = dont lock anything, let server do whatever")
 	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
-	//clouds
+	//cloudOption
 	@ConfigComment("How many ticks between cloud particle spawning")
 	public static int Cloud_ParticleSpawnDelay = 2;
 	@ConfigComment("Distance between cloud formations, not particles, this includes invisible cloudless formations used during partial cloud coverage")
 	public static int Cloud_Formation_MinDistBetweenSpawned = 300;
-	@ConfigComment("For a second layer of passive non storm progressing clouds")
+	@ConfigComment("For a second layer of passive non storm progressing cloudOption")
 	public static boolean Cloud_Layer1_Enable = false;
 	public static int Cloud_Layer0_Height = 200;
 	public static int Cloud_Layer1_Height = 350;

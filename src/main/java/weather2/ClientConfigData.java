@@ -24,7 +24,7 @@ public class ClientConfigData {
      *
      * @param nbt
      */
-    public void readNBT(CompoundNBT nbt) {
+    public void read(CompoundNBT nbt) {
         overcastMode = nbt.getBoolean("overcastMode");
         Storm_Tornado_grabPlayer = nbt.getBoolean("Storm_Tornado_grabPlayer");
         Storm_Tornado_grabPlayersOnly = nbt.getBoolean("Storm_Tornado_grabPlayersOnly");
@@ -40,16 +40,16 @@ public class ClientConfigData {
      *
      * @param data
      */
-    public static void writeNBT(CompoundNBT data) {
+    public static void write(CompoundNBT data) {
 
-        data.setBoolean("overcastMode", ConfigMisc.overcastMode);
-        data.setBoolean("Storm_Tornado_grabPlayer", ConfigTornado.Storm_Tornado_grabPlayer);
-        data.setBoolean("Storm_Tornado_grabPlayersOnly", ConfigTornado.Storm_Tornado_grabPlayersOnly);
-        data.setBoolean("Storm_Tornado_grabMobs", ConfigTornado.Storm_Tornado_grabMobs);
-        data.setBoolean("Storm_Tornado_grabAnimals", ConfigTornado.Storm_Tornado_grabAnimals);
-        data.setBoolean("Storm_Tornado_grabVillagers", ConfigTornado.Storm_Tornado_grabVillagers);
-        data.setBoolean("Storm_Tornado_grabItems", ConfigTornado.Storm_Tornado_grabItems);
-        data.setBoolean("Aesthetic_Only_Mode", ConfigMisc.Aesthetic_Only_Mode);
+        data.putBoolean("overcastMode", ConfigMisc.overcastMode);
+        data.putBoolean("Storm_Tornado_grabPlayer", ConfigTornado.Storm_Tornado_grabPlayer);
+        data.putBoolean("Storm_Tornado_grabPlayersOnly", ConfigTornado.Storm_Tornado_grabPlayersOnly);
+        data.putBoolean("Storm_Tornado_grabMobs", ConfigTornado.Storm_Tornado_grabMobs);
+        data.putBoolean("Storm_Tornado_grabAnimals", ConfigTornado.Storm_Tornado_grabAnimals);
+        data.putBoolean("Storm_Tornado_grabVillagers", ConfigTornado.Storm_Tornado_grabVillagers);
+        data.putBoolean("Storm_Tornado_grabItems", ConfigTornado.Storm_Tornado_grabItems);
+        data.putBoolean("Aesthetic_Only_Mode", ConfigMisc.Aesthetic_Only_Mode);
 
 
     }

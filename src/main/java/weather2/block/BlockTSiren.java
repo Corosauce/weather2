@@ -25,7 +25,7 @@ public class BlockTSiren extends ContainerBlock
     public BlockTSiren()
     {
         this(Material.CLAY);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(ENABLED, Boolean.valueOf(true)));
+        this.setDefaultState(this.stateContainer.getBaseState().with(ENABLED, Boolean.valueOf(true)));
     }
 
     public BlockTSiren(Material mat)
@@ -58,7 +58,7 @@ public class BlockTSiren extends ContainerBlock
     @Override
     public BlockState getStateForPlacement(World worldIn, BlockPos pos, Direction facing, float hitX, float hitY, float hitZ, int meta, LivingEntity placer)
     {
-        return this.getDefaultState().withProperty(ENABLED, Boolean.valueOf(true));
+        return this.getDefaultState().with(ENABLED, Boolean.valueOf(true));
     }
 
     @Override
@@ -66,7 +66,7 @@ public class BlockTSiren extends ContainerBlock
     {
         int i = 0;
 
-        if (!((Boolean)state.getValue(ENABLED)).booleanValue())
+        if (!((Boolean)state.get(ENABLED)).booleanValue())
         {
             i |= 8;
         }
@@ -77,7 +77,7 @@ public class BlockTSiren extends ContainerBlock
     @Override
     public BlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(ENABLED, Boolean.valueOf(isEnabled(meta)));
+        return this.getDefaultState().with(ENABLED, Boolean.valueOf(isEnabled(meta)));
     }
 
     public static boolean isEnabled(int meta)
@@ -95,9 +95,9 @@ public class BlockTSiren extends ContainerBlock
     {
         boolean flag = !worldIn.isBlockPowered(pos);
 
-        if (flag != ((Boolean)state.getValue(ENABLED)).booleanValue())
+        if (flag != ((Boolean)state.get(ENABLED)).booleanValue())
         {
-            worldIn.setBlockState(pos, state.withProperty(ENABLED, Boolean.valueOf(flag)), 3);
+            worldIn.setBlockState(pos, state.with(ENABLED, Boolean.valueOf(flag)), 3);
         }
     }
 

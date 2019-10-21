@@ -47,9 +47,9 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 	}
 	
 	@Override
-	public void onUpdate()
+	public void tick()
     {
-		super.onUpdate();
+		super.tick();
 		
 		//gravity
 		this.motionY -= 0.1F;
@@ -64,19 +64,19 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 			ticksInAir++;
 			
 			if (this.isCollided) {
-				setDead();
+				remove();
 			}
 			
 			if (ticksInAir > 120) {
-				setDead();
+				remove();
 			}
 			
 			if (this.world.getClosestPlayer(this.posX, 50, this.posZ, 80, false) == null) {
-				setDead();
+				remove();
 			}
 			
 			if (isInWater()) {
-				setDead();
+				remove();
 			}
         } else {
         	tickAnimate();
@@ -93,7 +93,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		RayTraceResult movingobjectposition = null;
 		
         Entity entity = null;
-        List list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(this.motionX, this.motionY, this.motionZ).grow(0.5D, 1D, 0.5D));
+        List list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox().grow(this.motionX, this.motionY, this.motionZ).grow(0.5D, 1D, 0.5D));
         double d0 = 0.0D;
         LivingEntity entityliving = this.getThrower();
 
@@ -113,7 +113,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
             movingobjectposition = new RayTraceResult(entity);
             /*if (movingobjectposition != null) {
             	this.onImpact(movingobjectposition);
-            	setDead();
+            	remove();
             }*/
         }
         return movingobjectposition;
@@ -133,7 +133,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 				movingobjectposition.entityHit.attackEntityFrom(DamageSource.FALLING_BLOCK, damage);
 
 				if (!world.isRemote) {
-					setDead();
+					remove();
 				}
 
 			}
@@ -143,7 +143,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		
 		if (!world.isRemote) {
 			world.playSound(null, new BlockPos(posX, posY, posZ), SoundEvents.BLOCK_STONE_STEP, SoundCategory.AMBIENT, 3F, 5F);//0.2F + world.rand.nextFloat() * 0.1F);
-			setDead();
+			remove();
 			//System.out.println("server: " + posX);
 		} else {
 			tickDeath();
@@ -152,9 +152,9 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 	}
 	
 	@Override
-	public void setDead() {
+	public void remove() {
 		if (world.isRemote) tickDeath();
-		super.setDead();
+		super.remove();
 	}
 	
 	@OnlyIn(Dist.CLIENT)

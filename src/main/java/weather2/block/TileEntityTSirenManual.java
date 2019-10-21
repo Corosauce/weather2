@@ -3,19 +3,19 @@ package weather2.block;
 import CoroUtil.util.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.ITickableTileEntity;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.CommonProxy;
 import weather2.util.WeatherUtilSound;
 
-public class TileEntityTSirenManual extends TileEntity implements ITickable
+public class TileEntityTSirenManual extends TileEntity implements ITickableTileEntity
 {
     public long lastPlayTime = 0L;
 
     @Override
-    public void update()
+    public void tick()
     {
     	if (world.isRemote) {
     	    int meta = CommonProxy.blockTSiren.getMetaFromState(this.world.getBlockState(this.getPos()));

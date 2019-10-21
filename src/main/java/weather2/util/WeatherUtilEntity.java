@@ -66,7 +66,7 @@ public class WeatherUtilEntity {
             }
 
             
-            if (((PlayerEntity) entity1).capabilities.isCreativeMode) return 99999999F;
+            if (((PlayerEntity) entity1).abilities.isCreativeMode) return 99999999F;
             
             int extraWeight = 0;
             
@@ -117,7 +117,7 @@ public class WeatherUtilEntity {
             //{
                 //entity1.onGround = false;
                 //c_CoroWeatherUtil.setEntityAge((EntityLivingBase)entity1, -150);
-        	int airTime = livingEnt.getEntityData().getInteger("timeInAir");
+        	int airTime = livingEnt.getPersistentData().getInt("timeInAir");
         	if (livingEnt.onGround || livingEnt.handleWaterMovement())
             {
                 airTime = 0;
@@ -129,7 +129,7 @@ public class WeatherUtilEntity {
         	//test
         	//airTime = 0;
         	
-        	livingEnt.getEntityData().setInteger("timeInAir", airTime);
+        	livingEnt.getPersistentData().putInt("timeInAir", airTime);
             //}
 
             //System.out.println(((EntityLivingBase)entity1).entityAge+150);
@@ -147,7 +147,7 @@ public class WeatherUtilEntity {
 
         if (entity1 instanceof LivingEntity) {
             LivingEntity livingEnt = (LivingEntity) entity1;
-            int airTime = livingEnt.getEntityData().getInteger("timeInAir");
+            int airTime = livingEnt.getPersistentData().getInt("timeInAir");
             if (forTornado) {
                 return 0.5F + (((float)airTime) / 800F);
             } else {
@@ -221,16 +221,16 @@ public class WeatherUtilEntity {
 		
 		if (cheapCheck) return false;
 		
-		Vec3 vecTry = new Vec3(parPos.xCoord + Direction.NORTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.NORTH.getFrontOffsetZ()*rangeCheck);
+		Vec3 vecTry = new Vec3(parPos.xCoord + Direction.NORTH.getXOffset()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.NORTH.getZOffset()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + Direction.SOUTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.SOUTH.getFrontOffsetZ()*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + Direction.SOUTH.getXOffset()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.SOUTH.getZOffset()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + Direction.EAST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.EAST.getFrontOffsetZ()*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + Direction.EAST.getXOffset()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.EAST.getZOffset()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + Direction.WEST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.WEST.getFrontOffsetZ()*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + Direction.WEST.getXOffset()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.WEST.getZOffset()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
 		return false;

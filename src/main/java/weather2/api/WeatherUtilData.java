@@ -14,7 +14,7 @@ public class WeatherUtilData {
      * @param ent
      */
     public static void setWindAffected(Entity ent) {
-        ent.getEntityData().setBoolean(weather2_WindAffected, true);
+        ent.getPersistentData().putBoolean(weather2_WindAffected, true);
     }
 
     /**
@@ -24,19 +24,19 @@ public class WeatherUtilData {
      * @param weight
      */
     public static void setWindWeight(Entity ent, float weight) {
-        ent.getEntityData().setFloat(weather2_WindWeight, weight);
+        ent.getPersistentData().putFloat(weather2_WindWeight, weight);
     }
 
     public static boolean isWindAffected(Entity ent) {
-        return ent.getEntityData().getBoolean(weather2_WindAffected);
+        return ent.getPersistentData().getBoolean(weather2_WindAffected);
     }
 
     public static float getWindWeight(Entity ent) {
-        return ent.getEntityData().getFloat(weather2_WindWeight);
+        return ent.getPersistentData().getFloat(weather2_WindWeight);
     }
 
     public static boolean isWindWeightSet(Entity ent) {
-        return ent.getEntityData().hasKey(weather2_WindWeight);
+        return ent.getPersistentData().contains(weather2_WindWeight);
     }
 
 }

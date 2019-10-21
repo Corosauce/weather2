@@ -44,14 +44,14 @@ public class GuiButtonBoolean extends Button
     }
     
     public void setBooleanToggle() {
-    	setBoolean(!getBoolean());
+    	putBoolean(!getBoolean());
     }
     
     public boolean getBoolean() {
     	return boolState;
     }
     
-    public void setBoolean(boolean val) {
+    public void putBoolean(boolean val) {
     	boolState = val;
     }
 

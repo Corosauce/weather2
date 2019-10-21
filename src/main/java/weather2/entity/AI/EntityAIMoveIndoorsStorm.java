@@ -69,9 +69,9 @@ public class EntityAIMoveIndoorsStorm extends Goal implements ITaskInitializer
                 WeatherObjectSandstorm sandstorm = weatherManager.getClosestSandstormByIntensity(pos);
 
                 if (sandstorm != null) {
-                    List<Vec3> points = sandstorm.getSandstormAsShape();
+                    List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
 
-                    if (CoroUtilPhysics.getDistanceToShape(pos, points) < ConfigMisc.Villager_MoveInsideForStorms_Dist) {
+                    if (CoroUtilPhysics.getDistanceToShape(pos, field_75884_a) < ConfigMisc.Villager_MoveInsideForStorms_Dist) {
                         runInside = true;
                     }
                 }

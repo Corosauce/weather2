@@ -52,8 +52,8 @@ public class PlayerData {
 		Iterator it = playerNBT.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry pairs = (Map.Entry)it.next();
-	        //Weather.dbg(pairs.getKey() + " = " + pairs.getValue());
-	        writePlayerNBT((String)pairs.getKey(), (CompoundNBT)pairs.getValue());
+	        //Weather.dbg(pairs.getKey() + " = " + pairs.get());
+	        writePlayerNBT((String)pairs.getKey(), (CompoundNBT)pairs.get());
 	    }
 	    
 	    if (resetData) {

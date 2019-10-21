@@ -148,12 +148,12 @@ public class TileEntityWeatherForecastRenderer extends TileEntityRenderer
 
         //if (true) return;
 
-        float playerViewY = Minecraft.getMinecraft().getRenderManager().playerViewY;
+        float playerViewY = Minecraft.getInstance().getRenderManager().playerViewY;
 		
         renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, playerViewY);
 
         if (ConfigMisc.radarCloudDebug) {
-            PlayerEntity entP = Minecraft.getMinecraft().player;
+            PlayerEntity entP = Minecraft.getInstance().player;
             if (entP != null) {
                 WeatherManagerClient wm = ClientTickHandler.weatherManager;
                 float precipStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP, true));
@@ -273,7 +273,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntityRenderer
         GlStateManager.disableCull();
         GlStateManager.disableTexture2D();
     	
-        FontRenderer var11 = Minecraft.getMinecraft().getRenderManager().getFontRenderer();
+        FontRenderer var11 = Minecraft.getInstance().getRenderManager().getFontRenderer();
         float var12 = 0.6F;
         float var13 = 0.016666668F * var12;
         GlStateManager.pushMatrix();

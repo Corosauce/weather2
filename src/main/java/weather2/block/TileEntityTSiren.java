@@ -2,7 +2,7 @@ package weather2.block;
 
 import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.ITickableTileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
@@ -16,12 +16,12 @@ import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 import java.util.List;
 
-public class TileEntityTSiren extends TileEntity implements ITickable
+public class TileEntityTSiren extends TileEntity implements ITickableTileEntity
 {
     public long lastPlayTime = 0L;
 
     @Override
-    public void update()
+    public void tick()
     {
     	if (world.isRemote) {
     	    int meta = CommonProxy.blockTSiren.getMetaFromState(this.world.getBlockState(this.getPos()));
@@ -51,13 +51,13 @@ public class TileEntityTSiren extends TileEntity implements ITickable
                     WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(pos);
 
                     if (sandstorm != null) {
-                        List<Vec3> points = sandstorm.getSandstormAsShape();
+                        List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
 
                         float distMax = 75F;
 
                         //double scale = sandstorm.getSandstormScale();
-                        boolean inStorm = CoroUtilPhysics.isInConvexShape(pos, points);
-                        double dist = Math.min(distMax, CoroUtilPhysics.getDistanceToShape(pos, points));
+                        boolean inStorm = CoroUtilPhysics.isInConvexShape(pos, field_75884_a);
+                        double dist = Math.min(distMax, CoroUtilPhysics.getDistanceToShape(pos, field_75884_a));
 
                         if (inStorm || dist < distMax) {
                             String soundToPlay = "siren_sandstorm_5_extra";

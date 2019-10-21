@@ -87,7 +87,7 @@ public class CommandWeather2 extends CommandBase {
 							if (wo instanceof WeatherObject) {
 								WeatherObject so = wo;
 								Weather.dbg("force killing storm ID: " + so.ID);
-								so.setDead();
+								so.remove();
 							}
 						}
 					} else if (var2[1].equalsIgnoreCase("killDeadly")) {
@@ -100,7 +100,7 @@ public class CommandWeather2 extends CommandBase {
 								StormObject so = (StormObject)wo;
 								if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER) {
 									Weather.dbg("force killing storm ID: " + so.ID);
-									so.setDead();
+									so.remove();
 								}
 							}
 						}
@@ -114,7 +114,7 @@ public class CommandWeather2 extends CommandBase {
 								StormObject so = (StormObject)wo;
 								if (so.levelCurIntensityStage >= StormObject.STATE_THUNDER || so.attrib_precipitation) {
 									Weather.dbg("force killing storm ID: " + so.ID);
-									so.setDead();
+									so.remove();
 								}
 							}
 						}

@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.ITickableTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -20,7 +20,7 @@ import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 import weather2.weathersystem.storm.WeatherObject;
 
-public class TileEntityWeatherDeflector extends TileEntity implements ITickable
+public class TileEntityWeatherDeflector extends TileEntity implements ITickableTileEntity
 {
 
 	//0 = kill storms, 1 = prevent block damage
@@ -36,13 +36,13 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 	}
 
 	@Override
-    public void update()
+    public void tick()
     {
     	
     	if (!world.isRemote) {
 
     		if (mode == MODE_KILLSTORMS) {
-				if (world.getTotalWorldTime() % 100 == 0) {
+				if (world.getGameTime() % 100 == 0) {
 					WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.provider.getDimension());
 					if (wm != null) {
 						List<WeatherObject> storms = wm.getStormsAroundForDeflector(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), ConfigStorm.Storm_Deflector_RadiusOfStormRemoval);
@@ -59,7 +59,7 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 				}
 			}
 
-			if (world.getTotalWorldTime() % 20 == 0) {
+			if (world.getGameTime() % 20 == 0) {
 				maintainBlockDamageDeflect();
 			}
 
@@ -104,21 +104,21 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 		}
 	}
 
-    public CompoundNBT writeToNBT(CompoundNBT var1)
+    public CompoundNBT write(CompoundNBT var1)
     {
-    	var1.setInteger("mode", mode);
-        return super.writeToNBT(var1);
+    	var1.putInt("mode", mode);
+        return super.write(var1);
     }
 
-    public void readFromNBT(CompoundNBT var1)
+    public void read(CompoundNBT var1)
     {
-        super.readFromNBT(var1);
-		mode = var1.getInteger("mode");
+        super.read(var1);
+		mode = var1.getInt("mode");
     }
 
 	@Override
-	public void invalidate() {
-		super.invalidate();
+	public void remove() {
+		super.remove();
 
 		if (!world.isRemote) {
 			//always try to remove, incase they removed the block before the tick code could run after switching mode

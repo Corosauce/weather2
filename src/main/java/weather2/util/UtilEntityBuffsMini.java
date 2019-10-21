@@ -16,7 +16,7 @@ public class UtilEntityBuffsMini {
 
     public static boolean replaceTaskIfMissing(CreatureEntity ent, Class taskToReplace, Class tasksToReplaceWith, int priorityOfTask) {
         GoalSelector.EntityAITaskEntry foundTask = null;
-        for (Object entry2 : ent.tasks.taskEntries) {
+        for (Object entry2 : ent.goalSelector.taskEntries) {
             GoalSelector.EntityAITaskEntry entry = (GoalSelector.EntityAITaskEntry) entry2;
             if (taskToReplace.isAssignableFrom(entry.action.getClass())) {
                 foundTask = entry;
@@ -25,16 +25,16 @@ public class UtilEntityBuffsMini {
         }
 
         if (foundTask != null) {
-            ent.tasks.taskEntries.remove(foundTask);
+            ent.goalSelector.taskEntries.remove(foundTask);
 
-            addTask(ent, tasksToReplaceWith, priorityOfTask);
+            addGoal(ent, tasksToReplaceWith, priorityOfTask);
         }
 
         return foundTask != null;
 
     }
 
-    public static boolean addTask(CreatureEntity ent, Class taskToInject, int priorityOfTask) {
+    public static boolean addGoal(CreatureEntity ent, Class taskToInject, int priorityOfTask) {
         try {
             Constructor<?> cons = taskToInject.getConstructor();
             Object obj = cons.newInstance();
@@ -42,7 +42,7 @@ public class UtilEntityBuffsMini {
                 ITaskInitializer task = (ITaskInitializer) obj;
                 task.setEntity(ent);
                 //System.out.println("adding task into zombie: " + taskToInject);
-                ent.tasks.addTask(priorityOfTask, (Goal) task);
+                ent.goalSelector.addGoal(priorityOfTask, (Goal) task);
                 //aiEnhanced.put(ent.getEntityId(), true);
 
 

@@ -68,8 +68,8 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         }
 
         //this.particleScale = this.rand.nextFloat() * this.rand.nextFloat() * 6.0F + 1.0F;
-        this.particleMaxAge = 18;
-        this.particleMaxAge = (int)((double)((float)this.particleMaxAge) * var14);
+        this.maxAge = 18;
+        this.maxAge = (int)((double)((float)this.maxAge) * var14);
         
         this.particleGravity = 0.2F;
         this.particleScale = 0.5F;
@@ -88,7 +88,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         float var14 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)var2 - interpPosY);
         float var15 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)var2 - interpPosZ);
         float var16 = this.getBrightnessForRender(var2) * this.brightness;
-        var16 = (1F + FMLClientHandler.instance().getClient().gameSettings.gammaSetting) - (this.world.calculateSkylightSubtracted(var2) * 0.13F);
+        var16 = (1F + FMLClientHandler.instance().getClient().gameSettings.gamma) - (this.world.calculateSkylightSubtracted(var2) * 0.13F);
         
         
         
@@ -117,7 +117,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
 
     public void renderParticle(Tessellator var1, float var2, float var3, float var4, float var5, float var6, float var7)
     {
-    	//GL11.glBindTexture(GL11.GL_TEXTURE_2D, RenderManager.instance.renderEngine.getTexture("/particles.png"));
+    	//GL11.glBindTexture(GL11.GL_TEXTURE_2D, RenderManager.instance.textureManager.getTexture("/particles.png"));
     	
         
     }
@@ -129,31 +129,31 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
     }
 
     @Override
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
         
         float adj = 0.08F * rand.nextFloat();
-        //this.motionX += adj * Math.sin(world.getWorldTime());
-        //this.motionZ += adj * Math.sin(world.getWorldTime());
-        //this.motionY += adj * Math.cos(world.getWorldTime());
+        //this.motionX += adj * Math.sin(world.getDayTime());
+        //this.motionZ += adj * Math.sin(world.getDayTime());
+        //this.motionY += adj * Math.cos(world.getDayTime());
 
         if (particleRed < 255) particleRed += 0.01F;
         if (particleGreen < 255) particleGreen += 0.01F;
         if (particleBlue < 255) particleBlue += 0.01F;
         
         
-        if (this.particleAge++ >= this.particleMaxAge)
+        if (this.age++ >= this.maxAge)
         {
             this.setExpired();
         }
         
-        this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
-        //this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
+        this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
+        //this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
         
-        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getBlock();
+        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getOwner();
         //int id2 = this.world.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
         
         
@@ -191,7 +191,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         	
     		BlockState state = this.world.getBlockState(pos);
     		
-    		meta = state.getBlock().getMetaFromState(state);
+    		meta = state.getOwner().getMetaFromState(state);
     		
         	//meta = this.world.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	
@@ -201,7 +201,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         		
         		
         	} else {
-        		//double remain = ((this.boundingBox.minY) - ((int)Math.floor(this.boundingBox.minY)));
+        		//double remain = ((this.bounds.minY) - ((int)Math.floor(this.bounds.minY)));
         		//System.out.println("remain: " + remain);
         		//if (remain < 0.3D) {
         		//this.handleWaterMovement();
@@ -215,10 +215,10 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         	}
         	
         } else {
-        	//setDead();
+        	//remove();
         	
         	this.motionY -= 0.05000000074505806D * this.particleGravity * 1.5F;
-        	//if (this.onGround) this.setDead();
+        	//if (this.onGround) this.remove();
         }
         
         if (this.motionY > 0.03F) this.motionY = 0.03F;

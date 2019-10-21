@@ -72,9 +72,9 @@ public class BlockWeatherMachine extends ContainerBlock
     }
 
     @Override
-    public void onBlockClicked(World worldIn, BlockPos pos, PlayerEntity playerIn) {
+    public void startDestroyBlock(World worldIn, BlockPos pos, PlayerEntity playerIn) {
         System.out.println("clicked");
-        super.onBlockClicked(worldIn, pos, playerIn);
+        super.startDestroyBlock(worldIn, pos, playerIn);
     }
 
     /**

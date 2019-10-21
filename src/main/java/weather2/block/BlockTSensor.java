@@ -31,14 +31,14 @@ public class BlockTSensor extends Block
     public BlockTSensor()
     {
         super(Material.CLAY);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(POWER, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().with(POWER, Integer.valueOf(0)));
         this.setTickRandomly(true);
         setHardness(0.6F);
         setResistance(10.0F);
     }
 
     @Override
-    public void updateTick(World world, BlockPos pos, BlockState state, Random rand)
+    public void tick(World world, BlockPos pos, BlockState state, Random rand)
     {
     	
     	if (world.isRemote) return;
@@ -55,11 +55,11 @@ public class BlockTSensor extends Block
 
         if (enable)
         {
-        	world.setBlockState(pos, state.withProperty(POWER, 15), 3);
+        	world.setBlockState(pos, state.with(POWER, 15), 3);
         }
         else
         {
-        	world.setBlockState(pos, state.withProperty(POWER, 0), 3);
+        	world.setBlockState(pos, state.with(POWER, 0), 3);
         }
         
         world.scheduleBlockUpdate(pos, this, 100, 1);
@@ -79,9 +79,9 @@ public class BlockTSensor extends Block
     }
 
     @Override
-    public int getWeakPower(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side)
+    public int getWeakPower(BlockState stateContainer, IBlockAccess blockAccess, BlockPos pos, Direction side)
     {
-        return ((Integer)blockState.getValue(POWER)).intValue();
+        return ((Integer)stateContainer.get(POWER)).intValue();
     }
     
     @Override
@@ -95,7 +95,7 @@ public class BlockTSensor extends Block
      */
     public BlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(POWER, Integer.valueOf(meta));
+        return this.getDefaultState().with(POWER, Integer.valueOf(meta));
     }
 
     /**
@@ -103,7 +103,7 @@ public class BlockTSensor extends Block
      */
     public int getMetaFromState(BlockState state)
     {
-        return ((Integer)state.getValue(POWER)).intValue();
+        return ((Integer)state.get(POWER)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
