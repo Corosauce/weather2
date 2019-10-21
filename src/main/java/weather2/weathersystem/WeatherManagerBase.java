@@ -7,7 +7,7 @@ import java.util.*;
 
 import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -478,18 +478,18 @@ public class WeatherManagerBase {
 	}
 	
 	public void writeToFile() {
-		NBTTagCompound mainNBT = new NBTTagCompound();
-		NBTTagCompound listVolcanoesNBT = new NBTTagCompound();
+		CompoundNBT mainNBT = new CompoundNBT();
+		CompoundNBT listVolcanoesNBT = new CompoundNBT();
 		for (int i = 0; i < listVolcanoes.size(); i++) {
 			VolcanoObject td = listVolcanoes.get(i);
-			NBTTagCompound teamNBT = new NBTTagCompound();
+			CompoundNBT teamNBT = new CompoundNBT();
 			td.writeToNBT(teamNBT);
 			listVolcanoesNBT.setTag("volcano_" + td.ID, teamNBT);
 		}
 		mainNBT.setTag("volcanoData", listVolcanoesNBT);
 		mainNBT.setLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);
 		
-		NBTTagCompound listStormsNBT = new NBTTagCompound();
+		CompoundNBT listStormsNBT = new CompoundNBT();
 		for (int i = 0; i < listStormObjects.size(); i++) {
 			WeatherObject obj = listStormObjects.get(i);
 			obj.getNbtCache().setUpdateForced(true);
@@ -506,7 +506,7 @@ public class WeatherManagerBase {
 
 		mainNBT.setFloat("cloudIntensity", this.cloudIntensity);
 
-		mainNBT.setTag("windMan", windMan.writeToNBT(new NBTTagCompound()));
+		mainNBT.setTag("windMan", windMan.writeToNBT(new CompoundNBT()));
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
 		
@@ -521,7 +521,7 @@ public class WeatherManagerBase {
 	
 	public void readFromFile() {
 		
-		NBTTagCompound rtsNBT = new NBTTagCompound();
+		CompoundNBT rtsNBT = new CompoundNBT();
 		
 		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
 		
@@ -576,13 +576,13 @@ public class WeatherManagerBase {
 
 		windMan.readFromNBT(rtsNBT.getCompoundTag("windMan"));
 		
-		NBTTagCompound nbtVolcanoes = rtsNBT.getCompoundTag("volcanoData");
+		CompoundNBT nbtVolcanoes = rtsNBT.getCompoundTag("volcanoData");
 		
 		Iterator it = nbtVolcanoes.getKeySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			NBTTagCompound teamData = nbtVolcanoes.getCompoundTag(tagName);
+			CompoundNBT teamData = nbtVolcanoes.getCompoundTag(tagName);
 			
 			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0)/*-1, -1, null*/);
 			try {
@@ -602,13 +602,13 @@ public class WeatherManagerBase {
 			to.initPost();
 		}
 		
-		NBTTagCompound nbtStorms = rtsNBT.getCompoundTag("stormData");
+		CompoundNBT nbtStorms = rtsNBT.getCompoundTag("stormData");
 		
 		it = nbtStorms.getKeySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			NBTTagCompound data = nbtStorms.getCompoundTag(tagName);
+			CompoundNBT data = nbtStorms.getCompoundTag(tagName);
 			
 			if (ServerTickHandler.lookupDimToWeatherMan.get(dim) != null) {
                 WeatherObject wo = null;

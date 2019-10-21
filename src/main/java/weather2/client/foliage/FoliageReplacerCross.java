@@ -3,14 +3,15 @@ package weather2.client.foliage;
 import CoroUtil.util.Vec3;
 import extendedrenderer.ExtendedRenderer;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockCrops;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.CropsBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -21,11 +22,11 @@ import java.util.Map;
  */
 public class FoliageReplacerCross extends FoliageReplacerBase {
 
-    public FoliageReplacerCross(IBlockState state) {
+    public FoliageReplacerCross(BlockState state) {
         super(state);
     }
 
-    public FoliageReplacerCross(IBlockState state, int expectedHeight) {
+    public FoliageReplacerCross(BlockState state, int expectedHeight) {
         super(state);
         this.expectedHeight = expectedHeight;
     }
@@ -34,7 +35,7 @@ public class FoliageReplacerCross extends FoliageReplacerBase {
     public boolean validFoliageSpot(World world, BlockPos pos) {
         if (baseMaterial == null || world.getBlockState(pos).getMaterial() == baseMaterial) {
             if (stateSensitive) {
-                IBlockState stateScan = world.getBlockState(pos.up());
+                BlockState stateScan = world.getBlockState(pos.up());
                 if (stateScan.getBlock() == state.getBlock()) {
                     boolean fail = false;
                     for (Map.Entry<IProperty, Comparable> entrySet : lookupPropertiesToComparable.entrySet()) {

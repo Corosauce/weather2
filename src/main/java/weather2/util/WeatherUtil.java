@@ -6,14 +6,13 @@ import java.util.Iterator;
 import java.util.Set;
 
 import CoroUtil.util.CoroUtilCompatibility;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLog;
-import net.minecraft.block.BlockTallGrass;
+import net.minecraft.block.*;
+import net.minecraft.block.LogBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -42,7 +41,7 @@ public class WeatherUtil {
     }
     
     //Terrain grabbing
-    public static boolean shouldGrabBlock(World parWorld, IBlockState state)
+    public static boolean shouldGrabBlock(World parWorld, BlockState state)
     {
         try
         {
@@ -93,7 +92,7 @@ public class WeatherUtil {
                                 block.getMaterial(block.getDefaultState()) == Material.CLOTH ||
                                 block.getMaterial(block.getDefaultState()) == Material.PLANTS ||
                                 block.getMaterial(block.getDefaultState()) == Material.VINE ||
-                                block instanceof BlockTallGrass)
+                                block instanceof TallGrassBlock)
     	                {
     	                    /*if (block.blockMaterial == Material.water) {
     	                    	return false;
@@ -111,7 +110,7 @@ public class WeatherUtil {
                 }
                 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                	if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                	if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || block instanceof LogBlock/* || block.blockMaterial == Material.wood*/) {
                 		result = false;
                 	}
                 	if (!CoroUtilCompatibility.canTornadoGrabBlockRefinedRules(state)) {

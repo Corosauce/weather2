@@ -1,12 +1,13 @@
 package weather2;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.*;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
@@ -107,14 +108,14 @@ public class CommonProxy implements IGuiHandler
 		Weather.proxy.addItem(event, itemWeatherRecipe = new ItemWeatherRecipe(), weather_item);
 		Weather.proxy.addItem(event, itemPocketSand = new ItemPocketSand(), pocket_sand);
 
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSensor).setRegistryName(blockTSensor.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSiren).setRegistryName(blockTSiren.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockTSirenManual).setRegistryName(blockTSirenManual.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockWindVane).setRegistryName(blockWindVane.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherForecast).setRegistryName(blockWeatherForecast.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherMachine).setRegistryName(blockWeatherMachine.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockWeatherDeflector).setRegistryName(blockWeatherDeflector.getRegistryName()));
-		Weather.proxy.addItemBlock(event, new ItemBlock(blockAnemometer).setRegistryName(blockAnemometer.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockTSensor).setRegistryName(blockTSensor.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockTSiren).setRegistryName(blockTSiren.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockTSirenManual).setRegistryName(blockTSirenManual.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockWindVane).setRegistryName(blockWindVane.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockWeatherForecast).setRegistryName(blockWeatherForecast.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockWeatherMachine).setRegistryName(blockWeatherMachine.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockWeatherDeflector).setRegistryName(blockWeatherDeflector.getRegistryName()));
+		Weather.proxy.addItemBlock(event, new BlockItem(blockAnemometer).setRegistryName(blockAnemometer.getRegistryName()));
 	}
 
     public void init()
@@ -255,15 +256,15 @@ public class CommonProxy implements IGuiHandler
     }
 
     @Override
-    public Object getServerGuiElement(int ID, EntityPlayer player, World world,
-            int x, int y, int z)
+    public Object getServerGuiElement(int ID, PlayerEntity player, World world,
+                                      int x, int y, int z)
     {
         return null;
     }
 
     @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, World world,
-            int x, int y, int z)
+    public Object getClientGuiElement(int ID, PlayerEntity player, World world,
+                                      int x, int y, int z)
     {
         return null;
     }

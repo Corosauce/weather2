@@ -7,8 +7,8 @@ import java.util.Random;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import CoroUtil.OldUtil;
 import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -43,7 +43,7 @@ public class WeatherUtilParticle {
         //OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "particleAge", val);
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void getFXLayers()
     {
         //fxLayers
@@ -72,7 +72,7 @@ public class WeatherUtilParticle {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static float getParticleWeight(EntityRotFX entity1)
     {
     	//commented out for weather2 copy

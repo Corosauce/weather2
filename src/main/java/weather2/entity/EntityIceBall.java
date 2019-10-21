@@ -3,16 +3,16 @@ package weather2.entity;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.entity.EntityThrowableUsefull;
 import CoroUtil.util.Vec3;
@@ -21,7 +21,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 {
 	public int ticksInAir;
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public boolean hasDeathTicked;
 
 	public EntityIceBall(World world)
@@ -29,7 +29,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		super(world);
 	}
 
-	public EntityIceBall(World world, EntityLivingBase entityliving)
+	public EntityIceBall(World world, LivingEntity entityliving)
 	{
 		super(world, entityliving);
 		
@@ -95,7 +95,7 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
         Entity entity = null;
         List list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(this.motionX, this.motionY, this.motionZ).grow(0.5D, 1D, 0.5D));
         double d0 = 0.0D;
-        EntityLivingBase entityliving = this.getThrower();
+        LivingEntity entityliving = this.getThrower();
 
         for (int j = 0; j < list.size(); ++j)
         {
@@ -157,12 +157,12 @@ public class EntityIceBall extends EntityThrowableUsefull implements IWindHandle
 		super.setDead();
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickAnimate() {
 		
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickDeath() {
 		if (!hasDeathTicked) {
 			//System.out.println("client: " + posX);

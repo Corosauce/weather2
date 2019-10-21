@@ -8,7 +8,8 @@ import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.shader.Matrix4fe;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -67,7 +68,7 @@ public class TornadoFunnel {
 
     private void tickGameTestCreate() {
 
-        EntityPlayer entP = Minecraft.getMinecraft().player;
+        PlayerEntity entP = Minecraft.getMinecraft().player;
 
         Random rand = new Random();
 
@@ -218,7 +219,7 @@ public class TornadoFunnel {
     private void tickUpdateFunnel() {
 
         World world = Minecraft.getMinecraft().world;
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        PlayerEntity player = Minecraft.getMinecraft().player;
 
         //for (FunnelPiece piece : listFunnel) {
         for (int ii = 0; ii < listFunnel.size(); ii++) {

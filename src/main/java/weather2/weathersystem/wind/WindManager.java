@@ -2,13 +2,12 @@ package weather2.weathersystem.wind;
 
 import java.util.Random;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;
@@ -375,9 +374,9 @@ public class WindManager {
 		lowWindTimer = 0;
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
-		EntityPlayer entP = FMLClientHandler.instance().getClient().player;
+		PlayerEntity entP = FMLClientHandler.instance().getClient().player;
 
         if (windTimeEvent > 0) {
         	windTimeEvent--;
@@ -410,8 +409,8 @@ public class WindManager {
 		}
 	}
 	
-	public NBTTagCompound nbtSyncForClient() {
-		NBTTagCompound data = new NBTTagCompound();
+	public CompoundNBT nbtSyncForClient() {
+		CompoundNBT data = new CompoundNBT();
 		
 		//idea: only sync the wind data client cares about (the active priority wind)
 		
@@ -429,7 +428,7 @@ public class WindManager {
 		return data;
 	}
 	
-	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+	public void nbtSyncFromServer(CompoundNBT parNBT) {
 		
 		windSpeedGlobal = parNBT.getFloat("windSpeedGlobal");
 		windAngleGlobal = parNBT.getFloat("windAngleGlobal");
@@ -570,7 +569,7 @@ public class WindManager {
 		return new Vec3(windX, 0, windZ);
 	}
 
-    public void readFromNBT(NBTTagCompound data) {
+    public void readFromNBT(CompoundNBT data) {
         windSpeedGlobal = data.getFloat("windSpeedGlobal");
         windAngleGlobal = data.getFloat("windAngleGlobal");
 
@@ -587,7 +586,7 @@ public class WindManager {
 
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+    public CompoundNBT writeToNBT(CompoundNBT data) {
         data.setFloat("windSpeedGlobal", windSpeedGlobal);
         data.setFloat("windAngleGlobal", windAngleGlobal);
 

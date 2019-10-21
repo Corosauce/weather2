@@ -5,28 +5,27 @@ import java.util.*;
 import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.util.*;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.MaterialLiquid;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngameMenu;
+import net.minecraft.client.gui.screen.IngameMenuScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.SquidEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
@@ -58,22 +57,22 @@ public class StormObject extends WeatherObject {
 	public String userSpawnedFor = "";
 
 	//newer cloud managing list for more strict render optimized positioning
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public HashMap<Integer, EntityRotFX> lookupParticlesCloud;
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public HashMap<Integer, EntityRotFX> lookupParticlesCloudLower;
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public HashMap<Integer, EntityRotFX> lookupParticlesFunnel;
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesGround;
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesFunnel;
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public ParticleBehaviorFog particleBehaviorFog;
 	
 	public int sizeMaxFunnelParticles = 600;
@@ -198,7 +197,7 @@ public class StormObject extends WeatherObject {
 
 	public boolean isFirenado = false;
 
-	public List<EntityLivingBase> listEntitiesUnderClouds = new ArrayList<>();
+	public List<LivingEntity> listEntitiesUnderClouds = new ArrayList<>();
     
 	public StormObject(WeatherManagerBase parManager) {
 		super(parManager);
@@ -422,13 +421,13 @@ public class StormObject extends WeatherObject {
 
 	}
 	
-	public NBTTagCompound nbtForIMC() {
+	public CompoundNBT nbtForIMC() {
 		//we basically need all the same data minus a few soooo whatever
 		nbtSyncForClient();
 		return getNbtCache().getNewNBT();
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickRender(float partialTick) {
 		super.tickRender(partialTick);
 
@@ -536,8 +535,8 @@ public class StormObject extends WeatherObject {
 		posGround = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
 		posGround.yCoord = currentTopYBlock;
 		
-		Side side = FMLCommonHandler.instance().getEffectiveSide();
-		if (side == Side.CLIENT) {
+		Dist side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side == Dist.CLIENT) {
 			if (!WeatherUtil.isPaused()) {
 				
 				ticksSinceLastPacketReceived++;
@@ -816,15 +815,15 @@ public class StormObject extends WeatherObject {
 			if ((manager.getWorld().getTotalWorldTime() + (ID * 20)) % ConfigStorm.Storm_Rain_TrackAndExtinguishEntitiesRate == 0) {
 				listEntitiesUnderClouds.clear();
 				BlockPos posBP = new BlockPos(posGround.xCoord, posGround.yCoord, posGround.zCoord);
-				List<EntityLivingBase> listEnts = manager.getWorld().getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(posBP).grow(size));
-				for (EntityLivingBase ent : listEnts) {
+				List<LivingEntity> listEnts = manager.getWorld().getEntitiesWithinAABB(LivingEntity.class, new AxisAlignedBB(posBP).grow(size));
+				for (LivingEntity ent : listEnts) {
 					if (ent.world.canBlockSeeSky(ent.getPosition())) {
 						listEntitiesUnderClouds.add(ent);
 					}
 				}
 			}
 
-			for (EntityLivingBase ent : listEntitiesUnderClouds) {
+			for (LivingEntity ent : listEntitiesUnderClouds) {
 				ent.extinguish();
 			}
 		}
@@ -998,7 +997,7 @@ public class StormObject extends WeatherObject {
 				return new ChunkCoordinatesBlock(x, y, z, Blocks.AIR, 0);
 			}
 		} else if (checkID == Blocks.SNOW) {
-			IBlockState state = world.getBlockState(new BlockPos(x, y, z));
+			BlockState state = world.getBlockState(new BlockPos(x, y, z));
 			int checkMeta = state.getBlock().getMetaFromState(state);
 			//if detected snow is shorter, return with detected meta val!
 			//adjusting to <=
@@ -1032,7 +1031,7 @@ public class StormObject extends WeatherObject {
         }
         else
         {
-            if (par2 >= 0 && par2 < 256 && world.getLightFor(EnumSkyBlock.BLOCK, pos) < 10)
+            if (par2 >= 0 && par2 < 256 && world.getLightFor(LightType.BLOCK, pos) < 10)
             {
                 /*Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
                 Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
@@ -1041,7 +1040,7 @@ public class StormObject extends WeatherObject {
                 {
                     return true;
                 }*/
-				IBlockState iblockstate1 = world.getBlockState(pos);
+				BlockState iblockstate1 = world.getBlockState(pos);
 
 				//TODO: incoming new way to detect if blocks can be snowed on https://github.com/MinecraftForge/MinecraftForge/pull/4569/files
 				//might not require any extra work from me?
@@ -1093,7 +1092,7 @@ public class StormObject extends WeatherObject {
 		
 		if (world.getTotalWorldTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
 			
-			NBTTagCompound playerNBT = PlayerData.getPlayerNBT(userSpawnedFor);
+			CompoundNBT playerNBT = PlayerData.getPlayerNBT(userSpawnedFor);
 			
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
@@ -1220,7 +1219,7 @@ public class StormObject extends WeatherObject {
 				}
 
 				if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
-					EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+					PlayerEntity entP = world.getPlayerEntityByName(userSpawnedFor);
 
 					if (entP != null) {
 						initRealStorm(entP, null);
@@ -1234,7 +1233,7 @@ public class StormObject extends WeatherObject {
 						playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
 					}
 				} else if (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0) {
-					EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+					PlayerEntity entP = world.getPlayerEntityByName(userSpawnedFor);
 
 					if (entP != null) {
 						initRealStorm(entP, null);
@@ -1279,7 +1278,7 @@ public class StormObject extends WeatherObject {
 								playerNBT.setLong("lastStormDeadlyTime", world.getTotalWorldTime());
 
 								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1);
-								EntityPlayer entP = world.getPlayerEntityByName(userSpawnedFor);
+								PlayerEntity entP = world.getPlayerEntityByName(userSpawnedFor);
 
 								if (entP != null) {
 									initRealStorm(entP, so);
@@ -1464,7 +1463,7 @@ public class StormObject extends WeatherObject {
 		levelCurStagesIntensity = 1F;
 	}
 	
-	public void initRealStorm(EntityPlayer entP, StormObject stormToAbsorb) {
+	public void initRealStorm(PlayerEntity entP, StormObject stormToAbsorb) {
 		
 		//new way of storm progression
 		levelCurIntensityStage = STATE_THUNDER;
@@ -1549,7 +1548,7 @@ public class StormObject extends WeatherObject {
 		return STATE_THUNDER;
 	}
 	
-	public void aimStormAtClosestOrProvidedPlayer(EntityPlayer entP) {
+	public void aimStormAtClosestOrProvidedPlayer(PlayerEntity entP) {
 		
 		if (entP == null) {
 			entP = manager.getWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, -1, false);
@@ -1630,7 +1629,7 @@ public class StormObject extends WeatherObject {
 		levelCurStagesIntensity = 0;
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
 
 		if (isCloudlessStorm()) return;
@@ -1639,12 +1638,12 @@ public class StormObject extends WeatherObject {
 			particleBehaviorFog = new ParticleBehaviorFog(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
-			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof GuiIngameMenu)) {
+			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof IngameMenuScreen)) {
 				particleBehaviorFog.tickUpdateList();
 			}
 		}
         
-		EntityPlayer entP = Minecraft.getMinecraft().player;
+		PlayerEntity entP = Minecraft.getMinecraft().player;
 		
 		spinSpeed = 0.02D;
 		double spinSpeedMax = 0.4D;
@@ -2355,7 +2354,7 @@ public class StormObject extends WeatherObject {
         pullY += (float)(conf.tornadoLiftRate / (weight / 2F)/* * (Math.abs(radius - distXZ) / radius)*/);
         
         
-        if (entity1 instanceof EntityPlayer)
+        if (entity1 instanceof PlayerEntity)
         {
             double adjPull = 0.2D / ((weight * ((distXZ + 1D) / radius)));
             /*if (!entity1.onGround) {
@@ -2386,7 +2385,7 @@ public class StormObject extends WeatherObject {
 
             
         }
-        else if (entity1 instanceof EntityLivingBase)
+        else if (entity1 instanceof LivingEntity)
         {
             double adjPull = 0.005D / ((weight * ((distXZ + 1D) / radius)));
             /*if (!entity1.onGround) {
@@ -2456,13 +2455,13 @@ public class StormObject extends WeatherObject {
         	if (entT.scale != 1F) f5 *= entT.scale * 1.2F;
         }
 
-        if (entity1 instanceof EntityLivingBase)
+        if (entity1 instanceof LivingEntity)
         {
             f5 /= (WeatherUtilEntity.getWeight(entity1, forTornado) * ((distXZ + 1D) / radius));
         }
         
         //if player and not spout
-        if (entity1 instanceof EntityPlayer && conf.type != 0) {
+        if (entity1 instanceof PlayerEntity && conf.type != 0) {
         	//System.out.println("grab: " + f5);
         	if (ent.onGround) {
         		f5 *= 10.5F;
@@ -2470,11 +2469,11 @@ public class StormObject extends WeatherObject {
         		f5 *= 5F;
         	}
         	//if (entity1.world.rand.nextInt(2) == 0) entity1.onGround = false;
-        } else if (entity1 instanceof EntityLivingBase && conf.type != 0) {
+        } else if (entity1 instanceof LivingEntity && conf.type != 0) {
         	f5 *= 1.5F;
         }
 
-        if (conf.type == conf.TYPE_SPOUT && entity1 instanceof EntityLivingBase) {
+        if (conf.type == conf.TYPE_SPOUT && entity1 instanceof LivingEntity) {
         	f5 *= 0.3F;
         }
         
@@ -2490,7 +2489,7 @@ public class StormObject extends WeatherObject {
         
         str = strength;
         
-        if (conf.type == conf.TYPE_SPOUT && entity1 instanceof EntityLivingBase) {
+        if (conf.type == conf.TYPE_SPOUT && entity1 instanceof LivingEntity) {
         	str *= 0.3F;
         }
 
@@ -2525,7 +2524,7 @@ public class StormObject extends WeatherObject {
 		CoroUtilEntOrParticle.setMotionY(entity, CoroUtilEntOrParticle.getMotionY(entity) + f1);
 		CoroUtilEntOrParticle.setMotionZ(entity, CoroUtilEntOrParticle.getMotionZ(entity) + f2);
 
-        if (entity instanceof EntitySquid)
+        if (entity instanceof SquidEntity)
         {
         	Entity ent = (Entity) entity;
         	ent.setPosition(ent.posX + ent.motionX * 5F, ent.posY, ent.posZ + ent.motionZ * 5F);
@@ -2538,12 +2537,12 @@ public class StormObject extends WeatherObject {
 		}*/
     }
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder) {
 		return spawnFogParticle(x, y, z, parRenderOrder, ParticleRegistry.cloud256);
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder, TextureAtlasSprite tex) {
     	double speed = 0D;
 		Random rand = new Random();
@@ -2638,7 +2637,7 @@ public class StormObject extends WeatherObject {
 		tornadoHelper = null;
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void cleanupClient() {
 		super.cleanupClient();

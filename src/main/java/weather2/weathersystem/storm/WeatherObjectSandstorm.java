@@ -6,13 +6,12 @@ import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.init.Biomes;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.CommonProxy;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigParticle;
@@ -52,7 +51,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	
 	public Vec3 posSpawn = new Vec3(0, 0, 0);
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
 	
 	public ParticleBehaviorSandstorm particleBehavior;
@@ -343,7 +342,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
 		
 		//moved
@@ -801,7 +800,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		super.cleanup();
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void cleanupClient() {
 		super.cleanupClient();

@@ -4,17 +4,19 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.*;
+import net.minecraft.block.ContainerBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -60,7 +62,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
     public boolean killNextTick = false;
 
-    public IBlockState stateCached = null;
+    public BlockState stateCached = null;
 
     public EntityMovingBlock(World var1)
     {
@@ -72,7 +74,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.gravityDelay = 60;
     }
 
-    public EntityMovingBlock(World var1, int var2, int var3, int var4, IBlockState state, StormObject parOwner)
+    public EntityMovingBlock(World var1, int var2, int var3, int var4, BlockState state, StormObject parOwner)
     {
         super(var1);
         this.mode = 1;
@@ -239,7 +241,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
 
                 if (!(var10 instanceof EntityMovingBlock) && var10.canBeCollidedWith() && this.canEntityBeSeen(var10))
                 {
-                	if (!(var10 instanceof EntityPlayer) || !((EntityPlayer)var10).capabilities.isCreativeMode) {
+                	if (!(var10 instanceof PlayerEntity) || !((PlayerEntity)var10).capabilities.isCreativeMode) {
 	                    var10.motionX = this.motionX / 1.5D;
 	                    var10.motionY = this.motionY / 1.5D;
 	                    var10.motionZ = this.motionZ / 1.5D;
@@ -279,7 +281,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                             var11 = MathHelper.floor(this.posY);
                             int var12 = MathHelper.floor(this.posZ);
                             BlockPos pos = new BlockPos(var9, var11, var12);
-                            IBlockState state = world.getBlockState(pos);
+                            BlockState state = world.getBlockState(pos);
                             tile.onEntityCollidedWithBlock(this.world, pos, state, var10);
                         }
                     }
@@ -313,44 +315,44 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
                 var9 = var3.getBlockPos().getZ();
 
                 //0
-                if (var3.sideHit == EnumFacing.DOWN)
+                if (var3.sideHit == Direction.DOWN)
                 {
                     --var17;
                 }
 
                 //1
-                if (var3.sideHit == EnumFacing.UP)
+                if (var3.sideHit == Direction.UP)
                 {
                     ++var17;
                 }
 
                 //2
-                if (var3.sideHit == EnumFacing.SOUTH)
+                if (var3.sideHit == Direction.SOUTH)
                 {
                     --var9;
                 }
 
                 //3
-                if (var3.sideHit == EnumFacing.NORTH)
+                if (var3.sideHit == Direction.NORTH)
                 {
                     ++var9;
                 }
 
                 //4
-                if (var3.sideHit == EnumFacing.WEST)
+                if (var3.sideHit == Direction.WEST)
                 {
                     --var8;
                 }
 
                 //5
-                if (var3.sideHit == EnumFacing.EAST)
+                if (var3.sideHit == Direction.EAST)
                 {
                     ++var8;
                 }
 
                 if (this.type == 0)
                 {
-                    if (var3.sideHit != EnumFacing.DOWN && !this.collideFalling)
+                    if (var3.sideHit != Direction.DOWN && !this.collideFalling)
                     {
                         if (!this.collideFalling)
                         {
@@ -435,7 +437,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         return this.world.rayTraceBlocks(new Vec3d(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ), new Vec3d(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
-    private void blockify(int var1, int var2, int var3, EnumFacing var4)
+    private void blockify(int var1, int var2, int var3, Direction var4)
     {
         //TODO: this was the only thing killing off moving blocks on client side, syncing is broken server to client?
 
@@ -488,12 +490,12 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    protected void writeEntityToNBT(NBTTagCompound var1)
+    protected void writeEntityToNBT(CompoundNBT var1)
     {
         var1.setString("Tile", Block.REGISTRY.getNameForObject(tile).toString());
         var1.setByte("Metadata", (byte)this.metadata);
         var1.setInteger("blocktype", type);
-        NBTTagCompound var2 = new NBTTagCompound();
+        CompoundNBT var2 = new CompoundNBT();
 
         if (this.tileentity != null)
         {
@@ -506,17 +508,17 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
     }
 
     @Override
-    protected void readEntityFromNBT(NBTTagCompound var1)
+    protected void readEntityFromNBT(CompoundNBT var1)
     {
         this.tile = (Block)Block.REGISTRY.getObject(new ResourceLocation(var1.getString("Tile")));
         this.metadata = var1.getByte("Metadata") & 15;
         this.type = var1.getInteger("blocktype");
         this.tileentity = null;
 
-        if (this.tile instanceof BlockContainer)
+        if (this.tile instanceof ContainerBlock)
         {
-            this.tileentity = ((BlockContainer)this.tile).createNewTileEntity(world, metadata);
-            NBTTagCompound var2 = var1.getCompoundTag("TileEntity");
+            this.tileentity = ((ContainerBlock)this.tile).createNewTileEntity(world, metadata);
+            CompoundNBT var2 = var1.getCompoundTag("TileEntity");
             this.tileentity.readFromNBT(var2);
         }
         

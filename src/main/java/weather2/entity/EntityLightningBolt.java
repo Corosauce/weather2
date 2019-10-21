@@ -3,22 +3,23 @@ package weather2.entity;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.BlockFire;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FireBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.EntityWeatherEffect;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.EnumDifficulty;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
 import CoroUtil.util.CoroUtilBlock;
@@ -60,14 +61,14 @@ public class EntityLightningBolt extends EntityWeatherEffect
         
         
         if (ConfigStorm.Lightning_StartsFires) {
-            if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == EnumDifficulty.NORMAL || par1World.getDifficulty() == EnumDifficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor(par2), MathHelper.floor(par4), MathHelper.floor(par6)), 10)) {
+            if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == Difficulty.NORMAL || par1World.getDifficulty() == Difficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor(par2), MathHelper.floor(par4), MathHelper.floor(par6)), 10)) {
                 int i = MathHelper.floor(par2);
                 int j = MathHelper.floor(par4);
                 int k = MathHelper.floor(par6);
 
                 if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(i, j, k))) {
                     //par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire, fireLifeTime, 3);
-                    par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
+                    par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(FireBlock.AGE, fireLifeTime));
                 }
 
                 for (i = 0; i < 4; ++i) {
@@ -77,7 +78,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
 
                     if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(j, k, l))) {
                         //par1World.setBlockState(new BlockPos(j, k, l), Blocks.fire.getDefaultState(), fireLifeTime, 3);
-                        par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime));
+                        par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(FireBlock.AGE, fireLifeTime));
                     }
                 }
             }
@@ -122,7 +123,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
                     int k = MathHelper.floor(this.posZ);
 
                     if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(world, new BlockPos(i, j, k))) {
-                        world.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(BlockFire.AGE, fireLifeTime), 3);
+                        world.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().withProperty(FireBlock.AGE, fireLifeTime), 3);
                     }
                 }
             }
@@ -137,8 +138,8 @@ public class EntityLightningBolt extends EntityWeatherEffect
             else
             {
                 //vanilla compat to call onStruckByLightning on entities, with effectOnly set to true to prevent fires
-                net.minecraft.entity.effect.EntityLightningBolt vanillaBolt =
-                        new net.minecraft.entity.effect.EntityLightningBolt(world, this.posX, this.posY, this.posZ, true);
+                LightningBoltEntity vanillaBolt =
+                        new LightningBoltEntity(world, this.posX, this.posY, this.posZ, true);
                 double d0 = 3.0D;
                 List list = this.world.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - d0, this.posY - d0, this.posZ - d0, this.posX + d0, this.posY + 6.0D + d0, this.posZ + d0));
 
@@ -151,7 +152,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
         }
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void updateFlashEffect() {
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	//only flash sky if player is within 256 blocks of lightning
@@ -160,7 +161,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
     	}
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void updateSoundEffect() {
     	Minecraft mc = FMLClientHandler.instance().getClient();
     	if (mc.player != null && mc.player.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
@@ -174,14 +175,14 @@ public class EntityLightningBolt extends EntityWeatherEffect
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound par1NBTTagCompound) {}
+    protected void readEntityFromNBT(CompoundNBT par1NBTTagCompound) {}
 
     /**
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
-    protected void writeEntityToNBT(NBTTagCompound par1NBTTagCompound) {}
+    protected void writeEntityToNBT(CompoundNBT par1NBTTagCompound) {}
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
 
     /**
      * Checks using a Vec3d to determine if this entity is within range of that vector to be rendered. Args: vec3D

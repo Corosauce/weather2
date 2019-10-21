@@ -1,31 +1,29 @@
 package weather2.client.entity;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import CoroUtil.util.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 import weather2.ClientTickHandler;
 import weather2.entity.EntityLightningBoltCustom;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
-@SideOnly(Side.CLIENT)
-public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
+@OnlyIn(Dist.CLIENT)
+public class RenderLightningBoltCustom extends EntityRenderer<EntityLightningBoltCustom>
 {
-    public RenderLightningBoltCustom(RenderManager renderManagerIn)
+    public RenderLightningBoltCustom(EntityRendererManager renderManagerIn)
     {
         super(renderManagerIn);
     }
@@ -83,7 +81,7 @@ public class RenderLightningBoltCustom extends Render<EntityLightningBoltCustom>
 
         //temp - visualize sandstorm
         Minecraft mc = Minecraft.getMinecraft();
-        EntityPlayer player = mc.player;
+        PlayerEntity player = mc.player;
         World world = mc.world;
         Vec3 posPlayer = new Vec3(mc.player.posX, 0/*mc.player.posY*/, mc.player.posZ);
         WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);

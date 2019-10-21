@@ -1,11 +1,11 @@
 package weather2.block;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 import weather2.util.WindReader;
 import weather2.util.WeatherUtilEntity;
 import CoroUtil.util.Vec3;
@@ -72,17 +72,17 @@ public class TileEntityAnemometer extends TileEntity implements ITickable
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
     	return new AxisAlignedBB(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 3, getPos().getZ() + 1);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound var1)
+    public CompoundNBT writeToNBT(CompoundNBT var1)
     {
         return super.writeToNBT(var1);
     }
 
-    public void readFromNBT(NBTTagCompound var1)
+    public void readFromNBT(CompoundNBT var1)
     {
         super.readFromNBT(var1);
 

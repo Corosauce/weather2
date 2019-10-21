@@ -1,10 +1,9 @@
 package weather2.weathersystem.storm;
 
 import CoroUtil.util.Vec3;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.util.CachedNBTTagCompound;
 import weather2.weathersystem.WeatherManagerBase;
 
@@ -50,7 +49,7 @@ public class WeatherObject {
 		
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickRender(float partialTick) {
 		
 	}
@@ -65,7 +64,7 @@ public class WeatherObject {
 		isDead = true;
 		
 		//cleanup memory
-		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT/*manager.getWorld().isRemote*/) {
+		if (FMLCommonHandler.instance().getEffectiveSide() == Dist.CLIENT/*manager.getWorld().isRemote*/) {
 			cleanupClient();
 		}
 		
@@ -76,7 +75,7 @@ public class WeatherObject {
 		manager = null;
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void cleanupClient() {
 		
 	}

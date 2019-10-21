@@ -7,16 +7,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import weather2.Weather;
 import CoroUtil.util.CoroUtilFile;
 
 public class PlayerData {
 
-	public static HashMap<String, NBTTagCompound> playerNBT = new HashMap<String, NBTTagCompound>();
+	public static HashMap<String, CompoundNBT> playerNBT = new HashMap<String, CompoundNBT>();
 	
-	public static NBTTagCompound getPlayerNBT(String username) {
+	public static CompoundNBT getPlayerNBT(String username) {
 		if (!playerNBT.containsKey(username)) {
 			tryLoadPlayerNBT(username);
 		}
@@ -27,7 +28,7 @@ public class PlayerData {
 		//try read from hw/playerdata/player.dat
 		//init with data, if fail, init default blank
 		
-		NBTTagCompound playerData = new NBTTagCompound();
+		CompoundNBT playerData = new CompoundNBT();
 		
 		try {
 			String fileURL = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + File.separator + "weather2" + File.separator + "PlayerData" + File.separator + username + ".dat";
@@ -52,7 +53,7 @@ public class PlayerData {
 	    while (it.hasNext()) {
 	        Map.Entry pairs = (Map.Entry)it.next();
 	        //Weather.dbg(pairs.getKey() + " = " + pairs.getValue());
-	        writePlayerNBT((String)pairs.getKey(), (NBTTagCompound)pairs.getValue());
+	        writePlayerNBT((String)pairs.getKey(), (CompoundNBT)pairs.getValue());
 	    }
 	    
 	    if (resetData) {
@@ -60,7 +61,7 @@ public class PlayerData {
 	    }
 	}
 	
-	public static void writePlayerNBT(String username, NBTTagCompound parData) {
+	public static void writePlayerNBT(String username, CompoundNBT parData) {
 		//Weather.dbg("writing " + username);
 		
 		String fileURL = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + File.separator + "weather2" + File.separator + "PlayerData" + File.separator + username + ".dat";

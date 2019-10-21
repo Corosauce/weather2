@@ -1,20 +1,23 @@
 package weather2.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ContainerBlock;
+import net.minecraft.block.ContainerBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockTSiren extends BlockContainer
+public class BlockTSiren extends ContainerBlock
 {
 
     public static final PropertyBool ENABLED = PropertyBool.create("enabled");
@@ -42,9 +45,9 @@ public class BlockTSiren extends BlockContainer
      * The type of render function called. 3 for standard block models, 2 for TESR's, 1 for liquids, -1 is no render
      */
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state)
+    public BlockRenderType getRenderType(BlockState state)
     {
-        return EnumBlockRenderType.MODEL;
+        return BlockRenderType.MODEL;
     }
 
     @Override
@@ -53,13 +56,13 @@ public class BlockTSiren extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {ENABLED});
     }
     @Override
-    public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public BlockState getStateForPlacement(World worldIn, BlockPos pos, Direction facing, float hitX, float hitY, float hitZ, int meta, LivingEntity placer)
     {
         return this.getDefaultState().withProperty(ENABLED, Boolean.valueOf(true));
     }
 
     @Override
-    public int getMetaFromState(IBlockState state)
+    public int getMetaFromState(BlockState state)
     {
         int i = 0;
 
@@ -72,7 +75,7 @@ public class BlockTSiren extends BlockContainer
     }
 
     @Override
-    public IBlockState getStateFromMeta(int meta)
+    public BlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(ENABLED, Boolean.valueOf(isEnabled(meta)));
     }
@@ -83,12 +86,12 @@ public class BlockTSiren extends BlockContainer
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+    public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         this.updateState(worldIn, pos, state);
     }
 
-    public void updateState(World worldIn, BlockPos pos, IBlockState state)
+    public void updateState(World worldIn, BlockPos pos, BlockState state)
     {
         boolean flag = !worldIn.isBlockPowered(pos);
 
@@ -99,7 +102,7 @@ public class BlockTSiren extends BlockContainer
     }
 
     @Override
-    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
+    public void onBlockAdded(World worldIn, BlockPos pos, BlockState state)
     {
         this.updateState(worldIn, pos, state);
     }

@@ -1,9 +1,8 @@
 package weather2.client.foliage;
 
 import extendedrenderer.ExtendedRenderer;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -12,7 +11,7 @@ import net.minecraft.world.World;
  */
 public class FoliageReplacerCrop extends FoliageReplacerBase {
 
-    public FoliageReplacerCrop(IBlockState state) {
+    public FoliageReplacerCrop(BlockState state) {
         super(state);
     }
 

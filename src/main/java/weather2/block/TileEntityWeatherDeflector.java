@@ -2,15 +2,16 @@ package weather2.block;
 
 import java.util.List;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigStorm;
@@ -80,7 +81,7 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 		}
 	}
 
-	public void rightClicked(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public void rightClicked(World worldIn, BlockPos pos, BlockState state, PlayerEntity playerIn, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
 		cycleMode();
 
 		String modeMsg = "";
@@ -92,7 +93,7 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 			maintainBlockDamageDeflect();
 		}
 
-		playerIn.sendMessage(new TextComponentString("Weather Deflector set to mode: " + modeMsg));
+		playerIn.sendMessage(new StringTextComponent("Weather Deflector set to mode: " + modeMsg));
 	}
 
 	public void cycleMode() {
@@ -103,13 +104,13 @@ public class TileEntityWeatherDeflector extends TileEntity implements ITickable
 		}
 	}
 
-    public NBTTagCompound writeToNBT(NBTTagCompound var1)
+    public CompoundNBT writeToNBT(CompoundNBT var1)
     {
     	var1.setInteger("mode", mode);
         return super.writeToNBT(var1);
     }
 
-    public void readFromNBT(NBTTagCompound var1)
+    public void readFromNBT(CompoundNBT var1)
     {
         super.readFromNBT(var1);
 		mode = var1.getInteger("mode");

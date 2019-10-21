@@ -1,9 +1,11 @@
 package weather2.util;
 
 import CoroUtil.ai.ITaskInitializer;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.GoalSelector;
+import net.minecraft.entity.ai.goal.GoalSelector;
 
 import java.lang.reflect.Constructor;
 
@@ -12,10 +14,10 @@ import java.lang.reflect.Constructor;
  */
 public class UtilEntityBuffsMini {
 
-    public static boolean replaceTaskIfMissing(EntityCreature ent, Class taskToReplace, Class tasksToReplaceWith, int priorityOfTask) {
-        EntityAITasks.EntityAITaskEntry foundTask = null;
+    public static boolean replaceTaskIfMissing(CreatureEntity ent, Class taskToReplace, Class tasksToReplaceWith, int priorityOfTask) {
+        GoalSelector.EntityAITaskEntry foundTask = null;
         for (Object entry2 : ent.tasks.taskEntries) {
-            EntityAITasks.EntityAITaskEntry entry = (EntityAITasks.EntityAITaskEntry) entry2;
+            GoalSelector.EntityAITaskEntry entry = (GoalSelector.EntityAITaskEntry) entry2;
             if (taskToReplace.isAssignableFrom(entry.action.getClass())) {
                 foundTask = entry;
                 break;
@@ -32,7 +34,7 @@ public class UtilEntityBuffsMini {
 
     }
 
-    public static boolean addTask(EntityCreature ent, Class taskToInject, int priorityOfTask) {
+    public static boolean addTask(CreatureEntity ent, Class taskToInject, int priorityOfTask) {
         try {
             Constructor<?> cons = taskToInject.getConstructor();
             Object obj = cons.newInstance();
@@ -40,7 +42,7 @@ public class UtilEntityBuffsMini {
                 ITaskInitializer task = (ITaskInitializer) obj;
                 task.setEntity(ent);
                 //System.out.println("adding task into zombie: " + taskToInject);
-                ent.tasks.addTask(priorityOfTask, (EntityAIBase) task);
+                ent.tasks.addTask(priorityOfTask, (Goal) task);
                 //aiEnhanced.put(ent.getEntityId(), true);
 
 

@@ -5,23 +5,22 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemBlockBetter extends Item
 {
@@ -46,9 +45,9 @@ public class ItemBlockBetter extends Item
      * Called when a Block is right-clicked with this Item
      */
     @Override
-    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public ActionResultType onItemUse(PlayerEntity playerIn, World worldIn, BlockPos pos, Hand hand, Direction facing, float hitX, float hitY, float hitZ)
     {
-        IBlockState iblockstate = worldIn.getBlockState(pos);
+        BlockState iblockstate = worldIn.getBlockState(pos);
         Block block = iblockstate.getBlock();
 
         ItemStack stack = playerIn.getHeldItem(hand);
@@ -61,7 +60,7 @@ public class ItemBlockBetter extends Item
         if (stack.getCount() != 0 && playerIn.canPlayerEdit(pos, facing, stack) && worldIn.mayPlace(this.block, pos, false, facing, (Entity)null))
         {
             int i = this.getMetadata(stack.getMetadata());
-            IBlockState iblockstate1 = this.block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);
+            BlockState iblockstate1 = this.block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);
 
             if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
             {
@@ -70,15 +69,15 @@ public class ItemBlockBetter extends Item
                 stack.shrink(1);
             }
 
-            return EnumActionResult.SUCCESS;
+            return ActionResultType.SUCCESS;
         }
         else
         {
-            return EnumActionResult.FAIL;
+            return ActionResultType.FAIL;
         }
     }
 
-    public static boolean setTileEntityNBT(World worldIn, @Nullable EntityPlayer player, BlockPos pos, ItemStack stackIn)
+    public static boolean setTileEntityNBT(World worldIn, @Nullable PlayerEntity player, BlockPos pos, ItemStack stackIn)
     {
         MinecraftServer minecraftserver = worldIn.getMinecraftServer();
 
@@ -99,9 +98,9 @@ public class ItemBlockBetter extends Item
                         return false;
                     }
 
-                    NBTTagCompound nbttagcompound = tileentity.writeToNBT(new NBTTagCompound());
-                    NBTTagCompound nbttagcompound1 = nbttagcompound.copy();
-                    NBTTagCompound nbttagcompound2 = (NBTTagCompound)stackIn.getTagCompound().getTag("BlockEntityTag");
+                    CompoundNBT nbttagcompound = tileentity.writeToNBT(new CompoundNBT());
+                    CompoundNBT nbttagcompound1 = nbttagcompound.copy();
+                    CompoundNBT nbttagcompound2 = (CompoundNBT)stackIn.getTagCompound().getTag("BlockEntityTag");
                     nbttagcompound.merge(nbttagcompound2);
                     nbttagcompound.setInteger("x", pos.getX());
                     nbttagcompound.setInteger("y", pos.getY());
@@ -120,14 +119,14 @@ public class ItemBlockBetter extends Item
         }
     }
 
-    @SideOnly(Side.CLIENT)
-    public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
+    @OnlyIn(Dist.CLIENT)
+    public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, Direction side, PlayerEntity player, ItemStack stack)
     {
         Block block = worldIn.getBlockState(pos).getBlock();
 
         if (block == Blocks.SNOW_LAYER && block.isReplaceable(worldIn, pos))
         {
-            side = EnumFacing.UP;
+            side = Direction.UP;
         }
         else if (!block.isReplaceable(worldIn, pos))
         {
@@ -186,11 +185,11 @@ public class ItemBlockBetter extends Item
      * @param player The player who is placing the block. Can be null if the block is not being placed by a player.
      * @param side The side the player (or machine) right-clicked on.
      */
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
+    public boolean placeBlockAt(ItemStack stack, PlayerEntity player, World world, BlockPos pos, Direction side, float hitX, float hitY, float hitZ, BlockState newState)
     {
         if (!world.setBlockState(pos, newState, 3)) return false;
 
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         if (state.getBlock() == this.block)
         {
             setTileEntityNBT(world, player, pos, stack);
@@ -203,7 +202,7 @@ public class ItemBlockBetter extends Item
     /**
      * allows items to add custom lines of information to the mouseover description
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {

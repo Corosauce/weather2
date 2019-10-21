@@ -4,21 +4,21 @@ import java.awt.Color;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import CoroUtil.api.weather.IWindHandler;
 import extendedrenderer.particle.entity.EntityRotFX;
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
 {
     public int age;
@@ -189,7 +189,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
     		//this.motionY += (rand.nextFloat() * range/2) - (range/4);
     		this.motionZ += (rand.nextFloat() * range) - (range/2);
         	
-    		IBlockState state = this.world.getBlockState(pos);
+    		BlockState state = this.world.getBlockState(pos);
     		
     		meta = state.getBlock().getMetaFromState(state);
     		

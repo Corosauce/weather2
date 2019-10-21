@@ -2,8 +2,9 @@ package weather2.client.foliage;
 
 import CoroUtil.util.Vec3;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 
 public class FoliageReplacerCrossGrass extends FoliageReplacerCross {
 
-    public FoliageReplacerCrossGrass(IBlockState state) {
+    public FoliageReplacerCrossGrass(BlockState state) {
         super(state);
     }
 
@@ -19,7 +20,7 @@ public class FoliageReplacerCrossGrass extends FoliageReplacerCross {
     public boolean validFoliageSpot(World world, BlockPos pos) {
         if (baseMaterial == null || world.getBlockState(pos).getMaterial() == baseMaterial) {
             if (stateSensitive) {
-                IBlockState stateScan = world.getBlockState(pos.up());
+                BlockState stateScan = world.getBlockState(pos.up());
                 if (stateScan.getBlock() == state.getBlock()) {
                     boolean fail = false;
                     for (Map.Entry<IProperty, Comparable> entrySet : lookupPropertiesToComparable.entrySet()) {

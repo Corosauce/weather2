@@ -1,18 +1,17 @@
 package weather2;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 
-public class CreativeTabWeather extends CreativeTabs {
+public class CreativeTabWeather extends ItemGroup {
 	
 	public CreativeTabWeather(String label) {
 		super(label);
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	/**
 	 * the itemID for the item to be displayed on the tab
 	 */

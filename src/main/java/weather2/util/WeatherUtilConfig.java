@@ -12,9 +12,11 @@ import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.forge.CoroUtil;
 import modconfig.ConfigMod;
 import modconfig.IConfigCategory;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.IntNBT;
+import net.minecraft.nbt.IntNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -69,11 +71,11 @@ public class WeatherUtilConfig {
 	public static List<Integer> listSettingsServer = new ArrayList<Integer>();
 	
 	//for caching server data on client side (does not pertain to client only settings)
-	public static NBTTagCompound nbtClientCache = new NBTTagCompound();
+	public static CompoundNBT nbtClientCache = new CompoundNBT();
 	
 	//actual data that gets written out to disk
-	public static NBTTagCompound nbtServerData = new NBTTagCompound();
-	public static NBTTagCompound nbtClientData = new NBTTagCompound();
+	public static CompoundNBT nbtServerData = new CompoundNBT();
+	public static CompoundNBT nbtClientData = new CompoundNBT();
 	
 	static {
 		listSettingsClient.add(CMD_BTN_PERF_STORM);
@@ -181,7 +183,7 @@ public class WeatherUtilConfig {
 				}
 			}
 			
-			NBTTagCompound nbtDims = nbtClientData.getCompoundTag("dimData");
+			CompoundNBT nbtDims = nbtClientData.getCompoundTag("dimData");
 			//Iterator it = nbtDims.getTags().iterator();
 			
 			Weather.dbg("before cl: " + listDimensionsWindEffects);
@@ -189,7 +191,7 @@ public class WeatherUtilConfig {
 			Iterator it = nbtDims.getKeySet().iterator();
 			while (it.hasNext()) {
 			 	String tagName = (String) it.next();
-			 	NBTTagInt entry = (NBTTagInt) nbtDims.getTag(tagName);
+			 	IntNBT entry = (IntNBT) nbtDims.getTag(tagName);
 				String[] vals = tagName.split("_");
 				
 				if (vals[2].equals("3")) {
@@ -324,7 +326,7 @@ public class WeatherUtilConfig {
 				//System.out.println("ConfigStorm.Server_Storm_Deadly_UseGlobalRate: " + ConfigStorm.Server_Storm_Deadly_UseGlobalRate);
 			}
 			
-			NBTTagCompound nbtDims = nbtServerData.getCompoundTag("dimData");
+			CompoundNBT nbtDims = nbtServerData.getCompoundTag("dimData");
 			//Iterator it = nbtDims.getTags().iterator();
 			
 			Weather.dbg("before: " + listDimensionsWeather);
@@ -332,7 +334,7 @@ public class WeatherUtilConfig {
 			Iterator it = nbtDims.getKeySet().iterator();
 			while (it.hasNext()) {
 			 	String tagName = (String) it.next();
-			 	NBTTagInt entry = (NBTTagInt) nbtDims.getTag(tagName);
+			 	IntNBT entry = (IntNBT) nbtDims.getTag(tagName);
 				String[] vals = tagName.split("_");
 				//if weather
 				if (vals[2].equals("0")) {
@@ -422,7 +424,7 @@ public class WeatherUtilConfig {
 		nbtSaveDataServer();
 	}*/
 	
-	public static void nbtReceiveClientData(NBTTagCompound parNBT) {
+	public static void nbtReceiveClientData(CompoundNBT parNBT) {
 		for (int i = 0; i <= CMD_BTN_HIGHEST_ID; i++) {
 			if (parNBT.hasKey("btn_" + i)) {
 				nbtServerData.setInteger("btn_" + i, parNBT.getInteger("btn_" + i));
@@ -435,7 +437,7 @@ public class WeatherUtilConfig {
 		processNBTToModConfigServer();
 	}
 	
-	public static void nbtReceiveServerDataForCache(NBTTagCompound parNBT) {
+	public static void nbtReceiveServerDataForCache(CompoundNBT parNBT) {
 		nbtClientCache = parNBT;
 		
 		Weather.dbg("nbtClientCache: " + nbtServerData);
@@ -462,13 +464,13 @@ public class WeatherUtilConfig {
 		nbtServerData = nbtReadNBTFromDisk(false);
 	}
 	
-	public static NBTTagCompound createNBTDimensionListing() {
-		NBTTagCompound data = new NBTTagCompound();
+	public static CompoundNBT createNBTDimensionListing() {
+		CompoundNBT data = new CompoundNBT();
 		
 		World[] worlds = DimensionManager.getWorlds();
 		
 		for (int i = 0; i < worlds.length; i++) {
-			NBTTagCompound nbtDim = new NBTTagCompound();
+			CompoundNBT nbtDim = new CompoundNBT();
 			int dimID = worlds[i].provider.getDimension();
 			nbtDim.setInteger("ID", dimID); //maybe redundant if we name tag as dimID too
 			nbtDim.setString("name", worlds[i].provider.getDimensionType().getName());
@@ -514,7 +516,7 @@ public class WeatherUtilConfig {
 		return new ArrayList(Arrays.asList(arrInt));
 	}
 	
-	public static void nbtWriteNBTToDisk(NBTTagCompound parData, boolean saveForClient) {
+	public static void nbtWriteNBTToDisk(CompoundNBT parData, boolean saveForClient) {
 		String fileURL = null;
 		if (saveForClient) {
 			fileURL = CoroUtilFile.getMinecraftSaveFolderPath() + File.separator + "Weather2" + File.separator + "EZGUIConfigClientData.dat";
@@ -532,8 +534,8 @@ public class WeatherUtilConfig {
 		}
 	}
 	
-	public static NBTTagCompound nbtReadNBTFromDisk(boolean loadForClient) {
-		NBTTagCompound data = new NBTTagCompound();
+	public static CompoundNBT nbtReadNBTFromDisk(boolean loadForClient) {
+		CompoundNBT data = new CompoundNBT();
 		String fileURL = null;
 		if (loadForClient) {
 			fileURL = CoroUtilFile.getMinecraftSaveFolderPath() + File.separator + "Weather2" + File.separator + "EZGUIConfigClientData.dat";

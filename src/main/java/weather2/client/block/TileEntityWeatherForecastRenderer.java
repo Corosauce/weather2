@@ -6,10 +6,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 
 import net.minecraft.util.text.TextFormatting;
@@ -28,7 +29,7 @@ import extendedrenderer.ExtendedRenderer;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
-public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
+public class TileEntityWeatherForecastRenderer extends TileEntityRenderer
 {
     @Override
     public void render(TileEntity var1, double x, double y, double z, float var8, int destroyStage, float alpha) {
@@ -152,7 +153,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         renderLivingLabel("\u00A7" + '6' + "|", x, y + 1.2F, z, 1, 10, 10, playerViewY);
 
         if (ConfigMisc.radarCloudDebug) {
-            EntityPlayer entP = Minecraft.getMinecraft().player;
+            PlayerEntity entP = Minecraft.getMinecraft().player;
             if (entP != null) {
                 WeatherManagerClient wm = ClientTickHandler.weatherManager;
                 float precipStr = Math.abs(SceneEnhancer.getRainStrengthAndControlVisuals(entP, true));
@@ -367,7 +368,7 @@ public class TileEntityWeatherForecastRenderer extends TileEntitySpecialRenderer
         
         GlStateManager.disableFog();
         
-        this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        this.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
         
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         

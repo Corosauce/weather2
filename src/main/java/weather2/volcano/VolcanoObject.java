@@ -5,20 +5,19 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.gui.screen.IngameMenuScreen;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.Weather;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
@@ -39,9 +38,9 @@ public class VolcanoObject {
 	public long ID;
 	public WeatherManagerBase manager;
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesSmoke = new ArrayList<EntityRotFX>();
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public ParticleBehaviors particleBehaviors;
 	
 	public int sizeMaxParticles = 300;
@@ -113,7 +112,7 @@ public class VolcanoObject {
 		ticksPerformedCooldown = 0;
 	}
 	
-	public void readFromNBT(NBTTagCompound data)
+	public void readFromNBT(CompoundNBT data)
     {
 		ID = data.getLong("ID");
 		
@@ -136,7 +135,7 @@ public class VolcanoObject {
 		
     }
 	
-	public void writeToNBT(NBTTagCompound data)
+	public void writeToNBT(CompoundNBT data)
     {
 		data.setLong("ID", ID);
 		
@@ -162,7 +161,7 @@ public class VolcanoObject {
     }
 	
 	//receiver method
-	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+	public void nbtSyncFromServer(CompoundNBT parNBT) {
 		ID = parNBT.getLong("ID");
 		Weather.dbg("VolcanoObject " + ID + " receiving sync");
 		
@@ -174,8 +173,8 @@ public class VolcanoObject {
 	}
 	
 	//compose nbt data for packet (and serialization in future)
-	public NBTTagCompound nbtSyncForClient() {
-		NBTTagCompound data = new NBTTagCompound();
+	public CompoundNBT nbtSyncForClient() {
+		CompoundNBT data = new CompoundNBT();
 		
 		data.setInteger("posX", (int)pos.xCoord);
 		data.setInteger("posY", (int)pos.yCoord);
@@ -200,8 +199,8 @@ public class VolcanoObject {
 		//isGrowing = true;
 		processRateDelay = 10;
 		
-		Side side = FMLCommonHandler.instance().getEffectiveSide();
-		if (side == Side.CLIENT) {
+		Dist side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side == Dist.CLIENT) {
 			if (!WeatherUtil.isPaused()) {
 				tickClient();
 			}
@@ -220,7 +219,7 @@ public class VolcanoObject {
 				pos.yCoord = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos((int)pos.xCoord, 0, (int)pos.zCoord)).getY();
 				startYPos = (int) pos.yCoord;
 
-				IBlockState statez = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord)));
+				BlockState statez = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord)));
 				topBlockID = statez.getBlock();
 				
 				if (CoroUtilBlock.isAir(topBlockID) || !statez.getMaterial().isSolid()) {
@@ -449,7 +448,7 @@ public class VolcanoObject {
 		
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
 		
 		//Weather.dbg("ticking client volcano " + ID + " - " + state);
@@ -458,7 +457,7 @@ public class VolcanoObject {
 			particleBehaviors = new ParticleBehaviors(new Vec3(pos.xCoord, pos.yCoord, pos.zCoord));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
-			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof GuiIngameMenu)) {
+			if (!Minecraft.getMinecraft().isSingleplayer() || !(Minecraft.getMinecraft().currentScreen instanceof IngameMenuScreen)) {
 				particleBehaviors.tickUpdateList();
 			}
 		}
@@ -567,7 +566,7 @@ public class VolcanoObject {
 		//System.out.println("size: " + listParticlesCloud.size());
 	}
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     public EntityRotFX spawnSmokeParticle(double x, double y, double z) {
     	double speed = 0D;
 		Random rand = new Random();

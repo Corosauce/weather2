@@ -2,7 +2,8 @@ package weather2.block;
 
 import java.util.Random;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ServerTickHandler;
@@ -192,7 +193,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     }
 
 	@Override
-    public NBTTagCompound writeToNBT(NBTTagCompound var1)
+    public CompoundNBT writeToNBT(CompoundNBT var1)
     {
         var1.setInteger("weatherType", weatherType);
         var1.setLong("lastTickStormObjectID", lastTickStormObjectID);
@@ -200,7 +201,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickable
     }
 
 	@Override
-    public void readFromNBT(NBTTagCompound var1)
+    public void readFromNBT(CompoundNBT var1)
     {
         super.readFromNBT(var1);
         weatherType = var1.getInteger("weatherType");

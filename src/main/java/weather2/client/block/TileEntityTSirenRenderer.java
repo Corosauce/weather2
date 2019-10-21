@@ -1,9 +1,9 @@
 package weather2.client.block;
 
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityTSirenRenderer extends TileEntitySpecialRenderer
+public class TileEntityTSirenRenderer extends TileEntityRenderer
 {
 
 	@Override

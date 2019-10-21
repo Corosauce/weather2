@@ -2,21 +2,25 @@ package weather2.block;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ContainerBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import CoroUtil.util.CoroUtilMisc;
 
-public class BlockWeatherMachine extends BlockContainer
+public class BlockWeatherMachine extends ContainerBlock
 {
     public BlockWeatherMachine()
     {
@@ -32,15 +36,15 @@ public class BlockWeatherMachine extends BlockContainer
     }
     
     @Override
-    public boolean isOpaqueCube(IBlockState state)
+    public boolean isOpaqueCube(BlockState state)
     {
         return false;
     }
     
     @Override
-    public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer par5EntityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World par1World, BlockPos pos, BlockState state, PlayerEntity par5EntityPlayer, Hand hand, Direction side, float hitX, float hitY, float hitZ) {
     	
-    	if (!par1World.isRemote && hand == EnumHand.MAIN_HAND) {
+    	if (!par1World.isRemote && hand == Hand.MAIN_HAND) {
 	    	TileEntity tEnt = par1World.getTileEntity(pos);
 	    	
 	    	if (tEnt instanceof TileEntityWeatherMachine) {
@@ -68,7 +72,7 @@ public class BlockWeatherMachine extends BlockContainer
     }
 
     @Override
-    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn) {
+    public void onBlockClicked(World worldIn, BlockPos pos, PlayerEntity playerIn) {
         System.out.println("clicked");
         super.onBlockClicked(worldIn, pos, playerIn);
     }
@@ -77,8 +81,8 @@ public class BlockWeatherMachine extends BlockContainer
      * The type of render function called. 3 for standard block models, 2 for TESR's, 1 for liquids, -1 is no render
      */
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state)
+    public BlockRenderType getRenderType(BlockState state)
     {
-        return EnumBlockRenderType.MODEL;
+        return BlockRenderType.MODEL;
     }
 }

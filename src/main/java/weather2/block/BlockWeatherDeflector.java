@@ -1,17 +1,19 @@
 package weather2.block;
 
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.*;
+import net.minecraft.block.ContainerBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockWeatherDeflector extends BlockContainer
+public class BlockWeatherDeflector extends ContainerBlock
 {
     public BlockWeatherDeflector()
     {
@@ -27,7 +29,7 @@ public class BlockWeatherDeflector extends BlockContainer
     }
     
     @Override
-    public boolean isOpaqueCube(IBlockState state)
+    public boolean isOpaqueCube(BlockState state)
     {
         return false;
     }
@@ -36,15 +38,15 @@ public class BlockWeatherDeflector extends BlockContainer
      * The type of render function called. 3 for standard block models, 2 for TESR's, 1 for liquids, -1 is no render
      */
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state)
+    public BlockRenderType getRenderType(BlockState state)
     {
-        return EnumBlockRenderType.MODEL;
+        return BlockRenderType.MODEL;
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World worldIn, BlockPos pos, BlockState state, PlayerEntity playerIn, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
 
-        if (!worldIn.isRemote && hand == EnumHand.MAIN_HAND) {
+        if (!worldIn.isRemote && hand == Hand.MAIN_HAND) {
             TileEntity tEnt = worldIn.getTileEntity(pos);
 
             if (tEnt instanceof TileEntityWeatherDeflector) {

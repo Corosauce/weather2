@@ -1,21 +1,20 @@
 package weather2.util;
 
-import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityBoat;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityFishHook;
-import net.minecraft.init.Items;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.passive.SquidEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.item.Items;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 import weather2.ClientTickHandler;
 import weather2.api.WeatherUtilData;
 import weather2.entity.EntityMovingBlock;
@@ -53,9 +52,9 @@ public class WeatherUtilEntity {
             return 1F + ((float)((EntityMovingBlock) entity1).age / 200);
         }
 
-        if (entity1 instanceof EntityPlayer)
+        if (entity1 instanceof PlayerEntity)
         {
-        	EntityPlayer player = (EntityPlayer) entity1;
+        	PlayerEntity player = (PlayerEntity) entity1;
             if (player.onGround || player.handleWaterMovement())
             {
                 playerInAirTime = 0;
@@ -67,18 +66,18 @@ public class WeatherUtilEntity {
             }
 
             
-            if (((EntityPlayer) entity1).capabilities.isCreativeMode) return 99999999F;
+            if (((PlayerEntity) entity1).capabilities.isCreativeMode) return 99999999F;
             
             int extraWeight = 0;
             
-            if (((EntityPlayer)entity1).inventory != null && !(((EntityPlayer)entity1).inventory.armorInventory.get(2).isEmpty())
-                    && ((EntityPlayer)entity1).inventory.armorInventory.get(2).getItem() == Items.IRON_CHESTPLATE)
+            if (((PlayerEntity)entity1).inventory != null && !(((PlayerEntity)entity1).inventory.armorInventory.get(2).isEmpty())
+                    && ((PlayerEntity)entity1).inventory.armorInventory.get(2).getItem() == Items.IRON_CHESTPLATE)
             {
             	extraWeight = 2;
             }
 
-            if (((EntityPlayer)entity1).inventory != null && !(((EntityPlayer)entity1).inventory.armorInventory.get(2).isEmpty())
-                    && ((EntityPlayer)entity1).inventory.armorInventory.get(2).getItem() == Items.DIAMOND_CHESTPLATE)
+            if (((PlayerEntity)entity1).inventory != null && !(((PlayerEntity)entity1).inventory.armorInventory.get(2).isEmpty())
+                    && ((PlayerEntity)entity1).inventory.armorInventory.get(2).getItem() == Items.DIAMOND_CHESTPLATE)
             {
             	extraWeight = 4;
             }
@@ -102,7 +101,7 @@ public class WeatherUtilEntity {
             }
         }
 
-        if (entity1 instanceof EntitySquid)
+        if (entity1 instanceof SquidEntity)
         {
             return 400F;
         }
@@ -111,9 +110,9 @@ public class WeatherUtilEntity {
         	return 50F;
         }*/
 
-        if (entity1 instanceof EntityLivingBase)
+        if (entity1 instanceof LivingEntity)
         {
-        	EntityLivingBase livingEnt = (EntityLivingBase) entity1;
+        	LivingEntity livingEnt = (LivingEntity) entity1;
             //if (entity1.onGround || entity1.handleWaterMovement())
             //{
                 //entity1.onGround = false;
@@ -146,8 +145,8 @@ public class WeatherUtilEntity {
             }
         }
 
-        if (entity1 instanceof EntityLivingBase) {
-            EntityLivingBase livingEnt = (EntityLivingBase) entity1;
+        if (entity1 instanceof LivingEntity) {
+            LivingEntity livingEnt = (LivingEntity) entity1;
             int airTime = livingEnt.getEntityData().getInteger("timeInAir");
             if (forTornado) {
                 return 0.5F + (((float)airTime) / 800F);
@@ -156,12 +155,12 @@ public class WeatherUtilEntity {
             }
         }
 
-        if (/*entity1 instanceof EntitySurfboard || */entity1 instanceof EntityBoat || entity1 instanceof EntityItem/* || entity1 instanceof EntityTropicalFishHook*/ || entity1 instanceof EntityFishHook)
+        if (/*entity1 instanceof EntitySurfboard || */entity1 instanceof BoatEntity || entity1 instanceof ItemEntity/* || entity1 instanceof EntityTropicalFishHook*/ || entity1 instanceof FishingBobberEntity)
         {
             return 4000F;
         }
 
-        if (entity1 instanceof EntityMinecart)
+        if (entity1 instanceof AbstractMinecartEntity)
         {
             return 80F;
         }
@@ -170,7 +169,7 @@ public class WeatherUtilEntity {
     }
     
     public static boolean isParticleRotServerSafe(World world, Object obj) {
-    	if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+    	if (FMLCommonHandler.instance().getEffectiveSide() == Dist.SERVER) {
     		return false;
     	}
     	if (!world.isRemote) return false;
@@ -193,7 +192,7 @@ public class WeatherUtilEntity {
         int startX = (int)(ent.posX - speed * (double)(-MathHelper.sin(windMan.getWindAngleForPriority(null) / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
         int startZ = (int)(ent.posZ - speed * (double)(MathHelper.cos(windMan.getWindAngleForPriority(null) / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
 
-        if (ent instanceof EntityPlayer)
+        if (ent instanceof PlayerEntity)
         {
             boolean bool = true;
         }
@@ -222,16 +221,16 @@ public class WeatherUtilEntity {
 		
 		if (cheapCheck) return false;
 		
-		Vec3 vecTry = new Vec3(parPos.xCoord + EnumFacing.NORTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.NORTH.getFrontOffsetZ()*rangeCheck);
+		Vec3 vecTry = new Vec3(parPos.xCoord + Direction.NORTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.NORTH.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + EnumFacing.SOUTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.SOUTH.getFrontOffsetZ()*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + Direction.SOUTH.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.SOUTH.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + EnumFacing.EAST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.EAST.getFrontOffsetZ()*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + Direction.EAST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.EAST.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
-		vecTry = new Vec3(parPos.xCoord + EnumFacing.WEST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + EnumFacing.WEST.getFrontOffsetZ()*rangeCheck);
+		vecTry = new Vec3(parPos.xCoord + Direction.WEST.getFrontOffsetX()*rangeCheck, parPos.yCoord+yOffset, parPos.zCoord + Direction.WEST.getFrontOffsetZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 		
 		return false;
@@ -245,14 +244,14 @@ public class WeatherUtilEntity {
 		return false;
 	}
 
-    public static EntityPlayer getClosestPlayerAny(World world, double posX, double posY, double posZ, double distance)
+    public static PlayerEntity getClosestPlayerAny(World world, double posX, double posY, double posZ, double distance)
     {
         double d0 = -1.0D;
-        EntityPlayer entityplayer = null;
+        PlayerEntity entityplayer = null;
 
         for (int i = 0; i < world.playerEntities.size(); ++i)
         {
-            EntityPlayer entityplayer1 = (EntityPlayer)world.playerEntities.get(i);
+            PlayerEntity entityplayer1 = (PlayerEntity)world.playerEntities.get(i);
 
             //if ((EntitySelectors.CAN_AI_TARGET.apply(entityplayer1) || !spectator) && (EntitySelectors.NOT_SPECTATING.apply(entityplayer1) || spectator))
             //{

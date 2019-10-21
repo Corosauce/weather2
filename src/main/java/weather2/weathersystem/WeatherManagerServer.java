@@ -8,9 +8,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -194,7 +197,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 				//cloud formation spawning - REFINE ME!
 				if (!ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.listDimensionsClouds.contains(world.provider.getDimension())) {
 					for (int i = 0; i < world.playerEntities.size(); i++) {
-						EntityPlayer entP = world.playerEntities.get(i);
+						PlayerEntity entP = world.playerEntities.get(i);
 
 						//Weather.dbg("getStormObjects().size(): " + getStormObjects().size());
 
@@ -228,7 +231,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
 						//get a random player to try and spawn for, will recycle another if it cant spawn
 						if (world.playerEntities.size() > 0) {
-							EntityPlayer entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
+							PlayerEntity entP = world.playerEntities.get(rand.nextInt(world.playerEntities.size()));
 
 							boolean sandstormMade = trySandstormForPlayer(entP, lastSandstormFormed);
 							if (sandstormMade) {
@@ -237,8 +240,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 						}
 					} else {
 						for (int i = 0; i < world.playerEntities.size(); i++) {
-							EntityPlayer entP = world.playerEntities.get(i);
-							NBTTagCompound playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(entP));
+							PlayerEntity entP = world.playerEntities.get(i);
+							CompoundNBT playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(entP));
 							boolean sandstormMade = trySandstormForPlayer(entP, playerNBT.getLong("lastSandstormTime"));
 							if (sandstormMade) {
 								playerNBT.setLong("lastSandstormTime", world.getTotalWorldTime());
@@ -310,7 +313,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 	}
 
-	public boolean trySandstormForPlayer(EntityPlayer player, long lastSandstormTime) {
+	public boolean trySandstormForPlayer(PlayerEntity player, long lastSandstormTime) {
 		boolean sandstormMade = false;
 		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.getEntityWorld().getTotalWorldTime()) {
 			sandstormMade = trySpawnSandstormNearPos(player.getEntityWorld(), new Vec3(player.getPositionVector()));
@@ -433,7 +436,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}*/
 	}
 	
-	public void trySpawnStormCloudNearPlayerForLayer(EntityPlayer entP, int layer) {
+	public void trySpawnStormCloudNearPlayerForLayer(PlayerEntity entP, int layer) {
 		
 		Random rand = new Random();
 		
@@ -443,7 +446,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		int spawnZ = -1;
 		Vec3 tryPos = null;
 		StormObject soClose = null;
-		EntityPlayer playerClose = null;
+		PlayerEntity playerClose = null;
 		
 		int closestToPlayer = 128;
 		
@@ -483,7 +486,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		}
 	}
 	
-	public void playerJoinedWorldSyncFull(EntityPlayerMP entP) {
+	public void playerJoinedWorldSyncFull(ServerPlayerEntity entP) {
 		Weather.dbg("Weather2: playerJoinedWorldSyncFull for dim: " + dim);
 		World world = getWorld();
 		if (world != null) {
@@ -502,7 +505,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	//populate data with rain storms and deadly storms
 	public void nbtStormsForIMC() {
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
@@ -510,7 +513,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (wo instanceof StormObject) {
 				StormObject so = (StormObject) wo;
 				if (so.levelCurIntensityStage > 0 || so.attrib_precipitation) {
-					NBTTagCompound nbtStorm = so.nbtForIMC();
+					CompoundNBT nbtStorm = so.nbtForIMC();
 					
 					data.setTag("storm_" + so.ID, nbtStorm);
 				}
@@ -525,10 +528,10 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	}
 	
 	public void syncLightningNew(Entity parEnt, boolean custom) {
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncLightningNew");
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundNBT nbt = new CompoundNBT();
 		nbt.setInteger("posX", MathHelper.floor(parEnt.posX/* * 32.0D*/));
 		nbt.setInteger("posY", MathHelper.floor(parEnt.posY/* * 32.0D*/));
 		nbt.setInteger("posZ", MathHelper.floor(parEnt.posZ/* * 32.0D*/));
@@ -541,7 +544,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncWindUpdate(WindManager parManager) {
 		//packets
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncWindUpdate");
 		data.setTag("data", parManager.nbtSyncForClient());
@@ -553,8 +556,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		syncStormNew(parStorm, null);
 	}
 	
-	public void syncStormNew(WeatherObject parStorm, EntityPlayerMP entP) {
-		NBTTagCompound data = new NBTTagCompound();
+	public void syncStormNew(WeatherObject parStorm, ServerPlayerEntity entP) {
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormNew");
 
@@ -574,10 +577,10 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncStormUpdate(WeatherObject parStorm) {
 		//packets
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormUpdate");
-		parStorm.getNbtCache().setNewNBT(new NBTTagCompound());
+		parStorm.getNbtCache().setNewNBT(new CompoundNBT());
 		parStorm.nbtSyncForClient();
 		data.setTag("data", parStorm.getNbtCache().getNewNBT());
 		boolean testNetworkData = false;
@@ -604,7 +607,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncStormRemove(WeatherObject parStorm) {
 		//packets
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncStormRemove");
 		parStorm.nbtSyncForClient();
@@ -619,8 +622,8 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		syncVolcanoNew(parStorm, null);
 	}
 	
-	public void syncVolcanoNew(VolcanoObject parStorm, EntityPlayerMP entP) {
-		NBTTagCompound data = new NBTTagCompound();
+	public void syncVolcanoNew(VolcanoObject parStorm, ServerPlayerEntity entP) {
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncVolcanoNew");
 		data.setTag("data", parStorm.nbtSyncForClient());
@@ -635,7 +638,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncVolcanoUpdate(VolcanoObject parStorm) {
 		//packets
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncVolcanoUpdate");
 		data.setTag("data", parStorm.nbtSyncForClient());
@@ -648,7 +651,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	
 	public void syncWeatherVanilla() {
 		
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "WeatherData");
 		data.setString("command", "syncWeatherUpdate");
 		data.setBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);

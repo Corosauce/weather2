@@ -1,7 +1,7 @@
 package weather2.client.sound;
 
-import net.minecraft.client.audio.MovingSound;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.audio.TickableSound;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
@@ -9,7 +9,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 
-public class MovingSoundStreamingSource extends MovingSound {
+public class MovingSoundStreamingSource extends TickableSound {
 
 	private StormObject storm = null;
 	public float cutOffRange = 128;
@@ -58,7 +58,7 @@ public class MovingSoundStreamingSource extends MovingSound {
 
     public void update()
     {
-    	EntityPlayer entP = FMLClientHandler.instance().getClient().player;
+    	PlayerEntity entP = FMLClientHandler.instance().getClient().player;
     	
     	if (entP != null) {
     		this.xPosF = (float) entP.posX;

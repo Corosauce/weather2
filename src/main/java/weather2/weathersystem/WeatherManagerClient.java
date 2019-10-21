@@ -5,11 +5,11 @@ import java.util.List;
 
 import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
@@ -20,7 +20,7 @@ import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class WeatherManagerClient extends WeatherManagerBase {
 
 	//data for client, stormfronts synced from server
@@ -46,7 +46,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 		super.tick();
 	}
 	
-	public void nbtSyncFromServer(NBTTagCompound parNBT) {
+	public void nbtSyncFromServer(CompoundNBT parNBT) {
 		//check command
 		//commands:
 		//new storm
@@ -61,7 +61,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 		
 		if (command.equals("syncStormNew")) {
 			//Weather.dbg("creating client side storm");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			Weather.dbg("syncStormNew, ID: " + ID);
 			
@@ -82,7 +82,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			addStormObject(wo);
 		} else if (command.equals("syncStormRemove")) {
 			//Weather.dbg("removing client side storm");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
 			WeatherObject so = lookupStormObjectsByID.get(ID);
@@ -93,7 +93,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncStormUpdate")) {
 			//Weather.dbg("updating client side storm");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
 			WeatherObject so = lookupStormObjectsByID.get(ID);
@@ -107,7 +107,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncVolcanoNew")) {
 			Weather.dbg("creating client side volcano");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
 			//long ID = stormNBT.getLong("ID");
 			
 			VolcanoObject so = new VolcanoObject(ClientTickHandler.weatherManager);
@@ -116,7 +116,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			addVolcanoObject(so);
 		} else if (command.equals("syncVolcanoRemove")) {
 			Weather.dbg("removing client side volcano");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
 			VolcanoObject so = lookupVolcanoes.get(ID);
@@ -125,7 +125,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			}
 		} else if (command.equals("syncVolcanoUpdate")) {
 			Weather.dbg("updating client side volcano");
-			NBTTagCompound stormNBT = parNBT.getCompoundTag("data");
+			CompoundNBT stormNBT = parNBT.getCompoundTag("data");
 			long ID = stormNBT.getLong("ID");
 			
 			VolcanoObject so = lookupVolcanoes.get(ID);
@@ -137,13 +137,13 @@ public class WeatherManagerClient extends WeatherManagerBase {
 		} else if (command.equals("syncWindUpdate")) {
 			//Weather.dbg("updating client side wind");
 			
-			NBTTagCompound nbt = parNBT.getCompoundTag("data");
+			CompoundNBT nbt = parNBT.getCompoundTag("data");
 			
 			windMan.nbtSyncFromServer(nbt);
 		} else if (command.equals("syncLightningNew")) {
 			//Weather.dbg("updating client side wind");
 			
-			NBTTagCompound nbt = parNBT.getCompoundTag("data");
+			CompoundNBT nbt = parNBT.getCompoundTag("data");
 			
 			int posXS = nbt.getInteger("posX");
 			int posYS = nbt.getInteger("posY");

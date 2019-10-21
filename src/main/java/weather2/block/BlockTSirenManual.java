@@ -1,9 +1,9 @@
 package weather2.block;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -20,7 +20,7 @@ public class BlockTSirenManual extends BlockTSiren {
     }
 
     @Override
-    public void updateState(World worldIn, BlockPos pos, IBlockState state)
+    public void updateState(World worldIn, BlockPos pos, BlockState state)
     {
         boolean flag = worldIn.isBlockPowered(pos);
 
@@ -31,7 +31,7 @@ public class BlockTSirenManual extends BlockTSiren {
     }
 
     @Override
-    public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public BlockState getStateForPlacement(World worldIn, BlockPos pos, Direction facing, float hitX, float hitY, float hitZ, int meta, LivingEntity placer)
     {
         return this.getDefaultState().withProperty(ENABLED, Boolean.valueOf(false));
     }

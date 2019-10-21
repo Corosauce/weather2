@@ -1,20 +1,17 @@
 package weather2.item;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.CommonProxy;
 import weather2.block.BlockSandLayer;
 
@@ -31,16 +28,16 @@ public class ItemSandLayer extends ItemBlockBetter
      * Called when a Block is right-clicked with this Item
      */
     @Override
-    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public ActionResultType onItemUse(PlayerEntity playerIn, World worldIn, BlockPos pos, Hand hand, Direction facing, float hitX, float hitY, float hitZ)
     {
         ItemStack stack = playerIn.getHeldItem(hand);
         if (!stack.isEmpty() && playerIn.canPlayerEdit(pos, facing, stack))
         {
-            IBlockState iblockstate = worldIn.getBlockState(pos);
+            BlockState iblockstate = worldIn.getBlockState(pos);
             Block block = iblockstate.getBlock();
             BlockPos blockpos = pos;
 
-            if ((facing != EnumFacing.UP || block != this.block) && !block.isReplaceable(worldIn, pos))
+            if ((facing != Direction.UP || block != this.block) && !block.isReplaceable(worldIn, pos))
             {
                 blockpos = pos.offset(facing);
                 iblockstate = worldIn.getBlockState(blockpos);
@@ -53,7 +50,7 @@ public class ItemSandLayer extends ItemBlockBetter
 
                 if (i <= 7)
                 {
-                    IBlockState iblockstate1 = iblockstate.withProperty(BlockSandLayer.LAYERS, Integer.valueOf(i + 1));
+                    BlockState iblockstate1 = iblockstate.withProperty(BlockSandLayer.LAYERS, Integer.valueOf(i + 1));
                     AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, blockpos);
 
                     if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(blockpos)) && 
@@ -62,7 +59,7 @@ public class ItemSandLayer extends ItemBlockBetter
                         SoundType soundtype = this.block.getSoundType(iblockstate1, worldIn, blockpos, playerIn);
                         worldIn.playSound(playerIn, blockpos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                         stack.shrink(1);
-                        return EnumActionResult.SUCCESS;
+                        return ActionResultType.SUCCESS;
                     }
                 }
             }
@@ -71,7 +68,7 @@ public class ItemSandLayer extends ItemBlockBetter
         }
         else
         {
-            return EnumActionResult.FAIL;
+            return ActionResultType.FAIL;
         }
     }
 
@@ -86,9 +83,9 @@ public class ItemSandLayer extends ItemBlockBetter
     }
 
     @Override
-    public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
+    public boolean canPlaceBlockOnSide(World world, BlockPos pos, Direction side, PlayerEntity player, ItemStack stack)
     {
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         return (state.getBlock() != CommonProxy.blockSandLayer || ((Integer)state.getValue(BlockSandLayer.LAYERS)) > 7) ? super.canPlaceBlockOnSide(world, pos, side, player, stack) : true;
     }
 }

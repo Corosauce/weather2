@@ -6,22 +6,16 @@ import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.foliage.Foliage;
 import extendedrenderer.shader.InstancedMeshFoliage;
 import extendedrenderer.shader.MeshBufferManagerFoliage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.ServerWorld;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.*;
 import weather2.client.foliage.FoliageEnhancerShader;
-import weather2.client.foliage.FoliageReplacerBase;
 import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
-
-import java.util.List;
-import java.util.Map;
 
 public class EventHandlerFML {
 
@@ -50,7 +44,7 @@ public class EventHandlerFML {
 		}
 
 		if (ConfigMisc.Global_Overcast_Prevent_Rain_Reset_On_Sleep) {
-			WorldServer world = DimensionManager.getWorld(0);
+			ServerWorld world = DimensionManager.getWorld(0);
 			if (world != null) {
 				if (event.phase == Phase.START) {
 					if (world.areAllPlayersAsleep()) {
@@ -136,8 +130,8 @@ public class EventHandlerFML {
 
 	@SubscribeEvent
 	public void playerLoggedIn(PlayerLoggedInEvent event) {
-		if (event.player instanceof EntityPlayerMP) {
-			ServerTickHandler.syncServerConfigToClientPlayer((EntityPlayerMP) event.player);
+		if (event.player instanceof ServerPlayerEntity) {
+			ServerTickHandler.syncServerConfigToClientPlayer((ServerPlayerEntity) event.player);
 		}
 		//Weather.dbg("Weather2: PlayerLoggedInEvent: " + event.player.getName());
 		//ServerTickHandler.playerJoinedServerSyncFull((EntityPlayerMP) event.player);

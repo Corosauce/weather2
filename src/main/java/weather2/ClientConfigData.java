@@ -1,6 +1,7 @@
 package weather2;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigTornado;
 
@@ -23,7 +24,7 @@ public class ClientConfigData {
      *
      * @param nbt
      */
-    public void readNBT(NBTTagCompound nbt) {
+    public void readNBT(CompoundNBT nbt) {
         overcastMode = nbt.getBoolean("overcastMode");
         Storm_Tornado_grabPlayer = nbt.getBoolean("Storm_Tornado_grabPlayer");
         Storm_Tornado_grabPlayersOnly = nbt.getBoolean("Storm_Tornado_grabPlayersOnly");
@@ -39,7 +40,7 @@ public class ClientConfigData {
      *
      * @param data
      */
-    public static void writeNBT(NBTTagCompound data) {
+    public static void writeNBT(CompoundNBT data) {
 
         data.setBoolean("overcastMode", ConfigMisc.overcastMode);
         data.setBoolean("Storm_Tornado_grabPlayer", ConfigTornado.Storm_Tornado_grabPlayer);

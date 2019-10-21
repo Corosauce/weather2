@@ -3,8 +3,8 @@ package weather2.block;
 import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.CommonProxy;
 import weather2.config.ConfigMisc;
@@ -33,7 +33,7 @@ public class TileEntityTSiren extends TileEntity implements ITickable
     	}
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void tickClient() {
     	
     	if (this.lastPlayTime < System.currentTimeMillis())

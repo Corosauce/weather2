@@ -3,7 +3,7 @@ package weather2.block;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import weather2.ClientTickHandler;
@@ -60,12 +60,12 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
     	}
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound var1)
+    public CompoundNBT writeToNBT(CompoundNBT var1)
     {
         return super.writeToNBT(var1);
     }
 
-    public void readFromNBT(NBTTagCompound var1)
+    public void readFromNBT(CompoundNBT var1)
     {
         super.readFromNBT(var1);
 

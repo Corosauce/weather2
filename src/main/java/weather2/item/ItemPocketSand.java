@@ -7,42 +7,35 @@ import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import weather2.ClientTickHandler;
 import weather2.CommonProxy;
 import weather2.Weather;
 import weather2.client.SceneEnhancer;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtilBlock;
-import weather2.weathersystem.wind.WindManager;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 
 public class ItemPocketSand extends Item {
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static ParticleBehaviorSandstorm particleBehavior;
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer player, EnumHand hand) {
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity player, Hand hand) {
 
         ItemStack itemStackIn = player.getHeldItem(hand);
 
@@ -72,8 +65,8 @@ public class ItemPocketSand extends Item {
      * @param world
      * @param player The sand item using source
      */
-    @SideOnly(Side.CLIENT)
-    public static void particulate(World world, EntityLivingBase player) {
+    @OnlyIn(Dist.CLIENT)
+    public static void particulate(World world, LivingEntity player) {
 
         if (particleBehavior == null) {
             particleBehavior = new ParticleBehaviorSandstorm(new Vec3(player.getPosition()));
@@ -161,7 +154,7 @@ public class ItemPocketSand extends Item {
         super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void tickClient(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (particleBehavior == null) {
             particleBehavior = new ParticleBehaviorSandstorm(new Vec3(entityIn.getPosition()));
@@ -169,8 +162,8 @@ public class ItemPocketSand extends Item {
         particleBehavior.tickUpdateList();
     }
 
-    public static void particulateToClients(World world, EntityLivingBase player) {
-        NBTTagCompound data = new NBTTagCompound();
+    public static void particulateToClients(World world, LivingEntity player) {
+        CompoundNBT data = new CompoundNBT();
         data.setString("packetCommand", "PocketSandData");
         data.setString("command", "create");
         data.setString("playerName", player.getName());
@@ -178,10 +171,10 @@ public class ItemPocketSand extends Item {
                 new NetworkRegistry.TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 50));
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void particulateFromServer(String username) {
         World world = Minecraft.getMinecraft().world;
-        EntityPlayer player = world.getPlayerEntityByName(username);
+        PlayerEntity player = world.getPlayerEntityByName(username);
         if (player != null) {
             particulate(world, player);
         }

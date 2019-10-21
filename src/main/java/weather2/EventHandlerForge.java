@@ -1,7 +1,6 @@
 package weather2;
 
 import java.nio.FloatBuffer;
-import java.util.List;
 
 import extendedrenderer.ExtendedRenderer;
 import extendedrenderer.particle.ParticleRegistry;
@@ -14,14 +13,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIMoveIndoors;
-import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.border.WorldBorder;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
@@ -33,12 +30,9 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFogCoord;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import weather2.api.WeatherUtilData;
@@ -59,7 +53,7 @@ public class EventHandlerForge {
 	}
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     public void worldRender(RenderWorldLastEvent event)
     {
 
@@ -73,7 +67,7 @@ public class EventHandlerForge {
     }
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void registerIcons(TextureStitchEvent.Pre event) {
 		
 		//optifine breaks (removes) forge added method setTextureEntry, dont use it
@@ -89,7 +83,7 @@ public class EventHandlerForge {
 	}
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     public void onFogDensity(FogDensity event) {
 
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
@@ -136,7 +130,7 @@ public class EventHandlerForge {
     }
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     public void onFogColors(FogColors event) {
 
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
@@ -155,7 +149,7 @@ public class EventHandlerForge {
 	}
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void onFogRender(RenderFogEvent event) {
 
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
@@ -198,7 +192,7 @@ public class EventHandlerForge {
     }
 
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void onScreenEvent(RenderGameOverlayEvent.Pre event) {
 		if (false && event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 			Minecraft mc = Minecraft.getMinecraft();
@@ -257,7 +251,7 @@ public class EventHandlerForge {
 	}
 
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void onRenderTick(TickEvent.RenderTickEvent event) {
 		SceneEnhancer.renderTick(event);
 	}
@@ -267,8 +261,8 @@ public class EventHandlerForge {
 		if (event.getEntity().world.isRemote) return;
 
 		if (ConfigMisc.Villager_MoveInsideForStorms) {
-			if (event.getEntity() instanceof EntityVillager) {
-				EntityVillager ent = (EntityVillager) event.getEntity();
+			if (event.getEntity() instanceof VillagerEntity) {
+				VillagerEntity ent = (VillagerEntity) event.getEntity();
 
 				//Weather.dbg("applying villager storm AI");
 				UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
@@ -277,13 +271,13 @@ public class EventHandlerForge {
 	}
 
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void registerIcons(TextureStitchEvent.Post event) {
 		FoliageEnhancerShader.setupReplacers();
 	}
 
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void modelBake(ModelBakeEvent event) {
 		FoliageEnhancerShader.modelBakeEvent(event);
 	}

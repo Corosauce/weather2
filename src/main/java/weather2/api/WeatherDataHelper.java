@@ -3,8 +3,8 @@ package weather2.api;
 import CoroUtil.util.Vec3;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManagerBase;
@@ -32,7 +32,7 @@ public class WeatherDataHelper {
 	    return false;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static WeatherManagerBase getWeatherManagerForClient() {
 	    return ClientTickHandler.weatherManager;
     }

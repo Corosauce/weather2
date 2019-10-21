@@ -1,35 +1,29 @@
 package weather2.block;
 
-import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.item.ItemGroup;
+import net.minecraftforge.api.distmarker.Dist;
 import weather2.CommonProxy;
-import weather2.util.WeatherUtilBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockSnow;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BlockSandLayer extends Block
 {
@@ -51,12 +45,12 @@ public class BlockSandLayer extends Block
         //TODO: full block set before this is called
         this.setDefaultState(this.blockState.getBaseState().withProperty(LAYERS, Integer.valueOf(8)));
         //this.setTickRandomly(true);
-        this.setCreativeTab(CreativeTabs.DECORATIONS);
+        this.setCreativeTab(ItemGroup.DECORATIONS);
         this.setSoundType(SoundType.SAND);
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    public AxisAlignedBB getBoundingBox(BlockState state, IBlockAccess source, BlockPos pos)
     {
         return SAND_AABB[((Integer)state.getValue(LAYERS)).intValue()];
     }
@@ -71,7 +65,7 @@ public class BlockSandLayer extends Block
      * Checks if an IBlockState represents a block that is opaque and a full cube.
      */
     @Override
-    public boolean isTopSolid(IBlockState state)
+    public boolean isTopSolid(BlockState state)
     {
         //return ((Integer)state.getValue(LAYERS)).intValue() == 7;
     	return ((Integer)state.getValue(LAYERS)).intValue() == 8;
@@ -79,7 +73,7 @@ public class BlockSandLayer extends Block
 
     @Override
     @Nullable
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
+    public AxisAlignedBB getCollisionBoundingBox(BlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         int i = ((Integer)blockState.getValue(LAYERS)).intValue();
         float f = 0.125F;
@@ -91,13 +85,13 @@ public class BlockSandLayer extends Block
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
      */
     @Override
-    public boolean isOpaqueCube(IBlockState state)
+    public boolean isOpaqueCube(BlockState state)
     {
         return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
     }
 
     @Override
-    public boolean isFullCube(IBlockState state)
+    public boolean isFullCube(BlockState state)
     {
         return ((Integer)state.getValue(LAYERS)).intValue() >= 8;
     }
@@ -111,7 +105,7 @@ public class BlockSandLayer extends Block
     @Override
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
-        IBlockState iblockstate = worldIn.getBlockState(pos.down());
+        BlockState iblockstate = worldIn.getBlockState(pos.down());
         Block block = iblockstate.getBlock();
         return /*block != Blocks.ICE && block != Blocks.PACKED_ICE ? */(iblockstate.getBlock().isLeaves(iblockstate, worldIn, pos.down()) ? true : (block == this && ((Integer)iblockstate.getValue(LAYERS)).intValue() >= 7 ? true : iblockstate.isOpaqueCube() && iblockstate.getMaterial().blocksMovement()))/* : false*/;
     }
@@ -122,7 +116,7 @@ public class BlockSandLayer extends Block
      * block, etc.
      */
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+    public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
     	/*if (!worldIn.isRemote) {
     		WeatherUtilBlock.divideToNeighborCheck(state, worldIn, pos, blockIn);
@@ -131,7 +125,7 @@ public class BlockSandLayer extends Block
     }
 
     
-    private boolean checkAndDropBlock(World worldIn, BlockPos pos, IBlockState state)
+    private boolean checkAndDropBlock(World worldIn, BlockPos pos, BlockState state)
     {
         if (!this.canPlaceBlockAt(worldIn, pos))
         {
@@ -145,7 +139,7 @@ public class BlockSandLayer extends Block
     }
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack)
+    public void harvestBlock(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, @Nullable ItemStack stack)
     {
         super.harvestBlock(worldIn, player, pos, state, te, stack);
         worldIn.setBlockToAir(pos);
@@ -162,7 +156,7 @@ public class BlockSandLayer extends Block
 
     @Nullable
     @Override
-    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+    public Item getItemDropped(BlockState state, Random rand, int fortune) {
         return CommonProxy.itemSandLayer;
     }
 
@@ -176,16 +170,16 @@ public class BlockSandLayer extends Block
     }*/
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
+    @OnlyIn(Dist.CLIENT)
+    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side)
     {
-        if (side == EnumFacing.UP)
+        if (side == Direction.UP)
         {
             return true;
         }
         else
         {
-            IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
+            BlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
             return iblockstate.getBlock() == this && ((Integer)iblockstate.getValue(LAYERS)).intValue() >= ((Integer)blockState.getValue(LAYERS)).intValue() ? true : super.shouldSideBeRendered(blockState, blockAccess, pos, side);
         }
     }
@@ -194,7 +188,7 @@ public class BlockSandLayer extends Block
      * Convert the given metadata into a BlockState for this Block
      */
     @Override
-    public IBlockState getStateFromMeta(int meta)
+    public BlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(LAYERS, Integer.valueOf((meta & 7) + 1));
     }
@@ -212,12 +206,12 @@ public class BlockSandLayer extends Block
      * Convert the BlockState into the correct metadata value
      */
     @Override
-    public int getMetaFromState(IBlockState state)
+    public int getMetaFromState(BlockState state)
     {
         return ((Integer)state.getValue(LAYERS)).intValue() - 1;
     }
 
-    @Override public int quantityDropped(IBlockState state, int fortune, Random random){ return ((Integer)state.getValue(LAYERS)); }
+    @Override public int quantityDropped(BlockState state, int fortune, Random random){ return ((Integer)state.getValue(LAYERS)); }
 
     @Override
     protected BlockStateContainer createBlockState()
@@ -234,7 +228,7 @@ public class BlockSandLayer extends Block
     }*/
 
     @Override
-    public boolean causesSuffocation(IBlockState state) {
+    public boolean causesSuffocation(BlockState state) {
         return false;
     }
 }

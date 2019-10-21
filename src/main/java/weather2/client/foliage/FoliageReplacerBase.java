@@ -2,7 +2,7 @@ package weather2.client.foliage;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -34,7 +34,7 @@ public abstract class FoliageReplacerBase {
      */
 
     //TODO: variants on the plant type
-    public IBlockState state;
+    public BlockState state;
     //public TextureAtlasSprite sprite;
     public List<TextureAtlasSprite> sprites = new ArrayList<>();
 
@@ -50,7 +50,7 @@ public abstract class FoliageReplacerBase {
     public int animationID;
     public float looseness = 1F;
 
-    public FoliageReplacerBase(IBlockState state) {
+    public FoliageReplacerBase(BlockState state) {
         this.state = state;
     }
 

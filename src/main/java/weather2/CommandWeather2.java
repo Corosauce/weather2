@@ -6,12 +6,14 @@ import java.util.Random;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerNotFoundException;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import weather2.entity.EntityLightningBolt;
 import weather2.util.WeatherUtilBlock;
@@ -36,9 +38,9 @@ public class CommandWeather2 extends CommandBase {
 		
 		String helpMsgStorm = "Syntax: storm create <rain/thunder/wind/spout/hail/F0/F1/F2/F3/F4/F5/C0/C1/C2/C3/C4/C5/hurricane> <Optional: alwaysProgress>... example: storm create F1 alwaysProgress ... eg2: storm killall";
 		
-		EntityPlayer player = null;
-		if (var1 instanceof EntityPlayer) {
-			player = (EntityPlayer) var1;
+		PlayerEntity player = null;
+		if (var1 instanceof PlayerEntity) {
+			player = (PlayerEntity) var1;
 		}
 		World world = var1.getEntityWorld();
 		int dimension = world.provider.getDimension();
@@ -334,7 +336,7 @@ public class CommandWeather2 extends CommandBase {
 	}
 
 	public static void sendCommandSenderMsg(ICommandSender entP, String msg) {
-		entP.sendMessage(new TextComponentString(msg));
+		entP.sendMessage(new StringTextComponent(msg));
 	}
 
 }

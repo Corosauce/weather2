@@ -7,13 +7,16 @@ import java.util.List;
 
 import modconfig.gui.GuiConfigEditor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -25,7 +28,7 @@ import weather2.client.gui.elements.GuiButtonCycle;
 import weather2.util.WeatherUtilConfig;
 import CoroUtil.packet.PacketHelper;
 
-public class GuiEZConfig extends GuiScreen {
+public class GuiEZConfig extends Screen {
 
 	//slightly different from ZC subgui with its main gui, this one we shouldnt need to show the main gui, just auto select first subgui, Performance
 	//treat the subguis as tabs, clicking one auto saves data from that opened gui and switches to the tab they clicked, save & close always visible and always closes gui
@@ -51,10 +54,10 @@ public class GuiEZConfig extends GuiScreen {
 	//public String guiPrev = "";
 	
 	//Elements
-	public HashMap<Integer, GuiButton> buttonsLookup = new HashMap<Integer, GuiButton>();
+	public HashMap<Integer, Button> buttonsLookup = new HashMap<Integer, Button>();
 	//public HashMap<Integer, String> buttonsLookupInt = new HashMap<Integer, String>(); //shouldnt need, just use const button ids -> button
 	//public GuiTextField textboxWorldName;
-	public NBTTagCompound nbtSendCache = new NBTTagCompound();
+	public CompoundNBT nbtSendCache = new CompoundNBT();
 	
 	//config commands for gui/packet handler - might only be needed in gui since it just sets data on server side
 	public static int CMD_CLOSE = 0;
@@ -109,14 +112,14 @@ public class GuiEZConfig extends GuiScreen {
 		}
 		
 		//only sync request on initial gui open
-        NBTTagCompound data = new NBTTagCompound();
+        CompoundNBT data = new CompoundNBT();
         data.setString("command", "syncRequest");
         data.setString("packetCommand", "EZGuiData");
         Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
         //PacketHelper.sendClientPacket(PacketHelper.createPacketForNBTHandler("EZGuiData", data));
 		
         //prep send cache
-		nbtSendCache.setTag("guiData", new NBTTagCompound());
+		nbtSendCache.setTag("guiData", new CompoundNBT());
 	}
 	
 	@Override
@@ -134,7 +137,7 @@ public class GuiEZConfig extends GuiScreen {
 	}
 
 	@Override
-	public <T extends GuiButton> T addButton(T p_189646_1_) {
+	public <T extends Button> T addButton(T p_189646_1_) {
 		buttonsLookup.put(p_189646_1_.id, p_189646_1_);
 		this.buttonList.add(p_189646_1_);
 		return p_189646_1_;
@@ -358,9 +361,9 @@ public class GuiEZConfig extends GuiScreen {
 		
 		canPlayerChangeServerSettings = WeatherUtilConfig.nbtClientCache.getBoolean("isPlayerOP");
 		
-		NBTTagCompound serverDataCache = WeatherUtilConfig.nbtClientCache.getCompoundTag("data");
+		CompoundNBT serverDataCache = WeatherUtilConfig.nbtClientCache.getCompoundTag("data");
 		
-		NBTTagCompound dimData = WeatherUtilConfig.nbtClientCache.getCompoundTag("dimListing");
+		CompoundNBT dimData = WeatherUtilConfig.nbtClientCache.getCompoundTag("dimListing");
 		
 		listDimIDs.clear();
 		listDimNames.clear();
@@ -372,7 +375,7 @@ public class GuiEZConfig extends GuiScreen {
 		 Iterator it = dimData.getKeySet().iterator();
          while (it.hasNext()) {
          	String tagName = (String) it.next();
-         	NBTTagCompound tag = dimData.getCompoundTag(tagName);
+         	CompoundNBT tag = dimData.getCompoundTag(tagName);
 			//NBTTagString tag = (NBTTagString) it.next();
 			//listDimIDs.add(Integer.parseInt(tag.getName()));
 			listDimIDs.add(tag.getInteger("ID"));//Integer.parseInt(tag.getName()));
@@ -527,13 +530,13 @@ public class GuiEZConfig extends GuiScreen {
         int btnDimIndex = btnDimIndexStart;
         
         
-        addButton(new GuiButton(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
-        addButton(new GuiButton(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
+        addButton(new Button(CMD_CLOSE, xStart + xSize - guiPadding - btnWidth, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Save & Close"));
+        addButton(new Button(CMD_ADVANCED, xStart + xSize - guiPadding - btnWidth - btnWidthAndPadding, yStart + ySize - guiPadding - btnHeight, btnWidth, btnHeight, "Advanced"));
         
-        addButton(new GuiButton(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
-        addButton(new GuiButton(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
-        addButton(new GuiButton(CMD_SUBGUI_PREFERENCE, xStartPadded+btnWidthAndPadding*2, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PREFERENCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PREFERENCE));
-        addButton(new GuiButton(CMD_SUBGUI_DIMENSIONS, xStartPadded+btnWidthAndPadding*3, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_DIMENSIONS) ? "\u00A7" + '2' : "") + GUI_SUBGUI_DIMENSIONS));
+        addButton(new Button(CMD_SUBGUI_PERFORMANCE, xStartPadded+btnWidthAndPadding*0, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PERFORMANCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PERFORMANCE));
+        addButton(new Button(CMD_SUBGUI_COMPATIBILITY, xStartPadded+btnWidthAndPadding*1, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_COMPATIBILITY) ? "\u00A7" + '2' : "") + GUI_SUBGUI_COMPATIBILITY));
+        addButton(new Button(CMD_SUBGUI_PREFERENCE, xStartPadded+btnWidthAndPadding*2, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_PREFERENCE) ? "\u00A7" + '2' : "") + GUI_SUBGUI_PREFERENCE));
+        addButton(new Button(CMD_SUBGUI_DIMENSIONS, xStartPadded+btnWidthAndPadding*3, yStartPadded, btnWidth, btnHeight, (guiCur.equals(GUI_SUBGUI_DIMENSIONS) ? "\u00A7" + '2' : "") + GUI_SUBGUI_DIMENSIONS));
         
         if (guiCur.equals(GUI_SUBGUI_PERFORMANCE)) {
         	addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PERF_STORM, xStartPadded2+btnWidthAndPadding*0, yStartPadded2, btnWidth, btnHeight, WeatherUtilConfig.LIST_RATES, 1));
@@ -556,8 +559,8 @@ public class GuiEZConfig extends GuiScreen {
 			addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_SANDSTORMS, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*5, btnWidth, btnHeight, WeatherUtilConfig.LIST_TOGGLE, 1));
 			addButton(new GuiButtonCycle(WeatherUtilConfig.CMD_BTN_PREF_GLOBALRATE, xStartPadded2+btnWidthAndPadding*0, yStartPadded2+btnHeightAndPadding*6, btnWidth, btnHeight, WeatherUtilConfig.LIST_GLOBALRATE, 1));
         } else if (guiCur.equals(GUI_SUBGUI_DIMENSIONS)) {
-        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_PREV, xStartPadded, yStart + ySize - guiPadding - btnHeight, 60, 20, "Prev Page"));
-        	addButton(new GuiButton(CMD_BUTTON_DIMENSIONS_NEXT, xStartPadded+20+btnWidthAndPadding*1, yStart + ySize - guiPadding - btnHeight, 60, 20, "Next Page"));
+        	addButton(new Button(CMD_BUTTON_DIMENSIONS_PREV, xStartPadded, yStart + ySize - guiPadding - btnHeight, 60, 20, "Prev Page"));
+        	addButton(new Button(CMD_BUTTON_DIMENSIONS_NEXT, xStartPadded+20+btnWidthAndPadding*1, yStart + ySize - guiPadding - btnHeight, 60, 20, "Next Page"));
         	
         	for (int i = 0; i < curDimListCountPerPage; i++) {
 	        	addButton(new GuiButtonCycle(btnDimIndex++, xStartPadded + 46, yStartPadded3+yEleSize2*i, 40, 20, WeatherUtilConfig.LIST_TOGGLE, 1));
@@ -603,7 +606,7 @@ public class GuiEZConfig extends GuiScreen {
     }
 	
 	@Override
-	protected void actionPerformed(GuiButton var1)
+	protected void actionPerformed(Button var1)
     {
 		String guiForPacket = guiCur;
 		boolean sendPacket = false;
@@ -667,14 +670,14 @@ public class GuiEZConfig extends GuiScreen {
         		//if clicking effects dimension listing button
         		if ((var1.id-btnDimIndexStart) % 4 == 3) {
         			((GuiButtonCycle) var1).cycleIndex();
-        			NBTTagCompound nbtDims = WeatherUtilConfig.nbtClientData.getCompoundTag("dimData");
+        			CompoundNBT nbtDims = WeatherUtilConfig.nbtClientData.getCompoundTag("dimData");
         			nbtDims.setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
         			WeatherUtilConfig.nbtClientData.setTag("dimData", nbtDims);
         			Weather.dbg("nbtClientData: " + WeatherUtilConfig.nbtClientData);
         		} else { //if server button
 	        		Weather.dbg(((var1.id-btnDimIndexStart) % 4) + " - " + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage));
 	        		((GuiButtonCycle) var1).cycleIndex();
-	        		NBTTagCompound nbtDims = nbtSendCache.getCompoundTag("guiData").getCompoundTag("dimData");
+	        		CompoundNBT nbtDims = nbtSendCache.getCompoundTag("guiData").getCompoundTag("dimData");
 	        		nbtDims.setInteger("dim_" + listDimIDs.get((curDimListPage*curDimListCountPerPage) + (var1.id-btnDimIndexStart)/curDimListCountPerPage) + "_" + ((var1.id-btnDimIndexStart) % 4), ((GuiButtonCycle) var1).getIndex());
 	        		
 	        		nbtSendCache.getCompoundTag("guiData").setTag("dimData", nbtDims);

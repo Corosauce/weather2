@@ -2,34 +2,34 @@ package weather2.client.entity;
 
 import CoroUtil.util.CoroUtilParticle;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import weather2.entity.EntityIceBall;
 import weather2.entity.EntityMovingBlock;
 
-@SideOnly(Side.CLIENT)
-public class RenderFlyingBlockOld extends Render
+@OnlyIn(Dist.CLIENT)
+public class RenderFlyingBlockOld extends EntityRenderer
 {
 	Block renderBlock;
 
-    public RenderFlyingBlockOld(RenderManager manager, Block parBlock)
+    public RenderFlyingBlockOld(EntityRendererManager manager, Block parBlock)
     {
     	super(manager);
     	renderBlock = parBlock;
@@ -41,7 +41,7 @@ public class RenderFlyingBlockOld extends Render
 	 * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
 	 */
 	protected ResourceLocation getEntityTexture(Entity entity) {
-		return TextureMap.LOCATION_BLOCKS_TEXTURE;
+		return AtlasTexture.LOCATION_BLOCKS_TEXTURE;
 	}
 
     @Override
@@ -101,7 +101,7 @@ public class RenderFlyingBlockOld extends Render
 
         }*/
 
-        IBlockState state = null;
+        BlockState state = null;
 
         if (entity instanceof EntityMovingBlock) {
         	state = ((EntityMovingBlock) entity).tile.getDefaultState();
@@ -115,15 +115,15 @@ public class RenderFlyingBlockOld extends Render
 
         if (state != null)
         {
-            this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            IBlockState iblockstate = state;
+            this.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+            BlockState iblockstate = state;
             Block block = iblockstate.getBlock();
             BlockPos blockpos = new BlockPos(entity);
             World world = var11;
 
             if (iblockstate != world.getBlockState(blockpos)/* && block.getRenderType(iblockstate) != -1*/)
             {
-                if (block.getRenderType(iblockstate) == EnumBlockRenderType.MODEL)
+                if (block.getRenderType(iblockstate) == BlockRenderType.MODEL)
                 {
                 	if (entity instanceof EntityMovingBlock) {
                 		try {

@@ -5,18 +5,18 @@ import java.util.Random;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.entity.EntityLightningBolt;
 
-@SideOnly(Side.CLIENT)
-public class RenderLightningBolt extends Render<EntityLightningBolt>
+@OnlyIn(Dist.CLIENT)
+public class RenderLightningBolt extends EntityRenderer<EntityLightningBolt>
 {
-    public RenderLightningBolt(RenderManager renderManagerIn)
+    public RenderLightningBolt(EntityRendererManager renderManagerIn)
     {
         super(renderManagerIn);
     }

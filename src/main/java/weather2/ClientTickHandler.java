@@ -6,12 +6,16 @@ import java.lang.reflect.Modifier;
 import CoroUtil.packet.PacketHelper;
 import extendedrenderer.ExtendedRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.IngameMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.IngameMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -41,7 +45,7 @@ public class ClientTickHandler
 	
 	public boolean hasOpenedConfig = false;
 	
-	public GuiButton configButton;
+	public Button configButton;
 
 	//storing old reference to help retain any modifications done by other mods (dynamic surroundings asm)
 	public EntityRenderer oldRenderer;
@@ -73,13 +77,13 @@ public class ClientTickHandler
     public void onRenderScreenTick()
     {
     	Minecraft mc = FMLClientHandler.instance().getClient();
-    	if (mc.currentScreen instanceof GuiIngameMenu) {
+    	if (mc.currentScreen instanceof IngameMenuScreen) {
     		ScaledResolution scaledresolution = new ScaledResolution(mc);
             int i = scaledresolution.getScaledWidth();
             int j = scaledresolution.getScaledHeight();
     		int k = Mouse.getX() * i / mc.displayWidth;
             int l = j - Mouse.getY() * j / mc.displayHeight - 1;
-    		configButton = new GuiButton(0, (i/2)-100, 0, 200, 20, "Weather2 EZ Config");
+    		configButton = new Button(0, (i/2)-100, 0, 200, 20, "Weather2 EZ Config");
     		configButton.drawButton(mc, k, l, 1F);
     		
     		if (k >= configButton.x && l >= configButton.y && k < configButton.x + 200 && l < configButton.y + 20) {
@@ -90,7 +94,7 @@ public class ClientTickHandler
     	}
     }
 
-    public void onTickInGUI(GuiScreen guiscreen)
+    public void onTickInGUI(Screen guiscreen)
     {
         //onTickInGame();
     }
@@ -289,7 +293,7 @@ public class ClientTickHandler
     	weatherManager = new WeatherManagerClient(world.provider.getDimension());
 
 		//request a full sync from server
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("command", "syncFull");
 		data.setString("packetCommand", "WeatherData");
 		Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));

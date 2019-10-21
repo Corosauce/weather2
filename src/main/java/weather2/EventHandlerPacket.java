@@ -1,15 +1,14 @@
 package weather2;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.ServerPlayNetHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.item.ItemPocketSand;
 import weather2.util.WeatherUtilConfig;
 import CoroUtil.packet.PacketHelper;
@@ -32,7 +31,7 @@ public class EventHandlerPacket {
 	public void onPacketFromServer(FMLNetworkEvent.ClientCustomPacketEvent event) {
 		
 		try {
-			final NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
+			final CompoundNBT nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
 			
 			final String packetCommand = nbt.getString("packetCommand");
 			final String command = nbt.getString("command");
@@ -70,10 +69,10 @@ public class EventHandlerPacket {
 	
 	@SubscribeEvent
 	public void onPacketFromClient(FMLNetworkEvent.ServerCustomPacketEvent event) {
-		final EntityPlayerMP entP = ((NetHandlerPlayServer)event.getHandler()).player;
+		final ServerPlayerEntity entP = ((ServerPlayNetHandler)event.getHandler()).player;
 		
 		try {
-			final NBTTagCompound nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
+			final CompoundNBT nbt = PacketHelper.readNBTTagCompound(event.getPacket().payload());
 
 			final String packetCommand = nbt.getString("packetCommand");
 			final String command = nbt.getString("command");
@@ -94,7 +93,7 @@ public class EventHandlerPacket {
 
                     if (command.equals("syncRequest")) {
                         Weather.dbg("EZGUI syncRequest");
-                        NBTTagCompound sendNBT = new NBTTagCompound();
+                        CompoundNBT sendNBT = new CompoundNBT();
                         sendNBT.setString("packetCommand", "EZGuiData");
                         sendNBT.setString("command", "syncUpdate");
                         sendNBT.setBoolean("markUpdated", true);
@@ -119,7 +118,7 @@ public class EventHandlerPacket {
 		
 	}
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String getSelfUsername() {
     	return CoroUtilEntity.getName(Minecraft.getMinecraft().player);
     }

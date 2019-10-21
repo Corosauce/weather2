@@ -9,14 +9,18 @@ import CoroUtil.packet.PacketHelper;
 import CoroUtil.util.Vec3;
 import modconfig.ConfigMod;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemSpade;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ShovelItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -42,7 +46,7 @@ public class ServerTickHandler
     
 	public static World lastWorld;
     
-	public static NBTTagCompound worldNBT = new NBTTagCompound(); 
+	public static CompoundNBT worldNBT = new CompoundNBT();
 	
     static {
     	
@@ -119,7 +123,7 @@ public class ServerTickHandler
 	    		
 	    		if (listMsgs.get(i).key.equals("weather.raining")) {
 
-	    			NBTTagCompound nbt = listMsgs.get(i).getNBTValue();
+	    			CompoundNBT nbt = listMsgs.get(i).getNBTValue();
 	    			
 	    			String replyMod = nbt.getString("replymod");
 					nbt.setBoolean("isRaining", true);
@@ -149,7 +153,7 @@ public class ServerTickHandler
         boolean testCustomLightning = false;
         if (testCustomLightning) {
         	if (world.getTotalWorldTime() % 20 == 0) {
-	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);
+	        	PlayerEntity player = world.getClosestPlayer(0, 0, 0, -1, false);
 	        	if (player != null) {
 	        		EntityLightningBoltCustom lightning = new EntityLightningBoltCustom(world, player.posX, player.posY, player.posZ);
 	        		world.addWeatherEffect(lightning);
@@ -161,10 +165,10 @@ public class ServerTickHandler
         boolean derp = false;
         if (derp) {
         	if (world.getTotalWorldTime() % 2 == 0) {
-	        	EntityPlayer player = world.getClosestPlayer(0, 0, 0, -1, false);
+	        	PlayerEntity player = world.getClosestPlayer(0, 0, 0, -1, false);
 	        	if (player != null) {
-	        		ItemStack is = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
-	        		if (is != null && is.getItem() instanceof ItemSpade) {
+	        		ItemStack is = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+	        		if (is != null && is.getItem() instanceof ShovelItem) {
 	        			int y = world.getHeight(new BlockPos(player.posX, 0, player.posZ)).getY();
 						System.out.println("y " + y);
 	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
@@ -204,7 +208,7 @@ public class ServerTickHandler
     	wm.writeToFile();
     }
 
-    public static void playerClientRequestsFullSync(EntityPlayerMP entP) {
+    public static void playerClientRequestsFullSync(ServerPlayerEntity entP) {
 		WeatherManagerServer wm = lookupDimToWeatherMan.get(entP.world.provider.getDimension());
 		if (wm != null) {
 			wm.playerJoinedWorldSyncFull(entP);
@@ -246,7 +250,7 @@ public class ServerTickHandler
 
 	public static void syncServerConfigToClient() {
 		//packets
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "ClientConfigData");
 		data.setString("command", "syncUpdate");
 		//data.setTag("data", parManager.nbtSyncForClient());
@@ -256,9 +260,9 @@ public class ServerTickHandler
 		Weather.eventChannel.sendToAll(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
 	}
 
-	public static void syncServerConfigToClientPlayer(EntityPlayerMP player) {
+	public static void syncServerConfigToClientPlayer(ServerPlayerEntity player) {
 		//packets
-		NBTTagCompound data = new NBTTagCompound();
+		CompoundNBT data = new CompoundNBT();
 		data.setString("packetCommand", "ClientConfigData");
 		data.setString("command", "syncUpdate");
 		//data.setTag("data", parManager.nbtSyncForClient());

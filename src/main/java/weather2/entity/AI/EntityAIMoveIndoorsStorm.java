@@ -3,8 +3,9 @@ package weather2.entity.AI;
 import CoroUtil.ai.ITaskInitializer;
 import CoroUtil.util.CoroUtilPhysics;
 import CoroUtil.util.Vec3;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -25,9 +26,9 @@ import java.util.List;
  *
  * Inject with same priority as original task, do not override original task
  */
-public class EntityAIMoveIndoorsStorm extends EntityAIBase implements ITaskInitializer
+public class EntityAIMoveIndoorsStorm extends Goal implements ITaskInitializer
 {
-    private EntityCreature entityObj;
+    private CreatureEntity entityObj;
     private VillageDoorInfo doorInfo;
     private int insidePosX = -1;
     private int insidePosZ = -1;
@@ -36,7 +37,7 @@ public class EntityAIMoveIndoorsStorm extends EntityAIBase implements ITaskIniti
         this.setMutexBits(1);
     }
 
-    public EntityAIMoveIndoorsStorm(EntityCreature entityObjIn)
+    public EntityAIMoveIndoorsStorm(CreatureEntity entityObjIn)
     {
         this();
         this.entityObj = entityObjIn;
@@ -159,7 +160,7 @@ public class EntityAIMoveIndoorsStorm extends EntityAIBase implements ITaskIniti
     }
 
     @Override
-    public void setEntity(EntityCreature creature) {
+    public void setEntity(CreatureEntity creature) {
         this.entityObj = creature;
     }
 }
