@@ -17,7 +17,7 @@ public class FoliageReplacerCrop extends FoliageReplacerBase {
 
     @Override
     public boolean validFoliageSpot(World world, BlockPos pos) {
-        return world.getBlockState(pos).getMaterial() == Material.ORGANIC && world.getBlockState(pos.up()).getOwner() == state.getOwner();
+        return world.getBlockState(pos).getMaterial() == Material.ORGANIC && world.getBlockState(pos.up()).getBlock() == state.getBlock();
     }
 
     @Override

@@ -153,7 +153,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
         //this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
         
-        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getOwner();
+        Block id = this.world.getBlockState(new BlockPos((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ))).getBlock();
         //int id2 = this.world.getBlockId((int)Math.floor(posX), (int)Math.floor(posY-1), (int)Math.floor(posZ));
         
         
@@ -191,7 +191,7 @@ public class EntityWaterfallFX extends EntityRotFX implements IWindHandler
         	
     		BlockState state = this.world.getBlockState(pos);
     		
-    		meta = state.getOwner().getMetaFromState(state);
+    		meta = state.getBlock().getMetaFromState(state);
     		
         	//meta = this.world.getBlockMetadata((int)Math.floor(posX), (int)Math.floor(posY), (int)Math.floor(posZ));
         	

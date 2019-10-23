@@ -2,7 +2,7 @@ package weather2.block;
 
 import CoroUtil.util.CoroUtilPhysics;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickableTileEntity;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;

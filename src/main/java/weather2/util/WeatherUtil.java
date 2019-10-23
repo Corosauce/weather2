@@ -47,7 +47,7 @@ public class WeatherUtil {
         {
         	ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
-            Block block = state.getOwner();
+            Block block = state.getBlock();
             
         	boolean result = true;
             

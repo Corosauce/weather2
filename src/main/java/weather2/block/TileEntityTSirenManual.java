@@ -3,7 +3,7 @@ package weather2.block;
 import CoroUtil.util.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickableTileEntity;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

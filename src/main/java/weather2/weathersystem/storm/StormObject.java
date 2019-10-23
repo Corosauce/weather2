@@ -983,10 +983,10 @@ public class StormObject extends WeatherObject {
 		int metaToSet = 0;
 		
 		World world = manager.getWorld();
-		Block checkID = world.getBlockState(new BlockPos(x, y, z)).getOwner();
+		Block checkID = world.getBlockState(new BlockPos(x, y, z)).getBlock();
 		//check for starting with no snow
 		if (CoroUtilBlock.isAir(checkID)) {
-			Block checkID2 = world.getBlockState(new BlockPos(x, y-1, z)).getOwner();
+			Block checkID2 = world.getBlockState(new BlockPos(x, y-1, z)).getBlock();
 			//make sure somethings underneath it - we shouldnt need to check deeper because we spread out while meta of snow is halfway, before it can start a second pile
 			if (CoroUtilBlock.isAir(checkID2)) {
 				//Weather.dbg("1");
@@ -998,7 +998,7 @@ public class StormObject extends WeatherObject {
 			}
 		} else if (checkID == Blocks.SNOW) {
 			BlockState state = world.getBlockState(new BlockPos(x, y, z));
-			int checkMeta = state.getOwner().getMetaFromState(state);
+			int checkMeta = state.getBlock().getMetaFromState(state);
 			//if detected snow is shorter, return with detected meta val!
 			//adjusting to <=
 			if (checkMeta < sourceMeta) {
@@ -1033,8 +1033,8 @@ public class StormObject extends WeatherObject {
         {
             if (par2 >= 0 && par2 < 256 && world.getLightFor(LightType.BLOCK, pos) < 10)
             {
-                /*Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getOwner();
-                Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getOwner();
+                /*Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
+                Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
 
                 if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.SNOW_LAYER)*//* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*//* && CoroUtilBlock.isAir(l) && l != Blocks.ICE && l.getMaterial(l.getDefaultState()).blocksMovement())
                 {
@@ -1045,7 +1045,7 @@ public class StormObject extends WeatherObject {
 				//TODO: incoming new way to detect if blocks can be snowed on https://github.com/MinecraftForge/MinecraftForge/pull/4569/files
 				//might not require any extra work from me?
 
-				if ((iblockstate1.getOwner().isAir(iblockstate1, world, pos) || iblockstate1.getOwner() == Blocks.SNOW_LAYER) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos))
+				if ((iblockstate1.getBlock().isAir(iblockstate1, world, pos) || iblockstate1.getBlock() == Blocks.SNOW_LAYER) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos))
 				{
 					return true;
 				}
@@ -1126,7 +1126,7 @@ public class StormObject extends WeatherObject {
 				performBuildup = true;
 			}
 			
-			Block blockID = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), currentTopYBlock-1, MathHelper.floor(pos.zCoord))).getOwner();
+			Block blockID = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), currentTopYBlock-1, MathHelper.floor(pos.zCoord))).getBlock();
 			if (!CoroUtilBlock.isAir(blockID)) {
 				//Block block = Block.blocksList[blockID];
 				if (blockID.getMaterial(blockID.getDefaultState()) instanceof MaterialLiquid) {

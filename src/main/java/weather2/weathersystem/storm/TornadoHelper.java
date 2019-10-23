@@ -24,7 +24,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.ServerWorld;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.DimensionManager;
@@ -180,7 +180,7 @@ public class TornadoHelper {
 					World world = DimensionManager.getWorld(snapshot.getDimID());
 					if (world != null) {
 
-						if (snapshot.getState().getOwner() == Blocks.AIR && ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
+						if (snapshot.getState().getBlock() == Blocks.AIR && ConfigTornado.Storm_Tornado_grabbedBlocksRepairOverTime && UtilMining.canConvertToRepairingBlock(world, snapshot.statePrev)) {
 							TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos(), ConfigTornado.Storm_Tornado_TicksToRepairBlock);
 							//world.setBlockState(snapshot.getPos(), Blocks.LEAVES.getDefaultState(), 3);
 						} else {
@@ -316,7 +316,7 @@ public class TornadoHelper {
 	                    {
 	                    	
 	                    	BlockState state = parWorld.getBlockState(pos);
-	                        Block blockID = state.getOwner();
+	                        Block blockID = state.getBlock();
 	                        
 	                        boolean performed = false;
 	
@@ -378,7 +378,7 @@ public class TornadoHelper {
 	                    {
 	                    	BlockPos pos = new BlockPos(tryX, tryY, tryZ);
 	                    	BlockState state = parWorld.getBlockState(pos);
-	                        Block blockID = state.getOwner();
+	                        Block blockID = state.getBlock();
 
 							if (canGrab(parWorld, state, pos))
 							{
@@ -417,7 +417,7 @@ public class TornadoHelper {
 			for (int i = 0; i < firesPerTickMax; i++) {
 				BlockPos posUp = new BlockPos(storm.posGround.xCoord, storm.posGround.yCoord + rand.nextInt(30), storm.posGround.zCoord);
 				BlockState state = parWorld.getBlockState(posUp);
-				if (CoroUtilBlock.isAir(state.getOwner())) {
+				if (CoroUtilBlock.isAir(state.getBlock())) {
 					//parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
 
 					EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY(), posUp.getZ(), Blocks.FIRE.getDefaultState(), storm);
@@ -445,9 +445,9 @@ public class TornadoHelper {
 
 			if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax) {
 				BlockPos pos = new BlockPos(tryX, tryY, tryZ);
-				Block block = parWorld.getBlockState(pos).getOwner();
+				Block block = parWorld.getBlockState(pos).getBlock();
 				BlockPos posUp = new BlockPos(tryX, tryY+1, tryZ);
-				Block blockUp = parWorld.getBlockState(posUp).getOwner();
+				Block blockUp = parWorld.getBlockState(posUp).getBlock();
 
 				if (!CoroUtilBlock.isAir(block) && CoroUtilBlock.isAir(blockUp))
 				{
@@ -494,7 +494,7 @@ public class TornadoHelper {
 
         boolean seesLight = false;
         BlockState state = parWorld.getBlockState(pos);
-        Block blockID = state.getOwner();
+        Block blockID = state.getBlock();
 
 		//CULog.dbg("tryRip: " + blockID);
 
@@ -564,9 +564,9 @@ public class TornadoHelper {
 
     public boolean canGrab(World parWorld, BlockState state, BlockPos pos)
     {
-        if (!CoroUtilBlock.isAir(state.getOwner()) &&
-				state.getOwner() != Blocks.FIRE &&
-				state.getOwner() != CommonProxy.blockRepairingBlock &&
+        if (!CoroUtilBlock.isAir(state.getBlock()) &&
+				state.getBlock() != Blocks.FIRE &&
+				state.getBlock() != CommonProxy.blockRepairingBlock &&
 				WeatherUtil.shouldGrabBlock(parWorld, state) &&
 				!isBlockGrabbingBlocked(parWorld, state, pos))
         {

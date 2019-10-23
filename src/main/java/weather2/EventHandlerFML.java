@@ -7,7 +7,7 @@ import extendedrenderer.foliage.Foliage;
 import extendedrenderer.shader.InstancedMeshFoliage;
 import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.ServerWorld;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;

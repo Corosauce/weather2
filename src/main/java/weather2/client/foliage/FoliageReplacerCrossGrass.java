@@ -21,7 +21,7 @@ public class FoliageReplacerCrossGrass extends FoliageReplacerCross {
         if (baseMaterial == null || world.getBlockState(pos).getMaterial() == baseMaterial) {
             if (stateSensitive) {
                 BlockState stateScan = world.getBlockState(pos.up());
-                if (stateScan.getOwner() == state.getOwner()) {
+                if (stateScan.getBlock() == state.getBlock()) {
                     boolean fail = false;
                     for (Map.Entry<IProperty, Comparable> entrySet : lookupPropertiesToComparable.entrySet()) {
                         if (stateScan.get(entrySet.getKey()) != entrySet.get()) {
@@ -41,9 +41,9 @@ public class FoliageReplacerCrossGrass extends FoliageReplacerCross {
                     return false;
                 }
                 //return world.getBlockState(pos.up()) == state;
-                //return world.getBlockState(pos.up()).getOwner() == state.getOwner();
+                //return world.getBlockState(pos.up()).getBlock() == state.getBlock();
             } else {
-                return world.getBlockState(pos.up()).getOwner() == state.getOwner();
+                return world.getBlockState(pos.up()).getBlock() == state.getBlock();
             }
         } else {
             return false;
@@ -57,14 +57,14 @@ public class FoliageReplacerCrossGrass extends FoliageReplacerCross {
         int height = expectedHeight;
         if (height == -1) {
             //Minecraft.getInstance().mouseHelper.ungrabMouseCursor();
-            Block block = state.getOwner();
+            Block block = state.getBlock();
 
             //already verified up 1 == block needed
             height = 0;
 
-            while (block == state.getOwner()) {
+            while (block == state.getBlock()) {
                 height++;
-                block = world.getBlockState(pos.up(height)).getOwner();
+                block = world.getBlockState(pos.up(height)).getBlock();
             }
         }
 

@@ -106,8 +106,8 @@ public class BlockSandLayer extends Block
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         BlockState iblockstate = worldIn.getBlockState(pos.down());
-        Block block = iblockstate.getOwner();
-        return /*block != Blocks.ICE && block != Blocks.PACKED_ICE ? */(iblockstate.getOwner().isLeaves(iblockstate, worldIn, pos.down()) ? true : (block == this && ((Integer)iblockstate.get(LAYERS)).intValue() >= 7 ? true : iblockstate.isOpaqueCube() && iblockstate.getMaterial().blocksMovement()))/* : false*/;
+        Block block = iblockstate.getBlock();
+        return /*block != Blocks.ICE && block != Blocks.PACKED_ICE ? */(iblockstate.getBlock().isLeaves(iblockstate, worldIn, pos.down()) ? true : (block == this && ((Integer)iblockstate.get(LAYERS)).intValue() >= 7 ? true : iblockstate.isOpaqueCube() && iblockstate.getMaterial().blocksMovement()))/* : false*/;
     }
 
     /**
@@ -180,7 +180,7 @@ public class BlockSandLayer extends Block
         else
         {
             BlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
-            return iblockstate.getOwner() == this && ((Integer)iblockstate.get(LAYERS)).intValue() >= ((Integer)stateContainer.get(LAYERS)).intValue() ? true : super.shouldSideBeRendered(stateContainer, blockAccess, pos, side);
+            return iblockstate.getBlock() == this && ((Integer)iblockstate.get(LAYERS)).intValue() >= ((Integer)stateContainer.get(LAYERS)).intValue() ? true : super.shouldSideBeRendered(stateContainer, blockAccess, pos, side);
         }
     }
 

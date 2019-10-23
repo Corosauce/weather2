@@ -272,7 +272,7 @@ public class SceneEnhancer implements Runnable {
 	            		//System.out.println("trim out soundlocation");
 	            	} else {
 	
-	                    Block block = getOwner(worldRef, cCor.posX, cCor.posY, cCor.posZ);//Block.blocksList[id];
+	                    Block block = getBlock(worldRef, cCor.posX, cCor.posY, cCor.posZ);//Block.blocksList[id];
 	                    
 	                    if (block == null || (block.getMaterial(block.getDefaultState()) != Material.WATER && block.getMaterial(block.getDefaultState()) != Material.LEAVES)) {
 	                    	soundLocations.remove(i);
@@ -377,7 +377,7 @@ public class SceneEnhancer implements Runnable {
 							double d4 = random.nextDouble();
 							AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
 
-							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getOwner() != Blocks.MAGMA) {
+							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA) {
 								if (iblockstate.getMaterial() != Material.AIR) {
 									++j;
 
@@ -442,7 +442,7 @@ public class SceneEnhancer implements Runnable {
                 {
                     for (int zz = curZ - hsize; zz < curZ + hsize; zz++)
                     {
-                        Block block = getOwner(worldRef, xx, yy, zz);
+                        Block block = getBlock(worldRef, xx, yy, zz);
                         
                         if (block != null) {
                         	
@@ -457,7 +457,7 @@ public class SceneEnhancer implements Runnable {
                             		
                             		//this scans to bottom till not water, kinda overkill? owell lets keep it, and also add rule if index > 4 (waterfall height of 4)
                             		while (yy-index > 0) {
-                            			Block id2 = getOwner(worldRef, xx, yy-index, zz);
+                            			Block id2 = getBlock(worldRef, xx, yy-index, zz);
                             			if (id2 != null && !(id2.getMaterial(id2.getDefaultState()) == Material.WATER)) {
                             				break;
                             			}
@@ -468,7 +468,7 @@ public class SceneEnhancer implements Runnable {
                             		
                             		//check if +10 from here is water with right meta too
                             		int meta2 = getBlockMetadata(worldRef, xx, bottomY+10, zz);
-                            		Block block2 = getOwner(worldRef, xx, bottomY+10, zz);;
+                            		Block block2 = getBlock(worldRef, xx, bottomY+10, zz);;
                             		
                         			if (index >= 4 && (block2 != null && block2.getMaterial(block2.getDefaultState()) == Material.WATER && (meta2 & 8) != 0)) {
                         				boolean proxFail = false;
@@ -1583,7 +1583,7 @@ public class SceneEnhancer implements Runnable {
         float windStr = manager.windMan.getWindSpeedForPriority();//(weatherMan.wind.strength <= 1F ? weatherMan.wind.strength : 1F);
 
         /*if (client.objectMouseOver != null && client.objectMouseOver.getBlockPos() != null) {
-        	Block id = client.world.getBlockState(new BlockPos(client.objectMouseOver.getBlockPos().getX(), client.objectMouseOver.getBlockPos().getY(), client.objectMouseOver.getBlockPos().getZ())).getOwner();
+        	Block id = client.world.getBlockState(new BlockPos(client.objectMouseOver.getBlockPos().getX(), client.objectMouseOver.getBlockPos().getY(), client.objectMouseOver.getBlockPos().getZ())).getBlock();
         	//System.out.println(client.world.getBlockStateId(client.objectMouseOver.blockX,client.objectMouseOver.blockY,client.objectMouseOver.blockZ));
         	if (CoroUtilBlock.isAir(id) && id.getMaterial() == Material.wood) {
         		float var5 = 0;
@@ -1673,7 +1673,7 @@ public class SceneEnhancer implements Runnable {
                 {
                         //for (int i = 0; i < p_blocks_leaf.size(); i++)
                         //{
-                            Block block = getOwner(worldRef, xx, yy, zz);
+                            Block block = getBlock(worldRef, xx, yy, zz);
                             
                             //if (block != null && block.getMaterial() == Material.leaves)
                             
@@ -1783,9 +1783,9 @@ public class SceneEnhancer implements Runnable {
                             		lastTickFoundBlocks += 70; //adding more to adjust for the rate 1 waterfall block spits out particles
                             		int chance = (int)(1+(((float)BlockCountRate)/120F));
                             		
-                            		Block block2 = getOwner(worldRef, xx, yy-1, zz);
+                            		Block block2 = getBlock(worldRef, xx, yy-1, zz);
                             		int meta2 = getBlockMetadata(worldRef, xx, yy-1, zz);
-                            		Block block3 = getOwner(worldRef, xx, yy+10, zz);
+                            		Block block3 = getBlock(worldRef, xx, yy+10, zz);
                             		//Block block2 = Block.blocksList[id2];
                             		//Block block3 = Block.blocksList[id3];
                             		
@@ -1881,7 +1881,7 @@ public class SceneEnhancer implements Runnable {
     public static BlockPos getRandomWorkingPos(World world, BlockPos posOrigin) {
 		Collections.shuffle(listPosRandom);
 		for (BlockPos posRel : listPosRandom) {
-			Block blockCheck = getOwner(world, posOrigin.add(posRel));
+			Block blockCheck = getBlock(world, posOrigin.add(posRel));
 
 			if (blockCheck != null && CoroUtilBlock.isAir(blockCheck)) {
 				return posRel;
@@ -2117,13 +2117,13 @@ public class SceneEnhancer implements Runnable {
 	//Thread safe functions
 
 	@OnlyIn(Dist.CLIENT)
-	private static Block getOwner(World parWorld, BlockPos pos)
+	private static Block getBlock(World parWorld, BlockPos pos)
 	{
-		return getOwner(parWorld, pos.getX(), pos.getY(), pos.getZ());
+		return getBlock(parWorld, pos.getX(), pos.getY(), pos.getZ());
 	}
 
     @OnlyIn(Dist.CLIENT)
-    private static Block getOwner(World parWorld, int x, int y, int z)
+    private static Block getBlock(World parWorld, int x, int y, int z)
     {
         try
         {
@@ -2132,7 +2132,7 @@ public class SceneEnhancer implements Runnable {
                 return null;
             }
 
-            return parWorld.getBlockState(new BlockPos(x, y, z)).getOwner();
+            return parWorld.getBlockState(new BlockPos(x, y, z)).getBlock();
         }
         catch (Exception ex)
         {
@@ -2149,7 +2149,7 @@ public class SceneEnhancer implements Runnable {
         }
 
         BlockState state = parWorld.getBlockState(new BlockPos(x, y, z));
-        return state.getOwner().getMetaFromState(state);
+        return state.getBlock().getMetaFromState(state);
     }
     
     public static void tickTest() {

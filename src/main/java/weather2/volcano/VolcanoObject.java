@@ -220,10 +220,10 @@ public class VolcanoObject {
 				startYPos = (int) pos.yCoord;
 
 				BlockState statez = world.getBlockState(new BlockPos(MathHelper.floor(pos.xCoord), MathHelper.floor(pos.yCoord-1), MathHelper.floor(pos.zCoord)));
-				topBlockID = statez.getOwner();
+				topBlockID = statez.getBlock();
 				
 				if (CoroUtilBlock.isAir(topBlockID) || !statez.getMaterial().isSolid()) {
-					topBlockID = world.getBlockState(new BlockPos((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord)).getOwner();
+					topBlockID = world.getBlockState(new BlockPos((int)pos.xCoord, (int)pos.yCoord-1, (int)pos.zCoord)).getBlock();
 				}
 				
 				for (int yy = startYPos + curHeight; yy > 2; yy--) {
@@ -254,7 +254,7 @@ public class VolcanoObject {
 							
 							//skip derpy top layer
 							if (yy != startYPos + curHeight) {
-								Block idScan = world.getBlockState(new BlockPos(posX, yy, posZ)).getOwner();
+								Block idScan = world.getBlockState(new BlockPos(posX, yy, posZ)).getBlock();
 								if (CoroUtilBlock.isAir(idScan) || idScan.getMaterial(idScan.getDefaultState()) == Material.WATER) {
 									world.setBlockState(new BlockPos(posX, yy, posZ), blockID.getDefaultState());
 								}
@@ -310,18 +310,18 @@ public class VolcanoObject {
 								
 									//skip top layers
 									if (yy != curHeight) {
-										if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(posX, startYPos+yy, posZ)).getOwner())) {
+										if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(posX, startYPos+yy, posZ)).getBlock())) {
 											world.setBlockState(new BlockPos(posX, startYPos+yy, posZ), blockID.getDefaultState());
 										}
 									}
 									
 									//handle growth under expanded area
 									int underY = startYPos+yy-1;
-									Block underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getOwner();
+									Block underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
 									while ((CoroUtilBlock.isAir(underBlockID) || underBlockID.getMaterial(underBlockID.getDefaultState()) == Material.WATER) && underY > 1) {
 										world.setBlockState(new BlockPos(posX, underY, posZ), Blocks.DIRT.getDefaultState());
 										underY--;
-										underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getOwner();
+										underBlockID = world.getBlockState(new BlockPos(posX, underY, posZ)).getBlock();
 									}
 								}
 							}

@@ -173,7 +173,7 @@ public class ServerTickHandler
 						System.out.println("y " + y);
 	        			//BlockPos airAtPlayer = new BlockPos(player.posX, y, player.posZ);
 		        		//IBlockState state = world.getBlockState(new BlockPos(player.posX, player.getBoundingBox().minY-1, player.posZ));
-		        		//if (state.getOwner() != Blocks.SAND) {
+		        		//if (state.getBlock() != Blocks.SAND) {
 		        			//WeatherUtilBlock.floodAreaWithLayerableBlock(player.world, new Vec3(player.posX, player.posY, player.posZ), player.rotationYawHead, 15, 5, 2, CommonProxy.blockSandLayer, 4);
 		        			WeatherUtilBlock.fillAgainstWallSmoothly(player.world, new Vec3(player.posX, y + 0.5D, player.posZ/*player.posX, player.posY, player.posZ*/), player.rotationYawHead, 15, 2, CommonProxy.blockSandLayer);
 		        		//}

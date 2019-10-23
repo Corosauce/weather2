@@ -117,7 +117,7 @@ public class RenderFlyingBlockOld extends EntityRenderer
         {
             this.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
             BlockState iblockstate = state;
-            Block block = iblockstate.getOwner();
+            Block block = iblockstate.getBlock();
             BlockPos blockpos = new BlockPos(entity);
             World world = var11;
 

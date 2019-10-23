@@ -93,8 +93,8 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         this.prevPosY = (var3 + 0.5F);
         this.prevPosZ = (double)(var4 + 0.5F);
 
-        this.tile = state.getOwner();
-        this.metadata = state.getOwner().getMetaFromState(state);
+        this.tile = state.getBlock();
+        this.metadata = state.getBlock().getMetaFromState(state);
         this.material = tile.getMaterial(tile.getDefaultState());
         this.stateCached = state;
         //this.tileentity = var1.getTileEntity(new BlockPos(var2, var3, var4));
@@ -445,7 +445,7 @@ public class EntityMovingBlock extends Entity implements IEntityAdditionalSpawnD
         if (this.world.isRemote) return;
         this.remove();
 
-        Block var5 = this.world.getBlockState(new BlockPos(var1, var2, var3)).getOwner();
+        Block var5 = this.world.getBlockState(new BlockPos(var1, var2, var3)).getBlock();
 
         if (this.tileentity != null || this.type != 0 || ConfigTornado.Storm_Tornado_rarityOfBreakOnFall > 0 && this.rand.nextInt(ConfigTornado.Storm_Tornado_rarityOfBreakOnFall + 1) != 0)
         {

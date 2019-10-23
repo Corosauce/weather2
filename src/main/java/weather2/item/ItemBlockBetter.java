@@ -48,7 +48,7 @@ public class ItemBlockBetter extends Item
     public ActionResultType onItemUse(PlayerEntity playerIn, World worldIn, BlockPos pos, Hand hand, Direction facing, float hitX, float hitY, float hitZ)
     {
         BlockState iblockstate = worldIn.getBlockState(pos);
-        Block block = iblockstate.getOwner();
+        Block block = iblockstate.getBlock();
 
         ItemStack stack = playerIn.getHeldItem(hand);
 
@@ -64,7 +64,7 @@ public class ItemBlockBetter extends Item
 
             if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
             {
-                SoundType soundtype = worldIn.getBlockState(pos).getOwner().getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn);
+                SoundType soundtype = worldIn.getBlockState(pos).getBlock().getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn);
                 worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                 stack.shrink(1);
             }
@@ -122,7 +122,7 @@ public class ItemBlockBetter extends Item
     @OnlyIn(Dist.CLIENT)
     public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, Direction side, PlayerEntity player, ItemStack stack)
     {
-        Block block = worldIn.getBlockState(pos).getOwner();
+        Block block = worldIn.getBlockState(pos).getBlock();
 
         if (block == Blocks.SNOW_LAYER && block.isReplaceable(worldIn, pos))
         {
@@ -172,7 +172,7 @@ public class ItemBlockBetter extends Item
         this.block.fillItemGroup(tab, subItems);
     }*/
 
-    public Block getOwner()
+    public Block getBlock()
     {
         return this.block;
     }
@@ -190,7 +190,7 @@ public class ItemBlockBetter extends Item
         if (!world.setBlockState(pos, newState, 3)) return false;
 
         BlockState state = world.getBlockState(pos);
-        if (state.getOwner() == this.block)
+        if (state.getBlock() == this.block)
         {
             setTileEntityNBT(world, player, pos, stack);
             this.block.onBlockPlacedBy(world, pos, state, player, stack);

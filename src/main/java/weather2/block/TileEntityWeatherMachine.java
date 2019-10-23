@@ -5,7 +5,7 @@ import java.util.Random;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickableTileEntity;
+import net.minecraft.tileentity.ITickableTileEntity;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;

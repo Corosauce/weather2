@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickableTileEntity;
+import net.minecraft.tileentity.ITickableTileEntity;
 import weather2.ClientTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.weathersystem.storm.StormObject;
