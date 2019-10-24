@@ -50,7 +50,7 @@ public class EntityAIMoveIndoorsStorm extends Goal implements ITaskInitializer
     public boolean shouldExecute()
     {
 
-        WeatherManagerBase weatherManager = ServerTickHandler.getWeatherSystemForDim(entityObj.world.provider.getDimension());
+        WeatherManagerBase weatherManager = ServerTickHandler.getWeatherSystemForDim(entityObj.world.getDimension().getType().getId());
         if (weatherManager == null) return false;
 
         BlockPos blockpos = new BlockPos(this.entityObj);

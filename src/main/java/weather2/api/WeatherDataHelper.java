@@ -24,7 +24,7 @@ public class WeatherDataHelper {
 	    if (world.isRemote) {
 	        weatherManager = getWeatherManagerForClient();
         } else {
-	        weatherManager = ServerTickHandler.getWeatherSystemForDim(world.provider.getDimension());
+	        weatherManager = ServerTickHandler.getWeatherSystemForDim(world.getDimension().getType().getId());
         }
         if (weatherManager != null) {
 	        return weatherManager.isPrecipitatingAt(position);

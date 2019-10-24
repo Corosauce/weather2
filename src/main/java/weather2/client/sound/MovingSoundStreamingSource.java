@@ -1,11 +1,11 @@
 package weather2.client.sound;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.TickableSound;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.weathersystem.storm.StormObject;
 import CoroUtil.util.Vec3;
 
@@ -58,7 +58,7 @@ public class MovingSoundStreamingSource extends TickableSound {
 
     public void tick()
     {
-    	PlayerEntity entP = FMLClientHandler.instance().getClient().player;
+    	PlayerEntity entP = Minecraft.getInstance().player;
     	
     	if (entP != null) {
     		this.x = (float) entP.posX;

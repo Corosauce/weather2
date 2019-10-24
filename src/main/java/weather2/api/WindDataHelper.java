@@ -60,7 +60,7 @@ public class WindDataHelper {
 		if (parWorld.isRemote) {
 			wMan = getWeatherManagerClient();
 		} else {
-			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimension());
+			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.getDimension().getType().getId());
 		}
 		
 		if (wMan != null) {
@@ -104,7 +104,7 @@ public class WindDataHelper {
 		if (parWorld.isRemote) {
 			wMan = getWeatherManagerClient();
 		} else {
-			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.provider.getDimension());
+			wMan = ServerTickHandler.lookupDimToWeatherMan.get(parWorld.getDimension().getType().getId());
 		}
 		
 		if (wMan != null) {

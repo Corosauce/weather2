@@ -1,14 +1,13 @@
 package weather2.client.entity;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.AtlasTexture;
@@ -85,29 +84,29 @@ public class RenderFlyingBlock extends EntityRenderer<Entity>
 						if (this.renderOutlines)
 						{
 							GlStateManager.enableColorMaterial();
-							GlStateManager.enableOutlineMode(this.getTeamColor(entity));
+							GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(entity));
 						}
 
 						bufferbuilder.begin(7, DefaultVertexFormats.BLOCK);
 						BlockPos blockpos = new BlockPos(entity.posX, entity.getBoundingBox().maxY, entity.posZ);
 						//GlStateManager.translate((float)(x - (double)blockpos.getX() - 0.5D), (float)(y - (double)blockpos.getY()), (float)(z - (double)blockpos.getZ() - 0.5D));
-						GlStateManager.translate((float)(x), (float)(y), (float)(z));
+						GlStateManager.translatef((float)(x), (float)(y), (float)(z));
 						bufferbuilder.setTranslation((double)((float)(-blockpos.getX()) - 0.5F), (double)(-blockpos.getY()), (double)((float)(-blockpos.getZ()) - 0.5F));
-						GlStateManager.rotate((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
-						GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
-						GlStateManager.rotate((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
+						GlStateManager.rotatef((float)(age * 0.1F * 180.0D / 12.566370964050293D - 0.0D), 1.0F, 0.0F, 0.0F);
+						GlStateManager.rotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 1.0F, 0.0F);
+						GlStateManager.rotatef((float)(age * 0.1F * 180.0D / (Math.PI * 2D) - 0.0D), 0.0F, 0.0F, 1.0F);
 						if (entity instanceof EntityIceBall) {
 							float iceScale = 0.3F;
-							GlStateManager.scale(iceScale, iceScale, iceScale);
+							GlStateManager.scalef(iceScale, iceScale, iceScale);
 						}
 						BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
-						blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModel(iblockstate), iblockstate, blockpos, bufferbuilder, false, MathHelper.getPositionRandom(entity.getPosition()));
+						blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModelForState(iblockstate), iblockstate, blockpos, bufferbuilder, false, MathHelper.getPositionRandom(entity.getPosition()));
 						bufferbuilder.setTranslation(0.0D, 0.0D, 0.0D);
 						tessellator.draw();
 
 						if (this.renderOutlines)
 						{
-							GlStateManager.disableOutlineMode();
+							GlStateManager.tearDownSolidRenderingTextureCombine();
 							GlStateManager.disableColorMaterial();
 						}
 

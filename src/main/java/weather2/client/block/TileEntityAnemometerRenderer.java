@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 import weather2.Weather;
 import weather2.block.TileEntityAnemometer;
 
-public class TileEntityAnemometerRenderer extends TileEntityRenderer
+public class TileEntityAnemometerRenderer extends TileEntityRenderer<TileEntityAnemometer>
 {
 	public ModelAnemometer model;
 	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/anemometer_custom.png");
@@ -20,7 +20,7 @@ public class TileEntityAnemometerRenderer extends TileEntityRenderer
 	}
 
 	@Override
-    public void render(TileEntity var1, double var2, double var4, double var6, float var8, int what, float alpha) {
+    public void render(TileEntityAnemometer tile, double var2, double var4, double var6, float var8, int destroyStage) {
     	
     	
     	
@@ -35,7 +35,7 @@ public class TileEntityAnemometerRenderer extends TileEntityRenderer
 		//if (((TileEntityAnemometer)var1).smoothAngle > 180) ((TileEntityAnemometer)var1).smoothAngle -= 360;
 		//if (((TileEntityAnemometer)var1).smoothAnglePrev > 180) ((TileEntityAnemometer)var1).smoothAnglePrev -= 360;
     	
-    	float renderAngle = ((TileEntityAnemometer)var1).smoothAnglePrev + (((TileEntityAnemometer)var1).smoothAngle - ((TileEntityAnemometer)var1).smoothAnglePrev) * var8;
+    	float renderAngle = tile.smoothAnglePrev + (tile.smoothAngle - tile.smoothAnglePrev) * var8;
     	
     	//Weather.dbg("a: " + (((TileEntityAnemometer)var1).smoothAngle + "b: " + ((TileEntityAnemometer)var1).smoothAnglePrev));
     	

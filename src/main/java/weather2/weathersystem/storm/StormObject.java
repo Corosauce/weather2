@@ -1210,8 +1210,7 @@ public class StormObject extends WeatherObject {
 			    return;
             }
 
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().provider.getDimension()) && tryFormStorm) {
-				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().getDimension().getMinecartType().getId()()) && tryFormStorm) {				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
 				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
 
 				if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {

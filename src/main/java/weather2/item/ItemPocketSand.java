@@ -28,11 +28,16 @@ import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtilBlock;
 
 import java.util.Random;
+import java.util.UUID;
 
 public class ItemPocketSand extends Item {
 
     @OnlyIn(Dist.CLIENT)
     public static ParticleBehaviorSandstorm particleBehavior;
+
+    public ItemPocketSand(Properties properties) {
+        super(properties);
+    }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity player, Hand hand) {
@@ -85,7 +90,7 @@ public class ItemPocketSand extends Item {
         BlockPos pos = new BlockPos(player.posX + vecXCast, player.posY + vecYCast, player.posZ + vecZCast);
         //pos = new BlockPos(player.getLookVec().add(new Vec3d(player.posX, player.posY, player.posZ)));
 
-        double dist = Math.sqrt(Minecraft.getInstance().player.getDistanceSq(pos));
+        double dist = Math.sqrt(Minecraft.getInstance().player.getDistanceSq(pos.getX(), pos.getY(), pos.getZ()));
 
         //System.out.println(dist);
 
@@ -145,13 +150,13 @@ public class ItemPocketSand extends Item {
     }
 
     @Override
-    public void tick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
         if (worldIn.isRemote) {
             tickClient(stack, worldIn, entityIn, itemSlot, isSelected);
         }
 
-        super.tick(stack, worldIn, entityIn, itemSlot, isSelected);
+        super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -166,15 +171,15 @@ public class ItemPocketSand extends Item {
         CompoundNBT data = new CompoundNBT();
         data.putString("packetCommand", "PocketSandData");
         data.putString("command", "create");
-        data.putString("playerName", player.getName());
+        data.putString("uuid", player.getUniqueID().toString());
         Weather.eventChannel.sendToAllAround(PacketHelper.getNBTPacket(data, Weather.eventChannelName),
-                new NetworkRegistry.TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 50));
+                new NetworkRegistry.TargetPoint(world.getDimension().getType().getId(), player.posX, player.posY, player.posZ, 50));
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void particulateFromServer(String username) {
+    public static void particulateFromServer(String uuid) {
         World world = Minecraft.getInstance().world;
-        PlayerEntity player = world.getPlayerEntityByName(username);
+        PlayerEntity player = world.getPlayerByUuid(UUID.fromString(uuid));
         if (player != null) {
             particulate(world, player);
         }

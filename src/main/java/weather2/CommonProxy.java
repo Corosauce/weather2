@@ -8,13 +8,14 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import weather2.block.*;
 import weather2.config.ConfigMisc;
@@ -88,6 +89,11 @@ public class CommonProxy implements IGuiHandler
     {
     	
     }
+
+	@SubscribeEvent
+	public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
+		event.getRegistry().register(TileEntityType.Builder.create(TileEntityTSiren::new).build(null).setRegistryName(new ResourceLocation(Weather.modID, tornado_siren)));
+	}
 
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
@@ -198,6 +204,7 @@ public class CommonProxy implements IGuiHandler
 	
     public void addBlock(RegistryEvent.Register<Block> event, Block block, Class tEnt, String translationKey, boolean creativeTab) {
 		addBlock(event, block, translationKey, creativeTab);
+		GameRegistry.findRegistry(TileEntityType.class);
 		GameRegistry.registerTileEntity(tEnt, translationKey);
 	}
 	

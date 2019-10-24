@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 import weather2.Weather;
 import weather2.block.TileEntityWindVane;
 
-public class TileEntityWindVaneRenderer extends TileEntityRenderer
+public class TileEntityWindVaneRenderer extends TileEntityRenderer<TileEntityWindVane>
 {
 	public ModelWindVane model;
 	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/windvane_custom.png");
@@ -20,14 +20,14 @@ public class TileEntityWindVaneRenderer extends TileEntityRenderer
 	}
 
 	@Override
-	public void render(TileEntity var1, double x, double y, double z, float var8, int what, float alpha) {
+	public void render(TileEntityWindVane tile, double x, double y, double z, float var8, int destroyStage) {
     	
     	
     	
     	//TEMP
     	//model = new ModelWindVane();
     	
-    	float renderAngle = ((TileEntityWindVane)var1).smoothAngle - 90;
+    	float renderAngle = tile.smoothAngle - 90;
     	
     	float scale = 1F;
     	

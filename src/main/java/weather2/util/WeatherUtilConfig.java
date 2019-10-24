@@ -467,13 +467,29 @@ public class WeatherUtilConfig {
 	public static CompoundNBT createNBTDimensionListing() {
 		CompoundNBT data = new CompoundNBT();
 		
-		World[] worlds = DimensionManager.getWorlds();
-		
-		for (int i = 0; i < worlds.length; i++) {
+		//World[] worlds = DimensionManager.getWorlds();
+
+		//TODO: 1.14 verify this works
+		DimensionManager.getRegistry().stream().forEach(dimensionType -> {
 			CompoundNBT nbtDim = new CompoundNBT();
-			int dimID = worlds[i].provider.getDimension();
+			int dimID = dimensionType.getId();
 			nbtDim.putInt("ID", dimID); //maybe redundant if we name tag as dimID too
-			nbtDim.putString("name", worlds[i].provider.getType().getName());
+			nbtDim.putString("name", DimensionManager.getRegistry().getKey(dimensionType).toString());
+			nbtDim.putBoolean("weather", listDimensionsWeather.contains(dimID));
+			nbtDim.putBoolean("cloudOption", listDimensionsClouds.contains(dimID));
+			nbtDim.putBoolean("storms", listDimensionsStorms.contains(dimID));
+
+			//PROCESS ME ELSEWHERE!!! - must be done in EZGUI post receiving of this data because client still needs this server created dimension listing first
+			//nbtDim.putBoolean("effects", listDimensionsWindEffects.contains(dimID));
+			data.put("" + dimID, nbtDim);
+			///data.putString("" + worlds[i].provider.dimensionId, worlds[i].provider.getDimensionName());
+		});
+		
+		/*for (int i = 0; i < worlds.length; i++) {
+			CompoundNBT nbtDim = new CompoundNBT();
+			int dimID = worlds[i].getDimension().getType().getId();
+			nbtDim.putInt("ID", dimID); //maybe redundant if we name tag as dimID too
+			nbtDim.putString("name", worlds[i].getDimension().getType().getName());
 			nbtDim.putBoolean("weather", listDimensionsWeather.contains(dimID));
 			nbtDim.putBoolean("cloudOption", listDimensionsClouds.contains(dimID));
 			nbtDim.putBoolean("storms", listDimensionsStorms.contains(dimID));
@@ -482,7 +498,7 @@ public class WeatherUtilConfig {
 			//nbtDim.putBoolean("effects", listDimensionsWindEffects.contains(dimID));
 			data.put("" + dimID, nbtDim);
 			///data.putString("" + worlds[i].provider.dimensionId, worlds[i].provider.getDimensionName());
-		}
+		}*/
 		
 		return data;
 	}

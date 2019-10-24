@@ -20,6 +20,7 @@ import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.settings.ParticleStatus;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.block.Blocks;
@@ -32,6 +33,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -190,7 +192,7 @@ public class SceneEnhancer implements Runnable {
 			tickParticlePrecipitation();
 			trySoundPlaying();
 
-			Minecraft client = FMLClientHandler.instance().getClient();
+			Minecraft client = Minecraft.getInstance();
 
 			if (client.world != null && lastWorldDetected != client.world) {
 				lastWorldDetected = client.world;
@@ -227,7 +229,7 @@ public class SceneEnhancer implements Runnable {
 	
 	//run from our newly created thread
 	public void tickClientThreaded() {
-		Minecraft client = FMLClientHandler.instance().getClient();
+		Minecraft client = Minecraft.getInstance();
 
 		//TEMP
 		/*try {
@@ -236,7 +238,7 @@ public class SceneEnhancer implements Runnable {
 			throwable.printStackTrace();
 		}*/
 
-		if (client.world != null && client.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(client.world.provider.getDimension())) {
+		if (client.world != null && client.player != null && WeatherUtilConfig.listDimensionsWindEffects.contains(client.world.getDimension().getType().getId())) {
 			profileSurroundings();
 			tryAmbientSounds();
 		}
@@ -248,7 +250,7 @@ public class SceneEnhancer implements Runnable {
 			if (lastTickAmbient < System.currentTimeMillis()) {
 	    		lastTickAmbient = System.currentTimeMillis() + 500;
 	    		
-	    		Minecraft client = FMLClientHandler.instance().getClient();
+	    		Minecraft client = Minecraft.getInstance();
 	        	
 	        	World worldRef = client.world;
 	        	PlayerEntity player = client.player;
@@ -360,24 +362,24 @@ public class SceneEnhancer implements Runnable {
 					int j = 0;
 					int k = 3;//(int) (400.0F * f * f);
 
-					if (client.gameSettings.particles == 1) {
+					if (client.gameSettings.particles == ParticleStatus.DECREASED) {
 						k >>= 1;
-					} else if (client.gameSettings.particles == 2) {
+					} else if (client.gameSettings.particles == ParticleStatus.MINIMAL) {
 						k = 0;
 					}
 
 					for (int l = 0; l < k; ++l) {
-						BlockPos blockpos1 = world.getPrecipitationHeight(blockpos.add(random.nextInt(10) - random.nextInt(10), 0, random.nextInt(10) - random.nextInt(10)));
+						BlockPos blockpos1 = world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos.add(random.nextInt(10) - random.nextInt(10), 0, random.nextInt(10) - random.nextInt(10)));
 						Biome biome = world.getBiome(blockpos1);
 						BlockPos blockpos2 = blockpos1.down();
 						BlockState iblockstate = world.getBlockState(blockpos2);
 
-						if (blockpos1.getY() <= blockpos.getY() + 10 && blockpos1.getY() >= blockpos.getY() - 10 && biome.canRain() && biome.getFloatTemperature(blockpos1) >= 0.15F) {
+						if (blockpos1.getY() <= blockpos.getY() + 10 && blockpos1.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.RainType.RAIN && biome.func_225486_c(blockpos1) >= 0.15F) {
 							double d3 = random.nextDouble();
 							double d4 = random.nextDouble();
 							AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
 
-							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA) {
+							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA_BLOCK) {
 								if (iblockstate.getMaterial() != Material.AIR) {
 									++j;
 
@@ -398,7 +400,7 @@ public class SceneEnhancer implements Runnable {
 					if (j > 0 && random.nextInt(3) < this.rainSoundCounter++) {
 						this.rainSoundCounter = 0;
 
-						if (d1 > (double) (blockpos.getY() + 1) && world.getPrecipitationHeight(blockpos).getY() > MathHelper.floor((float) blockpos.getY())) {
+						if (d1 > (double) (blockpos.getY() + 1) && world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos).getY() > MathHelper.floor((float) blockpos.getY())) {
 							client.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN_ABOVE, SoundCategory.WEATHER, 0.1F * volAmp, 0.5F, false);
 						} else {
 							client.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN, SoundCategory.WEATHER, 0.2F * volAmp, 1.0F, false);
@@ -416,7 +418,7 @@ public class SceneEnhancer implements Runnable {
     @OnlyIn(Dist.CLIENT)
     public static void tryAmbientSounds()
     {
-    	Minecraft client = FMLClientHandler.instance().getClient();
+    	Minecraft client = Minecraft.getInstance();
     	
     	World worldRef = client.world;
     	PlayerEntity player = client.player;
@@ -515,7 +517,7 @@ public class SceneEnhancer implements Runnable {
 		
 		lastWorldDetected.weatherEffects.clear();
 		
-		if (WeatherUtilParticle.byType == null) {
+		if (WeatherUtilParticle.fxLayers == null) {
 			WeatherUtilParticle.getFXLayers();
 		}
 		//WeatherUtilSound.getSoundSystem();
@@ -526,7 +528,7 @@ public class SceneEnhancer implements Runnable {
 		//if (true) return;
 
 		if (ConfigParticle.Particle_RainSnow) {
-			PlayerEntity entP = FMLClientHandler.instance().getClient().player;
+			PlayerEntity entP = Minecraft.getInstance().player;
 			
 			if (entP.posY >= StormObject.static_YPos_layer0) return;
 
@@ -546,7 +548,7 @@ public class SceneEnhancer implements Runnable {
 			//Weather.dbg("curPrecipVal: " + curPrecipVal * 100F);
 			
 			
-			int precipitationHeight = entP.world.getPrecipitationHeight(new BlockPos(MathHelper.floor(entP.posX), 0, MathHelper.floor(entP.posZ))).getY();
+			int precipitationHeight = entP.world.getHeight(Heightmap.Type.MOTION_BLOCKING, new BlockPos(MathHelper.floor(entP.posX), 0, MathHelper.floor(entP.posZ))).getY();
 			
 			Biome biomegenbase = entP.world.getBiome(new BlockPos(MathHelper.floor(entP.posX), 0, MathHelper.floor(entP.posZ)));
 
@@ -973,7 +975,7 @@ public class SceneEnhancer implements Runnable {
 			}
 
 			//check rules same way vanilla texture precip does
-            if (biomegenbase != null && (biomegenbase.canRain() || biomegenbase.getEnableSnow()))
+            if (biomegenbase != null && (biomegenbase.getPrecipitation() != Biome.RainType.NONE))
             {
 
             	//biomegenbase.getFloatTemperature(new BlockPos(MathHelper.floor(entP.posX), MathHelper.floor(entP.posY), MathHelper.floor(entP.posZ)));
@@ -1323,7 +1325,7 @@ public class SceneEnhancer implements Runnable {
 	 */
 	public static float getRainStrengthAndControlVisuals(PlayerEntity entP, boolean forOvercast) {
 		
-		Minecraft client = FMLClientHandler.instance().getClient();
+		Minecraft client = Minecraft.getInstance();
 		
 		double maxStormDist = 512 / 4 * 3;
 		Vec3 plPos = new Vec3(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
@@ -1489,7 +1491,7 @@ public class SceneEnhancer implements Runnable {
 
 	public static StormObject getClosestStormCached(PlayerEntity entP) {
 		if (WeatherManagerClient.closestStormCached == null || entP.world.getGameTime() % 5 == 0) {
-			Minecraft client = FMLClientHandler.instance().getClient();
+			Minecraft client = Minecraft.getInstance();
 
 			double maxStormDist = 512 / 4 * 3;
 			Vec3 plPos = new Vec3(entP.posX, StormObject.static_YPos_layer0, entP.posZ);
@@ -1548,9 +1550,9 @@ public class SceneEnhancer implements Runnable {
     {
         //tryClouds();
         
-    	Minecraft client = FMLClientHandler.instance().getClient();
+    	Minecraft client = Minecraft.getInstance();
     	World worldRef = lastWorldDetected;
-    	PlayerEntity player = FMLClientHandler.instance().getClient().player;
+    	PlayerEntity player = Minecraft.getInstance().player;
         WeatherManagerClient manager = ClientTickHandler.weatherManager;
     	
         if (worldRef == null || player == null || manager == null || manager.windMan == null)
@@ -1895,7 +1897,7 @@ public class SceneEnhancer implements Runnable {
     public static void tryWind(World world)
     {
 		
-		Minecraft client = FMLClientHandler.instance().getClient();
+		Minecraft client = Minecraft.getInstance();
 		PlayerEntity player = client.player;
 
         if (player == null)
@@ -2705,7 +2707,7 @@ public class SceneEnhancer implements Runnable {
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
 
 		if (event.phase == TickEvent.Phase.START) {
-			Minecraft client = FMLClientHandler.instance().getClient();
+			Minecraft client = Minecraft.getInstance();
 			PlayerEntity entP = client.player;
 			if (entP != null) {
 				float curRainStr = SceneEnhancer.getRainStrengthAndControlVisuals(entP, true);

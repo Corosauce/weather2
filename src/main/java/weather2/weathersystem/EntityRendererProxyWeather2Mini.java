@@ -3,12 +3,12 @@ package weather2.weathersystem;
 import CoroUtil.config.ConfigCoroUtil;
 import extendedrenderer.EventHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.IResourceManager;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 
-public class EntityRendererProxyWeather2Mini extends EntityRenderer
+public class EntityRendererProxyWeather2Mini extends GameRenderer
 {
 
     public EntityRendererProxyWeather2Mini(Minecraft var1, IResourceManager resMan)

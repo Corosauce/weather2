@@ -538,7 +538,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		nbt.putInt("entityID", parEnt.getEntityId());
 		nbt.putBoolean("custom", custom);
 		data.put("data", nbt);
-		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.lightning", data);
 	}
 	
@@ -548,7 +548,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.putString("packetCommand", "WeatherData");
 		data.putString("command", "syncWindUpdate");
 		data.put("data", parManager.nbtSyncForClient());
-		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.modID, "weather.wind", data);
 	}
 
@@ -568,7 +568,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.put("data", cache.getNewNBT());
 
 		if (entP == null) {
-			Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+			Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getMinecartType().getId());
 		} else {
 			Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), entP);
 		}
@@ -602,7 +602,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			}
 			System.out.println("sending    " + keys);
 		}
-		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 	}
 	
 	public void syncStormRemove(WeatherObject parStorm) {
@@ -615,7 +615,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		//data.put("data", parStorm.nbtSyncForClient(new NBTTagCompound()));
 		//fix for client having broken states
 		data.getCompound("data").putBoolean("removed", true);
-		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 	}
 	
 	public void syncVolcanoNew(VolcanoObject parStorm) {
@@ -629,7 +629,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.put("data", parStorm.nbtSyncForClient());
 		
 		if (entP == null) {
-			Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+			Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 		} else {
 			Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), entP);
 		}
@@ -642,7 +642,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.putString("packetCommand", "WeatherData");
 		data.putString("command", "syncVolcanoUpdate");
 		data.put("data", parStorm.nbtSyncForClient());
-		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 	}
 	
 	public void syncVolcanoRemove(VolcanoObject parStorm) {
@@ -657,7 +657,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 		data.putBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
 		data.putBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
 		data.putInt("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
-		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().provider.getDimension());
+		Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 	}
 
 	public void removeWeatherObjectAndSync(WeatherObject parStorm) {

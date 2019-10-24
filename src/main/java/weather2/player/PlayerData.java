@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundNBT;
 import weather2.Weather;
 import CoroUtil.util.CoroUtilFile;
 
+//TODO: 1.14 replace with Entity.getPersistentData() nbtcomp
 public class PlayerData {
 
 	public static HashMap<String, CompoundNBT> playerNBT = new HashMap<String, CompoundNBT>();

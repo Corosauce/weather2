@@ -16,7 +16,7 @@ public class UtilEntityBuffsMini {
 
     public static boolean replaceTaskIfMissing(CreatureEntity ent, Class taskToReplace, Class tasksToReplaceWith, int priorityOfTask) {
         GoalSelector.EntityAITaskEntry foundTask = null;
-        for (Object entry2 : ent.goalSelector.taskEntries) {
+        for (Object entry2 : ent.goalSelector.goals) {
             GoalSelector.EntityAITaskEntry entry = (GoalSelector.EntityAITaskEntry) entry2;
             if (taskToReplace.isAssignableFrom(entry.action.getClass())) {
                 foundTask = entry;
@@ -25,7 +25,7 @@ public class UtilEntityBuffsMini {
         }
 
         if (foundTask != null) {
-            ent.goalSelector.taskEntries.remove(foundTask);
+            ent.goalSelector.goals.remove(foundTask);
 
             addGoal(ent, tasksToReplaceWith, priorityOfTask);
         }

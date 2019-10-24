@@ -52,7 +52,7 @@ public class EventHandlerPacket {
                     }
                 } else if (packetCommand.equals("PocketSandData")) {
                     if (command.equals("create")) {
-                        ItemPocketSand.particulateFromServer(nbt.getString("playerName"));
+                        ItemPocketSand.particulateFromServer(nbt.getString("uuid"));
                     }
                 } else if (packetCommand.equals("ClientConfigData")) {
                     if (command.equals("syncUpdate")) {

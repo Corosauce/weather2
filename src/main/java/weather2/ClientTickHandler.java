@@ -13,12 +13,12 @@ import net.minecraft.client.gui.screen.IngameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.settings.CloudOption;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.lwjgl.input.Mouse;
 
@@ -48,7 +48,7 @@ public class ClientTickHandler
 	public Button configButton;
 
 	//storing old reference to help retain any modifications done by other mods (dynamic surroundings asm)
-	public EntityRenderer oldRenderer;
+	public GameRenderer oldRenderer;
 
 	public float smoothAngle = 0;
 
@@ -76,7 +76,7 @@ public class ClientTickHandler
 
     public void onRenderScreenTick()
     {
-    	Minecraft mc = FMLClientHandler.instance().getClient();
+    	Minecraft mc = Minecraft.getInstance();
     	if (mc.currentScreen instanceof IngameMenuScreen) {
     		ScaledResolution scaledresolution = new ScaledResolution(mc);
             int i = scaledresolution.getScaledWidth();
@@ -104,7 +104,7 @@ public class ClientTickHandler
 
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
 
-        Minecraft mc = FMLClientHandler.instance().getClient();
+        Minecraft mc = Minecraft.getInstance();
         World world = mc.world;
         
         if (ConfigMisc.Misc_proxyRenderOverrideEnabled) {
@@ -118,7 +118,7 @@ public class ClientTickHandler
     			if (oldRenderer != null) {
     				mc.gameRenderer = oldRenderer;
 				} else {
-					mc.gameRenderer = new EntityRenderer(mc, mc.getResourceManager());
+					mc.gameRenderer = new GameRenderer(mc, mc.getResourceManager());
 				}
 
     		}
@@ -129,13 +129,13 @@ public class ClientTickHandler
 
 			weatherManager.tick();
 
-			if (!clientConfigData.Aesthetic_Only_Mode && ConfigMisc.Misc_ForceVanillaCloudsOff && world.provider.getDimension() == 0) {
-				mc.gameSettings.cloudOption = 0;
+			if (!clientConfigData.Aesthetic_Only_Mode && ConfigMisc.Misc_ForceVanillaCloudsOff && world.getDimension().getType().getId() == 0) {
+				mc.gameSettings.cloudOption = CloudOption.OFF;
 			}
 
 			//TODO: split logic up a bit better for this, if this is set to false mid sandstorm, fog is stuck on,
 			// with sandstorms and other things it might not represent the EZ config option
-			if (WeatherUtilConfig.listDimensionsWindEffects.contains(world.provider.getDimension())) {
+			if (WeatherUtilConfig.listDimensionsWindEffects.contains(world.getDimension().getType().getId())) {
 				//weatherManager.tick();
 
 				sceneEnhancer.tickClient();
@@ -271,7 +271,7 @@ public class ClientTickHandler
     public static void checkClientWeather() {
 
     	try {
-			World world = FMLClientHandler.instance().getClient().world;
+			World world = Minecraft.getInstance().world;
     		if (weatherManager == null || world != lastWorld) {
     			init(world);
         	}
@@ -290,7 +290,7 @@ public class ClientTickHandler
 		Weather.dbg("Weather2: Initializing WeatherManagerClient for client world and requesting full sync");
 
     	lastWorld = world;
-    	weatherManager = new WeatherManagerClient(world.provider.getDimension());
+    	weatherManager = new WeatherManagerClient(world.getDimension().getType().getId());
 
 		//request a full sync from server
 		CompoundNBT data = new CompoundNBT();

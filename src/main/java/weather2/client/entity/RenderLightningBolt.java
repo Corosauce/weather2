@@ -2,7 +2,7 @@ package weather2.client.entity;
 
 import java.util.Random;
 
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -32,7 +32,7 @@ public class RenderLightningBolt extends EntityRenderer<EntityLightningBolt>
     {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder worldrenderer = tessellator.getBuffer();
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(770, 1);
@@ -146,7 +146,7 @@ public class RenderLightningBolt extends EntityRenderer<EntityLightningBolt>
 
         GlStateManager.disableBlend();
         GlStateManager.enableLighting();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
     }
 
     /**
