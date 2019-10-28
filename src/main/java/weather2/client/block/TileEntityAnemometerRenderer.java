@@ -2,7 +2,6 @@ package weather2.client.block;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
@@ -13,7 +12,7 @@ import weather2.block.TileEntityAnemometer;
 public class TileEntityAnemometerRenderer extends TileEntityRenderer<TileEntityAnemometer>
 {
 	public ModelAnemometer model;
-	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/anemometer_custom.png");
+	public ResourceLocation texture = new ResourceLocation(Weather.MODID + ":textures/blocks/anemometer_custom.png");
 	
 	public TileEntityAnemometerRenderer() {
 		model = new ModelAnemometer();

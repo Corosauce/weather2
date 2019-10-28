@@ -267,4 +267,11 @@ public class WeatherUtilEntity {
 
         return entityplayer;
     }
+
+    public static double getDistanceSqEntToPos(Entity ent, BlockPos pos) {
+        double d0 = ent.posX - pos.getX();
+        double d1 = ent.posY - pos.getY();
+        double d2 = ent.posZ - pos.getZ();
+        return d0 * d0 + d1 * d1 + d2 * d2;
+    }
 }

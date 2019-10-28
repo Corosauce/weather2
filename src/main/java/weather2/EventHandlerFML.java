@@ -9,13 +9,13 @@ import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.*;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
+import weather2.util.WeatherUtil;
 
 public class EventHandlerFML {
 
@@ -29,16 +29,16 @@ public class EventHandlerFML {
 	public static boolean extraGrassLast;
 
 	@SubscribeEvent
-	public void tickWorld(WorldTickEvent event) {
-		if (event.phase == Phase.START) {
+	public void tickWorld(TickEvent.WorldTickEvent event) {
+		if (event.phase == TickEvent.Phase.START) {
 
 		}
 	}
 
 	@SubscribeEvent
-	public void tickServer(ServerTickEvent event) {
+	public void tickServer(TickEvent.ServerTickEvent event) {
 
-		if (event.phase == Phase.START) {
+		if (event.phase == TickEvent.Phase.START) {
 			//System.out.println("tick weather2");
 			ServerTickHandler.onTickInGame();
 		}
@@ -46,8 +46,8 @@ public class EventHandlerFML {
 		if (ConfigMisc.Global_Overcast_Prevent_Rain_Reset_On_Sleep) {
 			ServerWorld world = DimensionManager.getWorld(0);
 			if (world != null) {
-				if (event.phase == Phase.START) {
-					if (world.areAllPlayersAsleep()) {
+				if (event.phase == TickEvent.Phase.START) {
+					if (WeatherUtil.areAllPlayersAsleep(world)) {
 						sleepFlag = true;
 						/*System.out.println("start: all players asleep");
 						System.out.println("start rain: " + world.getWorldInfo().isRaining());
@@ -76,8 +76,8 @@ public class EventHandlerFML {
 	}
 
 	@SubscribeEvent
-	public void tickClient(ClientTickEvent event) {
-		if (event.phase == Phase.START) {
+	public void tickClient(TickEvent.ClientTickEvent event) {
+		if (event.phase == TickEvent.Phase.START) {
 			try {
 				ClientProxy.clientTickHandler.onTickInGame();
 
@@ -122,16 +122,16 @@ public class EventHandlerFML {
 	}
 
 	@SubscribeEvent
-	public void tickRenderScreen(RenderTickEvent event) {
-		if (event.phase == Phase.END) {
+	public void tickRenderScreen(TickEvent.RenderTickEvent event) {
+		if (event.phase == TickEvent.Phase.END) {
 			ClientProxy.clientTickHandler.onRenderScreenTick();
 		}
 	}
 
 	@SubscribeEvent
-	public void playerLoggedIn(PlayerLoggedInEvent event) {
-		if (event.player instanceof ServerPlayerEntity) {
-			ServerTickHandler.syncServerConfigToClientPlayer((ServerPlayerEntity) event.player);
+	public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+		if (event.getPlayer() instanceof ServerPlayerEntity) {
+			ServerTickHandler.syncServerConfigToClientPlayer((ServerPlayerEntity) event.getPlayer());
 		}
 		//Weather.dbg("Weather2: PlayerLoggedInEvent: " + event.player.getName());
 		//ServerTickHandler.playerJoinedServerSyncFull((EntityPlayerMP) event.player);

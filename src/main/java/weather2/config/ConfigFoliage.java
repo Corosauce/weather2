@@ -1,7 +1,5 @@
 package weather2.config;
 
-import CoroUtil.config.ConfigCoroUtil;
-import extendedrenderer.EventHandler;
 import modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -20,7 +18,7 @@ public class ConfigFoliage implements IConfigCategory {
 
     @Override
     public String getRegistryName() {
-        return Weather.modID + getName();
+        return Weather.MODID + getName();
     }
 
     @Override

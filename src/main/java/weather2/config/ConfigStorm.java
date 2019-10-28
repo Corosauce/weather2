@@ -90,7 +90,7 @@ public class ConfigStorm implements IConfigCategory {
 
     @Override
     public String getRegistryName() {
-        return Weather.modID + getName();
+        return Weather.MODID + getName();
     }
 
     @Override

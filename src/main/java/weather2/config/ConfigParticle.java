@@ -34,7 +34,7 @@ public class ConfigParticle implements IConfigCategory {
 
     @Override
     public String getRegistryName() {
-        return Weather.modID + getName();
+        return Weather.MODID + getName();
     }
 
     @Override

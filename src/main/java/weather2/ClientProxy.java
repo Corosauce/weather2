@@ -113,7 +113,7 @@ public class ClientProxy extends CommonProxy
     public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
         super.addItem(event, item, name);
 
-        addItemModel(item, 0, new ModelResourceLocation(Weather.modID + ":" + name, "inventory"));
+        addItemModel(item, 0, new ModelResourceLocation(Weather.MODID + ":" + name, "inventory"));
     }
 
     public void addItemModel(Item item, int meta, ModelResourceLocation location) {

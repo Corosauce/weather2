@@ -4,11 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import weather2.item.ItemPocketSand;
 import weather2.util.WeatherUtilConfig;
 import CoroUtil.packet.PacketHelper;
@@ -27,7 +25,7 @@ public class EventHandlerPacket {
 	//- READ ABOVE ^
 	//- CoroAI_Inv could be factored out and replaced with CoroAI_Ent, epoch entities use it this way
 	
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void onPacketFromServer(FMLNetworkEvent.ClientCustomPacketEvent event) {
 		
 		try {
@@ -121,6 +119,6 @@ public class EventHandlerPacket {
     @OnlyIn(Dist.CLIENT)
     public String getSelfUsername() {
     	return CoroUtilEntity.getName(Minecraft.getInstance().player);
-    }
+    }*/
 	
 }

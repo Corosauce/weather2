@@ -3,12 +3,9 @@ package weather2;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.block.Blocks;
 import net.minecraft.item.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -47,40 +44,40 @@ public class CommonProxy implements IGuiHandler
 	public static final String weather_item = "weather_item";
 	public static final String pocket_sand = "pocket_sand";
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + tornado_sensor)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + tornado_sensor)
 	public static Block blockTSensor;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + tornado_siren_manual)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + tornado_siren_manual)
 	public static Block blockTSirenManual;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + tornado_siren)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + tornado_siren)
 	public static Block blockTSiren;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + wind_vane)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + wind_vane)
 	public static Block blockWindVane;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + anemometer)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + anemometer)
 	public static Block blockAnemometer;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_forecast)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + weather_forecast)
 	public static Block blockWeatherForecast;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_machine)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + weather_machine)
 	public static Block blockWeatherMachine;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_deflector)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + weather_deflector)
 	public static Block blockWeatherDeflector;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + sand_layer)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + sand_layer)
 	public static Block blockSandLayer;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + sand_layer_placeable)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + sand_layer_placeable)
 	public static Item itemSandLayer;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + weather_item)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + weather_item)
 	public static Item itemWeatherRecipe;
 
-	@GameRegistry.ObjectHolder(Weather.modID + ":" + pocket_sand)
+	@GameRegistry.ObjectHolder(Weather.MODID + ":" + pocket_sand)
 	public static Item itemPocketSand;
 	
 	public static CreativeTabWeather tab;
@@ -92,7 +89,7 @@ public class CommonProxy implements IGuiHandler
 
 	@SubscribeEvent
 	public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
-		event.getRegistry().register(TileEntityType.Builder.create(TileEntityTSiren::new).build(null).setRegistryName(new ResourceLocation(Weather.modID, tornado_siren)));
+		event.getRegistry().register(TileEntityType.Builder.create(TileEntityTSiren::new).build(null).setRegistryName(new ResourceLocation(Weather.MODID, tornado_siren)));
 	}
 
 	@SubscribeEvent
@@ -147,37 +144,37 @@ public class CommonProxy implements IGuiHandler
 	}
 
 	public void postInit() {
-		ResourceLocation group = new ResourceLocation(Weather.modID, "weather2_misc");
+		ResourceLocation group = new ResourceLocation(Weather.MODID, "weather2_misc");
 
-		if (!ConfigMisc.Item_WeatherItemNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_item), group,
+		if (!ConfigMisc.Item_WeatherItemNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, weather_item), group,
 				new ItemStack(itemWeatherRecipe, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', Items.GOLD_INGOT, 'X', Items.IRON_INGOT});
 
-		if (!ConfigMisc.Block_SensorNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, tornado_sensor), group,
+		if (!ConfigMisc.Block_SensorNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, tornado_sensor), group,
 				new ItemStack(blockTSensor, 1), new Object[] {"X X", "DID", "X X", 'D', Items.REDSTONE, 'I', itemWeatherRecipe, 'X', Items.IRON_INGOT});
-		if (!ConfigMisc.Block_SirenNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, tornado_siren), group,
+		if (!ConfigMisc.Block_SirenNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, tornado_siren), group,
 				new ItemStack(blockTSiren, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT});
 
-		if (!ConfigMisc.Block_SirenManualNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, tornado_siren_manual), group,
+		if (!ConfigMisc.Block_SirenManualNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, tornado_siren_manual), group,
 				new ItemStack(blockTSirenManual, 1), new Object[] {"XLX", "DID", "XLX", 'D', Items.REDSTONE, 'I', blockTSensor, 'X', Items.IRON_INGOT, 'L', Blocks.LEVER});
 
-		if (!ConfigMisc.Block_WindVaneNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, wind_vane), group,
+		if (!ConfigMisc.Block_WindVaneNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, wind_vane), group,
 				new ItemStack(blockWindVane, 1), new Object[] {"X X", "DXD", "X X", 'D', Items.REDSTONE, 'X', itemWeatherRecipe});
-		if (!ConfigMisc.Block_AnemometerNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, anemometer), group,
+		if (!ConfigMisc.Block_AnemometerNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, anemometer), group,
 				new ItemStack(blockAnemometer, 1), new Object[] {"X X", "XDX", "X X", 'D', Items.REDSTONE, 'X', itemWeatherRecipe});
 
-		if (!ConfigMisc.Block_WeatherForecastNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_forecast), group,
+		if (!ConfigMisc.Block_WeatherForecastNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, weather_forecast), group,
 				new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.COMPASS, 'X', itemWeatherRecipe});
-		if (!ConfigMisc.Block_WeatherMachineNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_machine), group,
+		if (!ConfigMisc.Block_WeatherMachineNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, weather_machine), group,
 				new ItemStack(blockWeatherMachine, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.DIAMOND, 'X', itemWeatherRecipe});
-		if (!ConfigMisc.Block_WeatherDeflectorNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_deflector), group,
+		if (!ConfigMisc.Block_WeatherDeflectorNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, weather_deflector), group,
 				new ItemStack(blockWeatherDeflector, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', itemWeatherRecipe, 'X', Items.IRON_INGOT});
 
-		if (!ConfigMisc.Block_SandLayerNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, sand_layer), group,
+		if (!ConfigMisc.Block_SandLayerNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, sand_layer), group,
 				new ItemStack(itemSandLayer, 64), new Object[] {"DDD", "DID", "DDD", 'D', Blocks.SAND, 'I', itemWeatherRecipe});
-		if (!ConfigMisc.Block_SandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, "sand"), group,
+		if (!ConfigMisc.Block_SandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, "sand"), group,
 				new ItemStack(Blocks.SAND, 1), new Object[] {"DDD", "D D", "DDD", 'D', itemSandLayer});
 
-		if (!ConfigMisc.Item_PocketSandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, pocket_sand), group,
+		if (!ConfigMisc.Item_PocketSandNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.MODID, pocket_sand), group,
 				new ItemStack(itemPocketSand, 8), new Object[] {"DDD", "DID", "DDD", 'D', itemSandLayer, 'I', itemWeatherRecipe});
 	}
     
@@ -216,7 +213,7 @@ public class CommonProxy implements IGuiHandler
 		//vanilla calls
 		//GameRegistry.registerBlock(parBlock, translationKey);
 		
-		parBlock.setUnlocalizedName(Weather.modID + "." + translationKey);
+		parBlock.setUnlocalizedName(Weather.MODID + "." + translationKey);
 		parBlock.setRegistryName(/*Weather.modID + ":" + */translationKey);
 		
 		if (creativeTab) {
@@ -239,7 +236,7 @@ public class CommonProxy implements IGuiHandler
 	}
 	
 	public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
-		item.setUnlocalizedName(Weather.modID + "." + name);
+		item.setUnlocalizedName(Weather.MODID + "." + name);
 		//item.setRegistryName(new ResourceLocation(Weather.modID, name));
 		item.setRegistryName(name);
 
@@ -258,7 +255,7 @@ public class CommonProxy implements IGuiHandler
 	}
     
     public void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
-    	EntityRegistry.registerModEntity(new ResourceLocation(Weather.modID, par1Str), par0Class, par1Str, entityId, Weather.instance, distSync, tickRateSync, syncMotion);
+    	EntityRegistry.registerModEntity(new ResourceLocation(Weather.MODID, par1Str), par0Class, par1Str, entityId, Weather.instance, distSync, tickRateSync, syncMotion);
         //EntityList.addMapping(par0Class, par1Str, entityId);
     }
 

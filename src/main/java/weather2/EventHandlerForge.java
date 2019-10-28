@@ -1,40 +1,32 @@
 package weather2;
 
-import java.nio.FloatBuffer;
-
-import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.particle.ParticleRegistry;
+import com.mojang.blaze3d.platform.GlStateManager;
 import extendedrenderer.render.FoliageRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.EntityAIMoveIndoors;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.border.WorldBorder;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.api.distmarker.Dist;
-
-import org.lwjgl.opengl.EXTFogCoord;
-import org.lwjgl.opengl.GLContext;
-
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import weather2.api.WeatherUtilData;
 import weather2.client.SceneEnhancer;
 import weather2.client.foliage.FoliageEnhancerShader;
@@ -44,6 +36,8 @@ import weather2.entity.AI.EntityAIMoveIndoorsStorm;
 import weather2.util.UtilEntityBuffsMini;
 import weather2.weathersystem.storm.TornadoHelper;
 import weather2.weathersystem.wind.WindManager;
+
+import java.nio.FloatBuffer;
 
 public class EventHandlerForge {
 
@@ -72,13 +66,13 @@ public class EventHandlerForge {
 		
 		//optifine breaks (removes) forge added method setTextureEntry, dont use it
 		
-		ClientProxy.radarIconRain = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_rain"));
-		ClientProxy.radarIconLightning = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_lightning"));
-		ClientProxy.radarIconWind = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_wind"));
-		ClientProxy.radarIconHail = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_hail"));
-		ClientProxy.radarIconTornado = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_tornado"));
-		ClientProxy.radarIconCyclone = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_cyclone"));
-		ClientProxy.radarIconSandstorm = event.getMap().registerSprite(new ResourceLocation(Weather.modID + ":radar/radar_icon_sandstorm"));
+		ClientProxy.radarIconRain = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_rain"));
+		ClientProxy.radarIconLightning = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_lightning"));
+		ClientProxy.radarIconWind = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_wind"));
+		ClientProxy.radarIconHail = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_hail"));
+		ClientProxy.radarIconTornado = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_tornado"));
+		ClientProxy.radarIconCyclone = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_cyclone"));
+		ClientProxy.radarIconSandstorm = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_sandstorm"));
 		
 	}
 	
@@ -96,9 +90,9 @@ public class EventHandlerForge {
         if (test) {
             event.setCanceled(true);
             
-            GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
-            GlStateManager.setFogStart(0F);
-            GlStateManager.setFogEnd(400F);
+            GlStateManager.fogMode(GlStateManager.FogMode.LINEAR);
+            GlStateManager.fogStart(0F);
+            GlStateManager.fogEnd(400F);
             
             //GlStateManager.glFog(2918, this.setFogColorBuffer(0.7F, 0.6F, 0.3F, 1.0F));
             
@@ -113,9 +107,9 @@ public class EventHandlerForge {
         boolean test2 = false;
         //test for underwater shaders that need LINEAR
         if (test2) {
-			GlStateManager.setFogStart(0F);
-			GlStateManager.setFogEnd(7F);
-			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
+			GlStateManager.fogStart(0F);
+			GlStateManager.fogEnd(7F);
+			GlStateManager.fogMode(GlStateManager.FogMode.LINEAR);
 			event.setDensity(1F);
 			event.setCanceled(true);
 		}
@@ -143,7 +137,7 @@ public class EventHandlerForge {
         	event.setRed(SceneEnhancer.stormFogRed);
         	event.setGreen(SceneEnhancer.stormFogGreen);
         	event.setBlue(SceneEnhancer.stormFogBlue);
-			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
+			GlStateManager.fogMode(GlStateManager.FogMode.LINEAR);
         }
 		
 	}
@@ -159,16 +153,16 @@ public class EventHandlerForge {
         	//event.setDensity(SceneEnhancer.stormFogDensity);
 
 			//TODO: make use of this, density only works with EXP or EXP 2 mode
-			GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
+			GlStateManager.fogMode(GlStateManager.FogMode.LINEAR);
         	/*GlStateManager.setFog(GlStateManager.FogMode.EXP2);
 			GlStateManager.setFogDensity(SceneEnhancer.stormFogDensity);*/
 			
 			if (event.getFogMode() == -1) {
-				GlStateManager.setFogStart(SceneEnhancer.stormFogStartClouds);
-	            GlStateManager.setFogEnd(SceneEnhancer.stormFogEndClouds);
+				GlStateManager.fogStart(SceneEnhancer.stormFogStartClouds);
+	            GlStateManager.fogEnd(SceneEnhancer.stormFogEndClouds);
 			} else {
-				GlStateManager.setFogStart(SceneEnhancer.stormFogStart);
-	            GlStateManager.setFogEnd(SceneEnhancer.stormFogEnd);
+				GlStateManager.fogStart(SceneEnhancer.stormFogStart);
+	            GlStateManager.fogEnd(SceneEnhancer.stormFogEnd);
 			}
 
 			//GlStateManager.setFogDensity(0.01F);
@@ -190,65 +184,6 @@ public class EventHandlerForge {
 		buff.flip();
         return buff;
     }
-
-	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public void onScreenEvent(RenderGameOverlayEvent.Pre event) {
-		if (false && event.getMinecartType() == RenderGameOverlayEvent.ElementType.ALL) {
-			Minecraft mc = Minecraft.getInstance();
-			//System.out.println(event.getMinecartType());
-			float lightLevel = 0.4F/* - lightLevel*/;
-			lightLevel = MathHelper.clamp(lightLevel, 0.0F, 1.0F);
-			WorldBorder worldborder = mc.world.getWorldBorder();
-			float f = (float)worldborder.getClosestDistance(mc.player);
-			double d0 = Math.min(worldborder.getResizeSpeed() * (double)worldborder.getWarningTime() * 1000.0D, Math.abs(worldborder.getTargetSize() - worldborder.getDiameter()));
-			double d1 = Math.max((double)worldborder.getWarningDistance(), d0);
-
-			if ((double)f < d1)
-			{
-				f = 1.0F - (float)((double)f / d1);
-			}
-			else
-			{
-				f = 0.0F;
-			}
-
-			float prevVignetteBrightness = lightLevel;//(float)((double)this.prevVignetteBrightness + (double)(lightLevel - this.prevVignetteBrightness) * 0.01D);
-			GlStateManager.disableDepth();
-			GlStateManager.depthMask(false);
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-
-			if (f > 0.0F)
-			{
-				GlStateManager.color(0.0F, f, f, 1.0F);
-			}
-			else
-			{
-				GlStateManager.color(prevVignetteBrightness, prevVignetteBrightness, prevVignetteBrightness, 1.0F);
-			}
-
-			ScaledResolution scaledRes = new ScaledResolution(mc);
-
-			//added
-			GlStateManager.enableBlend();
-
-			//mc.getTextureManager().bindTexture(new ResourceLocation("textures/misc/vignette.png"));
-			mc.getTextureManager().bindTexture(new ResourceLocation("weather2:textures/gui/vignette.png"));
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder vertexbuffer = tessellator.getBuffer();
-			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-			vertexbuffer.pos(0.0D, (double)scaledRes.getScaledHeight() * scaledRes.getScaleFactor() * 1D, -90.0D).tex(0.0D, 1.0D).endVertex();
-			vertexbuffer.pos((double)scaledRes.getScaledWidth() * scaledRes.getScaleFactor(), (double)scaledRes.getScaledHeight() * scaledRes.getScaleFactor(), -90.0D).tex(1.0D, 1.0D).endVertex();
-			vertexbuffer.pos((double)scaledRes.getScaledWidth() * scaledRes.getScaleFactor(), 0.0D, -90.0D).tex(1.0D, 0.0D).endVertex();
-			vertexbuffer.pos(0.0D, 0.0D, -90.0D).tex(0.0D, 0.0D).endVertex();
-			tessellator.draw();
-			GlStateManager.depthMask(true);
-			GlStateManager.enableDepth();
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		}
-
-	}
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)

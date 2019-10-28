@@ -1,22 +1,26 @@
 package weather2.util;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import CoroUtil.util.CoroUtilCompatibility;
 import net.minecraft.block.*;
 import net.minecraft.block.LogBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import weather2.CommonProxy;
 import weather2.config.ConfigTornado;
 
@@ -306,6 +310,20 @@ public class WeatherUtil {
         //return calendar.get(Calendar.MONTH) == Calendar.MARCH && calendar.get(Calendar.DAY_OF_MONTH) == 25;
 
         return calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
+    }
+
+    public static ServerWorld getWorld(int dimID) {
+        return DimensionManager.getWorld(ServerLifecycleHooks.getCurrentServer(), DimensionType.getById(dimID), true, true);
+    }
+
+    public static Iterable<ServerWorld> getWorlds() {
+        return ServerLifecycleHooks.getCurrentServer().getWorlds();
+    }
+
+    public static boolean areAllPlayersAsleep(ServerWorld world) {
+        return world.allPlayersSleeping && world.getPlayers().stream().noneMatch((p_217449_0_) -> {
+            return !p_217449_0_.isSpectator() && !p_217449_0_.isPlayerFullyAsleep();
+        });
     }
     
     

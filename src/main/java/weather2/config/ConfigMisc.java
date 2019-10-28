@@ -3,7 +3,6 @@ package weather2.config;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import modconfig.ConfigComment;
 import modconfig.IConfigCategory;
@@ -114,7 +113,7 @@ public class ConfigMisc implements IConfigCategory {
 
 	@Override
 	public String getRegistryName() {
-		return Weather.modID + getName();
+		return Weather.MODID + getName();
 	}
 
 	@Override

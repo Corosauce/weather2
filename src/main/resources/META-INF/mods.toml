@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[28,)"
+[[mods]]
+modId="weather2"
+version="${file.jarVersion}"
+displayName="Weather2"
+authors="Corosus"
+description='''
+
+'''
+
+[[dependencies.weather2]]
+    modId="forge"
+    mandatory=true
+    versionRange="[28,)"
+    ordering="NONE"
+    side="CLIENT"
+[[dependencies.weather2]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.14.4]"
+    ordering="NONE"
+    side="CLIENT"

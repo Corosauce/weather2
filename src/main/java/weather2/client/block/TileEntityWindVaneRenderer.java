@@ -2,7 +2,6 @@ package weather2.client.block;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
@@ -13,7 +12,7 @@ import weather2.block.TileEntityWindVane;
 public class TileEntityWindVaneRenderer extends TileEntityRenderer<TileEntityWindVane>
 {
 	public ModelWindVane model;
-	public ResourceLocation texture = new ResourceLocation(Weather.modID + ":textures/blocks/windvane_custom.png");
+	public ResourceLocation texture = new ResourceLocation(Weather.MODID + ":textures/blocks/windvane_custom.png");
 	
 	public TileEntityWindVaneRenderer() {
 		model = new ModelWindVane();

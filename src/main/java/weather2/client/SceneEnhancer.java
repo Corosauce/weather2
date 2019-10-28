@@ -7,6 +7,7 @@ import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.forge.CULog;
 import CoroUtil.physics.MatrixRotation;
 import CoroUtil.util.*;
+import com.mojang.blaze3d.platform.GlStateManager;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
 import extendedrenderer.render.RotatingParticleManager;
@@ -18,7 +19,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.ParticleStatus;
 import net.minecraft.entity.Entity;
@@ -31,17 +31,15 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.*;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.client.tornado.TornadoFunnel;
@@ -377,7 +375,9 @@ public class SceneEnhancer implements Runnable {
 						if (blockpos1.getY() <= blockpos.getY() + 10 && blockpos1.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.RainType.RAIN && biome.func_225486_c(blockpos1) >= 0.15F) {
 							double d3 = random.nextDouble();
 							double d4 = random.nextDouble();
-							AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
+							//AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
+							VoxelShape shape = iblockstate.getCollisionShape(world, blockpos2);
+							AxisAlignedBB axisalignedbb = shape.getBoundingBox();
 
 							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA_BLOCK) {
 								if (iblockstate.getMaterial() != Material.AIR) {
@@ -1007,8 +1007,12 @@ public class SceneEnhancer implements Runnable {
 						spawnNeed = oldVal;
 					}
 
+					//replaced use of getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) below
+					//since temperatures have X Z noise variance now, i might need to redesign the if temp check if statement to be inside loop, but is that performant?
+					BlockPos posForTemperature = entP.getPosition();
+
 					//rain
-					if (entP.world.getBiomeProvider().getTemperatureAtHeight(temperature, precipitationHeight) >= 0.15F) {
+					if (entP.world.getBiome(posForTemperature).func_225486_c(posForTemperature) >= 0.15F) {
 
 						//Weather.dbg("precip: " + curPrecipVal);
 
@@ -1090,12 +1094,12 @@ public class SceneEnhancer implements Runnable {
 
 
 								//get the block on the topmost ground
-								pos = world.getPrecipitationHeight(pos).down()/*.add(0, 1, 0)*/;
+								pos = world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos).down();
 
 								BlockState state = world.getBlockState(pos);
-								AxisAlignedBB axisalignedbb = state.getBoundingBox(world, pos);
+								AxisAlignedBB axisalignedbb = state.getShape(world, pos).getBoundingBox();
 
-								if (pos.getDistance(MathHelper.floor(entP.posX), MathHelper.floor(entP.posY), MathHelper.floor(entP.posZ)) > spawnAreaSize / 2)
+								if (pos.distanceSq(entP.getPosition()) > (spawnAreaSize / 2) * (spawnAreaSize / 2))
 									continue;
 
 								//block above topmost ground
@@ -1168,7 +1172,7 @@ public class SceneEnhancer implements Runnable {
 										entP.posY + 5 + rand.nextInt(15),
 										entP.posZ + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
-								if (entP.getDistanceSq(pos) < 10D * 10D) continue;
+								if (WeatherUtilEntity.getDistanceSqEntToPos(entP, pos) < 10D * 10D) continue;
 
 								//pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
@@ -1295,7 +1299,7 @@ public class SceneEnhancer implements Runnable {
 		{
 			return false;
 		}
-		else */if (world.getPrecipitationHeight(strikePosition).getY() > strikePosition.getY())
+		else */if (world.getHeight(Heightmap.Type.MOTION_BLOCKING, strikePosition).getY() > strikePosition.getY())
 		{
 			return false;
 		}/*
@@ -1626,8 +1630,8 @@ public class SceneEnhancer implements Runnable {
         
         int BlockCountRate = (int)(((300 / scaleRate + 0.001F)) / (particleCreationRate + 0.001F)); 
         
-        spawnRate *= (client.gameSettings.particles+1);
-        BlockCountRate *= (client.gameSettings.particles+1);
+        spawnRate *= (client.gameSettings.particles.func_216832_b()+1);
+        BlockCountRate *= (client.gameSettings.particles.func_216832_b()+1);
         
         //since reducing threaded ticking to 200ms sleep, 1/4 rate, must decrease rand size
         spawnRate /= 2;
@@ -1778,7 +1782,7 @@ public class SceneEnhancer implements Runnable {
 	                                }
                                 }
                             }
-                            else if (ConfigParticle.Wind_Particle_waterfall && player.getDistance(xx,  yy, zz) < 16 && (block != null && block.getMaterial(block.getDefaultState()) == Material.WATER)) {
+                            else if (ConfigParticle.Wind_Particle_waterfall && player.getDistanceSq(xx, yy, zz) < 16 * 16 && (block != null && block.getMaterial(block.getDefaultState()) == Material.WATER)) {
                             	
                             	int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
@@ -1906,8 +1910,7 @@ public class SceneEnhancer implements Runnable {
         }
 
         int dist = 60;
-        
-        List list = world.loadedEntityList;
+
         
         WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
         if (weatherMan == null) return;
@@ -1996,18 +1999,18 @@ public class SceneEnhancer implements Runnable {
         //WindManager windMan = ClientTickHandler.weatherManager.windMan;
         
         //Particles
-        if (WeatherUtilParticle.byType != null && windMan.getWindSpeedForPriority() >= 0.10)
+        if (WeatherUtilParticle.fxLayers != null && windMan.getWindSpeedForPriority() >= 0.10)
         {
         	//Built in particles
-            for (int layer = 0; layer < WeatherUtilParticle.byType.length; layer++)
+            for (int layer = 0; layer < WeatherUtilParticle.fxLayers.length; layer++)
             {
-                for (int i = 0; i < WeatherUtilParticle.byType[layer].length; i++)
+                for (int i = 0; i < WeatherUtilParticle.fxLayers[layer].length; i++)
                 {
-                	//for (int j = 0; j < WeatherUtilParticle.byType[layer][i].size(); j++)
-                	for (Particle entity1 : WeatherUtilParticle.byType[layer][i])
+                	//for (int j = 0; j < WeatherUtilParticle.fxLayers[layer][i].size(); j++)
+                	for (Particle entity1 : WeatherUtilParticle.fxLayers[layer][i])
                     {
                 	
-	                    //Particle entity1 = WeatherUtilParticle.byType[layer][i].get(j);
+	                    //Particle entity1 = WeatherUtilParticle.fxLayers[layer][i].get(j);
 	                    
 	                    if (ConfigParticle.Particle_VanillaAndWeatherOnly) {
 	                    	String className = entity1.getClass().getName();
@@ -2070,9 +2073,9 @@ public class SceneEnhancer implements Runnable {
             //My particle renderer - actually, instead add ones you need to weatherEffects (add blank renderer file)
             /*for (int layer = 0; layer < ExtendedRenderer.rotEffRenderer.layers; layer++)
             {
-                for (int i = 0; i < ExtendedRenderer.rotEffRenderer.byType[layer].size(); i++)
+                for (int i = 0; i < ExtendedRenderer.rotEffRenderer.fxLayers[layer].size(); i++)
                 {
-                    Entity entity1 = (Entity)ExtendedRenderer.rotEffRenderer.byType[layer].get(i);
+                    Entity entity1 = (Entity)ExtendedRenderer.rotEffRenderer.fxLayers[layer].get(i);
                 }
             }*/
         }

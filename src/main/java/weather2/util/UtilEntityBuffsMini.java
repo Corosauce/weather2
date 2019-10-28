@@ -1,11 +1,13 @@
 package weather2.util;
 
 import CoroUtil.ai.ITaskInitializer;
+import net.minecraft.block.Block;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.ai.goal.GoalSelector;
+import net.minecraft.world.ServerTickList;
 
 import java.lang.reflect.Constructor;
 
@@ -23,6 +25,8 @@ public class UtilEntityBuffsMini {
                 break;
             }
         }
+
+        ((ServerTickList<Block>)ent.world.getPendingBlockTicks()).getPending()
 
         if (foundTask != null) {
             ent.goalSelector.goals.remove(foundTask);

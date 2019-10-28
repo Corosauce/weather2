@@ -9,13 +9,10 @@ import modconfig.gui.GuiConfigEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -48,7 +45,7 @@ public class GuiEZConfig extends Screen {
     //public GuiSlotImpl guiScrollable;
     //public GuiButton guiSelectMap;
     
-    public ResourceLocation resGUI = new ResourceLocation(Weather.modID + ":textures/gui/gui512.png");
+    public ResourceLocation resGUI = new ResourceLocation(Weather.MODID + ":textures/gui/gui512.png");
     
     public String guiCur = GUI_SUBGUI_PERFORMANCE;
 	//public String guiPrev = "";
