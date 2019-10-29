@@ -473,7 +473,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			if (layer != 0) {
 				so.canBeDeadly = false;
 			}
-			so.userSpawnedFor = CoroUtilEntity.getName(entP);
+			so.spawnerUUID = entP.getCachedUniqueIdString();
 			if (rand.nextFloat() >= cloudIntensity) {
 				so.setCloudlessStorm(true);
 			}

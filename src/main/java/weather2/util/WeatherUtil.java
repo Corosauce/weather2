@@ -7,6 +7,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.LogBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
@@ -29,7 +30,7 @@ public class WeatherUtil {
 	public static HashMap<Block, Boolean> blockIDToUseMapping = new HashMap<Block, Boolean>();
 	
     public static boolean isPaused() {
-    	if (FMLClientHandler.instance().getClient().isGamePaused()) return true;
+    	if (Minecraft.getInstance().isGamePaused()) return true;
     	return false;
     }
     
@@ -40,7 +41,7 @@ public class WeatherUtil {
     }
     
     public static boolean isPausedForClient() {
-    	if (FMLClientHandler.instance().getClient().isGamePaused()) return true;
+    	if (Minecraft.getInstance().isGamePaused()) return true;
     	return false;
     }
     

@@ -51,9 +51,9 @@ public class ItemSandLayer extends ItemBlockBetter
                 if (i <= 7)
                 {
                     BlockState iblockstate1 = iblockstate.with(BlockSandLayer.LAYERS, Integer.valueOf(i + 1));
-                    AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, blockpos);
+                    AxisAlignedBB axisalignedbb = iblockstate1.getCollisionShape(worldIn, blockpos).getBoundingBox();
 
-                    if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(blockpos)) && 
+                    if (axisalignedbb != Block.NULL_AABB && worldIn.areCollisionShapesEmpty(axisalignedbb.offset(blockpos)) &&
                     		worldIn.setBlockState(blockpos, iblockstate1, 10))
                     {
                         SoundType soundtype = this.block.getSoundType(iblockstate1, worldIn, blockpos, playerIn);

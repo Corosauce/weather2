@@ -18,11 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import weather2.ClientTickHandler;
-import weather2.CommonProxy;
-import weather2.Weather;
+import net.minecraftforge.fml.network.PacketDistributor;
+import weather2.*;
 import weather2.client.SceneEnhancer;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.util.WeatherUtilBlock;
@@ -172,8 +169,11 @@ public class ItemPocketSand extends Item {
         data.putString("packetCommand", "PocketSandData");
         data.putString("command", "create");
         data.putString("uuid", player.getUniqueID().toString());
-        Weather.eventChannel.sendToAllAround(PacketHelper.getNBTPacket(data, Weather.eventChannelName),
-                new NetworkRegistry.TargetPoint(world.getDimension().getType().getId(), player.posX, player.posY, player.posZ, 50));
+        /*Weather.eventChannel.sendToAllAround(PacketHelper.getNBTPacket(data, Weather.eventChannelName),
+                new NetworkRegistry.TargetPoint(world.getDimension().getType().getId(), player.posX, player.posY, player.posZ, 50));*/
+
+        WeatherNetworking.HANDLER.send(PacketDistributor.NEAR.with(
+                () -> new PacketDistributor.TargetPoint(player.posX, player.posY, player.posZ, 50, world.getDimension().getType())), new PacketNBTFromServer(data));
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -3,18 +3,16 @@ package weather2.weathersystem;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.entity.EntityLightningBolt;
-import weather2.entity.EntityLightningBoltCustom;
-import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
@@ -38,7 +36,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 	
 	@Override
 	public World getWorld() {
-		return FMLClientHandler.instance().getClient().world;
+		return Minecraft.getInstance().world;
 	}
 	
 	@Override
@@ -105,7 +103,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 				Weather.dbg("error syncing storm, cant find by ID: " + ID + ", probably due to client resetting and waiting on full resync (this is ok)");
 				//Weather.dbgStackTrace();
 			}
-		} else if (command.equals("syncVolcanoNew")) {
+		/*} else if (command.equals("syncVolcanoNew")) {
 			Weather.dbg("creating client side volcano");
 			CompoundNBT stormNBT = parNBT.getCompound("data");
 			//long ID = stormNBT.getLong("ID");
@@ -133,7 +131,7 @@ public class WeatherManagerClient extends WeatherManagerBase {
 				so.nbtSyncFromServer(stormNBT);
 			} else {
 				Weather.dbg("error syncing volcano, cant find by ID: " + ID);
-			}
+			}*/
 		} else if (command.equals("syncWindUpdate")) {
 			//Weather.dbg("updating client side wind");
 			
@@ -161,7 +159,8 @@ public class WeatherManagerClient extends WeatherManagerBase {
 				ent = new EntityLightningBolt(getWorld(), posX, posY, posZ);
 				
 			} else {
-				ent = new EntityLightningBoltCustom(getWorld(), posX, posY, posZ);
+				//TODO: 1.14 undoing custom bolt here as it was a test
+				ent = new EntityLightningBolt(getWorld(), posX, posY, posZ);
 				
 			}
 			ent.serverPosX = posXS;
@@ -170,7 +169,10 @@ public class WeatherManagerClient extends WeatherManagerBase {
 			ent.rotationYaw = 0.0F;
 			ent.rotationPitch = 0.0F;
 			ent.setEntityId(nbt.getInt("entityID"));
-			getWorld().addWeatherEffect(ent);
+			//TODO: 1.14 rethink use of old addWeatherEffect since it only takes vanilla lightning
+			// our own server/client global weather effect list?
+			//((ClientWorld)getWorld()).addWeatherEffect(ent);
+			//((ClientWorld)getWorld()).addLightning(ent);
 		} else if (command.equals("syncWeatherUpdate")) {
 			//Weather.dbg("updating client side wind");
 			

@@ -2,12 +2,12 @@ package weather2.weathersystem.wind;
 
 import java.util.Random;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;
@@ -52,7 +52,7 @@ public class WindManager {
 	
 	//events - design derp, we're making this client side, so its set based on closest storm to the client side player
 	public float windAngleEvent = 0;
-	public BlockPos windOriginEvent = BlockPos.ORIGIN;
+	public BlockPos windOriginEvent = BlockPos.ZERO;
 	public float windSpeedEvent = 0;
 	public int windTimeEvent = 0; //its assumed this will get set by whatever initializes an event, and this class counts it down from a couple seconds, helps wind system know what takes priority
 	
@@ -138,7 +138,7 @@ public class WindManager {
 	}
 
 	public float getWindAngleForEvents(Vec3 pos) {
-		if (pos != null && !windOriginEvent.equals(BlockPos.ORIGIN)) {
+		if (pos != null && !windOriginEvent.equals(BlockPos.ZERO)) {
 			double var11 = windOriginEvent.getX() + 0.5D - pos.xCoord;
 			double var15 = windOriginEvent.getZ() + 0.5D - pos.zCoord;
 			return (-((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI) - 45;
@@ -376,7 +376,7 @@ public class WindManager {
 
 	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
-		PlayerEntity entP = FMLClientHandler.instance().getClient().player;
+		PlayerEntity entP = Minecraft.getInstance().player;
 
         if (windTimeEvent > 0) {
         	windTimeEvent--;
@@ -393,7 +393,7 @@ public class WindManager {
 	        		
 	        		setWindTimeEvent(80);
 	        		
-	        		double stormDist = entP.getDistance(so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord);
+	        		//double stormDist = entP.getDistanceSq(so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord);
 	        		
 	        		//player pos aiming at storm
 	        		double var11 = so.posGround.xCoord - entP.posX;

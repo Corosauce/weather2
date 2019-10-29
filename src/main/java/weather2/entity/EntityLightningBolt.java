@@ -3,29 +3,32 @@ package weather2.entity;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FireBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.EntityWeatherEffect;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.play.server.SSpawnGlobalEntityPacket;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
 import CoroUtil.util.CoroUtilBlock;
 import CoroUtil.util.Vec3;
 
-public class EntityLightningBolt extends EntityWeatherEffect
+public class EntityLightningBolt extends Entity
 {
     /**
      * Declares which state the lightning bolt is in. Whether it's in the air, hit the ground, etc.
@@ -46,12 +49,12 @@ public class EntityLightningBolt extends EntityWeatherEffect
     public int fireChance = ConfigStorm.Lightning_OddsTo1OfFire;
 
     public EntityLightningBolt(World par1World) {
-        super(par1World);
+        super(EntityType.LIGHTNING_BOLT, par1World);
     }
 
     public EntityLightningBolt(World par1World, double par2, double par4, double par6)
     {
-        super(par1World);
+        super(EntityType.LIGHTNING_BOLT, par1World);
         this.setLocationAndAngles(par2, par4, par6, 0.0F, 0.0F);
         this.lightningState = 2;
         this.boltVertex = this.rand.nextLong();
@@ -61,12 +64,15 @@ public class EntityLightningBolt extends EntityWeatherEffect
         
         
         if (ConfigStorm.Lightning_StartsFires) {
-            if (!par1World.isRemote && par1World.getGameRules().getBoolean("doFireTick") && (par1World.getDifficulty() == Difficulty.NORMAL || par1World.getDifficulty() == Difficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor(par2), MathHelper.floor(par4), MathHelper.floor(par6)), 10)) {
+            if (!par1World.isRemote && par1World.getGameRules().getBoolean(GameRules.DO_FIRE_TICK) && (par1World.getDifficulty() == Difficulty.NORMAL || par1World.getDifficulty() == Difficulty.HARD) && par1World.isAreaLoaded(new BlockPos(MathHelper.floor(par2), MathHelper.floor(par4), MathHelper.floor(par6)), 10)) {
                 int i = MathHelper.floor(par2);
                 int j = MathHelper.floor(par4);
                 int k = MathHelper.floor(par6);
 
-                if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(i, j, k))) {
+                BlockState blockstate = Blocks.FIRE.getDefaultState();
+                BlockPos blockpos = new BlockPos(this);
+
+                if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(i, j, k)).getBlock()) && blockstate.isValidPosition(this.world, blockpos)) {
                     //par1World.setBlockState(new BlockPos(i, j, k), Blocks.fire, fireLifeTime, 3);
                     par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().with(FireBlock.AGE, fireLifeTime));
                 }
@@ -76,7 +82,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
                     k = MathHelper.floor(par4) + this.rand.nextInt(3) - 1;
                     int l = MathHelper.floor(par6) + this.rand.nextInt(3) - 1;
 
-                    if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(par1World, new BlockPos(j, k, l))) {
+                    if (CoroUtilBlock.isAir(par1World.getBlockState(new BlockPos(j, k, l)).getBlock()) && blockstate.isValidPosition(this.world, blockpos)) {
                         //par1World.setBlockState(new BlockPos(j, k, l), Blocks.fire.getDefaultState(), fireLifeTime, 3);
                         par1World.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().with(FireBlock.AGE, fireLifeTime));
                     }
@@ -116,13 +122,16 @@ public class EntityLightningBolt extends EntityWeatherEffect
                 this.lightningState = 1;
                 this.boltVertex = this.rand.nextLong();
 
-                if (ConfigStorm.Lightning_StartsFires && !this.world.isRemote && rand.nextInt(fireChance) == 0 && this.world.getGameRules().getBoolean("doFireTick") && this.world.isAreaLoaded(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.posY), MathHelper.floor(this.posZ)), 10))
+                if (ConfigStorm.Lightning_StartsFires && !this.world.isRemote && rand.nextInt(fireChance) == 0 && this.world.getGameRules().getBoolean(GameRules.DO_FIRE_TICK) && this.world.isAreaLoaded(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.posY), MathHelper.floor(this.posZ)), 10))
                 {
                     int i = MathHelper.floor(this.posX);
                     int j = MathHelper.floor(this.posY);
                     int k = MathHelper.floor(this.posZ);
 
-                    if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(i, j, k)).getBlock()) && Blocks.FIRE.canPlaceBlockAt(world, new BlockPos(i, j, k))) {
+                    BlockState blockstate = Blocks.FIRE.getDefaultState();
+                    BlockPos blockpos = new BlockPos(this);
+
+                    if (CoroUtilBlock.isAir(world.getBlockState(new BlockPos(i, j, k)).getBlock()) && blockstate.isValidPosition(this.world, blockpos)) {
                         world.setBlockState(new BlockPos(i, j, k), Blocks.FIRE.getDefaultState().with(FireBlock.AGE, fireLifeTime), 3);
                     }
                 }
@@ -154,41 +163,44 @@ public class EntityLightningBolt extends EntityWeatherEffect
     
     @OnlyIn(Dist.CLIENT)
     public void updateFlashEffect() {
-    	Minecraft mc = FMLClientHandler.instance().getClient();
+    	Minecraft mc = Minecraft.getInstance();
     	//only flash sky if player is within 256 blocks of lightning
-    	if (mc.player != null && mc.player.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
+    	if (mc.player != null && mc.player.getDistance(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
     		this.world.setLastLightningBolt(2);
     	}
     }
     
     @OnlyIn(Dist.CLIENT)
     public void updateSoundEffect() {
-    	Minecraft mc = FMLClientHandler.instance().getClient();
-    	if (mc.player != null && mc.player.getDistanceToEntity(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
+    	Minecraft mc = Minecraft.getInstance();
+    	if (mc.player != null && mc.player.getDistance(this) < ConfigStorm.Lightning_DistanceToPlayerForEffects) {
     		this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.WEATHER, 64.0F * (float)ConfigMisc.volWindLightningScale, 0.8F + this.rand.nextFloat() * 0.2F, false);
             this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.rand.nextFloat() * 0.2F, false);
     	}
     }
 
+    @Override
     protected void registerData() {}
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
+    @Override
     protected void readAdditional(CompoundNBT par1NBTTagCompound) {}
 
     /**
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
+    @Override
     protected void writeAdditional(CompoundNBT par1NBTTagCompound) {}
 
     @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean isInRangeToRender3d(double p_145770_1_, double p_145770_3_, double p_145770_5_) {
+        return this.lightningState >= 0;//super.isInRangeToRender3d(p_145770_1_, p_145770_3_, p_145770_5_);
+    }
 
-    /**
-     * Checks using a Vec3d to determine if this entity is within range of that vector to be rendered. Args: vec3D
-     */
-    public boolean isInRangeToRenderVec3D(Vec3 par1Vec3)
-    {
-        return this.lightningState >= 0;
+    public IPacket<?> createSpawnPacket() {
+        return new SSpawnGlobalEntityPacket(this);
     }
 }

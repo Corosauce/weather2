@@ -3,7 +3,6 @@ package weather2.block;
 import java.util.Random;
 
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.ITickableTileEntity;
 import weather2.ServerTickHandler;
@@ -131,7 +130,7 @@ public class TileEntityWeatherMachine extends TileEntity implements ITickableTil
     					so.initFirstTime();
     					so.pos = new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ());
     					so.layer = 0;
-    					so.userSpawnedFor = "" + getPos().getX() + getPos().getY() + getPos().getZ();
+    					so.spawnerUUID = "" + getPos().getX() + getPos().getY() + getPos().getZ();
     					//so.canSnowFromCloudTemperature = true;
     					so.naturallySpawned = false;
     					

@@ -133,7 +133,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 * @return
 	 */
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.biomeName.toLowerCase().contains("desert");
+		return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.getCategory().getName().toLowerCase().contains("desert");
 	}
 	
 	/**
@@ -168,7 +168,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			
 			//only grow if in loaded area and in desert, also prevent it from growing again for some reason if it started dying already
 			if (isFrontGrowing && world.isBlockLoaded(posBlock)) {
-				Biome biomeIn = world.getBiomeForCoordsBody(posBlock);
+				Biome biomeIn = world.getBiome(posBlock);
 
 				if (isDesert(biomeIn)) {
 					isFrontGrowing = true;
@@ -282,7 +282,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					//avoid unloaded areas
 					if (!world.isBlockLoaded(vecPos.toBlockPos())) continue;
 
-					Biome biomeIn = world.getBiomeForCoordsBody(vecPos.toBlockPos());
+					Biome biomeIn = world.getBiome(vecPos.toBlockPos());
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
 						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);

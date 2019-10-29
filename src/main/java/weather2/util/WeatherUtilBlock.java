@@ -95,6 +95,7 @@ public class WeatherUtilBlock {
 
 				AxisAlignedBB aabbCompare = new AxisAlignedBB(pos);
 				List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
+				//TODO: 1.14 refactored in VoxelShape change, see Block.getShape
 				state.addCollisionBoxToList(world, pos, aabbCompare, listAABBCollision, null, false);
 
 				//if solid ground we can place on

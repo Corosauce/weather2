@@ -44,7 +44,7 @@ public class EventHandlerFML {
 		}
 
 		if (ConfigMisc.Global_Overcast_Prevent_Rain_Reset_On_Sleep) {
-			ServerWorld world = DimensionManager.getWorld(0);
+			ServerWorld world = WeatherUtil.getWorld(0);
 			if (world != null) {
 				if (event.phase == TickEvent.Phase.START) {
 					if (WeatherUtil.areAllPlayersAsleep(world)) {

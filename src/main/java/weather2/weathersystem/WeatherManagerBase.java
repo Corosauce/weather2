@@ -38,8 +38,8 @@ public class WeatherManagerBase {
 	//private ArrayList<ArrayList<StormObject>> listStormObjectsByLayer = new ArrayList<ArrayList<StormObject>>();
 	
 	//volcanos
-	private List<VolcanoObject> listVolcanoes = new ArrayList<>();
-	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<>();
+	/*private List<VolcanoObject> listVolcanoes = new ArrayList<>();
+	public HashMap<Long, VolcanoObject> lookupVolcanoes = new HashMap<>();*/
 	
 	//wind
 	public WindManager windMan;
@@ -83,14 +83,14 @@ public class WeatherManagerBase {
 			ex.printStackTrace();
 		}
 		
-		for (int i = 0; i < getVolcanoObjects().size(); i++) {
+		/*for (int i = 0; i < getVolcanoObjects().size(); i++) {
 			VolcanoObject vo = getVolcanoObjects().get(i);
 			
 			vo.reset();
 		}
 		
 		getVolcanoObjects().clear();
-		lookupVolcanoes.clear();
+		lookupVolcanoes.clear();*/
 		
 		windMan.reset();
 
@@ -109,7 +109,7 @@ public class WeatherManagerBase {
 			List<WeatherObject> list = getStormObjects();
 			for (int i = 0; i < list.size(); i++) {
 				WeatherObject so = list.get(i);
-				if (this instanceof WeatherManagerServer && so.removed) {
+				if (this instanceof WeatherManagerServer && so.isDead) {
 					removeStormObject(so.ID);
 					((WeatherManagerServer)this).syncStormRemove(so);
 				} else {
@@ -119,7 +119,7 @@ public class WeatherManagerBase {
 						removeStormObject(so.ID);
 						
 						//if it failed still
-						if (!so.removed) {
+						if (!so.isDead) {
 							for (int ii = 0; ii < listStormObjects.size(); ii++) {
 								StormObject so2 = listStormObjects.get(ii);
 								if (so2 == so) {
@@ -134,11 +134,11 @@ public class WeatherManagerBase {
 						}
 					} else {*/
 					
-						if (!so.removed) {
+						if (!so.isDead) {
 							so.tick();
 						} else {
 							if (getWorld().isRemote) {
-								Weather.dbg("WARNING!!! - detected removed storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly removed via main channels");
+								Weather.dbg("WARNING!!! - detected isDead storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly isDead via main channels");
 								removeStormObject(so.ID);
 							}
 							//Weather.dbg("client storm is dead and still in list, bug?");
@@ -149,9 +149,9 @@ public class WeatherManagerBase {
 			}
 						
 			//tick volcanos
-			for (int i = 0; i < getVolcanoObjects().size(); i++) {
+			/*for (int i = 0; i < getVolcanoObjects().size(); i++) {
 				getVolcanoObjects().get(i).tick();
-			}
+			}*/
 
 			//tick wind
 			windMan.tick();
@@ -224,7 +224,7 @@ public class WeatherManagerBase {
 		}
 	}
 	
-	public List<VolcanoObject> getVolcanoObjects() {
+	/*public List<VolcanoObject> getVolcanoObjects() {
 		return listVolcanoes;
 	}
 	
@@ -247,7 +247,7 @@ public class WeatherManagerBase {
 			
 			Weather.dbg("removing volcano");
 		}
-	}
+	}*/
 	
 	public StormObject getClosestStormAny(Vec3 parPos, double maxDist) {
 		return getClosestStorm(parPos, maxDist, -1, true);
@@ -268,7 +268,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
-				if (storm == null || storm.removed) continue;
+				if (storm == null || storm.isDead) continue;
 				double dist = storm.pos.distanceTo(parPos);
 				*//*if (getWorld().isRemote) {
 					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
@@ -288,7 +288,7 @@ public class WeatherManagerBase {
 		//not sure i can avoid a double use of distance calculation adding to iteration cost, this method might not be stream worthy
 		return getStormObjects().stream()
 				.map(wo -> (StormObject)wo)
-				.filter(so -> !so.removed)
+				.filter(so -> !so.isDead)
 				.filter(so -> (so.attrib_precipitation && orRain) || (severityFlagMin == -1 || so.levelCurIntensityStage >= severityFlagMin))
 				.filter(so -> so.pos.distanceTo(parPos) < maxDist)
 				.min(Comparator.comparing(so -> so.pos.distanceTo(parPos))).get();
@@ -311,7 +311,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
-				if (storm == null || storm.removed) continue;
+				if (storm == null || storm.isDead) continue;
 				if (storm.attrib_precipitation) {
 					double dist = storm.pos.distanceTo(parPos);
 					if (dist < storm.size) {
@@ -325,7 +325,7 @@ public class WeatherManagerBase {
 
 		return getStormObjects().stream()
 				.map(wo -> (StormObject)wo)
-				.anyMatch(so -> !so.removed && so.attrib_precipitation && so.pos.distanceTo(parPos) < so.size);
+				.anyMatch(so -> !so.isDead && so.attrib_precipitation && so.pos.distanceTo(parPos) < so.size);
 	}
 
 	/**
@@ -346,7 +346,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
-				if (storm == null || storm.removed) continue;
+				if (storm == null || storm.isDead) continue;
 				double dist = storm.pos.distanceTo(parPos);
 				/*if (getWorld().isRemote) {
 					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
@@ -382,7 +382,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = listStorms.get(i);
 			if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
-				if (sandstorm == null || sandstorm.removed) continue;
+				if (sandstorm == null || sandstorm.isDead) continue;
 
 				List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
 
@@ -418,7 +418,7 @@ public class WeatherManagerBase {
 			WeatherObject wo = getStormObjects().get(i);
 			if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
-				if (storm.removed) continue;
+				if (storm.isDead) continue;
 
 				if (storm.pos.distanceTo(parPos) < maxDist) {
 					storms.add(storm);
@@ -434,7 +434,7 @@ public class WeatherManagerBase {
 
         for (int i = 0; i < getStormObjects().size(); i++) {
             WeatherObject wo = getStormObjects().get(i);
-            if (wo.removed) continue;
+            if (wo.isDead) continue;
             if (wo instanceof StormObject) {
                 StormObject storm = (StormObject) wo;
                 if (storm.pos.distanceTo(parPos) < maxDist && ((storm.attrib_precipitation && ConfigStorm.Storm_Deflector_RemoveRainstorms) || storm.levelCurIntensityStage >= ConfigStorm.Storm_Deflector_MinStageRemove)) {
@@ -458,7 +458,7 @@ public class WeatherManagerBase {
 		
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
-			if (wo.removed) continue;
+			if (wo.isDead) continue;
 			if (wo instanceof StormObject) {
 				StormObject storm = (StormObject) wo;
 				if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
@@ -479,7 +479,7 @@ public class WeatherManagerBase {
 	
 	public void writeToFile() {
 		CompoundNBT mainNBT = new CompoundNBT();
-		CompoundNBT listVolcanoesNBT = new CompoundNBT();
+		/*CompoundNBT listVolcanoesNBT = new CompoundNBT();
 		for (int i = 0; i < listVolcanoes.size(); i++) {
 			VolcanoObject td = listVolcanoes.get(i);
 			CompoundNBT teamNBT = new CompoundNBT();
@@ -487,7 +487,7 @@ public class WeatherManagerBase {
 			listVolcanoesNBT.put("volcano_" + td.ID, teamNBT);
 		}
 		mainNBT.put("volcanoData", listVolcanoesNBT);
-		mainNBT.putLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);
+		mainNBT.putLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);*/
 		
 		CompoundNBT listStormsNBT = new CompoundNBT();
 		for (int i = 0; i < listStormObjects.size(); i++) {
@@ -591,10 +591,10 @@ public class WeatherManagerBase {
 				ex.printStackTrace();
 			}
 			//to.initAITree();
-			addVolcanoObject(to);
+			//addVolcanoObject(to);
 			
 			//THIS LINE NEEDS REFINING FOR PLAYERS WHO JOIN AFTER THE FACT!!!
-			((WeatherManagerServer)(this)).syncVolcanoNew(to);
+			//((WeatherManagerServer)(this)).syncVolcanoNew(to);
 			
 			//listVolcanoes.add(to);
 			//lookupVolcanoes.put(to.ID, to);
