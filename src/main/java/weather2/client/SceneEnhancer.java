@@ -10,6 +10,8 @@ import CoroUtil.util.*;
 import com.mojang.blaze3d.platform.GlStateManager;
 import extendedrenderer.EventHandler;
 import extendedrenderer.particle.behavior.*;
+import extendedrenderer.placeholders.Quaternion;
+import extendedrenderer.placeholders.Vector4f;
 import extendedrenderer.render.RotatingParticleManager;
 import extendedrenderer.shader.Matrix4fe;
 import net.minecraft.block.Block;
@@ -21,6 +23,7 @@ import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.ParticleStatus;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.block.Blocks;
@@ -91,7 +94,8 @@ public class SceneEnhancer implements Runnable {
     public static HashMap<ChunkCoordinatesBlock, Long> soundTimeLocations = new HashMap();
     
     public static Block SOUNDMARKER_WATER = Blocks.WATER;
-    public static Block SOUNDMARKER_LEAVES = Blocks.LEAVES;
+    /*public static Block SOUNDMARKER_LEAVES = Blocks.LEAVES;*/
+    public static List<Block> LEAVES_BLOCKS = new ArrayList<>();
     
     public static float curPrecipStr = 0F;
     public static float curPrecipStrTarget = 0F;
@@ -168,6 +172,8 @@ public class SceneEnhancer implements Runnable {
 		listPosRandom.add(new BlockPos(-1, 0, 0));
 		listPosRandom.add(new BlockPos(0, 0, 1));
 		listPosRandom.add(new BlockPos(0, 0, -1));
+
+		Collections.addAll(LEAVES_BLOCKS, Blocks.ACACIA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES);
 	}
 	
 	@Override
@@ -295,7 +301,8 @@ public class SceneEnhancer implements Runnable {
 									//client.world.playSound(cCor.posX, cCor.posY, cCor.posZ, Weather.modID + ":env.waterfall", (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F), false);
 									client.world.playSound(cCor.toBlockPos(), SoundRegistry.get("env.waterfall"), SoundCategory.AMBIENT, (float)ConfigMisc.volWaterfallScale, 0.75F + (rand.nextFloat() * 0.05F), false);
 									//System.out.println("play waterfall at: " + cCor.posX + " - " + cCor.posY + " - " + cCor.posZ);
-								} else if (cCor.block == SOUNDMARKER_LEAVES) {
+									//TODO: 1.14 test if this works
+								} else if (LEAVES_BLOCKS.contains(cCor.block)) {
 									
 										
 									float windSpeed = WindReader.getWindSpeed(client.world, new Vec3(cCor.posX, cCor.posY, cCor.posZ), WindReader.WindType.EVENT);
@@ -389,10 +396,10 @@ public class SceneEnhancer implements Runnable {
 										d2 = (double) blockpos2.getZ() + d4;
 									}
 
-									client.world.addParticle(ParticleTypes.WATER_DROP, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + axisalignedbb.maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+									client.world.addParticle(ParticleTypes.DRIPPING_WATER, false, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + axisalignedbb.maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D);
 								}
 							} else {
-								client.world.addParticle(ParticleTypes.SMOKE_NORMAL, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - axisalignedbb.minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+								client.world.addParticle(ParticleTypes.SMOKE, false, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - axisalignedbb.minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D);
 							}
 						}
 					}
@@ -451,7 +458,7 @@ public class SceneEnhancer implements Runnable {
                         	//Waterfall
                         	if (ConfigParticle.Wind_Particle_waterfall && ((block.getMaterial(block.getDefaultState()) == Material.WATER))) {
                             	
-                            	int meta = getBlockMetadata(worldRef, xx, yy, zz);
+                            	/*int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
                             		
                             		int bottomY = yy;
@@ -486,7 +493,7 @@ public class SceneEnhancer implements Runnable {
                         					//System.out.println("add waterfall");
                         				}
                         			}
-                            	}
+                            	}*/
                             } else if (ConfigMisc.volWindTreesScale > 0 && ((block.getMaterial(block.getDefaultState()) == Material.LEAVES))) {
                             	boolean proxFail = false;
                 				for (int j = 0; j < soundLocations.size(); j++) {
@@ -497,7 +504,7 @@ public class SceneEnhancer implements Runnable {
                         		}
                 				
                 				if (!proxFail) {
-                					soundLocations.add(new ChunkCoordinatesBlock(xx, yy, zz, SOUNDMARKER_LEAVES, 0));
+                					soundLocations.add(new ChunkCoordinatesBlock(xx, yy, zz, block, 0));
                 					//System.out.println("add leaves sound location");
                 				}
                             }
@@ -514,8 +521,8 @@ public class SceneEnhancer implements Runnable {
 		/*if (ExtendedRenderer.rotEffRenderer != null) {
 			ExtendedRenderer.rotEffRenderer.clear();
         }*/
-		
-		lastWorldDetected.weatherEffects.clear();
+
+		((ClientWorld)lastWorldDetected).globalEntities.clear();
 		
 		if (WeatherUtilParticle.fxLayers == null) {
 			WeatherUtilParticle.getFXLayers();
@@ -747,27 +754,27 @@ public class SceneEnhancer implements Runnable {
 
 					Quaternion qNewRot = new Quaternion();
 					qNewRot.setFromAxisAngle(new Vector4f(1, 0, 0, (float)Math.toRadians(5F)));
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
 						//Quaternion.mul(q, qNewRot, q);
-					}
+					}*/
 
 					qNewRot = new Quaternion();
 					qNewRot.setFromAxisAngle(new Vector4f(0, 1, 0, (float)Math.toRadians(5F)));
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
 						//Quaternion.mul(q, qNewRot, q);
-					}
+					}*/
 
 					qNewRot = new Quaternion();
 					qNewRot.setFromAxisAngle(new Vector4f(0, 0, 1, (float)Math.toRadians(5F)));
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
 						//Quaternion.mul(q, qNewRot, q);
-					}
+					}*/
 
 					//System.out.println("q: " + q.x + ", " + q.y + ", " + q.z + ", " + q.w);
 
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
 						q.setIdentity();
-					}
+					}*/
 
 					//testing
 					float scale = 3F;
@@ -785,7 +792,7 @@ public class SceneEnhancer implements Runnable {
 					//matrix.rotateY(-(float)Math.toRadians(entP.rotationYaw + 90));
 					//matrix.rotateZ(-(float)Math.toRadians(entP.rotationPitch));
 
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
 						vec.x += (float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F);
 						//matrix.rotateX((float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F));
 					}
@@ -798,7 +805,7 @@ public class SceneEnhancer implements Runnable {
 					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
 						vec.z += (float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F);
 						//matrix.rotateZ((float)Math.toRadians(5) * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? -1F : 1F));
-					}
+					}*/
 
 					vec.y += (float)Math.toRadians(30);
 
@@ -828,19 +835,19 @@ public class SceneEnhancer implements Runnable {
 					matrix.translate(new Vector3f(2, 0, 0));
 					//matrix.translate(new Vector3f(0, 0, 2));
 
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD0)) {
 						vec = new Vector3f();
 						matrix.setIdentity();
 						//matrix.translate(new Vector3f(3, 0, 0));
-					}
+					}*/
 
-					if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD5)) {
+					/*if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD5)) {
 						//matrix.setIdentity();
 						matrix.m30 = 0;
 						matrix.m31 = 0;
 						matrix.m32 = 0;
 						matrix.translate(new Vector3f(3, 0, 0));
-					}
+					}*/
 
 					//push away from face in direction player is looking
 					//matrix.translate(new Vector3f(2, 0, 0));
@@ -1783,8 +1790,16 @@ public class SceneEnhancer implements Runnable {
                                 }
                             }
                             else if (ConfigParticle.Wind_Particle_waterfall && player.getDistanceSq(xx, yy, zz) < 16 * 16 && (block != null && block.getMaterial(block.getDefaultState()) == Material.WATER)) {
-                            	
-                            	int meta = getBlockMetadata(worldRef, xx, yy, zz);
+
+                            	//mostly sure this was just a check to verify its a full height water block
+								//but what about oceans?
+								/** TODO: 1.14, were assuming meta & 8 USED to be a flow vector but was changed, redesign to either:
+								 * do a proper flow vector check, or
+								 * check next to block for air and count it as waterfall then
+								 * - should prevent oceans qualifying
+								 */
+
+                            	/*int meta = getBlockMetadata(worldRef, xx, yy, zz);
                             	if ((meta & 8) != 0) {
                             		lastTickFoundBlocks += 70; //adding more to adjust for the rate 1 waterfall block spits out particles
                             		int chance = (int)(1+(((float)BlockCountRate)/120F));
@@ -1850,7 +1865,7 @@ public class SceneEnhancer implements Runnable {
 	                            		//waterP.rotationYaw = rand.nextInt(360);
 	                                	
                                 	}
-                            	}
+                            	}*/
                             	
                             } else if (ConfigParticle.Wind_Particle_fire && (block != null && block == Blocks.FIRE/*block.getMaterial() == Material.fire*/)) {
                             	lastTickFoundBlocks++;
@@ -2145,7 +2160,7 @@ public class SceneEnhancer implements Runnable {
         }
     }
     
-    @OnlyIn(Dist.CLIENT)
+    /*@OnlyIn(Dist.CLIENT)
     private static int getBlockMetadata(World parWorld, int x, int y, int z)
     {
         if (!parWorld.isBlockLoaded(new BlockPos(x, 0, z)))
@@ -2155,7 +2170,7 @@ public class SceneEnhancer implements Runnable {
 
         BlockState state = parWorld.getBlockState(new BlockPos(x, y, z));
         return state.getBlock().getMetaFromState(state);
-    }
+    }*/
     
     public static void tickTest() {
     	Minecraft client = Minecraft.getInstance();
@@ -2232,11 +2247,7 @@ public class SceneEnhancer implements Runnable {
     		particleBehaviorFog = new ParticleBehaviorFogGround(new Vec3(client.player.posX, client.player.posY, client.player.posZ));
     		vecWOP = new Vec3d(client.player.posX, client.player.posY, client.player.posZ);
     	}
-    	
-    	
-    	
-    	
-    	
+
     	//need circumference math to keep constant distance between particles to spawn based on size of storm
     	//this also needs adjusting based on the chosed particle scale (that is based on players distance to storm)
     	
@@ -2251,19 +2262,6 @@ public class SceneEnhancer implements Runnable {
 	    		part.spawnAsWeatherEffect();
     		}
     	//}
-    		
-    	//particleBehaviorFog.tickUpdateList();
-    	
-		boolean derp = false;
-        if (derp) {
-        	BlockState state = client.world.getBlockState(new BlockPos(client.player.posX, client.player.getBoundingBox().minY-1, client.player.posZ));
-	    	int id = Block.getStateId(state);
-	    	id = 12520;
-	    	double speed = 0.2D;
-	    	Random rand = client.world.rand;
-	    	client.world.addParticle(ParticleTypes.BLOCK_DUST, client.player.posX, client.player.posY, client.player.posZ,
-	    			(rand.nextDouble() - rand.nextDouble()) * speed, (rand.nextDouble()) * speed * 2D, (rand.nextDouble() - rand.nextDouble()) * speed, id);
-    	}
     }
     
     /**
@@ -2696,7 +2694,7 @@ public class SceneEnhancer implements Runnable {
     
     public static boolean isFogOverridding() {
 		Minecraft client = Minecraft.getInstance();
-		BlockState iblockstate = ActiveRenderInfo.getBlockStateAtEntityViewpoint(client.world, client.getRenderViewEntity(), 1F);
+		BlockState iblockstate = client.gameRenderer.activeRender.getBlockAtCamera();
 		if (iblockstate.getMaterial().isLiquid()) return false;
     	return adjustAmountSmooth > 0;
     }

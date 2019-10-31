@@ -133,7 +133,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 						//split weather objects into list of ones near player and ones not
 						Map<Boolean, List<WeatherObject>> playersNearWeatherObjects = getStormObjects()
 								.stream()
-								.collect(Collectors.partitioningBy(wo -> WeatherUtilEntity.getClosestPlayerAny(world, wo.posGround.xCoord, wo.posGround.yCoord, wo.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff) != null));
+								.collect(Collectors.partitioningBy(wo -> world.getClosestPlayer(wo.posGround.xCoord, wo.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff) != null));
 
 						//ones near
 						playersNearWeatherObjects.get(true).stream()

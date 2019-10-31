@@ -3,24 +3,15 @@ package weather2;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import CoroUtil.packet.PacketHelper;
 import extendedrenderer.ExtendedRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.IngameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.screen.IngameMenuScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.settings.CloudOption;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-
-import org.lwjgl.input.Mouse;
 
 import weather2.config.ConfigFoliage;
 import weather2.util.WindReader;
@@ -74,7 +65,8 @@ public class ClientTickHandler
 		clientConfigData = new ClientConfigData();
 	}
 
-    public void onRenderScreenTick()
+	//TODO: 1.14 rewrite gui
+    /*public void onRenderScreenTick()
     {
     	Minecraft mc = Minecraft.getInstance();
     	if (mc.currentScreen instanceof IngameMenuScreen) {
@@ -92,7 +84,7 @@ public class ClientTickHandler
     			}
     		}
     	}
-    }
+    }*/
 
     public void onTickInGUI(Screen guiscreen)
     {
@@ -296,7 +288,8 @@ public class ClientTickHandler
 		CompoundNBT data = new CompoundNBT();
 		data.putString("command", "syncFull");
 		data.putString("packetCommand", "WeatherData");
-		Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+		//Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+		WeatherNetworking.HANDLER.sendToServer(new PacketNBTFromClient(data));
     }
 
     static void getField(Field field, Object newValue) throws Exception

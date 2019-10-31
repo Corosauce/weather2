@@ -10,15 +10,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import weather2.ClientTickHandler;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import weather2.api.WeatherUtilData;
 import weather2.entity.EntityMovingBlock;
-import weather2.weathersystem.wind.WindManager;
 import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.util.CoroUtilEntOrParticle;
 import CoroUtil.util.Vec3;
@@ -169,7 +166,7 @@ public class WeatherUtilEntity {
     }
     
     public static boolean isParticleRotServerSafe(World world, Object obj) {
-    	if (FMLCommonHandler.instance().getEffectiveSide() == Dist.SERVER) {
+    	if (EffectiveSide.get().equals(LogicalSide.SERVER)) {
     		return false;
     	}
     	if (!world.isRemote) return false;
@@ -180,7 +177,7 @@ public class WeatherUtilEntity {
     	return obj instanceof EntityRotFX;
     }
     
-	public static boolean canPushEntity(Entity ent)
+	/*public static boolean canPushEntity(Entity ent)
     {
     	
     	//weather2: shouldnt be needed since its particles only now, ish
@@ -189,8 +186,8 @@ public class WeatherUtilEntity {
     	WindManager windMan = ClientTickHandler.weatherManager.windMan;
     	
         double speed = 10.0D;
-        int startX = (int)(ent.posX - speed * (double)(-MathHelper.sin(windMan.getWindAngleForPriority(null) / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
-        int startZ = (int)(ent.posZ - speed * (double)(MathHelper.cos(windMan.getWindAngleForPriority(null) / 180.0F * (float)Math.PI) * MathHelper.cos(0F/*weatherMan.wind.yDirection*/ / 180.0F * (float)Math.PI)));
+        int startX = (int)(ent.posX - speed * (double)(-MathHelper.sin(windMan.getWindAngleForPriority(null) / 180.0F * (float)Math.PI) * MathHelper.cos(0F*//*weatherMan.wind.yDirection*//* / 180.0F * (float)Math.PI)));
+        int startZ = (int)(ent.posZ - speed * (double)(MathHelper.cos(windMan.getWindAngleForPriority(null) / 180.0F * (float)Math.PI) * MathHelper.cos(0F*//*weatherMan.wind.yDirection*//* / 180.0F * (float)Math.PI)));
 
         if (ent instanceof PlayerEntity)
         {
@@ -199,7 +196,7 @@ public class WeatherUtilEntity {
 
         return ent.world.rayTraceBlocks((new Vec3(ent.posX, ent.posY + (double)ent.getEyeHeight(), ent.posZ)).toMCVec(), (new Vec3(startX, ent.posY + (double)ent.getEyeHeight(), startZ)).toMCVec()) == null;
         //return true;
-    }
+    }*/
 	
 	public static boolean isEntityOutside(Entity parEnt) {
 		return isEntityOutside(parEnt, false);
@@ -237,36 +234,14 @@ public class WeatherUtilEntity {
 	}
 	
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
-		boolean dirNorth = parWorld.rayTraceBlocks(parPos.toMCVec(), parCheckPos.toMCVec()) == null;
-		if (dirNorth) {
+		//boolean dirNorth = parWorld.rayTraceBlocks(parPos.toMCVec(), parCheckPos.toMCVec()) == null;
+        BlockRayTraceResult blockraytraceresult = parWorld.rayTraceBlocks(new RayTraceContext(parPos.toMCVec(), parCheckPos.toMCVec(),
+                RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
+		if (blockraytraceresult.getType() == RayTraceResult.Type.MISS) {
 			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor(parCheckPos.xCoord), 0, MathHelper.floor(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
 		}
 		return false;
 	}
-
-    public static PlayerEntity getClosestPlayerAny(World world, double posX, double posY, double posZ, double distance)
-    {
-        double d0 = -1.0D;
-        PlayerEntity entityplayer = null;
-
-        for (int i = 0; i < world.playerEntities.size(); ++i)
-        {
-            PlayerEntity entityplayer1 = (PlayerEntity)world.playerEntities.get(i);
-
-            //if ((EntitySelectors.CAN_AI_TARGET.apply(entityplayer1) || !spectator) && (EntitySelectors.NOT_SPECTATING.apply(entityplayer1) || spectator))
-            //{
-            double d1 = entityplayer1.getDistanceSq(posX, posY, posZ);
-
-            if ((distance < 0.0D || d1 < distance * distance) && (d0 == -1.0D || d1 < d0))
-            {
-                d0 = d1;
-                entityplayer = entityplayer1;
-            }
-            //}
-        }
-
-        return entityplayer;
-    }
 
     public static double getDistanceSqEntToPos(Entity ent, BlockPos pos) {
         double d0 = ent.posX - pos.getX();

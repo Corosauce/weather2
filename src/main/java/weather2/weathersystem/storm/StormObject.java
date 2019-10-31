@@ -1808,7 +1808,7 @@ public class StormObject extends WeatherObject {
 								particle = spawnFogParticle(tryPos.xCoord, tryPos.yCoord, tryPos.zCoord, 0);
 								if (isFirenado && isSpinning()) {
 									//if (particle.getEntityId() % 20 < 5) {
-										particle.setParticleTexture(ParticleRegistry.cloud256_fire);
+										particle.setSprite(ParticleRegistry.cloud256_fire);
 										particle.setColor(1F, 1F, 1F);
 
 									//}

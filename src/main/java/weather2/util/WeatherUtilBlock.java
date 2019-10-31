@@ -7,6 +7,7 @@ import CoroUtil.forge.CULog;
 import net.minecraft.block.*;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
+import net.minecraft.world.gen.Heightmap;
 import weather2.CommonProxy;
 import weather2.block.BlockSandLayer;
 import net.minecraft.block.SlabBlock;
@@ -850,7 +851,7 @@ public class WeatherUtilBlock {
 	 */
 	public static BlockPos getPrecipitationHeightSafe(World world, BlockPos pos) {
 		if (world.isBlockLoaded(pos)) {
-			return world.getPrecipitationHeight(pos);
+			return world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos);
 		} else {
 			return new BlockPos(pos.getX(), 0, pos.getZ());
 		}

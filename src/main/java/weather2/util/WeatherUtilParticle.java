@@ -4,13 +4,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.Random;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import CoroUtil.OldUtil;
-import CoroUtil.util.Vec3;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexFX;
 
@@ -53,7 +51,7 @@ public class WeatherUtilParticle {
         {
             field = (ParticleManager.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().particles);
+            fxLayers = (ArrayDeque<Particle>[][])field.get(Minecraft.getInstance().particles);
         }
         catch (Exception ex)
         {
@@ -63,7 +61,7 @@ public class WeatherUtilParticle {
             {
                 field = (ParticleManager.class).getDeclaredField("fxLayers");
                 field.setAccessible(true);
-                fxLayers = (ArrayDeque<Particle>[][])field.get(FMLClientHandler.instance().getClient().particles);
+                fxLayers = (ArrayDeque<Particle>[][])field.get(Minecraft.getInstance().particles);
             }
             catch (Exception ex2)
             {

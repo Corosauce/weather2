@@ -3,12 +3,11 @@ package weather2.util;
 import java.util.HashMap;
 import java.util.Random;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import paulscode.sound.SoundSystem;
 import weather2.SoundRegistry;
 import weather2.client.sound.MovingSoundStreamingSource;
 import weather2.weathersystem.storm.StormObject;
@@ -89,7 +88,7 @@ public class WeatherUtilSound {
     	//ResourceLocation res = new ResourceLocation(var1);
     	SoundEvent event = SoundRegistry.get(var1);
     	MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundCategory.WEATHER, var5, var6, parCutOffRange);
-    	FMLClientHandler.instance().getClient().getSoundHandler().playSound(sound);
+    	Minecraft.getInstance().getSoundHandler().play(sound);
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -103,7 +102,7 @@ public class WeatherUtilSound {
     	
     	MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parStorm, event, SoundCategory.WEATHER, var5, var6, parCutOffRange);
     	
-    	FMLClientHandler.instance().getClient().getSoundHandler().playSound(sound);
+    	Minecraft.getInstance().getSoundHandler().play(sound);
 
     }
 
@@ -112,7 +111,7 @@ public class WeatherUtilSound {
     {
         SoundEvent event = SoundRegistry.get(var1);
         MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundCategory.WEATHER, var5, var6, true);
-        FMLClientHandler.instance().getClient().getSoundHandler().playSound(sound);
+        Minecraft.getInstance().getSoundHandler().play(sound);
     }
 	
     

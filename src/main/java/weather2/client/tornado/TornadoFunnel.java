@@ -1,23 +1,17 @@
 package weather2.client.tornado;
 
-import CoroUtil.util.Vec3;
 import extendedrenderer.particle.ParticleRegistry;
-import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleCustomMatrix;
-import extendedrenderer.particle.entity.ParticleTexExtraRender;
-import extendedrenderer.particle.entity.ParticleTexFX;
+import extendedrenderer.placeholders.Quaternion;
+import extendedrenderer.placeholders.Vector4f;
 import extendedrenderer.shader.Matrix4fe;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector4f;
 
-import javax.vecmath.Vector3f;
 import java.util.*;
 
 /**

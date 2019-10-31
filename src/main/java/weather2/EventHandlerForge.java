@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
@@ -63,17 +64,23 @@ public class EventHandlerForge {
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void registerIcons(TextureStitchEvent.Pre event) {
+		if (!event.getMap().getBasePath().equals("textures")) {
+			return;
+		}
 		
-		//optifine breaks (removes) forge added method setTextureEntry, dont use it
+		ClientProxy.radarIconRain = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_rain"));
+		ClientProxy.radarIconLightning = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_lightning"));
+		ClientProxy.radarIconWind = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_wind"));
+		ClientProxy.radarIconHail = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_hail"));
+		ClientProxy.radarIconTornado = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_tornado"));
+		ClientProxy.radarIconCyclone = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_cyclone"));
+		ClientProxy.radarIconSandstorm = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_sandstorm"));
 		
-		ClientProxy.radarIconRain = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_rain"));
-		ClientProxy.radarIconLightning = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_lightning"));
-		ClientProxy.radarIconWind = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_wind"));
-		ClientProxy.radarIconHail = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_hail"));
-		ClientProxy.radarIconTornado = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_tornado"));
-		ClientProxy.radarIconCyclone = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_cyclone"));
-		ClientProxy.radarIconSandstorm = event.getMap().registerSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_sandstorm"));
-		
+	}
+
+	public static TextureAtlasSprite addSprite(TextureStitchEvent.Pre event, ResourceLocation resourceLocation) {
+		event.addSprite(resourceLocation);
+		return event.getMap().getSprite(resourceLocation);
 	}
 	
 	@SubscribeEvent
@@ -200,7 +207,8 @@ public class EventHandlerForge {
 				VillagerEntity ent = (VillagerEntity) event.getEntity();
 
 				//Weather.dbg("applying villager storm AI");
-				UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
+				//TODO: 1.14 redesign
+				//UtilEntityBuffsMini.replaceTaskIfMissing(ent, EntityAIMoveIndoors.class, EntityAIMoveIndoorsStorm.class, 2);
 			}
 		}
 	}
