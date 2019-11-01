@@ -285,7 +285,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					Biome biomeIn = world.getBiome(vecPos.toBlockPos());
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
-						WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
+						//TODO: 1.14 uncomment
+						//WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, CommonProxy.blockSandLayer);
 					}
 
 					count++;

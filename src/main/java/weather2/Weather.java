@@ -1,16 +1,19 @@
 package weather2;
 
 import CoroUtil.util.CoroUtilFile;
-import modconfig.ConfigMod;
 import modconfig.IConfigCategory;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +38,10 @@ public class Weather
 
     public static ConfigMisc configMisc = null;
 
+    public static CommonProxy proxy;
+
+    public static boolean initProperNeededForWorld = true;
+
     public Weather() {
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -49,15 +56,18 @@ public class Weather
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
 
         configMisc = new ConfigMisc();
-        ConfigMod.addConfigFile(event, addConfig(configMisc));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigWind()));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigSand()));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigSnow()));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigStorm()));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigTornado()));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigParticle()));
-        ConfigMod.addConfigFile(event, addConfig(new ConfigFoliage()));
+        //TODO: 1.14 uncomment
+        /*ConfigMod.addConfigFile(addConfig(configMisc));
+        ConfigMod.addConfigFile(addConfig(new ConfigWind()));
+        ConfigMod.addConfigFile(addConfig(new ConfigSand()));
+        ConfigMod.addConfigFile(addConfig(new ConfigSnow()));
+        ConfigMod.addConfigFile(addConfig(new ConfigStorm()));
+        ConfigMod.addConfigFile(addConfig(new ConfigTornado()));
+        ConfigMod.addConfigFile(addConfig(new ConfigParticle()));
+        ConfigMod.addConfigFile(addConfig(new ConfigFoliage()));*/
         WeatherUtilConfig.nbtLoadDataAll();
+
+        proxy = DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new CommonProxy());
     }
 
     /**
@@ -79,28 +89,25 @@ public class Weather
         //WorldPersistenceHooks.addHook(new EDGWorldPeristenceHook());
 
         DeferredWorkQueue.runLater(WeatherNetworking::register);
+
+        //moved from common proxy
+        SoundRegistry.init();
+        WeatherUtilConfig.processLists();
+        //TODO: need for LT? addMapping(EntityLightningBolt.class, "weather2_lightning_bolt", 2, 512, 5, true);
     }
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
-        proxy.postInit();
-
-        //setting last state to track after configs load, but before ticking that uses it
-        EventHandlerFML.extraGrassLast = ConfigFoliage.extraGrass;
-    }
-
-    @Mod.EventHandler
+    @SubscribeEvent
     public void serverStarting(FMLServerStartingEvent event) {
-        event.registerServerCommand(new CommandWeather2());
+        CommandWeather2.register(event.getCommandDispatcher());
+        //event.registerServerCommand(new CommandWeather2Old());
     }
 
-    @Mod.EventHandler
+    @SubscribeEvent
     public void serverStart(FMLServerStartedEvent event) {
 
     }
 
-    @Mod.EventHandler
+    @SubscribeEvent
     public void serverStop(FMLServerStoppedEvent event) {
         writeOutData(true);
         resetStates();
@@ -110,7 +117,7 @@ public class Weather
 
     public static void initTry() {
         if (initProperNeededForWorld) {
-            System.out.println("Weather2: being reinitialized");
+            LOGGER.info("Weather2: being reinitialized");
             initProperNeededForWorld = false;
             CoroUtilFile.getWorldFolderName();
 
@@ -156,7 +163,7 @@ public class Weather
 
     public static void dbg(Object obj) {
     if (ConfigMisc.consoleDebug) {
-        System.out.println(obj);
+        LOGGER.info(obj);
     }
 }
 
@@ -164,7 +171,7 @@ public class Weather
         if (ConfigMisc.consoleDebug) {
             StackTraceElement[] arr = Thread.currentThread().getStackTrace();
             for (StackTraceElement ele : arr) {
-                System.out.println(ele.toString());
+                LOGGER.error(ele.toString());
             }
         }
     }

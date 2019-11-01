@@ -29,9 +29,10 @@ public class EntityRendererProxyWeather2Mini extends GameRenderer
 		 * --- water
 		 * --- stained glass, etc
 		 */
-		if (ConfigCoroUtil.useEntityRenderHookForShaders) {
+		//TODO: 1.14 uncomment
+		/*if (ConfigCoroUtil.useEntityRenderHookForShaders) {
 			EventHandler.hookRenderShaders(par1);
-		}
+		}*/
     	
     	if (!overrideOn) {
     		super.renderRainSnow(par1);

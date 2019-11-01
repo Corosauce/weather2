@@ -16,7 +16,6 @@ import org.apache.commons.io.FileUtils;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.ConfigStorm;
-import weather2.volcano.VolcanoObject;
 import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
@@ -571,12 +570,12 @@ public class WeatherManagerBase {
 			cloudIntensity = rtsNBT.getFloat("cloudIntensity");
 		}
 		
-		VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");
+		/*VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");*/
 		WeatherObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
 
 		windMan.read(rtsNBT.getCompound("windMan"));
 		
-		CompoundNBT nbtVolcanoes = rtsNBT.getCompound("volcanoData");
+		/*CompoundNBT nbtVolcanoes = rtsNBT.getCompound("volcanoData");
 		
 		Iterator it = nbtVolcanoes.keySet().iterator();
 		
@@ -584,7 +583,7 @@ public class WeatherManagerBase {
 			String tagName = (String) it.next();
 			CompoundNBT teamData = nbtVolcanoes.getCompound(tagName);
 			
-			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0)/*-1, -1, null*/);
+			VolcanoObject to = new VolcanoObject(ServerTickHandler.lookupDimToWeatherMan.get(0));
 			try {
 				to.read(teamData);
 			} catch (Exception ex) {
@@ -600,11 +599,11 @@ public class WeatherManagerBase {
 			//lookupVolcanoes.put(to.ID, to);
 			
 			to.initPost();
-		}
+		}*/
 		
 		CompoundNBT nbtStorms = rtsNBT.getCompound("stormData");
 		
-		it = nbtStorms.keySet().iterator();
+		Iterator it = nbtStorms.keySet().iterator();
 		
 		while (it.hasNext()) {
 			String tagName = (String) it.next();

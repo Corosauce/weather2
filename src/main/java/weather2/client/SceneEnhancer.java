@@ -1,35 +1,40 @@
 package weather2.client;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
+import CoroUtil.api.weather.IWindHandler;
 import CoroUtil.config.ConfigCoroUtil;
 import CoroUtil.forge.CULog;
-import CoroUtil.physics.MatrixRotation;
 import CoroUtil.util.*;
 import com.mojang.blaze3d.platform.GlStateManager;
 import extendedrenderer.EventHandler;
-import extendedrenderer.particle.behavior.*;
+import extendedrenderer.ExtendedRenderer;
+import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.behavior.ParticleBehaviorFogGround;
+import extendedrenderer.particle.behavior.ParticleBehaviorMiniTornado;
+import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
+import extendedrenderer.particle.behavior.ParticleBehaviors;
+import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.ParticleTexExtraRender;
+import extendedrenderer.particle.entity.ParticleTexFX;
+import extendedrenderer.particle.entity.ParticleTexLeafColor;
 import extendedrenderer.placeholders.Quaternion;
 import extendedrenderer.placeholders.Vector4f;
 import extendedrenderer.render.RotatingParticleManager;
 import extendedrenderer.shader.Matrix4fe;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.FlameParticle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.ParticleStatus;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.block.Blocks;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -39,18 +44,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
-import weather2.client.tornado.TornadoFunnel;
-import weather2.util.WindReader;
-import weather2.client.entity.particle.EntityWaterfallFX;
 import weather2.client.entity.particle.ParticleFish;
 import weather2.client.entity.particle.ParticleSandstorm;
-import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigStorm;
@@ -59,15 +60,10 @@ import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.wind.WindManager;
-import CoroUtil.api.weather.IWindHandler;
-import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.particle.ParticleRegistry;
-import extendedrenderer.particle.entity.EntityRotFX;
-import extendedrenderer.particle.entity.ParticleTexExtraRender;
-import extendedrenderer.particle.entity.ParticleTexFX;
-import extendedrenderer.particle.entity.ParticleTexLeafColor;
 
 import javax.vecmath.Vector3f;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import static CoroUtil.util.CoroUtilMisc.adjVal;
 
@@ -161,7 +157,8 @@ public class SceneEnhancer implements Runnable {
 	public static Vector3f vec = new Vector3f();
 	public static Vector3f vec2 = new Vector3f();
 
-	public static TornadoFunnel funnel;
+	//TODO: 1.14 uncomment
+	//public static TornadoFunnel funnel;
 
 	public SceneEnhancer() {
 		pm = new ParticleBehaviors(null);
@@ -216,7 +213,8 @@ public class SceneEnhancer implements Runnable {
 			}
 			particleBehavior.tickUpdateList();
 
-			if (ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders()) {
+			//TODO: 1.14 uncomment
+			/*if (ConfigCoroUtil.foliageShaders && EventHandler.queryUseOfShaders()) {
 				if (!FoliageEnhancerShader.useThread) {
 					if (client.world.getGameTime() % 40 == 0) {
 						FoliageEnhancerShader.tickClientThreaded();
@@ -226,7 +224,7 @@ public class SceneEnhancer implements Runnable {
 				if (client.world.getGameTime() % 5 == 0) {
 					FoliageEnhancerShader.tickClientCloseToPlayer();
 				}
-			}
+			}*/
 
 		}
 	}
@@ -893,10 +891,11 @@ public class SceneEnhancer implements Runnable {
 				//if (true) return;
 			}
 
-			if (funnel == null) {
+			//TODO: 1.14 uncomment
+			/*if (funnel == null) {
 				funnel = new TornadoFunnel();
 				funnel.pos = new Vec3d(entP.posX, entP.posY, entP.posZ);
-			}
+			}*/
 
 			//funnel.tickGame();
 
@@ -975,7 +974,8 @@ public class SceneEnhancer implements Runnable {
 						fish.rotationYaw = rand.nextInt(360);
 						fish.rotationPitch = rand.nextInt(45);
 						fish.setColor(0.6F, 0.6F, 1F);
-						ExtendedRenderer.rotEffRenderer.addEffect(fish);
+						//TODO: 1.14 uncomment
+						//ExtendedRenderer.rotEffRenderer.addEffect(fish);
 					}
 				}
 
@@ -2058,7 +2058,8 @@ public class SceneEnhancer implements Runnable {
 	                        }*/
 	
 	                        //rustle!
-	                        if (!(entity1 instanceof EntityWaterfallFX)) {
+							//TODO: 1.14 uncomment, tho i think EntityWaterfallFX stopped being used in 1.12?
+	                        if (true/*!(entity1 instanceof EntityWaterfallFX)*/) {
 	                        	//EntityWaterfallFX ent = (EntityWaterfallFX) entity1;
 		                        /*if (entity1.onGround)
 		                        {

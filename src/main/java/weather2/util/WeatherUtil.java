@@ -1,29 +1,18 @@
 package weather2.util;
 
-import java.util.*;
-
-import CoroUtil.util.CoroUtilCompatibility;
-import net.minecraft.block.*;
-import net.minecraft.block.LogBlock;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import weather2.CommonProxy;
-import weather2.config.ConfigTornado;
+
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class WeatherUtil {
 
@@ -48,7 +37,10 @@ public class WeatherUtil {
     //Terrain grabbing
     public static boolean shouldGrabBlock(World parWorld, BlockState state)
     {
-        try
+        //TODO: 1.14 unbork tornado grabbing
+        return false;
+        //TODO: 1.14 uncomment
+        /*try
         {
         	ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
@@ -92,16 +84,16 @@ public class WeatherUtil {
     	                float strVsBlock = block.getBlockHardness(block.getDefaultState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.getDefaultState()) - 1) / 4F));
     	
     	                //System.out.println(strVsBlock);
-    	                if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||
+    	                if (*//*block.getHardness() <= 10000.6*//* (strVsBlock <= strMax && strVsBlock >= strMin) ||
                                 (block.getMaterial(block.getDefaultState()) == Material.WOOD) ||
                                 block.getMaterial(block.getDefaultState()) == Material.WOOL ||
                                 block.getMaterial(block.getDefaultState()) == Material.PLANTS ||
                                 block.getMaterial(block.getDefaultState()) == Material.TALL_PLANTS ||
                                 block instanceof TallGrassBlock)
     	                {
-    	                    /*if (block.material == Material.water) {
+    	                    *//*if (block.material == Material.water) {
     	                    	return false;
-    	                    }*/
+    	                    }*//*
     	                    if (!safetyCheck(block))
     	                    {
     	                    	result = false;
@@ -115,7 +107,7 @@ public class WeatherUtil {
                 }
                 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                	if (block == Blocks.DIRT || block == Blocks.ORGANIC || block == Blocks.SAND || block instanceof LogBlock/* || block.material == Material.wood*/) {
+                	if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || block instanceof LogBlock*//* || block.material == Material.wood*//*) {
                 		result = false;
                 	}
                 	if (!CoroUtilCompatibility.canTornadoGrabBlockRefinedRules(state)) {
@@ -134,12 +126,13 @@ public class WeatherUtil {
         {
             ex.printStackTrace();
             return false;
-        }
+        }*/
     }
-    
-    public static boolean safetyCheck(Block id)
+
+    //TODO: 1.14 uncomment
+    /*public static boolean safetyCheck(Block id)
     {
-        if (id != Blocks.BEDROCK && id != Blocks.LOG && id != Blocks.CHEST && id != Blocks.JUKEBOX/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
+        if (id != Blocks.BEDROCK && id != Blocks.LOG && id != Blocks.CHEST && id != Blocks.JUKEBOX*//* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID *//*)
         {
             return true;
         }
@@ -147,40 +140,10 @@ public class WeatherUtil {
         {
             return false;
         }
-    }
+    }*/
     
     public static boolean shouldRemoveBlock(Block blockID)
     {
-        /*if (tryFinite)
-        {
-            try
-            {
-                if (Class.forName("BlockNWater").isInstance(Block.blocksList[blockID]))
-                {
-                    return false;
-                }
-
-                if (Class.forName("BlockNOcean").isInstance(Block.blocksList[blockID]))
-                {
-                    return false;
-                }
-
-                if (Class.forName("BlockNWater_Pressure").isInstance(Block.blocksList[blockID])) {
-                    return false;
-                }
-
-                if (Class.forName("BlockNWater_Still").isInstance(Block.blocksList[blockID]))
-                {
-                    return true;
-                }
-            }
-            catch (Exception exception)
-            {
-                tryFinite = false;
-                return false;
-            }
-        }*/
-
         //water no
         if (blockID.getMaterial(blockID.getDefaultState()) == Material.WATER)
         {
@@ -192,22 +155,6 @@ public class WeatherUtil {
     
     public static boolean isOceanBlock(Block blockID)
     {
-        /*if (tryFinite)
-        {
-            try
-            {
-                if (Class.forName("BlockNOcean").isInstance(Block.blocksList[blockID]))
-                {
-                    return true;
-                }
-            }
-            catch (Exception exception)
-            {
-                tryFinite = false;
-                return false;
-            }
-        }*/
-
         return false;
     }
     
@@ -217,8 +164,9 @@ public class WeatherUtil {
                 id == Blocks.COBBLESTONE ||
                 id == Blocks.SANDSTONE);	
     }
-	
-    public static void doBlockList()
+
+    //TODO: 1.14 uncomment
+    /*public static void doBlockList()
     {
     	
     	//System.out.println("1.8 TODO: verify block list lookup matching for exact comparions");
@@ -301,7 +249,7 @@ public class WeatherUtil {
         if (dbgShow) {
         	System.out.println(dbg);
         }
-    }
+    }*/
 
     public static boolean isAprilFoolsDay() {
         Calendar calendar = Calendar.getInstance();

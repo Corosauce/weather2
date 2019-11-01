@@ -35,7 +35,6 @@ import weather2.config.ConfigMisc;
 import weather2.config.ConfigSnow;
 import weather2.config.ConfigStorm;
 import weather2.config.ConfigTornado;
-import weather2.entity.EntityIceBall;
 import weather2.entity.EntityLightningBolt;
 import weather2.player.PlayerData;
 import weather2.util.*;
@@ -792,9 +791,10 @@ public class StormObject extends WeatherObject {
 				if (world.isBlockLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getClosestPlayer(x, 50, z, 80, false) != null)) {
 					//int y = world.getPrecipitationHeight(x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
-					EntityIceBall hail = new EntityIceBall(world);
+					//TODO: 1.14 uncomment
+					/*EntityIceBall hail = new EntityIceBall(world);
 					hail.setPosition(x, layers.get(layer), z);
-					world.addEntity(hail);
+					world.addEntity(hail);*/
 					//world.addWeatherEffect(new EntityLightningBolt(world, (double)x, (double)y, (double)z));
 					//}
 					
@@ -952,7 +952,8 @@ public class StormObject extends WeatherObject {
 								}
 
 								//do wind/wall based snowfall
-								WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW);
+								//TODO: 1.14 uncomment
+								//WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW);
 							} else {
 
 							}
@@ -2631,8 +2632,10 @@ public class StormObject extends WeatherObject {
 				entityfx.setColor(finalBright, 0, 0);
 			}
 		}
-    	
-		ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
+
+		//TODO: 1.14 rotEffRenderer
+		//ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
+		Minecraft.getInstance().particles.addEffect(entityfx);
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }

@@ -1,5 +1,17 @@
 package weather2.util;
 
+import CoroUtil.config.ConfigCoroUtil;
+import CoroUtil.util.CoroUtilFile;
+import modconfig.IConfigCategory;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.IntNBT;
+import net.minecraftforge.common.DimensionManager;
+import org.apache.commons.lang3.StringUtils;
+import weather2.ServerTickHandler;
+import weather2.Weather;
+import weather2.config.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,25 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import CoroUtil.config.ConfigCoroUtil;
-import CoroUtil.forge.CoroUtil;
-import modconfig.ConfigMod;
-import modconfig.IConfigCategory;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
-
-import org.apache.commons.lang3.StringUtils;
-
-import weather2.ServerTickHandler;
-import weather2.Weather;
-import weather2.config.*;
-import CoroUtil.util.CoroUtilFile;
 
 public class WeatherUtilConfig {
 
@@ -108,8 +101,8 @@ public class WeatherUtilConfig {
 		
 		Weather.dbg("nbtClientData: " + nbtClientData);
 		
-		String modIDWeather = Weather.configMisc.getRegistryName();
-		String modIDCoroUtil = CoroUtil.configCoroUtil.getRegistryName();
+		//String modIDWeather = Weather.configMisc.getRegistryName();
+		//String modIDCoroUtil = CoroUtil.configCoroUtil.getRegistryName();
 		
 		try {
 			if (nbtClientData.contains("btn_" + CMD_BTN_COMP_PARTICLEPRECIP)) {
@@ -221,7 +214,8 @@ public class WeatherUtilConfig {
 
 		/*ConfigMod.configLookup.get(modIDWeather).writeConfigFile(true);
 		ConfigMod.configLookup.get(modIDCoroUtil).writeConfigFile(true);*/
-		ConfigMod.forceSaveAllFilesFromRuntimeSettings();
+		//TODO: 1.14 uncomment
+		//ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 		
 		//work lists here
 		
@@ -403,7 +397,8 @@ public class WeatherUtilConfig {
 
 		for (IConfigCategory config : Weather.listConfigs) {
 			//refresh configmods caches and data
-			ConfigMod.configLookup.get(config.getRegistryName()).writeConfigFile(true);
+			//TODO: 1.14 uncomment
+			//ConfigMod.configLookup.get(config.getRegistryName()).writeConfigFile(true);
 			//not needed
 			//ConfigMod.populateData(config.getRegistryName());
 		}

@@ -2,6 +2,7 @@ package weather2;
 
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
 
@@ -18,7 +19,8 @@ public class CreativeTabWeather extends ItemGroup {
 	@Override
 	public ItemStack getIcon()
 	{
-		return new ItemStack(CommonProxy.blockTSensor);
+		//TODO: 1.14 uncomment
+		return new ItemStack(Items.DIAMOND/*CommonProxy.blockTSensor*/);
 	}
 
 	@Override

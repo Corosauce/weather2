@@ -1,25 +1,16 @@
 package weather2;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import extendedrenderer.render.FoliageRenderer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.border.WorldBorder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent;
@@ -30,11 +21,8 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import weather2.api.WeatherUtilData;
 import weather2.client.SceneEnhancer;
-import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
-import weather2.entity.AI.EntityAIMoveIndoorsStorm;
-import weather2.util.UtilEntityBuffsMini;
 import weather2.weathersystem.storm.TornadoHelper;
 import weather2.weathersystem.wind.WindManager;
 
@@ -58,12 +46,17 @@ public class EventHandlerForge {
 		ClientTickHandler.weatherManager.tickRender(event.getPartialTicks());
 		SceneEnhancer.renderWorldLast(event);
 
-		FoliageRenderer.radialRange = ConfigFoliage.foliageShaderRange;
+		//TODO: 1.14 uncomment
+		/*FoliageRenderer.radialRange = ConfigFoliage.foliageShaderRange;*/
     }
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void registerIcons(TextureStitchEvent.Pre event) {
+
+		//TODO: 1.14 relocate to its own mod hooks
+		extendedrenderer.particle.ParticleRegistry.init(event);
+
 		if (!event.getMap().getBasePath().equals("textures")) {
 			return;
 		}
@@ -213,7 +206,8 @@ public class EventHandlerForge {
 		}
 	}
 
-	@SubscribeEvent
+	//TODO: 1.14 uncomment
+	/*@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void registerIcons(TextureStitchEvent.Post event) {
 		FoliageEnhancerShader.setupReplacers();
@@ -223,7 +217,7 @@ public class EventHandlerForge {
 	@OnlyIn(Dist.CLIENT)
 	public void modelBake(ModelBakeEvent event) {
 		FoliageEnhancerShader.modelBakeEvent(event);
-	}
+	}*/
 
 	@SubscribeEvent
 	public void onBlockBreakTry(BlockEvent.BreakEvent event) {

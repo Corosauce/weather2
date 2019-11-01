@@ -1,7 +1,6 @@
 package weather2;
 
 import CoroUtil.forge.CULog;
-import modconfig.ConfigMod;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
@@ -100,7 +99,8 @@ public class ServerTickHandler
         		ConfigMisc.overcastMode = true;
 				CULog.dbg("detected Aesthetic_Only_Mode on, setting overcast mode on");
 				WeatherUtilConfig.setOvercastModeServerSide(ConfigMisc.overcastMode);
-				ConfigMod.forceSaveAllFilesFromRuntimeSettings();
+				//TODO: 1.14 uncomment
+				//ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 				syncServerConfigToClient();
 			}
 		}

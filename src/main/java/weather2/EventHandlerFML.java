@@ -1,18 +1,10 @@
 package weather2;
 
-import CoroUtil.forge.CULog;
-import extendedrenderer.EventHandler;
-import extendedrenderer.ExtendedRenderer;
-import extendedrenderer.foliage.Foliage;
-import extendedrenderer.shader.InstancedMeshFoliage;
-import extendedrenderer.shader.MeshBufferManagerFoliage;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import weather2.client.foliage.FoliageEnhancerShader;
 import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtil;
@@ -105,14 +97,14 @@ public class EventHandlerFML {
 					//FoliageEnhancerShader.setupReplacers();
 				}
 
-				boolean hackyLiveReplace = false;
+				/*boolean hackyLiveReplace = false;
 
 				if (hackyLiveReplace && EventHandler.flagFoliageUpdate) {
 					CULog.dbg("CoroUtil detected a need to reload resource packs, initiating");
 					EventHandler.flagFoliageUpdate = false;
 					//Minecraft.getInstance().refreshResources();
 					FoliageEnhancerShader.liveReloadModels();
-				}
+				}*/
 
 			} catch (Exception e) {
 				e.printStackTrace();

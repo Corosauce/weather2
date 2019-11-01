@@ -1,12 +1,9 @@
 package weather2;
 
-import CoroUtil.packet.PacketHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import weather2.item.ItemPocketSand;
 import weather2.util.WeatherUtilConfig;
 
 import java.util.function.Supplier;
@@ -51,10 +48,11 @@ public class PacketNBTFromServer {
 
                             WeatherUtilConfig.nbtReceiveServerDataForCache(nbt);
                         }
-                    } else if (packetCommand.equals("PocketSandData")) {
+                    //TODO: 1.14 uncomment
+                    /*} else if (packetCommand.equals("PocketSandData")) {
                         if (command.equals("create")) {
                             ItemPocketSand.particulateFromServer(nbt.getString("uuid"));
-                        }
+                        }*/
                     } else if (packetCommand.equals("ClientConfigData")) {
                         if (command.equals("syncUpdate")) {
                             ClientTickHandler.clientConfigData.read(nbt);

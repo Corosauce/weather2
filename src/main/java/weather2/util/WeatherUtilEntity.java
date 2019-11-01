@@ -1,5 +1,9 @@
 package weather2.util;
 
+import CoroUtil.api.weather.IWindHandler;
+import CoroUtil.util.CoroUtilEntOrParticle;
+import CoroUtil.util.Vec3;
+import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
@@ -15,11 +19,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import weather2.api.WeatherUtilData;
-import weather2.entity.EntityMovingBlock;
-import CoroUtil.api.weather.IWindHandler;
-import CoroUtil.util.CoroUtilEntOrParticle;
-import CoroUtil.util.Vec3;
-import extendedrenderer.particle.entity.EntityRotFX;
 
 public class WeatherUtilEntity {
 	
@@ -43,11 +42,12 @@ public class WeatherUtilEntity {
     	if (entity1 instanceof IWindHandler) {
     		return ((IWindHandler) entity1).getWindWeight();
     	}
-    	
-        if (entity1 instanceof EntityMovingBlock)
+
+        //TODO: 1.14 uncomment
+        /*if (entity1 instanceof EntityMovingBlock)
         {
             return 1F + ((float)((EntityMovingBlock) entity1).age / 200);
-        }
+        }*/
 
         if (entity1 instanceof PlayerEntity)
         {

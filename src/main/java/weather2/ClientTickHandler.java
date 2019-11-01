@@ -1,8 +1,5 @@
 package weather2;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import extendedrenderer.ExtendedRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -12,16 +9,16 @@ import net.minecraft.client.settings.CloudOption;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-
-import weather2.config.ConfigFoliage;
-import weather2.util.WindReader;
 import weather2.client.SceneEnhancer;
-import weather2.client.foliage.FoliageEnhancerShader;
-import weather2.client.gui.GuiEZConfig;
+import weather2.config.ConfigFoliage;
 import weather2.config.ConfigMisc;
 import weather2.util.WeatherUtilConfig;
+import weather2.util.WindReader;
 import weather2.weathersystem.EntityRendererProxyWeather2Mini;
 import weather2.weathersystem.WeatherManagerClient;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class ClientTickHandler
 {
@@ -30,7 +27,8 @@ public class ClientTickHandler
 	
 	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
-	public static FoliageEnhancerShader foliageEnhancer;
+	//TODO: 1.14 uncomment
+	//public static FoliageEnhancerShader foliageEnhancer;
 
 	public static ClientConfigData clientConfigData;
 	
@@ -57,17 +55,19 @@ public class ClientTickHandler
 			sceneEnhancer = new SceneEnhancer();
 			(new Thread(sceneEnhancer, "Weather2 Scene Enhancer")).start();
 		}
-		if (foliageEnhancer == null) {
+		//TODO: 1.14 uncomment
+		/*if (foliageEnhancer == null) {
 			foliageEnhancer = new FoliageEnhancerShader();
 			(new Thread(foliageEnhancer, "Weather2 Foliage Enhancer")).start();
-		}
+		}*/
 
 		clientConfigData = new ClientConfigData();
 	}
 
 	//TODO: 1.14 rewrite gui
-    /*public void onRenderScreenTick()
+    public void onRenderScreenTick()
     {
+    	/*
     	Minecraft mc = Minecraft.getInstance();
     	if (mc.currentScreen instanceof IngameMenuScreen) {
     		ScaledResolution scaledresolution = new ScaledResolution(mc);
@@ -84,7 +84,8 @@ public class ClientTickHandler
     			}
     		}
     	}
-    }*/
+    	*/
+    }
 
     public void onTickInGUI(Screen guiscreen)
     {
@@ -134,14 +135,15 @@ public class ClientTickHandler
 			}
 
 			//TODO: replace with proper client side command?
-			if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
+			//TODO: 1.14 uncomment
+			/*if (mc.ingameGUI.getChatGUI().getSentMessages().size() > 0) {
 				String msg = (String) mc.ingameGUI.getChatGUI().getSentMessages().get(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
 
 				if (msg.equals("/weather2 config")) {
 					mc.ingameGUI.getChatGUI().getSentMessages().remove(mc.ingameGUI.getChatGUI().getSentMessages().size()-1);
 					mc.displayGuiScreen(new GuiEZConfig());
 				}
-			}
+			}*/
 
 			//TODO: evaluate if best here
 			float windDir = WindReader.getWindAngle(world, null);
@@ -204,19 +206,10 @@ public class ClientTickHandler
 				}
 			}
 
-			if (!Minecraft.getInstance().isGamePaused()) {
+			//TODO: 1.14 uncomment
+			/*if (!Minecraft.getInstance().isGamePaused()) {
 
 				ExtendedRenderer.foliageRenderer.windDir = smoothAngle;
-				//ExtendedRenderer.foliageRenderer.windDir-=1;
-
-				//ExtendedRenderer.foliageRenderer.windDir = 90;
-
-
-				//ExtendedRenderer.foliageRenderer.windSpeedSmooth = windSpeed;
-
-				//windSpeed = 1.3F;
-				//windSpeed = 0.9F;
-				//windSpeed = 0.1F;
 
 				float rate = 0.005F;
 
@@ -240,9 +233,7 @@ public class ClientTickHandler
 
 
 				ExtendedRenderer.foliageRenderer.windTime += 0 + (baseTimeChangeRate * ExtendedRenderer.foliageRenderer.windSpeedSmooth);
-			}
-			//System.out.println(ExtendedRenderer.foliageRenderer.windTime + " - " + ExtendedRenderer.foliageRenderer.windSpeedSmooth);
-			//ExtendedRenderer.foliageRenderer.windTime = 0;
+			}*/
 
 
 
