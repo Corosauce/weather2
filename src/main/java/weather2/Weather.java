@@ -65,9 +65,10 @@ public class Weather
         ConfigMod.addConfigFile(addConfig(new ConfigTornado()));
         ConfigMod.addConfigFile(addConfig(new ConfigParticle()));
         ConfigMod.addConfigFile(addConfig(new ConfigFoliage()));*/
-        WeatherUtilConfig.nbtLoadDataAll();
+        //TODO: 1.14 uncomment
+        /*WeatherUtilConfig.nbtLoadDataAll();*/
 
-        proxy = DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new CommonProxy());
+
     }
 
     /**
@@ -84,6 +85,8 @@ public class Weather
     private void setup(final FMLCommonSetupEvent event)
     {
         // some preinit code
+
+        proxy = DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new CommonProxy());
 
         //CapabilityManager.INSTANCE.register(IChunkData.class, new ChunkDataStorage(), DefaultChunkCapData::new);
         //WorldPersistenceHooks.addHook(new EDGWorldPeristenceHook());

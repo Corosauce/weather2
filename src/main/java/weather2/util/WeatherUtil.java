@@ -270,9 +270,11 @@ public class WeatherUtil {
     }
 
     public static boolean areAllPlayersAsleep(ServerWorld world) {
-        return world.allPlayersSleeping && world.getPlayers().stream().noneMatch((p_217449_0_) -> {
+        //TODO: 1.14 fix
+        /*return world.allPlayersSleeping && world.getPlayers().stream().noneMatch((p_217449_0_) -> {
             return !p_217449_0_.isSpectator() && !p_217449_0_.isPlayerFullyAsleep();
-        });
+        });*/
+        return false;
     }
     
     
