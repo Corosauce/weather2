@@ -21,3 +21,9 @@ description='''
     versionRange="[1.14.4]"
     ordering="NONE"
     side="CLIENT"
+[[dependencies.weather2]]
+    modId="coroutil"
+    mandatory=true
+    versionRange="[1,)"
+    ordering="AFTER"
+    side="CLIENT"

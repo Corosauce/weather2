@@ -56,10 +56,10 @@ public class WeatherUtilParticle {
         catch (Exception ex)
         {
         	//System.out.println("temp message: obf reflection fail!");
-        	//ex.printStackTrace();
+        	ex.printStackTrace();
             try
             {
-                field = (ParticleManager.class).getDeclaredField("fxLayers");
+                field = (ParticleManager.class).getDeclaredField("byType");
                 field.setAccessible(true);
                 fxLayers = (ArrayDeque<Particle>[][])field.get(Minecraft.getInstance().particles);
             }

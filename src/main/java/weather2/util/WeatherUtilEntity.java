@@ -235,8 +235,8 @@ public class WeatherUtilEntity {
 	
 	public static boolean checkVecOutside(World parWorld, Vec3 parPos, Vec3 parCheckPos) {
 		//boolean dirNorth = parWorld.rayTraceBlocks(parPos.toMCVec(), parCheckPos.toMCVec()) == null;
-        BlockRayTraceResult blockraytraceresult = parWorld.rayTraceBlocks(new RayTraceContext(parPos.toMCVec(), parCheckPos.toMCVec(),
-                RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
+        BlockRayTraceResult blockraytraceresult = WeatherUtil.rayTraceBlocks(parWorld, new RayTraceContextNoEntity(parPos.toMCVec(), parCheckPos.toMCVec(),
+                RayTraceContextNoEntity.BlockMode.COLLIDER, RayTraceContextNoEntity.FluidMode.NONE));
 		if (blockraytraceresult.getType() == RayTraceResult.Type.MISS) {
 			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor(parCheckPos.xCoord), 0, MathHelper.floor(parCheckPos.zCoord))).getY() < parCheckPos.yCoord) return true;
 		}

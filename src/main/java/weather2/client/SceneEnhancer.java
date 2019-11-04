@@ -382,7 +382,13 @@ public class SceneEnhancer implements Runnable {
 							double d4 = random.nextDouble();
 							//AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
 							VoxelShape shape = iblockstate.getCollisionShape(world, blockpos2);
-							AxisAlignedBB axisalignedbb = shape.getBoundingBox();
+							double maxY = 0;
+							double minY = 0;
+							if (!shape.isEmpty()) {
+								minY = shape.getBoundingBox().minY;
+								maxY = shape.getBoundingBox().maxY;
+							}
+
 
 							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA_BLOCK) {
 								if (iblockstate.getMaterial() != Material.AIR) {
@@ -390,14 +396,14 @@ public class SceneEnhancer implements Runnable {
 
 									if (random.nextInt(j) == 0) {
 										d0 = (double) blockpos2.getX() + d3;
-										d1 = (double) ((float) blockpos2.getY() + 0.1F) + axisalignedbb.maxY - 1.0D;
+										d1 = (double) ((float) blockpos2.getY() + 0.1F) + maxY - 1.0D;
 										d2 = (double) blockpos2.getZ() + d4;
 									}
 
-									client.world.addParticle(ParticleTypes.DRIPPING_WATER, false, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + axisalignedbb.maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D);
+									client.world.addParticle(ParticleTypes.DRIPPING_WATER, false, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D);
 								}
 							} else {
-								client.world.addParticle(ParticleTypes.SMOKE, false, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - axisalignedbb.minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D);
+								client.world.addParticle(ParticleTypes.SMOKE, false, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D);
 							}
 						}
 					}
@@ -1104,7 +1110,13 @@ public class SceneEnhancer implements Runnable {
 								pos = world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos).down();
 
 								BlockState state = world.getBlockState(pos);
-								AxisAlignedBB axisalignedbb = state.getShape(world, pos).getBoundingBox();
+								double maxY = 0;
+								double minY = 0;
+								VoxelShape shape = state.getShape(world, pos);
+								if (!shape.isEmpty()) {
+									minY = shape.getBoundingBox().minY;
+									maxY = shape.getBoundingBox().maxY;
+								}
 
 								if (pos.distanceSq(entP.getPosition()) > (spawnAreaSize / 2) * (spawnAreaSize / 2))
 									continue;
@@ -1113,7 +1125,7 @@ public class SceneEnhancer implements Runnable {
 								if (canPrecipitateAt(world, pos.up())/*world.isRainingAt(pos)*/) {
 									ParticleTexFX rain = new ParticleTexFX(entP.world,
 											pos.getX() + rand.nextFloat(),
-											pos.getY() + 0.01D + axisalignedbb.maxY,
+											pos.getY() + 0.01D + maxY,
 											pos.getZ() + rand.nextFloat(),
 											0D, 0D, 0D, ParticleRegistry.cloud256_6);
 									//rain.setCanCollide(true);
@@ -1167,7 +1179,7 @@ public class SceneEnhancer implements Runnable {
 							//quick is outside check, prevent them spawning right near ground
 							//and especially right above the roof so they have enough space to fade out
 							//results in not seeing them through roofs
-							if (entP.world.canBlockSeeSky(entP.getPosition())) {
+							if (WeatherUtilDim.canBlockSeeSky(world, entP.getPosition())) {
 								scanAheadRange = 3;
 							} else {
 								scanAheadRange = 10;

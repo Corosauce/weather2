@@ -290,7 +290,7 @@ public class WeatherManagerBase {
 				.filter(so -> !so.isDead)
 				.filter(so -> (so.attrib_precipitation && orRain) || (severityFlagMin == -1 || so.levelCurIntensityStage >= severityFlagMin))
 				.filter(so -> so.pos.distanceTo(parPos) < maxDist)
-				.min(Comparator.comparing(so -> so.pos.distanceTo(parPos))).get();
+				.min(Comparator.comparing(so -> so.pos.distanceTo(parPos))).orElse(null);
 	}
 
 	public boolean isPrecipitatingAt(BlockPos pos) {

@@ -25,8 +25,11 @@ public class PacketNBTFromServer {
 
     public static class Handler {
         public static void handle(final PacketNBTFromServer msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity playerEntity = ctx.get().getSender();
-            if( playerEntity == null ) return;
+            /*ServerPlayerEntity playerEntity = ctx.get().getSender();
+            if( playerEntity == null ) {
+                ctx.get().setPacketHandled(true);
+                return;
+            }*/
 
             ctx.get().enqueueWork(() -> {
                 try {

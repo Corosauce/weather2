@@ -88,15 +88,17 @@ public class Weather
 
         proxy = DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new CommonProxy());
 
+        proxy.init();
+
         //CapabilityManager.INSTANCE.register(IChunkData.class, new ChunkDataStorage(), DefaultChunkCapData::new);
         //WorldPersistenceHooks.addHook(new EDGWorldPeristenceHook());
 
         DeferredWorkQueue.runLater(WeatherNetworking::register);
 
         //moved from common proxy
-        SoundRegistry.init();
+        //SoundRegistry.init();
         WeatherUtilConfig.processLists();
-        //TODO: need for LT? addMapping(EntityLightningBolt.class, "weather2_lightning_bolt", 2, 512, 5, true);
+        //TODO: 1.14 need for LT? addMapping(EntityLightningBolt.class, "weather2_lightning_bolt", 2, 512, 5, true);
     }
 
     @SubscribeEvent
