@@ -19,6 +19,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import weather2.api.WeatherUtilData;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigFoliage;
@@ -28,6 +29,7 @@ import weather2.weathersystem.wind.WindManager;
 
 import java.nio.FloatBuffer;
 
+@Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class EventHandlerForge {
 
 	@SubscribeEvent
@@ -52,29 +54,44 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void registerIcons(TextureStitchEvent.Pre event) {
+	public static void registerIcons(TextureStitchEvent.Pre event) {
 
 		//TODO: 1.14 relocate to its own mod hooks
-		extendedrenderer.particle.ParticleRegistry.init(event);
+		//extendedrenderer.particle.ParticleRegistry.init(event);
 
 		if (!event.getMap().getBasePath().equals("textures")) {
 			return;
 		}
 		
-		ClientProxy.radarIconRain = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_rain"));
-		ClientProxy.radarIconLightning = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_lightning"));
-		ClientProxy.radarIconWind = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_wind"));
-		ClientProxy.radarIconHail = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_hail"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_rain"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_lightning"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_wind"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_hail"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_tornado"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_cyclone"));
+		event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_sandstorm"));
+
+		/*ClientProxy.radarIconRain = event.addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_rain"));
+		ClientProxy.radarIconLightning = addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_lightning"));
+		ClientProxy.radarIconWind = addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_wind"));
+		ClientProxy.radarIconHail = addSprite(new ResourceLocation(Weather.MODID + ":radar/radar_icon_hail"));
 		ClientProxy.radarIconTornado = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_tornado"));
 		ClientProxy.radarIconCyclone = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_cyclone"));
-		ClientProxy.radarIconSandstorm = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_sandstorm"));
+		ClientProxy.radarIconSandstorm = addSprite(event, new ResourceLocation(Weather.MODID + ":radar/radar_icon_sandstorm"));*/
 		
 	}
 
-	public static TextureAtlasSprite addSprite(TextureStitchEvent.Pre event, ResourceLocation resourceLocation) {
+	//TODO: 1.14 get sprites with post after pre registers them
+	/*@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
+	public static void registerIcons(TextureStitchEvent.Post event) {
+		extendedrenderer.particle.ParticleRegistry.init(event);
+	}*/
+
+	/*public static TextureAtlasSprite addSprite(TextureStitchEvent.Pre event, ResourceLocation resourceLocation) {
 		event.addSprite(resourceLocation);
 		return event.getMap().getSprite(resourceLocation);
-	}
+	}*/
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
