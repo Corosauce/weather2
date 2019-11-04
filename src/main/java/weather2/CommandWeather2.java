@@ -1,8 +1,12 @@
 package weather2;
 
 import CoroUtil.util.Vec3;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -23,14 +27,38 @@ import static net.minecraft.command.Commands.literal;
 public class CommandWeather2 {
 
 	public static void register(final CommandDispatcher<CommandSource> dispatcher) {
-		dispatcher.register(
+		//a history of not what to do
+		/*dispatcher.register(
 				literal("weather2")
 					.requires(s -> s.hasPermissionLevel(2))
-					.executes(c -> perform(c.getSource(), c.getInput().split(" ")))
+					.then(Commands.argument("arg", StringArgumentType.word().greedyString())
+							.then(Commands.argument("arg2", StringArgumentType.word())
+									.then(Commands.argument("arg3", StringArgumentType.word())
+											.executes(c -> perform(c))
+									).executes(c -> perform(c))
+							).executes(c -> perform(c))
+					)
+		);*/
+
+		//greedy strings for backwards compat
+		dispatcher.register(
+				literal("weather2")
+						.requires(s -> s.hasPermissionLevel(2))
+						.then(Commands.argument("arg", StringArgumentType.greedyString())
+								.executes(c -> perform(c))
+						).executes(c -> perform(c))
 		);
 	}
 
-	private static int perform(final CommandSource source, String[] var2) {
+	private static int perform(final CommandContext<CommandSource> cc) {
+
+		String[] vars = cc.getInput().split(" ");
+		String[] var2 = new String[vars.length -1];
+		//skip first argument being 'weather2'
+		for (int i = 0; i < var2.length; i++) {
+			var2[i] = vars[i+1];
+		}
+		CommandSource source = cc.getSource();
 		
 		if (source.getEntity() != null) {
 			

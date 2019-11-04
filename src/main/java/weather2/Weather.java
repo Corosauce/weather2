@@ -48,6 +48,12 @@ public class Weather
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStarting);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStart);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStop);
+
+        MinecraftForge.EVENT_BUS.register(this);
+
         // Register ourselves for server and other game events we are interested in
         /*MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());*/
