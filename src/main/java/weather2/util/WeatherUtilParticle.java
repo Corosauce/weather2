@@ -2,9 +2,13 @@ package weather2.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,7 +17,8 @@ import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexFX;
 
 public class WeatherUtilParticle {
-    public static ArrayDeque<Particle>[][] fxLayers;
+    //public static ArrayDeque<Particle>[][] fxLayers;
+    public static Map<IParticleRenderType, Queue<Particle>> fxLayers;
     
     public static int effLeafID = 0;
     public static int effRainID = 1;
@@ -51,17 +56,17 @@ public class WeatherUtilParticle {
         {
             field = (ParticleManager.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (ArrayDeque<Particle>[][])field.get(Minecraft.getInstance().particles);
+            fxLayers = (Map<IParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particles);
         }
         catch (Exception ex)
         {
         	//System.out.println("temp message: obf reflection fail!");
-        	ex.printStackTrace();
+        	//ex.printStackTrace();
             try
             {
                 field = (ParticleManager.class).getDeclaredField("byType");
                 field.setAccessible(true);
-                fxLayers = (ArrayDeque<Particle>[][])field.get(Minecraft.getInstance().particles);
+                fxLayers = (Map<IParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particles);
             }
             catch (Exception ex2)
             {

@@ -2,6 +2,8 @@ package weather2;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -67,6 +69,7 @@ public class EventHandlerFML {
 
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void tickClient(TickEvent.ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
@@ -113,6 +116,7 @@ public class EventHandlerFML {
 		}
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void tickRenderScreen(TickEvent.RenderTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {

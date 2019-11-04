@@ -93,7 +93,6 @@ public class Weather
         // some preinit code
 
         proxy = DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new CommonProxy());
-
         proxy.init();
 
         //CapabilityManager.INSTANCE.register(IChunkData.class, new ChunkDataStorage(), DefaultChunkCapData::new);

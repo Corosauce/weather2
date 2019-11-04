@@ -3,8 +3,11 @@ package weather2.weathersystem;
 import java.util.ArrayList;
 import java.util.List;
 
+import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.SpriteTexturedParticle;
+import net.minecraft.client.particle.TexturedParticle;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;

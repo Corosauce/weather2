@@ -2522,7 +2522,7 @@ public class StormObject extends WeatherObject {
 	        ent.getPersistentData().putLong("lastPullTime", worldTime);
         }
         
-        setVel(entity1, -moveX, pullY, moveZ);
+        //setVel(entity1, -moveX, pullY, moveZ);
 	}
 	
 	public void setVel(Object entity, float f, float f1, float f2)

@@ -26,6 +26,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.FlameParticle;
+import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.ParticleStatus;
@@ -1968,144 +1969,103 @@ public class SceneEnhancer implements Runnable {
 		}
         
         //Weather Effects
-		for (int i = 0; i < ClientTickHandler.weatherManager.listWeatherEffectedParticles.size(); i++) {
+		//TODO: 1.14 flip to false when we readd our particle renderer
+		boolean usingVanillaParticleRenderer = true;
+        if (!usingVanillaParticleRenderer) {
+			for (int i = 0; i < ClientTickHandler.weatherManager.listWeatherEffectedParticles.size(); i++) {
 
-			Particle particle = ClientTickHandler.weatherManager.listWeatherEffectedParticles.get(i);
+				Particle particle = ClientTickHandler.weatherManager.listWeatherEffectedParticles.get(i);
 
-			if (!particle.isAlive()) {
-				ClientTickHandler.weatherManager.listWeatherEffectedParticles.remove(i--);
-				continue;
-			}
-
-			if (ClientTickHandler.weatherManager.windMan.getWindSpeedForPriority() >= 0.10) {
-
-            	handleCount++;
-
-				if (particle instanceof EntityRotFX)
-				{
-
-					EntityRotFX entity1 = (EntityRotFX) particle;
-
-					if (entity1 == null)
-					{
-						continue;
-					}
-
-					if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor(entity1.getPosX()), 0, MathHelper.floor(entity1.getPosZ()))).getY() - 1 < (int)entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX))
-					{
-						if (entity1 instanceof IWindHandler) {
-							if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
-							{
-								WeatherUtilParticle.setParticleAge(entity1, WeatherUtilParticle.getParticleAge(entity1) + ((IWindHandler)entity1).getParticleDecayExtra());
-							}
-						}
-						else if (WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
-						{
-							WeatherUtilParticle.setParticleAge(entity1, WeatherUtilParticle.getParticleAge(entity1) + 1);
-						}
-
-						if ((entity1 instanceof ParticleTexFX) && ((ParticleTexFX)entity1).getParticleTexture() == ParticleRegistry.leaf/*((ParticleTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID*/)
-						{
-							if (entity1.getMotionX() < 0.01F && entity1.getMotionZ() < 0.01F)
-							{
-								entity1.setMotionY(entity1.getMotionY() + rand.nextDouble() * 0.02 * ((ParticleTexFX) entity1).particleGravity);
-							}
-
-							entity1.setMotionY(entity1.getMotionY() - 0.01F * ((ParticleTexFX) entity1).particleGravity);
-
-						}
-					}
-
-					windMan.applyWindForceNew(entity1, 1F/20F, 0.5F);
+				if (!particle.isAlive()) {
+					ClientTickHandler.weatherManager.listWeatherEffectedParticles.remove(i--);
+					continue;
 				}
-            }
-        }
+
+				if (ClientTickHandler.weatherManager.windMan.getWindSpeedForPriority() >= 0.10) {
+
+					handleCount++;
+
+					if (particle instanceof EntityRotFX) {
+
+						EntityRotFX entity1 = (EntityRotFX) particle;
+
+						if (entity1 == null) {
+							continue;
+						}
+
+						if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor(entity1.getPosX()), 0, MathHelper.floor(entity1.getPosZ()))).getY() - 1 < (int) entity1.getPosY() + 1) || (entity1 instanceof ParticleTexFX)) {
+							if (entity1 instanceof IWindHandler) {
+								if (((IWindHandler) entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge(entity1) % 2 == 0) {
+									WeatherUtilParticle.setParticleAge(entity1, WeatherUtilParticle.getParticleAge(entity1) + ((IWindHandler) entity1).getParticleDecayExtra());
+								}
+							} else if (WeatherUtilParticle.getParticleAge(entity1) % 2 == 0) {
+								WeatherUtilParticle.setParticleAge(entity1, WeatherUtilParticle.getParticleAge(entity1) + 1);
+							}
+
+							if ((entity1 instanceof ParticleTexFX) && ((ParticleTexFX) entity1).getParticleTexture() == ParticleRegistry.leaf/*((ParticleTexFX)entity1).getParticleTextureIndex() == WeatherUtilParticle.effLeafID*/) {
+								if (entity1.getMotionX() < 0.01F && entity1.getMotionZ() < 0.01F) {
+									entity1.setMotionY(entity1.getMotionY() + rand.nextDouble() * 0.02 * ((ParticleTexFX) entity1).particleGravity);
+								}
+
+								entity1.setMotionY(entity1.getMotionY() - 0.01F * ((ParticleTexFX) entity1).particleGravity);
+
+							}
+						}
+
+						windMan.applyWindForceNew(entity1, 1F / 20F, 0.5F);
+					}
+				}
+			}
+		}
         
         //System.out.println("particles moved: " + handleCount);
 
         //WindManager windMan = ClientTickHandler.weatherManager.windMan;
-        
-        //Particles
-        if (WeatherUtilParticle.fxLayers != null && windMan.getWindSpeedForPriority() >= 0.10)
-        {
-        	//Built in particles
-            for (int layer = 0; layer < WeatherUtilParticle.fxLayers.length; layer++)
-            {
-                for (int i = 0; i < WeatherUtilParticle.fxLayers[layer].length; i++)
-                {
-                	//for (int j = 0; j < WeatherUtilParticle.fxLayers[layer][i].size(); j++)
-                	for (Particle entity1 : WeatherUtilParticle.fxLayers[layer][i])
-                    {
-                	
-	                    //Particle entity1 = WeatherUtilParticle.fxLayers[layer][i].get(j);
-	                    
+
+		//Built in particles
+        if (WeatherUtilParticle.fxLayers != null && windMan.getWindSpeedForPriority() >= 0.10) {
+			for (Queue<Particle> type : WeatherUtilParticle.fxLayers.values()) {
+				for (Particle particle : type) {
 	                    if (ConfigParticle.Particle_VanillaAndWeatherOnly) {
-	                    	String className = entity1.getClass().getName();
+	                    	String className = particle.getClass().getName();
 	                    	if (className.contains("net.minecraft.") || className.contains("weather2.")) {
 	                    		
 	                    	} else {
 	                    		continue;
 	                    	}
-	                    	
 	                    	//Weather.dbg("process: " + className);
 	                    }
 	
-	                    if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor(CoroUtilEntOrParticle.getPosX(entity1)), 0, MathHelper.floor(CoroUtilEntOrParticle.getPosZ(entity1)))).getY() - 1 < (int)CoroUtilEntOrParticle.getPosY(entity1) + 1) || (entity1 instanceof ParticleTexFX))
+	                    if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor(CoroUtilEntOrParticle.getPosX(particle)), 0, MathHelper.floor(CoroUtilEntOrParticle.getPosZ(particle)))).getY() - 1 < (int)CoroUtilEntOrParticle.getPosY(particle) + 1) || (particle instanceof ParticleTexFX))
 	                    {
-	                        if ((entity1 instanceof FlameParticle))
+	                        if ((particle instanceof FlameParticle))
 	                        {
 	                        	if (windMan.getWindSpeedForPriority() >= 0.20) {
-	                        		entity1.age += 1;
+									particle.age += 1;
 								}
 	                        }
-	                        else if (entity1 instanceof IWindHandler) {
-	                        	if (((IWindHandler)entity1).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
+	                        else if (particle instanceof IWindHandler) {
+	                        	if (((IWindHandler)particle).getParticleDecayExtra() > 0 && WeatherUtilParticle.getParticleAge(particle) % 2 == 0)
 	                            {
-	                        		entity1.age += ((IWindHandler)entity1).getParticleDecayExtra();
+									particle.age += ((IWindHandler)particle).getParticleDecayExtra();
 	                            }
-	                        }/*
-	                        else if (WeatherUtilParticle.getParticleAge(entity1) % 2 == 0)
-	                        {
-								entity1.age += 1;
-	                        }*/
+	                        }
 	
 	                        //rustle!
 							//TODO: 1.14 uncomment, tho i think EntityWaterfallFX stopped being used in 1.12?
 	                        if (true/*!(entity1 instanceof EntityWaterfallFX)*/) {
-	                        	//EntityWaterfallFX ent = (EntityWaterfallFX) entity1;
-		                        /*if (entity1.onGround)
-		                        {
-		                            //entity1.onGround = false;
-		                            entity1.motionY += rand.nextDouble() * entity1.getMotionX();
-		                        }*/
-		
-		                        if (CoroUtilEntOrParticle.getMotionX(entity1) < 0.01F && CoroUtilEntOrParticle.getMotionZ(entity1) < 0.01F)
+		                        if (Math.abs(CoroUtilEntOrParticle.getMotionX(particle)) < 0.01F && Math.abs(CoroUtilEntOrParticle.getMotionZ(particle)) < 0.01F)
 		                        {
 		                            //ent.setMotionY(ent.getMotionY() + rand.nextDouble() * 0.02);
-		                            CoroUtilEntOrParticle.setMotionY(entity1, CoroUtilEntOrParticle.getMotionY(entity1) + rand.nextDouble() * 0.02);
+		                            CoroUtilEntOrParticle.setMotionY(particle, CoroUtilEntOrParticle.getMotionY(particle) + rand.nextDouble() * 0.02);
 		                        }
 	                        }
-	
-	                        //entity1.motionX += rand.nextDouble() * 0.03;
-	                        //entity1.motionZ += rand.nextDouble() * 0.03;
-	                        //entity1.motionY += -0.04 + rand.nextDouble() * 0.04;
-	                        //if (canPushEntity(entity1)) {
-	                        //if (!(entity1 instanceof EntityFlameFX)) {
-	                        //applyWindForce(entity1);
-	                        windMan.applyWindForceNew(entity1, 1F/20F, 0.5F);
+
+	                        windMan.applyWindForceNew(particle, 1F/20F, 0.5F);
 	                    }
-                    }
+
                 }
             }
-
-            //My particle renderer - actually, instead add ones you need to weatherEffects (add blank renderer file)
-            /*for (int layer = 0; layer < ExtendedRenderer.rotEffRenderer.layers; layer++)
-            {
-                for (int i = 0; i < ExtendedRenderer.rotEffRenderer.fxLayers[layer].size(); i++)
-                {
-                    Entity entity1 = (Entity)ExtendedRenderer.rotEffRenderer.fxLayers[layer].get(i);
-                }
-            }*/
         }
 
         //this was code to push player around if really windy, lets not do this anymore, who slides around in wind IRL?
