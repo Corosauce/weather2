@@ -53,6 +53,7 @@ import weather2.ClientTickHandler;
 import weather2.SoundRegistry;
 import weather2.client.entity.particle.ParticleFish;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.config.ConfigLTOverrides;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigStorm;
@@ -335,87 +336,90 @@ public class SceneEnhancer implements Runnable {
 	            }
 			}
 
+			boolean extraRainStuff = false;
 
-			Minecraft client = Minecraft.getInstance();
+			if (extraRainStuff) {
+				Minecraft client = Minecraft.getInstance();
 
-			float vanillaCutoff = 0.2F;
-			float precipStrength = Math.abs(getRainStrengthAndControlVisuals(client.player, ClientTickHandler.clientConfigData.overcastMode));
+				float vanillaCutoff = 0.2F;
+				float precipStrength = Math.abs(getRainStrengthAndControlVisuals(client.player, ClientTickHandler.clientConfigData.overcastMode));
 
-			//if less than vanilla sound playing amount
-			if (precipStrength <= vanillaCutoff) {
+				//if less than vanilla sound playing amount
+				if (precipStrength <= vanillaCutoff) {
 
-				float volAmp = 0.2F + ((precipStrength / vanillaCutoff) * 0.8F);
+					float volAmp = 0.2F + ((precipStrength / vanillaCutoff) * 0.8F);
 
-				Random random = new Random();
+					Random random = new Random();
 
-				float f = client.world.getRainStrength(1.0F);
+					float f = client.world.getRainStrength(1.0F);
 
-				if (!client.gameSettings.fancyGraphics) {
-					f /= 2.0F;
-				}
-
-				if (f != 0.0F) {
-					//random.setSeed((long)this.rendererUpdateCount * 312987231L);
-					Entity entity = client.getRenderViewEntity();
-					World world = client.world;
-					BlockPos blockpos = new BlockPos(entity);
-					int i = 10;
-					double d0 = 0.0D;
-					double d1 = 0.0D;
-					double d2 = 0.0D;
-					int j = 0;
-					int k = 3;//(int) (400.0F * f * f);
-
-					if (client.gameSettings.particles == ParticleStatus.DECREASED) {
-						k >>= 1;
-					} else if (client.gameSettings.particles == ParticleStatus.MINIMAL) {
-						k = 0;
+					if (!client.gameSettings.fancyGraphics) {
+						f /= 2.0F;
 					}
 
-					for (int l = 0; l < k; ++l) {
-						BlockPos blockpos1 = world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos.add(random.nextInt(10) - random.nextInt(10), 0, random.nextInt(10) - random.nextInt(10)));
-						Biome biome = world.getBiome(blockpos1);
-						BlockPos blockpos2 = blockpos1.down();
-						BlockState iblockstate = world.getBlockState(blockpos2);
+					if (f != 0.0F) {
+						//random.setSeed((long)this.rendererUpdateCount * 312987231L);
+						Entity entity = client.getRenderViewEntity();
+						World world = client.world;
+						BlockPos blockpos = new BlockPos(entity);
+						int i = 10;
+						double d0 = 0.0D;
+						double d1 = 0.0D;
+						double d2 = 0.0D;
+						int j = 0;
+						int k = 3;//(int) (400.0F * f * f);
 
-						if (blockpos1.getY() <= blockpos.getY() + 10 && blockpos1.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.RainType.RAIN && biome.func_225486_c(blockpos1) >= 0.15F) {
-							double d3 = random.nextDouble();
-							double d4 = random.nextDouble();
-							//AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
-							VoxelShape shape = iblockstate.getCollisionShape(world, blockpos2);
-							double maxY = 0;
-							double minY = 0;
-							if (!shape.isEmpty()) {
-								minY = shape.getBoundingBox().minY;
-								maxY = shape.getBoundingBox().maxY;
-							}
+						if (client.gameSettings.particles == ParticleStatus.DECREASED) {
+							k >>= 1;
+						} else if (client.gameSettings.particles == ParticleStatus.MINIMAL) {
+							k = 0;
+						}
 
+						for (int l = 0; l < k; ++l) {
+							BlockPos blockpos1 = world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos.add(random.nextInt(10) - random.nextInt(10), 0, random.nextInt(10) - random.nextInt(10)));
+							Biome biome = world.getBiome(blockpos1);
+							BlockPos blockpos2 = blockpos1.down();
+							BlockState iblockstate = world.getBlockState(blockpos2);
 
-							if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA_BLOCK) {
-								if (iblockstate.getMaterial() != Material.AIR) {
-									++j;
-
-									if (random.nextInt(j) == 0) {
-										d0 = (double) blockpos2.getX() + d3;
-										d1 = (double) ((float) blockpos2.getY() + 0.1F) + maxY - 1.0D;
-										d2 = (double) blockpos2.getZ() + d4;
-									}
-
-									client.world.addParticle(ParticleTypes.DRIPPING_WATER, false, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D);
+							if (blockpos1.getY() <= blockpos.getY() + 10 && blockpos1.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.RainType.RAIN && biome.func_225486_c(blockpos1) >= 0.15F) {
+								double d3 = random.nextDouble();
+								double d4 = random.nextDouble();
+								//AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, blockpos2);
+								VoxelShape shape = iblockstate.getCollisionShape(world, blockpos2);
+								double maxY = 0;
+								double minY = 0;
+								if (!shape.isEmpty()) {
+									minY = shape.getBoundingBox().minY;
+									maxY = shape.getBoundingBox().maxY;
 								}
-							} else {
-								client.world.addParticle(ParticleTypes.SMOKE, false, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D);
+
+
+								if (iblockstate.getMaterial() != Material.LAVA && iblockstate.getBlock() != Blocks.MAGMA_BLOCK) {
+									if (iblockstate.getMaterial() != Material.AIR) {
+										++j;
+
+										if (random.nextInt(j) == 0) {
+											d0 = (double) blockpos2.getX() + d3;
+											d1 = (double) ((float) blockpos2.getY() + 0.1F) + maxY - 1.0D;
+											d2 = (double) blockpos2.getZ() + d4;
+										}
+
+										client.world.addParticle(ParticleTypes.DRIPPING_WATER, false, (double) blockpos2.getX() + d3, (double) ((float) blockpos2.getY() + 0.1F) + maxY, (double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D);
+									}
+								} else {
+									client.world.addParticle(ParticleTypes.SMOKE, false, (double) blockpos1.getX() + d3, (double) ((float) blockpos1.getY() + 0.1F) - minY, (double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D);
+								}
 							}
 						}
-					}
 
-					if (j > 0 && random.nextInt(3) < this.rainSoundCounter++) {
-						this.rainSoundCounter = 0;
+						if (j > 0 && random.nextInt(3) < this.rainSoundCounter++) {
+							this.rainSoundCounter = 0;
 
-						if (d1 > (double) (blockpos.getY() + 1) && world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos).getY() > MathHelper.floor((float) blockpos.getY())) {
-							client.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN_ABOVE, SoundCategory.WEATHER, 0.1F * volAmp, 0.5F, false);
-						} else {
-							client.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN, SoundCategory.WEATHER, 0.2F * volAmp, 1.0F, false);
+							if (d1 > (double) (blockpos.getY() + 1) && world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos).getY() > MathHelper.floor((float) blockpos.getY())) {
+								client.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN_ABOVE, SoundCategory.WEATHER, 0.1F * volAmp, 0.5F, false);
+							} else {
+								client.world.playSound(d0, d1, d2, SoundEvents.WEATHER_RAIN, SoundCategory.WEATHER, 0.2F * volAmp, 1.0F, false);
+							}
 						}
 					}
 				}
@@ -549,7 +553,14 @@ public class SceneEnhancer implements Runnable {
 			WindManager windMan = weatherMan.getWindManager();
 			if (windMan == null) return;
 
-			float curPrecipVal = getRainStrengthAndControlVisuals(entP);
+
+			float curPrecipVal = 1;
+			if (ConfigLTOverrides.vanillaRainOverride) {
+				curPrecipVal = getRainStrengthAndControlVisuals(entP);
+			} else {
+
+			}
+
 			
 			float maxPrecip = 0.5F;
 			
@@ -1033,7 +1044,11 @@ public class SceneEnhancer implements Runnable {
 						spawnCount = 0;
 						int spawnAreaSize = 20;
 
-						if (spawnNeed > 0) {
+						boolean rainParticle = ConfigParticle.Particle_Rain;
+						boolean groundSplash = ConfigParticle.Particle_Rain_GroundSplash;
+						boolean downfall = ConfigParticle.Particle_Rain_DownfallSheet;
+
+						if (rainParticle && spawnNeed > 0) {
 							for (int i = 0; i < safetyCutout; i++) {
 								BlockPos pos = new BlockPos(
 										entP.posX + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
@@ -1091,9 +1106,6 @@ public class SceneEnhancer implements Runnable {
 								}
 							}
 						}
-
-						boolean groundSplash = ConfigParticle.Particle_Rain_GroundSplash;
-						boolean downfall = ConfigParticle.Particle_Rain_DownfallSheet;
 
 						//TODO: make ground splash and downfall use spawnNeed var style design
 
@@ -2053,7 +2065,8 @@ public class SceneEnhancer implements Runnable {
 	
 	                        //rustle!
 							//TODO: 1.14 uncomment, tho i think EntityWaterfallFX stopped being used in 1.12?
-	                        if (true/*!(entity1 instanceof EntityWaterfallFX)*/) {
+
+	                        if (false/*!(entity1 instanceof EntityWaterfallFX)*/) {
 		                        if (Math.abs(CoroUtilEntOrParticle.getMotionX(particle)) < 0.01F && Math.abs(CoroUtilEntOrParticle.getMotionZ(particle)) < 0.01F)
 		                        {
 		                            //ent.setMotionY(ent.getMotionY() + rand.nextDouble() * 0.02);
@@ -2679,6 +2692,8 @@ public class SceneEnhancer implements Runnable {
     public static void renderTick(TickEvent.RenderTickEvent event) {
 
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
+
+		if (!ConfigLTOverrides.vanillaRainOverride) return;
 
 		if (event.phase == TickEvent.Phase.START) {
 			Minecraft client = Minecraft.getInstance();

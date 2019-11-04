@@ -15,13 +15,13 @@ import weather2.weathersystem.storm.StormObject;
 public class ConfigMisc implements IConfigCategory {
 	
 	//misc
-	public static boolean Misc_proxyRenderOverrideEnabled = true;
+	public static boolean Misc_proxyRenderOverrideEnabled = false;
 	//public static boolean Misc_takeControlOfGlobalRain = true;
 
 	//cutoff a bit extra, noticed lots of storms being insta killed on creation
 	public static int Misc_simBoxRadiusCutoff = 1024+100;
 	public static int Misc_simBoxRadiusSpawn = 1024;
-	public static boolean Misc_ForceVanillaCloudsOff = true;
+	public static boolean Misc_ForceVanillaCloudsOff = false;
 	public static int Misc_AutoDataSaveIntervalInTicks = 20*60*30;
 	public static boolean consoleDebug = false;
 
@@ -29,7 +29,7 @@ public class ConfigMisc implements IConfigCategory {
 	
 	//Weather
 	@ConfigComment("If true, lets server side do vanilla weather rules, weather2 will only make storms when server side says 'rain' is on")
-	public static boolean overcastMode = false;
+	public static boolean overcastMode = true;
 	@ConfigComment("Used if overcastMode is off, 1 = lock weather on, 0 = lock weather off, -1 = dont lock anything, let server do whatever")
 	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
 	//cloudOption
@@ -94,13 +94,13 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean blockBreakingInvokesCancellableEvent = false;
 
 	@ConfigComment("If true, will cancel vanilla behavior of setting clear weather when the player sleeps, for global overcast mode")
-	public static boolean Global_Overcast_Prevent_Rain_Reset_On_Sleep = true;
+	public static boolean Global_Overcast_Prevent_Rain_Reset_On_Sleep = false;
 
 	@ConfigComment("Use if you are on a server with weather but want it ALL off client side for performance reasons, overrides basically every client based setting")
 	public static boolean Client_PotatoPC_Mode = false;
 
 	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems, turns overcast mode on")
-	public static boolean Aesthetic_Only_Mode = false;
+	public static boolean Aesthetic_Only_Mode = true;
 
 	public ConfigMisc() {
 		

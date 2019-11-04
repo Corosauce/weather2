@@ -94,7 +94,6 @@ public class ClientTickHandler
     
     public void onTickInGame()
     {
-
 		if (ConfigMisc.Client_PotatoPC_Mode) return;
 
         Minecraft mc = Minecraft.getInstance();

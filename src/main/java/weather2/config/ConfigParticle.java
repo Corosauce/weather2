@@ -20,6 +20,7 @@ public class ConfigParticle implements IConfigCategory {
 	public static boolean Wind_Particle_fire = false;
 	@ConfigComment("Enables or disables all precipitation particle types")
 	public static boolean Particle_RainSnow = true;
+    public static boolean Particle_Rain = false;
     public static boolean Particle_Rain_GroundSplash = true;
     public static boolean Particle_Rain_DownfallSheet = true;
 	public static boolean Particle_VanillaAndWeatherOnly = false;

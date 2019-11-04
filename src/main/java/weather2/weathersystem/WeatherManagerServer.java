@@ -94,16 +94,16 @@ public class WeatherManagerServer extends WeatherManagerBase {
 			//sim box work
 			int rate = 20;
 			if (world.getGameTime() % rate == 0) {
-				/*for (int i = 0; i < getStormObjects().size(); i++) {
+				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
-					EntityPlayer closestPlayer = WeatherUtilEntity.getClosestPlayerAny(world, so.posGround.xCoord, so.posGround.yCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
+					PlayerEntity closestPlayer = world.getClosestPlayer(so.posGround.xCoord, so.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff);
 					
 					//removed check is done in WeatherManagerBase
 					if (closestPlayer == null || ConfigMisc.Aesthetic_Only_Mode) {
 						so.ticksSinceNoNearPlayer += rate;
 						//finally remove if nothing near for 30 seconds, gives multiplayer server a chance to get players in
 						if (so.ticksSinceNoNearPlayer > 20 * 30 || ConfigMisc.Aesthetic_Only_Mode) {
-							if (world.playerEntities.size() == 0) {
+							if (world.getPlayers().size() == 0) {
 								Weather.dbg("removing distant storm: " + so.ID + ", running without players");
 							} else {
 								Weather.dbg("removing distant storm: " + so.ID);
@@ -115,17 +115,12 @@ public class WeatherManagerServer extends WeatherManagerBase {
 					} else {
 						so.ticksSinceNoNearPlayer = 0;
 					}
-				}*/
+				}
 
-				if (world.getGameTime() % rate == 0) {
+				/*if (world.getGameTime() % rate == 0) {
 					if (ConfigMisc.Aesthetic_Only_Mode) {
 						getStormObjects().stream().forEach(this::removeWeatherObjectAndSync);
 					} else {
-						/*getStormObjects().stream()
-								.filter(wo -> WeatherUtilEntity.getClosestPlayerAny(world, wo.posGround.xCoord, wo.posGround.yCoord, wo.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff) == null)
-								.peek(wo -> wo.ticksSinceNoNearPlayer += rate)
-								.filter(wo -> wo.ticksSinceNoNearPlayer > 20 * 30)
-								.forEach(this::removeWeatherObjectAndSync);*/
 
 						//streams are probably not actually ideal for this situation since we need to run code on both states of player presence
 						//and streams work best for just filtering out instead of splitting, and running .stream() 3 times is costly probably
@@ -145,7 +140,7 @@ public class WeatherManagerServer extends WeatherManagerBase {
 								.filter(wo -> wo.ticksSinceNoNearPlayer > 20 * 30)
 								.forEach(this::removeWeatherObjectAndSync);
 					}
-				}
+				}*/
 
 
 
@@ -633,6 +628,10 @@ public class WeatherManagerServer extends WeatherManagerBase {
 	}
 
 	public void removeWeatherObjectAndSync(WeatherObject parStorm) {
+		//because stream()s
+		if (parStorm == null) {
+			return;
+		}
 		if (getWorld().getPlayers().size() == 0) {
 			Weather.dbg("removing distant storm: " + parStorm.ID + ", running without players");
 		} else {
