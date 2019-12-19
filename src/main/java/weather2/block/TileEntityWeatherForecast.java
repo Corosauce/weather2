@@ -37,6 +37,11 @@ public class TileEntityWeatherForecast extends TileEntity implements ITickable
     {
     	if (world.isRemote) {
     		if (world.getTotalWorldTime() % 200 == 0 || storms.size() == 0) {
+
+    			//catch race condition triggered by very slow computers
+				ClientTickHandler.checkClientWeather();
+				if (ClientTickHandler.weatherManager == null) return;
+
     			lastTickStormObject = ClientTickHandler.weatherManager.getClosestStorm(new Vec3(getPos().getX(), StormObject.layers.get(0), getPos().getZ()), 1024, StormObject.STATE_FORMING, true);
 
     			if (ConfigMisc.radarCloudDebug) {
