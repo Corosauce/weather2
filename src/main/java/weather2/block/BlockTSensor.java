@@ -86,7 +86,7 @@ public class BlockTSensor extends Block
     {
         return true;
     }
-    
+
     /**
      * Convert the given metadata into a BlockState for this Block
      */
