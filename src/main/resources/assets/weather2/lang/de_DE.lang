@@ -1,0 +1,13 @@
+itemGroup.Weather2=Weather2 Gegenstände
+tile.weather2.tornado_sensor.name=Tornadosensor
+tile.weather2.tornado_siren.name=Wettersirene
+tile.weather2.tornado_siren_manual.name=Manuelle Redstone-Sirene
+tile.weather2.wind_vane.name=Wetterfahne
+tile.weather2.weather_forecast.name=Wetterradar
+tile.weather2.weather_machine.name=Wettermaschine (Rechtsklick zum Durchwechseln)
+tile.weather2.weather_deflector.name=Wetterabweiser
+tile.weather2.anemometer.name=Windmesser
+tile.weather2.sand_layer.name=Platzierbare Sandschicht
+item.weather2.weather_item.name=Wetter-Gegenstand
+item.weather2.sand_layer_placeable.name=Platzierbare Sandschicht
+item.weather2.pocket_sand.name=Taschensand!
