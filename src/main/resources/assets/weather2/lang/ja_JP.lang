@@ -1,0 +1,13 @@
+itemGroup.Weather2=Weather2のアイテム
+tile.weather2.tornado_sensor.name=竜巻センサー
+tile.weather2.tornado_siren.name=気象サイレン
+tile.weather2.tornado_siren_manual.name=マニュアルレッドストーンサイレン
+tile.weather2.wind_vane.name=風向計
+tile.weather2.weather_forecast.name=気象レーダー
+tile.weather2.weather_machine.name=気象変更器 (右クリックでサイクルします)
+tile.weather2.weather_deflector.name=気象制圧器
+tile.weather2.anemometer.name=風速計
+tile.weather2.sand_layer.name=配置可能な砂層
+item.weather2.weather_item.name=気象アイテム
+item.weather2.sand_layer_placeable.name=配置可能な砂層
+item.weather2.pocket_sand.name=ポケットサイズの砂!
