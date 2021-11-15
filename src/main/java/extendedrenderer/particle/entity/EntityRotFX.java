@@ -40,7 +40,7 @@ public class EntityRotFX extends TextureSheetParticle
 
         @Override
         public void end(Tesselator p_217599_1_) {
-            p_217599_1_.getBuilder().sortQuads(0, 0, 0);
+            p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
             ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.end(p_217599_1_);
         }
 
@@ -399,7 +399,7 @@ public class EntityRotFX extends TextureSheetParticle
     {
         weatherEffect = true;
         //Minecraft.getInstance().particles.addEffect(this);
-        ClientTickHandler.particleManagerExtended().addEffect(this);
+        ClientTickHandler.particleManagerExtended().add(this);
     }
 
     public int getAge()
@@ -555,7 +555,7 @@ public class EntityRotFX extends TextureSheetParticle
         double d0 = this.x - x;
         double d1 = this.y - y;
         double d2 = this.z - z;
-        return (double)Mth.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+        return Mth.sqrt((float) (d0 * d0 + d1 * d1 + d2 * d2));
     }
 
     @Override

@@ -43,6 +43,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            arg "-mixin.config=ltweather.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -65,6 +66,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
+            arg "-mixin.config=ltweather.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.

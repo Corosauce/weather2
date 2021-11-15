@@ -21,7 +21,8 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 	// Save a few stack depth by caching this
 	private static BlockColors colors;
 
-	private static final Field _blockColorMap = BlockColors.blockColors;
+	//TODO: see forge note on field to use registry delegate
+	private static final Field _blockColorMap = null;//BlockColors.blockColors;
 	private static Map<IRegistryDelegate<Block>, BlockColor> blockColorMap;
 
 	private static ConcurrentHashMap<BlockState, int[]> colorCache = new ConcurrentHashMap<>();

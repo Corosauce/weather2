@@ -86,6 +86,8 @@ public class WindManager {
 	public void tick(Level world) {
 		Random rand = new Random();
 
+		FORCE_ON_DEBUG_TESTING = true;
+
 		// TODO: better merge this logic
 		if (world.isClientSide) {
 			windSpeedGlobal = ClientWeather.get().getWindSpeed();

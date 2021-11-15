@@ -150,7 +150,7 @@ public class ClientTickHandler
     	if (particleManagerExtended == null) {
 			particleManagerExtended = new ParticleManagerExtended(mc.level, mc.textureManager);
 		} else {
-			particleManagerExtended.clearEffects((ClientLevel) world);
+			particleManagerExtended.setLevel((ClientLevel) world);
 		}
 
 		//((IReloadableResourceManager)mc.getResourceManager()).addReloadListener(particleManagerExtended);

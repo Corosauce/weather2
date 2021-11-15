@@ -148,7 +148,8 @@ public class SceneEnhancer implements Runnable {
 				tryParticleSpawning();
 			}
 
-			if (weather.hasWeather()) {
+			FORCE_ON_DEBUG_TESTING = true;
+			if (weather.hasWeather() || FORCE_ON_DEBUG_TESTING) {
 				tickParticlePrecipitation();
 				trySoundPlaying();
 				tryWind(client.level);
@@ -391,7 +392,7 @@ public class SceneEnhancer implements Runnable {
 
 		//if (true) return;
 
-		FORCE_ON_DEBUG_TESTING = false;
+		FORCE_ON_DEBUG_TESTING = true;
 
 		Player entP = Minecraft.getInstance().player;
 

@@ -25,7 +25,7 @@ public class CoroUtilColor {
 //        }
 
         if (model != null && !model.isCustomRenderer()) {
-            TextureAtlasSprite sprite = model.getParticleTexture(EmptyModelData.INSTANCE);
+            TextureAtlasSprite sprite = model.getParticleIcon(EmptyModelData.INSTANCE);
             if (sprite != null && !sprite.getName().equals(MissingTextureAtlasSprite.getLocation())) {
                 return getColors(sprite);
             }

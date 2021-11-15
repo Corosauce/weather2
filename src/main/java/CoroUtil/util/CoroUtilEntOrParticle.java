@@ -136,7 +136,7 @@ public class CoroUtilEntOrParticle {
 		double d0 = getPosX(obj) - x;
 		double d1 = getPosY(obj) - y;
 		double d2 = getPosZ(obj) - z;
-		return (double) Mth.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+		return Mth.sqrt((float) (d0 * d0 + d1 * d1 + d2 * d2));
 	}
 
 	public static void setPosX(Object obj, double val) {

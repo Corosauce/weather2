@@ -39,7 +39,8 @@ public class Weather
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        DeferredWorkQueue.runLater(WeatherNetworking::register);
+        //DeferredWorkQueue.runLater(WeatherNetworking::register);
+        WeatherNetworking.register();
 
         WeatherControllerManager.setFactory(ServerWeatherController::new);
     }
