@@ -148,7 +148,7 @@ public class SceneEnhancer implements Runnable {
 				tryParticleSpawning();
 			}
 
-			FORCE_ON_DEBUG_TESTING = true;
+			FORCE_ON_DEBUG_TESTING = false;
 			if (weather.hasWeather() || FORCE_ON_DEBUG_TESTING) {
 				tickParticlePrecipitation();
 				trySoundPlaying();

@@ -1,15 +1,20 @@
 package weather2.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraftforge.client.ICloudRenderHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import weather2.ClientTickHandler;
+import weather2.weathersystem.sky.CloudRenderHandler;
 
 import javax.annotation.Nullable;
 
@@ -31,5 +36,18 @@ public abstract class RenderParticlesOverride {
                     target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSnowAndRain(Lnet/minecraft/client/renderer/LightTexture;FDDD)V"))
     public void renderSnowAndRain(LevelRenderer worldRenderer, LightTexture lightmapIn, float partialTicks, double xIn, double yIn, double zIn) {
         //stopping vanilla from running renderRainSnow
+    }
+
+    @Redirect(method = "renderLevel",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V"))
+    public void renderClouds(LevelRenderer instance, PoseStack shaderinstance, Matrix4f l, float i1, double f1, double f2, double d0) {
+        //workaround for missing projection matrix info
+        ICloudRenderHandler cloudRenderHandler = Minecraft.getInstance().level.effects().getCloudRenderHandler();
+        if (cloudRenderHandler instanceof CloudRenderHandler) {
+            ((CloudRenderHandler)cloudRenderHandler).render(shaderinstance, l, i1, f1, f2, d0);
+        } else {
+            instance.renderClouds(shaderinstance, l, i1, f1, f2, d0);
+        }
     }
 }
