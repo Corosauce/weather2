@@ -124,11 +124,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                         double zzz = rand.nextInt(randRange2) - rand.nextInt(randRange2);
                         double r = 0.8 + rand.nextDouble() * 0.2;
                         r = 0.7 + (yyy / (randRangeY2 * 2)) * 0.3;
+                        r = 0.8;
                         //double g = 0.8 + rand.nextDouble() * 0.2;
                         //double b = 0.8 + rand.nextDouble() * 0.2;
                         float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
                         //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
-                        renderSphere(bufferbuilder, 0, 10, 0, new Vec3(r, r, r), 0.1F);
+                        renderSphere(bufferbuilder, 0, 0, 0, new Vec3(r, r, r), 0.3F);
                         index++;
                     }
                 }
@@ -192,7 +193,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int randRangeY2 = 16;
                 int randRange2 = 20;
 
-                int clusters = 50;
+                int clusters = 100;
                 int clusterDensity = 50;
 
                 //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -208,21 +209,28 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     double zz = rand.nextInt(randRange) - rand.nextInt(randRange);
 
                     float index = 0;
-                    float indexMax = clusters;
+                    float indexMax = 50;
                     float tickShift = (((float)ticks * 0.05F)) % indexMax;
                     for (int ii = 0; ii < clusterDensity; ii++) {
                         double xxx = rand.nextInt(randRange2) - rand.nextInt(randRange2);
-                        double yyy = rand.nextInt(randRangeY2) - rand.nextInt(randRangeY2);
+                        double yyy = rand.nextInt(randRangeY2)/* - rand.nextInt(randRangeY2)*/;
                         double zzz = rand.nextInt(randRange2) - rand.nextInt(randRange2);
                         double r = 0.8 + rand.nextDouble() * 0.2;
                         r = 0.7 + (yyy / (randRangeY2 * 2)) * 0.3;
                         //double g = 0.8 + rand.nextDouble() * 0.2;
                         //double b = 0.8 + rand.nextDouble() * 0.2;
                         float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
+                        if (scale > 0.5F) {
+                            scale = 0.5F - (scale-0.5F);
+                        }
+                        scale *= 2F;
                         //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
 
                         matrixStackIn.pushPose();
                         matrixStackIn.translate(x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz);
+                        if (index % 2 == 0) matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(((index + tickShift) * 2) % 3600));
+                        if (index % 3 == 0) matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(((index + tickShift) * 5) % 3600));
+                        if (index % 5 == 0) matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(((index + tickShift) * 7) % 3600));
                         matrixStackIn.scale(scale, scale, scale);
 
                         //this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
@@ -305,6 +313,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         int iter = 0;
         int iter2 = 0;
 
+        float lengthInv = 1.0f / radius;
+
         rand = new Random(555);
 
         for (double slice = 1.0; slice <= nSlices && iter <= 100; slice += 1.0) {
@@ -357,9 +367,15 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 float n2 = rand.nextFloat();
                 float n3 = rand.nextFloat();
 
-                n1 = 0;
-                n2 = 0;
-                n3 = 0;
+                double x = x1 * zr0 * radius2;
+                double y = y1 * zr0 * radius2;
+                double z = z0 * radius2;
+
+                float extraLight = 0.3F;
+
+                n1 = (float) (x * lengthInv) * extraLight + (1F-extraLight);
+                n2 = (float) (y * lengthInv) * extraLight + (1F-extraLight);
+                n3 = (float) (z * lengthInv) * extraLight + (1F-extraLight);
 
                 bufferIn.vertex(x1 * zr0 * radius2 + cloudsX, y1 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
                 bufferIn.vertex(x0 * zr0 * radius2 + cloudsX, y0 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
