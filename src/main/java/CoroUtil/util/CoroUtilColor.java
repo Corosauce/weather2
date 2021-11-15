@@ -2,10 +2,10 @@ package CoroUtil.util;
 
 import CoroUtil.repack.de.androidpit.colorthief.ColorThief;
 import it.unimi.dsi.fastutil.ints.IntArrays;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
@@ -15,18 +15,18 @@ public class CoroUtilColor {
     
     @SuppressWarnings("null")
     public static int[] getColors(BlockState state) {
-        IBakedModel model;
+        BakedModel model;
 
         //used when foliage shader is on
 //        if (FoliageData.backupBakedModelStore.containsKey(state)) {
 //            model = FoliageData.backupBakedModelStore.get(state);
 //        } else {
-            model = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state);
+            model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state);
 //        }
 
-        if (model != null && !model.isBuiltInRenderer()) {
+        if (model != null && !model.isCustomRenderer()) {
             TextureAtlasSprite sprite = model.getParticleTexture(EmptyModelData.INSTANCE);
-            if (sprite != null && !sprite.getName().equals(MissingTextureSprite.getLocation())) {
+            if (sprite != null && !sprite.getName().equals(MissingTextureAtlasSprite.getLocation())) {
                 return getColors(sprite);
             }
         }

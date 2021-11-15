@@ -2,29 +2,29 @@ package weather2.util;
 
 import CoroUtil.util.CoroUtilEntOrParticle;
 import extendedrenderer.particle.entity.EntityRotFX;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.entity.passive.SquidEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FishingBobberEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Squid;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 
 public class WeatherUtilEntity {
 	
     public static float getWeight(Object entity1)
     {
-    	World world = CoroUtilEntOrParticle.getWorld(entity1);
+    	Level world = CoroUtilEntOrParticle.getWorld(entity1);
 
         if (world == null) {
             return 1F;
@@ -40,7 +40,7 @@ public class WeatherUtilEntity {
 			}
 		}
 
-		if (entity1 instanceof SquidEntity)
+		if (entity1 instanceof Squid)
 		{
 			return 400F;
 		}
@@ -59,20 +59,20 @@ public class WeatherUtilEntity {
         	
         	livingEnt.getPersistentData().putInt("timeInAir", airTime);
 
-			if (entity1 instanceof PlayerEntity) {
-				if (((PlayerEntity) entity1).abilities.isCreativeMode) return 99999999F;
+			if (entity1 instanceof Player) {
+				if (((Player) entity1).abilities.instabuild) return 99999999F;
 				return 5.0F + airTime / 400.0F;
 			} else {
 				return 500.0F + (livingEnt.isOnGround() ? 2.0F : 0.0F) + (airTime / 400.0F);
 			}
         }
 
-        if (entity1 instanceof BoatEntity || entity1 instanceof ItemEntity || entity1 instanceof FishingBobberEntity)
+        if (entity1 instanceof Boat || entity1 instanceof ItemEntity || entity1 instanceof FishingHook)
         {
             return 4000F;
         }
 
-        if (entity1 instanceof AbstractMinecartEntity)
+        if (entity1 instanceof AbstractMinecart)
         {
             return 80F;
         }
@@ -80,11 +80,11 @@ public class WeatherUtilEntity {
         return 1F;
     }
     
-    public static boolean isParticleRotServerSafe(World world, Object obj) {
+    public static boolean isParticleRotServerSafe(Level world, Object obj) {
     	if (EffectiveSide.get().equals(LogicalSide.SERVER)) {
     		return false;
     	}
-    	if (!world.isRemote) return false;
+    	if (!world.isClientSide) return false;
     	return isParticleRotClientCheck(obj);
     }
     
@@ -93,7 +93,7 @@ public class WeatherUtilEntity {
     }
     
     public static double getDistanceSqEntToPos(Entity ent, BlockPos pos) {
-    	return ent.getPositionVec().squareDistanceTo(Vector3d.copyCentered(pos));
+    	return ent.position().distanceToSqr(Vec3.atCenterOf(pos));
     }
 
 	public static boolean isEntityOutside(Entity parEnt) {
@@ -101,48 +101,48 @@ public class WeatherUtilEntity {
 	}
 
 	public static boolean isEntityOutside(Entity parEnt, boolean cheapCheck) {
-		return isPosOutside(parEnt.world, parEnt.getPositionVec(), cheapCheck);
+		return isPosOutside(parEnt.level, parEnt.position(), cheapCheck);
 	}
 
-	public static boolean isPosOutside(World parWorld, Vector3d parPos) {
+	public static boolean isPosOutside(Level parWorld, Vec3 parPos) {
 		return isPosOutside(parWorld, parPos, false);
 	}
 
-	public static boolean isPosOutside(World parWorld, Vector3d parPos, boolean cheapCheck) {
+	public static boolean isPosOutside(Level parWorld, Vec3 parPos, boolean cheapCheck) {
 		int rangeCheck = 5;
 		int yOffset = 1;
 
-		if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor(parPos.x), 0, MathHelper.floor(parPos.z))).getY() < parPos.y+1) return true;
+		if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(parPos.x), 0, Mth.floor(parPos.z))).getY() < parPos.y+1) return true;
 
 		if (cheapCheck) return false;
 
-		Vector3d vecTry = new Vector3d(parPos.x + Direction.NORTH.getXOffset()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.NORTH.getZOffset()*rangeCheck);
+		Vec3 vecTry = new Vec3(parPos.x + Direction.NORTH.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.NORTH.getStepZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 
-		vecTry = new Vector3d(parPos.x + Direction.SOUTH.getXOffset()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.SOUTH.getZOffset()*rangeCheck);
+		vecTry = new Vec3(parPos.x + Direction.SOUTH.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.SOUTH.getStepZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 
-		vecTry = new Vector3d(parPos.x + Direction.EAST.getXOffset()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.EAST.getZOffset()*rangeCheck);
+		vecTry = new Vec3(parPos.x + Direction.EAST.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.EAST.getStepZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 
-		vecTry = new Vector3d(parPos.x + Direction.WEST.getXOffset()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.WEST.getZOffset()*rangeCheck);
+		vecTry = new Vec3(parPos.x + Direction.WEST.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.WEST.getStepZ()*rangeCheck);
 		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
 
 		return false;
 	}
 
-	public static boolean checkVecOutside(World parWorld, Vector3d parPos, Vector3d parCheckPos) {
-		boolean dirNorth = parWorld.rayTraceBlocks(new RayTraceContext(parPos, parCheckPos, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, null)) == null;
+	public static boolean checkVecOutside(Level parWorld, Vec3 parPos, Vec3 parCheckPos) {
+		boolean dirNorth = parWorld.clip(new ClipContext(parPos, parCheckPos, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, null)) == null;
 		if (dirNorth) {
-			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(MathHelper.floor(parCheckPos.x), 0, MathHelper.floor(parCheckPos.z))).getY() < parCheckPos.y) return true;
+			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(parCheckPos.x), 0, Mth.floor(parCheckPos.z))).getY() < parCheckPos.y) return true;
 		}
 		return false;
 	}
 
 	public static boolean isPlayerSheltered(Entity player) {
-		int x = MathHelper.floor(player.getPosX());
-		int y = MathHelper.floor(player.getPosY() + player.getEyeHeight());
-		int z = MathHelper.floor(player.getPosZ());
-		return player.world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z) > y;
+		int x = Mth.floor(player.getX());
+		int y = Mth.floor(player.getY() + player.getEyeHeight());
+		int z = Mth.floor(player.getZ());
+		return player.level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) > y;
 	}
 }

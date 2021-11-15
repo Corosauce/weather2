@@ -2,7 +2,7 @@ package CoroUtil.util;
 
 import java.util.List;
 
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Full of repurposed stack overflow examples
@@ -19,13 +19,13 @@ public class CoroUtilPhysics {
      * @return true if the point is inside the boundary, false otherwise
      *
      */
-    public static boolean isInConvexShape(Vector3d test, List<Vector3d> field_75884_a) {
+    public static boolean isInConvexShape(Vec3 test, List<Vec3> nodes) {
     	int i;
     	int j;
     	boolean result = false;
-    	for (i = 0, j = field_75884_a.size() - 1; i < field_75884_a.size(); j = i++) {
-    		Vector3d vecI = field_75884_a.get(i);
-    		Vector3d vecJ = field_75884_a.get(j);
+    	for (i = 0, j = nodes.size() - 1; i < nodes.size(); j = i++) {
+    		Vec3 vecI = nodes.get(i);
+    		Vec3 vecJ = nodes.get(j);
     		if ((vecI.z > test.z) != (vecJ.z > test.z) &&
     				(test.x < (vecJ.x - vecI.x) * (test.z - vecI.z) / (vecJ.z-vecI.z) + vecI.x)) {
     			result = !result;
@@ -39,19 +39,19 @@ public class CoroUtilPhysics {
      * Doesnt check if you are inside shape, use isInConvexShape for that
      * 
      * @param point
-     * @param field_75884_a
+     * @param nodes
      * @return
      */
-    public static double getDistanceToShape(Vector3d point, List<Vector3d> field_75884_a) {
+    public static double getDistanceToShape(Vec3 point, List<Vec3> nodes) {
     	float closestDist1 = 9999;
     	float closestDist2 = 9999;
     	
-    	Vector3d closestPoint1 = null;
-    	Vector3d closestPoint2 = null;
+    	Vec3 closestPoint1 = null;
+    	Vec3 closestPoint2 = null;
     	
-    	//loop twice to account for edge case where field_75884_a are ordered in increasing order of closeness, causing second closest clause to never trigger
+    	//loop twice to account for edge case where nodes are ordered in increasing order of closeness, causing second closest clause to never trigger
     	for (int i = 0; i < 2; i++) {
-	    	for (Vector3d pointTest : field_75884_a) {
+	    	for (Vec3 pointTest : nodes) {
 	    		double dist = pointTest.distanceTo(point);
 	    		
 	    		if (dist < closestDist1) {
@@ -65,7 +65,7 @@ public class CoroUtilPhysics {
     	}
     	
     	if (closestPoint1 == null || closestPoint2 == null) {
-    		//should never happen unless too few field_75884_a
+    		//should never happen unless too few nodes
     		return -1;
     	}
     	

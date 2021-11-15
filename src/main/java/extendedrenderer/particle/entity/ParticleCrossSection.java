@@ -1,42 +1,42 @@
 package extendedrenderer.particle.entity;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
+import com.mojang.math.Quaternion;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector3f;
+import net.minecraft.world.level.Level;
 
 public class ParticleCrossSection extends ParticleTexFX {
 
-	public ParticleCrossSection(World worldIn, double posXIn, double posYIn,
+	public ParticleCrossSection(Level worldIn, double posXIn, double posYIn,
                                 double posZIn, double mX, double mY, double mZ,
                                 TextureAtlasSprite par8Item) {
-		super((ClientWorld) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
+		super((ClientLevel) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
 	}
 
 	@Override
-	public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
+	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 
-		Vector3d Vector3d = renderInfo.getProjectedView();
-		float f = (float)(MathHelper.lerp(partialTicks, this.prevPosX, this.posX) - Vector3d.getX());
-		float f1 = (float)(MathHelper.lerp(partialTicks, this.prevPosY, this.posY) - Vector3d.getY());
-		float f2 = (float)(MathHelper.lerp(partialTicks, this.prevPosZ, this.posZ) - Vector3d.getZ());
+		Vec3 Vector3d = renderInfo.getPosition();
+		float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) - Vector3d.x());
+		float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) - Vector3d.y());
+		float f2 = (float)(Mth.lerp(partialTicks, this.zo, this.z) - Vector3d.z());
 		Quaternion quaternion;
 		if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
-			quaternion = renderInfo.getRotation();
+			quaternion = renderInfo.rotation();
 		} else {
 			// override rotations
 			quaternion = new Quaternion(0, 0, 0, 1);
 			if (facePlayerYaw) {
-				quaternion.multiply(Vector3f.YP.rotationDegrees(-renderInfo.getYaw()));
+				quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
 			} else {
-				quaternion.multiply(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
+				quaternion.mul(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
 			}
-			quaternion.multiply(Vector3f.XP.rotationDegrees(MathHelper.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
+			quaternion.mul(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
 		}
 
 		Vector3f[] avector3f = new Vector3f[]{
@@ -57,7 +57,7 @@ public class ParticleCrossSection extends ParticleTexFX {
 				new Vector3f(1.0F, 0.0F, 1.0F),
 				new Vector3f(1.0F, 0.0F, -1.0F)};
 
-		float f4 = this.getScale(partialTicks);
+		float f4 = this.getQuadSize(partialTicks);
 
 		for(int i = 0; i < 4; ++i) {
 			Vector3f vector3f = avector3f[i];
@@ -80,30 +80,30 @@ public class ParticleCrossSection extends ParticleTexFX {
 			vector3f.add(f, f1, f2);
 		}
 
-		float f7 = this.getMinU();
-		float f8 = this.getMaxU();
-		float f5 = this.getMinV();
-		float f6 = this.getMaxV();
-		int j = this.getBrightnessForRender(partialTicks);
+		float f7 = this.getU0();
+		float f8 = this.getU1();
+		float f5 = this.getV0();
+		float f6 = this.getV1();
+		int j = this.getLightColor(partialTicks);
 		if (j > 0) {
 			lastNonZeroBrightness = j;
 		} else {
 			j = lastNonZeroBrightness;
 		}
-		buffer.pos(avector3f[0].getX(), avector3f[0].getY(), avector3f[0].getZ()).tex(f8, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f[1].getX(), avector3f[1].getY(), avector3f[1].getZ()).tex(f8, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f[2].getX(), avector3f[2].getY(), avector3f[2].getZ()).tex(f7, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f[3].getX(), avector3f[3].getY(), avector3f[3].getZ()).tex(f7, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
+		buffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
 
-		buffer.pos(avector3f2[0].getX(), avector3f2[0].getY(), avector3f2[0].getZ()).tex(f8, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f2[1].getX(), avector3f2[1].getY(), avector3f2[1].getZ()).tex(f8, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f2[2].getX(), avector3f2[2].getY(), avector3f2[2].getZ()).tex(f7, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f2[3].getX(), avector3f2[3].getY(), avector3f2[3].getZ()).tex(f7, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
+		buffer.vertex(avector3f2[0].x(), avector3f2[0].y(), avector3f2[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f2[1].x(), avector3f2[1].y(), avector3f2[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f2[2].x(), avector3f2[2].y(), avector3f2[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f2[3].x(), avector3f2[3].y(), avector3f2[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
 
-		buffer.pos(avector3f3[0].getX(), avector3f3[0].getY(), avector3f3[0].getZ()).tex(f8, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f3[1].getX(), avector3f3[1].getY(), avector3f3[1].getZ()).tex(f8, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f3[2].getX(), avector3f3[2].getY(), avector3f3[2].getZ()).tex(f7, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-		buffer.pos(avector3f3[3].getX(), avector3f3[3].getY(), avector3f3[3].getZ()).tex(f7, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
+		buffer.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		buffer.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
 
 	}
 }

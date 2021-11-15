@@ -1,30 +1,30 @@
 package weather2;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class PacketNBTFromClient {
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
 
-    public PacketNBTFromClient(CompoundNBT nbt) {
+    public PacketNBTFromClient(CompoundTag nbt) {
         this.nbt = nbt;
     }
 
-    public static void encode(PacketNBTFromClient msg, PacketBuffer buffer) {
-        buffer.writeCompoundTag(msg.nbt);
+    public static void encode(PacketNBTFromClient msg, FriendlyByteBuf buffer) {
+        buffer.writeNbt(msg.nbt);
     }
 
-    public static PacketNBTFromClient decode(PacketBuffer buffer) {
-        return new PacketNBTFromClient(buffer.readCompoundTag());
+    public static PacketNBTFromClient decode(FriendlyByteBuf buffer) {
+        return new PacketNBTFromClient(buffer.readNbt());
     }
 
     public static class Handler {
         public static void handle(final PacketNBTFromClient msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity playerEntity = ctx.get().getSender();
+            ServerPlayer playerEntity = ctx.get().getSender();
             if( playerEntity == null ) {
                 ctx.get().setPacketHandled(true);
                 return;
@@ -32,7 +32,7 @@ public class PacketNBTFromClient {
 
             ctx.get().enqueueWork(() -> {
                 try {
-                    CompoundNBT nbt = msg.nbt;
+                    CompoundTag nbt = msg.nbt;
 
                     String packetCommand = nbt.getString("packetCommand");
                     String command = nbt.getString("command");

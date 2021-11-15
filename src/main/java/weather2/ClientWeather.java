@@ -29,7 +29,7 @@ public final class ClientWeather {
 
 	@SubscribeEvent
 	public static void onWorldLoad(WorldEvent.Load event) {
-		if (event.getWorld().isRemote()) {
+		if (event.getWorld().isClientSide()) {
 			reset();
 		}
 	}

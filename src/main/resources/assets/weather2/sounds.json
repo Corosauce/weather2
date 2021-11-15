@@ -1,0 +1,256 @@
+{
+  "env.waterfall": {
+    "category": "weather",
+    "sounds": [
+      "weather2:env/waterfall"
+    ]
+  },
+  "env.wind_calm": {
+    "category": "weather",
+    "sounds": [
+      "weather2:env/wind_calm"
+    ]
+  },
+  "env.wind_calmfade": {
+    "category": "weather",
+    "sounds": [
+      "weather2:env/wind_calmfade"
+    ]
+  },
+  "streaming.destruction": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/destruction",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.destruction_0_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/destruction_0_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.destruction_1_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/destruction_1_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.destruction_2_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/destruction_2_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.destruction_s": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/destruction_s",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.destructionb": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/destructionb",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_close": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_close",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_close_0_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_close_0_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_close_1_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_close_1_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_close_2_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_close_2_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_far": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_far",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_far_0_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_far_0_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_far_1_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_far_1_",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.wind_far_2_": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/wind_far_2_",
+        "stream": true
+      }
+    ]
+  }
+  
+  ,
+  "streaming.sandstorm_high1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_high1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_med1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_med1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_med2": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_med2",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_low1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_low1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.sandstorm_low2": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/sandstorm_low2",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_1": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_1",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_2": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_2",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_3": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_3",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_4": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_4",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_5_extra": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_5_extra",
+        "stream": true
+      }
+    ]
+  },
+  "streaming.siren_sandstorm_6_extra": {
+    "category": "weather",
+    "sounds": [
+      {
+        "name": "weather2:streaming/siren_sandstorm_6_extra",
+        "stream": true
+      }
+    ]
+  }
+}

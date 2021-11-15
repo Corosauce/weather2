@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "coroutil:items/item_repairing_gel"
+  }
+}

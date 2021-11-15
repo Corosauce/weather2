@@ -1,9 +1,9 @@
 package extendedrenderer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.RainParticle;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.client.particle.WaterDropParticle;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
@@ -18,11 +18,11 @@ import weather2.Weather;
 public class ParticleRegistry2ElectricBubbleoo {
 
     @ObjectHolder("acidrain_splash")
-    public static BasicParticleType ACIDRAIN_SPLASH;
+    public static SimpleParticleType ACIDRAIN_SPLASH;
 
     @SubscribeEvent
     public static void registerParticles(RegistryEvent.Register<ParticleType<?>> evt){
-        BasicParticleType acidrain_splash = new BasicParticleType(false);
+        SimpleParticleType acidrain_splash = new SimpleParticleType(false);
         acidrain_splash.setRegistryName(Weather.MODID, "acidrain_splash");
         evt.getRegistry().register(acidrain_splash);
     }
@@ -30,7 +30,7 @@ public class ParticleRegistry2ElectricBubbleoo {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void registerParticleFactory(ParticleFactoryRegisterEvent evt){
-        Minecraft.getInstance().particles.registerFactory(ParticleRegistry2ElectricBubbleoo.ACIDRAIN_SPLASH,
-                RainParticle.Factory::new);
+        Minecraft.getInstance().particleEngine.register(ParticleRegistry2ElectricBubbleoo.ACIDRAIN_SPLASH,
+                WaterDropParticle.Provider::new);
     }
 }

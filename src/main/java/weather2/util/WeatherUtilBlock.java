@@ -1,18 +1,21 @@
 package weather2.util;
 
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import weather2.WeatherBlocks;
 import weather2.block.SandLayerBlock;
 
@@ -32,11 +35,11 @@ public class WeatherUtilBlock {
 
 	public static int layerableHeightPropMax = 8;
 
-	public static void fillAgainstWallSmoothly(World world, Vector3d posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable, int maxBlockStackingAllowed) {
+	public static void fillAgainstWallSmoothly(Level world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable, int maxBlockStackingAllowed) {
 		fillAgainstWallSmoothly(world, posSource, directionYaw, scanDistance, fillRadius, blockLayerable, 4, maxBlockStackingAllowed);
 	}
 
-	public static void fillAgainstWallSmoothly(World world, Vector3d posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable, int heightDiff, int maxBlockStackingAllowed) {
+	public static void fillAgainstWallSmoothly(Level world, Vec3 posSource, float directionYaw, float scanDistance, float fillRadius, Block blockLayerable, int heightDiff, int maxBlockStackingAllowed) {
 
 		//layerableHeightPropMax = 8;
 
@@ -74,8 +77,8 @@ public class WeatherUtilBlock {
 
 		//float startScan = scanDistance;
 
-		Vector3d posLastNonWall = new Vector3d(posSource.x, posSource.y, posSource.z);
-		Vector3d posWall = null;
+		Vec3 posLastNonWall = new Vec3(posSource.x, posSource.y, posSource.z);
+		Vec3 posWall = null;
 
 		BlockPos lastScannedPosXZ = null;//new BlockPos(posSourcei);
 
@@ -92,8 +95,8 @@ public class WeatherUtilBlock {
 			double vecX = (-Math.sin(Math.toRadians(directionYaw)) * (i));
 			double vecZ = (Math.cos(Math.toRadians(directionYaw)) * (i));
 
-			int x = MathHelper.floor(posSource.x + vecX);
-			int z = MathHelper.floor(posSource.z + vecZ);
+			int x = Mth.floor(posSource.x + vecX);
+			int z = Mth.floor(posSource.z + vecZ);
 
 			BlockPos pos = new BlockPos(x, y, z);
 			BlockPos posXZ = new BlockPos(x, 0, z);
@@ -103,11 +106,11 @@ public class WeatherUtilBlock {
 
 				lastScannedPosXZ = new BlockPos(posXZ);
 
-				AxisAlignedBB aabbCompare = new AxisAlignedBB(pos);
-				List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
-				VoxelShape voxelshape = VoxelShapes.create(aabbCompare);
+				AABB aabbCompare = new AABB(pos);
+				List<AABB> listAABBCollision = new ArrayList<>();
+				VoxelShape voxelshape = Shapes.create(aabbCompare);
 				//boolean collided = VoxelShapes.compare(state.getCollisionShapeUncached(world, pos).withOffset((double)l1, (double)k2, (double)i2), voxelshape, IBooleanFunction.AND);
-				boolean collided = VoxelShapes.compare(state.getCollisionShapeUncached(world, pos).withOffset(pos.getX(), pos.getY(), pos.getZ()), voxelshape, IBooleanFunction.AND);
+				boolean collided = Shapes.joinIsNotEmpty(state.getCollisionShape(world, pos).move(pos.getX(), pos.getY(), pos.getZ()), voxelshape, BooleanOp.AND);
 				//state.addCollisionBoxToList(world, pos, aabbCompare, listAABBCollision, null, false);
 
 				//TODO: isReplaceable would require a fake player, see if we can avoid using isReplaceable, it let us place into things like grass? maybe?
@@ -118,7 +121,7 @@ public class WeatherUtilBlock {
 				}*/
 
 				//if solid ground we can place on
-				if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANTS &&
+				if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANT &&
 						/*(!state.getBlock().isReplaceable(world, pos) && */collided) {
 					BlockPos posUp = new BlockPos(x, y + 1, z);
 					BlockState stateUp = world.getBlockState(posUp);
@@ -136,19 +139,19 @@ public class WeatherUtilBlock {
 								previousBlockHeight = height;
 							}
 
-							posLastNonWall = new Vector3d(posSource.x + vecX, y, posSource.z + vecZ);
+							posLastNonWall = new Vec3(posSource.x + vecX, y, posSource.z + vecZ);
 
 							//System.out.println(posLastNonWall);
 
 							continue;
 							//too high, count as a wall
 						} else {
-							posWall = new Vector3d(posSource.x + vecX, y, posSource.z + vecZ);
+							posWall = new Vec3(posSource.x + vecX, y, posSource.z + vecZ);
 							break;
 						}
 						//hit a wall
 					} else {
-						posWall = new Vector3d(posSource.x + vecX, y, posSource.z + vecZ);
+						posWall = new Vec3(posSource.x + vecX, y, posSource.z + vecZ);
 						break;
 					}
 
@@ -156,7 +159,7 @@ public class WeatherUtilBlock {
 					//posWall = new Vector3d(posSource.x + vecX, y, posSource.z + vecZ);
 					//break;
 				} else {
-					posLastNonWall = new Vector3d(posSource.x + vecX, y, posSource.z + vecZ);
+					posLastNonWall = new Vec3(posSource.x + vecX, y, posSource.z + vecZ);
 				}
 
 			} else {
@@ -169,10 +172,10 @@ public class WeatherUtilBlock {
 			int amountToAddPerXZ = 1;
 
 			BlockState state = world.getBlockState(new BlockPos(posWall));
-			BlockState state1 = world.getBlockState(new BlockPos(posLastNonWall).add(1, 0, 0));
-			BlockState state22 = world.getBlockState(new BlockPos(posLastNonWall).add(-1, 0, 0));
-			BlockState state3 = world.getBlockState(new BlockPos(posLastNonWall).add(0, 0, 1));
-			BlockState state4 = world.getBlockState(new BlockPos(posLastNonWall).add(0, 0, -1));
+			BlockState state1 = world.getBlockState(new BlockPos(posLastNonWall).offset(1, 0, 0));
+			BlockState state22 = world.getBlockState(new BlockPos(posLastNonWall).offset(-1, 0, 0));
+			BlockState state3 = world.getBlockState(new BlockPos(posLastNonWall).offset(0, 0, 1));
+			BlockState state4 = world.getBlockState(new BlockPos(posLastNonWall).offset(0, 0, -1));
 
 			//check all around place spot for cactus and cancel if true, to prevent cactus pop off when we place next to it
 			if (state.getBlock() == Blocks.CACTUS || state1.getBlock() == Blocks.CACTUS ||
@@ -192,7 +195,7 @@ public class WeatherUtilBlock {
 		}
 	}
 
-	public static int trySpreadOnPos2(World world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd, int maxDropAllowed, Block blockLayerable, int maxBlockStackingAllowed) {
+	public static int trySpreadOnPos2(Level world, BlockPos posSpreadTo, int amount, int amountAllowedToAdd, int maxDropAllowed, Block blockLayerable, int maxBlockStackingAllowed) {
 
 		if (amount <= 0) return amount;
 
@@ -209,7 +212,7 @@ public class WeatherUtilBlock {
 
 		//must have clear air above first spots
 		//TODO: might need special case so we can fill up a partially layered snow block
-		if (world.getBlockState(posSpreadTo.add(0, 1, 0)).getMaterial() != Material.AIR) {
+		if (world.getBlockState(posSpreadTo.offset(0, 1, 0)).getMaterial() != Material.AIR) {
 			return amount;
 		}
 
@@ -222,7 +225,7 @@ public class WeatherUtilBlock {
 
 		//find first non air
 		while (stateCheckNonAir.getMaterial() == Material.AIR) {
-			posCheckNonAir = posCheckNonAir.add(0, -1, 0);
+			posCheckNonAir = posCheckNonAir.offset(0, -1, 0);
 			stateCheckNonAir = world.getBlockState(posCheckNonAir);
 			depth++;
 			//bail if drop too far, aka sand/snow fully particleizes
@@ -252,7 +255,7 @@ public class WeatherUtilBlock {
 						//System.out.println("max snow stack allowed, bail");
 						return amount;
 					}
-					posCheckDownForStacks = posCheckDownForStacks.add(0, -1, 0);
+					posCheckDownForStacks = posCheckDownForStacks.offset(0, -1, 0);
 					stateCheckDownForStacks = world.getBlockState(posCheckDownForStacks);
 				}
 			}
@@ -263,21 +266,21 @@ public class WeatherUtilBlock {
 
 		while (true && distForPlaceableBlocks < 10) {
 			//if can be placed into, continue, as long as its not our block as it is replacable at layer height 1
-			AxisAlignedBB aabbCompare = new AxisAlignedBB(posCheckPlaceable);
+			AABB aabbCompare = new AABB(posCheckPlaceable);
 			//List<AxisAlignedBB> listAABBCollision = new ArrayList<>();
-			VoxelShape voxelshape = VoxelShapes.create(aabbCompare);
-			boolean collided = VoxelShapes.compare(stateCheckPlaceable.getCollisionShapeUncached(world, posCheckPlaceable).withOffset(posCheckPlaceable.getX(), posCheckPlaceable.getY(), posCheckPlaceable.getZ()), voxelshape, IBooleanFunction.AND);
+			VoxelShape voxelshape = Shapes.create(aabbCompare);
+			boolean collided = Shapes.joinIsNotEmpty(stateCheckPlaceable.getCollisionShape(world, posCheckPlaceable).move(posCheckPlaceable.getX(), posCheckPlaceable.getY(), posCheckPlaceable.getZ()), voxelshape, BooleanOp.AND);
 			//stateCheckPlaceable.addCollisionBoxToList(world, posCheckPlaceable, aabbCompare, listAABBCollision, null, false);
 
 			//TODO: isReplaceable would require a fake player, see if we can avoid using isReplaceable, it let us place into things like grass? maybe?
 
 			if (stateCheckPlaceable.getBlock() != blockLayerable && /*stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable) && */!collided && !stateCheckPlaceable.getMaterial().isLiquid()) {
-				posCheckPlaceable = posCheckPlaceable.add(0, -1, 0);
+				posCheckPlaceable = posCheckPlaceable.offset(0, -1, 0);
 				stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
 				distForPlaceableBlocks++;
 				continue;
 				//if its the kind of solid we want, break loop
-			} else if (stateCheckPlaceable.isSolidSide(world, posCheckPlaceable, Direction.UP) ||
+			} else if (stateCheckPlaceable.isFaceSturdy(world, posCheckPlaceable, Direction.UP) ||
 					stateCheckPlaceable.getBlock() == blockLayerable) {
 				break;
 				//its something we cant stack onto
@@ -293,7 +296,7 @@ public class WeatherUtilBlock {
 		}
 
 		//at this point the block we are about to work with is solid facing up, or snow
-		if (!stateCheckPlaceable.isSolidSide(world, posCheckPlaceable, Direction.UP) &&
+		if (!stateCheckPlaceable.isFaceSturdy(world, posCheckPlaceable, Direction.UP) &&
 				stateCheckPlaceable.getBlock() != blockLayerable) {
 			System.out.println("shouldnt be, failed a check somewhere!");
 			return amount;
@@ -303,7 +306,7 @@ public class WeatherUtilBlock {
 		for (int i = 0; i < distForPlaceableBlocks; i++) {
 			//System.out.println("clear out pos: " + posCheckNonAir);
 			//System.out.println("clear out pos: " + world.getBlockState(posCheckNonAir));
-			world.setBlockState(posCheckNonAir.add(0, -i, 0), Blocks.AIR.getDefaultState());
+			world.setBlockAndUpdate(posCheckNonAir.offset(0, -i, 0), Blocks.AIR.defaultBlockState());
 		}
 
 		BlockPos posPlaceLayerable = new BlockPos(posCheckPlaceable);
@@ -316,7 +319,7 @@ public class WeatherUtilBlock {
 
 		//just place while stuff to add and air above
 
-		while (amountAllowedToAdd > 0 && world.getBlockState(posPlaceLayerable.add(0, 1, 0)).getMaterial() == Material.AIR) {
+		while (amountAllowedToAdd > 0 && world.getBlockState(posPlaceLayerable.offset(0, 1, 0)).getMaterial() == Material.AIR) {
 			//if no more layers to add
 			if (amountAllowedToAdd <= 0) {
 				break;
@@ -336,20 +339,20 @@ public class WeatherUtilBlock {
 				}
 				try {
 					//System.out.println("new height: " + height);
-					world.setBlockState(posPlaceLayerable, setBlockWithLayerState(blockLayerable, height));
+					world.setBlockAndUpdate(posPlaceLayerable, setBlockWithLayerState(blockLayerable, height));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
 				//if we maxed it, up the val
 				if (height == layerableHeightPropMax) {
-					posPlaceLayerable = posPlaceLayerable.add(0, 1, 0);
+					posPlaceLayerable = posPlaceLayerable.offset(0, 1, 0);
 					statePlaceLayerable = world.getBlockState(posPlaceLayerable);
 				}
 				//}
 				//solid block------------------- or air because we moved up 1 due to the previous being fully filled snow
-			} else if (statePlaceLayerable.isSolidSide(world, posPlaceLayerable, Direction.UP)) {
-				posPlaceLayerable = posPlaceLayerable.add(0, 1, 0);
+			} else if (statePlaceLayerable.isFaceSturdy(world, posPlaceLayerable, Direction.UP)) {
+				posPlaceLayerable = posPlaceLayerable.offset(0, 1, 0);
 				statePlaceLayerable = world.getBlockState(posPlaceLayerable);
 				//air
 			} else if (statePlaceLayerable.getMaterial() == Material.AIR) {
@@ -365,14 +368,14 @@ public class WeatherUtilBlock {
 				try {
 					//System.out.println("air logic");
 					//TODO: if other idea fails, put the stacks of snow count check here
-					world.setBlockState(posPlaceLayerable, setBlockWithLayerState(blockLayerable, height));
+					world.setBlockAndUpdate(posPlaceLayerable, setBlockWithLayerState(blockLayerable, height));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
 				//if we maxed it, up the val
 				if (height == layerableHeightPropMax) {
-					posPlaceLayerable = posPlaceLayerable.add(0, 1, 0);
+					posPlaceLayerable = posPlaceLayerable.offset(0, 1, 0);
 					statePlaceLayerable = world.getBlockState(posPlaceLayerable);
 				}
 			} else {
@@ -392,9 +395,9 @@ public class WeatherUtilBlock {
 	public static int getHeightForAnyBlock(BlockState state) {
 		Block block = state.getBlock();
 		if (block == Blocks.SNOW) {
-			return state.get(SnowBlock.LAYERS).intValue();
+			return state.getValue(SnowLayerBlock.LAYERS).intValue();
 		} else if (block == WeatherBlocks.blockSandLayer) {
-			return state.get(SandLayerBlock.LAYERS).intValue();
+			return state.getValue(SandLayerBlock.LAYERS).intValue();
 		} else if (block == Blocks.SAND || block == Blocks.SNOW_BLOCK) {
 			return 8;
 		} else if (block instanceof SlabBlock) {
@@ -408,9 +411,9 @@ public class WeatherUtilBlock {
 
 	public static int getHeightForLayeredBlock(BlockState state) {
 		if (state.getBlock() == Blocks.SNOW) {
-			return (state.get(SnowBlock.LAYERS)).intValue();
+			return (state.getValue(SnowLayerBlock.LAYERS)).intValue();
 		} else if (state.getBlock() == WeatherBlocks.blockSandLayer) {
-			return state.get(SandLayerBlock.LAYERS).intValue();
+			return state.getValue(SandLayerBlock.LAYERS).intValue();
 		} else if (state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.SNOW_BLOCK) {
 			return 8;
 		} else {
@@ -423,15 +426,15 @@ public class WeatherUtilBlock {
 		boolean solidBlockUnderMode = true;
 		if (block == Blocks.SNOW) {
 			if (height == layerableHeightPropMax && solidBlockUnderMode) {
-				return Blocks.SNOW_BLOCK.getDefaultState();
+				return Blocks.SNOW_BLOCK.defaultBlockState();
 			} else {
-				return block.getDefaultState().with(SnowBlock.LAYERS, height);
+				return block.defaultBlockState().setValue(SnowLayerBlock.LAYERS, height);
 			}
 		} else if (block == WeatherBlocks.blockSandLayer) {
 			if (height == layerableHeightPropMax && solidBlockUnderMode) {
-				return Blocks.SAND.getDefaultState();
+				return Blocks.SAND.defaultBlockState();
 			} else {
-				return block.getDefaultState().with(SandLayerBlock.LAYERS, height);
+				return block.defaultBlockState().setValue(SandLayerBlock.LAYERS, height);
 			}
 		} else {
 			//means missing implementation
@@ -446,9 +449,9 @@ public class WeatherUtilBlock {
 	 * @param pos
 	 * @return
 	 */
-	public static BlockPos getPrecipitationHeightSafe(World world, BlockPos pos) {
-		if (world.isBlockLoaded(pos)) {
-			return world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos);
+	public static BlockPos getPrecipitationHeightSafe(Level world, BlockPos pos) {
+		if (world.hasChunkAt(pos)) {
+			return world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos);
 		} else {
 			return new BlockPos(pos.getX(), 0, pos.getZ());
 		}

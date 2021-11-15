@@ -1,7 +1,6 @@
 package weather2.util;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Caches nbt data to remove redundant data sending over network
@@ -11,30 +10,30 @@ import net.minecraft.nbt.CompoundNBT;
  * revisions made to further integrate it into the newer design of WeatherObjects
  */
 public class CachedNBTTagCompound {
-	private CompoundNBT newData;
-	private CompoundNBT cachedData;
+	private CompoundTag newData;
+	private CompoundTag cachedData;
 	private boolean forced = false;
 
 	public CachedNBTTagCompound() {
-		this.newData = new CompoundNBT();
-		this.cachedData = new CompoundNBT();
+		this.newData = new CompoundTag();
+		this.cachedData = new CompoundTag();
 	}
 
-	public void setCachedNBT(CompoundNBT cachedData) {
+	public void setCachedNBT(CompoundTag cachedData) {
 		if (cachedData == null)
-			cachedData = new CompoundNBT();
+			cachedData = new CompoundTag();
 		this.cachedData = cachedData;
 	}
 
-	public CompoundNBT getCachedNBT() {
+	public CompoundTag getCachedNBT() {
 		return cachedData;
 	}
 
-	public CompoundNBT getNewNBT() {
+	public CompoundTag getNewNBT() {
 		return newData;
 	}
 
-	public void setNewNBT(CompoundNBT newData) {
+	public void setNewNBT(CompoundTag newData) {
 		this.newData = newData;
 	}
 

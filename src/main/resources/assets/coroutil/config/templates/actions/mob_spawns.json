@@ -1,0 +1,729 @@
+{
+  "wiki": "//looking to customize your own invasions? see http://coros.us/wiki/index.php?title=Hostile_Worlds_-_Invasions_-_Customizing for helpfull info",
+  "format": "mob_spawns",
+  "templates": [
+    {
+      "name": "invasion_stage_1",
+      "wave_message": "§cAn invasion has started! Zombie Miners!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 1,
+          "max": 1
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 3,
+          "count_max": 5,
+          "count_difficulty_multiplier": 2,
+          "spawn_type": "ground",
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 15,
+          "count_difficulty_multiplier": 2,
+          "spawn_type": "ground",
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_2",
+      "wave_message": "§cAn invasion has started! Miners and Skeletons!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 2,
+          "max": 2
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 3,
+          "count_max": 5,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:skeleton"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales_no_weapon"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_1_zombies",
+      "wave_message": "§cAn invasion has started! Miners and Zombies!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 30,
+          "count_difficulty_multiplier": 0.5,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_2_skeletons",
+      "wave_message": "§cAn invasion has started! Miners and Skeletons!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:skeleton"
+          ],
+          "count": 5,
+          "count_max": 30,
+          "count_difficulty_multiplier": 1,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales_no_weapon"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_3_endermen",
+      "wave_message": "§cAn invasion has started! Miners and Endermen!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:enderman"
+          ],
+          "count": 5,
+          "count_max": 30,
+          "count_difficulty_multiplier": 0.5,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_4_creepers",
+      "wave_message": "§cAn invasion has started! Miners and Creepers!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:creeper"
+          ],
+          "count": 5,
+          "count_max": 30,
+          "count_difficulty_multiplier": 0.5,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_5_bats",
+      "wave_message": "§cAn invasion has started! Miners and Bats!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:bat"
+          ],
+          "count": 15,
+          "count_max": 40,
+          "count_difficulty_multiplier": 0.5,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            },
+            {
+              "cmod": "ai_attack_melee"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_6_spiders",
+      "wave_message": "§cAn invasion has started! Miners and Spiders!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:spider"
+          ],
+          "count": 15,
+          "count_max": 40,
+          "count_difficulty_multiplier": 0.5,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_7_infernal",
+      "wave_message": "§cAn invasion has started! Miners and Infernal Mobs!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 7
+        },
+        {
+          "condition": "random",
+          "weight": 3
+        },
+        {
+          "condition": "mod_loaded",
+          "mod_id": "infernalmobs"
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:zombie", "minecraft:skeleton"
+          ],
+          "count": 3,
+          "count_max": 8,
+          "count_difficulty_multiplier": 0.5,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales_no_weapon"
+            },
+            {
+              "cmod": "attribute_attackdamage",
+              "base_value": 5,
+              "max_value": 10,
+              "difficulty_multiplier": 0.5
+            },
+            {
+              "cmod": "attribute_health",
+              "base_value": 50,
+              "max_value": 150,
+              "difficulty_multiplier": 1.0
+            },
+            {
+              "cmod": "attribute_speed",
+              "base_value": 0.23,
+              "max_value": 0.3,
+              "difficulty_multiplier": 0.5
+            },
+            {
+              "cmod": "attribute_speed_flying",
+              "base_value": 3.0,
+              "max_value": 5,
+              "difficulty_multiplier": 0.5
+            },
+            {
+              "cmod": "xp",
+              "base_value": 50,
+              "difficulty_multiplier": 1.5
+            },
+            {
+              "cmod": "ai_infernal",
+              "randomly_choose_count": "10",
+              "difficulty_multiplier": 1.0,
+              "modifiers": [
+                "1UP", "Alchemist", "Berserk", "Blastoff", "Bulwark", "Choke", "Cloaking", "Darkness", "Ender",
+                "Exhaust", "Fiery", "Ghastly", "Gravity", "LifeSteal", "Ninja", "Poisonous", "Quicksand", "Regen",
+                "Rust", "Sapper", "Sprint", "Sticky", "Storm", "Vengeance", "Weakness", "Webber", "Wither"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_8_zombie_players",
+      "wave_message": "§cAn invasion has started! Your zombie player friends have arrived and want to check out your base!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 5
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        },
+        {
+          "condition": "mod_loaded",
+          "mod_id": "zombie_players"
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "zombie_players:zombie_player"
+          ],
+          "count": 5,
+          "count_max": 20,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_9_crazy_animals",
+      "wave_message": "§cAn invasion has started! Animals have gone crazy! Also miners!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 3
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 3,
+          "count_max": 6,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "cow", "pig", "sheep", "chicken", "wolf", "ocelot", "parrot", "polar_bear", "rabbit", "horse", "donkey", "mule", "llama"
+          ],
+          "count": 20,
+          "count_max": 30,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "ai_omniscience"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            },
+            {
+              "cmod": "ai_attack_melee"
+            },
+            {
+              "cmod": "attribute_attackdamage",
+              "base_value": 5,
+              "max_value": 10,
+              "difficulty_multiplier": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_3_opt_10_illagers",
+      "wave_message": "§cAn invasion has started! The illagers are coming! Also miners!",
+      "conditions": [
+        {
+          "condition": "invasion_number",
+          "min": 5
+        },
+        {
+          "condition": "random",
+          "weight": 10
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "vindication_illager", "illusion_illager"
+          ],
+          "count": 4,
+          "count_max": 15,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "evocation_illager"
+          ],
+          "count": 1,
+          "count_max": 2,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "buffed_attributes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

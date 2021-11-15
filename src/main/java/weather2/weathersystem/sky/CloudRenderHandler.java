@@ -1,32 +1,36 @@
 package weather2.weathersystem.sky;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import extendedrenderer.particle.ParticleRegistry;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector3f;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ICloudRenderHandler;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 
 public class CloudRenderHandler implements ICloudRenderHandler {
 
@@ -35,32 +39,32 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     private VertexBuffer cloudVBO;
 
     @Override
-    public void render(int ticks, float partialTicks, MatrixStack matrixStackIn, ClientWorld world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
+    public void render(int ticks, float partialTicks, PoseStack matrixStackIn, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
         int method = 3;
         if (method == 0) {
-            BlockState blockstate = Blocks.ICE.getDefaultState();
-            Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-            BufferBuilder bufferIn = Tessellator.getInstance().getBuffer();
+            BlockState blockstate = Blocks.ICE.defaultBlockState();
+            Minecraft.getInstance().getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+            BufferBuilder bufferIn = Tesselator.getInstance().getBuilder();
             //IRenderTypeBuffer.Impl bufferIn = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-            if (blockstate.getRenderType() == BlockRenderType.MODEL) {
+            if (blockstate.getRenderShape() == RenderShape.MODEL) {
                 //matrixStackIn.push();
                 BlockPos blockpos = new BlockPos(viewEntityX, viewEntityY + 2, viewEntityZ);
                 blockpos = new BlockPos(0, 0 + 0, 0);
 
-                matrixStackIn.push();
+                matrixStackIn.pushPose();
 
                 matrixStackIn.translate(-0.5D, 0.0D, -0.5D);
-                BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
-                for (net.minecraft.client.renderer.RenderType type : net.minecraft.client.renderer.RenderType.getBlockRenderTypes()) {
+                BlockRenderDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
+                for (net.minecraft.client.renderer.RenderType type : net.minecraft.client.renderer.RenderType.chunkBufferLayers()) {
                     //if (RenderTypeLookup.canRenderInLayer(blockstate, type)) {
                         net.minecraftforge.client.ForgeHooksClient.setRenderLayer(type);
-                        bufferIn.begin(7, DefaultVertexFormats.BLOCK);
-                        blockrendererdispatcher.getBlockModelRenderer().renderModel(world, blockrendererdispatcher.getModelForState(blockstate), blockstate, blockpos, matrixStackIn, bufferIn, false, new Random(), 0, OverlayTexture.NO_OVERLAY);
-                        bufferIn.finishDrawing();
+                        bufferIn.begin(7, DefaultVertexFormat.BLOCK);
+                        blockrendererdispatcher.getModelRenderer().tesselateBlock(world, blockrendererdispatcher.getBlockModel(blockstate), blockstate, blockpos, matrixStackIn, bufferIn, false, new Random(), 0, OverlayTexture.NO_OVERLAY);
+                        bufferIn.end();
                     //}
                 }
 
-                matrixStackIn.pop();
+                matrixStackIn.popPose();
 
                 net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
                 //matrixStackIn.pop();
@@ -74,12 +78,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             RenderSystem.enableFog();
             RenderSystem.depthMask(true);
-            BufferBuilder bufferIn = Tessellator.getInstance().getBuffer();
+            BufferBuilder bufferIn = Tesselator.getInstance().getBuilder();
 
             VertexBuffer cloudsVBO;
-            cloudsVBO = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+            cloudsVBO = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
-            bufferIn.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+            bufferIn.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
             double l1 = 0;
             double f17 = 0;
@@ -93,33 +97,33 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             float f6 = 1;
             float f7 = 1;
 
-            bufferIn.pos((double)(l1 + 0), (double)f17, (double)(i2 + 32)).tex((float)(l1 + 0) * 0.00390625F + f3, (float)(i2 + 32) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
-            bufferIn.pos((double)(l1 + 32), (double)f17, (double)(i2 + 32)).tex((float)(l1 + 32) * 0.00390625F + f3, (float)(i2 + 32) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
-            bufferIn.pos((double)(l1 + 32), (double)f17, (double)(i2 + 0)).tex((float)(l1 + 32) * 0.00390625F + f3, (float)(i2 + 0) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
-            bufferIn.pos((double)(l1 + 0), (double)f17, (double)(i2 + 0)).tex((float)(l1 + 0) * 0.00390625F + f3, (float)(i2 + 0) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
+            bufferIn.vertex((double)(l1 + 0), (double)f17, (double)(i2 + 32)).uv((float)(l1 + 0) * 0.00390625F + f3, (float)(i2 + 32) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
+            bufferIn.vertex((double)(l1 + 32), (double)f17, (double)(i2 + 32)).uv((float)(l1 + 32) * 0.00390625F + f3, (float)(i2 + 32) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
+            bufferIn.vertex((double)(l1 + 32), (double)f17, (double)(i2 + 0)).uv((float)(l1 + 32) * 0.00390625F + f3, (float)(i2 + 0) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
+            bufferIn.vertex((double)(l1 + 0), (double)f17, (double)(i2 + 0)).uv((float)(l1 + 0) * 0.00390625F + f3, (float)(i2 + 0) * 0.00390625F + f4).color(f5, f6, f7, 0.8F).normal(0.0F, -1.0F, 0.0F).endVertex();
 
-            bufferIn.finishDrawing();
+            bufferIn.end();
             cloudsVBO.upload(bufferIn);
 
             ResourceLocation CLOUDS_TEXTURES = new ResourceLocation("textures/environment/clouds.png");
-            Minecraft.getInstance().textureManager.bindTexture(CLOUDS_TEXTURES);
+            Minecraft.getInstance().textureManager.bind(CLOUDS_TEXTURES);
             //Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-            matrixStackIn.push();
+            matrixStackIn.pushPose();
             //matrixStackIn.scale(12.0F, 1.0F, 12.0F);
             matrixStackIn.scale(0.01F, 1F, 0.01F);
             matrixStackIn.translate((double)(-f3), (double)f4 - 0.8, (double)(-f5));
 
-            cloudsVBO.bindBuffer();
-            DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
+            cloudsVBO.bind();
+            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
 
             RenderSystem.colorMask(true, true, true, true);
             //RenderSystem.colorMask(false, false, false, false);
 
-            cloudsVBO.draw(matrixStackIn.getLast().getMatrix(), 7);
-            VertexBuffer.unbindBuffer();
-            DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.clearBufferState();
+            cloudsVBO.draw(matrixStackIn.last().pose(), 7);
+            VertexBuffer.unbind();
+            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.clearBufferState();
 
-            matrixStackIn.pop();
+            matrixStackIn.popPose();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.disableAlphaTest();
             RenderSystem.enableCull();
@@ -135,16 +139,16 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             //RenderSystem.enableFog();
             RenderSystem.depthMask(true);
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+            BufferBuilder buffer = Tesselator.getInstance().getBuilder();
 
-            Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_PARTICLES_TEXTURE);
+            Minecraft.getInstance().getTextureManager().bind(TextureAtlas.LOCATION_PARTICLES);
             //GlStateManager.disableTexture();
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-            PlayerEntity player = Minecraft.getInstance().player;
-            double playerX = player.getPosX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+            Player player = Minecraft.getInstance().player;
+            double playerX = player.getX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
             //playerX = (MathHelper.lerp(partialTicks, player.prevPosX, player.getPosX()) - player.getPosX());
-            double playerY = player.getPosY();
-            double playerZ = player.getPosZ();
+            double playerY = player.getY();
+            double playerZ = player.getZ();
             //playerZ = (MathHelper.lerp(partialTicks, player.prevPosZ, player.getPosZ()) - player.getPosZ());
 
             double x = 5911 - (playerX);
@@ -179,7 +183,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     //double g = 0.8 + rand.nextDouble() * 0.2;
                     //double b = 0.8 + rand.nextDouble() * 0.2;
                     float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
-                    renderSphere(buffer, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
+                    renderSphere(buffer, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vec3(r, r, r), scale);
                     index++;
                 }
             }
@@ -188,8 +192,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
 
 
-            Tessellator tessellator = Tessellator.getInstance();
-            tessellator.draw();
+            Tesselator tessellator = Tesselator.getInstance();
+            tessellator.end();
 
             //DefaultVertexFormats.POSITION_COLOR.clearBufferState();
             //DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.clearBufferState();
@@ -211,13 +215,13 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             //RenderSystem.enableFog();
             RenderSystem.depthMask(true);
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+            BufferBuilder buffer = Tesselator.getInstance().getBuilder();
 
-            Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_PARTICLES_TEXTURE);
+            Minecraft.getInstance().getTextureManager().bind(TextureAtlas.LOCATION_PARTICLES);
             //GlStateManager.disableTexture();
 
             //this.cloudsNeedUpdate = true;
-            BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+            BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
             boolean force = true;
 
@@ -225,10 +229,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 if (this.cloudVBO != null) {
                     this.cloudVBO.close();
                 }
-                this.cloudVBO = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-                bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-                renderSphere(bufferbuilder, 0, 0, 0, new Vector3d(1, 1, 1), 0.1F);
-                bufferbuilder.finishDrawing();
+                this.cloudVBO = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+                bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+                renderSphere(bufferbuilder, 0, 0, 0, new Vec3(1, 1, 1), 0.1F);
+                bufferbuilder.end();
                 this.cloudVBO.upload(bufferbuilder);
             }
 
@@ -241,14 +245,14 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     this.cloudsVBO.close();
                 }
 
-                this.cloudsVBO = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+                this.cloudsVBO = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
                 //this.drawClouds(bufferbuilder, d2, d3, d4, vector3d);
-                PlayerEntity player = Minecraft.getInstance().player;
-                double playerX = player.getPosX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
+                Player player = Minecraft.getInstance().player;
+                double playerX = player.getX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
                 //playerX = (MathHelper.lerp(partialTicks, player.prevPosX, player.getPosX()) - player.getPosX());
-                double playerY = player.getPosY();
-                double playerZ = player.getPosZ();
+                double playerY = player.getY();
+                double playerZ = player.getZ();
                 //playerZ = (MathHelper.lerp(partialTicks, player.prevPosZ, player.getPosZ()) - player.getPosZ());
 
                 double x = 5911 - (playerX);
@@ -266,7 +270,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int clusters = 50;
                 int clusterDensity = 50;
 
-                bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+                bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
                 for (int i = 0; i < 1; i++) {
                     double xx = rand.nextInt(randRange) - rand.nextInt(randRange);
@@ -286,12 +290,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                         //double b = 0.8 + rand.nextDouble() * 0.2;
                         float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
                         //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
-                        renderSphere(bufferbuilder, 0, 10, 0, new Vector3d(r, r, r), 0.1F);
+                        renderSphere(bufferbuilder, 0, 10, 0, new Vec3(r, r, r), 0.1F);
                         index++;
                     }
                 }
 
-                bufferbuilder.finishDrawing();
+                bufferbuilder.end();
                 this.cloudsVBO.upload(bufferbuilder);
             }
 
@@ -299,13 +303,13 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             //matrixStackIn.scale(12.0F, 1.0F, 12.0F);
             //matrixStackIn.translate((double)(-f3), (double)f4, (double)(-f5));
             if (this.cloudsVBO != null && uhh && false) {
-                this.cloudsVBO.bindBuffer();
-                DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
+                this.cloudsVBO.bind();
+                DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
 
-                this.cloudsVBO.draw(matrixStackIn.getLast().getMatrix(), GL11.GL_QUADS);
+                this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
 
-                VertexBuffer.unbindBuffer();
-                DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.clearBufferState();
+                VertexBuffer.unbind();
+                DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.clearBufferState();
             }
 
             /*matrixStackIn.pop();
@@ -318,11 +322,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             boolean vboEachCloud = true;
 
             if (vboEachCloud) {
-                PlayerEntity player = Minecraft.getInstance().player;
-                double playerX = player.getPosX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
+                Player player = Minecraft.getInstance().player;
+                double playerX = player.getX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
                 //playerX = (MathHelper.lerp(partialTicks, player.prevPosX, player.getPosX()) - player.getPosX());
-                double playerY = player.getPosY();
-                double playerZ = player.getPosZ();
+                double playerY = player.getY();
+                double playerZ = player.getZ();
                 //playerZ = (MathHelper.lerp(partialTicks, player.prevPosZ, player.getPosZ()) - player.getPosZ());
 
                 double x = 5911 - (playerX);
@@ -342,8 +346,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                 //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-                this.cloudsVBO.bindBuffer();
-                DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
+                this.cloudsVBO.bind();
+                DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
 
                 for (int i = 0; i < clusters; i++) {
                     double xx = rand.nextInt(randRange) - rand.nextInt(randRange);
@@ -364,20 +368,20 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                         float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
                         //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
 
-                        matrixStackIn.push();
+                        matrixStackIn.pushPose();
                         matrixStackIn.translate(x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz);
                         matrixStackIn.scale(scale, scale, scale);
 
-                        this.cloudsVBO.draw(matrixStackIn.getLast().getMatrix(), GL11.GL_QUADS);
+                        this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
 
-                        matrixStackIn.pop();
+                        matrixStackIn.popPose();
 
                         index++;
                     }
                 }
 
-                VertexBuffer.unbindBuffer();
-                DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.clearBufferState();
+                VertexBuffer.unbind();
+                DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.clearBufferState();
 
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.disableAlphaTest();
@@ -388,7 +392,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         }
     }
 
-    private void renderCube(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vector3d cloudsColor, float scale) {
+    private void renderCube(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vec3 cloudsColor, float scale) {
         Vector3f[] avector3f3 = new Vector3f[]{
                 new Vector3f(-1.0F, 0.0F, -1.0F),
                 new Vector3f(-1.0F, 0.0F, 1.0F),
@@ -403,10 +407,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         TextureAtlasSprite sprite = ParticleRegistry.cloudNew;
 
-        float f7 = sprite.getMinU();
-        float f8 = sprite.getMaxU();
-        float f5 = sprite.getMinV();
-        float f6 = sprite.getMaxV();
+        float f7 = sprite.getU0();
+        float f8 = sprite.getU1();
+        float f5 = sprite.getV0();
+        float f6 = sprite.getV1();
 
 
         float particleRed = (float) cloudsColor.x;
@@ -414,19 +418,19 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         float particleBlue = (float) cloudsColor.z;
         float particleAlpha = 1;
 
-        bufferIn.pos(avector3f3[0].getX(), avector3f3[0].getY(), avector3f3[0].getZ()).tex(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
-        bufferIn.pos(avector3f3[1].getX(), avector3f3[1].getY(), avector3f3[1].getZ()).tex(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
-        bufferIn.pos(avector3f3[2].getX(), avector3f3[2].getY(), avector3f3[2].getZ()).tex(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
-        bufferIn.pos(avector3f3[3].getX(), avector3f3[3].getY(), avector3f3[3].getZ()).tex(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
+        bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
+        bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
+        bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
+        bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
     }
 
-    private void renderSphere(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vector3d cloudsColor, float scale) {
+    private void renderSphere(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vec3 cloudsColor, float scale) {
         TextureAtlasSprite sprite = ParticleRegistry.cloud_square;
 
-        float f7 = sprite.getMinU();
-        float f8 = sprite.getMaxU();
-        float f5 = sprite.getMinV();
-        float f6 = sprite.getMaxV();
+        float f7 = sprite.getU0();
+        float f8 = sprite.getU1();
+        float f5 = sprite.getV0();
+        float f6 = sprite.getV1();
 
         float uRange = f8 - f7;
         float yRange = f6 - f5;
@@ -502,10 +506,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 n2 = 0;
                 n3 = 0;
 
-                bufferIn.pos(x1 * zr0 * radius2 + cloudsX, y1 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).tex(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                bufferIn.pos(x0 * zr0 * radius2 + cloudsX, y0 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).tex(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
-                bufferIn.pos(x0 * zr1 * radius2 + cloudsX, y0 * zr1 * radius2 + cloudsY, z1 * radius2 + cloudsZ).tex(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                bufferIn.pos(x1 * zr1 * radius2 + cloudsX, y1 * zr1 * radius2 + cloudsY, z1 * radius2 + cloudsZ).tex(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                bufferIn.vertex(x1 * zr0 * radius2 + cloudsX, y1 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                bufferIn.vertex(x0 * zr0 * radius2 + cloudsX, y0 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                bufferIn.vertex(x0 * zr1 * radius2 + cloudsX, y0 * zr1 * radius2 + cloudsY, z1 * radius2 + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                bufferIn.vertex(x1 * zr1 * radius2 + cloudsX, y1 * zr1 * radius2 + cloudsY, z1 * radius2 + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
 
                 iter2++;
             }

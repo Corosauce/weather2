@@ -1,10 +1,10 @@
 package weather2.weathersystem.storm;
 
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import weather2.util.CachedNBTTagCompound;
 import weather2.weathersystem.WeatherManager;
 
@@ -23,9 +23,9 @@ public class WeatherObject {
 	
 	public WeatherManager manager;
 	
-	public Vector3d pos = Vector3d.ZERO;
-	public Vector3d posGround = Vector3d.ZERO;
-	public Vector3d motion = Vector3d.ZERO;
+	public Vec3 pos = Vec3.ZERO;
+	public Vec3 posGround = Vec3.ZERO;
+	public Vec3 motion = Vec3.ZERO;
 
 	//used as radius
 	public int size = 50;
@@ -99,9 +99,9 @@ public class WeatherObject {
 		ID = parNBT.getLong("ID");
 		//Weather.dbg("StormObject " + ID + " receiving sync");
 		
-		pos = new Vector3d(parNBT.getDouble("posX"), parNBT.getDouble("posY"), parNBT.getDouble("posZ"));
+		pos = new Vec3(parNBT.getDouble("posX"), parNBT.getDouble("posY"), parNBT.getDouble("posZ"));
 		//motion = new Vec3(parNBT.getDouble("motionX"), parNBT.getDouble("motionY"), parNBT.getDouble("motionZ"));
-		motion = new Vector3d(parNBT.getDouble("vecX"), parNBT.getDouble("vecY"), parNBT.getDouble("vecZ"));
+		motion = new Vec3(parNBT.getDouble("vecX"), parNBT.getDouble("vecY"), parNBT.getDouble("vecZ"));
 		size = parNBT.getInt("size");
 		maxSize = parNBT.getInt("maxSize");
 		this.weatherObjectType = EnumWeatherObjectType.get(parNBT.getInt("weatherObjectType"));

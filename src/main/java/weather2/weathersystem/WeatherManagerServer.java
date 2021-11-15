@@ -1,23 +1,19 @@
 package weather2.weathersystem;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.weather.StormState;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ChunkManager;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import weather2.PacketNBTFromServer;
 import weather2.WeatherBlocks;
 import weather2.WeatherNetworking;
@@ -31,15 +27,15 @@ import java.util.Optional;
 import java.util.Random;
 
 public class WeatherManagerServer extends WeatherManager {
-	private final ServerWorld world;
+	private final ServerLevel world;
 
-	public WeatherManagerServer(ServerWorld world) {
-		super(world.getDimensionKey());
+	public WeatherManagerServer(ServerLevel world) {
+		super(world.dimension());
 		this.world = world;
 	}
 
 	@Override
-	public World getWorld() {
+	public Level getWorld() {
 		return world;
 	}
 
@@ -69,22 +65,22 @@ public class WeatherManagerServer extends WeatherManager {
 	}
 
 	public void tickStormBlockBuildup(StormState stormState, Block block) {
-		World world = getWorld();
+		Level world = getWorld();
 		WindManager windMan = getWindManager();
-		Random rand = world.rand;
+		Random rand = world.random;
 
 		float angle = windMan.getWindAngle();
 
 		if (world.getGameTime() % stormState.getBuildupTickRate() == 0) {
-			List<ChunkHolder> list = Lists.newArrayList(((ServerWorld)world).getChunkProvider().chunkManager.getLoadedChunksIterable());
+			List<ChunkHolder> list = Lists.newArrayList(((ServerLevel)world).getChunkSource().chunkMap.getChunks());
 			Collections.shuffle(list);
 			list.forEach((p_241099_7_) -> {
-				Optional<Chunk> optional = p_241099_7_.getTickingFuture().getNow(ChunkHolder.UNLOADED_CHUNK).left();
+				Optional<LevelChunk> optional = p_241099_7_.getTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
 				if (optional.isPresent()) {
 					for (int i = 0; i < 10; i++) {
 						BlockPos blockPos = new BlockPos((optional.get().getPos().x * 16) + rand.nextInt(16), 0, (optional.get().getPos().z * 16) + rand.nextInt(16));
 						int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, blockPos).getY();
-						Vector3d pos = new Vector3d(blockPos.getX(), y, blockPos.getZ());
+						Vec3 pos = new Vec3(blockPos.getX(), y, blockPos.getZ());
 						WeatherUtilBlock.fillAgainstWallSmoothly(world, pos, angle, 15, 2, block, stormState.getMaxStackable());
 					}
 				}
@@ -94,7 +90,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 	public void syncStormRemove(WeatherObject parStorm) {
 		//packets
-		CompoundNBT data = new CompoundNBT();
+		CompoundTag data = new CompoundTag();
 		data.putString("packetCommand", "WeatherData");
 		data.putString("command", "syncStormRemove");
 		parStorm.nbtSyncForClient();
@@ -103,15 +99,15 @@ public class WeatherManagerServer extends WeatherManager {
 		//fix for client having broken states
 		data.getCompound("data").putBoolean("removed", true);
 		//Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
-		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().getDimensionKey()), new PacketNBTFromServer(data));
+		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 	}
 
 	public void syncWindUpdate(WindManager parManager) {
 		//packets
-		CompoundNBT data = new CompoundNBT();
+		CompoundTag data = new CompoundTag();
 		data.putString("packetCommand", "WeatherData");
 		data.putString("command", "syncWindUpdate");
 		data.put("data", parManager.nbtSyncForClient());
-		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().getDimensionKey()), new PacketNBTFromServer(data));
+		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 	}
 }

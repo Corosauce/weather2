@@ -1,0 +1,270 @@
+{
+  "wiki": "//looking to customize your own invasions? see http://coros.us/wiki/index.php?title=Hostile_Worlds_-_Invasions_-_Customizing for helpfull info",
+  "format": "mob_spawns_example_commented",
+  "comment": "//for your main file, normally this should always be named mob_spawns, if you want to test and switch between json files, name the above field differently and change the config option mobSpawnsProfile in CoroUtil developer config file to the name",
+  "templates": [
+    {
+      "name": "invasion_stage_1_opt_1",
+      "comment": "//name of this wave option, should be uniquely named for troubleshooting, not used anywhere else",
+      "wave_message": "miners!",
+      "comment": "//optional, custom invasion start message",
+      "conditions": [
+        {
+          "condition": "random",
+          "weight": 3
+        },
+        {
+          "condition": "difficulty",
+          "min": 0,
+          "max": 0.1
+        }
+      ],
+      "comment": "//conditions are optional, but should be structured like this above, see json file all_conditions for everything you can use",
+      "spawns": [
+        {
+          "comment0": "//you can have multiple object entries in the spawns array, this is the first, both the first and second and so on will be used if all the conditions matched",
+          "entities": [
+            "minecraft:zombie", "minecraft:skeleton"
+          ],
+          "comment": "//a list of entities spawnable for this profile, minimum entry of 1 required, will randomize between them",
+          "count": 2,
+          "comment": "//the minimum base amount that will spawn at difficulty of 0, if the entities list above has multiple entries, it will not increase the amount spawned",
+          "count_max": 5,
+          "comment": "//optional, a safety hard limit on the max spawnable, even if difficulty multiplier is over this amount",
+          "count_difficulty_multiplier": 2,
+          "comment": "//multiplies the amount that will spawn by local dynamic difficulty * this multiplier",
+          "comment": "//the formula is: count + (count * difficulty * count_difficulty_multiplier)",
+          "comment": "//example: with a count of 5, difficulty of 0.5 and count_difficulty_multiplier of 2: 5 + (5 * 0.5 * 2) = 10",
+          "comment": "//setting count_difficulty_multiplier to 0 will make the amount of mobs spawned always equal the count field",
+          "spawn_type": "ground",
+          "comment": "//optional, specifies how to spawn the entities in the list, choices are: ground, surface, cave, air, water",
+          "comment": "//if ground: will try to spawn either on the surface or in a cave depending on where the player is",
+          "comment": "//if surface: will try to spawn on the surface, a place that can see the sky",
+          "comment": "//if cave: will try to spawn in a cave, a dark stoney place that cant see the sky",
+          "comment": "//if air: will try to spawn in open air, not requiring a block under it",
+          "comment": "//if water: will try to spawn underwater",
+
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "attribute_health",
+              "base_value": 40,
+              "difficulty_multiplier": 1.5
+            }
+          ],
+          "comment": "//cmods are optional, but should be structured like this above, see json file all_cmods for everything you can use"
+        },
+        {
+          "comment": "//you can have multiple object entries in the spawns array, this is the second, this is the last comment, everything below is just more examples of the same structures",
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 5,
+          "count_max": 15,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_leather"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_stage_1_opt_2",
+      "conditions": [
+        {
+          "condition": "random",
+          "weight": 1
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 2,
+          "count_max": 5,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_leather"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 2,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_leather"
+            }
+          ]
+        },
+        {
+          "entities": [
+            "minecraft:skeleton"
+          ],
+          "count": 2,
+          "count_max": 10,
+          "count_difficulty_multiplier": 2,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_soldier"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_leather_no_weapon"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_wave_override_1",
+      "conditions": [
+        {
+          "condition": "random",
+          "weight": 99999
+        },
+        {
+          "condition": "invasion_rate",
+          "rate": 5
+        },
+        {
+          "condition": "mod_loaded",
+          "mod_id": "infernalmobs",
+          "mode_boolean": "invert"
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 1,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "attribute_health",
+              "base_value": 150,
+              "difficulty_multiplier": 1.5
+            },
+            {
+              "cmod": "xp",
+              "base_value": 100,
+              "difficulty_multiplier": 1.5
+            },
+            {
+              "cmod": "mob_drops",
+              "loot_table": "testlootboss"
+            },
+            {
+              "cmod": "ai_counterattack"
+            },
+            {
+              "cmod": "ai_lunge"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_iron"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invasion_wave_override_2",
+      "conditions": [
+        {
+          "condition": "difficulty",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "condition": "invasion_rate",
+          "rate": 5
+        },
+        {
+          "condition": "random",
+          "weight": 99999
+        },
+        {
+          "condition": "mod_loaded",
+          "mod_id": "infernalmobs"
+        }
+      ],
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 1,
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "attribute_health",
+              "base_value": 30,
+              "difficulty_multiplier": 1.5
+            },
+            {
+              "cmod": "xp",
+              "base_value": 100,
+              "difficulty_multiplier": 1.5
+            },
+            {
+              "cmod": "mob_drops",
+              "loot_table": "testlootboss"
+            },
+            {
+              "cmod": "ai_counterattack"
+            },
+            {
+              "cmod": "ai_lunge"
+            },
+            {
+              "cmod": "ai_infernal",
+              "randomly_choose_count": "10",
+              "difficulty_multiplier": 1.0,
+              "modifiers": [
+                "1UP", "Alchemist", "Berserk", "Blastoff", "Bulwark", "Choke", "Cloaking", "Darkness", "Ender",
+                "Exhaust", "Fiery", "Ghastly", "Gravity", "LifeSteal", "Ninja", "Poisonous", "Quicksand", "Regen",
+                "Rust", "Sapper", "Sprint", "Sticky", "Storm", "Vengeance", "Weakness", "Webber", "Wither"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

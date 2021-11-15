@@ -3,10 +3,10 @@ package weather2.weathersystem.wind;
 import CoroUtil.util.CoroUtilEntOrParticle;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import weather2.ClientWeather;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManager;
@@ -83,11 +83,11 @@ public class WindManager {
 		windTimeGust = time;
 	}
 
-	public void tick(World world) {
+	public void tick(Level world) {
 		Random rand = new Random();
 
 		// TODO: better merge this logic
-		if (world.isRemote) {
+		if (world.isClientSide) {
 			windSpeedGlobal = ClientWeather.get().getWindSpeed();
 			if (windSpeedGlobal == 0) {
 				chanceOfWindGustEvent = 0;
@@ -95,7 +95,7 @@ public class WindManager {
 				chanceOfWindGustEvent = 0.5F;
 			}
 		} else {
-			WeatherController weatherController = WeatherControllerManager.forWorld((ServerWorld) world);
+			WeatherController weatherController = WeatherControllerManager.forWorld((ServerLevel) world);
 			windSpeedGlobal = weatherController.getWindSpeed();
 			if (windSpeedGlobal == 0) {
 				chanceOfWindGustEvent = 0;
@@ -136,7 +136,7 @@ public class WindManager {
 		}
 
 		//MORE TEST
-		if (!world.isRemote) {
+		if (!world.isClientSide) {
 			//windAngleGlobal += 0.25F;
 			//chanceOfWindGustEvent = 0;
 		}
@@ -163,7 +163,7 @@ public class WindManager {
 	 * - profit
 	 */
 	public void applyWindForceNew(Object ent, float multiplier, float maxSpeed) {
-		Vector3d motion = applyWindForceImpl(new Vector3d(CoroUtilEntOrParticle.getMotionX(ent), CoroUtilEntOrParticle.getMotionY(ent), CoroUtilEntOrParticle.getMotionZ(ent)),
+		Vec3 motion = applyWindForceImpl(new Vec3(CoroUtilEntOrParticle.getMotionX(ent), CoroUtilEntOrParticle.getMotionY(ent), CoroUtilEntOrParticle.getMotionZ(ent)),
 				WeatherUtilEntity.getWeight(ent), multiplier, maxSpeed);
 		
 		CoroUtilEntOrParticle.setMotionX(ent, motion.x);
@@ -173,7 +173,7 @@ public class WindManager {
 	/**
 	 * Handle generic uses of wind force, for stuff like weather objects that arent entities or paticles
 	 */
-	public Vector3d applyWindForceImpl(Vector3d motion, float weight, float multiplier, float maxSpeed) {
+	public Vec3 applyWindForceImpl(Vec3 motion, float weight, float multiplier, float maxSpeed) {
 		float windSpeed = getWindSpeed();
     	float windAngle = getWindAngle();
 
@@ -200,21 +200,21 @@ public class WindManager {
     	vecZ *= multiplier;
     	
     	//copy over existing motion data
-    	Vector3d newMotion = motion;
+    	Vec3 newMotion = motion;
     	
     	double speedCheck = (Math.abs(vecX) + Math.abs(vecZ)) / 2D;
         if (speedCheck < maxSpeed) {
-        	newMotion = new Vector3d(objX - vecX, motion.y, objZ - vecZ);
+        	newMotion = new Vec3(objX - vecX, motion.y, objZ - vecZ);
         } else {
         	float speedDampen = (float)(maxSpeed / speedCheck);
-			newMotion = new Vector3d(objX - vecX*speedDampen, motion.y, objZ - vecZ*speedDampen);
+			newMotion = new Vec3(objX - vecX*speedDampen, motion.y, objZ - vecZ*speedDampen);
 		}
         
         return newMotion;
 	}
 
-	public CompoundNBT nbtSyncForClient() {
-		CompoundNBT data = new CompoundNBT();
+	public CompoundTag nbtSyncForClient() {
+		CompoundTag data = new CompoundTag();
 
 		//idea: only sync the wind data client cares about (the active priority wind)
 
@@ -232,7 +232,7 @@ public class WindManager {
 		return data;
 	}
 
-	public void nbtSyncFromServer(CompoundNBT parNBT) {
+	public void nbtSyncFromServer(CompoundTag parNBT) {
 
 		windSpeedGlobal = parNBT.getFloat("windSpeedGlobal");
 		windAngleGlobal = parNBT.getFloat("windAngleGlobal");
@@ -246,11 +246,11 @@ public class WindManager {
 		windTimeGust = parNBT.getInt("windTimeGust");
 	}
 
-	public Vector3d getWindForce() {
+	public Vec3 getWindForce() {
 		float windSpeed = this.getWindSpeed();
 		float windAngle = this.getWindAngle();
 		float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
 		float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
-		return new Vector3d(windX, 0, windZ);
+		return new Vec3(windX, 0, windZ);
 	}
 }

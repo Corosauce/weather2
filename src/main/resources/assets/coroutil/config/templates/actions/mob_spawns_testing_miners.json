@@ -1,0 +1,57 @@
+{
+  "format": "mob_spawns_testing_miners",
+  "templates": [
+    {
+      "name": "invasion_stage_1_opt_1",
+      "wave_message": "miners!",
+      "spawns": [
+        {
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "count": 10,
+          "count_difficulty_multiplier": 0,
+          "spawn_type": "ground",
+          "cmods": [
+            {
+              "cmod": "template",
+              "template": "invader_miner"
+            },
+            {
+              "cmod": "template",
+              "template": "inventory_all_scales"
+            },
+            {
+              "cmod": "ai_attack_melee"
+            },
+            {
+              "cmod": "attribute_attackdamage",
+              "base_value": 5,
+              "max_value": 10,
+              "difficulty_multiplier": 1.0
+            },
+            {
+              "cmod": "attribute_health",
+              "base_value": 20,
+              "max_value": 50,
+              "difficulty_multiplier": 1.0
+            },
+            {
+              "cmod": "attribute_speed",
+              "base_value": 0.28,
+              "max_value": 0.3,
+              "difficulty_multiplier": 1.0
+            },
+            {
+              "cmod": "attribute_speed_flying",
+              "base_value": 3.0,
+              "max_value": 5,
+              "difficulty_multiplier": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

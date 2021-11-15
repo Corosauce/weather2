@@ -1,11 +1,10 @@
 package weather2.weathersystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ICloudRenderHandler;
@@ -18,25 +17,25 @@ import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 @OnlyIn(Dist.CLIENT)
 public class WeatherManagerClient extends WeatherManager {
-	public WeatherManagerClient(RegistryKey<World> dimension) {
+	public WeatherManagerClient(ResourceKey<Level> dimension) {
 		super(dimension);
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		ICloudRenderHandler cloudRenderHandler = ((ClientWorld)getWorld()).getDimensionRenderInfo().getCloudRenderHandler();
+		ICloudRenderHandler cloudRenderHandler = ((ClientLevel)getWorld()).effects().getCloudRenderHandler();
 		if (cloudRenderHandler == null) {
-			((ClientWorld)getWorld()).getDimensionRenderInfo().setCloudRenderHandler(new CloudRenderHandler());
+			((ClientLevel)getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
 		}
 	}
 
 	@Override
-	public World getWorld() {
-		return Minecraft.getInstance().world;
+	public Level getWorld() {
+		return Minecraft.getInstance().level;
 	}
 
-	public void nbtSyncFromServer(CompoundNBT parNBT) {
+	public void nbtSyncFromServer(CompoundTag parNBT) {
 		//check command
 		//commands:
 		//new storm
@@ -51,7 +50,7 @@ public class WeatherManagerClient extends WeatherManager {
 
 		if (command.equals("syncStormNew")) {
 			//Weather.dbg("creating client side storm");
-			CompoundNBT stormNBT = parNBT.getCompound("data");
+			CompoundTag stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 			Weather.dbg("syncStormNew, ID: " + ID);
 
@@ -70,7 +69,7 @@ public class WeatherManagerClient extends WeatherManager {
 			addStormObject(wo);
 		} else if (command.equals("syncStormRemove")) {
 			//Weather.dbg("removing client side storm");
-			CompoundNBT stormNBT = parNBT.getCompound("data");
+			CompoundTag stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 
 			WeatherObject so = lookupStormObjectsByID.get(ID);
@@ -81,7 +80,7 @@ public class WeatherManagerClient extends WeatherManager {
 			}
 		} else if (command.equals("syncStormUpdate")) {
 			//Weather.dbg("updating client side storm");
-			CompoundNBT stormNBT = parNBT.getCompound("data");
+			CompoundTag stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
 
 			WeatherObject so = lookupStormObjectsByID.get(ID);
@@ -125,7 +124,7 @@ public class WeatherManagerClient extends WeatherManager {
 		} else if (command.equals("syncWindUpdate")) {
 			//Weather.dbg("updating client side wind");
 
-			CompoundNBT nbt = parNBT.getCompound("data");
+			CompoundTag nbt = parNBT.getCompound("data");
 
 			getWindManager().nbtSyncFromServer(nbt);
 		} else if (command.equals("syncWeatherUpdate")) {

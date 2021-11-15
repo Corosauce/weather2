@@ -1,0 +1,67 @@
+{
+  "format": "conditions",
+  "templates": [
+    {
+      "name": "all_conditions",
+      "conditions": [
+        {
+          "condition": "context",
+          "type": "invasion/regular/all",
+
+          "comment": "//placeholder for future stuff, dont use for now, dev note: is 'all' even needed? its the same as not using this condition, maybe if recursive templates were a thing, top level one could override lower one"
+        },
+        {
+          "condition": "difficulty",
+          "min": 0,
+          "max": 0.1,
+
+          "comment": "//only use when local dynamic difficulty as at or between these numbers, difficulty determined by many things, see CoroUtils DynamicDifficulty.cfg for configuring that",
+          "comment": "//things that can affect difficulty: damage per second, armor rating, server time (default off), vanilla local chunk occupancy time, max health, distance from spawn, buffed location (unused), debuffed location (unused)",
+          "comment": "//difficulty starts at 0, and goes up to 1 for vanilla and default config, if difficulty goes above 1 its likely due to other mods (like a high damage weapon or stronger than diamond armor, or health over 20)"
+        },
+        {
+          "condition": "invasion_number",
+          "min": 1,
+          "max": 5,
+
+          "comment": "//only use when the active invasion number/count is at or between these numbers, the counter is global and not per player"
+        },
+        {
+          "condition": "invasion_rate",
+          "rate": 5,
+
+          "comment": "//only use every x invasions, in this example, this will be true every 5th invasion"
+        },
+        {
+          "condition": "random",
+          "weight": 5,
+
+          "comment": "//when you want to randomize between multiple invasion wave profiles, more weight = more likely, if this isnt set, a default weight of 1 is set",
+          "comment": "//random is evaluated last after all other conditions, if there is more than 1 invasion profile still usable after all other conditions met, it will then randomize between them using these weights",
+          "comment": "//if there is more than 1 invasion profile still usable after all other conditions met, it will then randomize between them using these weights"
+        },
+        {
+          "condition": "filter_mobs",
+          "mode": "whitelist/blacklist or allow/deny?",
+          "entities": [
+            "minecraft:zombie"
+          ],
+          "comment": "//currently unused"
+        },
+        {
+          "condition": "template",
+          "template": "condition_set_1",
+
+          "comment": "//since this is a template within a template, maybe dont allow it for now"
+        },
+        {
+          "condition": "mod_loaded",
+          "mod_id": "infernalmobs",
+          "mode_boolean": "invert",
+
+          "comment": "//filter waves to only be used when a certain mod is or isnt installed, depending on if mode_boolean is set to normal or invert, normal = is mod loaded, invert = is mod not loaded"
+        }
+      ]
+    }
+  ]
+}

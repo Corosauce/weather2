@@ -1,9 +1,9 @@
 package extendedrenderer.particle;
 
 import extendedrenderer.ExtendedRenderer;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -71,7 +71,7 @@ public class ParticleRegistry {
 		 * textures/mob_effect
 		 *
 		 */
-		if (!event.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_PARTICLES_TEXTURE)) {
+		if (!event.getMap().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
 			return;
 		}
 
@@ -129,7 +129,7 @@ public class ParticleRegistry {
 	@OnlyIn(Dist.CLIENT)
 	public static void getRegisteredParticles(TextureStitchEvent.Post event) {
 
-		if (!event.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_PARTICLES_TEXTURE)) {
+		if (!event.getMap().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
 			return;
 		}
 

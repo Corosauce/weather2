@@ -7,9 +7,8 @@ import java.util.Random;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ParticleBehaviors {
 
 	public List<EntityRotFX> particles = new ArrayList<EntityRotFX>();
-	public Vector3d coordSource;
+	public Vec3 coordSource;
 	public Entity sourceEntity = null;
 	public Random rand = new Random();
 	
@@ -29,7 +28,7 @@ public class ParticleBehaviors {
 	public float rateScale = 0.1F;
 	public int tickSmokifyTrigger = 40;
 	
-	public ParticleBehaviors(Vector3d source) {
+	public ParticleBehaviors(Vec3 source) {
 		coordSource = source;
 	}
 	
@@ -48,7 +47,7 @@ public class ParticleBehaviors {
 	public void tickUpdate(EntityRotFX particle) {
 		
 		if (sourceEntity != null) {
-			coordSource = sourceEntity.getPositionVec();
+			coordSource = sourceEntity.position();
 		}
 		
 		tickUpdateAct(particle);
@@ -106,25 +105,25 @@ public class ParticleBehaviors {
 		
 		if (particle.getAge() < stateChangeTick) {
 			particle.setGravity(-0.2F);
-			particle.setColor(particle.particleRed - brightnessShiftRate, particle.particleGreen - brightnessShiftRate, particle.particleBlue - brightnessShiftRate);
+			particle.setColor(particle.rCol - brightnessShiftRate, particle.gCol - brightnessShiftRate, particle.bCol - brightnessShiftRate);
 		} else if (particle.getAge() == stateChangeTick) {
 			particle.setColor(0,0,0);
 		} else {
 			brightnessShiftRate = rateBrighten;
 			particle.setGravity(-0.05F);
 			//particle.motionY *= 0.99F;
-			if (particle.particleRed < 0.3F) {
+			if (particle.rCol < 0.3F) {
 				
 			} else {
 				brightnessShiftRate = rateBrightenSlower;
 			}
 			
-			particle.setColor(particle.particleRed + brightnessShiftRate, particle.particleGreen + brightnessShiftRate, particle.particleBlue + brightnessShiftRate);
+			particle.setColor(particle.rCol + brightnessShiftRate, particle.gCol + brightnessShiftRate, particle.bCol + brightnessShiftRate);
 			
 			if (particle.getAlphaF() > 0) {
-				particle.setAlphaF(particle.getAlphaF() - rateAlpha);
+				particle.setAlpha(particle.getAlphaF() - rateAlpha);
 			} else {
-				particle.setExpired();
+				particle.remove();
 			}
 		}
 		
@@ -146,12 +145,12 @@ public class ParticleBehaviors {
 		
 		if (particle.getAge() < ticksFadeInMax) {
 			//System.out.println("particle.getAge(): " + particle.getAge());
-			particle.setAlphaF(particle.getAge() * 0.01F);
+			particle.setAlpha(particle.getAge() * 0.01F);
 		} else {
 			if (particle.getAlphaF() > 0) {
-				particle.setAlphaF(particle.getAlphaF() - rateAlpha*1.3F);
+				particle.setAlpha(particle.getAlphaF() - rateAlpha*1.3F);
 			} else {
-				particle.setExpired();
+				particle.remove();
 			}
 		}
 	}
@@ -195,7 +194,7 @@ public class ParticleBehaviors {
 		particle.setScale(0.25F + 0.2F * rand.nextFloat());
 		particle.brightness = 1F;
 		particle.setSize(0.1F, 0.1F);
-		particle.setAlphaF(0.6F);
+		particle.setAlpha(0.6F);
 		return particle;
 	}
 	
@@ -211,11 +210,11 @@ public class ParticleBehaviors {
         //particle.particleScale = 200F;
         particle.callUpdateSuper = false;
         particle.callUpdatePB = false;
-        particle.setMaxAge(500);
+        particle.setLifetime(500);
         particle.setColor(1F, 1F, 1F);
         particle.brightness = 0.3F;//- ((200F - particle.spawnY) * 0.05F);
         particle.renderRange = 999F;
-        particle.setAlphaF(0F);
+        particle.setAlpha(0F);
 		return particle;
 	}
 	

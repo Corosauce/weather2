@@ -2,30 +2,25 @@ package weather2;
 
 import extendedrenderer.ParticleManagerExtended;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ConfirmBackupScreen;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.BackupConfirmScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import weather2.client.SceneEnhancer;
 import weather2.util.WeatherUtil;
 import weather2.util.WindReader;
 import weather2.weathersystem.WeatherManagerClient;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 @Mod.EventBusSubscriber(modid = Weather.MODID, value = Dist.CLIENT)
 public class ClientTickHandler
 {
 	public static final ClientTickHandler INSTANCE = new ClientTickHandler();
 
-	public static World lastWorld;
+	public static Level lastWorld;
 	
 	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
@@ -58,11 +53,11 @@ public class ClientTickHandler
     public void onTickInGame()
     {
         Minecraft mc = Minecraft.getInstance();
-        World world = mc.world;
+        Level world = mc.level;
 
 		//System.out.println(mc.currentScreen);
 
-		if (mc.currentScreen instanceof ConfirmBackupScreen) {
+		if (mc.screen instanceof BackupConfirmScreen) {
 
 		}
 
@@ -89,7 +84,7 @@ public class ClientTickHandler
 				if (smoothAngle > 180) smoothAngle -= 360;
 				if (smoothAngle < -180) smoothAngle += 360;
 
-				float bestMove = MathHelper.wrapDegrees(windDir - smoothAngle);
+				float bestMove = Mth.wrapDegrees(windDir - smoothAngle);
 
 				smoothAngleAdj = windSpeed;//0.2F;
 
@@ -135,7 +130,7 @@ public class ClientTickHandler
     public static void checkClientWeather() {
 
     	try {
-			World world = Minecraft.getInstance().world;
+			Level world = Minecraft.getInstance().level;
     		if (weatherManager == null || world != lastWorld) {
     			init(world);
         	}
@@ -144,18 +139,18 @@ public class ClientTickHandler
     	}
     }
 
-    public static void init(World world) {
+    public static void init(Level world) {
 		Weather.dbg("Weather2: Initializing WeatherManagerClient for client world and requesting full sync");
 
     	lastWorld = world;
-    	weatherManager = new WeatherManagerClient(world.getDimensionKey());
+    	weatherManager = new WeatherManagerClient(world.dimension());
 
     	Minecraft mc = Minecraft.getInstance();
 
     	if (particleManagerExtended == null) {
-			particleManagerExtended = new ParticleManagerExtended(mc.world, mc.textureManager);
+			particleManagerExtended = new ParticleManagerExtended(mc.level, mc.textureManager);
 		} else {
-			particleManagerExtended.clearEffects((ClientWorld) world);
+			particleManagerExtended.clearEffects((ClientLevel) world);
 		}
 
 		//((IReloadableResourceManager)mc.getResourceManager()).addReloadListener(particleManagerExtended);

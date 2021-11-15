@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "weather2.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "ltweather.refmap.json",
+  "client": ["client.RainSplashOverride", "client.RenderParticlesOverride"],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

@@ -1,15 +1,14 @@
 package extendedrenderer.particle.entity;
 
 import CoroUtil.util.CoroUtilColor;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.client.renderer.color.IBlockColor;
+import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -22,8 +21,8 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 	// Save a few stack depth by caching this
 	private static BlockColors colors;
 
-	private static final Field _blockColorMap = ObfuscationReflectionHelper.findField(BlockColors.class, "field_186725_a");
-	private static Map<IRegistryDelegate<Block>, IBlockColor> blockColorMap;
+	private static final Field _blockColorMap = BlockColors.blockColors;
+	private static Map<IRegistryDelegate<Block>, BlockColor> blockColorMap;
 
 	private static ConcurrentHashMap<BlockState, int[]> colorCache = new ConcurrentHashMap<>();
 	/*static {
@@ -34,7 +33,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 	public float rotationYawMomentum;
 	public float rotationPitchMomentum;
 
-	public ParticleTexLeafColor(ClientWorld worldIn, double posXIn, double posYIn,
+	public ParticleTexLeafColor(ClientLevel worldIn, double posXIn, double posYIn,
 								double posZIn, double mX, double mY, double mZ,
 								TextureAtlasSprite par8Item) {
 		super(worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
@@ -42,7 +41,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		if (colors == null) {
 		    colors = Minecraft.getInstance().getBlockColors();
 			try {
-				blockColorMap = (Map<IRegistryDelegate<Block>, IBlockColor>) _blockColorMap.get(colors);
+				blockColorMap = (Map<IRegistryDelegate<Block>, BlockColor>) _blockColorMap.get(colors);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
@@ -57,7 +56,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		    state = state.with(DoublePlantBlock.name, worldIn.getBlockState(pos.down()).get(DoublePlantBlock.name));
 		}*/
 
-		int multiplier = this.colors.getColor(state, this.world, pos, 0);
+		int multiplier = this.colors.getColor(state, this.level, pos, 0);
 
 		colorCache.clear();
 		int[] colors = colorCache.get(state);
@@ -89,16 +88,16 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		
 		// Randomize the color with exponential decrease in likelihood. That is, the first color has a 50% chance, then 25%, etc.
 		int randMax = 1 << (colors.length - 1);
-		int choice = 32 - Integer.numberOfLeadingZeros(worldIn.rand.nextInt(randMax));
+		int choice = 32 - Integer.numberOfLeadingZeros(worldIn.random.nextInt(randMax));
 		int color = colors[choice];
 
 		float mr = ((multiplier >>> 16) & 0xFF) / 255f;
 		float mg = ((multiplier >>> 8) & 0xFF) / 255f;
 		float mb = (multiplier & 0xFF) / 255f;
 
-		this.particleRed *= (float) (color >> 16 & 255) / 255.0F * mr;
-		this.particleGreen *= (float) (color >> 8 & 255) / 255.0F * mg;
-		this.particleBlue *= (float) (color & 255) / 255.0F * mb;
+		this.rCol *= (float) (color >> 16 & 255) / 255.0F * mr;
+		this.gCol *= (float) (color >> 8 & 255) / 255.0F * mg;
+		this.bCol *= (float) (color & 255) / 255.0F * mb;
 	}
 
 	@Override
@@ -106,12 +105,12 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		super.tick();
 
 		//make leafs catch on the ground and cause them to bounce up and slow a bit for effect
-		if (isCollidedVerticallyDownwards && rand.nextInt(10) == 0) {
-			double speed = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		if (isCollidedVerticallyDownwards && random.nextInt(10) == 0) {
+			double speed = Math.sqrt(this.xd * this.xd + this.zd * this.zd);
 			if (speed > 0.07) {
-				this.motionY = 0.02D + rand.nextDouble() * 0.03D;
-				this.motionX *= 0.6D;
-				this.motionZ *= 0.6D;
+				this.yd = 0.02D + random.nextDouble() * 0.03D;
+				this.xd *= 0.6D;
+				this.zd *= 0.6D;
 
 				rotationYawMomentum = 30;
 				rotationPitchMomentum = 30;
@@ -128,7 +127,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 				rotationYawMomentum = 0;
 			}
 		} else {
-			rotationYawMomentum += rand.nextDouble() * 30;
+			rotationYawMomentum += random.nextDouble() * 30;
 		}
 
 		if (rotationPitchMomentum > 0) {
@@ -141,7 +140,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 				rotationPitchMomentum = 0;
 			}
 		} else {
-			rotationPitchMomentum += rand.nextDouble() * 30;
+			rotationPitchMomentum += random.nextDouble() * 30;
 		}
 	}
 

@@ -1,9 +1,9 @@
 package weather2.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.SoundRegistry;
@@ -80,11 +80,11 @@ public class WeatherUtilSound {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void playPlayerLockedSound(Vector3d parPos, String var1, float var5, float var6)
+    public static void playPlayerLockedSound(Vec3 parPos, String var1, float var5, float var6)
     {
         SoundEvent event = SoundRegistry.get(var1);
-        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundCategory.WEATHER, var5, var6, true);
-        Minecraft.getInstance().getSoundHandler().play(sound);
+        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundSource.WEATHER, var5, var6, true);
+        Minecraft.getInstance().getSoundManager().play(sound);
     }
 
 }

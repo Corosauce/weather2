@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "weather2:blocks/weather_deflector"
+  }
+}

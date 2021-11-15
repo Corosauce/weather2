@@ -8,9 +8,9 @@ import java.util.Random;
 
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleEngine;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -18,7 +18,7 @@ import extendedrenderer.particle.entity.ParticleTexFX;
 
 public class WeatherUtilParticle {
     //public static ArrayDeque<Particle>[][] fxLayers;
-    public static Map<IParticleRenderType, Queue<Particle>> fxLayers;
+    public static Map<ParticleRenderType, Queue<Particle>> fxLayers;
     
     public static int effLeafID = 0;
     public static int effRainID = 1;
@@ -36,14 +36,14 @@ public class WeatherUtilParticle {
     public static int getParticleAge(Particle ent)
     {
         return ent.age;
-        //return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "field_70546_d", "age");
+        //return (Integer) OldUtil.getPrivateValueBoth(Particle.class, ent, "age", "age");
     }
 
     //weather2: not sure what will happen to this in 1.7, copied over for convenience
     public static void setParticleAge(Particle ent, int val)
     {
         ent.age = val;
-        //OldUtil.setPrivateValueBoth(Particle.class, ent, "field_70546_d", "age", val);
+        //OldUtil.setPrivateValueBoth(Particle.class, ent, "age", "age", val);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -54,9 +54,9 @@ public class WeatherUtilParticle {
 
         try
         {
-            field = (ParticleManager.class).getDeclaredField("field_78876_b");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
+            field = (ParticleEngine.class).getDeclaredField("particles");//ObfuscationReflectionHelper.remapFieldNames("net.minecraft.client.particle.EffectRenderer", new String[] { "fxLayers" })[0]);
             field.setAccessible(true);
-            fxLayers = (Map<IParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particles);
+            fxLayers = (Map<ParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particleEngine);
         }
         catch (Exception ex)
         {
@@ -64,9 +64,9 @@ public class WeatherUtilParticle {
         	//ex.printStackTrace();
             try
             {
-                field = (ParticleManager.class).getDeclaredField("byType");
+                field = (ParticleEngine.class).getDeclaredField("byType");
                 field.setAccessible(true);
-                fxLayers = (Map<IParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particles);
+                fxLayers = (Map<ParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particleEngine);
             }
             catch (Exception ex2)
             {

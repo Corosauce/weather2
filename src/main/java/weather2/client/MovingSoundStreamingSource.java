@@ -1,22 +1,22 @@
 package weather2.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
-public class MovingSoundStreamingSource extends TickableSound {
+public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 
 	public float cutOffRange = 128;
-	public Vector3d realSource = null;
+	public Vec3 realSource = null;
 	public boolean lockToPlayer = false;
 
-	public MovingSoundStreamingSource(Vector3d parPos, SoundEvent event, SoundCategory category, float parVolume, float parPitch, boolean lockToPlayer) {
+	public MovingSoundStreamingSource(Vec3 parPos, SoundEvent event, SoundSource category, float parVolume, float parPitch, boolean lockToPlayer) {
 		super(event, category);
-		this.repeat = false;
+		this.looping = false;
 		this.volume = parVolume;
 		this.pitch = parPitch;
 		this.realSource = parPos;
@@ -27,10 +27,10 @@ public class MovingSoundStreamingSource extends TickableSound {
 	}
 
 	//constructor for non moving sounds
-	public MovingSoundStreamingSource(Vector3d parPos, SoundEvent event, SoundCategory category, float parVolume, float parPitch, float parCutOffRange)
+	public MovingSoundStreamingSource(Vec3 parPos, SoundEvent event, SoundSource category, float parVolume, float parPitch, float parCutOffRange)
 	{
 		super(event, category);
-		this.repeat = false;
+		this.looping = false;
 		this.volume = parVolume;
 		this.pitch = parPitch;
 		cutOffRange = parCutOffRange;
@@ -42,17 +42,17 @@ public class MovingSoundStreamingSource extends TickableSound {
 
 	public void tick()
 	{
-		PlayerEntity entP = Minecraft.getInstance().player;
+		Player entP = Minecraft.getInstance().player;
 
 		if (entP != null) {
-			this.x = (float) entP.getPosX();
-			this.y = (float) entP.getPosY();
-			this.z = (float) entP.getPosZ();
+			this.x = (float) entP.getX();
+			this.y = (float) entP.getY();
+			this.z = (float) entP.getZ();
 		}
 
 		//if locked to player, don't dynamically adjust volume
 		if (!lockToPlayer) {
-			float var3 = (float)((cutOffRange - (double)MathHelper.sqrt(getDistanceFrom(realSource, entP.getPositionVec()))) / cutOffRange);
+			float var3 = (float)((cutOffRange - (double)Mth.sqrt((float) getDistanceFrom(realSource, entP.position()))) / cutOffRange);
 
 			if (var3 < 0.0F)
 			{
@@ -64,7 +64,7 @@ public class MovingSoundStreamingSource extends TickableSound {
 
 	}
 
-	public double getDistanceFrom(Vector3d source, Vector3d targ)
+	public double getDistanceFrom(Vec3 source, Vec3 targ)
 	{
 		return source.subtract(targ).length();
 	}

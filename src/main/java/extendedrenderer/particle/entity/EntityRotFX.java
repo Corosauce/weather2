@@ -1,25 +1,25 @@
 package extendedrenderer.particle.entity;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleRenderType;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.Camera;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ReuseableStream;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.util.RewindableStream;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import com.mojang.math.Quaternion;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector3f;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
@@ -29,19 +29,19 @@ import weather2.weathersystem.wind.WindManager;
 import java.util.stream.Stream;
 
 @OnlyIn(Dist.CLIENT)
-public class EntityRotFX extends SpriteTexturedParticle
+public class EntityRotFX extends TextureSheetParticle
 {
-    protected static final IParticleRenderType SORTED_TRANSLUCENT = new IParticleRenderType() {
+    protected static final ParticleRenderType SORTED_TRANSLUCENT = new ParticleRenderType() {
 
         @Override
-        public void beginRender(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
-            IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.beginRender(p_217600_1_, p_217600_2_);
+        public void begin(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
+            ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.begin(p_217600_1_, p_217600_2_);
         }
 
         @Override
-        public void finishRender(Tessellator p_217599_1_) {
-            p_217599_1_.getBuffer().sortVertexData(0, 0, 0);
-            IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.finishRender(p_217599_1_);
+        public void end(Tesselator p_217599_1_) {
+            p_217599_1_.getBuilder().sortQuads(0, 0, 0);
+            ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.end(p_217599_1_);
         }
 
         @Override
@@ -157,14 +157,14 @@ public class EntityRotFX extends SpriteTexturedParticle
     //workaround for particles that are fading out while partially in the ground, keeps them rendering at previous brightness instead of 0
     protected int lastNonZeroBrightness = 15728640;
 
-    public EntityRotFX(ClientWorld par1World, double par2, double par4, double par6, double par8, double par10, double par12)
+    public EntityRotFX(ClientLevel par1World, double par2, double par4, double par6, double par8, double par10, double par12)
     {
         super(par1World, par2, par4, par6, par8, par10, par12);
         setSize(0.3F, 0.3F);
         //this.isImmuneToFire = true;
         //this.setMaxAge(100);
 
-        this.entityID = par1World.rand.nextInt(100000);
+        this.entityID = par1World.random.nextInt(100000);
 
         //rotation = new Quaternion();
 
@@ -225,18 +225,18 @@ public class EntityRotFX extends SpriteTexturedParticle
         return this.particleTextureIndexInt;
     }
 
-    public void setMaxAge(int par) {
-        maxAge = par;
+    public void setLifetime(int par) {
+        lifetime = par;
     }
 
     public float getAlphaF()
     {
-        return this.particleAlpha;
+        return this.alpha;
     }
 
     @Override
-    public void setExpired() {
-        super.setExpired();
+    public void remove() {
+        super.remove();
     }
 
     @Override
@@ -245,19 +245,19 @@ public class EntityRotFX extends SpriteTexturedParticle
         this.prevRotationPitch = this.rotationPitch;
         this.prevRotationYaw = this.rotationYaw;
 
-        Entity ent = Minecraft.getInstance().getRenderViewEntity();
+        Entity ent = Minecraft.getInstance().getCameraEntity();
 
         //if (this.entityID % 400 == 0) System.out.println("tick time: " + this.worldObj.getGameTime());
 
         if (!isVanillaMotionDampen()) {
             //cancel motion dampening (which is basically air resistance)
             //keep this up to date with the inverse of whatever Particle.tick uses
-            this.motionX /= 0.9800000190734863D;
-            this.motionY /= 0.9800000190734863D;
-            this.motionZ /= 0.9800000190734863D;
+            this.xd /= 0.9800000190734863D;
+            this.yd /= 0.9800000190734863D;
+            this.zd /= 0.9800000190734863D;
         }
 
-        if (!this.isExpired && !fadingOut) {
+        if (!this.removed && !fadingOut) {
             if (killOnCollide) {
                 if (this.isCollided()) {
                     startDeath();
@@ -265,21 +265,21 @@ public class EntityRotFX extends SpriteTexturedParticle
 
             }
 
-            BlockPos pos = new BlockPos(new BlockPos(this.posX, this.posY, this.posZ));
+            BlockPos pos = new BlockPos(new BlockPos(this.x, this.y, this.z));
 
             if (killWhenUnderTopmostBlock) {
 
 
                 //int height = this.world.getPrecipitationHeight(new BlockPos(this.posX, this.posY, this.posZ)).getY();
-                int height = world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos).getY();
-                if (this.posY - killWhenUnderTopmostBlock_ScanAheadRange <= height) {
+                int height = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos).getY();
+                if (this.y - killWhenUnderTopmostBlock_ScanAheadRange <= height) {
                     startDeath();
                 }
             }
 
             //case: when on high pillar and rain is falling far below you, start killing it / fading it out
             if (killWhenUnderCameraAtLeast != 0) {
-                if (this.posY < ent.getPosY() - killWhenUnderCameraAtLeast) {
+                if (this.y < ent.getY() - killWhenUnderCameraAtLeast) {
                     startDeath();
                 }
             }
@@ -287,7 +287,7 @@ public class EntityRotFX extends SpriteTexturedParticle
             if (killWhenFarFromCameraAtLeast != 0) {
                 if (getAge() > 20 && getAge() % 5 == 0) {
 
-                    if (ent.getDistanceSq(this.posX, this.posY, this.posZ) > killWhenFarFromCameraAtLeast * killWhenFarFromCameraAtLeast) {
+                    if (ent.distanceToSqr(this.x, this.y, this.z) > killWhenFarFromCameraAtLeast * killWhenFarFromCameraAtLeast) {
                         //System.out.println("far kill");
                         startDeath();
                     }
@@ -298,8 +298,8 @@ public class EntityRotFX extends SpriteTexturedParticle
         if (!collisionSpeedDampen) {
             //if (this.isCollided()) {
             if (this.onGround) {
-                this.motionX /= 0.699999988079071D;
-                this.motionZ /= 0.699999988079071D;
+                this.xd /= 0.699999988079071D;
+                this.zd /= 0.699999988079071D;
             }
         }
 
@@ -308,7 +308,7 @@ public class EntityRotFX extends SpriteTexturedParticle
             this.rotationYaw += this.entityID % 2 == 0 ? -spinFastRate : spinFastRate;
         }
 
-        float angleToMovement = (float) (Math.toDegrees(Math.atan2(motionX, motionZ)));
+        float angleToMovement = (float) (Math.toDegrees(Math.atan2(xd, zd)));
 
         if (spinTowardsMotionDirection) {
             this.rotationYaw = angleToMovement;
@@ -318,29 +318,29 @@ public class EntityRotFX extends SpriteTexturedParticle
         if (!fadingOut) {
             if (ticksFadeInMax > 0 && this.getAge() < ticksFadeInMax) {
                 //System.out.println("this.getAge() / ticksFadeInMax: " + this.getAge() / ticksFadeInMax);
-                this.setAlphaF((float)this.getAge() / ticksFadeInMax * getFullAlphaTarget());
+                this.setAlpha((float)this.getAge() / ticksFadeInMax * getFullAlphaTarget());
                 //particle.setAlphaF(1);
-            } else if (ticksFadeOutMax > 0 && this.getAge() > this.getMaxAge() - ticksFadeOutMax) {
-                float count = this.getAge() - (this.getMaxAge() - ticksFadeOutMax);
+            } else if (ticksFadeOutMax > 0 && this.getAge() > this.getLifetime() - ticksFadeOutMax) {
+                float count = this.getAge() - (this.getLifetime() - ticksFadeOutMax);
                 float val = (ticksFadeOutMax - (count)) / ticksFadeOutMax;
                 //System.out.println(val);
-                this.setAlphaF(val * getFullAlphaTarget());
+                this.setAlpha(val * getFullAlphaTarget());
                 //make sure fully visible otherwise
             } else if (ticksFadeInMax > 0 || ticksFadeOutMax > 0) {
-                this.setAlphaF(getFullAlphaTarget());
+                this.setAlpha(getFullAlphaTarget());
             }
         } else {
             if (ticksFadeOutCurOnDeath < ticksFadeOutMaxOnDeath) {
                 ticksFadeOutCurOnDeath++;
             } else {
-                this.setExpired();
+                this.remove();
             }
             float val = 1F - (ticksFadeOutCurOnDeath / ticksFadeOutMaxOnDeath);
             //System.out.println(val);
-            this.setAlphaF(val * getFullAlphaTarget());
+            this.setAlpha(val * getFullAlphaTarget());
         }
 
-        if (world.getGameTime() % 5 == 0) {
+        if (level.getGameTime() % 5 == 0) {
             //TODO: 1.14 uncomment
             //brightnessCache = CoroUtilBlockLightCache.getBrightnessCached(world, (float)posX, (float)posY, (float)posZ);
         }
@@ -357,8 +357,8 @@ public class EntityRotFX extends SpriteTexturedParticle
 
     public void tickExtraRotations() {
         if (slantParticleToWind) {
-            double motionXZ = Math.sqrt(motionX * motionX + motionZ * motionZ);
-            rotationPitch = (float)Math.atan2(motionY, motionXZ);
+            double motionXZ = Math.sqrt(xd * xd + zd * zd);
+            rotationPitch = (float)Math.atan2(yd, motionXZ);
         }
 
         WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
@@ -379,7 +379,7 @@ public class EntityRotFX extends SpriteTexturedParticle
             ticksFadeOutCurOnDeath = 0;//ticksFadeOutMaxOnDeath;
             fadingOut = true;
         } else {
-            this.setExpired();
+            this.remove();
         }
     }
     
@@ -412,20 +412,20 @@ public class EntityRotFX extends SpriteTexturedParticle
         age = age;
     }
 
-    public int getMaxAge()
+    public int getLifetime()
     {
-        return maxAge;
+        return lifetime;
     }
 
     public void setSize(float par1, float par2)
     {
         super.setSize(par1, par2);
         // MC-12269 - fix particle being offset to the NW
-        this.setPosition(posX, posY, posZ);
+        this.setPos(x, y, z);
     }
 
     public void setGravity(float par) {
-        particleGravity = par;
+        gravity = par;
     }
 
     public float maxRenderRange() {
@@ -433,11 +433,11 @@ public class EntityRotFX extends SpriteTexturedParticle
     }
 
     public void setScale(float parScale) {
-        particleScale = parScale;
+        quadSize = parScale;
     }
 
     public Vector3f getPosition() {
-        return new Vector3f((float)posX, (float)posY, (float)posZ);
+        return new Vector3f((float)x, (float)y, (float)z);
     }
 
     /*@Override
@@ -451,99 +451,99 @@ public class EntityRotFX extends SpriteTexturedParticle
     }*/
 
     public float getScale() {
-        return particleScale;
+        return quadSize;
     }
 
-    public Vector3d getPos() {
-        return new Vector3d(posX, posY, posZ);
+    public Vec3 getPos() {
+        return new Vec3(x, y, z);
     }
 
     public double getPosX() {
-        return posX;
+        return x;
     }
 
     public void setPosX(double posX) {
-        this.posX = posX;
+        this.x = posX;
     }
 
     public double getPosY() {
-        return posY;
+        return y;
     }
 
     public void setPosY(double posY) {
-        this.posY = posY;
+        this.y = posY;
     }
 
     public double getPosZ() {
-        return posZ;
+        return z;
     }
 
     public void setPosZ(double posZ) {
-        this.posZ = posZ;
+        this.z = posZ;
     }
 
     public double getMotionX() {
-        return motionX;
+        return xd;
     }
 
     public void setMotionX(double motionX) {
-        this.motionX = motionX;
+        this.xd = motionX;
     }
 
     public double getMotionY() {
-        return motionY;
+        return yd;
     }
 
     public void setMotionY(double motionY) {
-        this.motionY = motionY;
+        this.yd = motionY;
     }
 
     public double getMotionZ() {
-        return motionZ;
+        return zd;
     }
 
     public void setMotionZ(double motionZ) {
-        this.motionZ = motionZ;
+        this.zd = motionZ;
     }
 
     public double getPrevPosX() {
-        return prevPosX;
+        return xo;
     }
 
     public void setPrevPosX(double prevPosX) {
-        this.prevPosX = prevPosX;
+        this.xo = prevPosX;
     }
 
     public double getPrevPosY() {
-        return prevPosY;
+        return yo;
     }
 
     public void setPrevPosY(double prevPosY) {
-        this.prevPosY = prevPosY;
+        this.yo = prevPosY;
     }
 
     public double getPrevPosZ() {
-        return prevPosZ;
+        return zo;
     }
 
     public void setPrevPosZ(double prevPosZ) {
-        this.prevPosZ = prevPosZ;
+        this.zo = prevPosZ;
     }
 
     public int getEntityId() {
         return entityID;
     }
 
-    public World getWorld() {
-        return this.world;
+    public Level getWorld() {
+        return this.level;
     }
 
     public void setCanCollide(boolean val) {
-        this.canCollide = val;
+        this.hasPhysics = val;
     }
 
     public boolean getCanCollide() {
-        return this.canCollide;
+        return this.hasPhysics;
     }
 
     public boolean isCollided() {
@@ -552,40 +552,40 @@ public class EntityRotFX extends SpriteTexturedParticle
 
     public double getDistance(double x, double y, double z)
     {
-        double d0 = this.posX - x;
-        double d1 = this.posY - y;
-        double d2 = this.posZ - z;
-        return (double)MathHelper.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+        double d0 = this.x - x;
+        double d1 = this.y - y;
+        double d2 = this.z - z;
+        return (double)Mth.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
     }
 
     @Override
-    public float getScale(float scaleFactor) {
-        return this.particleScale;
+    public float getQuadSize(float scaleFactor) {
+        return this.quadSize;
     }
 
     @Override
-    public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
+    public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 
-        Vector3d Vector3d = renderInfo.getProjectedView();
-        float f = (float)(MathHelper.lerp(partialTicks, this.prevPosX, this.posX) - Vector3d.getX());
-        float f1 = (float)(MathHelper.lerp(partialTicks, this.prevPosY, this.posY) - Vector3d.getY());
-        float f2 = (float)(MathHelper.lerp(partialTicks, this.prevPosZ, this.posZ) - Vector3d.getZ());
+        Vec3 Vector3d = renderInfo.getPosition();
+        float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) - Vector3d.x());
+        float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) - Vector3d.y());
+        float f2 = (float)(Mth.lerp(partialTicks, this.zo, this.z) - Vector3d.z());
         Quaternion quaternion;
         if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
-            quaternion = renderInfo.getRotation();
+            quaternion = renderInfo.rotation();
         } else {
             // override rotations
             quaternion = new Quaternion(0, 0, 0, 1);
             if (facePlayerYaw) {
-                quaternion.multiply(Vector3f.YP.rotationDegrees(-renderInfo.getYaw()));
+                quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
             } else {
-                quaternion.multiply(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
+                quaternion.mul(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
             }
-            quaternion.multiply(Vector3f.XP.rotationDegrees(MathHelper.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
+            quaternion.mul(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
         }
 
         Vector3f[] avector3f = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
-        float f4 = this.getScale(partialTicks);
+        float f4 = this.getQuadSize(partialTicks);
 
         for(int i = 0; i < 4; ++i) {
             Vector3f vector3f = avector3f[i];
@@ -594,21 +594,21 @@ public class EntityRotFX extends SpriteTexturedParticle
             vector3f.add(f, f1, f2);
         }
 
-        float f7 = this.getMinU();
-        float f8 = this.getMaxU();
-        float f5 = this.getMinV();
-        float f6 = this.getMaxV();
-        int j = this.getBrightnessForRender(partialTicks);
+        float f7 = this.getU0();
+        float f8 = this.getU1();
+        float f5 = this.getV0();
+        float f6 = this.getV1();
+        int j = this.getLightColor(partialTicks);
         //int j = 15728800;
         if (j > 0) {
             lastNonZeroBrightness = j;
         } else {
             j = lastNonZeroBrightness;
         }
-        buffer.pos(avector3f[0].getX(), avector3f[0].getY(), avector3f[0].getZ()).tex(f8, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-        buffer.pos(avector3f[1].getX(), avector3f[1].getY(), avector3f[1].getZ()).tex(f8, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-        buffer.pos(avector3f[2].getX(), avector3f[2].getY(), avector3f[2].getZ()).tex(f7, f5).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
-        buffer.pos(avector3f[3].getX(), avector3f[3].getY(), avector3f[3].getZ()).tex(f7, f6).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j).endVertex();
+        buffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+        buffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+        buffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+        buffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
 
     }
 
@@ -690,16 +690,16 @@ public class EntityRotFX extends SpriteTexturedParticle
         double xx = x;
         double yy = y;
         double zz = z;
-        if (this.canCollide && (x != 0.0D || y != 0.0D || z != 0.0D)) {
-            Vector3d Vector3d = Entity.collideBoundingBoxHeuristically((Entity)null, new Vector3d(x, y, z), this.getBoundingBox(), this.world, ISelectionContext.dummy(), new ReuseableStream<>(Stream.empty()));
+        if (this.hasPhysics && (x != 0.0D || y != 0.0D || z != 0.0D)) {
+            Vec3 Vector3d = Entity.collideBoundingBoxHeuristically((Entity)null, new Vec3(x, y, z), this.getBoundingBox(), this.level, CollisionContext.empty(), new RewindableStream<>(Stream.empty()));
             x = Vector3d.x;
             y = Vector3d.y;
             z = Vector3d.z;
         }
 
         if (x != 0.0D || y != 0.0D || z != 0.0D) {
-            this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
-            this.resetPositionToBB();
+            this.setBoundingBox(this.getBoundingBox().move(x, y, z));
+            this.setLocationFromBoundingbox();
         }
 
         this.onGround = yy != y && yy < 0.0D;
@@ -707,11 +707,11 @@ public class EntityRotFX extends SpriteTexturedParticle
         this.isCollidedVerticallyDownwards = yy < y;
         this.isCollidedVerticallyUpwards = yy > y;
         if (xx != x) {
-            this.motionX = 0.0D;
+            this.xd = 0.0D;
         }
 
         if (zz != z) {
-            this.motionZ = 0.0D;
+            this.zd = 0.0D;
         }
 
         if (!markCollided) {
@@ -740,8 +740,8 @@ public class EntityRotFX extends SpriteTexturedParticle
     }
 
     @Override
-    public int getBrightnessForRender(float p_189214_1_) {
-        return super.getBrightnessForRender(p_189214_1_);//(int)((float)super.getBrightnessForRender(p_189214_1_))/* * this.world.getSunBrightness(1F))*/;
+    public int getLightColor(float p_189214_1_) {
+        return super.getLightColor(p_189214_1_);//(int)((float)super.getBrightnessForRender(p_189214_1_))/* * this.world.getSunBrightness(1F))*/;
     }
 
     /*public void updateQuaternion(Entity camera) {
@@ -774,8 +774,8 @@ public class EntityRotFX extends SpriteTexturedParticle
     }
 
     @Override
-    public void setAlphaF(float alpha) {
-        super.setAlphaF(alpha);
+    public void setAlpha(float alpha) {
+        super.setAlpha(alpha);
         //TODO: 1.14 uncomment
         /*RotatingParticleManager.markDirtyVBO2();*/
     }
@@ -793,7 +793,7 @@ public class EntityRotFX extends SpriteTexturedParticle
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
+    public ParticleRenderType getRenderType() {
         //TODO: replaces getFXLayer of 5, possibly reimplement extra layers later for clouds etc
         //actually anything > 2 was custom texture sheet, then it just uses higher numbers for diff render orders, higher = later
         return SORTED_TRANSLUCENT;

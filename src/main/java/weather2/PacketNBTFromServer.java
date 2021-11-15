@@ -1,24 +1,24 @@
 package weather2;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class PacketNBTFromServer {
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
 
-    public PacketNBTFromServer(CompoundNBT nbt) {
+    public PacketNBTFromServer(CompoundTag nbt) {
         this.nbt = nbt;
     }
 
-    public static void encode(PacketNBTFromServer msg, PacketBuffer buffer) {
-        buffer.writeCompoundTag(msg.nbt);
+    public static void encode(PacketNBTFromServer msg, FriendlyByteBuf buffer) {
+        buffer.writeNbt(msg.nbt);
     }
 
-    public static PacketNBTFromServer decode(PacketBuffer buffer) {
-        return new PacketNBTFromServer(buffer.readCompoundTag());
+    public static PacketNBTFromServer decode(FriendlyByteBuf buffer) {
+        return new PacketNBTFromServer(buffer.readNbt());
     }
 
     public static class Handler {
@@ -31,7 +31,7 @@ public class PacketNBTFromServer {
 
             ctx.get().enqueueWork(() -> {
                 try {
-                    CompoundNBT nbt = msg.nbt;
+                    CompoundTag nbt = msg.nbt;
 
                     String packetCommand = nbt.getString("packetCommand");
                     String command = nbt.getString("command");

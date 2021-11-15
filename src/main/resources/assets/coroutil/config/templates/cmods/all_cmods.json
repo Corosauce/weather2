@@ -1,0 +1,154 @@
+{
+  "format": "cmods",
+  "templates": [
+    {
+      "name": "all_cmods",
+      "cmods": [
+        {
+          "cmod": "template",
+
+          "template": "boringvanilla",
+
+          "comment": "//to save on copying and pasting, you can define templates with a set of cmods and refer to them using the template cmod, see invasions_cmods for my actual uses of them, and mob_spawns_example_commented for usage of them",
+          "comment": "//you cant do templates within templates, so this entry isnt technically valid its just here to explain things, but within the mob_spawns json it would be valid"
+        },
+        {
+          "cmod": "inventory",
+
+          "inv_hand_main": "minecraft:diamond_sword",
+          "inv_hand_off": "minecraft:shield",
+          "inv_head": "minecraft:diamond_helmet",
+          "inv_chest": "minecraft:diamond_chestplate",
+          "inv_legs": "minecraft:diamond_leggings",
+          "inv_feet": "minecraft:diamond_boots",
+
+          "comment": "//give inventory to a mob, up to you to make sure the mob you are giving it to supports it, could crash if they dont, supports modded items but cant be sure how they'll work out"
+        },
+        {
+          "cmod": "inventory_difficulty_scaled",
+
+          "stages": [
+            {
+              "min": 0,
+              "max": 0.3,
+
+              "inv_hand_off": "minecraft:shield",
+              "inv_hand_main": "minecraft:stone_sword",
+              "inv_head": "minecraft:leather_helmet",
+              "inv_chest": "minecraft:leather_chestplate",
+              "inv_legs": "minecraft:leather_leggings",
+              "inv_feet": "minecraft:leather_boots"
+            },
+            {
+              "min": 0.3,
+              "max": 6,
+
+              "inv_hand_off": "minecraft:shield",
+              "inv_hand_main": "minecraft:diamond_sword",
+              "inv_head": "minecraft:diamond_helmet",
+              "inv_chest": "minecraft:diamond_chestplate",
+              "inv_legs": "minecraft:diamond_leggings",
+              "inv_feet": "minecraft:diamond_boots"
+            }
+          ],
+
+          "comment": "//give inventory depending on difficulty of area, for easy re-use within mob spawn profiles"
+        },
+        {
+          "cmod": "mob_drops",
+          "loot_table": "testloot",
+
+          "comment": "//give a mob extra loot table drops, supports vanilla eg minecraft:zombie or custom ones you put in the config/loot_tables folder, currently does not override existing drops of a mob"
+        },
+        {
+          "cmod": "attribute_health",
+          "base_value": 40,
+          "max_value": 80,
+          "difficulty_multiplier": 1.5,
+
+          "comment": "//set the base health of a mob, difficulty_multiplier is used to multiply their health based on the rated difficulty of the area, so if difficulty in area was 2.0, the math would be: base value 40 + (base health 40 * local difficulty 2.0 * multiplier 1.5) = 120 health, set difficulty_multiplier to 0 or dont include the tag to make the value always be the base value",
+          "comment": "//max_value is optional, if local dynamic difficulty combined with difficulty_multiplier puts the health over what max_value is set to, it will cap the health to max_value"
+        },
+        {
+          "cmod": "attribute_attackdamage",
+          "base_value": 5,
+          "max_value": 10,
+          "difficulty_multiplier": 1.5,
+
+          "comment": "//set the base damage of a mob, difficulty_multiplier is used to multiply their damage based on the rated difficulty of the area, so if difficulty in area was 2.0, the math would be: base value 5 + (base value 5 * local difficulty 2.0 * multiplier 1.5) = 15 damage"
+        },
+        {
+          "cmod": "attribute_speed",
+          "base_value": 0.23,
+          "max_value": 0.3,
+          "difficulty_multiplier": 1.1,
+
+          "comment": "//set the base ground movement speed of the mob, multiplication formula works the same as attribute_health, be carefull with this one so you dont get hyper speed mobs, vanilla zombie speed is 0.23 for reference"
+        },
+        {
+          "cmod": "attribute_speed_flying",
+          "base_value": 0.4,
+          "max_value": 0.5,
+          "difficulty_multiplier": 0.0,
+
+          "comment": "//same as attribute_speed but for flying entities when they arent touching the ground, because mojang, youll generally want a value 2-3x higher than the attribute_speed which is used for ground"
+        },
+        {
+          "cmod": "xp",
+          "base_value": 0,
+          "difficulty_multiplier": 1.5,
+
+          "comment": "//set the base xp given of a mob, multiplication formula works the same as attribute_health"
+        },
+        {
+          "cmod": "ai_antiair",
+
+          "comment": "//gives a mob the ability to perform mean things to flying players depending on ConfigHWMonsters.antiAirType setting, they either leap very far and grab the player by mounting them in their head, or magically pull them down when they see them, pretty mean, antiAirType mode 0 is a bit experimental still"
+        },
+        {
+          "cmod": "ai_mining",
+
+          "comment": "//gives a mob the ability to dig towards their target, only use for mobs the size of a zombie"
+        },
+        {
+          "cmod": "ai_explodeonstuck",
+
+          "comment": "//gives a mob the ability to explode once they cant get any closer to their target"
+        },
+        {
+          "cmod": "ai_counterattack",
+
+          "comment": "//gives a mob the ability to counter attack with a leap towards the target after theyre hit"
+        },
+        {
+          "cmod": "ai_lunge",
+
+          "comment": "//gives a mob the ability to move faster towards the target when they are close"
+        },
+        {
+          "cmod": "ai_attack_melee",
+
+          "comment": "//gives a mob the ability to chase and hurt a target, use on mobs that didnt have a melee attack like passive mobs, use attribute_attackdamage cmod to set their attack damage"
+        },
+        {
+          "cmod": "ai_infernal",
+          "randomly_choose_count": "10",
+          "randomly_choose_count_max": "15",
+          "difficulty_multiplier": 1.0,
+
+          "modifiers": [
+            "1UP", "Alchemist", "Berserk", "Blastoff", "Bulwark", "Choke", "Cloaking", "Darkness", "Ender",
+            "Exhaust", "Fiery", "Ghastly", "Gravity", "LifeSteal", "Ninja", "Poisonous", "Quicksand", "Regen",
+            "Rust", "Sapper", "Sprint", "Sticky", "Storm", "Vengeance", "Weakness", "Webber", "Wither"
+          ],
+
+          "comment": "//if atomicstrykers Infernal Mobs mod is installed, this gives a mob a random amount of the abilities you list above, the above list is all the options available from the mod",
+          "comment": "//you can specify the modifiers and a number of them to randomly choose from, in the above example config, at a local difficulty of 0.1, it will choose 1 modifier from the list, at 0.5, it will choose 5, etc",
+          "comment": "//randomly_choose_count_max is optional, since its set, itll never choose more than 15 no matter the difficulty",
+          "comment": "//this functionality depends on my code knowing how to interact with their mods code, if they change theirs, this cmod may break",
+          "comment": "//you can safely try to use this even if Infernal Mobs isnt installed, it will just not be used"
+        }
+      ]
+    }
+  ]
+}

@@ -9,11 +9,11 @@ import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.Weather;
@@ -48,7 +48,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 	public int height = 0;
 	
-	public Vector3d posSpawn = new Vector3d(0, 0, 0);
+	public Vec3 posSpawn = new Vec3(0, 0, 0);
 	
 	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesCloud;
@@ -77,13 +77,13 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		this.weatherObjectType = EnumWeatherObjectType.SAND;
 		
-		if (parManager.getWorld().isRemote) {
+		if (parManager.getWorld().isClientSide) {
 			listParticlesCloud = new ArrayList<EntityRotFX>();
 			
 		}
 	}
 	
-	public void initSandstormSpawn(Vector3d pos) {
+	public void initSandstormSpawn(Vec3 pos) {
 		this.pos = pos;
 		
 		size = 1;
@@ -101,9 +101,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		this.pos.zCoord -= vecZ * speed;*/
 		//temp end
 		
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.x, 0, pos.z)).getY();
-		this.posGround = new Vector3d(pos.x, yy, pos.z);
+		this.posGround = new Vec3(pos.x, yy, pos.z);
 		
 		this.posSpawn = this.pos;
 		
@@ -135,7 +135,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 */
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
 		//TODO: make sure new comparison works
-		return biome.equals(Biomes.DESERT) || biome.equals(Biomes.DESERT_HILLS) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getCategory().getName().toLowerCase().contains("desert");
+		return biome.equals(Biomes.DESERT) || biome.equals(Biomes.DESERT_HILLS) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getBiomeCategory().getName().toLowerCase().contains("desert");
 		//return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.getCategory().getName().toLowerCase().contains("desert");
 	}
 	
@@ -152,7 +152,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 */
 	public void tickProgressionAndMovement() {
 		
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
 		
 		float angle = windMan.getWindAngleForClouds();
@@ -167,7 +167,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		 * Progression
 		 */
 		
-		if (!world.isRemote) {
+		if (!world.isClientSide) {
 			age++;
 
 			/*Weather.dbg("age: " + age);
@@ -181,7 +181,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			BlockPos posBlock = new BlockPos(pos);
 			
 			//only grow if in loaded area and in desert, also prevent it from growing again for some reason if it started dying already
-			if (isFrontGrowing && world.isBlockLoaded(posBlock)) {
+			if (isFrontGrowing && world.hasChunkAt(posBlock)) {
 				Biome biomeIn = world.getBiome(posBlock);
 
 				if (onlyDecayFromTime) {
@@ -271,12 +271,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		int yy = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(pos.x, 0, pos.z)).getY();
 		
-		this.pos = new Vector3d(this.pos.x, yy + 1, this.pos.z);
+		this.pos = new Vec3(this.pos.x, yy + 1, this.pos.z);
 	}
 	
 	public void tickBlockSandBuildup() {
 
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
 		
 		float angle = windMan.getWindAngleForClouds();
@@ -288,7 +288,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		int count = 0;
 		
 		//sand block buildup
-		if (!world.isRemote) {
+		if (!world.isClientSide) {
 			if (world.getGameTime() % delay == 0) {
 				
 		    	for (int i = 0; i < loop; i++) {
@@ -296,14 +296,14 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		    		//rate of placement based on storm intensity
 		    		if (rand.nextDouble() >= getSandstormScale()) continue;
 
-					Vector3d vecPos = getRandomPosInSandstorm();
+					Vec3 vecPos = getRandomPosInSandstorm();
 
 					int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.x, 0, vecPos.z)).getY();
 					
 					BlockPos blockPos = new BlockPos(vecPos.x, y, vecPos.z);
 
 					//avoid unloaded areas
-					if (!world.isBlockLoaded(blockPos)) continue;
+					if (!world.hasChunkAt(blockPos)) continue;
 
 					Biome biomeIn = world.getBiome(blockPos);
 
@@ -331,7 +331,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			return;
 		}
 		
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
 		
 		if (world == null) {
@@ -351,7 +351,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		
 		
-		if (world.isRemote) {
+		if (world.isClientSide) {
 			tickClient();
 		}
 		
@@ -360,7 +360,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			//tickBlockSandBuildup();
 		}
 		
-		this.posGround = new Vector3d(pos.x, yy, pos.z);
+		this.posGround = new Vec3(pos.x, yy, pos.z);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -370,7 +370,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		//if (WeatherUtil.isPaused()) return;
 		
 		Minecraft mc = Minecraft.getInstance();
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		WindManager windMan = manager.getWindManager();
 		
 		if (particleBehavior == null) {
@@ -379,7 +379,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		
 		//double size = 15;
     	//double height = 50;
-    	double distanceToCenter = pos.distanceTo(new Vector3d(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ()));
+    	double distanceToCenter = pos.distanceTo(new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ()));
     	//how close to renderable particle wall
     	double distanceToFront = distanceToCenter - size;
     	boolean isInside = distanceToFront < 0;
@@ -407,17 +407,17 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	
     	double degRate = 360D / (circ / distBetweenParticles);
     	
-    	if (mc.world.getGameTime() % 40 == 0) {
+    	if (mc.level.getGameTime() % 40 == 0) {
     		//System.out.println("circ: " + circ);
     		//System.out.println("degRate: " + degRate);
     	}
     	
-    	Random rand = mc.world.rand;
+    	Random rand = mc.level.random;
     	
     	this.height = this.size / 4;
     	int heightLayers = Math.max(1, this.height / (int) distBetweenParticles);
     	
-    	if ((mc.world.getGameTime()) % 10 == 0) {
+    	if ((mc.level.getGameTime()) % 10 == 0) {
     		//System.out.println(heightLayers);
     	}
     	
@@ -456,7 +456,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		//youd think this should be angle - 90 to angle + 90, but minecraft / bad math
 			    //for (double i = directionAngleDeg; i < directionAngleDeg + (180); i += degRate) {
 	    			double i = directionAngleDeg + (rand.nextDouble() * 180D);
-			    	if ((mc.world.getGameTime()) % 2 == 0) {
+			    	if ((mc.level.getGameTime()) % 2 == 0) {
 
 						if (rand.nextDouble() >= sandstormParticleRateDust) continue;
 
@@ -475,7 +475,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		
 			    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 			    		
-			    		ParticleSandstorm part = new ParticleSandstorm(mc.world, x, y, z
+			    		ParticleSandstorm part = new ParticleSandstorm(mc.level, x, y, z
 			    				, 0, 0, 0, sprite);
 			    		particleBehavior.initParticle(part);
 			    		
@@ -489,9 +489,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		part.rotationYaw = (float) i + rand.nextInt(20) - 10;//Math.toDegrees(Math.cos(Math.toRadians(i)) * 2D);
 			    		//part.rotationYaw = 0;
 			    		part.rotationPitch = 0;
-			    		part.setMaxAge(300);
+			    		part.setLifetime(300);
 			    		part.setGravity(0.09F);
-			    		part.setAlphaF(1F);
+			    		part.setAlpha(1F);
 			    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
 			    		part.setColor(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 			    		part.setScale(100 * 0.15F);
@@ -524,7 +524,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     		spawnedThisTick = 0;
     	}
     	
-    	if ((mc.world.getGameTime()) % 20 == 0) {
+    	if ((mc.level.getGameTime()) % 20 == 0) {
     		//System.out.println("sandstormScale: " + sandstormScale + " - size: " + size);
     	}
     	
@@ -541,7 +541,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
     	/**
     	 * Spawn particles between spawn pos and current pos, cone shaped
     	 */
-    	if ((mc.world.getGameTime()) % 3 == 0) {
+    	if ((mc.level.getGameTime()) % 3 == 0) {
     		
     		//System.out.println(this.particleBehavior.particles.size());
     		
@@ -570,7 +570,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		
 	    		TextureAtlasSprite sprite = ParticleRegistry.cloud256;
 	    		
-	    		ParticleSandstorm part = new ParticleSandstorm(mc.world, x, y, z
+	    		ParticleSandstorm part = new ParticleSandstorm(mc.level, x, y, z
 	    				, 0, 0, 0, sprite);
 	    		particleBehavior.initParticle(part);
 	    		
@@ -580,9 +580,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		part.rotationPitch = (float)rand.nextInt(360);
 				part.rotationYaw = 0;
 				part.rotationPitch = 0;
-	    		part.setMaxAge(100);
+	    		part.setLifetime(100);
 	    		part.setGravity(0.09F);
-	    		part.setAlphaF(1F);
+	    		part.setAlpha(1F);
 	    		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
 	    		part.setColor(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
 	    		//part.setScale(100);
@@ -653,7 +653,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    //System.out.println("spawn particles at: " + pos);
 	}
 	
-	public Vector3d getRandomPosInSandstorm() {
+	public Vec3 getRandomPosInSandstorm() {
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
 		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
@@ -675,17 +675,17 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		double x = posSpawn.x + (-Math.sin(/*Math.toRadians(*/randAngle/*)*/) * (randDist));
 		double z = posSpawn.z + (Math.cos(/*Math.toRadians(*/randAngle/*)*/) * (randDist));
 		
-		return new Vector3d(x, 0, z);
+		return new Vec3(x, 0, z);
 	}
 	
-	public List<Vector3d> getSandstormAsShape() {
-		List<Vector3d> listPoints = new ArrayList<>();
+	public List<Vec3> getSandstormAsShape() {
+		List<Vec3> listPoints = new ArrayList<>();
 		
 		double extraDistSpawnIntoWall = sizePeak / 2D;
 		double distFromSpawn = this.posSpawn.distanceTo(this.pos);
 
 		//for triangle shape
-		listPoints.add(new Vector3d(this.posSpawn.x, 0, this.posSpawn.z));
+		listPoints.add(new Vec3(this.posSpawn.x, 0, this.posSpawn.z));
 		
 		double xVec = this.posSpawn.x - this.pos.x;
     	double zVec = this.posSpawn.z - this.pos.z;
@@ -718,8 +718,8 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		double xRight = posSpawn.x + (-Math.sin(/*Math.toRadians(*/angleRight/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
 		double zRight = posSpawn.z + (Math.cos(/*Math.toRadians(*/angleRight/*)*/) * (distFromSpawn + extraDistSpawnIntoWall));
 		
-		listPoints.add(new Vector3d(xLeft, 0, zLeft));
-		listPoints.add(new Vector3d(xRight, 0, zRight));
+		listPoints.add(new Vec3(xLeft, 0, zLeft));
+		listPoints.add(new Vec3(xRight, 0, zRight));
 		
 		return listPoints;
 	}
@@ -786,7 +786,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 		CachedNBTTagCompound parNBT = this.getNbtCache();
 		
-		posSpawn = new Vector3d(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
+		posSpawn = new Vec3(parNBT.getDouble("posSpawnX"), parNBT.getDouble("posSpawnY"), parNBT.getDouble("posSpawnZ"));
 		
 		this.ageFadeout = parNBT.getInt("ageFadeout");
 		this.ageFadeoutMax = parNBT.getInt("ageFadeoutMax");
@@ -805,7 +805,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 
 		CachedNBTTagCompound var1 = this.getNbtCache();
 
-		motion = new Vector3d(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
+		motion = new Vec3(var1.getDouble("vecX"), var1.getDouble("vecY"), var1.getDouble("vecZ"));
 	}
 
 	@Override

@@ -1,10 +1,9 @@
 package weather2.weathersystem;
 
 import CoroUtil.util.CoroUtilPhysics;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import weather2.Weather;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
@@ -15,19 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 
 public abstract class WeatherManager {
-	public final RegistryKey<World> dimension;
+	public final ResourceKey<Level> dimension;
 	public final WindManager wind = new WindManager(this);
 	private List<WeatherObject> listStormObjects = new ArrayList<>();
 	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
 
-	public WeatherManager(RegistryKey<World> dimension) {
+	public WeatherManager(ResourceKey<Level> dimension) {
 		this.dimension = dimension;
 	}
 
-	public abstract World getWorld();
+	public abstract Level getWorld();
 
 	public void tick() {
-		World world = getWorld();
+		Level world = getWorld();
 		if (world != null) {
 			//tick storms
 			List<WeatherObject> list = getStormObjects();
@@ -41,7 +40,7 @@ public abstract class WeatherManager {
 					if (!so.isDead) {
 						so.tick();
 					} else {
-						if (getWorld().isRemote) {
+						if (getWorld().isClientSide) {
 							Weather.dbg("WARNING!!! - detected isDead storm object still in client side list, had to remove storm object with ID " + so.ID + " from client side, wasnt properly isDead via main channels");
 							removeStormObject(so.ID);
 						}
@@ -91,7 +90,7 @@ public abstract class WeatherManager {
 	 * @param parPos
 	 * @return
 	 */
-	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vector3d parPos/*, double maxDist*/) {
+	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos/*, double maxDist*/) {
 
 		WeatherObjectSandstorm bestStorm = null;
 		double closestDist = 9999999;
@@ -105,11 +104,11 @@ public abstract class WeatherManager {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
 				if (sandstorm == null || sandstorm.isDead) continue;
 
-				List<Vector3d> field_75884_a = sandstorm.getSandstormAsShape();
+				List<Vec3> nodes = sandstorm.getSandstormAsShape();
 
 				double scale = sandstorm.getSandstormScale();
-				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, field_75884_a);
-				double dist = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
+				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, nodes);
+				double dist = CoroUtilPhysics.getDistanceToShape(parPos, nodes);
 				//if best is within storm, compare intensity
 				if (inStorm) {
 					//System.out.println("in storm");

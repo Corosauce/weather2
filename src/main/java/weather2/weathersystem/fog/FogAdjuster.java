@@ -1,14 +1,11 @@
 package weather2.weathersystem.fog;
 
-import CoroUtil.util.CoroUtilMisc;
 import com.lovetropics.minigames.common.core.game.weather.WeatherEventType;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.entity.player.Player;
+import com.mojang.math.Vector3f;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import weather2.ClientTickHandler;
 import weather2.ClientWeather;
@@ -99,7 +96,7 @@ public class FogAdjuster {
         //System.out.println("isFogOverriding(): " + isFogOverriding());
 
         if ((SceneEnhancer.getWeatherState() == WeatherEventType.SANDSTORM || SceneEnhancer.getWeatherState() == WeatherEventType.SNOWSTORM)) {
-            PlayerEntity player = Minecraft.getInstance().player;
+            Player player = Minecraft.getInstance().player;
             //use non cached version of isPlayerOutside to fix data mismatch that is timing crucial here
             boolean isPlayerOutside = WeatherUtilEntity.isEntityOutside(player);
             boolean playerOutside = isPlayerOutside || player.isInWater();
@@ -123,9 +120,9 @@ public class FogAdjuster {
 
         if (lerpTicksCur < lerpTicksMax) {
 
-            float newLerpX = activeProfile.getRgb().getX() + activeProfileLerps.getRgb().getX();
-            float newLerpY = activeProfile.getRgb().getY() + activeProfileLerps.getRgb().getY();
-            float newLerpZ = activeProfile.getRgb().getZ() + activeProfileLerps.getRgb().getZ();
+            float newLerpX = activeProfile.getRgb().x() + activeProfileLerps.getRgb().x();
+            float newLerpY = activeProfile.getRgb().y() + activeProfileLerps.getRgb().y();
+            float newLerpZ = activeProfile.getRgb().z() + activeProfileLerps.getRgb().z();
             activeProfile.getRgb().set(newLerpX, newLerpY, newLerpZ);
 
             activeProfile.setFogStart(activeProfile.getFogStart() + activeProfileLerps.getFogStart());
@@ -155,10 +152,10 @@ public class FogAdjuster {
             float green = MathHelper.lerp(lerpAmount, activeProfile.getRgb().getY(), targetProfile.getRgb().getY());
             float blue = MathHelper.lerp(lerpAmount, activeProfile.getRgb().getZ(), targetProfile.getRgb().getZ());*/
 
-            event.setRed(activeProfile.getRgb().getX());
-            event.setGreen(activeProfile.getRgb().getY());
-            event.setBlue(activeProfile.getRgb().getZ());
-            RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
+            event.setRed(activeProfile.getRgb().x());
+            event.setGreen(activeProfile.getRgb().y());
+            event.setBlue(activeProfile.getRgb().z());
+            //RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
         }
     }
 
@@ -167,9 +164,9 @@ public class FogAdjuster {
 
         if (SceneEnhancer.isFogOverridding()) {
             //TODO: make use of this, density only works with EXP or EXP 2 mode
-            RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
+            //RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
 
-            if (event.getType() == FogRenderer.FogType.FOG_SKY) {
+            if (event.getType() == FogRenderer.FogMode.FOG_SKY) {
                 //TODO: note, this value can be different depending on other contexts, we should try to grab GlStateManager.FOG.start, if we dont, itll glitch with bosses that cause fog and blindness effect, maybe more
                 //value from FogRenderer.setupFog method
                 fogVanilla.setFogStartSky(0);
@@ -178,11 +175,11 @@ public class FogAdjuster {
                 RenderSystem.fogEnd(MathHelper.lerp(lerpAmount, activeProfile.getFogEndSky(), targetProfile.getFogEndSky()));*/
 
                 //TODO: fix for new
-                RenderSystem.fogStart(activeProfile.getFogStart());
-                RenderSystem.fogEnd(activeProfile.getFogEnd());
+                RenderSystem.setShaderFogStart(activeProfile.getFogStart());
+                RenderSystem.setShaderFogEnd(activeProfile.getFogEnd());
 
-                RenderSystem.fogStart(0);
-                RenderSystem.fogEnd(event.getFarPlaneDistance());
+                RenderSystem.setShaderFogStart(0);
+                RenderSystem.setShaderFogEnd(event.getFarPlaneDistance());
 
             } else {
                 //value from FogRenderer.setupFog method
@@ -192,8 +189,8 @@ public class FogAdjuster {
                 /*RenderSystem.fogStart(MathHelper.lerp(lerpAmount, activeProfile.getFogStart(), targetProfile.getFogStart()));
                 RenderSystem.fogEnd(MathHelper.lerp(lerpAmount, activeProfile.getFogEnd(), targetProfile.getFogEnd()));*/
 
-                RenderSystem.fogStart(activeProfile.getFogStart());
-                RenderSystem.fogEnd(activeProfile.getFogEnd());
+                RenderSystem.setShaderFogStart(activeProfile.getFogStart());
+                RenderSystem.setShaderFogEnd(activeProfile.getFogEnd());
             }
         }
     }
@@ -246,9 +243,9 @@ public class FogAdjuster {
         lerpTicksCur = 0;
         //lerpTicksMax = 100;
         //for now we do 100 ticks to full lerp each time
-        float partialLerpX = getLerpRate(activeProfile.getRgb().getX(), targetProfile.getRgb().getX(), lerpTicksMax);
-        float partialLerpY = getLerpRate(activeProfile.getRgb().getY(), targetProfile.getRgb().getY(), lerpTicksMax);
-        float partialLerpZ = getLerpRate(activeProfile.getRgb().getZ(), targetProfile.getRgb().getZ(), lerpTicksMax);
+        float partialLerpX = getLerpRate(activeProfile.getRgb().x(), targetProfile.getRgb().x(), lerpTicksMax);
+        float partialLerpY = getLerpRate(activeProfile.getRgb().y(), targetProfile.getRgb().y(), lerpTicksMax);
+        float partialLerpZ = getLerpRate(activeProfile.getRgb().z(), targetProfile.getRgb().z(), lerpTicksMax);
         activeProfileLerps.getRgb().set(partialLerpX, partialLerpY, partialLerpZ);
 
         activeProfileLerps.setFogStart(getLerpRate(activeProfile.getFogStart(), targetProfile.getFogStart(), lerpTicksMax));

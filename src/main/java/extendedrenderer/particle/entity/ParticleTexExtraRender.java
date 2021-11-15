@@ -1,16 +1,16 @@
 package extendedrenderer.particle.entity;
 
 import CoroUtil.util.CoroUtilParticle;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import com.mojang.math.Quaternion;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector3f;
+import net.minecraft.world.level.levelgen.Heightmap;
 import weather2.ClientTickHandler;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
@@ -27,7 +27,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 
 	//public float[] cachedLight;
 	
-	public ParticleTexExtraRender(ClientWorld worldIn, double posXIn, double posYIn,
+	public ParticleTexExtraRender(ClientLevel worldIn, double posXIn, double posYIn,
 								  double posZIn, double mX, double mY, double mZ,
 								  TextureAtlasSprite par8Item) {
 		super(worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
@@ -67,8 +67,8 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		if (windMan == null) return;
 
 		if (isSlantParticleToWind()) {
-			double speed = motionX * motionX + motionZ * motionZ;
-			rotationYaw = -(float)Math.toDegrees(Math.atan2(motionZ, motionX)) - 90;
+			double speed = xd * xd + zd * zd;
+			rotationYaw = -(float)Math.toDegrees(Math.atan2(zd, xd)) - 90;
 			rotationPitch = Math.min(45, (float)(speed * 120));
 			rotationPitch += (this.getEntityId() % 10) - 5;
 		}
@@ -77,39 +77,39 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 	}
 
 	@Override
-	public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
+	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 		//override rotations
-        Vector3d Vector3d = renderInfo.getProjectedView();
+        Vec3 Vector3d = renderInfo.getPosition();
         Quaternion quaternion;
         if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
-           quaternion = renderInfo.getRotation();
+           quaternion = renderInfo.rotation();
         } else {
            // override rotations
            quaternion = new Quaternion(0, 0, 0, 1);
-           quaternion.multiply(Vector3f.YP.rotationDegrees(this.rotationYaw));
-           quaternion.multiply(Vector3f.XP.rotationDegrees(this.rotationPitch));
+           quaternion.mul(Vector3f.YP.rotationDegrees(this.rotationYaw));
+           quaternion.mul(Vector3f.XP.rotationDegrees(this.rotationPitch));
            if (extraRandomSecondaryYawRotation > 0) {
-			   quaternion.multiply(Vector3f.YP.rotationDegrees(getEntityId() % extraRandomSecondaryYawRotation));
+			   quaternion.mul(Vector3f.YP.rotationDegrees(getEntityId() % extraRandomSecondaryYawRotation));
 		   }
         }
         
-        float posX = (float)(MathHelper.lerp((double)partialTicks, this.prevPosX, this.posX) - Vector3d.getX());
-        float posY = (float)(MathHelper.lerp((double)partialTicks, this.prevPosY, this.posY) - Vector3d.getY());
-        float posZ = (float)(MathHelper.lerp((double)partialTicks, this.prevPosZ, this.posZ) - Vector3d.getZ());
+        float posX = (float)(Mth.lerp((double)partialTicks, this.xo, this.x) - Vector3d.x());
+        float posY = (float)(Mth.lerp((double)partialTicks, this.yo, this.y) - Vector3d.y());
+        float posZ = (float)(Mth.lerp((double)partialTicks, this.zo, this.z) - Vector3d.z());
 
 
-		float f = this.getMinU();
-		float f1 = this.getMaxU();
-		float f2 = this.getMinV();
-		float f3 = this.getMaxV();
+		float f = this.getU0();
+		float f1 = this.getU1();
+		float f2 = this.getV0();
+		float f3 = this.getV1();
 
 		float fixY = 0;
 
 		float part = 16F / 3F;
 		float offset = 0;
-		float posBottom = (float)(this.posY - 10D);
+		float posBottom = (float)(this.y - 10D);
 
-		float height = world.getHeight(Heightmap.Type.MOTION_BLOCKING, new BlockPos(this.posX, this.posY, this.posZ)).getY();
+		float height = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.x, this.y, this.z)).getY();
 
 		if (posBottom < height) {
 			float diff = height - posBottom;
@@ -139,8 +139,8 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 
 				//prevent precip under overhangs/inside for extra render
 				if (this.isDontRenderUnderTopmostBlock()) {
-					int height2 = world.getHeight(Heightmap.Type.MOTION_BLOCKING, new BlockPos(this.posX + xx, this.posY, this.posZ + zz)).getY();
-					if (this.posY + yy <= height2) continue;
+					int height2 = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.x + xx, this.y, this.z + zz)).getY();
+					if (this.y + yy <= height2) continue;
 				}
 
 				//TODO: 1.14 uncomment
@@ -151,7 +151,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 				/*int height = entityIn.world.getPrecipitationHeight(new BlockPos(ActiveRenderInfo.getPosition().xCoord + f5, this.posY + f6, ActiveRenderInfo.getPosition().zCoord + f7)).getY();
 				if (ActiveRenderInfo.getPosition().yCoord + f6 <= height) continue;*/
 
-				int i = this.getBrightnessForRender(partialTicks);
+				int i = this.getLightColor(partialTicks);
 				if (i > 0) {
 					setLastNonZeroBrightness(i);
 				} else {
@@ -159,7 +159,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 				}
 
 		        Vector3f[] avector3f = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
-		        float scale = this.getScale(partialTicks);
+		        float scale = this.getQuadSize(partialTicks);
 
 		        
 		        for(int v = 0; v < 4; ++v) {
@@ -169,10 +169,10 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		           vector3f.add(posX, posY, posZ);
 		        }
 
-				buffer.pos(xx + avector3f[0].getX(), yy + avector3f[0].getY(), zz + avector3f[0].getZ()).tex(f1, f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(i).endVertex();
-				buffer.pos(xx + avector3f[1].getX(), yy + avector3f[1].getY(), zz + avector3f[1].getZ()).tex(f1, f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(i).endVertex();
-				buffer.pos(xx + avector3f[2].getX(), yy + avector3f[2].getY(), zz + avector3f[2].getZ()).tex(f, f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(i).endVertex();
-				buffer.pos(xx + avector3f[3].getX(), yy + avector3f[3].getY(), zz + avector3f[3].getZ()).tex(f, f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(i).endVertex();
+				buffer.vertex(xx + avector3f[0].x(), yy + avector3f[0].y(), zz + avector3f[0].z()).uv(f1, f3).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
+				buffer.vertex(xx + avector3f[1].x(), yy + avector3f[1].y(), zz + avector3f[1].z()).uv(f1, f2).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
+				buffer.vertex(xx + avector3f[2].x(), yy + avector3f[2].y(), zz + avector3f[2].z()).uv(f, f2).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
+				buffer.vertex(xx + avector3f[3].x(), yy + avector3f[3].y(), zz + avector3f[3].z()).uv(f, f3).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
 			}
 		} catch (Throwable ex) {
 			ex.printStackTrace();

@@ -1,9 +1,9 @@
 package extendedrenderer.particle.behavior;
 
 import extendedrenderer.particle.entity.EntityRotFX;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 
@@ -11,7 +11,7 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 	public int curTick = 0;
 	public int ticksMax = 1;
 	
-	public ParticleBehaviorSandstorm(Vector3d source) {
+	public ParticleBehaviorSandstorm(Vec3 source) {
 		super(source);
 	}
 	
@@ -27,7 +27,7 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 		//particle.rotationYaw = rand.nextInt(360);
 		//particle.rotationPitch = -90+rand.nextInt(50)-rand.nextInt(50);
 		
-		particle.setMaxAge(450+rand.nextInt(10));
+		particle.setLifetime(450+rand.nextInt(10));
 		float randFloat = (rand.nextFloat() * 0.6F);
 		float baseBright = 0.7F;
 		float finalBright = Math.min(1F, baseBright+randFloat);
@@ -48,7 +48,7 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 		//particle.setColor((float) (0.4F + (Math.abs(particle.posX / 300D) * 0.6D)), 0.4F, (float) (0.4F + (Math.abs(particle.posZ / 300D) * 0.6D)));
 		//particle.setScale(0.25F + 0.2F * rand.nextFloat());
 		particle.brightness = 1F;
-		particle.setAlphaF(1F);
+		particle.setAlpha(1F);
 		
 		float sizeBase = (float) (30+(rand.nextDouble()*4));
 		
@@ -89,14 +89,14 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 				//fade in and fade out near age edges
 				if (particle.getAge() < ticksFadeInMax) {
 					//System.out.println("particle.getAge(): " + particle.getAge());
-					particle.setAlphaF(Math.min(1F, particle.getAge() / ticksFadeInMax));
+					particle.setAlpha(Math.min(1F, particle.getAge() / ticksFadeInMax));
 					//System.out.println(particle.getAge() / ticksFadeInMax);
 					//particle.setAlphaF(1);
-				} else if (particle.getAge() > particle.getMaxAge() - ticksFadeOutMax) {
-					float count = particle.getAge() - (particle.getMaxAge() - ticksFadeOutMax);
+				} else if (particle.getAge() > particle.getLifetime() - ticksFadeOutMax) {
+					float count = particle.getAge() - (particle.getLifetime() - ticksFadeOutMax);
 					float val = (ticksFadeOutMax - (count)) / ticksFadeOutMax;
 					//System.out.println(val);
-					particle.setAlphaF(val);
+					particle.setAlpha(val);
 				} else {
 					/*if (particle.getAlphaF() > 0) {
 						particle.setAlphaF(particle.getAlphaF() - rateAlpha*1.3F);
@@ -155,7 +155,7 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 				//particle.setScale(particle.getScale() - 0.1F);
 				
 				if (particle.spawnY != -1) {
-					particle.setPosition(particle.getPosX(), particle.spawnY, particle.getPosZ());
+					particle.setPos(particle.getPosX(), particle.spawnY, particle.getPosZ());
 					//particle.posY = particle.spawnY;
 				}
 				

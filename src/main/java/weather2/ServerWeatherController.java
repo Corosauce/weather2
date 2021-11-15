@@ -4,12 +4,12 @@ import com.lovetropics.minigames.common.core.game.weather.RainType;
 import com.lovetropics.minigames.common.core.game.weather.StormState;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 
@@ -25,13 +25,13 @@ public final class ServerWeatherController implements WeatherController {
 
 	private final WeatherState state = new WeatherState();
 
-	ServerWeatherController(ServerWorld world) {
-		RegistryKey<World> dimension = world.getDimensionKey();
+	ServerWeatherController(ServerLevel world) {
+		ResourceKey<Level> dimension = world.dimension();
 		this.packetTarget = PacketDistributor.DIMENSION.with(() -> dimension);
 	}
 
 	@Override
-	public void onPlayerJoin(ServerPlayerEntity player) {
+	public void onPlayerJoin(ServerPlayer player) {
 		WeatherNetworking.HANDLER.send(PacketDistributor.PLAYER.with(() -> player), new UpdateWeatherPacket(this.state));
 	}
 

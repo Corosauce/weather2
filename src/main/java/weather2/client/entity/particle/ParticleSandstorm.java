@@ -1,13 +1,11 @@
 package weather2.client.entity.particle;
 
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.Level;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import extendedrenderer.particle.entity.ParticleTexFX;
 
@@ -18,10 +16,10 @@ public class ParticleSandstorm extends ParticleTexFX {
 	public double distAdj = 0;
 	public boolean lockPosition = false;
 	
-	public ParticleSandstorm(World worldIn, double posXIn, double posYIn,
+	public ParticleSandstorm(Level worldIn, double posXIn, double posYIn,
 			double posZIn, double mX, double mY, double mZ,
 			TextureAtlasSprite par8Item) {
-		super((ClientWorld) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
+		super((ClientLevel) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
 	}
 
 	/**
@@ -30,7 +28,7 @@ public class ParticleSandstorm extends ParticleTexFX {
 	 */
 
 	@Override
-	public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
-		super.renderParticle(buffer, renderInfo, partialTicks);
+	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
+		super.render(buffer, renderInfo, partialTicks);
 	}
 }

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "weather2:weather_deflector"
+    }
+  }
+}
