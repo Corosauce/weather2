@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.player.Player;
@@ -24,8 +23,11 @@ import java.util.Random;
 public class CloudRenderHandler implements ICloudRenderHandler {
 
     private boolean cloudsNeedUpdate = true;
+    private VertexBuffer cloudsVBOOld;
     private VertexBuffer cloudsVBO;
     //private VertexBuffer cloudVBO;
+
+    private int sphereIndex = 0;
 
     @Override
     public void render(int ticks, float partialTicks, PoseStack matrixStackIn, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
@@ -35,7 +37,149 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     //PoseStack matrixStackIn, Matrix4f projectionMatrix, float p_172957_, double p_172958_, double viewEntityY, double p_172960_
 
     //public void render(int ticks, float partialTicks, PoseStack matrixStackIn, Matrix4f projectionMatrix, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
-    public void render(PoseStack matrixStackIn, Matrix4f projectionMatrix, float p_172957_, double p_172958_, double viewEntityY, double p_172960_) {
+
+    public void render(PoseStack matrixStackIn, Matrix4f projectionMatrix, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ) {
+        //if (true) return;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+        int ticks = (int) level.getGameTime() % Integer.MAX_VALUE;
+
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.depthMask(true);
+
+        RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
+
+        ShaderInstanceExtended shaderinstance = WeatherShaders.getShaderExtended();
+        if (shaderinstance.CUSTOM_TIME != null) {
+            float smoothTicks = (ticks + partialTicks) * 0.005F;
+            shaderinstance.CUSTOM_TIME.set((float)(smoothTicks % 360));
+        }
+
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+        FogRenderer.levelFogColor();
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        //do things
+
+        cloudsNeedUpdate = false;
+
+        if (cloudsVBO == null || cloudsNeedUpdate || ticks % 100 == 0) {
+
+            this.cloudsNeedUpdate = false;
+            if (this.cloudsVBO != null) {
+                this.cloudsVBO.close();
+            }
+
+            this.cloudsVBO = new VertexBuffer();
+
+            Player player = Minecraft.getInstance().player;
+            double playerX = player.getX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
+            //playerX = (MathHelper.lerp(partialTicks, player.prevPosX, player.getPosX()) - player.getPosX());
+            double playerY = player.getY();
+            double playerZ = player.getZ();
+            //playerZ = (MathHelper.lerp(partialTicks, player.prevPosZ, player.getPosZ()) - player.getPosZ());
+
+            double x = 5911 - (playerX);
+            double y = 250 - viewEntityY + 0.001;
+            double z = 6972 - (playerZ);
+
+            x = 336 - (playerX);
+            y = 128 - viewEntityY + 0.001;
+            z = -50 - (playerZ);
+
+            x = 0;
+            y = 0;
+            z = 0;
+
+            Random rand = new Random(3);
+
+            int randRangeY = 40;
+            int randRange = 350;
+
+            int randRangeY2 = 16;
+            int randRange2 = 50;
+
+            int clusters = 50;
+            int clusterDensity = 50;
+
+            //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+
+            //this.cloudsVBO.bind();
+            //DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState();
+
+            BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+
+            RenderSystem.colorMask(true, true, true, true);
+
+            sphereIndex = 0;
+
+            for (int i = 0; i < clusters; i++) {
+                double xx = rand.nextInt(randRange) - rand.nextInt(randRange);
+                double yy = rand.nextInt(randRangeY) - rand.nextInt(randRangeY);
+                double zz = rand.nextInt(randRange) - rand.nextInt(randRange);
+
+                float index = 0;
+                float indexMax = 50;
+                float tickShift = (((float)ticks * 0.05F)) % indexMax;
+                for (int ii = 0; ii < clusterDensity; ii++) {
+                    double xxx = rand.nextInt(randRange2) - rand.nextInt(randRange2);
+                    double yyy = rand.nextInt(randRangeY2)/* - rand.nextInt(randRangeY2)*/;
+                    double zzz = rand.nextInt(randRange2) - rand.nextInt(randRange2);
+                    double r = 0.8 + rand.nextDouble() * 0.2;
+                    r = 0.7 + (yyy / (randRangeY2 * 2)) * 0.3;
+                    //double g = 0.8 + rand.nextDouble() * 0.2;
+                    //double b = 0.8 + rand.nextDouble() * 0.2;
+                    float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
+                    if (scale > 0.5F) {
+                        scale = 0.5F - (scale-0.5F);
+                    }
+                    scale *= 2F;
+                    //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
+
+                    //matrixStackIn.pushPose();
+                    //matrixStackIn.translate(x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz);
+                        /*if (index % 2 == 0) matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(((index + tickShift) * 2) % 3600));
+                        if (index % 3 == 0) matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(((index + tickShift) * 5) % 3600));
+                        if (index % 5 == 0) matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(((index + tickShift) * 7) % 3600));*/
+                    //matrixStackIn.scale(scale, scale, scale);
+
+                    //this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
+                    //ShaderInstance shaderinstance = RenderSystem.getShader();
+
+                    //matrixStackIn.popPose();
+
+                    renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vec3(r, r, r), 0.3F);
+                    index++;
+                    sphereIndex++;
+                }
+            }
+
+            bufferbuilder.end();
+            this.cloudsVBO.upload(bufferbuilder);
+        }
+
+        matrixStackIn.pushPose();/*
+        double playerX = player.getX();
+        double playerY = player.getY();
+        double playerZ = player.getZ();*/
+        double x = 336 - (viewEntityX);
+        double y = 150 - viewEntityY + 0.001;
+        double z = -50 - (viewEntityZ);
+        matrixStackIn.translate(x, y, z);
+        this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
+        matrixStackIn.popPose();
+
+        //RenderSystem.disableAlphaTest();
+        RenderSystem.enableCull();
+        RenderSystem.disableBlend();
+    }
+
+    public void renderOld(PoseStack matrixStackIn, Matrix4f projectionMatrix, float p_172957_, double p_172958_, double viewEntityY, double p_172960_) {
 
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
@@ -93,11 +237,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
             if (uhh && this.cloudsNeedUpdate) {
                 this.cloudsNeedUpdate = false;
-                if (this.cloudsVBO != null) {
-                    this.cloudsVBO.close();
+                if (this.cloudsVBOOld != null) {
+                    this.cloudsVBOOld.close();
                 }
 
-                this.cloudsVBO = new VertexBuffer();
+                this.cloudsVBOOld = new VertexBuffer();
 
                 //this.drawClouds(bufferbuilder, d2, d3, d4, vector3d);
                 Player player = Minecraft.getInstance().player;
@@ -154,7 +298,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 }
 
                 bufferbuilder.end();
-                this.cloudsVBO.upload(bufferbuilder);
+                this.cloudsVBOOld.upload(bufferbuilder);
             }
 
             if (!customShader) {
@@ -169,7 +313,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             /*matrixStackIn.push();*/
             //matrixStackIn.scale(12.0F, 1.0F, 12.0F);
             //matrixStackIn.translate((double)(-f3), (double)f4, (double)(-f5));
-            if (this.cloudsVBO != null && uhh && false) {
+            if (this.cloudsVBOOld != null && uhh && false) {
                 /*this.cloudsVBO.bind();
                 DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
 
@@ -181,7 +325,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 RenderSystem.colorMask(true, true, true, true);
 
                 //ShaderInstance shaderinstance = RenderSystem.getShader();
-                this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
+                this.cloudsVBOOld.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
             }
 
             /*matrixStackIn.pop();
@@ -259,7 +403,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                         //this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
                         //ShaderInstance shaderinstance = RenderSystem.getShader();
-                        this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
+                        this.cloudsVBOOld.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
 
                         matrixStackIn.popPose();
 
@@ -387,13 +531,19 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                 //particleAlpha = 0.9F;
 
-                float n1 = 0;
-                float n2 = -1;
-                float n3 = 0;
+                float n1 = 1;
+                float n2 = 1;
+                float n3 = 1;
 
                 double x = x1 * zr0 * radius2;
                 double y = y1 * zr0 * radius2;
                 double z = z0 * radius2;
+
+                float randAmt = 2F;
+                /*double randX = (rand.nextFloat() - rand.nextFloat()) * randAmt;
+                double randY = (rand.nextFloat() - rand.nextFloat()) * randAmt;
+                double randZ = (rand.nextFloat() - rand.nextFloat()) * randAmt;*/
+
 
                 float extraLight = 0.5F;
 
@@ -401,10 +551,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 n2 = (float) (y * lengthInv) * extraLight + (1F-extraLight);
                 n3 = (float) (z * lengthInv) * extraLight + (1F-extraLight);
 
-                bufferIn.vertex(x1 * zr0 * radius2 + cloudsX, y1 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                bufferIn.vertex(x0 * zr0 * radius2 + cloudsX, y0 * zr0 * radius2 + cloudsY, z0 * radius2 + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
-                bufferIn.vertex(x0 * zr1 * radius2 + cloudsX, y0 * zr1 * radius2 + cloudsY, z1 * radius2 + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                bufferIn.vertex(x1 * zr1 * radius2 + cloudsX, y1 * zr1 * radius2 + cloudsY, z1 * radius2 + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
 
                 iter2++;
             }
