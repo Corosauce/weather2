@@ -31,7 +31,8 @@ public class WeatherRenderTypes
         public static void shaderRegistry(RegisterShadersEvent event) throws IOException
         {
             // Adds a shader to the list, the callback runs when loading is complete.
-            event.registerShader(new ShaderInstance(event.getResourceManager(), new ResourceLocation(Weather.MODID + ":rendertype_clouds"), DefaultVertexFormat.NEW_ENTITY), shaderInstance -> {
+            event.registerShader(new ShaderInstance(event.getResourceManager(), new ResourceLocation(Weather.MODID + ":rendertype_clouds"), DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL),
+                    shaderInstance -> {
                 CustomRenderTypes.cloudShader = shaderInstance;
             });
         }

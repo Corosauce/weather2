@@ -41,6 +41,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         if (level == null) return;
         int ticks = (int) level.getGameTime() % Integer.MAX_VALUE;
 
+        boolean customShader = true;
+
         int method = 3;
         if (method == 3) {
 
@@ -53,9 +55,14 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             BufferBuilder buffer = Tesselator.getInstance().getBuilder();
 
             //Minecraft.getInstance().getTextureManager().bindForSetup(TextureAtlas.LOCATION_PARTICLES);
-            RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-            //RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+            if (!customShader) {
+                RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+            } else {
+                RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+            }
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+            WeatherRenderTypes.brightSolid(TextureAtlas.LOCATION_PARTICLES);
+
             FogRenderer.levelFogColor();
             //GlStateManager.disableTexture();
 
@@ -109,8 +116,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int clusters = 50;
                 int clusterDensity = 50;
 
-                RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-                //RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+                if (!customShader) {
+                    RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+                } else {
+                    RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+                }
                 bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
                 for (int i = 0; i < 1; i++) {
@@ -141,9 +151,13 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 this.cloudsVBO.upload(bufferbuilder);
             }
 
-            RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-            //RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+            if (!customShader) {
+                RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+            } else {
+                RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+            }
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+            WeatherRenderTypes.brightSolid(TextureAtlas.LOCATION_PARTICLES);
             FogRenderer.levelFogColor();
 
             /*matrixStackIn.push();*/
@@ -197,7 +211,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int randRangeY2 = 16;
                 int randRange2 = 20;
 
-                int clusters = 10;
+                int clusters = 50;
                 int clusterDensity = 50;
 
                 //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -310,8 +324,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         boolean alt = false;
         Random rand = new Random(555);
 
-        int nSegments = 5;
-        int nSlices = 5;
+        int nSegments = 6;
+        int nSlices = 6;
         float radius = 20;
 
         int iter = 0;
@@ -321,7 +335,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         rand = new Random(555);
 
-        for (double slice = 1.0; slice <= nSlices && iter <= 100; slice += 1.0) {
+        for (double slice = 1.0; slice <= nSlices/* && iter <= 100*/; slice += 1.0) {
             double lat0 = Math.PI * (((slice - 1) / nSlices) - 0.5);
             double z0 = Math.sin(lat0);
             double zr0 = Math.cos(lat0);
@@ -333,7 +347,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             //glBegin(GL_QUADS);
             //bufferIn.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
-            for (double segment = 0.0; segment < nSegments && iter2 <= 408; segment += 1.0) {
+            for (double segment = 0.0; segment < nSegments/* && iter2 <= 408*/; segment += 1.0) {
                 double long0 = 2 * Math.PI * ((segment -1 ) / nSegments);
                 double x0 = Math.cos(long0);
                 double y0 = Math.sin(long0);
