@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ICloudRenderHandler;
+import weather2.client.shaders.ShaderInstanceExtended;
 import weather2.client.shaders.WeatherShaders;
 
 import java.util.Random;
@@ -59,6 +60,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             } else {
                 RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
             }
+
+            ShaderInstanceExtended shaderinstance = WeatherShaders.getShaderExtended();
+            if (shaderinstance.CUSTOM_TIME != null) {
+                shaderinstance.CUSTOM_TIME.set(2F);
+            }
+
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             //WeatherShaders.clouds(TextureAtlas.LOCATION_PARTICLES);
 
@@ -173,7 +180,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                 RenderSystem.colorMask(true, true, true, true);
 
-                ShaderInstance shaderinstance = RenderSystem.getShader();
+                //ShaderInstance shaderinstance = RenderSystem.getShader();
                 this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
             }
 
@@ -251,7 +258,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                         matrixStackIn.scale(scale, scale, scale);
 
                         //this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
-                        ShaderInstance shaderinstance = RenderSystem.getShader();
+                        //ShaderInstance shaderinstance = RenderSystem.getShader();
                         this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
 
                         matrixStackIn.popPose();

@@ -1,5 +1,6 @@
 package weather2.client.shaders;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
@@ -15,6 +16,15 @@ import java.io.IOException;
 
 public class WeatherShaders
 {
+
+    public static ShaderInstanceExtended getShaderExtended() {
+        ShaderInstance shaderinstance = RenderSystem.getShader();
+        if (shaderinstance instanceof ShaderInstanceExtended) {
+            return (ShaderInstanceExtended) shaderinstance;
+        }
+        return null;
+    }
+
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModClientEvents
     {
