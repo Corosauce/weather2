@@ -28,6 +28,7 @@ public class WeatherManagerClient extends WeatherManager {
 		if (cloudRenderHandler == null) {
 			((ClientLevel)getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
 		}
+		//((ClientLevel)getWorld()).effects().setCloudRenderHandler(null);
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ICloudRenderHandler;
 import org.lwjgl.opengl.GL11;
+import weather2.client.shaders.WeatherRenderTypes;
 
 import java.util.Random;
 
@@ -53,6 +54,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
             //Minecraft.getInstance().getTextureManager().bindForSetup(TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+            //RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             FogRenderer.levelFogColor();
             //GlStateManager.disableTexture();
@@ -108,6 +110,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int clusterDensity = 50;
 
                 RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+                //RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
                 bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
                 for (int i = 0; i < 1; i++) {
@@ -139,6 +142,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             }
 
             RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+            //RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             FogRenderer.levelFogColor();
 
@@ -193,7 +197,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int randRangeY2 = 16;
                 int randRange2 = 20;
 
-                int clusters = 100;
+                int clusters = 10;
                 int clusterDensity = 50;
 
                 //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -228,9 +232,9 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                         matrixStackIn.pushPose();
                         matrixStackIn.translate(x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz);
-                        if (index % 2 == 0) matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(((index + tickShift) * 2) % 3600));
+                        /*if (index % 2 == 0) matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(((index + tickShift) * 2) % 3600));
                         if (index % 3 == 0) matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(((index + tickShift) * 5) % 3600));
-                        if (index % 5 == 0) matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(((index + tickShift) * 7) % 3600));
+                        if (index % 5 == 0) matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(((index + tickShift) * 7) % 3600));*/
                         matrixStackIn.scale(scale, scale, scale);
 
                         //this.cloudsVBO.draw(matrixStackIn.last().pose(), GL11.GL_QUADS);
@@ -363,15 +367,15 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                 //particleAlpha = 0.9F;
 
-                float n1 = rand.nextFloat();
-                float n2 = rand.nextFloat();
-                float n3 = rand.nextFloat();
+                float n1 = 0;
+                float n2 = -1;
+                float n3 = 0;
 
                 double x = x1 * zr0 * radius2;
                 double y = y1 * zr0 * radius2;
                 double z = z0 * radius2;
 
-                float extraLight = 0.3F;
+                float extraLight = 0.5F;
 
                 n1 = (float) (x * lengthInv) * extraLight + (1F-extraLight);
                 n2 = (float) (y * lengthInv) * extraLight + (1F-extraLight);
