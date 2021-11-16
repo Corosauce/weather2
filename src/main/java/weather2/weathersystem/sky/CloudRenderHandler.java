@@ -16,8 +16,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ICloudRenderHandler;
-import org.lwjgl.opengl.GL11;
-import weather2.client.shaders.WeatherRenderTypes;
+import weather2.client.shaders.WeatherShaders;
 
 import java.util.Random;
 
@@ -58,10 +57,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             if (!customShader) {
                 RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
             } else {
-                RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+                RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
             }
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-            WeatherRenderTypes.brightSolid(TextureAtlas.LOCATION_PARTICLES);
+            //WeatherShaders.clouds(TextureAtlas.LOCATION_PARTICLES);
 
             FogRenderer.levelFogColor();
             //GlStateManager.disableTexture();
@@ -119,7 +118,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 if (!customShader) {
                     RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
                 } else {
-                    RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+                    RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
                 }
                 bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
@@ -154,10 +153,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             if (!customShader) {
                 RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
             } else {
-                RenderSystem.setShader(WeatherRenderTypes.CustomRenderTypes::getCloudShader);
+                RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
             }
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-            WeatherRenderTypes.brightSolid(TextureAtlas.LOCATION_PARTICLES);
+            //WeatherShaders.clouds(TextureAtlas.LOCATION_PARTICLES);
             FogRenderer.levelFogColor();
 
             /*matrixStackIn.push();*/
