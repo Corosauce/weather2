@@ -238,6 +238,30 @@ float rand(vec2 co){
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+
+float noise2(vec3 p){
+    vec3 a = floor(p);
+    vec3 d = p - a;
+    d = d * d * (3.0 - 2.0 * d);
+
+    vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 k1 = perm(b.xyxy);
+    vec4 k2 = perm(k1.xyxy + b.zzww);
+
+    vec4 c = k2 + a.zzzz;
+    vec4 k3 = perm(c);
+    vec4 k4 = perm(c + 1.0);
+
+    vec4 o1 = fract(k3 * (1.0 / 41.0));
+    vec4 o2 = fract(k4 * (1.0 / 41.0));
+
+    vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
+    vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
+
+    return o4.y * d.y + o4.x * (1.0 - d.y);
+}
+
 void main() {
 
     vec3 test = vec3(1, 1, 1);
@@ -246,13 +270,15 @@ void main() {
     float noise = 30.0 *  -.10 * turbulence( .5 * test + CustomTime );
     //float noise = 30.0 *  -.10 * turbulence( .5 * normal.xyz + CustomTime );
     float b = 5.0 * pnoise( 0.05 * Position + vec3( 2.0 * CustomTime ), vec3( 100.0 ) );
+    //float b = 5.0 * noise2( 0.05 * Position + vec3( 2.0 * CustomTime ) );
     float displacement = - noise + b;
 
     //float randomSeed = rand(normal.xy);
 
     //vec3 newPosition = Position + vec3(sin(CustomTime) * 3, cos(CustomTime) * 3, 0);
     //vec3 newPosition = Position + normal.xyz * displacement;
-    vec3 newPosition = Position + test * displacement;
+    vec3 newPosition = Position + test;
+    //vec3 newPosition = Position + test * displacement;
 
     gl_Position = ProjMat * ModelViewMat * vec4(newPosition, 1.0);
 

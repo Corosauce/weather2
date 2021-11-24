@@ -4,14 +4,18 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.FaceInfo;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ICloudRenderHandler;
@@ -28,6 +32,9 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     //private VertexBuffer cloudVBO;
 
     private int sphereIndex = 0;
+
+    private Random rand = new Random();
+    private Random rand2 = new Random();
 
     @Override
     public void render(int ticks, float partialTicks, PoseStack matrixStackIn, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
@@ -67,7 +74,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         cloudsNeedUpdate = false;
 
-        if (cloudsVBO == null || cloudsNeedUpdate || ticks % 100 == 0) {
+        if (cloudsVBO == null || cloudsNeedUpdate || ticks % 40 == 0) {
 
             this.cloudsNeedUpdate = false;
             if (this.cloudsVBO != null) {
@@ -95,16 +102,19 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             y = 0;
             z = 0;
 
-            Random rand = new Random(3);
+            rand = new Random(3333);
+            rand2 = new Random(3333);
+
+            double scalecluster = 2.0;
 
             int randRangeY = 40;
-            int randRange = 350;
+            int randRange = (int) (350 * scalecluster);
 
-            int randRangeY2 = 16;
-            int randRange2 = 50;
+            int randRangeY2 = (int) (16 * scalecluster);
+            int randRange2 = (int) (50 * scalecluster);
 
-            int clusters = 50;
-            int clusterDensity = 50;
+            int clusters = 30;
+            int clusterDensity = (int) (75 * scalecluster);
 
             //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
@@ -129,16 +139,58 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 for (int ii = 0; ii < clusterDensity; ii++) {
                     double xxx = rand.nextInt(randRange2) - rand.nextInt(randRange2);
                     double yyy = rand.nextInt(randRangeY2)/* - rand.nextInt(randRangeY2)*/;
+                    //double yyy = rand.nextInt(randRange2) - rand.nextInt(randRange2);
                     double zzz = rand.nextInt(randRange2) - rand.nextInt(randRange2);
+
+                    double subX = xxx+xx;
+                    double subY = yyy+yy;
+                    double subZ = zzz+zz;
+
+                    double snapResPos = 10;
+                    /*subX = Math.round(subX * snapResPos) / snapResPos;
+                    subY = Math.round(subY * snapResPos) / snapResPos;
+                    subZ = Math.round(subZ * snapResPos) / snapResPos;*/
+                    subX = Math.round(subX / snapResPos) * snapResPos;
+                    subY = Math.round(subY / snapResPos) * snapResPos;
+                    subZ = Math.round(subZ / snapResPos) * snapResPos;
+
+                    double vecX = (subX) - xx;
+                    double vecY = (subY) - yy;
+                    double vecZ = (subZ) - zz;
+                    double dist = Math.sqrt(vecX * vecX + vecY * vecY + vecZ * vecZ);
+                    double distPct = Math.max(1D - (dist / randRange2), 0.3D);
+
+                    //cut off the lil stragglers for our current formula
+                    if (dist > randRange2 / 1.5) {
+                        continue;
+                    }
+
+                    //snap the scaling to specific sizes
+                    double snapResScale = 4;
+                    distPct = Math.round(distPct * snapResScale) / snapResScale;
+                    //distPct = Math.round(distPct / snapResScale) * snapResScale;
+                    //distPct = 0.3;
+
                     double r = 0.8 + rand.nextDouble() * 0.2;
-                    r = 0.7 + (yyy / (randRangeY2 * 2)) * 0.3;
+                    r = 0.97 + (yyy / (randRangeY2 * 2)) * 0.03;
+                    r = 0.9;
+                    //r += rand.nextFloat() * 0.03F;
+                    r += rand.nextFloat() * 0.08F;
+                    r = Math.min(1F, r);
                     //double g = 0.8 + rand.nextDouble() * 0.2;
                     //double b = 0.8 + rand.nextDouble() * 0.2;
                     float scale = (float)((index*1F + tickShift) % indexMax) / (float)indexMax;
                     if (scale > 0.5F) {
                         scale = 0.5F - (scale-0.5F);
                     }
-                    scale *= 2F;
+                    scale *= 5F;
+
+                    scale = (float) (20F * (distPct));
+
+                    //z fix
+                    scale += rand.nextFloat() * 0.1F;
+
+
                     //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
 
                     //matrixStackIn.pushPose();
@@ -153,7 +205,9 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                     //matrixStackIn.popPose();
 
-                    renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vec3(r, r, r), 0.3F);
+                    //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.4F);
+                    //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale * 0.03F);
+                    renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale);
                     index++;
                     sphereIndex++;
                 }
@@ -168,7 +222,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         double playerY = player.getY();
         double playerZ = player.getZ();*/
         double x = 336 - (viewEntityX);
-        double y = 150 - viewEntityY + 0.001;
+        double y = 180 - viewEntityY + 0.001;
         double z = -50 - (viewEntityZ);
         matrixStackIn.translate(x, y, z);
         this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
@@ -424,35 +478,65 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     }
 
     private void renderCube(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vec3 cloudsColor, float scale) {
-        Vector3f[] avector3f3 = new Vector3f[]{
-                new Vector3f(-1.0F, 0.0F, -1.0F),
-                new Vector3f(-1.0F, 0.0F, 1.0F),
-                new Vector3f(1.0F, 0.0F, 1.0F),
-                new Vector3f(1.0F, 0.0F, -1.0F)};
+        Random rand = rand2;
 
-        for(int i = 0; i < 4; ++i) {
-            Vector3f vector3f = avector3f3[i];
-            vector3f.mul(0.5F * scale);
-            vector3f.add((float) cloudsX + 0.5F, (float) cloudsY, (float) cloudsZ + 0.5F);
+        Quaternion q2 = new Quaternion(0, 0, 0, 1);
+        int range = 5;
+        range = 180;
+        q2.mul(Vector3f.XP.rotationDegrees(rand.nextInt(range)));
+        q2.mul(Vector3f.YP.rotationDegrees(rand.nextInt(range)));
+        //q2.mul(Vector3f.YP.rotationDegrees(rand.nextInt(45)));
+        q2.mul(Vector3f.ZP.rotationDegrees(rand.nextInt(range)));
+
+        boolean randRotate = false;
+
+        for (Direction dir : Direction.values()) {
+            Quaternion quaternion = dir.getRotation();
+
+            Vector3f[] avector3f3 = new Vector3f[]{
+                    new Vector3f(-1.0F, 0.0F, -1.0F),
+                    new Vector3f(-1.0F, 0.0F, 1.0F),
+                    new Vector3f(1.0F, 0.0F, 1.0F),
+                    new Vector3f(1.0F, 0.0F, -1.0F)};
+
+
+            Vector3f normal = new Vector3f(dir.getNormal().getX(), dir.getNormal().getY(), dir.getNormal().getZ());
+            if (randRotate) normal.transform(q2);
+            float normalRange = 0.1F;
+            normal.mul(normalRange);
+            //normal.add(1-normalRange, 1-normalRange, 1-normalRange);
+            float uh = 0.55F;
+            normal.add(uh, uh, uh);
+
+            for(int i = 0; i < 4; ++i) {
+                Vector3f vector3f = avector3f3[i];
+                vector3f.transform(quaternion);
+                vector3f.add((float) dir.getStepX(), (float) dir.getStepY(), (float) dir.getStepZ());
+                if (randRotate) vector3f.transform(q2);
+                vector3f.mul(scale);
+                vector3f.add((float) cloudsX + 0.5F, (float) cloudsY, (float) cloudsZ + 0.5F);
+            }
+
+            TextureAtlasSprite sprite = ParticleRegistry.cloud_square;
+
+            float f7 = sprite.getU0();
+            float f8 = sprite.getU1();
+            float f5 = sprite.getV0();
+            float f6 = sprite.getV1();
+
+
+            float particleRed = (float) cloudsColor.x;
+            float particleGreen = (float) cloudsColor.y;
+            float particleBlue = (float) cloudsColor.z;
+            float particleAlpha = 1;
+
+            bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+            bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+            bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+            bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+
         }
 
-        TextureAtlasSprite sprite = ParticleRegistry.cloudNew;
-
-        float f7 = sprite.getU0();
-        float f8 = sprite.getU1();
-        float f5 = sprite.getV0();
-        float f6 = sprite.getV1();
-
-
-        float particleRed = (float) cloudsColor.x;
-        float particleGreen = (float) cloudsColor.y;
-        float particleBlue = (float) cloudsColor.z;
-        float particleAlpha = 1;
-
-        bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
-        bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
-        bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
-        bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(0.0F, -1.0F, 0.0F).endVertex();
     }
 
     private void renderSphere(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vec3 cloudsColor, float scale) {
@@ -545,7 +629,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 double randZ = (rand.nextFloat() - rand.nextFloat()) * randAmt;*/
 
 
-                float extraLight = 0.5F;
+                float extraLight = 0.3F;
 
                 n1 = (float) (x * lengthInv) * extraLight + (1F-extraLight);
                 n2 = (float) (y * lengthInv) * extraLight + (1F-extraLight);
