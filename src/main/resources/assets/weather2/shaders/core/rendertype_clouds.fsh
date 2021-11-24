@@ -22,5 +22,5 @@ void main() {
         discard;
     }
     //fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
-    fragColor = linear_fog(color, vertexDistance, 0, 999, FogColor);
+    fragColor = linear_fog(color, vertexDistance, 200, 1200, FogColor);
 }

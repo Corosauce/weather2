@@ -102,18 +102,18 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             y = 0;
             z = 0;
 
-            rand = new Random(3333);
-            rand2 = new Random(3333);
+            rand = new Random(33);
+            rand2 = new Random(33);
 
-            double scalecluster = 3.0;
+            double scalecluster = 4.0;
 
             int randRangeY = 40;
-            int randRange = (int) (350 * scalecluster);
+            int randRange = (int) (250 * scalecluster);
 
             int randRangeY2 = (int) (16 * scalecluster);
             int randRange2 = (int) (50 * scalecluster);
 
-            int clusters = 30;
+            int clusters = 50;
             int clusterDensity = (int) (75 * scalecluster);
 
             //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -138,15 +138,16 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 float tickShift = (((float)ticks * 0.05F)) % indexMax;
                 for (int ii = 0; ii < clusterDensity; ii++) {
                     double xxx = rand.nextInt(randRange2) - rand.nextInt(randRange2);
-                    double yyy = rand.nextInt(randRangeY2)/* - rand.nextInt(randRangeY2)*/;
-                    //double yyy = rand.nextInt(randRange2) - rand.nextInt(randRange2);
+                    //double yyy = rand.nextInt(randRangeY2)/* - rand.nextInt(randRangeY2)*/;
+                    double yyy = rand.nextInt(randRange2) - rand.nextInt(1);
+                    //double yyy = rand.nextInt(randRange2);
                     double zzz = rand.nextInt(randRange2) - rand.nextInt(randRange2);
 
                     double subX = xxx+xx;
                     double subY = yyy+yy;
                     double subZ = zzz+zz;
 
-                    double snapResPos = 20;
+                    double snapResPos = 30;
                     /*subX = Math.round(subX * snapResPos) / snapResPos;
                     subY = Math.round(subY * snapResPos) / snapResPos;
                     subZ = Math.round(subZ * snapResPos) / snapResPos;*/
@@ -160,13 +161,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     double dist = Math.sqrt(vecX * vecX + vecY * vecY + vecZ * vecZ);
                     double distPct = Math.max(1D - (dist / randRange2), 0.3D);
 
-                    //cut off the lil stragglers for our current formula
-                    if (dist > randRange2 / 1.5) {
-                        continue;
-                    }
-
                     //snap the scaling to specific sizes
-                    double snapResScale = 2;
+                    double snapResScale = 4;
                     distPct = Math.round(distPct * snapResScale) / snapResScale;
                     //distPct = Math.round(distPct / snapResScale) * snapResScale;
                     //distPct = 0.3;
@@ -185,10 +181,15 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     }
                     scale *= 5F;
 
-                    scale = (float) (20F * (distPct));
+                    scale = (float) (30F * (distPct));
 
                     //z fix
                     scale += rand.nextFloat() * 0.1F;
+
+                    //cut off the lil stragglers for our current formula
+                    if (dist > randRange2 / 2.2) {
+                        scale = 0;
+                    }
 
 
                     //renderSphere(bufferbuilder, x + xx + xxx, y + 10 + yy + yyy, z + zz + zzz, new Vector3d(r, r, r), scale);
@@ -205,7 +206,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                     //matrixStackIn.popPose();
 
-                    //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.49F);
+                    //if (scale > 0) renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.5F);
+                    //if (scale > 0) renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.49F);
                     //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale * 0.03F);
                     renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale);
                     index++;
@@ -222,7 +224,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         double playerY = player.getY();
         double playerZ = player.getZ();*/
         double x = 336 - (viewEntityX);
-        double y = 180 - viewEntityY + 0.001;
+        double y = 220 - viewEntityY + 0.001;
         double z = -50 - (viewEntityZ);
         matrixStackIn.translate(x, y, z);
         this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
@@ -560,7 +562,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         int nSegments = 6;
         int nSlices = 6;
-        float radius = 20;
+        float radius = 30;
 
         int iter = 0;
         int iter2 = 0;
