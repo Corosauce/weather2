@@ -105,7 +105,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             rand = new Random(3333);
             rand2 = new Random(3333);
 
-            double scalecluster = 2.0;
+            double scalecluster = 3.0;
 
             int randRangeY = 40;
             int randRange = (int) (350 * scalecluster);
@@ -146,7 +146,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     double subY = yyy+yy;
                     double subZ = zzz+zz;
 
-                    double snapResPos = 10;
+                    double snapResPos = 20;
                     /*subX = Math.round(subX * snapResPos) / snapResPos;
                     subY = Math.round(subY * snapResPos) / snapResPos;
                     subZ = Math.round(subZ * snapResPos) / snapResPos;*/
@@ -166,7 +166,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     }
 
                     //snap the scaling to specific sizes
-                    double snapResScale = 4;
+                    double snapResScale = 2;
                     distPct = Math.round(distPct * snapResScale) / snapResScale;
                     //distPct = Math.round(distPct / snapResScale) * snapResScale;
                     //distPct = 0.3;
@@ -205,7 +205,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                     //matrixStackIn.popPose();
 
-                    //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.4F);
+                    //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.49F);
                     //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale * 0.03F);
                     renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale);
                     index++;
