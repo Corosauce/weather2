@@ -36,6 +36,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     private Random rand = new Random();
     private Random rand2 = new Random();
 
+    private boolean mode_triangles = true;
+
     @Override
     public void render(int ticks, float partialTicks, PoseStack matrixStackIn, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
         //dont use until interface is fixed to add projection matrix
@@ -50,6 +52,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         int ticks = (int) level.getGameTime() % Integer.MAX_VALUE;
+
+        mode_triangles = true;
 
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
@@ -122,7 +126,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             //DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState();
 
             BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+            if (mode_triangles) {
+                bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+            } else {
+                bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+            }
 
             RenderSystem.colorMask(true, true, true, true);
 
@@ -206,10 +214,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                     //matrixStackIn.popPose();
 
-                    //if (scale > 0) renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.5F);
+                    if (scale > 0) renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.5F);
                     //if (scale > 0) renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.49F);
                     //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale * 0.03F);
-                    renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale);
+                    //renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale);
                     index++;
                     sphereIndex++;
                 }
@@ -532,10 +540,20 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             float particleBlue = (float) cloudsColor.z;
             float particleAlpha = 1;
 
-            bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-            bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-            bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-            bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+            if (mode_triangles) {
+                bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+
+                bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+            } else {
+                bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+                bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
+            }
 
         }
 
@@ -637,10 +655,32 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 n2 = (float) (y * lengthInv) * extraLight + (1F-extraLight);
                 n3 = (float) (z * lengthInv) * extraLight + (1F-extraLight);
 
-                bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
-                bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                if (mode_triangles) {
+                    /** render shape
+                     * . .
+                     * .
+                     */
+                    bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+
+                    /** render shape
+                     *   .
+                     * . .
+                     */
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                    bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+
+                } else {
+                    // render shape = U ?
+                    bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                    bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                }
+
+
 
                 iter2++;
             }
