@@ -3,8 +3,10 @@ package weather2.client.shaders;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterShadersEvent;
@@ -18,11 +20,7 @@ public class WeatherShaders
 {
 
     public static ShaderInstanceExtended getShaderExtended() {
-        ShaderInstance shaderinstance = RenderSystem.getShader();
-        if (shaderinstance instanceof ShaderInstanceExtended) {
-            return (ShaderInstanceExtended) shaderinstance;
-        }
-        return null;
+        return CustomRenderTypes.cloudShader;
     }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -31,13 +29,13 @@ public class WeatherShaders
         @SubscribeEvent
         public static void shaderRegistry(RegisterShadersEvent event) throws IOException
         {
-            // Adds a shader to the list, the callback runs when loading is complete.
-            event.registerShader(new ShaderInstanceExtended(event.getResourceManager(),
-                            new ResourceLocation(Weather.MODID + ":rendertype_clouds"), DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL),
-                    shaderInstance -> {
-                CustomRenderTypes.cloudShader = shaderInstance;
-            });
+            CustomRenderTypes.cloudShader = new ShaderInstanceExtended(event.getResourceManager(),
+                    new ResourceLocation(Weather.MODID + ":rendertype_clouds"), DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         }
+    }
+
+    public static void setupShader() {
+        TextureAtlasSprite sprite = ParticleRegistry.rain_white;
     }
 
     // Accessor function, ensures that you don't use the raw methods below unintentionally.
@@ -50,7 +48,7 @@ public class WeatherShaders
     public static class CustomRenderTypes extends RenderType
     {
         // Holds the object loaded via RegisterShadersEvent
-        public static ShaderInstance cloudShader;
+        public static ShaderInstanceExtended cloudShader;
 
         // Shader state for use in the render type, the supplier ensures it updates automatically with resource reloads
         //private static final ShaderStateShard RENDERTYPE_CLOUD = new ShaderStateShard(() -> cloudShader);
@@ -79,7 +77,7 @@ public class WeatherShaders
                     VertexFormat.Mode.QUADS, 256, true, false, rendertype$state);
         }*/
 
-        public static ShaderInstance getCloudShader() {
+        public static ShaderInstanceExtended getCloudShader() {
             return cloudShader;
         }
     }

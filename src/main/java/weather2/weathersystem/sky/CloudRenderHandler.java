@@ -19,16 +19,27 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ICloudRenderHandler;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL31;
 import weather2.client.shaders.ShaderInstanceExtended;
+import weather2.client.shaders.VertexBufferInstanced;
 import weather2.client.shaders.WeatherShaders;
+import weather2.client.shaderstest.CloudPiece;
+import weather2.client.shaderstest.InstancedMeshParticle;
+import weather2.client.shaderstest.MeshBufferManagerParticle;
 
 import java.util.Random;
+
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 
 public class CloudRenderHandler implements ICloudRenderHandler {
 
     private boolean cloudsNeedUpdate = true;
-    private VertexBuffer cloudsVBOOld;
-    private VertexBuffer cloudsVBO;
+    private VertexBufferInstanced cloudsVBOOld;
+    private VertexBufferInstanced cloudsVBO;
     //private VertexBuffer cloudVBO;
 
     private int sphereIndex = 0;
@@ -47,6 +58,42 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
     //public void render(int ticks, float partialTicks, PoseStack matrixStackIn, Matrix4f projectionMatrix, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
 
+    public void renderNewShaderTest(PoseStack matrixStackIn, Matrix4f projectionMatrix, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ) {
+        MeshBufferManagerParticle.setupMeshForParticleIfMissing(ParticleRegistry.cloud_square);
+
+        GL20.glUseProgram(WeatherShaders.getShaderExtended().getId());
+
+        InstancedMeshParticle mesh = MeshBufferManagerParticle.getMesh(ParticleRegistry.cloud_square);
+
+        mesh.initRender();
+        mesh.initRenderVBO1();
+
+        mesh.instanceDataBuffer.clear();
+        mesh.curBufferPos = 0;
+
+        //render particles
+        for (int i = 0; i < 100; i++) {
+            CloudPiece piece = new CloudPiece();
+            piece.renderParticleForShader(mesh, null, null, null, partialTicks, 0, 0, 0, 0, 0);
+        }
+
+        //mesh.instanceDataBuffer.limit(mesh.curBufferPos * mesh.INSTANCE_SIZE_FLOATS);
+
+        /*GlStateManager._glBindBuffer(GL_ARRAY_BUFFER, mesh.instanceDataVBO);
+        ShaderManager.glBufferData(GL_ARRAY_BUFFER, mesh.instanceDataBuffer, GL_DYNAMIC_DRAW);*/
+
+        GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, mesh.instanceDataVBO);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, mesh.instanceDataBuffer, GL_DYNAMIC_DRAW);
+
+        GL31.glDrawElementsInstanced(GL_TRIANGLES, mesh.getVertexCount(), GL_UNSIGNED_INT, 0, mesh.curBufferPos);
+
+        GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+        mesh.endRenderVBO1();
+        //mesh.endRenderVBO2();
+        mesh.endRender();
+    }
+
     public void render(PoseStack matrixStackIn, Matrix4f projectionMatrix, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ) {
         //if (true) return;
         ClientLevel level = Minecraft.getInstance().level;
@@ -61,7 +108,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.depthMask(true);
 
-        RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
+        //RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
 
         ShaderInstanceExtended shaderinstance = WeatherShaders.getShaderExtended();
         if (shaderinstance.CUSTOM_TIME != null) {
@@ -85,7 +132,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 this.cloudsVBO.close();
             }
 
-            this.cloudsVBO = new VertexBuffer();
+            this.cloudsVBO = new VertexBufferInstanced();
 
             Player player = Minecraft.getInstance().player;
             double playerX = player.getX();// - ((player.getPosX() - player.prevPosX) * partialTicks);
@@ -119,6 +166,9 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
             int clusters = 50;
             int clusterDensity = (int) (75 * scalecluster);
+
+            clusters = 1;
+            clusterDensity = 1;
 
             //bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
@@ -218,6 +268,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     //if (scale > 0) renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r * 0.9F, r * 0.9F, r * 0.9F), 0.49F);
                     //renderSphere(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale * 0.03F);
                     //renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), scale);
+                    //renderCube(bufferbuilder, x + subX, y + 10 + subY, z + subZ, new Vec3(r, r, r), 0);
                     index++;
                     sphereIndex++;
                 }
@@ -235,8 +286,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         double y = 220 - viewEntityY + 0.001;
         double z = -50 - (viewEntityZ);
         matrixStackIn.translate(x, y, z);
-        this.cloudsVBO.drawWithShader(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
+        this.cloudsVBO._drawWithShaderDummyStart(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
+
+        renderNewShaderTest(matrixStackIn, projectionMatrix, partialTicks, viewEntityX, viewEntityY, viewEntityZ);
         matrixStackIn.popPose();
+
+        //if (true) return;
 
         //RenderSystem.disableAlphaTest();
         RenderSystem.enableCull();
@@ -263,11 +318,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             BufferBuilder buffer = Tesselator.getInstance().getBuilder();
 
             //Minecraft.getInstance().getTextureManager().bindForSetup(TextureAtlas.LOCATION_PARTICLES);
-            if (!customShader) {
+            /*if (!customShader) {
                 RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
             } else {
                 RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
-            }
+            }*/
 
             ShaderInstanceExtended shaderinstance = WeatherShaders.getShaderExtended();
             if (shaderinstance.CUSTOM_TIME != null) {
@@ -305,7 +360,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     this.cloudsVBOOld.close();
                 }
 
-                this.cloudsVBOOld = new VertexBuffer();
+                this.cloudsVBOOld = new VertexBufferInstanced();
 
                 //this.drawClouds(bufferbuilder, d2, d3, d4, vector3d);
                 Player player = Minecraft.getInstance().player;
@@ -330,11 +385,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 int clusters = 50;
                 int clusterDensity = 50;
 
-                if (!customShader) {
+                /*if (!customShader) {
                     RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
                 } else {
                     RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
-                }
+                }*/
                 bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
                 for (int i = 0; i < 1; i++) {
@@ -365,11 +420,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 this.cloudsVBOOld.upload(bufferbuilder);
             }
 
-            if (!customShader) {
+            /*if (!customShader) {
                 RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
             } else {
                 RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
-            }
+            }*/
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             //WeatherShaders.clouds(TextureAtlas.LOCATION_PARTICLES);
             FogRenderer.levelFogColor();

@@ -9,8 +9,9 @@
     "attributes": [
         "Position",
         "UV0",
-        "Color",
-        "Normal"
+        "ModelMatrix",
+        "Brightness",
+        "Color"
     ],
     "samplers": [
         { "name": "Sampler0" }
