@@ -22,6 +22,7 @@ void main() {
     vec4 Color2 = vec4(gl_VertexID * 0.1, 1, 1, 1);
     //vec3 Position2 = vec3(gl_VertexID * 20, 0, -gl_VertexID * 20);
     vec3 Position2 = vec3(0, 0, 0);
+    vec3 Position3 = vec3(Position.x, Position.y, Position.z);
     if (gl_VertexID == 0) {
         Position2 = vec3(-0.5 + 5, 0.5 + 5, 0.0);
         Color2 = vec4(1, 0, 0, 1);
@@ -35,18 +36,39 @@ void main() {
         Position2 = vec3(0.5 + 5, -0.5 + 5, 0.0);
         Color2 = vec4(1, 1, 0, 1);
     }
+    if (gl_InstanceID == 0) {
+        Position2 = vec3(-0.5 + 5, 0.5 + 5, 0.0);
+        Color2 = vec4(1, 0, 0, 1);
+    } else if (gl_InstanceID == 1) {
+        Position2 = vec3(-0.5 + 5, -0.5 + 5, 0.0);
+        Color2 = vec4(0, 1, 0, 1);
+    } else if (gl_InstanceID == 2) {
+        Position2 = vec3(0.5 + 5, -0.5 + 5, 0.0);
+        Color2 = vec4(0, 0, 1, 1);
+    } else if (gl_InstanceID == 3) {
+        Position2 = vec3(0.5 + 5, -0.5 + 5, 0.0);
+        Color2 = vec4(1, 1, 0, 1);
+    }
+    Position3 = vec3(Position.x, Position.y + gl_InstanceID, Position.z);
     //gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
     //gl_Position = vec4(Position, 1.0);
     //gl_Position = vec4(Position2, 1.0);
-    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
     //gl_Position = ProjMat * ModelViewMat * ModelMatrix * vec4(Position, 1.0);
+    vec3 temp = vec3(ModelMatrix[0][1], ModelMatrix[0][2], ModelMatrix[0][3]);
+    vec4 Color3 = vec4(ModelMatrix[0][0], ModelMatrix[0][1], ModelMatrix[0][2], 1);
+    //gl_Position = ProjMat * ModelViewMat * vec4(temp, 1.0) * vec4(Position, 1.0);
     //gl_Position = ProjMat * ModelViewMat * vec4(Position2, 1.0);
+
+
+
+    //gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+    gl_Position = ProjMat * ModelViewMat * vec4(Position3, 1.0);
 
     texCoord0 = UV0;
     //vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
     vertexDistance = 5;
     //vertexColor = Color;
-    vertexColor = Color2;
+    vertexColor = Color3;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
 }
 

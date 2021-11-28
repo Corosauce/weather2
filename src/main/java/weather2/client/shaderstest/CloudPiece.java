@@ -45,8 +45,22 @@ public class CloudPiece {
         Quaternion rotation = new Quaternion(0, 0, 0, 1);
         //Vector3f scale = new Vector3f(1.0F, 1.0F, 1.0F);
         Vector3f scale = new Vector3f(0.1F, 0.1F, 0.1F);
-        Matrix4f modelMatrix1 = new Transformation(pos, rotation, scale, null).getMatrix();
+        //Matrix4f modelMatrix1 = new Transformation(pos, rotation, scale, null).getMatrix();
+        Matrix4f modelMatrix1 = new Transformation(pos, null, scale, null).getMatrix();
         Matrix4fe modelMatrix = new Matrix4fe(modelMatrix1);
+        modelMatrix.m00 = posX;
+        modelMatrix.m01 = posY;
+        modelMatrix.m02 = posZ;
+
+        modelMatrix.m00 = 0;
+        modelMatrix.m01 = 0;
+        modelMatrix.m02 = 1F * 0.1F * mesh.curBufferPos;
+        modelMatrix.m03 = 0;
+
+        modelMatrix.m30 = 0;
+        modelMatrix.m31 = 0;
+        modelMatrix.m32 = 0;
+        modelMatrix.m33 = 0;
 
         //adjust to perspective and camera
         //Matrix4fe modelViewMatrix = transformation.buildModelViewMatrix(modelMatrix, viewMatrix);
