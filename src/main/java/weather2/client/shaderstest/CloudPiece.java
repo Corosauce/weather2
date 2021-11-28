@@ -25,14 +25,15 @@ public class CloudPiece {
 
         if (mesh.curBufferPos >= mesh.numInstances) return;
 
-        Random rand = new Random(50);
-        posX = rand.nextInt(50) - rand.nextInt(50);
-        posY = rand.nextInt(50) - rand.nextInt(50);
-        posZ = rand.nextInt(50) - rand.nextInt(50);
+        Random rand = new Random();
+        int range = 30;
+        posX = rand.nextInt(range) - rand.nextInt(range);
+        posY = rand.nextInt(range) - rand.nextInt(range);
+        posZ = rand.nextInt(range) - rand.nextInt(range);
 
-        /*posX = 10;
-        posY = 0;
-        posZ = 0;*/
+        //posX = 1;
+        //posY = 0;
+        //posZ = 0;
 
         //camera relative positions, for world position, remove the interpPos values
         float posX = (float) (this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks);
@@ -48,11 +49,15 @@ public class CloudPiece {
         //Matrix4f modelMatrix1 = new Transformation(pos, rotation, scale, null).getMatrix();
         Matrix4f modelMatrix1 = new Transformation(pos, null, scale, null).getMatrix();
         Matrix4fe modelMatrix = new Matrix4fe(modelMatrix1);
-        modelMatrix.m00 = posX;
-        modelMatrix.m01 = posY;
-        modelMatrix.m02 = posZ;
+        modelMatrix.m00 = pos.x();
+        modelMatrix.m01 = pos.y();
+        modelMatrix.m02 = pos.z();
 
-        modelMatrix.m00 = 0;
+        /*modelMatrix.m00 = rand.nextInt(range);
+        modelMatrix.m01 = rand.nextInt(range);
+        modelMatrix.m02 = 0;*/
+
+        /*modelMatrix.m00 = 0;
         modelMatrix.m01 = 0;
         modelMatrix.m02 = 1F * 0.1F * mesh.curBufferPos;
         modelMatrix.m03 = 0;
@@ -60,7 +65,7 @@ public class CloudPiece {
         modelMatrix.m30 = 0;
         modelMatrix.m31 = 0;
         modelMatrix.m32 = 0;
-        modelMatrix.m33 = 0;
+        modelMatrix.m33 = 0;*/
 
         //adjust to perspective and camera
         //Matrix4fe modelViewMatrix = transformation.buildModelViewMatrix(modelMatrix, viewMatrix);
@@ -71,7 +76,8 @@ public class CloudPiece {
         float brightness;
         //brightness = CoroUtilBlockLightCache.getBrightnessCached(world, (float)this.posX, (float)this.posY, (float)this.posZ);
         //brightness = brightnessCache;
-        brightness = 15728640;
+        //brightness = 15728640;
+        brightness = rand.nextInt(range);
         //brightness = -1F;
         //brightness = CoroUtilBlockLightCache.brightnessPlayer;
         mesh.instanceDataBuffer.put(mesh.INSTANCE_SIZE_FLOATS * (mesh.curBufferPos) + mesh.MATRIX_SIZE_FLOATS, brightness);

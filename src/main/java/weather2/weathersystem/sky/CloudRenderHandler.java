@@ -72,12 +72,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         mesh.curBufferPos = 0;
 
         //render particles
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             CloudPiece piece = new CloudPiece();
             piece.renderParticleForShader(mesh, null, null, null, partialTicks, 0, 0, 0, 0, 0);
         }
 
-        //mesh.instanceDataBuffer.limit(mesh.curBufferPos * mesh.INSTANCE_SIZE_FLOATS);
+        mesh.instanceDataBuffer.limit(mesh.curBufferPos * mesh.INSTANCE_SIZE_FLOATS);
 
         /*GlStateManager._glBindBuffer(GL_ARRAY_BUFFER, mesh.instanceDataVBO);
         ShaderManager.glBufferData(GL_ARRAY_BUFFER, mesh.instanceDataBuffer, GL_DYNAMIC_DRAW);*/

@@ -49,7 +49,11 @@ void main() {
         Position2 = vec3(0.5 + 5, -0.5 + 5, 0.0);
         Color2 = vec4(1, 1, 0, 1);
     }
-    Position3 = vec3(Position.x, Position.y + gl_InstanceID, Position.z);
+    //Position3 = vec3(Position.x, Position.y + gl_InstanceID, Position.z);
+    Position3 = vec3(Position.x + ModelMatrix[0][0], Position.y + ModelMatrix[0][1], Position.z + ModelMatrix[0][2]);
+    //Position3 = vec3(Position.x + Color.x * 10, Position.y + Color.y * 10, Position.z + Color.z * 10);
+    //Position3 = vec3(Position.x + Brightness, Position.y, Position.z);
+    //Position3 = vec3(Position.x + ModelMatrix[0][0], Position.y, Position.z);
     //gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
     //gl_Position = vec4(Position, 1.0);
     //gl_Position = vec4(Position2, 1.0);
@@ -68,7 +72,7 @@ void main() {
     //vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
     vertexDistance = 5;
     //vertexColor = Color;
-    vertexColor = Color3;
+    vertexColor = Color;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
 }
 
