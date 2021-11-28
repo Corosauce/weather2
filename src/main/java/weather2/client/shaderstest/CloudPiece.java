@@ -30,9 +30,9 @@ public class CloudPiece {
         posY = rand.nextInt(50) - rand.nextInt(50);
         posZ = rand.nextInt(50) - rand.nextInt(50);
 
-        posX = 10;
+        /*posX = 10;
         posY = 0;
-        posZ = 0;
+        posZ = 0;*/
 
         //camera relative positions, for world position, remove the interpPos values
         float posX = (float) (this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks);

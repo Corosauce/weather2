@@ -86,6 +86,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, mesh.instanceDataBuffer, GL_DYNAMIC_DRAW);
 
         GL31.glDrawElementsInstanced(GL_TRIANGLES, mesh.getVertexCount(), GL_UNSIGNED_INT, 0, mesh.curBufferPos);
+        //GL31.glDrawArraysInstanced(GL_TRIANGLES, 0, mesh.getVertexCount(), mesh.curBufferPos);
 
         GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
@@ -285,7 +286,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         double x = 336 - (viewEntityX);
         double y = 220 - viewEntityY + 0.001;
         double z = -50 - (viewEntityZ);
-        matrixStackIn.translate(x, y, z);
+        //matrixStackIn.translate(x, y, z);
+        matrixStackIn.translate(0, 0, 3);
         this.cloudsVBO._drawWithShaderDummyStart(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
 
         renderNewShaderTest(matrixStackIn, projectionMatrix, partialTicks, viewEntityX, viewEntityY, viewEntityZ);

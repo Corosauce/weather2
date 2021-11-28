@@ -258,6 +258,7 @@ public class VertexBufferInstanced implements AutoCloseable {
             }
 
             p_166879_.apply();
+            //this.getFormat().setupBufferState();
 
             //RenderSystem.setupShaderLights(p_166879_);
 

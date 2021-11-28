@@ -20,6 +20,13 @@ public class MeshBufferManagerParticle {
         //drawn in order of a U shape starting top left
         float[] positions = null;
 
+        /*positions = new float[]{
+                -0.5f, 0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f
+        };*/
+
         positions = new float[]{
                 -0.5f, 0.5f, 0.0f,
                 -0.5f, -0.5f, 0.0f,
