@@ -313,14 +313,15 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         double y = 220 - viewEntityY + 0.001;
         double z = -50 - (viewEntityZ);
         //matrixStackIn.translate(x, y, z);
-        matrixStackIn.translate(0, 130, 0);
+        matrixStackIn.translate(0, 20, 0);
         //matrixStackIn.translate(0, 40, 0);
         this.cloudsVBO._drawWithShaderDummyStart(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
 
 
-        matrixStackIn.popPose();
+        //matrixStackIn.popPose();
 
-        matrixStackIn.pushPose();
+        //matrixStackIn.pushPose();
+        //matrixStackIn.translate(0, 130, 0);
         renderNewShaderTest(matrixStackIn, projectionMatrix, partialTicks, viewEntityX, viewEntityY, viewEntityZ);
         matrixStackIn.popPose();
 

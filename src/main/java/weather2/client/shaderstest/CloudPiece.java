@@ -5,6 +5,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
 import net.minecraft.world.entity.Entity;
+import weather2.client.shaders.WeatherShaders;
 
 import java.nio.FloatBuffer;
 import java.util.Random;
@@ -28,7 +29,7 @@ public class CloudPiece {
         rand = new Random(5);
     }
 
-    public void renderParticleForShader(InstancedMeshParticle mesh, Transformation transformation, Matrix4f viewMatrix, Entity entityIn,
+    public void renderParticleForShader(InstancedMeshParticle mesh, Transformation transformation, Matrix4f modelViewMatrix, Entity entityIn,
                                         float partialTicks, float rotationX, float rotationZ,
                                         float rotationYZ, float rotationXY, float rotationXZ) {
 
@@ -74,8 +75,10 @@ public class CloudPiece {
         modelMatrix2.multiplyWithTranslation(0, 0, 0);
         modelMatrix2.multiply(rotation);
         //modelMatrix2.translate(new Vector3f(0, 1, 0));
+        //modelViewMatrix.translate(new Vector3f(10, 0, 0));
+        modelViewMatrix.multiplyWithTranslation(posX, posY, posZ);
 
-        Matrix4fe modelMatrix = new Matrix4fe(modelMatrix2);
+        Matrix4fe modelMatrix = new Matrix4fe(modelViewMatrix);
         /*modelMatrix.m00 = pos.x();
         modelMatrix.m01 = pos.y();
         modelMatrix.m02 = pos.z();*/

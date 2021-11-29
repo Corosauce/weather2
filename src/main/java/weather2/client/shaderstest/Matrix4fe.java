@@ -245,23 +245,23 @@ public final class Matrix4fe {
         return stringbuilder.toString();
     }
 
-    public void store(FloatBuffer p_27651_) {
-        p_27651_.put(bufferIndex(0, 0), this.m00);
-        p_27651_.put(bufferIndex(0, 1), this.m01);
-        p_27651_.put(bufferIndex(0, 2), this.m02);
-        p_27651_.put(bufferIndex(0, 3), this.m03);
-        p_27651_.put(bufferIndex(1, 0), this.m10);
-        p_27651_.put(bufferIndex(1, 1), this.m11);
-        p_27651_.put(bufferIndex(1, 2), this.m12);
-        p_27651_.put(bufferIndex(1, 3), this.m13);
-        p_27651_.put(bufferIndex(2, 0), this.m20);
-        p_27651_.put(bufferIndex(2, 1), this.m21);
-        p_27651_.put(bufferIndex(2, 2), this.m22);
-        p_27651_.put(bufferIndex(2, 3), this.m23);
-        p_27651_.put(bufferIndex(3, 0), this.m30);
-        p_27651_.put(bufferIndex(3, 1), this.m31);
-        p_27651_.put(bufferIndex(3, 2), this.m32);
-        p_27651_.put(bufferIndex(3, 3), this.m33);
+    public void store(FloatBuffer dest) {
+        dest.put(bufferIndex(0, 0), this.m00);
+        dest.put(bufferIndex(0, 1), this.m01);
+        dest.put(bufferIndex(0, 2), this.m02);
+        dest.put(bufferIndex(0, 3), this.m03);
+        dest.put(bufferIndex(1, 0), this.m10);
+        dest.put(bufferIndex(1, 1), this.m11);
+        dest.put(bufferIndex(1, 2), this.m12);
+        dest.put(bufferIndex(1, 3), this.m13);
+        dest.put(bufferIndex(2, 0), this.m20);
+        dest.put(bufferIndex(2, 1), this.m21);
+        dest.put(bufferIndex(2, 2), this.m22);
+        dest.put(bufferIndex(2, 3), this.m23);
+        dest.put(bufferIndex(3, 0), this.m30);
+        dest.put(bufferIndex(3, 1), this.m31);
+        dest.put(bufferIndex(3, 2), this.m32);
+        dest.put(bufferIndex(3, 3), this.m33);
     }
 
     public void storeTransposed(FloatBuffer p_162230_) {
@@ -620,33 +620,33 @@ public final class Matrix4fe {
     }
 
     public FloatBuffer get(int index, FloatBuffer buffer) {
-        //MemUtil.INSTANCE.put(this, index, buffer);
-        //put0(this, buffer);
-        if(index == 0) {
-            this.put0(this, buffer);
-        } else {
-            this.putN(this, index, buffer);
-        }
+        this.putN(this, index, buffer);
         return buffer;
     }
 
+    /**
+     * Matches store() but with added offset
+     * @param m
+     * @param offset
+     * @param dest
+     */
     private void putN(Matrix4fe m, int offset, FloatBuffer dest) {
-        dest.put(offset, m.m00);
-        dest.put(offset + 1, m.m01);
-        dest.put(offset + 2, m.m02);
-        dest.put(offset + 3, m.m03);
-        dest.put(offset + 4, m.m10);
-        dest.put(offset + 5, m.m11);
-        dest.put(offset + 6, m.m12);
-        dest.put(offset + 7, m.m13);
-        dest.put(offset + 8, m.m20);
-        dest.put(offset + 9, m.m21);
-        dest.put(offset + 10, m.m22);
-        dest.put(offset + 11, m.m23);
-        dest.put(offset + 12, m.m30);
-        dest.put(offset + 13, m.m31);
-        dest.put(offset + 14, m.m32);
-        dest.put(offset + 15, m.m33);
+        dest.put(offset + bufferIndex(0, 0), this.m00);
+        dest.put(offset + bufferIndex(0, 1), this.m01);
+        dest.put(offset + bufferIndex(0, 2), this.m02);
+        dest.put(offset + bufferIndex(0, 3), this.m03);
+        dest.put(offset + bufferIndex(1, 0), this.m10);
+        dest.put(offset + bufferIndex(1, 1), this.m11);
+        dest.put(offset + bufferIndex(1, 2), this.m12);
+        dest.put(offset + bufferIndex(1, 3), this.m13);
+        dest.put(offset + bufferIndex(2, 0), this.m20);
+        dest.put(offset + bufferIndex(2, 1), this.m21);
+        dest.put(offset + bufferIndex(2, 2), this.m22);
+        dest.put(offset + bufferIndex(2, 3), this.m23);
+        dest.put(offset + bufferIndex(3, 0), this.m30);
+        dest.put(offset + bufferIndex(3, 1), this.m31);
+        dest.put(offset + bufferIndex(3, 2), this.m32);
+        dest.put(offset + bufferIndex(3, 3), this.m33);
     }
 
     private void put0(Matrix4fe m, FloatBuffer dest) {

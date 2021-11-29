@@ -21,6 +21,9 @@ void main() {
     if (color.a < 0.1) {
         discard;
     }
+    if (color.a == normal.x) {
+        discard;
+    }
     //fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
     fragColor = linear_fog(color, vertexDistance, 200, 1200, FogColor);
 }
