@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ICloudRenderHandler;
 import weather2.ClientTickHandler;
 import weather2.Weather;
+import weather2.client.shaderstest.Cloud;
 import weather2.weathersystem.sky.CloudRenderHandler;
 import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.WeatherObject;
@@ -17,6 +18,9 @@ import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 @OnlyIn(Dist.CLIENT)
 public class WeatherManagerClient extends WeatherManager {
+
+	public Cloud cloud = new Cloud();
+
 	public WeatherManagerClient(ResourceKey<Level> dimension) {
 		super(dimension);
 	}
@@ -29,6 +33,7 @@ public class WeatherManagerClient extends WeatherManager {
 			((ClientLevel)getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
 		}
 		//((ClientLevel)getWorld()).effects().setCloudRenderHandler(null);
+		cloud.tick();
 	}
 
 	@Override
