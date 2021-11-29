@@ -92,10 +92,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             int counter = 0;
 
             for (CloudPiece cloudPiece : ClientTickHandler.weatherManager.cloud.listClouds) {
+                matrixStackIn.pushPose();
                 cloudPiece.renderParticleForShader(mesh, null, matrixStackIn.last().pose(), null, partialTicks, 0, 0, 0, 0, 0);
+                matrixStackIn.popPose();
                 //break;
                 counter++;
-                if (counter > 20000) break;
+                if (counter > 2000) break;
             }
 
             mesh.instanceDataBuffer.limit(mesh.curBufferPos * mesh.INSTANCE_SIZE_FLOATS);
@@ -313,7 +315,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         double y = 220 - viewEntityY + 0.001;
         double z = -50 - (viewEntityZ);
         //matrixStackIn.translate(x, y, z);
-        matrixStackIn.translate(0, 20, 0);
+        matrixStackIn.translate(0, 0, 0);
         //matrixStackIn.translate(0, 40, 0);
         this.cloudsVBO._drawWithShaderDummyStart(matrixStackIn.last().pose(), projectionMatrix, shaderinstance);
 
@@ -322,6 +324,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         //matrixStackIn.pushPose();
         //matrixStackIn.translate(0, 130, 0);
+        //matrixStackIn.translate(0, 30, 0);
         renderNewShaderTest(matrixStackIn, projectionMatrix, partialTicks, viewEntityX, viewEntityY, viewEntityZ);
         matrixStackIn.popPose();
 

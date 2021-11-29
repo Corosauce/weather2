@@ -71,6 +71,7 @@ void main() {
 
     //gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
     //gl_Position = ProjMat * ModelViewMat * vec4(Position3, 1.0);
+    //gl_Position = ProjMat * ModelMatrix * vec4(Position, 1.0);
     gl_Position = ProjMat * ModelMatrix * vec4(Position, 1.0);
     //gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 

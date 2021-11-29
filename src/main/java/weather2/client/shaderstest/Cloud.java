@@ -15,7 +15,8 @@ public class Cloud {
 
             cloudPiece.prevRotX = cloudPiece.rotX;
             //cloudPiece.rotX = 0;
-            cloudPiece.rotX = (cloudPiece.rotX + 5F * rate);
+            cloudPiece.rotX = (cloudPiece.rotX + 1F);
+            //cloudPiece.rotX = (cloudPiece.rotX + 5F * rate);
             index++;
         }
     }

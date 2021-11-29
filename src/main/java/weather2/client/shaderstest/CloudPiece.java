@@ -29,6 +29,12 @@ public class CloudPiece {
         rand = new Random(5);
     }
 
+    public void tick() {
+        prevPosX = posX;
+        prevPosY = posY;
+        prevPosZ = posZ;
+    }
+
     public void renderParticleForShader(InstancedMeshParticle mesh, Transformation transformation, Matrix4f modelViewMatrix, Entity entityIn,
                                         float partialTicks, float rotationX, float rotationZ,
                                         float rotationYZ, float rotationXY, float rotationXZ) {
@@ -37,7 +43,7 @@ public class CloudPiece {
 
         rand = new Random(mesh.curBufferPos);
         //Random rand = new Random();
-        int range = 30;
+        int range = 50;
         posX = rand.nextInt(range) - rand.nextInt(range);
         posY = rand.nextInt(range) - rand.nextInt(range);
         posZ = rand.nextInt(range) - rand.nextInt(range);
@@ -59,43 +65,17 @@ public class CloudPiece {
         Quaternion rotation = new Quaternion(0, 0, 0, 1);
         //rotation.mul(Vector3f.YP.rotationDegrees(rand.nextInt(360)));
         rotation.mul(Vector3f.YP.rotationDegrees(rotXSmooth));
+        rotation.mul(Vector3f.XP.rotationDegrees(rotXSmooth));
+        rotation.mul(Vector3f.ZP.rotationDegrees(rotXSmooth));
         //Vector3f scale = new Vector3f(1.0F, 1.0F, 1.0F);
         Vector3f scale = new Vector3f(0.1F, 0.1F, 0.1F);
-        //Matrix4f modelMatrix1 = new Transformation(pos, rotation, scale, null).getMatrix();
-        Matrix4f modelMatrix1 = new Transformation(pos, null, scale, null).getMatrix();
-        modelMatrix1 = Matrix4f.createTranslateMatrix(0, 0, 0);
-        modelMatrix1 = new Matrix4f();
-        //Matrix4fe modelMatrix2 = new Matrix4fe(viewMatrix);
-        Matrix4f modelMatrix2 = Matrix4f.createTranslateMatrix(0, 0, 0);
-        //modelMatrix2.setIdentity();
-        /*modelMatrix2.m00 = 1.0F;
-        modelMatrix2.m11 = 1.0F;
-        modelMatrix2.m22 = 1.0F;
-        modelMatrix2.m33 = 1.0F;*/
-        modelMatrix2.multiplyWithTranslation(0, 0, 0);
-        modelMatrix2.multiply(rotation);
-        //modelMatrix2.translate(new Vector3f(0, 1, 0));
-        //modelViewMatrix.translate(new Vector3f(10, 0, 0));
-        modelViewMatrix.multiplyWithTranslation(posX, posY, posZ);
 
+
+        //modelViewMatrix.multiplyWithTranslation(posX, posY, posZ);
+        //modelViewMatrix.multiplyWithTranslation(15, 0, 0);
+        modelViewMatrix.multiplyWithTranslation(posX, posY + 80, posZ);
+        modelViewMatrix.multiply(rotation);
         Matrix4fe modelMatrix = new Matrix4fe(modelViewMatrix);
-        /*modelMatrix.m00 = pos.x();
-        modelMatrix.m01 = pos.y();
-        modelMatrix.m02 = pos.z();*/
-
-        /*modelMatrix.m00 = rand.nextInt(range);
-        modelMatrix.m01 = rand.nextInt(range);
-        modelMatrix.m02 = 0;*/
-
-        /*modelMatrix.m00 = 0;
-        modelMatrix.m01 = 0;
-        modelMatrix.m02 = 1F * 0.1F * mesh.curBufferPos;
-        modelMatrix.m03 = 0;
-
-        modelMatrix.m30 = 0;
-        modelMatrix.m31 = 0;
-        modelMatrix.m32 = 0;
-        modelMatrix.m33 = 0;*/
 
         //adjust to perspective and camera
         //Matrix4fe modelViewMatrix = transformation.buildModelViewMatrix(modelMatrix, viewMatrix);
