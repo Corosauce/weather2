@@ -44,10 +44,19 @@ public class CloudPiece {
         rand = new Random(index);
 
         //Random rand = new Random();
-        int range = 100;
-        posX = rand.nextInt(range) - rand.nextInt(range);
-        posY = rand.nextInt(range) - rand.nextInt(range) + 80;
-        posZ = rand.nextInt(range) - rand.nextInt(range);
+        int range = 150;
+        posY = 2+rand.nextInt(range);
+
+        int yRange = (int) posY;
+
+        int wat = Math.max(1, yRange/2);
+        int wat2 = Math.max(1, yRange/4);
+        /*posX = rand.nextInt(yRange) - rand.nextInt(yRange);
+        posZ = rand.nextInt(yRange) - rand.nextInt(yRange);*/
+        posX = rand.nextInt(wat) + 15 + yRange/4 - wat2;
+        posZ = rand.nextInt(wat) + 15 + yRange/4 - wat2;
+
+        posY += 60;
 
         colorR = 0.7F;
         colorG = 0.7F;
@@ -67,25 +76,30 @@ public class CloudPiece {
 
         index = mesh.curBufferPos;
 
-        float posX = (float) ((this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks) - viewEntityX);
-        float posY = (float) ((this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks) - viewEntityY);
-        float posZ = (float) ((this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks) - viewEntityZ);
+        float posX = (float) ((this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks) - 0);
+        float posY = (float) ((this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks) - 0);
+        float posZ = (float) ((this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks) - 0);
 
         float rotXSmooth = (float) (this.prevRotX + (this.rotX - this.prevRotX) * (double) partialTicks);
 
         Quaternion rotation = new Quaternion(0, 0, 0, 1);
+        Quaternion rotation2 = new Quaternion(0, 0, 0, 1);
 
         rotation.mul(Vector3f.YP.rotationDegrees(rotXSmooth));
-        rotation.mul(Vector3f.XP.rotationDegrees(rotXSmooth));
-        rotation.mul(Vector3f.ZP.rotationDegrees(rotXSmooth));
+        rotation2.mul(Vector3f.YP.rotationDegrees(rotXSmooth));
+        rotation2.mul(Vector3f.XP.rotationDegrees(rotXSmooth));
+        rotation2.mul(Vector3f.ZP.rotationDegrees(rotXSmooth));
 
         Vector3f scale = new Vector3f(0.1F, 0.1F, 0.1F);
 
         Matrix4f matrix4f = new Matrix4f();
         matrix4f.setIdentity();
-        matrix4f.multiplyWithTranslation(posX, posY, posZ);
-        //matrix4f.multiplyWithTranslation((float) -viewEntityX, (float) -viewEntityY + 80, (float) -viewEntityZ);
+        matrix4f.multiplyWithTranslation((float) -viewEntityX, (float) -viewEntityY, (float) -viewEntityZ);
         matrix4f.multiply(rotation);
+        matrix4f.multiplyWithTranslation(posX, posY, posZ);
+        matrix4f.multiply(rotation2);
+        matrix4f.multiply(rotation2);
+        //matrix4f.multiplyWithTranslation((float) -viewEntityX, (float) -viewEntityY + 80, (float) -viewEntityZ);
         //modelViewMatrix.multiplyWithTranslation(posX, posY - 10, posZ);
         //modelViewMatrix.multiply(rotation);
         //Matrix4fe modelMatrix = new Matrix4fe(modelViewMatrix);

@@ -98,7 +98,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 matrixStackIn.popPose();
                 //break;
                 counter++;
-                //if (counter > 1000) break;
+                if (counter > 35000) break;
             }
 
             mesh.instanceDataBuffer.limit(mesh.curBufferPos * mesh.INSTANCE_SIZE_FLOATS);
