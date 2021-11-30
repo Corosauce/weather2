@@ -37,7 +37,7 @@ public class Mesh {
 
     public static int extraRenders = 10;
 
-    public Mesh(float[] positions, float[] textCoords, int[] indices) {
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
 
         float radius = 10;
         Random rand = new Random();
@@ -57,8 +57,8 @@ public class Mesh {
         FloatBuffer verticesBuffer = null;
         IntBuffer indicesBuffer = null;
         FloatBuffer textCoordsBuffer = null;
-        /*FloatBuffer vecNormalsBuffer = null;
-        IntBuffer jointIndicesBuffer = null;
+        FloatBuffer vecNormalsBuffer = null;
+        /*IntBuffer jointIndicesBuffer = null;
         FloatBuffer weightsBuffer = null;*/
         try {
 
@@ -101,13 +101,13 @@ public class Mesh {
             //glEnableVertexAttribArray(1);
 
             // Vertex normals VBO
-            /*int vboId = glGenBuffers();
+            int vboId = GlStateManager._glGenBuffers();
             vboIdList.add(vboId);
             vecNormalsBuffer = BufferUtils.createFloatBuffer(normals.length);
             vecNormalsBuffer.put(normals).flip();
-            glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            glBufferData(GL_ARRAY_BUFFER, vecNormalsBuffer, GL_STATIC_DRAW);
-            glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);*/
+            GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vecNormalsBuffer, GL15.GL_STATIC_DRAW);
+            GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 0, 0);
 
             // Weights
             /*vboId = glGenBuffers();
@@ -176,6 +176,7 @@ public class Mesh {
         RenderSystem.glBindVertexArray(() -> getVaoId());
         GlStateManager._enableVertexAttribArray(0);
         GlStateManager._enableVertexAttribArray(1);
+        GlStateManager._enableVertexAttribArray(2);
         //glEnableVertexAttribArray(2);
         //glEnableVertexAttribArray(3);
         //glEnableVertexAttribArray(4);
@@ -185,6 +186,7 @@ public class Mesh {
         // Restore state
         GlStateManager._disableVertexAttribArray(0);
         GlStateManager._disableVertexAttribArray(1);
+        GlStateManager._disableVertexAttribArray(2);
         //glDisableVertexAttribArray(2);
         //glDisableVertexAttribArray(3);
         //glDisableVertexAttribArray(4);

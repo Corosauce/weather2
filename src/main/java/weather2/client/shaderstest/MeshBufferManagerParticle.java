@@ -1,6 +1,9 @@
 package weather2.client.shaderstest;
 
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.world.phys.Vec3;
+import weather2.weathersystem.sky.CloudRenderHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,13 +31,13 @@ public class MeshBufferManagerParticle {
                 0.5f, -0.5f, 0.0f
         };*/
 
-        positions = new float[]{
+        positions = new float[]{/*
                 0.4619355201721193F,0.46193552017211914F,-3.462473154067993F,
                 1.9617563486099239F,0.46193552017211914F,-3.0600118507347247F,
+                0.46193552017211925F,0.461935520172119F,-3.462473154067993F,*/
+                /*1.9617563486099239F,0.46193552017211914F,-3.0600118507347247F,
                 0.46193552017211925F,0.461935520172119F,-3.462473154067993F,
-                1.9617563486099239F,0.46193552017211914F,-3.0600118507347247F,
-                0.46193552017211925F,0.461935520172119F,-3.462473154067993F,
-                1.2119355201721191F,-1.761152916620261F,-3.0600118507347247F,
+                1.2119355201721191F,-1.761152916620261F,-3.0600118507347247F,*/
                 0.46193552017211925F,0.4619355201721193F,-3.462473154067993F,
                 1.2119355201721191F,1.7607944542865819F,-3.0600118507347247F,
                 0.4619355201721193F,0.46193552017211914F,-3.462473154067993F,
@@ -303,6 +306,71 @@ public class MeshBufferManagerParticle {
 
         }
 
+        float[] normals = new float[count];
+        for (int i = 0; i < positions.length; i+=1) {
+            normals[i] = rand.nextFloat() - rand.nextFloat();
+        }
+
+
+        for (int i = 0; i < positions.length; i+=1) {
+            //System.out.println(normals[i]);
+        }
+
+        //Model model = CloudRenderHandler.renderSphere(0, 0, 0, new Vec3(1, 1, 1), 0.1F);
+        Model model = CloudRenderHandler.renderCube(0, 0, 0, new Vec3(1, 1, 1), 1F);
+
+        positions = new float[model.positions.size()];
+        for(int i = 0; i < model.positions.size(); i++) positions[i] = model.positions.get(i);
+
+        texCoords = new float[model.uv.size()];
+        for(int i = 0; i < model.uv.size(); i++) texCoords[i] = model.uv.get(i);
+
+        normals = new float[model.normals.size()];
+        for(int i = 0; i < model.normals.size(); i++) normals[i] = model.normals.get(i);
+
+        boolean recalc = false;
+        if (recalc) {
+            for (int i = 0; i < positions.length; i += 9) {
+                //normals[i] = 0F;
+                int index = 0;
+                Vector3f pos0 = new Vector3f(positions[i + index++], positions[i + index++], positions[i + index++]);
+                Vector3f pos1 = new Vector3f(positions[i + index++], positions[i + index++], positions[i + index++]);
+                Vector3f pos2 = new Vector3f(positions[i + index++], positions[i + index++], positions[i + index++]);
+
+                Vector3f a = pos2.copy();
+                a.sub(pos0);
+                Vector3f b = pos1.copy();
+                b.sub(pos0);
+
+                a.cross(b);
+
+                Vector3f normal = a;
+                /*normal = new Vector3f(rand.nextFloat() - rand.nextFloat(), rand.nextFloat() - rand.nextFloat(), rand.nextFloat() - rand.nextFloat());
+                normal = new Vector3f(1, 1, 1);
+                normal = new Vector3f(0, 0, 0);*/
+
+                int index2 = 0;
+                normals[i + index2++] = normal.x();
+                normals[i + index2++] = normal.y();
+                normals[i + index2++] = normal.z();
+                normals[i + index2++] = normal.x();
+                normals[i + index2++] = normal.y();
+                normals[i + index2++] = normal.z();
+                normals[i + index2++] = normal.x();
+                normals[i + index2++] = normal.y();
+                normals[i + index2++] = normal.z();
+                for (int ii = 0; ii < 9; ii += 3) {
+                    /*normals[i+ii] = normal.x();
+                    normals[i+ii+1] = normal.y();
+                    normals[i+ii+2] = normal.z();*/
+                }
+            }
+        }
+
+        for (int i = 0; i < positions.length; i+=1) {
+            System.out.println(positions[i]);
+        }
+
         int[] indices = new int[] {
                 0, 1, 3, 3, 1, 2
         };
@@ -316,7 +384,7 @@ public class MeshBufferManagerParticle {
                 0, 1, 3, 3, 1, 2
         };*/
 
-        InstancedMeshParticle mesh = new InstancedMeshParticle(positions, texCoords, indices, numInstances);
+        InstancedMeshParticle mesh = new InstancedMeshParticle(positions, texCoords, normals, indices, numInstances);
 
         if (!lookupParticleToMesh.containsKey(sprite)) {
             lookupParticleToMesh.put(sprite, mesh);

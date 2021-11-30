@@ -39,6 +39,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import weather2.client.shaderstest.InstancedMeshParticle;
 
 @OnlyIn(Dist.CLIENT)
 public class ShaderInstanceExtended implements Shader, AutoCloseable {
@@ -93,8 +94,6 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
 
     @Nullable
     public final Uniform CUSTOM_TIME;
-
-    public static int vboSizeMesh = 2;
 
     @Deprecated // FORGE: Use the ResourceLocation variant below
     public ShaderInstanceExtended(ResourceProvider p_173336_, String p_173337_, VertexFormat p_173338_) throws IOException {
@@ -183,12 +182,13 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
 
                 Uniform.glBindAttribLocation(this.programId, 0, "Position");
                 Uniform.glBindAttribLocation(this.programId, 1, "UV0");
+                Uniform.glBindAttribLocation(this.programId, 2, "Normal");
                 //ShaderManager.glBindAttribLocation(programId, vertexShaderAttributeVertexNormal, "vertexNormal");
                 /*Uniform.glBindAttribLocation(this.programId, vertexShaderAttributeModelMatrix, "Color");
                 Uniform.glBindAttribLocation(this.programId, vertexShaderAttributeBrightness, "Normal");*/
-                Uniform.glBindAttribLocation(this.programId, vboSizeMesh, "ModelMatrix");
-                Uniform.glBindAttribLocation(this.programId, vboSizeMesh + 4, "Brightness");
-                Uniform.glBindAttribLocation(this.programId, vboSizeMesh + 5, "Color");
+                Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh, "ModelMatrix");
+                Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh + 4, "Brightness");
+                Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh + 5, "Color");
             }
 
             ProgramManager.linkShader(this);

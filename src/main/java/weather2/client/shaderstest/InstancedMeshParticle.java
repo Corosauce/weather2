@@ -43,11 +43,13 @@ public class InstancedMeshParticle extends Mesh {
      * not even sure if the memory is unoptimized, theres just gaps in the memory used probably
      *
      * fixed, didnt account for attrib location values in shader program
+     *
+     * now 3 for normal added
      */
-    public static int vboSizeMesh = 2;
+    public static int vboSizeMesh = 3;
 
-    public InstancedMeshParticle(float[] positions, float[] textCoords, int[] indices, int numInstances) {
-        super(positions, textCoords, indices);
+    public InstancedMeshParticle(float[] positions, float[] textCoords, float[] normals, int[] indices, int numInstances) {
+        super(positions, textCoords, normals, indices);
 
         this.numInstances = numInstances;
 
@@ -150,8 +152,8 @@ public class InstancedMeshParticle extends Mesh {
 
     public void initRenderVBO1() {
         int start = vboSizeMesh;
-        //model matrix + brightness
-        int numElements = 5 + 1;
+        //model matrix + brightness + rgba
+        int numElements = 4 + 1 + 1;
         for (int i = 0; i < numElements; i++) {
             GL20.glEnableVertexAttribArray(start + i);
         }
@@ -160,8 +162,8 @@ public class InstancedMeshParticle extends Mesh {
     public void endRenderVBO1() {
 
         int start = vboSizeMesh;
-        //model matrix + brightness
-        int numElements = 5 + 1;
+        //model matrix + brightness + rgba
+        int numElements = 4 + 1 + 1;
         for (int i = 0; i < numElements; i++) {
             GL20.glDisableVertexAttribArray(start + i);
         }

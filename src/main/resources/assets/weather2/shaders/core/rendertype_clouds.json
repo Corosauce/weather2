@@ -9,6 +9,7 @@
     "attributes": [
         "Position",
         "UV0",
+        "Normal",
         "ModelMatrix",
         "Brightness",
         "Color"

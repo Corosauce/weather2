@@ -12,12 +12,19 @@ public class Cloud {
 
         for (CloudPiece cloudPiece : listClouds) {
             float rate = (float)index / (float)listClouds.size();
+            //rate = (float)index / (float)1000;
+            //rate = 1;
+
+            if (index == 25000) {
+                //System.out.println("wat");
+            }
 
             cloudPiece.prevRotX = cloudPiece.rotX;
             //cloudPiece.rotX = 0;
-            cloudPiece.rotX = (cloudPiece.rotX + 1F);
-            //cloudPiece.rotX = (cloudPiece.rotX + 5F * rate);
+            //cloudPiece.rotX = (cloudPiece.rotX + 1F);
+            cloudPiece.rotX = (cloudPiece.rotX + 5F * rate);
             index++;
+            cloudPiece.tick();
         }
     }
 
