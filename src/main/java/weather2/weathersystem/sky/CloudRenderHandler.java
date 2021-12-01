@@ -12,6 +12,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FaceInfo;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
@@ -50,6 +51,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     private Random rand2 = new Random();
 
     private boolean mode_triangles = true;
+    public Frustum cullingFrustum;
 
     @Override
     public void render(int ticks, float partialTicks, PoseStack matrixStackIn, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
@@ -60,6 +62,15 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
     //public void render(int ticks, float partialTicks, PoseStack matrixStackIn, Matrix4f projectionMatrix, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
 
+    public void prepareCullFrustum(PoseStack p_172962_, Vec3 p_172963_, Matrix4f p_172964_) {
+        Matrix4f matrix4f = p_172962_.last().pose();
+        double d0 = p_172963_.x();
+        double d1 = p_172963_.y();
+        double d2 = p_172963_.z();
+        this.cullingFrustum = new Frustum(matrix4f, p_172964_);
+        this.cullingFrustum.prepare(d0, d1, d2);
+    }
+
     public void renderNewShaderTest(PoseStack matrixStackIn, Matrix4f projectionMatrix, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
@@ -68,6 +79,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         if (level.getGameTime() % 40 == 0) {
             //MeshBufferManagerParticle.setupMeshForParticle(ParticleRegistry.cloud_square);
         }
+
+        prepareCullFrustum(matrixStackIn, Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), projectionMatrix);
 
         GL20.glUseProgram(WeatherShaders.getShaderExtended().getId());
 
@@ -79,8 +92,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         boolean updateBuffer = true;
         //updateBuffer = false;
 
+        int counter = 0;
         while (ClientTickHandler.weatherManager.cloud.listClouds.size() < 50000) {
-            ClientTickHandler.weatherManager.cloud.listClouds.add(new CloudPiece());
+            CloudPiece cloudPiece = new CloudPiece();
+            cloudPiece.index = counter;
+            ClientTickHandler.weatherManager.cloud.listClouds.add(cloudPiece);
+            counter++;
         }
 
 
@@ -90,15 +107,16 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             mesh.instanceDataBuffer.clear();
             mesh.curBufferPos = 0;
 
-            int counter = 0;
+            counter = 0;
 
             for (CloudPiece cloudPiece : ClientTickHandler.weatherManager.cloud.listClouds) {
                 matrixStackIn.pushPose();
-                cloudPiece.renderParticleForShader(mesh, null, matrixStackIn.last().pose(), null, partialTicks, viewEntityX, viewEntityY, viewEntityZ);
+                cloudPiece.renderParticleForShader(mesh, cullingFrustum, matrixStackIn.last().pose(), null, partialTicks, viewEntityX, viewEntityY, viewEntityZ);
                 matrixStackIn.popPose();
                 //break;
                 counter++;
-                if (counter > 35000) break;
+                //if (counter > 25000) break;
+                //if (counter > 0) break;
             }
 
             mesh.instanceDataBuffer.limit(mesh.curBufferPos * mesh.INSTANCE_SIZE_FLOATS);
@@ -131,10 +149,12 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         mode_triangles = true;
 
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
+        //RenderSystem.disableCull();
+        //RenderSystem.enableBlend();
+        RenderSystem.disableBlend();
         RenderSystem.enableDepthTest();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        //RenderSystem.disableDepthTest();
+        //RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.depthMask(true);
 
         //RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
@@ -1102,7 +1122,6 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     public static Model renderCube(double cloudsX, double cloudsY, double cloudsZ, Vec3 cloudsColor, float scale) {
         TextureAtlasSprite sprite = ParticleRegistry.cloud_square;
 
-        int sphereIndex = 0;
         boolean mode_triangles = true;
 
         float f7 = sprite.getU0();
@@ -1110,34 +1129,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         float f5 = sprite.getV0();
         float f6 = sprite.getV1();
 
-        float uRange = f8 - f7;
-        float yRange = f6 - f5;
-
-        float particleRed = (float) cloudsColor.x;
-        float particleGreen = (float) cloudsColor.y;
-        float particleBlue = (float) cloudsColor.z;
-        float particleAlpha = 1;
-
-        boolean alt = false;
-        Random rand = new Random(555);
-
-        int nSegments = 6;
-        int nSlices = 6;
-
-        nSegments = 4;
-        nSlices = 4;
-
         float radius = 10;
-
-        int iter = 0;
-        int iter2 = 0;
-
-        float lengthInv = 1.0f / radius;
-
-        rand = new Random(555);
-
-        String verts = "";
-        boolean outputVerts = false;
 
         Model model = new Model();
 
@@ -1152,12 +1144,6 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
 
             Vector3f normal = new Vector3f(dir.getNormal().getX(), dir.getNormal().getY(), dir.getNormal().getZ());
-            //if (randRotate) normal.transform(q2);
-            float normalRange = 0.1F;
-            //normal.mul(normalRange);
-            //normal.add(1-normalRange, 1-normalRange, 1-normalRange);
-            float uh = 0.55F;
-            //normal.add(uh, uh, uh);
 
             for(int i = 0; i < 4; ++i) {
                 Vector3f vector3f = avector3f3[i];
@@ -1165,20 +1151,24 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 vector3f.add((float) dir.getStepX(), (float) dir.getStepY(), (float) dir.getStepZ());
                 //if (randRotate) vector3f.transform(q2);
                 vector3f.mul(scale);
-                //TODO: why -1F?
-                vector3f.add((float) cloudsX + 0.0F, (float) cloudsY - 1F, (float) cloudsZ + 0.0F);
+                vector3f.add((float) cloudsX + 0.0F, (float) cloudsY, (float) cloudsZ + 0.0F);
             }
 
             if (mode_triangles) {
-                /*bufferIn.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-                bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-                bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
 
-                bufferIn.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-                bufferIn.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();
-                bufferIn.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(normal.x(), normal.y(), normal.z()).endVertex();*/
+                model.positions.add(avector3f3[1].x());
+                model.positions.add(avector3f3[1].y());
+                model.positions.add(avector3f3[1].z());
+
+                model.positions.add(avector3f3[3].x());
+                model.positions.add(avector3f3[3].y());
+                model.positions.add(avector3f3[3].z());
 
                 model.positions.add(avector3f3[0].x());
+                model.positions.add(avector3f3[0].y());
+                model.positions.add(avector3f3[0].z());
+
+                /*model.positions.add(avector3f3[0].x());
                 model.positions.add(avector3f3[0].y());
                 model.positions.add(avector3f3[0].z());
 
@@ -1188,7 +1178,19 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
                 model.positions.add(avector3f3[1].x());
                 model.positions.add(avector3f3[1].y());
-                model.positions.add(avector3f3[1].z());
+                model.positions.add(avector3f3[1].z());*/
+
+                /*model.positions.add(avector3f3[0].x());
+                model.positions.add(avector3f3[0].y());
+                model.positions.add(avector3f3[0].z());
+
+                model.positions.add(avector3f3[3].x());
+                model.positions.add(avector3f3[3].y());
+                model.positions.add(avector3f3[3].z());
+
+                model.positions.add(avector3f3[1].x());
+                model.positions.add(avector3f3[1].y());
+                model.positions.add(avector3f3[1].z());*/
 
 
                 model.positions.add(avector3f3[3].x());
@@ -1202,6 +1204,18 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 model.positions.add(avector3f3[2].x());
                 model.positions.add(avector3f3[2].y());
                 model.positions.add(avector3f3[2].z());
+
+                /*model.positions.add(avector3f3[3].x());
+                model.positions.add(avector3f3[3].y());
+                model.positions.add(avector3f3[3].z());
+
+                model.positions.add(avector3f3[1].x());
+                model.positions.add(avector3f3[1].y());
+                model.positions.add(avector3f3[1].z());
+
+                model.positions.add(avector3f3[2].x());
+                model.positions.add(avector3f3[2].y());
+                model.positions.add(avector3f3[2].z());*/
 
                 model.uv.add(f8);
                 model.uv.add(f6);

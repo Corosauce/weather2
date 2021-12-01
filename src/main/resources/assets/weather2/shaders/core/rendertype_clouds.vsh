@@ -19,10 +19,10 @@ out vec4 vertexColor;
 out vec4 normal;
 
 void main() {
-    gl_Position = ProjMat * ModelViewMat * ModelMatrix * vec4(Position + vec3(0, 1, 0), 1.0);
+    gl_Position = ProjMat * ModelViewMat * ModelMatrix * vec4(Position, 1.0);
 
     texCoord0 = UV0;
-    vertexDistance = length((ModelMatrix * vec4(Position, 1.0)).xyz);
+    vertexDistance = length((ModelViewMat * ModelMatrix * vec4(Position, 1.0)).xyz);
     //vertexColor = Color;
     vec3 Light0_Direction = vec3(0.16145112, 0.80725557, -0.5650789);
     vec3 Light1_Direction = vec3(-0.16145112, 0.80725557, 0.5650789);

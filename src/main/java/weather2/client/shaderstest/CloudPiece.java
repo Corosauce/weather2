@@ -4,7 +4,9 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import weather2.client.shaders.WeatherShaders;
 
 import java.nio.FloatBuffer;
@@ -32,6 +34,8 @@ public class CloudPiece {
 
     public Random rand = new Random();
 
+    public AABB aabb = new AABB(0, 0, 0, 1, 1, 1);
+
     public CloudPiece() {
         rand = new Random(5);
     }
@@ -56,6 +60,10 @@ public class CloudPiece {
         posX = rand.nextInt(wat) + 15 + yRange/4 - wat2;
         posZ = rand.nextInt(wat) + 15 + yRange/4 - wat2;
 
+        posX += rand.nextFloat();
+        posY += rand.nextFloat();
+        posZ += rand.nextFloat();
+
         posY += 60;
 
         colorR = 0.7F;
@@ -65,20 +73,26 @@ public class CloudPiece {
         colorR = rand.nextFloat();
         colorG = rand.nextFloat();
         colorB = rand.nextFloat();
+
+        float size = 1.5F;
+        aabb = new AABB(posX, posY, posZ, posX, posY, posZ);
+        aabb = aabb.inflate(size);
     }
 
-    public void renderParticleForShader(InstancedMeshParticle mesh, Transformation transformation, Matrix4f modelViewMatrix, Entity entityIn,
+    public void renderParticleForShader(InstancedMeshParticle mesh, Frustum cullingFrustum, Matrix4f modelViewMatrix, Entity entityIn,
                                         float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ) {
 
         if (mesh.curBufferPos >= mesh.numInstances) return;
 
         int range = 50;
 
-        index = mesh.curBufferPos;
-
         float posX = (float) ((this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks) - 0);
         float posY = (float) ((this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks) - 0);
         float posZ = (float) ((this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks) - 0);
+
+        if (!cullingFrustum.isVisible(aabb)) return;
+
+        //index = mesh.curBufferPos;
 
         float rotXSmooth = (float) (this.prevRotX + (this.rotX - this.prevRotX) * (double) partialTicks);
 
@@ -95,10 +109,12 @@ public class CloudPiece {
         Matrix4f matrix4f = new Matrix4f();
         matrix4f.setIdentity();
         matrix4f.multiplyWithTranslation((float) -viewEntityX, (float) -viewEntityY, (float) -viewEntityZ);
-        matrix4f.multiply(rotation);
+        //matrix4f.multiply(rotation);
         matrix4f.multiplyWithTranslation(posX, posY, posZ);
         matrix4f.multiply(rotation2);
-        matrix4f.multiply(rotation2);
+        //matrix4f.multiply(rotation2);
+        //matrix4f.multiply(5F);
+        //matrix4f.multiply(rotation2);
         //matrix4f.multiplyWithTranslation((float) -viewEntityX, (float) -viewEntityY + 80, (float) -viewEntityZ);
         //modelViewMatrix.multiplyWithTranslation(posX, posY - 10, posZ);
         //modelViewMatrix.multiply(rotation);

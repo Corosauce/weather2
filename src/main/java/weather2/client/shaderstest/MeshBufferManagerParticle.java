@@ -328,6 +328,9 @@ public class MeshBufferManagerParticle {
         normals = new float[model.normals.size()];
         for(int i = 0; i < model.normals.size(); i++) normals[i] = model.normals.get(i);
 
+        /*normals = new float[model.normals.size()];
+        for(int i = 0; i < model.normals.size(); i++) normals[i] = 1;*/
+
         boolean recalc = false;
         if (recalc) {
             for (int i = 0; i < positions.length; i += 9) {
