@@ -1,32 +1,22 @@
 package weather2.client.shaderstest;
 
+import com.mojang.math.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cloud {
 
-    public List<CloudPiece> listClouds = new ArrayList<>();
+    public Vector3f pos;
+    public CloudNode cloudNode;
+
+    public Cloud(Vector3f pos) {
+        this.pos = pos;
+        cloudNode = new CloudNode(this,null, new Vector3f(0, 0, 0));
+    }
 
     public void tick() {
-        int index = 0;
-
-        for (CloudPiece cloudPiece : listClouds) {
-            float rate = (float)index / (float)listClouds.size();
-            //rate = (float)index / (float)1000;
-            //rate = 1;
-            rate = 0.3F + (float)(cloudPiece.posY-60) / (float)150;
-
-            if (index == 25000) {
-                //System.out.println("wat");
-            }
-
-            cloudPiece.prevRotX = cloudPiece.rotX;
-            //cloudPiece.rotX = 0;
-            //cloudPiece.rotX = (cloudPiece.rotX + 1F);
-            cloudPiece.rotX = (cloudPiece.rotX + 3F * rate);
-            index++;
-            cloudPiece.tick();
-        }
+        cloudNode.tick();
     }
 
 }

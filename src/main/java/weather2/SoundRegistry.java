@@ -18,7 +18,7 @@ public class SoundRegistry {
 	@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 	public static class RegistryEvents {
 		@SubscribeEvent(priority = EventPriority.HIGHEST)
-		public static void onBlocksRegistry(final RegistryEvent.Register<Block> event) {
+		public static void onBlocksRegistry(final RegistryEvent.Register<SoundEvent> event) {
 			SoundRegistry.init();
 		}
 	}

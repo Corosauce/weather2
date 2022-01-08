@@ -827,4 +827,20 @@ public class EntityRotFX extends TextureSheetParticle
     public void onHit() {
 
     }
+
+    public void setMaxAge(int par) {
+        setLifetime(par);
+    }
+
+    public int getMaxAge() {
+        return getLifetime();
+    }
+
+    public void setAlphaF(float val) {
+        setAlpha(val);
+    }
+
+    public void setPosition(double posX, float posY, double posZ) {
+        this.setPos(posX, posY, posZ);
+    }
 }

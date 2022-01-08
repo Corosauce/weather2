@@ -9,14 +9,11 @@ import com.mojang.math.Vector3f;
 import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FaceInfo;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ICloudRenderHandler;
@@ -32,6 +29,8 @@ import weather2.client.shaderstest.InstancedMeshParticle;
 import weather2.client.shaderstest.MeshBufferManagerParticle;
 import weather2.client.shaderstest.Model;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -93,12 +92,13 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         //updateBuffer = false;
 
         int counter = 0;
-        while (ClientTickHandler.weatherManager.cloud.listClouds.size() < 50000) {
+        /*while (ClientTickHandler.weatherManager.cloudManager.listCloudPieces.size() < 50000) {
             CloudPiece cloudPiece = new CloudPiece();
             cloudPiece.index = counter;
-            ClientTickHandler.weatherManager.cloud.listClouds.add(cloudPiece);
+            cloudPiece.indexMax = 50000;
+            ClientTickHandler.weatherManager.cloudManager.listCloudPieces.add(cloudPiece);
             counter++;
-        }
+        }*/
 
 
 
@@ -109,7 +109,10 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
             counter = 0;
 
-            for (CloudPiece cloudPiece : ClientTickHandler.weatherManager.cloud.listClouds) {
+            /*Iterator<Map.Entry<Long, CloudPiece>> it = ClientTickHandler.weatherManager.cloudManager.getLookupPosToCloudPiece().entrySet().iterator();
+            while (it.hasNext()) {
+                CloudPiece cloudPiece = it.next().getValue();*/
+            for (CloudPiece cloudPiece : ClientTickHandler.weatherManager.cloudManager.listCloudPieces) {
                 matrixStackIn.pushPose();
                 cloudPiece.renderParticleForShader(mesh, cullingFrustum, matrixStackIn.last().pose(), null, partialTicks, viewEntityX, viewEntityY, viewEntityZ);
                 matrixStackIn.popPose();
@@ -129,7 +132,13 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         if (updateBuffer) GL15.glBufferData(GL15.GL_ARRAY_BUFFER, mesh.instanceDataBuffer, GL_DYNAMIC_DRAW);
         //GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, mesh.instanceDataBuffer, GL_DYNAMIC_DRAW);
 
+        /*RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);*/
         GL31.glDrawElementsInstanced(GL_TRIANGLES, mesh.getVertexCount(), GL_UNSIGNED_INT, 0, mesh.curBufferPos);
+        /*RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+        GL31.glDrawElementsInstanced(GL_TRIANGLES, mesh.getVertexCount(), GL_UNSIGNED_INT, 0, mesh.curBufferPos);
+        RenderSystem.colorMask(true, true, true, true);*/
 
         //GL31.glDrawElementsInstanced(GL_TRIANGLES, mesh.getVertexCount(), GL_UNSIGNED_INT, 0, 50000);
         //GL31.glDrawArraysInstanced(GL_TRIANGLES, 0, mesh.getVertexCount(), mesh.curBufferPos);
@@ -150,11 +159,11 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         mode_triangles = true;
 
         //RenderSystem.disableCull();
-        //RenderSystem.enableBlend();
-        RenderSystem.disableBlend();
+        RenderSystem.enableBlend();
+        //RenderSystem.disableBlend();
         RenderSystem.enableDepthTest();
         //RenderSystem.disableDepthTest();
-        //RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.depthMask(true);
 
         //RenderSystem.setShader(WeatherShaders.CustomRenderTypes::getCloudShader);
@@ -1150,6 +1159,8 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 vector3f.transform(quaternion);
                 vector3f.add((float) dir.getStepX(), (float) dir.getStepY(), (float) dir.getStepZ());
                 //if (randRotate) vector3f.transform(q2);
+                //fix vectors being 2x
+                vector3f.mul(0.5F);
                 vector3f.mul(scale);
                 vector3f.add((float) cloudsX + 0.0F, (float) cloudsY, (float) cloudsZ + 0.0F);
             }

@@ -19,7 +19,7 @@ out vec4 vertexColor;
 out vec4 normal;
 
 void main() {
-    gl_Position = ProjMat * ModelViewMat * ModelMatrix * vec4(Position, 1.0);
+    gl_Position = ProjMat * ModelViewMat * ModelMatrix * vec4(Position * Brightness, 1.0);
 
     texCoord0 = UV0;
     vertexDistance = length((ModelViewMat * ModelMatrix * vec4(Position, 1.0)).xyz);
