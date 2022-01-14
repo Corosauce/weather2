@@ -9,12 +9,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import CoroUtil.config.ConfigCoroUtil;
-import CoroUtil.util.ChunkCoordinatesBlock;
-import CoroUtil.util.CoroUtilBlock;
-import CoroUtil.util.CoroUtilCompatibility;
-import CoroUtil.util.CoroUtilEntOrParticle;
-import CoroUtil.util.CoroUtilEntity;
+import com.corosus.coroutil.config.ConfigCoroUtil;
+import com.corosus.coroutil.util.*;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -22,12 +18,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
@@ -170,7 +175,7 @@ public class StormObject extends WeatherObject {
     
     public float formingStrength = 0; //for transition from 0 (in clouds) to 1 (touch down)
     
-    public Vec3d posBaseFormationPos = new Vec3d(pos.x, pos.y, pos.z); //for formation / touchdown progress, where all the ripping methods scan from
+    public Vec3 posBaseFormationPos = new Vec3(pos.x, pos.y, pos.z); //for formation / touchdown progress, where all the ripping methods scan from
 
     public boolean naturallySpawned = true;
 	//to prevent things like it progressing to next stage before weather machine undoes it
@@ -207,13 +212,13 @@ public class StormObject extends WeatherObject {
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
 		
-		pos = new Vec3d(0, static_YPos_layer0, 0);
+		pos = new Vec3(0, static_YPos_layer0, 0);
 		maxSize = ConfigStorm.Storm_MaxRadius;
 		
-		if (parManager.getWorld().isRemote) {
-			listParticlesCloud = new ArrayList<EntityRotFX>();
-			listParticlesFunnel = new ArrayList<EntityRotFX>();
-			listParticlesGround = new ArrayList<EntityRotFX>();
+		if (parManager.getWorld().isClientSide()) {
+			listParticlesCloud = new ArrayList<>();
+			listParticlesFunnel = new ArrayList<>();
+			listParticlesGround = new ArrayList<>();
 			lookupParticlesCloud = new HashMap<>();
 			lookupParticlesCloudLower = new HashMap<>();
 			lookupParticlesFunnel = new HashMap<>();
@@ -224,14 +229,14 @@ public class StormObject extends WeatherObject {
 	public void initFirstTime() {
 		super.initFirstTime();
 		
-		Biome bgb = manager.getWorld().getBiome(new BlockPos(MathHelper.floor(pos.x), 0, MathHelper.floor(pos.z)));
+		Biome bgb = manager.getWorld().getBiome(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)));
 
 		
 		float temp = 1;
 		
 		if (bgb != null) {
-			//temp = bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.x), MathHelper.floor(pos.y), MathHelper.floor(pos.z)));
-			temp = CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(MathHelper.floor(pos.x), MathHelper.floor(pos.y), MathHelper.floor(pos.z)));
+			//temp = bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z)));
+			temp = CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z)));
 		}
 		
 		//initial setting, more apparent than gradual adjustments
@@ -326,8 +331,8 @@ public class StormObject extends WeatherObject {
 
 		boolean testNetworkData = false;
 		if (testNetworkData) {
-			System.out.println("Received payload from server; length=" + parNBT.getNewNBT().keySet().size());
-			Iterator iterator = parNBT.getNewNBT().keySet().iterator();
+			System.out.println("Received payload from server; length=" + parNBT.getNewNBT().getAllKeys().size());
+			Iterator iterator = parNBT.getNewNBT().getAllKeys().iterator();
 			String keys = "";
 			while (iterator.hasNext()) {
 				keys = keys.concat((String) iterator.next() + "; ");
@@ -460,7 +465,7 @@ public class StormObject extends WeatherObject {
 					it.remove();
 				} else {
 					int i = entry.getKey();
-					Vec3d tryPos = null;
+					Vec3 tryPos = null;
 					double spawnRad = 120;//(ticksExisted % 100) + 10;
 					double speed = 2D / (spawnRad);
 					if (isSpinning()) {
@@ -468,13 +473,13 @@ public class StormObject extends WeatherObject {
 					}
 					ent.rotationSpeedAroundCenter = (float)speed;
 					if (i == 0) {
-						tryPos = new Vec3d(pos.x, layers.get(layer), pos.z);
+						tryPos = new Vec3(pos.x, layers.get(layer), pos.z);
 						ent.rotationYaw = ent.rotationAroundCenter;
 					} else {
 						double rad = Math.toRadians(ent.rotationAroundCenter - ent.rotationSpeedAroundCenter + (ent.rotationSpeedAroundCenter * partialTick));
 						double x = -Math.sin(rad) * spawnRad;
 						double z = Math.cos(rad) * spawnRad;
-						tryPos = new Vec3d(pos.x + x, layers.get(layer), pos.z + z);
+						tryPos = new Vec3(pos.x + x, layers.get(layer), pos.z + z);
 
 						double var16 = this.pos.x - ent.getPosX();
 						double var18 = this.pos.z - ent.getPosZ();
@@ -501,7 +506,7 @@ public class StormObject extends WeatherObject {
 					it.remove();
 				} else {
 					int i = entry.getKey();
-					Vec3d tryPos = null;
+					Vec3 tryPos = null;
 
 					ent.setScale(800);
 
@@ -519,7 +524,7 @@ public class StormObject extends WeatherObject {
 					double rad = Math.toRadians(ent.rotationAroundCenter - ent.rotationSpeedAroundCenter + (ent.rotationSpeedAroundCenter * partialTick));
 					double x = -Math.sin(rad) * spawnRad;
 					double z = Math.cos(rad) * spawnRad;
-					tryPos = new Vec3d(pos.x + x, layers.get(layer) - 20, pos.z + z);
+					tryPos = new Vec3(pos.x + x, layers.get(layer) - 20, pos.z + z);
 
 					ent.setPosition(tryPos.x, tryPos.y, tryPos.z);
 
@@ -537,7 +542,7 @@ public class StormObject extends WeatherObject {
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
-		posGround = new Vec3d(pos.x, currentTopYBlock, pos.z);
+		posGround = new Vec3(pos.x, currentTopYBlock, pos.z);
 		
 		LogicalSide side = EffectiveSide.get();
 		if (side == LogicalSide.CLIENT) {
@@ -554,7 +559,7 @@ public class StormObject extends WeatherObject {
 				}
 				
 				if (levelCurIntensityStage >= STATE_HIGHWIND) {
-					if (manager.getWorld().isRemote) {
+					if (manager.getWorld().isClientSide()) {
 						tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 			        }
 				}
@@ -574,7 +579,7 @@ public class StormObject extends WeatherObject {
 			}
 
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
-				if (manager.getWorld().isRemote) {
+				if (manager.getWorld().isClientSide()) {
 					tornadoHelper.soundUpdates(true, isTornadoFormingOrGreater() || isCycloneFormingOrGreater());
 		        }
 			}
@@ -620,12 +625,12 @@ public class StormObject extends WeatherObject {
 		
 		if (layer == 0) {
 	        //sync X Y Z, Y gets changed below
-	        posBaseFormationPos = new Vec3d(pos.x, pos.y, pos.z);
+	        posBaseFormationPos = new Vec3(pos.x, pos.y, pos.z);
 	
 	        if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal) {
 	        	if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal + 1) {
 	        		formingStrength = 1;
-	        		posBaseFormationPos = new Vec3d(posBaseFormationPos.x, posGround.y, posBaseFormationPos.z);
+	        		posBaseFormationPos = new Vec3(posBaseFormationPos.x, posGround.y, posBaseFormationPos.z);
 	        	} else {
 	        		
 	        		//make it so storms touchdown at 0.5F intensity instead of 1 then instantly start going back up, keeps them down for a full 1F worth of intensity val
@@ -635,15 +640,15 @@ public class StormObject extends WeatherObject {
 			        float val = (levelCurIntensityStage + intensityAdj) - StormObject.levelStormIntensityFormingStartVal;
 			        formingStrength = val;
 			        double yDiff = pos.y - posGround.y;
-			        posBaseFormationPos = new Vec3d(posBaseFormationPos.x, pos.y - (yDiff * formingStrength), posBaseFormationPos.z);
+			        posBaseFormationPos = new Vec3(posBaseFormationPos.x, pos.y - (yDiff * formingStrength), posBaseFormationPos.z);
 	        	}
 	        } else {
 	        	if (levelCurIntensityStage == STATE_HIGHWIND) {
 	        		formingStrength = 1;
-	        		posBaseFormationPos = new Vec3d(posBaseFormationPos.x, posGround.y, posBaseFormationPos.z);
+	        		posBaseFormationPos = new Vec3(posBaseFormationPos.x, posGround.y, posBaseFormationPos.z);
 	        	} else {
 		        	formingStrength = 0;
-	        		posBaseFormationPos = new Vec3d(posBaseFormationPos.x, pos.y, posBaseFormationPos.z);
+	        		posBaseFormationPos = new Vec3(posBaseFormationPos.x, pos.y, posBaseFormationPos.z);
 	        	}
 	        }
 		}
@@ -739,7 +744,7 @@ public class StormObject extends WeatherObject {
 		
 
 		if (!weatherMachineControlled) {
-			motion = new Vec3d(vecX * finalSpeed, 0, vecZ * finalSpeed);
+			motion = new Vec3(vecX * finalSpeed, 0, vecZ * finalSpeed);
 
 			double max = 0.2D;
 			//max speed
@@ -762,16 +767,16 @@ public class StormObject extends WeatherObject {
 	
 	public void tickWeatherEvents() {
 		Random rand = new Random();
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		
-		currentTopYBlock = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(MathHelper.floor(pos.x), 0, MathHelper.floor(pos.z))).getY();
+		currentTopYBlock = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER) {
 			if (rand.nextInt((int)Math.max(1, ConfigStorm.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
 				int x = (int) (pos.x + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.z + rand.nextInt(size) - rand.nextInt(size));
-				if (world.isBlockLoaded(new BlockPos(x, 0, z))) {
-					int y = world.getHeight(Heightmap.Type.MOTION_BLOCKING, new BlockPos(x, 0, z)).getY();
+				if (world.isLoaded(new BlockPos(x, 0, z))) {
+					int y = world.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
 						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z), false);
 					//}
@@ -785,7 +790,7 @@ public class StormObject extends WeatherObject {
 			for (int i = 0; i < Math.max(1, ConfigStorm.Storm_HailPerTick * (size/maxSize)); i++) {
 				int x = (int) (pos.x + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.z + rand.nextInt(size) - rand.nextInt(size));
-				if (world.isBlockLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getClosestPlayer(x, 50, z, 80, false) != null)) {
+				if (world.isLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getNearestPlayer(x, 50, z, 80, false) != null)) {
 					//int y = world.getPrecipitationHeight(x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
 					//TODO: 1.14 uncomment
@@ -815,16 +820,16 @@ public class StormObject extends WeatherObject {
 			if ((manager.getWorld().getGameTime() + (ID * 20)) % ConfigStorm.Storm_Rain_TrackAndExtinguishEntitiesRate == 0) {
 				listEntitiesUnderClouds.clear();
 				BlockPos posBP = new BlockPos(posGround.x, posGround.y, posGround.z);
-				List<LivingEntity> listEnts = manager.getWorld().getEntitiesWithinAABB(LivingEntity.class, new AxisAlignedBB(posBP).grow(size));
+				List<LivingEntity> listEnts = manager.getWorld().getEntitiesOfClass(LivingEntity.class, new AABB(posBP).inflate(size));
 				for (LivingEntity ent : listEnts) {
-					if (ent.world.canBlockSeeSky(ent.getPosition())) {
+					if (ent.level.canSeeSky(ent.blockPosition())) {
 						listEntitiesUnderClouds.add(ent);
 					}
 				}
 			}
 
 			for (LivingEntity ent : listEntitiesUnderClouds) {
-				ent.extinguish();
+				ent.clearFire();
 			}
 		}
 	}
@@ -835,7 +840,7 @@ public class StormObject extends WeatherObject {
 		
 		if (!isPrecipitating()) return;
 		
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		
 		//CHANGE THIS PART TO ITERATE OVER THE STORM SIZE, NOT ENTIRE ACTIVE CHUNKS!
 		/*Iterator iterator = world.activeChunkSet.iterator();
@@ -879,11 +884,12 @@ public class StormObject extends WeatherObject {
 		            //world.theProfiler.startSection("getChunk");
 		            
 		            //afterthought, for weather 2.3.7
-		            if (!world.isBlockLoaded(new BlockPos(x, 128, z))) {
+					BlockPos pos = new BlockPos(x, posGround.y, z);
+		            if (!world.isLoaded(pos)) {
 		            	continue;
 		            }
 		            
-		            Chunk chunk = world.getChunk(chunkX, chunkZ);
+		            LevelChunk chunk = world.getChunk(chunkX, chunkZ);
 		            //world.moodSoundAndLightCheck(k, l, chunk);
 		            //world.theProfiler.endStartSection("tickChunk");
 		            //Limits and evenly distributes the lighting tick time
@@ -897,19 +903,19 @@ public class StormObject extends WeatherObject {
 		            int setBlockHeight;
 		            
 		            int i2;
-		            
-					if (world.getDimension().canDoRainSnowIce(chunk) && (ConfigSnow.Snow_RarityOfBuildup == 0 || world.rand.nextInt(ConfigSnow.Snow_RarityOfBuildup) == 0))
+
+					if (world.getBiome(pos).shouldSnow(world, pos) && (ConfigSnow.Snow_RarityOfBuildup == 0 || world.random.nextInt(ConfigSnow.Snow_RarityOfBuildup) == 0))
 			        {
 			            updateLCG = updateLCG * 3 + 1013904223;
 			            i1 = updateLCG >> 2;
 			            xxx = i1 & 15;
 			            zzz = i1 >> 8 & 15;
-			
 
-			
-						double d0 = pos.x - (xx + xxx);
-				        double d2 = pos.z - (zz + zzz);
-				        if ((double)MathHelper.sqrt(d0 * d0 + d2 * d2) > size) continue;
+
+
+						float d0 = pos.getX() - (xx + xxx);
+						float d2 = pos.getZ() - (zz + zzz);
+				        if (Mth.sqrt((d0 * d0 + d2 * d2)) > size) continue;
 			            
 			            //j1 = 1;
 			            //k1 = 1;
@@ -917,27 +923,28 @@ public class StormObject extends WeatherObject {
 			            int snowMetaMax = 7; //snow loops past 6 for some reason
 			            
 			            //setBlockHeight = world.getPrecipitationHeight(new BlockPos(xxx + x, 0, zzz + z)).getY();
-						setBlockHeight = world.getHeight(Heightmap.Type.MOTION_BLOCKING, new BlockPos(xxx + x, 0, zzz + z)).getY();
+						setBlockHeight = world.getHeight(Heightmap.Types.MOTION_BLOCKING, xxx + x, zzz + z);
 
-						BlockState blockstate = Blocks.SNOW_BLOCK.getDefaultState();
+						BlockState blockstate = Blocks.SNOW_BLOCK.defaultBlockState();
 						BlockPos poswat = new BlockPos(xxx + x, setBlockHeight, zzz + z);
 			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && blockstate.isValidPosition(world, poswat)/*Blocks.SNOW.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))*/) {
+			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && blockstate.isValidSpawn(world, poswat)/*Blocks.SNOW.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))*/) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 							boolean betterBuildup = true;
 							if (betterBuildup) {
-								WindManager windMan = manager.getWindManager();
-								float angle = windMan.getWindAngleForClouds();
+								WindManager wind = manager.getWindManager();
+								float angle = wind.getWindAngleForClouds();
 
-								Vec3d vecPos = new Vec3d(xxx + x, setBlockHeight, zzz + z);
+								Vec3 vecPos = new Vec3(xxx + x, setBlockHeight, zzz + z);
 
 								//int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.x, 0, vecPos.z)).getY();
 								//vecPos.y = y;
 								
 								BlockPos blockPos = new BlockPos(vecPos);
+								BlockState blockState = world.getBlockState(blockPos);
 
 								//avoid unloaded areas
-								if (!world.isBlockLoaded(blockPos)) continue;
+								if (!world.isLoaded(blockPos)) continue;
 
 								//make sure vanilla style 1 layer of snow everywhere can also happen
 								//but only when we arent in global overcast mode
@@ -945,8 +952,8 @@ public class StormObject extends WeatherObject {
 
 								    //TODO: consider letting this run outside of ConfigSnow.Snow_PerformSnowfall config option
 									//since our version canSnowAtBody returns true for existing snow layers, we need to check we have air here for basic 1 layer place
-									if (world.isAirBlock(blockPos)) {
-										world.setBlockState(blockPos, Blocks.SNOW.getDefaultState());
+									if (CoroUtilBlock.isAir(blockState.getBlock())) {
+										world.setBlock(blockPos, Blocks.SNOW.defaultBlockState(), 3);
 									}
 								}
 
@@ -987,7 +994,7 @@ public class StormObject extends WeatherObject {
 		
 		int metaToSet = 0;
 		
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		Block checkID = world.getBlockState(new BlockPos(x, y, z)).getBlock();
 		//check for starting with no snow
 		if (CoroUtilBlock.isAir(checkID)) {
@@ -1018,7 +1025,7 @@ public class StormObject extends WeatherObject {
 	
 	public boolean canSnowAtBody(int par1, int par2, int par3)
     {
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		
 		Biome biomegenbase = world.getBiome(new BlockPos(par1, 0, par3));
 
@@ -1063,7 +1070,7 @@ public class StormObject extends WeatherObject {
     }
 	
 	public void tickProgression() {
-		World world = manager.getWorld();
+		Level world = manager.getWorld();
 		
 		//storm progression, heavy WIP
 		if (world.getGameTime() % 3 == 0) {
@@ -1098,21 +1105,21 @@ public class StormObject extends WeatherObject {
 		boolean isOverWater = false;
 		
 		if (world.getGameTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
-			
-			CompoundNBT playerNBT = PlayerData.getPlayerNBT(spawnerUUID);
+
+			CompoundTag playerNBT = PlayerData.getPlayerNBT(spawnerUUID);
 			
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 			
-			Biome bgb = world.getBiome(new BlockPos(MathHelper.floor(pos.x), 0, MathHelper.floor(pos.z)));
+			Biome bgb = world.getBiome(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)));
 			
 			//temperature scan
 			if (bgb != null) {
 				
 				isInOcean = bgb.getCategory().getName().toLowerCase().contains("ocean");
 				
-				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(MathHelper.floor(pos.x), MathHelper.floor(pos.y), MathHelper.floor(pos.z))));
-				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(MathHelper.floor(pos.x), MathHelper.floor(pos.y), MathHelper.floor(pos.z))));
+				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
+				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				if (levelTemperature > biomeTempAdj) {
 					levelTemperature -= tempAdjustRate;
 				} else {
@@ -1133,7 +1140,7 @@ public class StormObject extends WeatherObject {
 				performBuildup = true;
 			}
 			
-			Block blockID = world.getBlockState(new BlockPos(MathHelper.floor(pos.x), currentTopYBlock-1, MathHelper.floor(pos.z))).getBlock();
+			Block blockID = world.getBlockState(new BlockPos(Mth.floor(pos.x), currentTopYBlock-1, Mth.floor(pos.z))).getBlock();
 			if (!CoroUtilBlock.isAir(blockID)) {
 				//Block block = Block.blocksList[blockID];
 				if (blockID.getMaterial(blockID.getDefaultState()) == Material.WATER) {
@@ -1228,7 +1235,7 @@ public class StormObject extends WeatherObject {
 				}
 
 				if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
-					PlayerEntity entP = world.getPlayerByUuid(UUID.fromString(spawnerUUID));
+					Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
 
 					if (entP != null) {
 						initRealStorm(entP, null);
@@ -1242,7 +1249,7 @@ public class StormObject extends WeatherObject {
 						playerNBT.putLong("lastStormDeadlyTime", world.getGameTime());
 					}
 				} else if (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0) {
-					PlayerEntity entP = world.getPlayerByUuid(UUID.fromString(spawnerUUID));
+					Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
 
 					if (entP != null) {
 						initRealStorm(entP, null);
@@ -1287,7 +1294,7 @@ public class StormObject extends WeatherObject {
 								playerNBT.putLong("lastStormDeadlyTime", world.getGameTime());
 
 								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.x, pos.y, pos.z, -1);
-								PlayerEntity entP = world.getPlayerByUuid(UUID.fromString(spawnerUUID));
+								Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
 
 								if (entP != null) {
 									initRealStorm(entP, so);
@@ -1472,7 +1479,7 @@ public class StormObject extends WeatherObject {
 		levelCurStagesIntensity = 1F;
 	}
 	
-	public void initRealStorm(PlayerEntity entP, StormObject stormToAbsorb) {
+	public void initRealStorm(Player entP, StormObject stormToAbsorb) {
 		
 		//new way of storm progression
 		levelCurIntensityStage = STATE_THUNDER;
@@ -1557,16 +1564,16 @@ public class StormObject extends WeatherObject {
 		return STATE_THUNDER;
 	}
 	
-	public void aimStormAtClosestOrProvidedPlayer(PlayerEntity entP) {
+	public void aimStormAtClosestOrProvidedPlayer(Player entP) {
 		
 		if (entP == null) {
-			entP = manager.getWorld().getClosestPlayer(pos.x, pos.y, pos.z, -1, false);
+			entP = manager.getWorld().getNearestPlayer(pos.x, pos.y, pos.z, -1, false);
 		}
 		
 		if (entP != null) {
 			Random rand = new Random();
-			double var11 = entP.getPosX() - pos.x;
-            double var15 = entP.getPosZ() - pos.z;
+			double var11 = entP.getX() - pos.x;
+            double var15 = entP.getZ() - pos.z;
             float yaw = -(float)(Math.atan2(var11, var15) * 180.0D / Math.PI);
             //weather override!
             //yaw = weatherMan.wind.direction;
@@ -1582,55 +1589,6 @@ public class StormObject extends WeatherObject {
 		}
 	}
 	
-	/*public void updateStormFlags() {
-		
-		boolean flagDbg = true;
-		
-		if (levelCurIntensityStage >= 9) {
-			attrib_hurricane = true;
-		} else if (levelCurIntensityStage >= 9) {
-			attrib_tornado_severity = ATTRIB_F5;
-		} else if (levelCurIntensityStage >= 8) {
-			attrib_tornado_severity = ATTRIB_F4;
-		} else if (levelCurIntensityStage >= 7) {
-			attrib_tornado_severity = ATTRIB_F3;
-		} else if (levelCurIntensityStage >= 6) {
-			attrib_tornado_severity = ATTRIB_F2;
-		} else if (levelCurIntensityStage >= 5) {
-			attrib_tornado_severity = ATTRIB_F1;
-		} else if (levelCurIntensityStage >= 4) {
-			//once again aim the storm back at player after forming if it overshot them, to solve some taking too long to buildup and passing over them >:D
-			if (ConfigMisc.Storm_Tornado_aimAtPlayerOnSpawn) {
-				if (!hasStormPeaked && attrib_tornado_severity != ATTRIB_FORMINGTORNADO) {
-					aimStormAtClosestOrProvidedPlayer(null);
-				}
-			}
-			attrib_tornado_severity = ATTRIB_FORMINGTORNADO;
-			state = this.STATE_SPINNING;
-		} else if (levelCurIntensityStage >= 3) {
-			state = this.STATE_HAIL;
-		} else if (levelCurIntensityStage >= 2) {
-			attrib_highwind = true;
-		} else if (levelCurIntensityStage >= 1) {
-			state = this.STATE_THUNDER;
-		} else if (levelCurIntensityStage > 0) {
-			//already added rain when combining storms - but what about commands?
-			attrib_precipitation = true;
-			state = this.STATE_NORMAL;
-		} else {
-			setNoStorm();
-		}
-		
-		if (!naturallySpawned) {
-			if (flagDbg) Weather.dbg("flags updated for " + ID + ", state: " + state);
-		}
-		
-		//TEEEEEEEESSSSSSSSTTTTTTTTTTTTTT
-		//aimStormAtClosestOrProvidedPlayer(null);
-		
-		curWeatherType = Math.min(WeatherTypes.weatherEntTypes.size()-1, Math.max(1, attrib_tornado_severity - 1));
-	}*/
-	
 	//FYI rain doesnt count as storm
 	public void setNoStorm() {
 		Weather.dbg("storm ID: " + this.ID + " - ended storm event");
@@ -1644,15 +1602,15 @@ public class StormObject extends WeatherObject {
 		if (isCloudlessStorm()) return;
 
 		if (particleBehaviorFog == null) {
-			particleBehaviorFog = new ParticleBehaviorFog(new Vec3d(pos.x, pos.y, pos.z));
+			particleBehaviorFog = new ParticleBehaviorFog(new Vec3(pos.x, pos.y, pos.z));
 			//particleBehaviorFog.sourceEntity = this;
 		} else {
-			if (!Minecraft.getInstance().isSingleplayer() || !(Minecraft.getInstance().currentScreen instanceof IngameMenuScreen)) {
+			if (!Minecraft.getInstance().isPaused()) {
 				particleBehaviorFog.tickUpdateList();
 			}
 		}
         
-		PlayerEntity entP = Minecraft.getInstance().player;
+		Player entP = Minecraft.getInstance().player;
 		
 		spinSpeed = 0.02D;
 		double spinSpeedMax = 0.4D;
@@ -1709,7 +1667,7 @@ public class StormObject extends WeatherObject {
 		
 		Random rand = new Random();
 		
-		Vec3d playerAdjPos = new Vec3d(entP.getPosX(), pos.y, entP.getPosZ());
+		Vec3 playerAdjPos = new Vec3(entP.getX(), pos.y, entP.getZ());
 		double maxSpawnDistFromPlayer = 512;
 		
 
@@ -1718,67 +1676,12 @@ public class StormObject extends WeatherObject {
 
 
 		//spawn clouds
-		if (ConfigCoroUtil.optimizedCloudRendering) {
-
-			//1 in middle, 8 around it
-			int count = 8+1;
-
-			for (int i = 0; i < count; i++) {
-				if (!lookupParticlesCloud.containsKey(i)) {
-
-					//position doesnt matter, set by renderer while its invisible still
-					Vec3d tryPos = new Vec3d(pos.x, layers.get(layer), pos.z);
-					EntityRotFX particle;
-					if (WeatherUtil.isAprilFoolsDay()) {
-						particle = spawnFogParticle(tryPos.x, tryPos.y, tryPos.z, 0, ParticleRegistry.chicken);
-					} else {
-						particle = spawnFogParticle(tryPos.x, tryPos.y, tryPos.z, 0, ParticleRegistry.cloud256_test);
-					}
-
-					//offset starting rotation for even distribution except for middle one
-					if (i != 0) {
-						double rotPos = (i - 1);
-						float radStart = (float) ((360D / 8D) * rotPos);
-						particle.rotationAroundCenter = radStart;
-					}
-
-					lookupParticlesCloud.put(i, particle);
-				}
-			}
-
-			if (isSpinning()) {
-
-				//2 layers of 16
-				count = 16*2;
-
-				for (int i = 0; i < count; i++) {
-					if (!lookupParticlesCloudLower.containsKey(i)) {
-
-						//position doesnt matter, set by renderer while its invisible still
-						Vec3d tryPos = new Vec3d(pos.x, layers.get(layer), pos.z);
-						EntityRotFX particle;
-						if (WeatherUtil.isAprilFoolsDay()) {
-							particle = spawnFogParticle(tryPos.x, tryPos.y, tryPos.z, 1, ParticleRegistry.chicken);
-						} else {
-							particle = spawnFogParticle(tryPos.x, tryPos.y, tryPos.z, 1, ParticleRegistry.cloud256_test);
-						}
-
-						//set starting offset for even distribution
-						double rotPos = i % 15;
-						float radStart = (float) ((360D / 16D) * rotPos);
-						particle.rotationAroundCenter = radStart;
-
-						lookupParticlesCloudLower.put(i, particle);
-					}
-				}
-			}
-		}
 
 		if (this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
 			for (int i = 0; i < loopSize; i++) {
 				/*if (listParticlesCloud.size() == 0) {
 					double spawnRad = 1;
-					Vec3d tryPos = new Vec3d(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					EntityRotFX particle;
 					if (WeatherUtil.isAprilFoolsDay()) {
 						particle = spawnFogParticle(tryPos.x, tryPos.y, tryPos.z, 0, ParticleRegistry.chicken);
@@ -1788,7 +1691,7 @@ public class StormObject extends WeatherObject {
 
 					listParticlesCloud.add(particle);
 				}*/
-				if (!ConfigCoroUtil.optimizedCloudRendering && listParticlesCloud.size() < (size + extraSpawning) / 1F) {
+				if (listParticlesCloud.size() < (size + extraSpawning) / 1F) {
 					double spawnRad = size;
 					
 					/*if (layer != 0) {
@@ -1797,7 +1700,7 @@ public class StormObject extends WeatherObject {
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
-					Vec3d tryPos = new Vec3d(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						if (getAvoidAngleIfTerrainAtOrAheadOfPosition(getAdjustedAngle(), tryPos) == 0) {
 							EntityRotFX particle;
@@ -1831,7 +1734,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (!ConfigCoroUtil.optimizedCloudRendering && levelCurIntensityStage >= STATE_HIGHWIND) {
+		if (levelCurIntensityStage >= STATE_HIGHWIND) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
@@ -1842,7 +1745,7 @@ public class StormObject extends WeatherObject {
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
-					Vec3d tryPos = new Vec3d(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.y, pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), posGround.y, pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						int groundY = WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos((int)tryPos.x, 0, (int)tryPos.z)).getY();
 						EntityRotFX particle;
@@ -1910,14 +1813,14 @@ public class StormObject extends WeatherObject {
 					
 					//trim!
 					if (listParticlesFunnel.size() >= sizeMaxFunnelParticles) {
-						listParticlesFunnel.get(0).setExpired();
+						listParticlesFunnel.get(0).remove();
 						listParticlesFunnel.remove(0);
 					}
 					
 					if (listParticlesFunnel.size() < sizeMaxFunnelParticles) {
 						
 						
-						Vec3d tryPos = new Vec3d(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), pos.y, pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+						Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), pos.y, pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 						//int y = entP.world.getPrecipitationHeight((int)tryPos.x, (int)tryPos.z);
 						
 						if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
@@ -1976,7 +1879,7 @@ public class StormObject extends WeatherObject {
 			if (!ent.isAlive()) {
 				listParticlesFunnel.remove(ent);
 			} else if (ent.getPosY() > pos.y) {
-				ent.setExpired();
+				ent.remove();
 				listParticlesFunnel.remove(ent);
 				//System.out.println("asd");
 			} else {
@@ -1990,9 +1893,9 @@ public class StormObject extends WeatherObject {
                  if (levelCurIntensityStage == STATE_HIGHWIND) {
                 	 int fadingDistStart = 30;
                 	 if (ent.getPosY() > posGround.y + fadingDistStart) {
-		                 float maxVal = ent.particleBlue;
+		                 float maxVal = ent.bCol;
 		                 float fadeRate = 0.002F;
-		                 ent.setColor(Math.min(maxVal, ent.particleRed+fadeRate), Math.min(maxVal, ent.particleGreen+fadeRate), maxVal);
+		                 ent.setColor(Math.min(maxVal, ent.rCol+fadeRate), Math.min(maxVal, ent.gCol+fadeRate), maxVal);
                 	 }
                  }
                  
@@ -2209,7 +2112,7 @@ public class StormObject extends WeatherObject {
 		        ent.setScale((float) Math.min(maxParticleSize, curDist * 2F));
 		        
 		        if (curDist < 20) {
-		        	ent.setExpired();
+		        	ent.remove();
 		        }
 
 	        	double var16 = this.pos.x - ent.getPosX();
@@ -2228,11 +2131,11 @@ public class StormObject extends WeatherObject {
 	}
 	
 	public float getAdjustedSpeed() {
-		return manager.windMan.getWindSpeedForClouds();
+		return manager.wind.getWindSpeedForClouds();
 	}
 	
 	public float getAdjustedAngle() {
-		float angle = manager.windMan.getWindAngleForClouds();
+		float angle = manager.wind.getWindAngleForClouds();
 		
 		float angleAdjust = Math.max(10, Math.min(45, 45F * levelTemperature * 0.2F));
 		float targetYaw = 0;
@@ -2246,19 +2149,19 @@ public class StormObject extends WeatherObject {
 			targetYaw = 0;
 		}
 		
-		float bestMove = MathHelper.wrapDegrees(targetYaw - angle);
+		float bestMove = Mth.wrapDegrees(targetYaw - angle);
 		
 		if (Math.abs(bestMove) < 180/* - (angleAdjust * 2)*/) {
 			if (bestMove > 0) angle -= angleAdjust;
 			if (bestMove < 0) angle += angleAdjust;
 		}
 		
-		//Weather.dbg("ID: " + ID + " - " + manager.windMan.getWindAngleForClouds() + " - final angle: " + angle);
+		//Weather.dbg("ID: " + ID + " - " + manager.wind.getWindAngleForClouds() + " - final angle: " + angle);
 		
 		return angle;
 	}
 
-	public float getAvoidAngleIfTerrainAtOrAheadOfPosition(float angle, Vec3d pos) {
+	public float getAvoidAngleIfTerrainAtOrAheadOfPosition(float angle, Vec3 pos) {
 		double scanDistMax = 120;
 		for (int scanAngle = -20; scanAngle < 20; scanAngle += 10) {
 			for (double scanDistRange = 20; scanDistRange < scanDistMax; scanDistRange += 10) {
@@ -2293,7 +2196,7 @@ public class StormObject extends WeatherObject {
     
     	boolean forTornado = true;//entT != null;
     	
-    	World world = CoroUtilEntOrParticle.getWorld(entity1);
+    	Level world = CoroUtilEntOrParticle.getWorld(entity1);
     	long worldTime = world.getGameTime();
     	
     	Entity ent = null;
@@ -2342,7 +2245,8 @@ public class StormObject extends WeatherObject {
             distY = maxHeight;
         }
 
-        float weight = WeatherUtilEntity.getWeight(entity1, forTornado);
+        //float weight = WeatherUtilEntity.getWeight(entity1, forTornado);
+        float weight = WeatherUtilEntity.getWeight(entity1);
         double grab = (10D / weight)/* / ((distY / maxHeight) * 1D)*/ * ((Math.abs((maxHeight - distY)) / maxHeight));
         float pullY = 0.0F;
 
@@ -2363,7 +2267,7 @@ public class StormObject extends WeatherObject {
         pullY += (float)(conf.tornadoLiftRate / (weight / 2F)/* * (Math.abs(radius - distXZ) / radius)*/);
         
         
-        if (entity1 instanceof PlayerEntity)
+        if (entity1 instanceof Player)
         {
             double adjPull = 0.2D / ((weight * ((distXZ + 1D) / radius)));
             /*if (!entity1.onGround) {
@@ -2372,7 +2276,8 @@ public class StormObject extends WeatherObject {
             pullY += adjPull;
             //0.2D / ((getWeight(entity1) * ((distXZ+1D) / radius)) * (((distY) / maxHeight)) * 3D);
             //grab = grab + (10D * ((distY / maxHeight) * 1D));
-            double adjGrab = (10D * (((float)(((double)WeatherUtilEntity.playerInAirTime + 1D) / 400D))));
+            //double adjGrab = (10D * (((float)(((double)WeatherUtilEntity.playerInAirTime + 1D) / 400D))));
+            double adjGrab = (10D * (((float)(((double)0 + 1D) / 400D))));
 
             if (adjGrab > 50)
             {
@@ -2418,17 +2323,17 @@ public class StormObject extends WeatherObject {
 
             grab = grab - adjGrab;
 
-            if (ent.getMotion().y > -1.5)
+            if (ent.getDeltaMovement().y > -1.5)
             {
                 ent.fallDistance = 0F;
             }
             
-            if (ent.getMotion().y > 0.3F) ent.setMotion(ent.getMotion().x, 0.3F, ent.getMotion().z);
+            if (ent.getDeltaMovement().y > 0.3F) ent.setDeltaMovement(ent.getDeltaMovement().x, 0.3F, ent.getDeltaMovement().z);
 
-            if (forTornado) ent.onGround = false;
+            if (forTornado) ent.setOnGround(false);
 
             //its always raining during these, might as well extinguish them
-            ent.extinguish();
+            ent.clearFire();
 
             //System.out.println(adjPull);
         }
@@ -2466,13 +2371,14 @@ public class StormObject extends WeatherObject {
 
         if (entity1 instanceof LivingEntity)
         {
-            f5 /= (WeatherUtilEntity.getWeight(entity1, forTornado) * ((distXZ + 1D) / radius));
+            //f5 /= (WeatherUtilEntity.getWeight(entity1, forTornado) * ((distXZ + 1D) / radius));
+            f5 /= (WeatherUtilEntity.getWeight(entity1) * ((distXZ + 1D) / radius));
         }
         
         //if player and not spout
-        if (entity1 instanceof PlayerEntity && conf.type != 0) {
+        if (entity1 instanceof Player && conf.type != 0) {
         	//System.out.println("grab: " + f5);
-        	if (ent.onGround) {
+        	if (ent.isOnGround()) {
         		f5 *= 10.5F;
         	} else {
         		f5 *= 5F;
@@ -2526,24 +2432,9 @@ public class StormObject extends WeatherObject {
 	
 	public void setVel(Object entity, float f, float f1, float f2)
     {
-        /*entity.motionX += f;
-        entity.motionY += f1;
-        entity.motionZ += f2;*/
         CoroUtilEntOrParticle.setMotionX(entity, CoroUtilEntOrParticle.getMotionX(entity) + f);
 		CoroUtilEntOrParticle.setMotionY(entity, CoroUtilEntOrParticle.getMotionY(entity) + f1);
 		CoroUtilEntOrParticle.setMotionZ(entity, CoroUtilEntOrParticle.getMotionZ(entity) + f2);
-
-        if (entity instanceof SquidEntity)
-        {
-        	Entity ent = (Entity) entity;
-        	ent.setPosition(ent.getPosX() + ent.getMotion().x * 5F, ent.getPosY(), ent.getPosZ() + ent.getMotion().z * 5F);
-        }
-
-		/*if (entity instanceof EntityItem)
-		{
-			Entity ent = (Entity) entity;
-			ent.setPosition(ent.posX, ent.posY + ent.motionY, ent.posZ);
-		}*/
     }
 
 	@OnlyIn(Dist.CLIENT)
@@ -2555,7 +2446,7 @@ public class StormObject extends WeatherObject {
     public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder, TextureAtlasSprite tex) {
     	double speed = 0D;
 		Random rand = new Random();
-    	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getInstance().world, tex, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
+    	EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getInstance().level, tex, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
 		particleBehaviorFog.initParticle(entityfx);
 		
 		//potato
@@ -2587,16 +2478,8 @@ public class StormObject extends WeatherObject {
 			
 			entityfx.setMaxAge((size) + rand.nextInt(100));
 		}
-
-		//temp?
-		if (ConfigCoroUtil.optimizedCloudRendering) {
-			entityfx.setMaxAge(400);
-		}
     	
     	float randFloat = (rand.nextFloat() * 0.6F);
-		if (ConfigCoroUtil.optimizedCloudRendering) {
-			randFloat = (rand.nextFloat() * 0.4F);
-		}
 		float baseBright = 0.7F;
 		if (levelCurIntensityStage > STATE_NORMAL) {
 			baseBright = 0.2F;
@@ -2634,7 +2517,7 @@ public class StormObject extends WeatherObject {
 
 		//TODO: 1.14 rotEffRenderer
 		//ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
-		Minecraft.getInstance().particles.addEffect(entityfx);
+		Minecraft.getInstance().particleEngine.add(entityfx);
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }

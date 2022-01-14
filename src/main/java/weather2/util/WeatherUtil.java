@@ -3,6 +3,8 @@ package weather2.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 
+import java.util.Calendar;
+
 public class WeatherUtil {
 	
     public static boolean isPaused() {
@@ -19,6 +21,16 @@ public class WeatherUtil {
     public static boolean isPausedForClient() {
     	if (Minecraft.getInstance().isPaused()) return true;
     	return false;
+    }
+
+    public static boolean isAprilFoolsDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        //test
+        //return calendar.get(Calendar.MONTH) == Calendar.MARCH && calendar.get(Calendar.DAY_OF_MONTH) == 25;
+
+        return calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
     }
     
     

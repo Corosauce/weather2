@@ -1,6 +1,7 @@
 package extendedrenderer.particle.entity;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import extendedrenderer.particle.behavior.ParticleBehaviors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
@@ -157,6 +158,8 @@ public class EntityRotFX extends TextureSheetParticle
     //workaround for particles that are fading out while partially in the ground, keeps them rendering at previous brightness instead of 0
     protected int lastNonZeroBrightness = 15728640;
 
+    public ParticleBehaviors pb = null; //designed to be a reference to the central objects particle behavior
+
     public EntityRotFX(ClientLevel par1World, double par2, double par4, double par6, double par8, double par10, double par12)
     {
         super(par1World, par2, par4, par6, par8, par10, par12);
@@ -236,6 +239,7 @@ public class EntityRotFX extends TextureSheetParticle
 
     @Override
     public void remove() {
+        if (pb != null) pb.particles.remove(this);
         super.remove();
     }
 
@@ -840,7 +844,7 @@ public class EntityRotFX extends TextureSheetParticle
         setAlpha(val);
     }
 
-    public void setPosition(double posX, float posY, double posZ) {
+    public void setPosition(double posX, double posY, double posZ) {
         this.setPos(posX, posY, posZ);
     }
 }

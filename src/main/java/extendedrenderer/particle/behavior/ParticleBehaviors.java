@@ -6,8 +6,10 @@ import java.util.Random;
 
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexFX;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -155,16 +157,16 @@ public class ParticleBehaviors {
 		}
 	}
 	
-	/*public EntityRotFX spawnNewParticleIconFX(World world, TextureAtlasSprite icon, double x, double y, double z, double vecX, double vecY, double vecZ) {
+	public EntityRotFX spawnNewParticleIconFX(Level world, TextureAtlasSprite icon, double x, double y, double z, double vecX, double vecY, double vecZ) {
 		return spawnNewParticleIconFX(world, icon, x, y, z, vecX, vecY, vecZ, 0);
 	}
 	
-	public EntityRotFX spawnNewParticleIconFX(World world, TextureAtlasSprite icon, double x, double y, double z, double vecX, double vecY, double vecZ, int renderOrder) {
-		EntityRotFX entityfx = new ParticleTexFX(world, x, y, z, vecX, vecY, vecZ, icon);
+	public EntityRotFX spawnNewParticleIconFX(Level world, TextureAtlasSprite icon, double x, double y, double z, double vecX, double vecY, double vecZ, int renderOrder) {
+		EntityRotFX entityfx = new ParticleTexFX((ClientLevel) world, x, y, z, vecX, vecY, vecZ, icon);
 		entityfx.pb = this;
 		entityfx.renderOrder = renderOrder;
 		return entityfx;
-	}*/
+	}
 	
 	public EntityRotFX initParticle(EntityRotFX particle) {
 		

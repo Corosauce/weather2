@@ -1,6 +1,6 @@
 package extendedrenderer.particle.entity;
 
-import CoroUtil.util.CoroUtilParticle;
+import com.corosus.coroutil.util.CoroUtilParticle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

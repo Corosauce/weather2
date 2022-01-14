@@ -1,6 +1,6 @@
 package weather2.util;
 
-import CoroUtil.util.CoroUtilEntOrParticle;
+import com.corosus.coroutil.util.CoroUtilEntOrParticle;
 import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

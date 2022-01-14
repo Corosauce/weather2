@@ -1,6 +1,6 @@
 package weather2.weathersystem;
 
-import CoroUtil.util.CoroUtilPhysics;
+import com.corosus.coroutil.util.CoroUtilPhysics;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -18,6 +18,18 @@ public abstract class WeatherManager {
 	public final WindManager wind = new WindManager(this);
 	private List<WeatherObject> listStormObjects = new ArrayList<>();
 	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
+
+	public long lastStormFormed = 0;
+
+	public long lastSandstormFormed = 0;
+
+	//0 = none, 1 = usual max overcast
+	public float cloudIntensity = 1F;
+
+	//for client only
+	public boolean isVanillaRainActiveOnServer = false;
+	public boolean isVanillaThunderActiveOnServer = false;
+	public int vanillaRainTimeOnServer = 0;
 
 	public WeatherManager(ResourceKey<Level> dimension) {
 		this.dimension = dimension;

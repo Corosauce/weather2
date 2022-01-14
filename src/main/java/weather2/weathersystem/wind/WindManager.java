@@ -1,6 +1,6 @@
 package weather2.weathersystem.wind;
 
-import CoroUtil.util.CoroUtilEntOrParticle;
+import com.corosus.coroutil.util.CoroUtilEntOrParticle;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
 import net.minecraft.nbt.CompoundTag;

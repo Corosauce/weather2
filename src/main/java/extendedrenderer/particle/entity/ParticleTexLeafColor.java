@@ -1,6 +1,6 @@
 package extendedrenderer.particle.entity;
 
-import CoroUtil.util.CoroUtilColor;
+import com.corosus.coroutil.util.CoroUtilColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
