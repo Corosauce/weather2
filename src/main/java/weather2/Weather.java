@@ -2,13 +2,13 @@ package weather2;
 
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmlserverevents.FMLServerStoppedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.util.WeatherUtilSound;
@@ -52,7 +52,7 @@ public class Weather
     }
 
     @SubscribeEvent
-    public void serverStop(FMLServerStoppedEvent event) {
+    public void serverStop(ServerStoppedEvent event) {
         initProperNeededForWorld = true;
     }
 

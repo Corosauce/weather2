@@ -131,7 +131,8 @@ public class ConfigMisc implements IConfigCategory {
 		//Weather.dbg("block list processing disabled");
 		//TODO: 1.14 uncomment
 		//WeatherUtil.doBlockList();
-		WeatherUtilConfig.processLists();
+		//TODO: were not
+		//WeatherUtilConfig.processLists();
 		
 		StormObject.static_YPos_layer0 = Cloud_Layer0_Height;
 		StormObject.static_YPos_layer1 = Cloud_Layer1_Height;

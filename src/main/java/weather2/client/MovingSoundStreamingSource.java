@@ -7,9 +7,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import weather2.weathersystem.storm.StormObject;
 
 public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 
+	private StormObject storm = null;
 	public float cutOffRange = 128;
 	public Vec3 realSource = null;
 	public boolean lockToPlayer = false;
@@ -40,6 +42,20 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 		tick();
 	}
 
+	//constructor for moving sounds
+	public MovingSoundStreamingSource(StormObject parStorm, SoundEvent event, SoundSource category, float parVolume, float parPitch, float parCutOffRange)
+	{
+		super(event, category);
+		this.storm = parStorm;
+		this.looping = false;
+		this.volume = parVolume;
+		this.pitch = parPitch;
+		cutOffRange = parCutOffRange;
+
+		//sync position
+		tick();
+	}
+
 	public void tick()
 	{
 		Player entP = Minecraft.getInstance().player;
@@ -48,6 +64,10 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 			this.x = (float) entP.getX();
 			this.y = (float) entP.getY();
 			this.z = (float) entP.getZ();
+		}
+
+		if (storm != null) {
+			realSource = this.storm.posGround;
 		}
 
 		//if locked to player, don't dynamically adjust volume

@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.SoundRegistry;
 import weather2.client.MovingSoundStreamingSource;
+import weather2.weathersystem.storm.StormObject;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -77,6 +78,32 @@ public class WeatherUtilSound {
         soundToLength.put("siren_sandstorm_3", 10366);
         soundToLength.put("siren_sandstorm_4", 44274);
         soundToLength.put("siren_sandstorm_5_extra", 1282);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void playNonMovingSound(Vec3 parPos, String var1, float var5, float var6, float parCutOffRange)
+    {
+        //String prefix = "streaming.";
+        String affix = ".ogg";
+        //ResourceLocation res = new ResourceLocation(var1);
+        SoundEvent event = SoundRegistry.get(var1);
+        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundSource.WEATHER, var5, var6, parCutOffRange);
+        Minecraft.getInstance().getSoundManager().play(sound);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void playMovingSound(StormObject parStorm, String var1, float var5, float var6, float parCutOffRange)
+    {
+        //String prefix = "streaming.";
+        String affix = ".ogg";
+
+        //ResourceLocation res = new ResourceLocation(var1);
+        SoundEvent event = SoundRegistry.get(var1);
+
+        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parStorm, event, SoundSource.WEATHER, var5, var6, parCutOffRange);
+
+        Minecraft.getInstance().getSoundManager().play(sound);
+
     }
 
     @OnlyIn(Dist.CLIENT)

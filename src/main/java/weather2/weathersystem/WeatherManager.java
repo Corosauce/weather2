@@ -11,6 +11,7 @@ import weather2.weathersystem.wind.WindManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public abstract class WeatherManager {
@@ -30,6 +31,8 @@ public abstract class WeatherManager {
 	public boolean isVanillaRainActiveOnServer = false;
 	public boolean isVanillaThunderActiveOnServer = false;
 	public int vanillaRainTimeOnServer = 0;
+
+	private HashSet<Long> listWeatherBlockDamageDeflector = new HashSet<>();
 
 	public WeatherManager(ResourceKey<Level> dimension) {
 		this.dimension = dimension;
@@ -141,5 +144,13 @@ public abstract class WeatherManager {
 		}
 
 		return bestStorm;
+	}
+
+	public HashSet<Long> getListWeatherBlockDamageDeflector() {
+		return listWeatherBlockDamageDeflector;
+	}
+
+	public void setListWeatherBlockDamageDeflector(HashSet<Long> listWeatherBlockDamageDeflector) {
+		this.listWeatherBlockDamageDeflector = listWeatherBlockDamageDeflector;
 	}
 }

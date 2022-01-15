@@ -8,7 +8,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.SimpleRandomSource;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.RandomSource;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -31,12 +32,12 @@ public class CloudManager {
 
     public CloudManager() {
         Random random = new Random(5);
-        simplexNoise = new SimplexNoise(new SimpleRandomSource(random.nextLong()));
+        simplexNoise = new SimplexNoise(new LegacyRandomSource(random.nextLong()));
 
         CloudManager.NoiseParameters noiseParameters = new CloudManager.NoiseParameters(-9, 1.0D, 0.0D, 3.0D, 3.0D, 3.0D, 3.0D);
 
-        perlinNoise = PerlinNoise.create(new SimpleRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
-        normalNoise = NormalNoise.create(new SimpleRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
+        perlinNoise = PerlinNoise.create(new LegacyRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
+        normalNoise = NormalNoise.create(new LegacyRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
     }
 
     /*public static CloudManager getInstance() {

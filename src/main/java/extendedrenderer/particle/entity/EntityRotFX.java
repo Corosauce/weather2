@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.util.RewindableStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -27,6 +26,7 @@ import weather2.ClientTickHandler;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @OnlyIn(Dist.CLIENT)
@@ -695,7 +695,7 @@ public class EntityRotFX extends TextureSheetParticle
         double yy = y;
         double zz = z;
         if (this.hasPhysics && (x != 0.0D || y != 0.0D || z != 0.0D)) {
-            Vec3 Vector3d = Entity.collideBoundingBoxHeuristically((Entity)null, new Vec3(x, y, z), this.getBoundingBox(), this.level, CollisionContext.empty(), new RewindableStream<>(Stream.empty()));
+            Vec3 Vector3d = Entity.collideBoundingBox(null, new Vec3(x, y, z), this.getBoundingBox(), this.level, List.of());
             x = Vector3d.x;
             y = Vector3d.y;
             z = Vector3d.z;

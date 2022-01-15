@@ -1,15 +1,5 @@
 package weather2.weathersystem.storm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import com.corosus.coroutil.config.ConfigCoroUtil;
 import com.corosus.coroutil.util.*;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
@@ -27,7 +17,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
@@ -45,14 +34,12 @@ import weather2.config.ConfigStorm;
 import weather2.config.ConfigTornado;
 import weather2.entity.EntityLightningBolt;
 import weather2.player.PlayerData;
-import weather2.util.CachedNBTTagCompound;
-import weather2.util.WeatherUtil;
-import weather2.util.WeatherUtilBlock;
-import weather2.util.WeatherUtilConfig;
-import weather2.util.WeatherUtilEntity;
+import weather2.util.*;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.wind.WindManager;
+
+import java.util.*;
 
 public class StormObject extends WeatherObject {
 
