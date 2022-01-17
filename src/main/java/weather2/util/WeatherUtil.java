@@ -3,6 +3,8 @@ package weather2.util;
 import com.corosus.coroutil.util.CoroUtilCompatibility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -11,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TallGrassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import weather2.config.ConfigTornado;
 
 import java.util.Calendar;
@@ -174,6 +177,10 @@ public class WeatherUtil {
         {
             return false;
         }
+    }
+
+    public static ServerLevel getWorld(ResourceKey<Level> levelResourceKey) {
+        return ServerLifecycleHooks.getCurrentServer().getLevel(levelResourceKey);
     }
     
 }

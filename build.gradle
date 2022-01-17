@@ -58,7 +58,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.18.1-1.12.3'
+version = '1.18.1-2.6.10'
 group = 'com.corosus.weather2' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'weather2'
 

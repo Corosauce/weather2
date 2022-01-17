@@ -5,6 +5,7 @@ import com.corosus.coroutil.util.CoroUtilBlock;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -82,26 +83,27 @@ public class TornadoHelper {
 	public static GameProfile fakePlayerProfile = null;
     
     public static class BlockUpdateSnapshot {
-    	private int dimID;
+    	//private int dimID;
+		private ResourceKey<Level> dimension;
     	private BlockState state;
     	private BlockState statePrev;
 		private BlockPos pos;
     	private boolean createEntityForBlockRemoval;
 
-		public BlockUpdateSnapshot(int dimID, BlockState state, BlockState statePrev, BlockPos pos, boolean createEntityForBlockRemoval) {
-			this.dimID = dimID;
+		public BlockUpdateSnapshot(ResourceKey<Level> dimension, BlockState state, BlockState statePrev, BlockPos pos, boolean createEntityForBlockRemoval) {
+			this.dimension = dimension;
 			this.state = state;
 			this.statePrev = statePrev;
 			this.pos = pos;
 			this.createEntityForBlockRemoval = createEntityForBlockRemoval;
 		}
 
-		public int getDimID() {
-			return dimID;
+		public ResourceKey<Level> getDimension() {
+			return dimension;
 		}
 
-		public void setDimID(int dimID) {
-			this.dimID = dimID;
+		public void setDimension(ResourceKey<Level> dimension) {
+			this.dimension = dimension;
 		}
 
 		public BlockState getState() {
@@ -171,7 +173,7 @@ public class TornadoHelper {
 				Random rand = new Random();
 				while (it.hasNext()) {
 					BlockUpdateSnapshot snapshot = it.next();
-					Level world = WeatherUtil.getWorld(snapshot.getDimID());
+					Level world = WeatherUtil.getWorld(snapshot.getDimension());
 					if (world != null) {
 
 						//TODO: 1.14 uncomment
@@ -328,7 +330,7 @@ public class TornadoHelper {
 	                        	if (blockID == Blocks.GRASS/* && canGrab(parWorld, state, pos)*/) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
-	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.getDimension().getType().getId(), Blocks.DIRT.defaultBlockState(), state, pos, false));
+	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.DIRT.defaultBlockState(), state, pos, false));
 	                        		}
 	                        		
 	                        	}
@@ -546,7 +548,7 @@ public class TornadoHelper {
 						removeCount++;
 
 						boolean shouldEntityify = blockCount <= ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks;
-						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.getDimension().getType().getId(), Blocks.AIR.getDefaultState(), state, pos, playerClose && shouldEntityify));
+						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.AIR.defaultBlockState(), state, pos, playerClose && shouldEntityify));
 					}
                 }
 				if (blockID == Blocks.GLASS)
@@ -576,7 +578,7 @@ public class TornadoHelper {
 
     public boolean canGrabEventCheck(Level world, BlockState state, BlockPos pos) {
     	if (!ConfigMisc.blockBreakingInvokesCancellableEvent) return true;
-    	if (world instanceof ServerWorld) {
+    	if (world instanceof ServerLevel) {
 			if (fakePlayerProfile == null) {
 				fakePlayerProfile = new GameProfile(UUID.fromString("1396b887-2570-4948-86e9-0633d1d22946"), "weather2FakePlayer");
 			}
