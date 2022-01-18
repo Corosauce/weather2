@@ -3,29 +3,61 @@ package weather2.weathersystem.wind;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientWeather;
+import weather2.Weather;
+import weather2.config.ConfigLTOverrides;
+import weather2.config.ConfigMisc;
+import weather2.config.ConfigWind;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManager;
+import weather2.weathersystem.WeatherManagerServer;
+import weather2.weathersystem.storm.StormObject;
 
 import java.util.Random;
 
 public class WindManager {
 	public WeatherManager manager;
-	
+
 	//global
 	public float windAngleGlobal = 0;
 	public float windSpeedGlobal = 0;
+	public float windSpeedGlobalChangeRate = 0.05F;
+	public int windSpeedGlobalRandChangeTimer = 0;
+	public int windSpeedGlobalRandChangeDelay = 10;
+
+	//generic?
+	/*public float windSpeedMin = 0.00001F;
+	public float windSpeedMax = 1F;*/
+
+	//events - design derp, we're making this client side, so its set based on closest storm to the client side player
+	public float windAngleEvent = 0;
+	public BlockPos windOriginEvent = BlockPos.ZERO;
+	public float windSpeedEvent = 0;
+	public int windTimeEvent = 0; //its assumed this will get set by whatever initializes an event, and this class counts it down from a couple seconds, helps wind system know what takes priority
 
 	//gusts
 	public float windAngleGust = 0;
 	public float windSpeedGust = 0;
 	public int windTimeGust = 0;
+	//public float directionGust = 0;
+	//public float directionBeforeGust = 0;
 	public int windGustEventTimeRand = 60;
 	public float chanceOfWindGustEvent = 0.5F;
+
+	//low wind event
+	public int lowWindTimer = 0;
+
+	//high wind event
+	public int highWindTimer = 0;
 
 	public static boolean FORCE_ON_DEBUG_TESTING = false;
 	
@@ -43,6 +75,26 @@ public class WindManager {
 		} else {
 			return windSpeedGlobal;
 		}
+	}
+
+	public void startHighWindEvent() {
+		highWindTimer = ConfigWind.highWindTimerEnableAmountBase + (new Random()).nextInt(ConfigWind.highWindTimerEnableAmountRnd);
+	}
+
+	public boolean isHighWindEventActive() {
+		return highWindTimer > 0;
+	}
+
+	public void stopHighWindEvent() {
+		highWindTimer = 0;
+	}
+
+	public void startLowWindEvent() {
+		lowWindTimer = ConfigWind.lowWindTimerEnableAmountBase + (new Random()).nextInt(ConfigWind.lowWindTimerEnableAmountRnd);
+	}
+
+	public void stopLowWindEvent() {
+		lowWindTimer = 0;
 	}
 
 	public float getWindSpeedForGusts() {
@@ -83,7 +135,225 @@ public class WindManager {
 		windTimeGust = time;
 	}
 
-	public void tick(Level world) {
+	public void tick() {
+
+		Random rand = new Random();
+
+		//debug
+		//Weather.dbg("wind angle: " + windAngleGlobal);
+		//windAngleGlobal = 90;
+		//windSpeedMin = 0.2F;
+		//windAngleGlobal = 180;
+		//lowWindOddsTo1 = 20*200;
+		//lowWindTimer = 0;
+		//windSpeedGlobalChangeRate = 0.05F;
+
+		if (!ConfigWind.Misc_windOn) {
+			windSpeedGlobal = 0;
+			windSpeedGust = 0;
+			windTimeGust = 0;
+			//windSpeedSmooth = 0;
+		} else {
+
+			if (!manager.getWorld().isClientSide()) {
+				//WIND SPEED\\
+
+				//global random wind speed change
+
+				if (!ConfigWind.Wind_LowWindEvents) {
+					lowWindTimer = 0;
+				}
+
+				if (lowWindTimer <= 0) {
+					if (windSpeedGlobalRandChangeTimer-- <= 0)
+					{
+						//standard wind adjustment
+						if (highWindTimer <= 0) {
+							windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate) - (windSpeedGlobalChangeRate / 2);
+							//only increase for high wind
+						} else {
+							windSpeedGlobal += (rand.nextDouble() * windSpeedGlobalChangeRate)/* - (windSpeedGlobalChangeRate / 2)*/;
+						}
+						windSpeedGlobalRandChangeTimer = windSpeedGlobalRandChangeDelay;
+					}
+
+					//only allow for low wind if high wind not active
+					if (highWindTimer <= 0) {
+						if (ConfigWind.Wind_LowWindEvents) {
+							if (rand.nextInt(ConfigWind.lowWindOddsTo1) == 0) {
+								startLowWindEvent();
+								Weather.dbg("low wind event started, for ticks: " + lowWindTimer);
+							}
+						}
+					} else {
+						//fix edge case where if a high wind event is manually started, low wind could still be trying to take control
+						stopLowWindEvent();
+					}
+
+					if (ConfigWind.Wind_HighWindEvents && highWindTimer <= 0) {
+						if (rand.nextInt(ConfigWind.highWindOddsTo1) == 0) {
+							startHighWindEvent();
+							Weather.dbg("high wind event started, for ticks: " + highWindTimer);
+						}
+					}
+				} else {
+					lowWindTimer--;
+					if (lowWindTimer <= 0) {
+						Weather.dbg("low wind event ended");
+					}
+					windSpeedGlobal -= 0.01F;
+				}
+
+				if (highWindTimer > 0) {
+					highWindTimer--;
+					if (highWindTimer <= 0) {
+						Weather.dbg("high wind event ended");
+					}
+				}
+
+				//enforce mins and maxs of wind speed
+				if (windSpeedGlobal < ConfigWind.windSpeedMin)
+				{
+					windSpeedGlobal = (float)ConfigWind.windSpeedMin;
+				}
+
+				if (windSpeedGlobal > ConfigWind.windSpeedMax)
+				{
+					windSpeedGlobal = (float)ConfigWind.windSpeedMax;
+				}
+
+				if (windTimeGust > 0) {
+					windTimeGust--;
+
+					if (windTimeGust == 0) {
+						syncData();
+					}
+				}
+
+				if (ConfigMisc.overcastMode && manager.getWorld().isRaining()) {
+					if (windSpeedGlobal < ConfigWind.windSpeedMinGlobalOvercastRaining) {
+						windSpeedGlobal = (float) ConfigWind.windSpeedMinGlobalOvercastRaining;
+					}
+				}
+
+				if (ConfigLTOverrides.windSpeedOverride) {
+					ServerLevel world = (ServerLevel) manager.getWorld();
+					WeatherController weatherController = WeatherControllerManager.forWorld(world);
+					windSpeedGlobal = weatherController.getWindSpeed();
+				}
+
+				//smooth use
+				/*if (windSpeed > windSpeedSmooth)
+	            {
+					windSpeedSmooth += 0.01F;
+	            }
+	            else if (windSpeed < windSpeedSmooth)
+	            {
+	            	windSpeedSmooth -= 0.01F;
+	            }
+
+	            if (windSpeedSmooth < 0)
+	            {
+	            	windSpeedSmooth = 0F;
+	            }*/
+
+				//WIND SPEED //
+
+				//WIND ANGLE\\
+
+				//windGustEventTimeRand = 100;
+
+				float randGustWindFactor = 1F;
+
+				//gust data
+				if (this.windTimeGust == 0 && lowWindTimer <= 0/* && highWindTimer <= 0*/)
+				{
+					if (chanceOfWindGustEvent > 0F)
+					{
+						if (rand.nextInt((int)((100 - chanceOfWindGustEvent) * randGustWindFactor)) == 0)
+						{
+							windSpeedGust = windSpeedGlobal + rand.nextFloat() * 0.6F;
+							boolean randomDirectionGust = false;
+							if (randomDirectionGust) {
+								windAngleGust = rand.nextInt(360) - 180;
+							} else {
+								windAngleGust = windAngleGlobal + rand.nextInt(120) - 60;
+							}
+
+							setWindTimeGust(rand.nextInt(windGustEventTimeRand));
+							//windEventTime += windTime;
+							//unneeded since priority system determines wind to use
+							//directionBeforeGust = windAngleGlobal;
+						}
+					}
+				}
+
+				//global wind angle
+				//windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
+				windAngleGlobal += (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate) - (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate);
+
+				//windAngleGlobal += 0.1;
+
+				//windAngleGlobal = 0;
+
+				if (windAngleGlobal < -180)
+				{
+					windAngleGlobal += 360;
+				}
+
+				if (windAngleGlobal > 180)
+				{
+					windAngleGlobal -= 360;
+				}
+
+				//WIND ANGLE //
+			} else {
+
+				tickClient();
+			}
+		}
+
+		/*windSpeedGlobal = 0.9F;
+		windAngleGlobal = 270;*/
+
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public void tickClient() {
+		Player entP = Minecraft.getInstance().player;
+
+		if (windTimeEvent > 0) {
+			windTimeEvent--;
+		}
+
+		//event data
+		if (entP != null) {
+			if (manager.getWorld().getGameTime() % 10 == 0) {
+				StormObject so = manager.getClosestStorm(new Vec3(entP.getPosX(), StormObject.layers.get(0), entP.getPosZ()), 256, StormObject.STATE_HIGHWIND);
+
+				if (so != null) {
+
+					windOriginEvent = new BlockPos(so.posGround.x, so.posGround.y, so.posGround.z);
+
+					setWindTimeEvent(80);
+
+					//double stormDist = entP.getDistanceSq(so.posGround.x, so.posGround.y, so.posGround.z);
+
+					//player pos aiming at storm
+					double var11 = so.posGround.x - entP.getPosX();
+					double var15 = so.posGround.z - entP.getPosZ();
+					float yaw = -((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI;
+
+					windAngleEvent = yaw;
+					windSpeedEvent = 2F; //make dynamic?
+
+					//Weather.dbg("!!!!!!!!!!!!!!!!!!!storm event near: " + stormDist);
+				}
+			}
+		}
+	}
+
+	/*public void tick(Level world) {
 		Random rand = new Random();
 
 		FORCE_ON_DEBUG_TESTING = true;
@@ -150,7 +420,7 @@ public class WindManager {
 		if (windAngleGlobal > 180) {
 			windAngleGlobal -= 360;
 		}
-	}
+	}*/
 
 	/**
 	 * 
@@ -254,5 +524,11 @@ public class WindManager {
 		float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
 		float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
 		return new Vec3(windX, 0, windZ);
+	}
+
+	public void syncData() {
+		if (manager instanceof WeatherManagerServer) {
+			((WeatherManagerServer) manager).syncWindUpdate(this);
+		}
 	}
 }

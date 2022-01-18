@@ -32,7 +32,6 @@ import weather2.config.ConfigMisc;
 import weather2.config.ConfigSnow;
 import weather2.config.ConfigStorm;
 import weather2.config.ConfigTornado;
-import weather2.entity.EntityLightningBolt;
 import weather2.player.PlayerData;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManager;
@@ -599,7 +598,7 @@ public class StormObject extends WeatherObject {
 				if (!isCloudlessStorm()) {
 					tickWeatherEvents();
 					tickProgression();
-					tickSnowFall();
+					//tickSnowFall();
 				}
 			} else {
 				//make layer 1 max size for visuals
@@ -765,7 +764,7 @@ public class StormObject extends WeatherObject {
 				if (world.isLoaded(new BlockPos(x, 0, z))) {
 					int y = world.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
-						addWeatherEffectLightning(new EntityLightningBolt(world, (double)x, (double)y, (double)z), false);
+						addWeatherEffectLightning(new LightningBoltWeather(null, world, x, y, z), false);
 					//}
 				}
 			}
@@ -784,7 +783,7 @@ public class StormObject extends WeatherObject {
 					/*EntityIceBall hail = new EntityIceBall(world);
 					hail.setPosition(x, layers.get(layer), z);
 					world.addEntity(hail);*/
-					//world.addWeatherEffect(new EntityLightningBolt(world, (double)x, (double)y, (double)z));
+					//world.addWeatherEffect(new LightningBoltWeather(world, (double)x, (double)y, (double)z));
 					//}
 					
 					//System.out.println("spawned hail: " );
@@ -820,241 +819,6 @@ public class StormObject extends WeatherObject {
 			}
 		}
 	}
-	
-	public void tickSnowFall() {
-		
-		if (!ConfigSnow.Snow_PerformSnowfall) return;
-		
-		if (!isPrecipitating()) return;
-		
-		Level world = manager.getWorld();
-		
-		//CHANGE THIS PART TO ITERATE OVER THE STORM SIZE, NOT ENTIRE ACTIVE CHUNKS!
-		/*Iterator iterator = world.activeChunkSet.iterator();
-        doneChunks.retainAll(world.activeChunkSet);
-        if (doneChunks.size() == world.activeChunkSet.size())
-        {
-            doneChunks.clear();
-        }
-
-        
-
-        while (iterator.hasNext())*/
-		
-		final long startTime = System.nanoTime();
-		
-		int xx = 0;
-		int zz = 0;
-		
-		//Weather.dbg("set size: " + size);
-		
-		//EntityPlayer entP = world.getClosestPlayer(pos.x, pos.y, pos.z, -1);
-		
-		//if (entP != null) {
-		
-			for (xx = (int) (pos.x - size/2); xx < pos.x + size/2; xx+=16) {
-				for (zz = (int) (pos.z - size/2); zz < pos.z + size/2; zz+=16) {
-			/*for (xx = (int) (entP.posX - size/2); xx < entP.posX + size/2; xx+=16) {
-				for (zz = (int) (entP.posZ - size/2); zz < entP.posZ + size/2; zz+=16) {*/
-		        	//ChunkCoordIntPair chunkcoordintpair = (ChunkCoordIntPair)iterator.next();
-					
-					//temp override test
-					/*if (entP != null) {
-						xx = (int) entP.posX;
-						zz = (int) entP.posZ;
-					}*/
-					
-		        	int chunkX = xx / 16;
-		        	int chunkZ = zz / 16;
-		            int x = chunkX * 16;
-		            int z = chunkZ * 16;
-		            //world.theProfiler.startSection("getChunk");
-		            
-		            //afterthought, for weather 2.3.7
-					BlockPos pos = new BlockPos(x, posGround.y, z);
-		            if (!world.isLoaded(pos)) {
-		            	continue;
-		            }
-		            
-		            LevelChunk chunk = world.getChunk(chunkX, chunkZ);
-		            //world.moodSoundAndLightCheck(k, l, chunk);
-		            //world.theProfiler.endStartSection("tickChunk");
-		            //Limits and evenly distributes the lighting tick time
-		            /*if (System.nanoTime() - startTime <= 4000000 && doneChunks.add(chunkcoordintpair))
-		            {
-		                chunk.updateSkylight();
-		            }*/
-		            int i1;
-		            int xxx;
-		            int zzz;
-		            int setBlockHeight;
-		            
-		            int i2;
-
-					if (world.getBiome(pos).shouldSnow(world, pos) && (ConfigSnow.Snow_RarityOfBuildup == 0 || world.random.nextInt(ConfigSnow.Snow_RarityOfBuildup) == 0))
-			        {
-			            updateLCG = updateLCG * 3 + 1013904223;
-			            i1 = updateLCG >> 2;
-			            xxx = i1 & 15;
-			            zzz = i1 >> 8 & 15;
-
-
-
-						float d0 = pos.getX() - (xx + xxx);
-						float d2 = pos.getZ() - (zz + zzz);
-				        if (Mth.sqrt((d0 * d0 + d2 * d2)) > size) continue;
-			            
-			            //j1 = 1;
-			            //k1 = 1;
-			            
-			            int snowMetaMax = 7; //snow loops past 6 for some reason
-			            
-			            //setBlockHeight = world.getPrecipitationHeight(new BlockPos(xxx + x, 0, zzz + z)).getY();
-						setBlockHeight = world.getHeight(Heightmap.Types.MOTION_BLOCKING, xxx + x, zzz + z);
-
-						BlockState blockstate = Blocks.SNOW_BLOCK.defaultBlockState();
-						BlockPos poswat = new BlockPos(xxx + x, setBlockHeight, zzz + z);
-			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && blockstate.isValidSpawn(world, poswat)/*Blocks.SNOW.canPlaceBlockAt(world, new BlockPos(xxx + x, setBlockHeight, zzz + z))*/) {
-			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
-							boolean betterBuildup = true;
-							if (betterBuildup) {
-								WindManager wind = manager.getWindManager();
-								float angle = wind.getWindAngleForClouds();
-
-								Vec3 vecPos = new Vec3(xxx + x, setBlockHeight, zzz + z);
-
-								//int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.x, 0, vecPos.z)).getY();
-								//vecPos.y = y;
-								
-								BlockPos blockPos = new BlockPos(vecPos);
-								BlockState blockState = world.getBlockState(blockPos);
-
-								//avoid unloaded areas
-								if (!world.isLoaded(blockPos)) continue;
-
-								//make sure vanilla style 1 layer of snow everywhere can also happen
-								//but only when we arent in global overcast mode
-								if (!ConfigMisc.overcastMode) {
-
-								    //TODO: consider letting this run outside of ConfigSnow.Snow_PerformSnowfall config option
-									//since our version canSnowAtBody returns true for existing snow layers, we need to check we have air here for basic 1 layer place
-									if (CoroUtilBlock.isAir(blockState.getBlock())) {
-										world.setBlock(blockPos, Blocks.SNOW.defaultBlockState(), 3);
-									}
-								}
-
-								//do wind/wall based snowfall
-								//TODO: 1.14 uncomment
-								//WeatherUtilBlock.fillAgainstWallSmoothly(world, vecPos, angle/* + angleRand*/, 15, 2, Blocks.SNOW);
-							} else {
-
-							}
-			            }
-			        }
-				}
-			}
-			
-		//}
-	}
-	
-	//questionably efficient code, but really there isnt much better options
-	public ChunkCoordinatesBlock getSnowfallEvenOutAdjustCheck(int x, int y, int z, int sourceMeta) {
-		//filter out diagonals
-		ChunkCoordinatesBlock attempt;
-		attempt = getSnowfallEvenOutAdjust(x-1, y, z, sourceMeta);
-		if (attempt.getX() != 0 || attempt.getZ() != 0) return attempt;
-		attempt = getSnowfallEvenOutAdjust(x+1, y, z, sourceMeta);
-		if (attempt.getX() != 0 || attempt.getZ() != 0) return attempt;
-		attempt = getSnowfallEvenOutAdjust(x, y, z-1, sourceMeta);
-		if (attempt.getX() != 0 || attempt.getZ() != 0) return attempt;
-		attempt = getSnowfallEvenOutAdjust(x, y, z+1, sourceMeta);
-		if (attempt.getX() != 0 || attempt.getZ() != 0) return attempt;
-		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR);
-	}
-	
-	//return relative values, id 0 (to mark its ok to start snow here) or id snow (to mark check meta), and meta of detected snow if snow (dont increment it, thats handled after this)
-	public ChunkCoordinatesBlock getSnowfallEvenOutAdjust(int x, int y, int z, int sourceMeta) {
-		
-		//only check down once, if air, check down one more time, if THAT is air, we dont allow spread out, because we dont want to loop all the way down to bottom of some cliff
-		//could use getHeight but then we'd have to difference check the height and that might complicate things...
-		
-		int metaToSet = 0;
-		
-		Level world = manager.getWorld();
-		Block checkID = world.getBlockState(new BlockPos(x, y, z)).getBlock();
-		//check for starting with no snow
-		if (CoroUtilBlock.isAir(checkID)) {
-			Block checkID2 = world.getBlockState(new BlockPos(x, y-1, z)).getBlock();
-			//make sure somethings underneath it - we shouldnt need to check deeper because we spread out while meta of snow is halfway, before it can start a second pile
-			if (CoroUtilBlock.isAir(checkID2)) {
-				//Weather.dbg("1");
-				return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR);
-			} else {
-				//Weather.dbg("2");
-				//return that its an open area to start snow at
-				return new ChunkCoordinatesBlock(x, y, z, Blocks.AIR);
-			}
-		} else if (checkID == Blocks.SNOW) {
-			BlockState state = world.getBlockState(new BlockPos(x, y, z));
-			int checkHeight = state.get(SnowBlock.LAYERS);
-			//if detected snow is shorter, return with detected meta val!
-			//adjusting to <=
-			if (checkHeight < sourceMeta) {
-				//Weather.dbg("3 - checkMeta: " + checkMeta + " vs sourceMeta: " + sourceMeta);
-				return new ChunkCoordinatesBlock(x, y, z, checkID);
-			}
-		} else {
-			return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR);
-		}
-		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.AIR);
-	}
-	
-	public boolean canSnowAtBody(int par1, int par2, int par3)
-    {
-		Level world = manager.getWorld();
-		
-		Biome biomegenbase = world.getBiome(new BlockPos(par1, 0, par3));
-
-		BlockPos pos = new BlockPos(par1, par2, par3);
-        
-        if (biomegenbase == null) return false;
-
-        //float f = biomegenbase.getFloatTemperature(pos);
-
-        float temperature = CoroUtilCompatibility.getAdjustedTemperature(world, biomegenbase, pos);
-
-        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && temperature > 0.15F))
-        {
-            return false;
-        }
-        else
-        {
-            if (par2 >= 0 && par2 < 256 && world.getLightFor(LightType.BLOCK, pos) < 10)
-            {
-                /*Block l = world.getBlockState(new BlockPos(par1, par2 - 1, par3)).getBlock();
-                Block i1 = world.getBlockState(new BlockPos(par1, par2, par3)).getBlock();
-
-                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.SNOW_LAYER)*//* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*//* && CoroUtilBlock.isAir(l) && l != Blocks.ICE && l.getMaterial(l.getDefaultState()).blocksMovement())
-                {
-                    return true;
-                }*/
-				BlockState iblockstate1 = world.getBlockState(pos);
-
-				//TODO: incoming new way to detect if blocks can be snowed on https://github.com/MinecraftForge/MinecraftForge/pull/4569/files
-				//might not require any extra work from me?
-
-				BlockState blockstate = Blocks.SNOW_BLOCK.getDefaultState();
-
-				if ((iblockstate1.getBlock().isAir(iblockstate1, world, pos) || iblockstate1.getBlock() == Blocks.SNOW) && blockstate.isValidPosition(world, pos)/*Blocks.SNOW.canPlaceBlockAt(world, pos)*/)
-				{
-					return true;
-				}
-            }
-
-            return false;
-        }
-    }
 	
 	public void tickProgression() {
 		Level world = manager.getWorld();
@@ -1102,8 +866,8 @@ public class StormObject extends WeatherObject {
 			
 			//temperature scan
 			if (bgb != null) {
-				
-				isInOcean = bgb.getCategory().getName().toLowerCase().contains("ocean");
+
+				isInOcean = bgb.getRegistryName().toString().toLowerCase().contains("ocean");
 				
 				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
@@ -1127,10 +891,10 @@ public class StormObject extends WeatherObject {
 				performBuildup = true;
 			}
 			
-			Block blockID = world.getBlockState(new BlockPos(Mth.floor(pos.x), currentTopYBlock-1, Mth.floor(pos.z))).getBlock();
-			if (!CoroUtilBlock.isAir(blockID)) {
+			BlockState state = world.getBlockState(new BlockPos(Mth.floor(pos.x), currentTopYBlock-1, Mth.floor(pos.z)));
+			if (!CoroUtilBlock.isAir(state.getBlock())) {
 				//Block block = Block.blocksList[blockID];
-				if (blockID.getMaterial(blockID.getDefaultState()) == Material.WATER) {
+				if (state.getMaterial() == Material.WATER) {
 					isOverWater = true;
 				}
 			}
@@ -1141,7 +905,7 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 
-				String biomecat = bgb.getCategory().getName();
+				String biomecat = bgb.getRegistryName().toString();
 
 				if (!performBuildup && bgb != null && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
 					performBuildup = true;
@@ -1189,7 +953,7 @@ public class StormObject extends WeatherObject {
 			
 			//actual storm formation chance
 			
-			WeatherManagerServer wm = ServerTickHandler.lookupDimToWeatherMan.get(world.getDimension().getType().getId());
+			WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(world.dimension());
 			
 			boolean tryFormStorm = false;
 			
@@ -2538,7 +2302,7 @@ public class StormObject extends WeatherObject {
 		return parOrigVal;
 	}
 	
-	public void addWeatherEffectLightning(EntityLightningBolt parEnt, boolean custom) {
+	public void addWeatherEffectLightning(LightningBoltWeather parEnt, boolean custom) {
 		//manager.getWorld().addWeatherEffect(parEnt);
 		/**
 		 * TODO: 1.14 fix lightning

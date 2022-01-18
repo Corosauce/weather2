@@ -7,8 +7,6 @@ import java.util.Arrays;
 import com.corosus.modconfig.ConfigComment;
 import com.corosus.modconfig.IConfigCategory;
 import weather2.Weather;
-import weather2.util.WeatherUtil;
-import weather2.util.WeatherUtilConfig;
 import weather2.weathersystem.storm.StormObject;
 
 
