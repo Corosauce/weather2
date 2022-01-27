@@ -64,14 +64,14 @@ public class ParticleRegistry {
 		/**
 		 * avoid stitching to all maps
 		 *
-		 * event.getMap().getBasePath():
+		 * event.getAtlas().getBasePath():
 		 * textures
 		 * textures/particle
 		 * textures/painting
 		 * textures/mob_effect
 		 *
 		 */
-		if (!event.getMap().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
+		if (!event.getAtlas().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
 			return;
 		}
 
@@ -129,54 +129,54 @@ public class ParticleRegistry {
 	@OnlyIn(Dist.CLIENT)
 	public static void getRegisteredParticles(TextureStitchEvent.Post event) {
 
-		if (!event.getMap().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
+		if (!event.getAtlas().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
 			return;
 		}
 
-		squareGrey = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white"));
-		smoke = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_00"));
+		squareGrey = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white"));
+		smoke = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_00"));
 		//smokeTest = event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_2"));
 		//cloud = event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud64"));
-		cloud256 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256"));
-		cloud256_fire = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_fire"));
-		cloud256_test = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_test"));
-		//cloud256_2 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_5"));
+		cloud256 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256"));
+		cloud256_fire = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_fire"));
+		cloud256_test = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_test"));
+		//cloud256_2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_5"));
 		//ground splash
-		cloud256_6 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_6"));
-		//cloud256_7 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_7"));
-		//downfall2 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall2"));
-		downfall3 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall3"));
-		//downfall4 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall4"));
-		chicken = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/chicken"));
-		potato = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/potato"));
-		leaf = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/leaf"));
-		//rain = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain"));
-		test_texture = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/test_texture"));
-		white_square = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white_square"));
-		rain_white = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white"));
-		//rain_white_trans = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_trans"));
-		//rain_white_2 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_2"));
-		//rain_10 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_10"));
-		//rain_vanilla = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/rain"));
-		//snow_vanilla = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/snow"));
-		snow = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/snow"));
-		//cloud256dark = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256dark"));
-		//cloudDownfall = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall"));
-		tumbleweed = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/tumbleweed"));
-		debris_1 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/debris_1"));
-		debris_2 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/debris_2"));
-		debris_3 = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/debris_3"));
+		cloud256_6 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_6"));
+		//cloud256_7 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_7"));
+		//downfall2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall2"));
+		downfall3 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall3"));
+		//downfall4 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall4"));
+		chicken = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/chicken"));
+		potato = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/potato"));
+		leaf = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/leaf"));
+		//rain = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain"));
+		test_texture = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/test_texture"));
+		white_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white_square"));
+		rain_white = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white"));
+		//rain_white_trans = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_trans"));
+		//rain_white_2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_2"));
+		//rain_10 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_10"));
+		//rain_vanilla = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/rain"));
+		//snow_vanilla = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/snow"));
+		snow = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/snow"));
+		//cloud256dark = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256dark"));
+		//cloudDownfall = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall"));
+		tumbleweed = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/tumbleweed"));
+		debris_1 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/debris_1"));
+		debris_2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/debris_2"));
+		debris_3 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/debris_3"));
 		/*for (int i = 1; i <= 9; i++) {
-			listFish.add(event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/fish_" + i)));
+			listFish.add(event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/fish_" + i)));
 		}
 		for (int i = 1; i <= 7; i++) {
-			listSeaweed.add(event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/seaweed_section_" + i)));
+			listSeaweed.add(event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/seaweed_section_" + i)));
 		}*/
 		//used indirectly not via reference
-		grass = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/grass"));
-		hail = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/hail"));
-		cloudNew = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
-		cloud_square = event.getMap().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
+		grass = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/grass"));
+		hail = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/hail"));
+		cloudNew = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
+		cloud_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
 
 		//TODO: 1.14 uncomment
 		/*if (RotatingParticleManager.useShaders) {
@@ -187,6 +187,6 @@ public class ParticleRegistry {
 
 	/*public static TextureAtlasSprite addSprite(TextureStitchEvent.Pre event, ResourceLocation resourceLocation) {
 		event.addSprite(resourceLocation);
-		return event.getMap().getSprite(resourceLocation);
+		return event.getAtlas().getSprite(resourceLocation);
 	}*/
 }

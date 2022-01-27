@@ -4,11 +4,15 @@ import com.corosus.coroutil.util.CoroUtilPhysics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FileUtils;
+import weather2.IWorldData;
 import weather2.ServerTickHandler;
 import weather2.Weather;
+import weather2.WorldNBTData;
 import weather2.config.ConfigStorm;
 import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
@@ -21,7 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.*;
 
-public abstract class WeatherManager {
+public abstract class WeatherManager implements IWorldData {
 	public final ResourceKey<Level> dimension;
 	public final WindManager wind = new WindManager(this);
 	private List<WeatherObject> listStormObjects = new ArrayList<>();
@@ -187,7 +191,7 @@ public abstract class WeatherManager {
 			}
 		} else {
 			Weather.dbg("Weather2 WARNING!!! Received new storm create for an ID that is already active! design bug or edgecase with PlayerEvent.Clone, ID: " + so.ID);
-			Weather.dbgStackTrace();
+			//Weather.dbgStackTrace();
 
 		}
 	}
@@ -278,7 +282,7 @@ public abstract class WeatherManager {
 	}
 
 	public boolean isPrecipitatingAt(BlockPos pos) {
-		return isPrecipitatingAt(new Vec3(pos));
+		return isPrecipitatingAt(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
 	}
 
 	/**
@@ -347,53 +351,6 @@ public abstract class WeatherManager {
 		return closestStorm;
 	}
 
-	/**
-	 * Gets the most intense sandstorm, used for effects and sounds
-	 *
-	 * @param parPos
-	 * @return
-	 */
-	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos/*, double maxDist*/) {
-
-		WeatherObjectSandstorm bestStorm = null;
-		double closestDist = 9999999;
-		double mostIntense = 0;
-
-		List<WeatherObject> listStorms = getStormObjects();
-
-		for (int i = 0; i < listStorms.size(); i++) {
-			WeatherObject wo = listStorms.get(i);
-			if (wo instanceof WeatherObjectSandstorm) {
-				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
-				if (sandstorm == null || sandstorm.isDead) continue;
-
-				List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
-
-				double scale = sandstorm.getSandstormScale();
-				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, field_75884_a);
-				double dist = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
-				//if best is within storm, compare intensity
-				if (inStorm) {
-					//System.out.println("in storm");
-					closestDist = 0;
-					if (scale > mostIntense) {
-						mostIntense = scale;
-						bestStorm = sandstorm;
-					}
-					//if best is not within storm, compare distance to shape
-				} else if (closestDist > 0/* && dist < maxDist*/) {
-					if (dist < closestDist) {
-						closestDist = dist;
-						bestStorm = sandstorm;
-					}
-				}
-			}
-
-		}
-
-		return bestStorm;
-	}
-
 	public List<WeatherObject> getSandstormsAround(Vec3 parPos, double maxDist) {
 		List<WeatherObject> storms = new ArrayList<>();
 
@@ -460,17 +417,10 @@ public abstract class WeatherManager {
 		return storms;
 	}
 
-	public void writeToFile() {
-		CompoundTag mainNBT = new CompoundTag();
-		/*CompoundTag listVolcanoesNBT = new CompoundTag();
-		for (int i = 0; i < listVolcanoes.size(); i++) {
-			VolcanoObject td = listVolcanoes.get(i);
-			CompoundTag teamNBT = new CompoundTag();
-			td.write(teamNBT);
-			listVolcanoesNBT.put("volcano_" + td.ID, teamNBT);
-		}
-		mainNBT.put("volcanoData", listVolcanoesNBT);
-		mainNBT.putLong("lastUsedIDVolcano", VolcanoObject.lastUsedID);*/
+	@Override
+	public CompoundTag save(CompoundTag data) {
+
+		System.out.println("WeatherManager save");
 
 		CompoundTag listStormsNBT = new CompoundTag();
 		for (int i = 0; i < listStormObjects.size(); i++) {
@@ -480,103 +430,58 @@ public abstract class WeatherManager {
 			obj.getNbtCache().setUpdateForced(false);
 			listStormsNBT.put("storm_" + obj.ID, obj.getNbtCache().getNewNBT());
 		}
-		mainNBT.put("stormData", listStormsNBT);
-		mainNBT.putLong("lastUsedIDStorm", WeatherObject.lastUsedStormID);
+		data.put("stormData", listStormsNBT);
+		data.putLong("lastUsedIDStorm", WeatherObject.lastUsedStormID);
 
-		mainNBT.putLong("lastStormFormed", lastStormFormed);
+		data.putLong("lastStormFormed", lastStormFormed);
 
-		mainNBT.putLong("lastSandstormFormed", lastSandstormFormed);
+		data.putLong("lastSandstormFormed", lastSandstormFormed);
 
-		mainNBT.putFloat("cloudIntensity", this.cloudIntensity);
+		data.putFloat("cloudIntensity", this.cloudIntensity);
 
-		mainNBT.put("windMan", wind.write(new CompoundTag()));
-
-		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
-
-		try {
-			//Write out to file
-			if (!(new File(saveFolder).exists())) (new File(saveFolder)).mkdirs();
-			FileOutputStream fos = new FileOutputStream(saveFolder + "WeatherData_" + dimension + ".dat");
-			CompressedStreamTools.writeCompressed(mainNBT, fos);
-			fos.close();
-		} catch (Exception ex) { ex.printStackTrace(); }
+		data.put("windMan", wind.write(new CompoundTag()));
+		return data;
 	}
 
-	public void readFromFile() {
+	public void read() {
 
-		CompoundTag rtsNBT = new CompoundTag();
+		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + ":" + "weather_data");
+		worldNBTData.setDataHandler(this);
 
-		String saveFolder = CoroUtilFile.getWorldSaveFolderPath() + CoroUtilFile.getWorldFolderName() + "weather2" + File.separator;
+		System.out.println("weather data: " + worldNBTData.getData());
 
-		boolean readFail = false;
+		CompoundTag data = worldNBTData.getData();
 
-		try {
-			if ((new File(saveFolder + "WeatherData_" + dimension + ".dat")).exists()) {
-				rtsNBT = CompressedStreamTools.readCompressed(new FileInputStream(saveFolder + "WeatherData_" + dimension + ".dat"));
-			} else {
-				//readFail = true; - first run, no point
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			readFail = true;
-		}
-
-		//If reading file was ok, make a backup and shift names for second backup
-		if (!readFail) {
-			try {
-				File tmp = (new File(saveFolder + "WeatherData_" + dimension + "_BACKUP0.dat"));
-				if (tmp.exists()) FileUtils.copyFile(tmp, (new File(saveFolder + "WeatherData_" + dimension + "_BACKUP1.dat")));
-				if ((new File(saveFolder + "WeatherData_" + dimension + ".dat").exists())) FileUtils.copyFile((new File(saveFolder + "WeatherData_" + dimension + ".dat")), (new File(saveFolder + "WeatherData_" + dimension + "_BACKUP0.dat")));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-
-		} else {
-			System.out.println("WARNING! Weather2 File: WeatherData.dat failed to load, automatically restoring to backup from previous game run");
-			try {
-				//auto restore from most recent backup
-				if ((new File(saveFolder + "WeatherData_" + dimension + "_BACKUP0.dat")).exists()) {
-					rtsNBT = CompressedStreamTools.readCompressed(new FileInputStream(saveFolder + "WeatherData_" + dimension + "_BACKUP0.dat"));
-				} else {
-					System.out.println("WARNING! Failed to find backup file WeatherData_BACKUP0.dat, nothing loaded");
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				System.out.println("WARNING! Error loading backup file WeatherData_BACKUP0.dat, nothing loaded");
-			}
-		}
-
-		lastStormFormed = rtsNBT.getLong("lastStormFormed");
-		lastSandstormFormed = rtsNBT.getLong("lastSandstormFormed");
+		lastStormFormed = data.getLong("lastStormFormed");
+		lastSandstormFormed = data.getLong("lastSandstormFormed");
 
 		//prevent setting to 0 for worlds updating to new weather version
-		if (rtsNBT.contains("cloudIntensity")) {
-			cloudIntensity = rtsNBT.getFloat("cloudIntensity");
+		if (data.contains("cloudIntensity")) {
+			cloudIntensity = data.getFloat("cloudIntensity");
 		}
 
-		/*VolcanoObject.lastUsedID = rtsNBT.getLong("lastUsedIDVolcano");*/
-		WeatherObject.lastUsedStormID = rtsNBT.getLong("lastUsedIDStorm");
+		WeatherObject.lastUsedStormID = data.getLong("lastUsedIDStorm");
 
-		wind.read(rtsNBT.getCompound("windMan"));
+		wind.read(data.getCompound("windMan"));
 
-		CompoundTag nbtStorms = rtsNBT.getCompound("stormData");
+		CompoundTag nbtStorms = data.getCompound("stormData");
 
-		Iterator it = nbtStorms.keySet().iterator();
+		Iterator it = nbtStorms.getAllKeys().iterator();
 
 		while (it.hasNext()) {
 			String tagName = (String) it.next();
-			CompoundTag data = nbtStorms.getCompound(tagName);
+			CompoundTag stormData = nbtStorms.getCompound(tagName);
 
-			if (ServerTickHandler.getWeatherManagerFor(dimension) != null) {
+			//if (ServerTickHandler.getWeatherManagerFor(dimension) != null) {
 				WeatherObject wo = null;
-				if (data.getInt("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
-					wo = new StormObject(this/*-1, -1, null*/);
-				} else if (data.getInt("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
+				if (stormData.getInt("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
+					wo = new StormObject(this);
+				} else if (stormData.getInt("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
 					wo = new WeatherObjectSandstorm(this);
 					//initStormNew???
 				}
 				try {
-					wo.getNbtCache().setNewNBT(data);
+					wo.getNbtCache().setNewNBT(stormData);
 					wo.read();
 					wo.getNbtCache().updateCacheFromNew();
 				} catch (Exception ex) {
@@ -586,21 +491,16 @@ public abstract class WeatherManager {
 
 				//TODO: possibly unneeded/redundant/bug inducing, packets will be sent upon request from client
 				((WeatherManagerServer)(this)).syncStormNew(wo);
-			} else {
+			/*} else {
 				System.out.println("WARNING: trying to load storm objects for missing dimension: " + dimension);
-			}
-
-			//listVolcanoes.add(to);
-			//lookupVolcanoes.put(to.ID, to);
-
-			//to.initPost();
+			}*/
 		}
 
-
+		System.out.println("reloaded weather objects: " + listStormObjects.size());
 	}
 
 	public WindManager getWindManager() {
-		return this.windMan;
+		return this.wind;
 	}
 
 	public HashSet<Long> getListWeatherBlockDamageDeflector() {

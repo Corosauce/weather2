@@ -4,12 +4,14 @@ import com.corosus.coroutil.util.CoroUtilCompatibility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.TallGrassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
@@ -89,7 +91,8 @@ public class WeatherUtil {
             {
                 try {
 
-                    if (!ConfigTornado.Storm_Tornado_GrabListBlacklistMode)
+                    //TODO: 1.18
+                    /*if (!ConfigTornado.Storm_Tornado_GrabListBlacklistMode)
                     {
                         if (!((Boolean)blockIDToUseMapping.get(block)).booleanValue()) {
                             result = false;
@@ -100,7 +103,7 @@ public class WeatherUtil {
                         if (((Boolean)blockIDToUseMapping.get(block)).booleanValue()) {
                             result = false;
                         }
-                    }
+                    }*/
                 } catch (Exception e) {
                     //sometimes NPEs, just assume false if so
                     result = false;
@@ -118,7 +121,8 @@ public class WeatherUtil {
                         return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
-                        float strVsBlock = block.getBlockHardness(block.defaultBlockState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.defaultBlockState()) - 1) / 4F));
+                        //float strVsBlock = block.getBlockHardness(block.defaultBlockState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.defaultBlockState()) - 1) / 4F));
+                        float strVsBlock = state.getDestroySpeed(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getDestroySpeed(block.defaultBlockState()) - 1) / 4F));
 
                         //System.out.println(strVsBlock);
                         if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||
@@ -126,12 +130,12 @@ public class WeatherUtil {
                                 state.getMaterial() == Material.WOOL ||
                                 state.getMaterial() == Material.PLANT ||/*
                                 state.getMaterial() == Material.VINE ||*/
-                                block instanceof BlockTallGrass)
+                                block instanceof TallGrassBlock)
                         {
     	                    /*if (block.blockMaterial == Material.water) {
     	                    	return false;
     	                    }*/
-                            if (!safetyCheck(block))
+                            if (!safetyCheck(state))
                             {
                                 result = false;
                             }
@@ -144,18 +148,19 @@ public class WeatherUtil {
                 }
 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                    if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || block instanceof BlockLog/* || block.blockMaterial == Material.wood*/) {
+                    if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
                         result = false;
                     }
-                    if (!CoroUtilCompatibility.canTornadoGrabBlockRefinedRules(state)) {
+                    if (!canTornadoGrabBlockRefinedRules(state)) {
                         result = false;
                     }
                 }
             }
 
-            if (block == CommonProxy.blockWeatherMachine) {
+            //TODO: 1.18
+            /*if (block == CommonProxy.blockWeatherMachine) {
                 result = false;
-            }
+            }*/
 
             return result;
         }
@@ -169,7 +174,7 @@ public class WeatherUtil {
     public static boolean safetyCheck(BlockState state)
     {
         Block id = state.getBlock();
-        if (id != Blocks.BEDROCK && id != Blocks.LOG && id != Blocks.CHEST && id != Blocks.JUKEBOX/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
+        if (id != Blocks.BEDROCK && id != Blocks.ACACIA_LOG && id != Blocks.CHEST && id != Blocks.JUKEBOX/* && id != Block.waterMoving.blockID && id != Block.waterStill.blockID */)
         {
             return true;
         }
@@ -181,6 +186,16 @@ public class WeatherUtil {
 
     public static ServerLevel getWorld(ResourceKey<Level> levelResourceKey) {
         return ServerLifecycleHooks.getCurrentServer().getLevel(levelResourceKey);
+    }
+
+    public static boolean canTornadoGrabBlockRefinedRules(BlockState state) {
+        ResourceLocation registeredName = state.getBlock().getRegistryName();
+        if (registeredName.getNamespace().equals("dynamictrees")) {
+            if (registeredName.getPath().contains("rooty") || registeredName.getPath().contains("branch")) {
+                return false;
+            }
+        }
+        return true;
     }
     
 }

@@ -135,7 +135,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 */
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
 		//TODO: make sure new comparison works
-		return biome.equals(Biomes.DESERT) || biome.equals(Biomes.DESERT_HILLS) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getBiomeCategory().getName().toLowerCase().contains("desert");
+		return biome.equals(Biomes.DESERT)/* || biome.equals(Biomes.DESERT_HILLS)*/ || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getBiomeCategory().getName().toLowerCase().contains("desert");
 		//return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.getCategory().getName().toLowerCase().contains("desert");
 	}
 	

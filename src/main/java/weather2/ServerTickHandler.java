@@ -24,7 +24,9 @@ public class ServerTickHandler {
 		if (!world.isClientSide() && world instanceof ServerLevel) {
 			ServerLevel serverWorld = (ServerLevel) world;
 			ResourceKey<Level> dimension = serverWorld.dimension();
-			MANAGERS.put(dimension, new WeatherManagerServer(serverWorld));
+			WeatherManagerServer weatherManagerServer = new WeatherManagerServer(serverWorld);
+			weatherManagerServer.read();
+			MANAGERS.put(dimension, weatherManagerServer);
 		}
 	}
 

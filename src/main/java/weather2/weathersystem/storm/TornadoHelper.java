@@ -31,6 +31,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.world.BlockEvent;
 import weather2.ClientTickHandler;
+import weather2.config.ClientConfigData;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
 import weather2.config.ConfigTornado;
@@ -77,8 +78,8 @@ public class TornadoHelper {
 	public long isBlockGrabbingBlockedCached_LastCheck = 0;
 
 	//static because its a shared list for the whole dimension
-	public static HashMap<Integer, Long> flyingBlock_LastQueryTime = new HashMap<>();
-	public static HashMap<Integer, Integer> flyingBlock_LastCount = new HashMap<>();
+	//public static HashMap<Integer, Long> flyingBlock_LastQueryTime = new HashMap<>();
+	//public static HashMap<Integer, Integer> flyingBlock_LastCount = new HashMap<>();
 
 	public static GameProfile fakePlayerProfile = null;
     
@@ -257,7 +258,9 @@ public class TornadoHelper {
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
 			//TODO: 1.18: getDepth formally base height, seems entirely gone now
-        	if (bgb != null && (bgb.getDepth()/* + bgb.getScale()*/ <= 0.7 || storm.isFirenado)) {
+			double depth = 0;
+			//depth = bgb.getDepth();
+        	if (bgb != null && (depth/* + bgb.getScale()*/ <= 0.7 || storm.isFirenado)) {
         		
 	            for (int i = yStart; i < yEnd; i += yInc)
 	            {
@@ -504,7 +507,7 @@ public class TornadoHelper {
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))) {
 
-        	int blockCount = getBlockCountForDim(parWorld);
+        	int blockCount = 0;//getBlockCountForDim(parWorld);
 
 			//old per storm blockCount seems glitched... lets use a global we cache count of
             if (parWorld.isLoaded(new BlockPos(storm.pos.x, 128, storm.pos.z)) &&
@@ -626,7 +629,7 @@ public class TornadoHelper {
 	@OnlyIn(Dist.CLIENT)
 	public boolean canGrabEntityClient(Entity ent) {
 		ClientConfigData clientConfig = ClientTickHandler.clientConfigData;
-		if (ent instanceof PlayerEntity) {
+		if (ent instanceof Player) {
 			if (clientConfig.Storm_Tornado_grabPlayer) {
 				return true;
 			} else {
@@ -636,16 +639,16 @@ public class TornadoHelper {
 			if (clientConfig.Storm_Tornado_grabPlayersOnly) {
 				return false;
 			}
-			if (ent instanceof INPC) {
+			if (ent instanceof Npc) {
 				return clientConfig.Storm_Tornado_grabVillagers;
 			}
 			if (ent instanceof ItemEntity) {
 				return clientConfig.Storm_Tornado_grabItems;
 			}
-			if (ent instanceof IMob) {
+			if (ent instanceof Enemy) {
 				return clientConfig.Storm_Tornado_grabMobs;
 			}
-			if (ent instanceof AnimalEntity) {
+			if (ent instanceof Animal) {
 				return clientConfig.Storm_Tornado_grabAnimals;
 			}
 		}
@@ -823,50 +826,6 @@ public class TornadoHelper {
 
         return false;
     }
-
-	/**
-	 * Will abort out of counting if it hits the min amount required as per config
-	 *
-	 * @param world
-	 * @return
-	 */
-	public static int getBlockCountForDim(Level world) {
-    	int queryRate = 20;
-    	boolean perform = false;
-		int flyingBlockCount = 0;
-    	int dimID = world.getDimension().getType().getId();
-    	if (!flyingBlock_LastCount.containsKey(dimID) || !flyingBlock_LastQueryTime.containsKey(dimID)) {
-			//System.out.println("perform for missing");
-			perform = true;
-		} else if (flyingBlock_LastQueryTime.get(dimID) + queryRate < world.getGameTime()) {
-			//System.out.println("perform for time");
-			perform = true;
-		}
-
-		if (perform) {
-
-			//Weather.dbg("getting moving block count");
-
-			//TODO: 1.14 uncomment
-			/*List<Entity> field_76702_h = world.loadedEntityList;
-    		for (int i = 0; i < field_76702_h.size(); i++) {
-    			Entity ent = field_76702_h.get(i);
-				if (ent instanceof EntityMovingBlock) {
-					flyingBlockCount++;
-
-					if (flyingBlockCount > ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks) {
-						break;
-					}
-					//save time if we already hit the max
-				}
-			}*/
-
-			flyingBlock_LastQueryTime.put(dimID, world.getGameTime());
-    		flyingBlock_LastCount.put(dimID, flyingBlockCount);
-		}
-
-		return flyingBlock_LastCount.get(dimID);
-	}
 
 	public boolean isBlockGrabbingBlocked(Level world, BlockState state, BlockPos pos) {
 		int queryRate = 40;

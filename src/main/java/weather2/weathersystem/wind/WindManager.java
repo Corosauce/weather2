@@ -135,6 +135,12 @@ public class WindManager {
 		windTimeGust = time;
 	}
 
+	public void setWindTimeEvent(int parVal) {
+		windTimeEvent = parVal;
+		//syncData(); - might be too often
+		//Weather.dbg("Wind event time set: " + parVal);
+	}
+
 	public void tick() {
 
 		Random rand = new Random();
@@ -329,7 +335,7 @@ public class WindManager {
 		//event data
 		if (entP != null) {
 			if (manager.getWorld().getGameTime() % 10 == 0) {
-				StormObject so = manager.getClosestStorm(new Vec3(entP.getPosX(), StormObject.layers.get(0), entP.getPosZ()), 256, StormObject.STATE_HIGHWIND);
+				StormObject so = manager.getClosestStorm(new Vec3(entP.getX(), StormObject.layers.get(0), entP.getZ()), 256, StormObject.STATE_HIGHWIND);
 
 				if (so != null) {
 
@@ -340,8 +346,8 @@ public class WindManager {
 					//double stormDist = entP.getDistanceSq(so.posGround.x, so.posGround.y, so.posGround.z);
 
 					//player pos aiming at storm
-					double var11 = so.posGround.x - entP.getPosX();
-					double var15 = so.posGround.z - entP.getPosZ();
+					double var11 = so.posGround.x - entP.getX();
+					double var15 = so.posGround.z - entP.getZ();
 					float yaw = -((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI;
 
 					windAngleEvent = yaw;
@@ -531,4 +537,47 @@ public class WindManager {
 			((WeatherManagerServer) manager).syncWindUpdate(this);
 		}
 	}
+
+	public void reset() {
+		manager = null;
+	}
+
+	public void read(CompoundTag data) {
+		windSpeedGlobal = data.getFloat("windSpeedGlobal");
+		windAngleGlobal = data.getFloat("windAngleGlobal");
+
+		windSpeedGust = data.getFloat("windSpeedGust");
+		windAngleGust = data.getFloat("windAngleGust");
+		windTimeGust = data.getInt("windTimeGust");
+
+		windSpeedEvent = data.getFloat("windSpeedEvent");
+		windAngleEvent = data.getFloat("windAngleEvent");
+		windTimeEvent = data.getInt("windTimeEvent");
+
+		lowWindTimer = data.getInt("lowWindTimer");
+		highWindTimer = data.getInt("highWindTimer");
+
+	}
+
+	public CompoundTag write(CompoundTag data) {
+		data.putFloat("windSpeedGlobal", windSpeedGlobal);
+		data.putFloat("windAngleGlobal", windAngleGlobal);
+
+		data.putFloat("windSpeedGust", windSpeedGust);
+		data.putFloat("windAngleGust", windAngleGust);
+		data.putInt("windTimeGust", windTimeGust);
+
+		data.putFloat("windSpeedEvent", windSpeedEvent);
+		data.putFloat("windAngleEvent", windAngleEvent);
+		data.putInt("windTimeEvent", windTimeEvent);
+
+		data.putInt("lowWindTimer", lowWindTimer);
+		data.putInt("highWindTimer", highWindTimer);
+
+
+
+
+		return data;
+	}
+
 }

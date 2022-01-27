@@ -42,9 +42,11 @@ import weather2.Weather;
 import weather2.client.entity.particle.ParticleHail;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigSand;
+import weather2.config.ConfigStorm;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
+import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.wind.WindManager;
 
@@ -65,6 +67,12 @@ public class SceneEnhancer implements Runnable {
     public static int lastTickFoundBlocks;
     public static long lastTickAmbient;
     public static long lastTickAmbientThreaded;
+
+	public static float curPrecipStr = 0F;
+	public static float curPrecipStrTarget = 0F;
+
+	public static float curOvercastStr = 0F;
+	public static float curOvercastStrTarget = 0F;
 
     public static ArrayList<ChunkCoordinatesBlock> soundLocations = new ArrayList<>();
     public static HashMap<ChunkCoordinatesBlock, Long> soundTimeLocations = new HashMap<>();
@@ -402,7 +410,8 @@ public class SceneEnhancer implements Runnable {
 
 		ClientWeather weather = ClientWeather.get();
 
-		float curPrecipVal = weather.getRainAmount();
+		//float curPrecipVal = weather.getRainAmount();
+		float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 		float maxPrecip = 0.5F;
 
 			/*if (entP.world.getGameTime() % 20 == 0) {
@@ -1579,5 +1588,156 @@ public class SceneEnhancer implements Runnable {
 
 	public static float getParticleFadeInLerpForNewWeatherState() {
     	return (float)particleRateLerp / (float)particleRateLerpMax;
+	}
+
+	public static float getRainStrengthAndControlVisuals(Player entP) {
+		return getRainStrengthAndControlVisuals(entP, false);
+	}
+
+	/**
+	 * Returns value between -1 to 1
+	 * -1 is full on snow
+	 * 1 is full on rain
+	 * 0 is no precipitation
+	 *
+	 * also controls the client side raining and thundering values for vanilla
+	 *
+	 * @param entP
+	 * @param forOvercast
+	 * @return
+	 */
+	public static float getRainStrengthAndControlVisuals(Player entP, boolean forOvercast) {
+
+		Minecraft mc = Minecraft.getInstance();
+
+		double maxStormDist = 512 / 4 * 3;
+		Vec3 plPos = new Vec3(entP.getX(), StormObject.static_YPos_layer0, entP.getZ());
+		StormObject storm = null;
+
+		ClientTickHandler.checkClientWeather();
+
+		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
+
+		if (forOvercast) {
+			//storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_THUNDER, true);
+		} else {
+			//storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
+			
+			/*if (storm != null) {
+				System.out.println("storm found? " + storm);
+				System.out.println("storm water: " + storm.levelWater);
+			}*/
+		}
+
+
+
+		boolean closeEnough = false;
+		double stormDist = 9999;
+		float tempAdj = 1F;
+
+		float sizeToUse = 0;
+
+		float overcastModeMinPrecip = 0.23F;
+		//overcastModeMinPrecip = 0.16F;
+		overcastModeMinPrecip = (float) ConfigStorm.Storm_Rain_Overcast_Amount;
+
+		//evaluate if storms size is big enough to be over player
+		if (storm != null) {
+
+			sizeToUse = storm.size;
+			//extend overcast effect, using x2 for now since we cant cancel sound and ground particles, originally was 4x, then 3x, change to that for 1.7 if lex made change
+			if (forOvercast) {
+				sizeToUse *= 1F;
+			}
+
+			stormDist = storm.pos.distanceTo(plPos);
+			//System.out.println("storm dist: " + stormDist);
+			if (sizeToUse > stormDist) {
+				closeEnough = true;
+			}
+		}
+
+		if (closeEnough) {
+
+
+			double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
+
+			tempAdj = storm.levelTemperature > 0 ? 1F : -1F;
+
+			//limit plain rain clouds to light intensity
+			if (storm.levelCurIntensityStage == StormObject.STATE_NORMAL) {
+				if (stormIntensity > 0.3) stormIntensity = 0.3;
+			}
+
+			if (ConfigStorm.Storm_NoRainVisual) {
+				stormIntensity = 0;
+			}
+
+			if (stormIntensity < overcastModeMinPrecip) {
+				stormIntensity = overcastModeMinPrecip;
+			}
+
+			//System.out.println("intensity: " + stormIntensity);
+			mc.level.getLevelData().setRaining(true);
+			//TODO: will this do to replace setThundering?
+			mc.level.setThunderLevel(1F);
+			//mc.level.getLevelData().setThundering(true);
+			if (forOvercast) {
+				curOvercastStrTarget = (float) stormIntensity;
+			} else {
+				curPrecipStrTarget = (float) stormIntensity;
+			}
+			//mc.level.thunderingStrength = (float) stormIntensity;
+		} else {
+			if (!ClientTickHandler.clientConfigData.overcastMode) {
+				mc.level.getLevelData().setRaining(false);
+
+				mc.level.setThunderLevel(0F);
+				//mc.level.getLevelData().setThundering(false);
+
+				if (forOvercast) {
+					curOvercastStrTarget = 0;
+				} else {
+					curPrecipStrTarget = 0;
+				}
+			} else {
+				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+					mc.level.getLevelData().setRaining(true);
+					mc.level.setThunderLevel(1F);
+					//mc.level.getLevelData().setThundering(true);
+
+					if (forOvercast) {
+						curOvercastStrTarget = overcastModeMinPrecip;
+					} else {
+						curPrecipStrTarget = overcastModeMinPrecip;
+					}
+				} else {
+					if (forOvercast) {
+						curOvercastStrTarget = 0;
+					} else {
+						curPrecipStrTarget = 0;
+					}
+				}
+
+
+			}
+
+			//mc.level.setRainStrength(0);
+			//mc.level.thunderingStrength = 0;
+		}
+
+		if (forOvercast) {
+			if (curOvercastStr < 0.001 && curOvercastStr > -0.001F) {
+				return 0;
+			} else {
+				return curOvercastStr * tempAdj;
+			}
+		} else {
+			if (curPrecipStr < 0.001 && curPrecipStr > -0.001F) {
+				return 0;
+			} else {
+				return curPrecipStr * tempAdj;
+			}
+		}
 	}
 }

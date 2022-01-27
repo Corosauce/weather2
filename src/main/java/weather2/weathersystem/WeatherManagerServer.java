@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,6 +30,7 @@ import weather2.WeatherNetworking;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigStorm;
+import weather2.config.WeatherUtilConfig;
 import weather2.player.PlayerData;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
@@ -39,6 +41,7 @@ import weather2.weathersystem.wind.WindManager;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WeatherManagerServer extends WeatherManager {
 	private final ServerLevel world;
@@ -68,6 +71,8 @@ public class WeatherManagerServer extends WeatherManager {
 			}
 		}
 
+		tickWeatherCoverage();
+
 		if (world != null) {
 			WindManager windMan = getWindManager();
 
@@ -85,7 +90,7 @@ public class WeatherManagerServer extends WeatherManager {
 			if (world.getGameTime() % rate == 0) {
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
-					Player closestPlayer = world.getNearestPlayer(so.posGround.x, so.posGround.z, ConfigMisc.Misc_simBoxRadiusCutoff);
+					Player closestPlayer = world.getNearestPlayer(so.posGround.x, so.posGround.y, so.posGround.z, ConfigMisc.Misc_simBoxRadiusCutoff, EntitySelector.ENTITY_STILL_ALIVE);
 
 					//removed check is done in WeatherManagerBase
 					if (closestPlayer == null || ConfigMisc.Aesthetic_Only_Mode) {
@@ -117,7 +122,7 @@ public class WeatherManagerServer extends WeatherManager {
 						//split weather objects into list of ones near player and ones not
 						Map<Boolean, List<WeatherObject>> playersNearWeatherObjects = getStormObjects()
 								.stream()
-								.collect(Collectors.partitioningBy(wo -> world.getClosestPlayer(wo.posGround.xCoord, wo.posGround.zCoord, ConfigMisc.Misc_simBoxRadiusCutoff) != null));
+								.collect(Collectors.partitioningBy(wo -> world.getNearestPlayer(wo.posGround.x, wo.posGround.y, wo.posGround.z, ConfigMisc.Misc_simBoxRadiusCutoff, EntitySelector.ENTITY_STILL_ALIVE) != null));
 
 						//ones near
 						playersNearWeatherObjects.get(true).stream()
@@ -165,7 +170,7 @@ public class WeatherManagerServer extends WeatherManager {
 				System.out.println("cloud/cloudless/max count: " + countDbg + "/" + countDbg2 + "/" + (ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()));*/
 
 				//cloud formation spawning - REFINE ME!
-				if (!ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.listDimensionsClouds.contains(world.getDimension().getType().getId())) {
+				if (!ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.shouldTickClouds(world.dimension())) {
 					for (int i = 0; i < world.players().size(); i++) {
 						Player entP = world.players().get(i);
 
@@ -195,7 +200,7 @@ public class WeatherManagerServer extends WeatherManager {
 			}
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
-			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.getDimension().getType().getId()) && world.getGameTime() % 200 == 0 && windMan.isHighWindEventActive()) {
+			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.dimension()) && world.getGameTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
@@ -278,32 +283,32 @@ public class WeatherManagerServer extends WeatherManager {
 	}
 
 	public void tickWeatherCoverage() {
-		Level world = this.getWorld();
+		ServerLevel world = (ServerLevel) this.getWorld();
 		if (world != null) {
 			if (!ConfigMisc.overcastMode) {
 				if (ConfigMisc.lockServerWeatherMode != -1) {
-					world.getWorldInfo().setRaining(ConfigMisc.lockServerWeatherMode == 1);
-					world.getWorldInfo().setThundering(ConfigMisc.lockServerWeatherMode == 1);
+					world.serverLevelData.setRaining(ConfigMisc.lockServerWeatherMode == 1);
+					world.serverLevelData.setThundering(ConfigMisc.lockServerWeatherMode == 1);
 				}
 			}
 
-			boolean test = world.getWorldInfo().isRaining();
+			boolean test = world.serverLevelData.isRaining();
 
 			if (ConfigStorm.preventServerThunderstorms) {
-				world.getWorldInfo().setThundering(false);
+				world.serverLevelData.setThundering(false);
 			}
 
 			//if (ConfigMisc.overcastMode) {
 			if (world.getGameTime() % 40 == 0) {
-				isVanillaRainActiveOnServer = getWorld().isRaining();
-				isVanillaThunderActiveOnServer = getWorld().isThundering();
-				vanillaRainTimeOnServer = getWorld().getWorldInfo().getRainTime();
+				isVanillaRainActiveOnServer = world.isRaining();
+				isVanillaThunderActiveOnServer = world.isThundering();
+				vanillaRainTimeOnServer = world.serverLevelData.getRainTime();
 				syncWeatherVanilla();
 			}
 			//}
 
 			if (world.getGameTime() % 400 == 0) {
-				//Weather.dbg("for dim: " + world.provider.dimensionId + " - is server dimension raining?: " + world.isRaining() + " time: " + world.getWorldInfo().getRainTime());
+				//Weather.dbg("for dim: " + world.provider.dimensionId + " - is server dimension raining?: " + world.isRaining() + " time: " + world.serverLevelData.getRainTime());
 			}
 
 			//tick partial cloud cover variation
@@ -504,7 +509,7 @@ public class WeatherManagerServer extends WeatherManager {
 			if (layer != 0) {
 				so.canBeDeadly = false;
 			}
-			so.spawnerUUID = entP.getCachedUniqueIdString();
+			so.spawnerUUID = entP.getStringUUID();
 			if (rand.nextFloat() >= cloudIntensity) {
 				so.setCloudlessStorm(true);
 			}
@@ -589,7 +594,7 @@ public class WeatherManagerServer extends WeatherManager {
 		} else {
 			//Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), entP);
 			//WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().getDimension().getType()), new PacketNBTFromServer(data));
-			WeatherNetworking.HANDLER.sendTo(new PacketNBTFromServer(data), entP.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+			WeatherNetworking.HANDLER.sendTo(new PacketNBTFromServer(data), entP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
 		}
 		//PacketDispatcher.sendPacketToAllAround(parStorm.pos.xCoord, parStorm.pos.yCoord, parStorm.pos.zCoord, syncRange, getWorld().provider.dimensionId, WeatherPacketHelper.createPacketForServerToClientSerialization("WeatherData", data));
 	}

@@ -14,6 +14,7 @@ import weather2.client.shaderstest.Cloud;
 import weather2.client.shaderstest.CloudManager;
 import weather2.weathersystem.sky.CloudRenderHandler;
 import weather2.weathersystem.storm.EnumWeatherObjectType;
+import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
@@ -64,7 +65,9 @@ public class WeatherManagerClient extends WeatherManager {
 			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInt("weatherObjectType"));
 
 			WeatherObject wo = null;
-			if (weatherObjectType == EnumWeatherObjectType.SAND) {
+			if (weatherObjectType == EnumWeatherObjectType.CLOUD) {
+				wo = new StormObject(ClientTickHandler.weatherManager);
+			} else if (weatherObjectType == EnumWeatherObjectType.SAND) {
 				wo = new WeatherObjectSandstorm(ClientTickHandler.weatherManager);
 			}
 
@@ -74,6 +77,7 @@ public class WeatherManagerClient extends WeatherManager {
 			wo.getNbtCache().updateCacheFromNew();
 
 			addStormObject(wo);
+
 		} else if (command.equals("syncStormRemove")) {
 			//Weather.dbg("removing client side storm");
 			CompoundTag stormNBT = parNBT.getCompound("data");
@@ -81,6 +85,7 @@ public class WeatherManagerClient extends WeatherManager {
 
 			WeatherObject so = lookupStormObjectsByID.get(ID);
 			if (so != null) {
+				Weather.dbg("syncStormRemove, ID: " + ID);
 				removeStormObject(ID);
 			} else {
 				Weather.dbg("error removing storm, cant find by ID: " + ID);
@@ -99,35 +104,6 @@ public class WeatherManagerClient extends WeatherManager {
 				Weather.dbg("error syncing storm, cant find by ID: " + ID + ", probably due to client resetting and waiting on full resync (this is ok)");
 				//Weather.dbgStackTrace();
 			}
-		/*} else if (command.equals("syncVolcanoNew")) {
-			Weather.dbg("creating client side volcano");
-			CompoundNBT stormNBT = parNBT.getCompound("data");
-			//long ID = stormNBT.getLong("ID");
-
-			VolcanoObject so = new VolcanoObject(ClientTickHandler.weatherManager);
-			so.nbtSyncFromServer(stormNBT);
-
-			addVolcanoObject(so);
-		} else if (command.equals("syncVolcanoRemove")) {
-			Weather.dbg("removing client side volcano");
-			CompoundNBT stormNBT = parNBT.getCompound("data");
-			long ID = stormNBT.getLong("ID");
-
-			VolcanoObject so = lookupVolcanoes.get(ID);
-			if (so != null) {
-				removeVolcanoObject(ID);
-			}
-		} else if (command.equals("syncVolcanoUpdate")) {
-			Weather.dbg("updating client side volcano");
-			CompoundNBT stormNBT = parNBT.getCompound("data");
-			long ID = stormNBT.getLong("ID");
-
-			VolcanoObject so = lookupVolcanoes.get(ID);
-			if (so != null) {
-				so.nbtSyncFromServer(stormNBT);
-			} else {
-				Weather.dbg("error syncing volcano, cant find by ID: " + ID);
-			}*/
 		} else if (command.equals("syncWindUpdate")) {
 			//Weather.dbg("updating client side wind");
 

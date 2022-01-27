@@ -28,10 +28,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
 import weather2.ServerTickHandler;
 import weather2.Weather;
-import weather2.config.ConfigMisc;
-import weather2.config.ConfigSnow;
-import weather2.config.ConfigStorm;
-import weather2.config.ConfigTornado;
+import weather2.config.*;
 import weather2.player.PlayerData;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManager;
@@ -977,7 +974,7 @@ public class StormObject extends WeatherObject {
 			    return;
             }
 
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().getDimension().getType().getId()) && tryFormStorm) {
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension()) && tryFormStorm) {
 				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
 				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
 

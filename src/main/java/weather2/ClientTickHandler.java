@@ -11,6 +11,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import weather2.client.SceneEnhancer;
+import weather2.config.ClientConfigData;
 import weather2.util.WeatherUtil;
 import weather2.util.WindReader;
 import weather2.weathersystem.WeatherManagerClient;
@@ -24,6 +25,8 @@ public class ClientTickHandler
 	
 	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
+
+	public static ClientConfigData clientConfigData;
 
 	public float smoothAngle = 0;
 
@@ -41,6 +44,8 @@ public class ClientTickHandler
 			sceneEnhancer = new SceneEnhancer();
 			(new Thread(sceneEnhancer, "Weather2 Scene Enhancer")).start();
 		}
+
+		clientConfigData = new ClientConfigData();
 	}
 
 	@SubscribeEvent

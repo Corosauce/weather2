@@ -98,7 +98,7 @@ public class ConfigMisc implements IConfigCategory {
 	public static boolean Client_PotatoPC_Mode = false;
 
 	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems, turns overcast mode on")
-	public static boolean Aesthetic_Only_Mode = true;
+	public static boolean Aesthetic_Only_Mode = false;
 
 	public ConfigMisc() {
 		

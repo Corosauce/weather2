@@ -166,7 +166,7 @@ public class FogAdjuster {
             //TODO: make use of this, density only works with EXP or EXP 2 mode
             //RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
 
-            if (event.getType() == FogRenderer.FogMode.FOG_SKY) {
+            if (event.getMode() == FogRenderer.FogMode.FOG_SKY) {
                 //TODO: note, this value can be different depending on other contexts, we should try to grab GlStateManager.FOG.start, if we dont, itll glitch with bosses that cause fog and blindness effect, maybe more
                 //value from FogRenderer.setupFog method
                 fogVanilla.setFogStartSky(0);

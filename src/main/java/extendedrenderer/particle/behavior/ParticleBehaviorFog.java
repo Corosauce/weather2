@@ -57,6 +57,7 @@ public class ParticleBehaviorFog extends ParticleBehaviors {
 		particle.setAlphaF(0);
 		
 		float sizeBase = (float) (500+(rand.nextDouble()*40));
+		sizeBase *= 0.15F;
 
 		particle.setScale(sizeBase);
 		//particle.spawnY = (float) particle.posY;

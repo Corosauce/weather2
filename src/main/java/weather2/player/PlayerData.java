@@ -16,12 +16,15 @@ public class PlayerData {
 	
 	public static CompoundTag getPlayerNBT(String username) {
 		if (!playerNBT.containsKey(username)) {
-			tryLoadPlayerNBT(username);
+			//TODO: 1.18
+			//tryLoadPlayerNBT(username);
+			//TODO: 1.18 remove this
+			playerNBT.put(username, new CompoundTag());
 		}
 		return playerNBT.get(username);
 	}
 	
-	public static void tryLoadPlayerNBT(String username) {
+	/*public static void tryLoadPlayerNBT(String username) {
 		//try read from hw/playerdata/player.dat
 		//init with data, if fail, init default blank
 		
@@ -71,6 +74,6 @@ public class PlayerData {
 			ex.printStackTrace();
 			Weather.dbg("Error writing Weather2 player data for " + username);
 		}
-	}
+	}*/
 	
 }
