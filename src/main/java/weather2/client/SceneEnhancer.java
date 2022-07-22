@@ -156,7 +156,8 @@ public class SceneEnhancer implements Runnable {
 			}
 
 			FORCE_ON_DEBUG_TESTING = false;
-			if (weather.hasWeather() || FORCE_ON_DEBUG_TESTING) {
+			if (true || /*weather.hasWeather() || */FORCE_ON_DEBUG_TESTING) {
+				tickRainRates();
 				tickParticlePrecipitation();
 				trySoundPlaying();
 				tryWind(client.level);
@@ -399,7 +400,7 @@ public class SceneEnhancer implements Runnable {
 
 		//if (true) return;
 
-		FORCE_ON_DEBUG_TESTING = true;
+		//FORCE_ON_DEBUG_TESTING = false;
 
 		Player entP = Minecraft.getInstance().player;
 
@@ -1738,6 +1739,23 @@ public class SceneEnhancer implements Runnable {
 			} else {
 				return curPrecipStr * tempAdj;
 			}
+		}
+	}
+
+	public static void tickRainRates() {
+
+		float rateChange = 0.0005F;
+
+		if (curOvercastStr > curOvercastStrTarget) {
+			curOvercastStr -= rateChange;
+		} else if (curOvercastStr < curOvercastStrTarget) {
+			curOvercastStr += rateChange;
+		}
+
+		if (curPrecipStr > curPrecipStrTarget) {
+			curPrecipStr -= rateChange;
+		} else if (curPrecipStr < curPrecipStrTarget) {
+			curPrecipStr += rateChange;
 		}
 	}
 }

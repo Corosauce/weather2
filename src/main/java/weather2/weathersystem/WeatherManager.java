@@ -246,7 +246,7 @@ public abstract class WeatherManager implements IWorldData {
 
 	public StormObject getClosestStorm(Vec3 parPos, double maxDist, int severityFlagMin, boolean orRain) {
 
-		/*StormObject closestStorm = null;
+		StormObject closestStorm = null;
 		double closestDist = Double.MAX_VALUE;
 
 		List<WeatherObject> listStorms = getStormObjects();
@@ -257,9 +257,6 @@ public abstract class WeatherManager implements IWorldData {
 				StormObject storm = (StormObject) wo;
 				if (storm == null || storm.isDead) continue;
 				double dist = storm.pos.distanceTo(parPos);
-				*//*if (getWorld().isRemote) {
-					System.out.println("close storm candidate: " + dist + " - " + storm.state + " - " + storm.attrib_rain);
-				}*//*
 				if (dist < closestDist && dist <= maxDist) {
 					if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
 						closestStorm = storm;
@@ -267,18 +264,17 @@ public abstract class WeatherManager implements IWorldData {
 					}
 				}
 			}
-
 		}
 
-		return closestStorm;*/
+		return closestStorm;
 
 		//not sure i can avoid a double use of distance calculation adding to iteration cost, this method might not be stream worthy
-		return getStormObjects().stream()
+		/*return getStormObjects().stream()
 				.map(wo -> (StormObject)wo)
 				.filter(so -> !so.isDead)
 				.filter(so -> (so.attrib_precipitation && orRain) || (severityFlagMin == -1 || so.levelCurIntensityStage >= severityFlagMin))
 				.filter(so -> so.pos.distanceTo(parPos) < maxDist)
-				.min(Comparator.comparing(so -> so.pos.distanceTo(parPos))).orElse(null);
+				.min(Comparator.comparing(so -> so.pos.distanceTo(parPos))).orElse(null);*/
 	}
 
 	public boolean isPrecipitatingAt(BlockPos pos) {

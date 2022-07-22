@@ -4,12 +4,14 @@ import extendedrenderer.ParticleManagerExtended;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
 import weather2.client.SceneEnhancer;
 import weather2.config.ClientConfigData;
 import weather2.util.WeatherUtil;
@@ -159,6 +161,11 @@ public class ClientTickHandler
 		}
 
 		//((IReloadableResourceManager)mc.getResourceManager()).addReloadListener(particleManagerExtended);
+		CompoundTag data = new CompoundTag();
+		data.putString("command", "syncFull");
+		data.putString("packetCommand", "WeatherData");
+		//Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
+		WeatherNetworking.HANDLER.sendTo(new PacketNBTFromClient(data), mc.player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
     }
 
 	public static ParticleManagerExtended particleManagerExtended() {

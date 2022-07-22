@@ -3,7 +3,7 @@
   "package": "weather2.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "ltweather.refmap.json",
-  "client": ["client.RenderParticlesOverride", "client.StopDataFixers", "client.FireToCharcoal"],
+  "client": ["client.RenderParticlesOverride"],
   "injectors": {
     "defaultRequire": 1
   },

@@ -58,9 +58,9 @@ public class ServerTickHandler {
 	}
 
 	public static void playerClientRequestsFullSync(ServerPlayer entP) {
-		/*WeatherManagerServer wm = MANAGERS.get(entP.world.getDimensionKey());
+		WeatherManagerServer wm = MANAGERS.get(entP.level.dimension());
 		if (wm != null) {
 			wm.playerJoinedWorldSyncFull(entP);
-		}*/
+		}
 	}
 }

@@ -27,7 +27,7 @@ public class ConfigMisc implements IConfigCategory {
 	
 	//Weather
 	@ConfigComment("If true, lets server side do vanilla weather rules, weather2 will only make storms when server side says 'rain' is on")
-	public static boolean overcastMode = true;
+	public static boolean overcastMode = false;
 	@ConfigComment("Used if overcastMode is off, 1 = lock weather on, 0 = lock weather off, -1 = dont lock anything, let server do whatever")
 	public static int lockServerWeatherMode = 0; //is only used if overcastMode is off
 	//cloudOption

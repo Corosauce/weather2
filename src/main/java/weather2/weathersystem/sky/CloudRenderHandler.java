@@ -151,7 +151,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     }
 
     public void render(PoseStack matrixStackIn, Matrix4f projectionMatrix, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ) {
-        //if (true) return;
+        if (true) return;
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         int ticks = (int) level.getGameTime() % Integer.MAX_VALUE;
