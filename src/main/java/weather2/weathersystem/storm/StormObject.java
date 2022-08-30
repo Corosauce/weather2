@@ -854,11 +854,13 @@ public class StormObject extends WeatherObject {
 		
 		if (world.getGameTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
 
+			//boolean debug = false;
 			CompoundTag playerNBT = PlayerData.getPlayerNBT(spawnerUUID);
 			
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
-			
+
+			//Biome bgb = null;
 			Biome bgb = world.getBiome(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)));
 			
 			//temperature scan
@@ -887,12 +889,15 @@ public class StormObject extends WeatherObject {
 					rand.nextInt(randomChanceOfWaterBuildFromOvercastRaining) == 0) {
 				performBuildup = true;
 			}
-			
-			BlockState state = world.getBlockState(new BlockPos(Mth.floor(pos.x), currentTopYBlock-1, Mth.floor(pos.z)));
-			if (!CoroUtilBlock.isAir(state.getBlock())) {
-				//Block block = Block.blocksList[blockID];
-				if (state.getMaterial() == Material.WATER) {
-					isOverWater = true;
+
+			BlockPos tryPos = new BlockPos(Mth.floor(pos.x), currentTopYBlock - 1, Mth.floor(pos.z));
+			if (world.isLoaded(tryPos)) {
+				BlockState state = world.getBlockState(tryPos);
+				if (!CoroUtilBlock.isAir(state.getBlock())) {
+					//Block block = Block.blocksList[blockID];
+					if (state.getMaterial() == Material.WATER) {
+						isOverWater = true;
+					}
 				}
 			}
 			
@@ -902,10 +907,12 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 
-				String biomecat = bgb.getRegistryName().toString();
+				if (bgb != null) {
+					String biomecat = bgb.getRegistryName().toString();
 
-				if (!performBuildup && bgb != null && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
-					performBuildup = true;
+					if (!performBuildup && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
+						performBuildup = true;
+					}
 				}
 			}
 			

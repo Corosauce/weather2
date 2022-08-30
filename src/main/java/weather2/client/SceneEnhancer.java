@@ -136,11 +136,15 @@ public class SceneEnhancer implements Runnable {
 				reset();
 			}
 
-			if (playerManagerClient == null) {
-				playerManagerClient = new TornadoManagerTodoRenameMe();
-			}
+			boolean testTornadoTech = false;
 
-			playerManagerClient.tick(client.level);
+			if (testTornadoTech) {
+				if (playerManagerClient == null) {
+					playerManagerClient = new TornadoManagerTodoRenameMe();
+				}
+
+				playerManagerClient.tick(client.level);
+			}
 
 			WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
 			if (weatherMan == null) return;
