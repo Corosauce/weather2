@@ -56,6 +56,8 @@ public class ParticleRegistry {
 	public static TextureAtlasSprite hail;
 	public static TextureAtlasSprite cloudNew;
 	public static TextureAtlasSprite cloud_square;
+	public static TextureAtlasSprite square16;
+	public static TextureAtlasSprite square64;
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
@@ -123,6 +125,9 @@ public class ParticleRegistry {
 		event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/hail"));
 		event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
 		event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
+
+		event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white16"));
+		event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white64"));
 	}
 
 	@SubscribeEvent
@@ -177,6 +182,9 @@ public class ParticleRegistry {
 		hail = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/hail"));
 		cloudNew = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
 		cloud_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
+
+		square16 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white16"));
+		square64 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white64"));
 
 		//TODO: 1.14 uncomment
 		/*if (RotatingParticleManager.useShaders) {
