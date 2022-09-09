@@ -3,7 +3,7 @@ package weather2.client;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
-import com.lovetropics.minigames.common.core.game.weather.RainType;
+import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
 import com.lovetropics.minigames.common.core.game.weather.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
@@ -35,18 +35,14 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
-import weather2.ClientTickHandler;
-import weather2.ClientWeather;
-import weather2.SoundRegistry;
-import weather2.Weather;
+import weather2.*;
 import weather2.client.entity.particle.ParticleHail;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.config.ConfigParticle;
 import weather2.config.ConfigSand;
-import weather2.config.ConfigStorm;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
-import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.tornado.TornadoManagerTodoRenameMe;
 import weather2.weathersystem.wind.WindManager;
@@ -68,12 +64,6 @@ public class SceneEnhancer implements Runnable {
     public static int lastTickFoundBlocks;
     public static long lastTickAmbient;
     public static long lastTickAmbientThreaded;
-
-	public static float curPrecipStr = 0F;
-	public static float curPrecipStrTarget = 0F;
-
-	public static float curOvercastStr = 0F;
-	public static float curOvercastStrTarget = 0F;
 
     public static ArrayList<ChunkCoordinatesBlock> soundLocations = new ArrayList<>();
     public static HashMap<ChunkCoordinatesBlock, Long> soundTimeLocations = new HashMap<>();
@@ -152,7 +142,7 @@ public class SceneEnhancer implements Runnable {
 			if (windMan == null) return;
 
 			ClientTickHandler.checkClientWeather();
-			ClientWeather weather = ClientWeather.get();
+			ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 			WeatherEventType curWeather = getWeatherState();
 			if (curWeather != lastWeatherType) {
@@ -170,7 +160,7 @@ public class SceneEnhancer implements Runnable {
 
 			FORCE_ON_DEBUG_TESTING = false;
 			if (true || /*weather.hasWeather() || */FORCE_ON_DEBUG_TESTING) {
-				tickRainRates();
+				ClientWeatherHelper.get().tick();
 				tickParticlePrecipitation();
 				trySoundPlaying();
 				tryWind(client.level);
@@ -201,7 +191,7 @@ public class SceneEnhancer implements Runnable {
 
 		if (client != null && client.level != null && client.player != null) {
 			profileSurroundings();
-			if (ClientWeather.get().hasWeather()) {
+			if (ClientWeatherProxy.get().hasWeather()) {
 				tryAmbientSounds();
 			}
 		}
@@ -353,7 +343,7 @@ public class SceneEnhancer implements Runnable {
 		//WeatherUtilSound.getSoundSystem();
 	}
 
-	private static void tickHeatwave(ClientWeather weather) {
+	private static void tickHeatwave(ClientWeatherProxy weather) {
 		Minecraft client = Minecraft.getInstance();
 
 		/*if (weather.isHeatwave() || true) {
@@ -396,7 +386,7 @@ public class SceneEnhancer implements Runnable {
 
 	public void tickMisc() {
 
-		/*ClientWeather weather = ClientWeather.get();
+		/*ClientWeatherProxy weather = ClientWeatherProxy.get();
 		if (weather.getRainType() == RainType.ACID) {
 			if (LevelRenderer.RAIN_LOCATION != RAIN_TEXTURES_GREEN) {
 				LevelRenderer.RAIN_LOCATION = RAIN_TEXTURES_GREEN;
@@ -422,10 +412,10 @@ public class SceneEnhancer implements Runnable {
 		WindManager windMan = weatherMan.getWindManager();
 		if (windMan == null) return;
 
-		ClientWeather weather = ClientWeather.get();
+		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
-		//float curPrecipVal = weather.getRainAmount();
-		float curPrecipVal = getRainStrengthAndControlVisuals(entP);
+		float curPrecipVal = weather.getRainAmount();
+		//float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 		float maxPrecip = 0.5F;
 
 			/*if (entP.world.getGameTime() % 20 == 0) {
@@ -471,7 +461,7 @@ public class SceneEnhancer implements Runnable {
 				curPrecipVal = 1;
 			}
 
-			if (curPrecipVal > 0) {
+			if (curPrecipVal > 0 && weather.getRainType() != PrecipitationType.SNOW) {
 
 				//particleAmp = 1;
 				//if (curPrecipVal != 0 && curPrecipVal != 0.5F) {
@@ -568,7 +558,7 @@ public class SceneEnhancer implements Runnable {
 
 								windMan.applyWindForceNew(rain, 10F, 0.5F);
 
-								if (weather.getRainType() == RainType.ACID) {
+								if (weather.getRainType() == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -745,7 +735,7 @@ public class SceneEnhancer implements Runnable {
 
 								windMan.applyWindForceNew(rain, 1F / 5F, 0.5F);
 
-								if (weather.getRainType() == RainType.ACID) {
+								if (weather.getRainType() == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -842,7 +832,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 								rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 
-								if (weather.getRainType() == RainType.ACID) {
+								if (weather.getRainType() == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -858,7 +848,52 @@ public class SceneEnhancer implements Runnable {
 					}
 				//snow
 				} else {
+					spawnCount = 0;
+					//less for snow, since it falls slower so more is on screen longer
+					spawnNeed = (int)(curPrecipVal * 40F * ConfigParticle.Precipitation_Particle_effect_rate * particleAmp);
 
+					int spawnAreaSize = 50;
+
+					if (spawnNeed > 0) {
+						for (int i = 0; i < safetyCutout/*curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+							BlockPos pos = new BlockPos(
+									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+									entP.getY() - 5 + rand.nextInt(25),
+									entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+							if (canPrecipitateAt(world, pos)) {
+								ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level, pos.getX(), pos.getY(), pos.getZ(),
+										0D, 0D, 0D, ParticleRegistry.snow);
+
+								snow.setCanCollide(false);
+								snow.setKillWhenUnderTopmostBlock(true);
+								snow.setTicksFadeOutMaxOnDeath(5);
+								snow.setDontRenderUnderTopmostBlock(true);
+								snow.setExtraParticlesBaseAmount(10);
+								snow.killWhenFarFromCameraAtLeast = 20;
+
+								snow.setMotionY(-0.1D);
+								snow.setScale(1.3F);
+								snow.setGravity(0.1F);
+								snow.windWeight = 0.2F;
+								snow.setMaxAge(40);
+								snow.setFacePlayer(false);
+								snow.setTicksFadeInMax(5);
+								snow.setAlphaF(0);
+								snow.setTicksFadeOutMax(5);
+								//snow.setCanCollide(true);
+								//snow.setKillOnCollide(true);
+								snow.rotationYaw = snow.getWorld().random.nextInt(360) - 180F;
+								snow.spawnAsWeatherEffect();
+
+								spawnCount++;
+								if (spawnCount >= spawnNeed) {
+									break;
+								}
+							}
+
+						}
+					}
 
 				}
 			}
@@ -1003,7 +1038,7 @@ public class SceneEnhancer implements Runnable {
 				tickSandstormSound();
 			}
 
-			boolean groundFire = ClientWeather.get().isHeatwave();
+			boolean groundFire = ClientWeatherProxy.get().isHeatwave();
 			int spawnAreaSize = 40;
 
 			if (groundFire) {
@@ -1333,7 +1368,7 @@ public class SceneEnhancer implements Runnable {
 
     public static void renderTick(TickEvent.RenderTickEvent event) {
 		Minecraft client = Minecraft.getInstance();
-		ClientWeather weather = ClientWeather.get();
+		ClientWeatherProxy weather = ClientWeatherProxy.get();
 		//commented out hasWeather here for LT2020 because it was false before the transition was fully done, resulting in a tiny bit of rain that never goes away unless heatwave is active
 		//quick fix instead of redesigning code, hopefully doesnt have side effects, this just constantly sets the rain amounts anyways
 		if (client.level != null/* && weather.hasWeather()*/) {
@@ -1351,10 +1386,9 @@ public class SceneEnhancer implements Runnable {
 		Player player = client.player;
 		Level world = client.level;
 		Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
-		WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
 		WindManager windMan = ClientTickHandler.weatherManager.getWindManager();
 		ClientTickHandler.checkClientWeather();
-		ClientWeather weather = ClientWeather.get();
+		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 
@@ -1582,18 +1616,18 @@ public class SceneEnhancer implements Runnable {
 	}
 
 	public static WeatherEventType getWeatherState() {
-		ClientWeather clientWeather = ClientWeather.get();
+		ClientWeatherProxy clientWeather = ClientWeatherProxy.get();
 		if (clientWeather.isSandstorm()) {
 			return WeatherEventType.SANDSTORM;
 		} else if (clientWeather.isSnowstorm()) {
 			return WeatherEventType.SNOWSTORM;
 		} else if (clientWeather.isHeatwave()) {
 			return WeatherEventType.HEATWAVE;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == RainType.ACID) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == PrecipitationType.ACID) {
 			return WeatherEventType.ACID_RAIN;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == RainType.NORMAL) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == PrecipitationType.NORMAL) {
 			return WeatherEventType.HEAVY_RAIN;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == RainType.HAIL) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == PrecipitationType.HAIL) {
 			return WeatherEventType.HAIL;
 		} else {
 			return null;
@@ -1602,173 +1636,5 @@ public class SceneEnhancer implements Runnable {
 
 	public static float getParticleFadeInLerpForNewWeatherState() {
     	return (float)particleRateLerp / (float)particleRateLerpMax;
-	}
-
-	public static float getRainStrengthAndControlVisuals(Player entP) {
-		return getRainStrengthAndControlVisuals(entP, false);
-	}
-
-	/**
-	 * Returns value between -1 to 1
-	 * -1 is full on snow
-	 * 1 is full on rain
-	 * 0 is no precipitation
-	 *
-	 * also controls the client side raining and thundering values for vanilla
-	 *
-	 * @param entP
-	 * @param forOvercast
-	 * @return
-	 */
-	public static float getRainStrengthAndControlVisuals(Player entP, boolean forOvercast) {
-
-		Minecraft mc = Minecraft.getInstance();
-
-		double maxStormDist = 512 / 4 * 3;
-		Vec3 plPos = new Vec3(entP.getX(), StormObject.static_YPos_layer0, entP.getZ());
-		StormObject storm = null;
-
-		ClientTickHandler.checkClientWeather();
-
-		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
-
-		if (forOvercast) {
-			//storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_THUNDER, true);
-		} else {
-			//storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
-			
-			/*if (storm != null) {
-				System.out.println("storm found? " + storm);
-				System.out.println("storm water: " + storm.levelWater);
-			}*/
-		}
-
-
-
-		boolean closeEnough = false;
-		double stormDist = 9999;
-		float tempAdj = 1F;
-
-		float sizeToUse = 0;
-
-		float overcastModeMinPrecip = 0.23F;
-		//overcastModeMinPrecip = 0.16F;
-		overcastModeMinPrecip = (float) ConfigStorm.Storm_Rain_Overcast_Amount;
-
-		//evaluate if storms size is big enough to be over player
-		if (storm != null) {
-
-			sizeToUse = storm.size;
-			//extend overcast effect, using x2 for now since we cant cancel sound and ground particles, originally was 4x, then 3x, change to that for 1.7 if lex made change
-			if (forOvercast) {
-				sizeToUse *= 1F;
-			}
-
-			stormDist = storm.pos.distanceTo(plPos);
-			//System.out.println("storm dist: " + stormDist);
-			if (sizeToUse > stormDist) {
-				closeEnough = true;
-			}
-		}
-
-		if (closeEnough) {
-
-
-			double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
-
-			tempAdj = storm.levelTemperature > 0 ? 1F : -1F;
-
-			//limit plain rain clouds to light intensity
-			if (storm.levelCurIntensityStage == StormObject.STATE_NORMAL) {
-				if (stormIntensity > 0.3) stormIntensity = 0.3;
-			}
-
-			if (ConfigStorm.Storm_NoRainVisual) {
-				stormIntensity = 0;
-			}
-
-			if (stormIntensity < overcastModeMinPrecip) {
-				stormIntensity = overcastModeMinPrecip;
-			}
-
-			//System.out.println("intensity: " + stormIntensity);
-			mc.level.getLevelData().setRaining(true);
-			//TODO: will this do to replace setThundering?
-			mc.level.setThunderLevel(1F);
-			//mc.level.getLevelData().setThundering(true);
-			if (forOvercast) {
-				curOvercastStrTarget = (float) stormIntensity;
-			} else {
-				curPrecipStrTarget = (float) stormIntensity;
-			}
-			//mc.level.thunderingStrength = (float) stormIntensity;
-		} else {
-			if (!ClientTickHandler.clientConfigData.overcastMode) {
-				mc.level.getLevelData().setRaining(false);
-
-				mc.level.setThunderLevel(0F);
-				//mc.level.getLevelData().setThundering(false);
-
-				if (forOvercast) {
-					curOvercastStrTarget = 0;
-				} else {
-					curPrecipStrTarget = 0;
-				}
-			} else {
-				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-					mc.level.getLevelData().setRaining(true);
-					mc.level.setThunderLevel(1F);
-					//mc.level.getLevelData().setThundering(true);
-
-					if (forOvercast) {
-						curOvercastStrTarget = overcastModeMinPrecip;
-					} else {
-						curPrecipStrTarget = overcastModeMinPrecip;
-					}
-				} else {
-					if (forOvercast) {
-						curOvercastStrTarget = 0;
-					} else {
-						curPrecipStrTarget = 0;
-					}
-				}
-
-
-			}
-
-			//mc.level.setRainStrength(0);
-			//mc.level.thunderingStrength = 0;
-		}
-
-		if (forOvercast) {
-			if (curOvercastStr < 0.001 && curOvercastStr > -0.001F) {
-				return 0;
-			} else {
-				return curOvercastStr * tempAdj;
-			}
-		} else {
-			if (curPrecipStr < 0.001 && curPrecipStr > -0.001F) {
-				return 0;
-			} else {
-				return curPrecipStr * tempAdj;
-			}
-		}
-	}
-
-	public static void tickRainRates() {
-
-		float rateChange = 0.0005F;
-
-		if (curOvercastStr > curOvercastStrTarget) {
-			curOvercastStr -= rateChange;
-		} else if (curOvercastStr < curOvercastStrTarget) {
-			curOvercastStr += rateChange;
-		}
-
-		if (curPrecipStr > curPrecipStrTarget) {
-			curPrecipStr -= rateChange;
-		} else if (curPrecipStr < curPrecipStrTarget) {
-			curPrecipStr += rateChange;
-		}
 	}
 }

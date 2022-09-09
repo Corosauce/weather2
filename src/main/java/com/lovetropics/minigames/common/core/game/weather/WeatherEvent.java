@@ -16,20 +16,20 @@ public final class WeatherEvent {
 
 	public static WeatherEvent heavyRain(long time) {
 		return new WeatherEvent(WeatherEventType.HEAVY_RAIN, time)
-				.applies(controller -> controller.setRain(1.0F, RainType.NORMAL))
-				.removes(controller -> controller.setRain(0.0F, RainType.NORMAL));
+				.applies(controller -> controller.setRain(1.0F, PrecipitationType.NORMAL))
+				.removes(controller -> controller.setRain(0.0F, PrecipitationType.NORMAL));
 	}
 
 	public static WeatherEvent acidRain(long time) {
 		return new WeatherEvent(WeatherEventType.ACID_RAIN, time)
-				.applies(controller -> controller.setRain(1.0F, RainType.ACID))
-				.removes(controller -> controller.setRain(0.0F, RainType.ACID));
+				.applies(controller -> controller.setRain(1.0F, PrecipitationType.ACID))
+				.removes(controller -> controller.setRain(0.0F, PrecipitationType.ACID));
 	}
 
 	public static WeatherEvent hail(long time) {
 		return new WeatherEvent(WeatherEventType.HAIL, time)
-				.applies(controller -> controller.setRain(1.0F, RainType.HAIL))
-				.removes(controller -> controller.setRain(0.0F, RainType.HAIL));
+				.applies(controller -> controller.setRain(1.0F, PrecipitationType.HAIL))
+				.removes(controller -> controller.setRain(0.0F, PrecipitationType.HAIL));
 	}
 
 	public static WeatherEvent heatwave(long time) {

@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public final class WeatherState {
 	public float rainAmount;
-	public RainType rainType = RainType.NORMAL;
+	public PrecipitationType precipitationType = PrecipitationType.NORMAL;
 	public float windSpeed;
 	public boolean heatwave;
 	public StormState sandstorm;
@@ -12,7 +12,7 @@ public final class WeatherState {
 
 	public void serialize(FriendlyByteBuf buffer) {
 		buffer.writeFloat(this.rainAmount);
-		buffer.writeByte(this.rainType.ordinal() & 0xFF);
+		buffer.writeByte(this.precipitationType.ordinal() & 0xFF);
 		buffer.writeFloat(this.windSpeed);
 		buffer.writeBoolean(this.heatwave);
 		buffer.writeBoolean(this.sandstorm != null);
@@ -27,7 +27,7 @@ public final class WeatherState {
 
 	public void deserialize(FriendlyByteBuf buffer) {
 		this.rainAmount = buffer.readFloat();
-		this.rainType = RainType.VALUES[buffer.readUnsignedByte()];
+		this.precipitationType = PrecipitationType.VALUES[buffer.readUnsignedByte()];
 		this.windSpeed = buffer.readFloat();
 		this.heatwave = buffer.readBoolean();
 		this.sandstorm = buffer.readBoolean() ? StormState.decode(buffer) : null;

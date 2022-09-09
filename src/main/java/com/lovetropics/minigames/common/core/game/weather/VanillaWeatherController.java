@@ -23,9 +23,9 @@ public final class VanillaWeatherController implements WeatherController {
 	}
 
 	@Override
-	public void setRain(float amount, RainType type) {
+	public void setRain(float amount, PrecipitationType type) {
 		state.rainAmount = amount;
-		state.rainType = type;
+		state.precipitationType = type;
 	}
 
 	@Override
@@ -64,8 +64,8 @@ public final class VanillaWeatherController implements WeatherController {
 	}
 
 	@Override
-	public RainType getRainType() {
-		return state.rainType;
+	public PrecipitationType getRainType() {
+		return state.precipitationType;
 	}
 
 	@Override

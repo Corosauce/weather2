@@ -1,15 +1,14 @@
-package weather2;
+package com.lovetropics.weather;
 
-import com.lovetropics.minigames.common.core.game.weather.RainType;
-import com.lovetropics.minigames.common.core.game.weather.StormState;
-import com.lovetropics.minigames.common.core.game.weather.WeatherController;
-import com.lovetropics.minigames.common.core.game.weather.WeatherState;
+import com.lovetropics.minigames.common.core.game.weather.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
+import weather2.Weather;
+import weather2.WeatherNetworking;
 
 import javax.annotation.Nullable;
 
@@ -44,10 +43,10 @@ public final class ServerWeatherController implements WeatherController {
 	}
 
 	@Override
-	public void setRain(float amount, RainType type) {
-		if (amount != this.state.rainAmount || type != this.state.rainType) {
+	public void setRain(float amount, PrecipitationType type) {
+		if (amount != this.state.rainAmount || type != this.state.precipitationType) {
 			this.state.rainAmount = amount;
-			this.state.rainType = type;
+			this.state.precipitationType = type;
 			this.dirty = true;
 		}
 	}
@@ -102,8 +101,8 @@ public final class ServerWeatherController implements WeatherController {
 	}
 
 	@Override
-	public RainType getRainType() {
-		return this.state.rainType;
+	public PrecipitationType getRainType() {
+		return this.state.precipitationType;
 	}
 
 	@Override

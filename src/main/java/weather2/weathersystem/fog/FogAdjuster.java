@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import com.mojang.math.Vector3f;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import weather2.ClientTickHandler;
-import weather2.ClientWeather;
+import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
 import weather2.util.WeatherUtilEntity;
 
@@ -79,7 +79,7 @@ public class FogAdjuster {
         fogVanilla = new FogProfile(new Vector3f(-1F, -1F, -1F), -1, -1);
     }
 
-    public void tickGame(ClientWeather weather) {
+    public void tickGame(ClientWeatherProxy weather) {
         updateWeatherState();
 
         if (lastWeatherType != null) {
@@ -258,7 +258,7 @@ public class FogAdjuster {
 
     public boolean isFogOverriding() {
         ClientTickHandler.checkClientWeather();
-        ClientWeather weather = ClientWeather.get();
+        ClientWeatherProxy weather = ClientWeatherProxy.get();
         return (weather.isHeatwave() || weather.isSandstorm() || weather.isSnowstorm()) || lerpTicksCur < lerpTicksMax;
     }
 

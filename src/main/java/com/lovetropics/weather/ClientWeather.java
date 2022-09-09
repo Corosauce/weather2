@@ -1,12 +1,15 @@
-package weather2;
+package com.lovetropics.weather;
 
-import com.lovetropics.minigames.common.core.game.weather.RainType;
+import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
 import com.lovetropics.minigames.common.core.game.weather.WeatherState;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import weather2.ClientWeatherHelper;
+import weather2.Weather;
 import weather2.client.SceneEnhancer;
 
 @Mod.EventBusSubscriber(modid = Weather.MODID, value = Dist.CLIENT)
@@ -14,11 +17,12 @@ public final class ClientWeather {
 	private static ClientWeather instance = new ClientWeather();
 
 	private static final int LERP_TICKS = ServerWeatherController.UPDATE_INTERVAL;
+	//10 seconds to transition precipitation fully
+	private static final float LERP_RATE = 1F / 10F / 20F;
 
 	private final WeatherState state = new WeatherState();
 
 	private WeatherState lerpState = this.state;
-	private int lerpTicks;
 
 	private ClientWeather() {
 	}
@@ -46,28 +50,26 @@ public final class ClientWeather {
 	}
 
 	public void onUpdateWeather(WeatherState state) {
-		this.lerpTicks = LERP_TICKS * 10;
 		this.lerpState = state;
 		//System.out.println("state.rainAmount: " + state.rainAmount);
 	}
 
 	public void tick() {
-		this.state.rainType = this.lerpState.rainType;
+		this.state.precipitationType = this.lerpState.precipitationType;
 		this.state.heatwave = this.lerpState.heatwave;
 		this.state.sandstorm = this.lerpState.sandstorm;
 		this.state.snowstorm = this.lerpState.snowstorm;
 
-		if (this.lerpTicks <= 0) {
-			return;
-		}
-
-		float lerpTicks = this.lerpTicks--;
-		this.state.rainAmount = this.state.rainAmount + (this.lerpState.rainAmount - this.state.rainAmount) / lerpTicks;
-		this.state.windSpeed = this.state.windSpeed + (this.lerpState.windSpeed - this.state.windSpeed) / lerpTicks;
+		this.state.rainAmount = this.state.rainAmount + (this.state.rainAmount < this.lerpState.rainAmount ? LERP_RATE : -LERP_RATE);
+		this.state.windSpeed = this.state.windSpeed + (this.state.windSpeed < this.lerpState.windSpeed ? LERP_RATE : -LERP_RATE);
 	}
 
 	public float getRainAmount() {
-		return this.state.rainAmount;
+		if (isPrecipitationServerSideControlled()) {
+			return this.state.rainAmount;
+		} else {
+			return ClientWeatherHelper.get().getRainStrengthAndControlVisuals(Minecraft.getInstance().player);
+		}
 	}
 
 	public float getVanillaRainAmount() {
@@ -75,8 +77,8 @@ public final class ClientWeather {
 		return Math.min(this.state.rainAmount * 3F, 1F);
 	}
 
-	public RainType getRainType() {
-		return this.state.rainType;
+	public PrecipitationType getRainType() {
+		return this.state.precipitationType;
 	}
 
 	public float getWindSpeed() {
@@ -99,4 +101,7 @@ public final class ClientWeather {
 		if (SceneEnhancer.FORCE_ON_DEBUG_TESTING) return true;
 		return this.state.hasWeather();
 	}
-}
+
+	public boolean isPrecipitationServerSideControlled() {
+		return Weather.isLoveTropicsInstalled();
+	}}

@@ -9,7 +9,7 @@ public interface WeatherController {
 
 	void tick();
 
-	void setRain(float amount, RainType type);
+	void setRain(float amount, PrecipitationType type);
 
 	void setWind(float speed);
 
@@ -25,7 +25,7 @@ public interface WeatherController {
 
 	float getRainAmount();
 
-	RainType getRainType();
+	PrecipitationType getRainType();
 
 	float getWindSpeed();
 
@@ -46,7 +46,7 @@ public interface WeatherController {
 	}
 
 	default void reset() {
-		setRain(0.0F, RainType.NORMAL);
+		setRain(0.0F, PrecipitationType.NORMAL);
 		setWind(0.0F);
 		setHeatwave(false);
 		clearSandstorm();

@@ -1,8 +1,9 @@
-package weather2;
+package com.lovetropics.weather;
 
 import com.lovetropics.minigames.common.core.game.weather.WeatherState;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
+import weather2.ClientTickHandler;
 
 import java.util.function.Supplier;
 

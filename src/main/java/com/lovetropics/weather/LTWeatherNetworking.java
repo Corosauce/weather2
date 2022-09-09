@@ -1,6 +1,5 @@
-package weather2;
+package com.lovetropics.weather;
 
-import com.lovetropics.weather.UpdateWeatherPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
@@ -13,11 +12,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class WeatherNetworking {
+public class LTWeatherNetworking {
 
     private static final String PROTOCOL_VERSION = Integer.toString(4);
     private static short lastID = 0;
-    public static final ResourceLocation NETWORK_CHANNEL_ID_MAIN = new ResourceLocation(Weather.MODID, "main");
+    public static final ResourceLocation NETWORK_CHANNEL_ID_MAIN = new ResourceLocation(LTWeather.MODID, "main");
 
     public static final SimpleChannel HANDLER = NetworkRegistry.ChannelBuilder
             .named(NETWORK_CHANNEL_ID_MAIN)
@@ -27,8 +26,6 @@ public class WeatherNetworking {
             .simpleChannel();
 
     public static void register() {
-        registerMessage(PacketNBTFromServer.class, PacketNBTFromServer::encode, PacketNBTFromServer::decode, PacketNBTFromServer.Handler::handle, NetworkDirection.PLAY_TO_CLIENT);
-        registerMessage(PacketNBTFromClient.class, PacketNBTFromClient::encode, PacketNBTFromClient::decode, PacketNBTFromClient.Handler::handle, NetworkDirection.PLAY_TO_SERVER);
         registerMessage(UpdateWeatherPacket.class, UpdateWeatherPacket::encode, UpdateWeatherPacket::decode, UpdateWeatherPacket::handle, NetworkDirection.PLAY_TO_CLIENT);
     }
 

@@ -63,7 +63,7 @@ public class EventHandlerForge {
 		WindManager windMan = weatherMan.getWindManager();
 		if (windMan == null) return;
 
-		ClientWeather weather = ClientWeather.get();
+		ClientWeatherProxy weather = ClientWeatherProxy.get();
 		if (weather.isSnowstorm() || weather.isSandstorm()) {
 			if (ent.isOnGround() && !ent.isSpectator() && !WeatherUtilEntity.isPlayerSheltered(ent)/* && ent.world.getGameTime() % 20 == 0*/) {
 
