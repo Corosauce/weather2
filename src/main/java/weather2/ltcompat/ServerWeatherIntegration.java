@@ -1,9 +1,9 @@
 package weather2.ltcompat;
 
-import com.lovetropics.minigames.common.core.game.weather.StormState;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
 import net.minecraft.server.level.ServerLevel;
+import weather2.datatypes.StormState;
 
 public class ServerWeatherIntegration {
 
@@ -14,12 +14,12 @@ public class ServerWeatherIntegration {
 
     public static StormState getSandstormForEverywhere(ServerLevel level) {
         WeatherController controller = WeatherControllerManager.forWorld(level);
-        return controller != null ? controller.getSandstorm() : null;
+        return controller != null ? TypeConverter.from(controller.getSandstorm()) : null;
     }
 
     public static StormState getSnowstormForEverywhere(ServerLevel level) {
         WeatherController controller = WeatherControllerManager.forWorld(level);
-        return controller != null ? controller.getSnowstorm() : null;
+        return controller != null ? TypeConverter.from(controller.getSnowstorm()) : null;
     }
 
 }

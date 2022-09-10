@@ -1,7 +1,7 @@
 package weather2;
 
-import com.lovetropics.minigames.common.core.game.weather.StormState;
 import net.minecraft.server.level.ServerLevel;
+import weather2.datatypes.StormState;
 import weather2.ltcompat.ServerWeatherIntegration;
 
 public class ServerWeatherProxy {

@@ -2,9 +2,6 @@ package weather2.weathersystem;
 
 import com.corosus.coroutil.util.CoroUtilEntity;
 import com.google.common.collect.Lists;
-import com.lovetropics.minigames.common.core.game.weather.StormState;
-import com.lovetropics.minigames.common.core.game.weather.WeatherController;
-import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ChunkHolder;
@@ -28,6 +25,7 @@ import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigStorm;
 import weather2.config.WeatherUtilConfig;
+import weather2.datatypes.StormState;
 import weather2.player.PlayerData;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;

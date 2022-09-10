@@ -1,8 +1,6 @@
 package weather2.weathersystem.wind;
 
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
-import com.lovetropics.minigames.common.core.game.weather.WeatherController;
-import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +11,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ServerWeatherProxy;
 import weather2.Weather;
-import weather2.config.ConfigLTOverrides;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;
 import weather2.util.WeatherUtilEntity;
