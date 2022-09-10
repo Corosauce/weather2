@@ -40,12 +40,9 @@ public final class ClientWeatherHelper {
 	public float getRainStrengthAndControlVisuals(Player entP, boolean forOvercast) {
 
 		if (entP == null) return 0;
-
-		Minecraft mc = Minecraft.getInstance();
-
 		double maxStormDist = 512 / 4 * 3;
 		Vec3 plPos = new Vec3(entP.getX(), StormObject.static_YPos_layer0, entP.getZ());
-		StormObject storm = null;
+		StormObject storm;
 
 		ClientTickHandler.checkClientWeather();
 
@@ -78,8 +75,6 @@ public final class ClientWeatherHelper {
 		}
 
 		if (closeEnough) {
-
-
 			double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
 
 			tempAdj = storm.levelTemperature/* > 0 ? 1F : -1F*/;
@@ -96,25 +91,13 @@ public final class ClientWeatherHelper {
 			if (stormIntensity < overcastModeMinPrecip) {
 				stormIntensity = overcastModeMinPrecip;
 			}
-
-			//System.out.println("intensity: " + stormIntensity);
-			mc.level.getLevelData().setRaining(true);
-			//TODO: will this do to replace setThundering?
-			mc.level.setThunderLevel(1F);
-			//mc.level.getLevelData().setThundering(true);
 			if (forOvercast) {
 				curOvercastStrTarget = (float) stormIntensity;
 			} else {
 				curPrecipStrTarget = (float) stormIntensity;
 			}
-			//mc.level.thunderingStrength = (float) stormIntensity;
 		} else {
 			if (!ClientTickHandler.clientConfigData.overcastMode) {
-				mc.level.getLevelData().setRaining(false);
-
-				mc.level.setThunderLevel(0F);
-				//mc.level.getLevelData().setThundering(false);
-
 				if (forOvercast) {
 					curOvercastStrTarget = 0;
 				} else {
@@ -122,10 +105,6 @@ public final class ClientWeatherHelper {
 				}
 			} else {
 				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-					mc.level.getLevelData().setRaining(true);
-					mc.level.setThunderLevel(1F);
-					//mc.level.getLevelData().setThundering(true);
-
 					if (forOvercast) {
 						curOvercastStrTarget = overcastModeMinPrecip;
 					} else {
@@ -138,12 +117,7 @@ public final class ClientWeatherHelper {
 						curPrecipStrTarget = 0;
 					}
 				}
-
-
 			}
-
-			//mc.level.setRainStrength(0);
-			//mc.level.thunderingStrength = 0;
 		}
 
 		if (forOvercast) {
@@ -161,8 +135,25 @@ public final class ClientWeatherHelper {
 		}
 	}
 
-	public void controlVisuals() {
+	public void controlVisuals(boolean precipitating) {
+		Minecraft mc = Minecraft.getInstance();
+		if (precipitating) {
+			mc.level.getLevelData().setRaining(true);
+			//TODO: will this do to replace setThundering?
+			mc.level.setThunderLevel(1F);
+		} else {
+			if (!ClientTickHandler.clientConfigData.overcastMode) {
+				mc.level.getLevelData().setRaining(false);
+				mc.level.setThunderLevel(0F);
+			} else {
+				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+					mc.level.getLevelData().setRaining(true);
+					mc.level.setThunderLevel(1F);
+				} else {
 
+				}
+			}
+		}
 	}
 
 	public void tickRainRates() {

@@ -1,5 +1,7 @@
 package weather2;
 
+import com.corosus.modconfig.ConfigMod;
+import com.corosus.modconfig.IConfigCategory;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -11,7 +13,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import weather2.config.*;
 import weather2.util.WeatherUtilSound;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Weather.MODID)
@@ -24,6 +31,9 @@ public class Weather
 
     public static boolean initProperNeededForWorld = true;
 
+    public static List<IConfigCategory> listConfigs = new ArrayList<>();
+    public static ConfigMisc configMisc = null;
+
     public Weather() {
         // Register the setup method for modloading
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -35,6 +45,23 @@ public class Weather
         modBus.register(WeatherBlocks.class);
 
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
+
+        new File("./config/Weather2").mkdirs();
+        configMisc = new ConfigMisc();
+        ConfigMod.addConfigFile(MODID, addConfig(configMisc));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigWind()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigSand()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigSnow()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigStorm()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigTornado()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigParticle()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigFoliage()));
+        //WeatherUtilConfig.nbtLoadDataAll();
+    }
+
+    public static IConfigCategory addConfig(IConfigCategory config) {
+        listConfigs.add(config);
+        return config;
     }
 
     private void setup(final FMLCommonSetupEvent event) {

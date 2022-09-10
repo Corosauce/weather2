@@ -79,10 +79,10 @@ public class ConfigMisc implements IConfigCategory {
 
 	
 	//dimension settings
-	public static String Dimension_List_Weather = "0,-127";
-	public static String Dimension_List_Clouds = "0,-127";
-	public static String Dimension_List_Storms = "0,-127";
-	public static String Dimension_List_WindEffects = "0,-127";
+	public static String Dimension_List_Weather = "minecraft:overworld, tropicraft:tropicraft";
+	public static String Dimension_List_Clouds = "minecraft:overworld, tropicraft:tropicraft";
+	public static String Dimension_List_Storms = "minecraft:overworld, tropicraft:tropicraft";
+	public static String Dimension_List_WindEffects = "minecraft:overworld, tropicraft:tropicraft";
 
 	public static boolean Villager_MoveInsideForStorms = true;
 	public static int Villager_MoveInsideForStorms_Dist = 256;
@@ -129,8 +129,7 @@ public class ConfigMisc implements IConfigCategory {
 		//Weather.dbg("block list processing disabled");
 		//TODO: 1.14 uncomment
 		//WeatherUtil.doBlockList();
-		//TODO: were not
-		//WeatherUtilConfig.processLists();
+		WeatherUtilConfig.processLists();
 		
 		StormObject.static_YPos_layer0 = Cloud_Layer0_Height;
 		StormObject.static_YPos_layer1 = Cloud_Layer1_Height;

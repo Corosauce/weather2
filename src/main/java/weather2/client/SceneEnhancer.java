@@ -415,6 +415,7 @@ public class SceneEnhancer implements Runnable {
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 		float curPrecipVal = weather.getRainAmount();
+		ClientWeatherHelper.get().controlVisuals(curPrecipVal > 0);
 		//float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 		float maxPrecip = 0.5F;
 

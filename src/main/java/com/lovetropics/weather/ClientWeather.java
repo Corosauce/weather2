@@ -2,17 +2,13 @@ package com.lovetropics.weather;
 
 import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
 import com.lovetropics.minigames.common.core.game.weather.WeatherState;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import weather2.ClientWeatherHelper;
-import weather2.Weather;
-import weather2.client.SceneEnhancer;
 
-@Mod.EventBusSubscriber(modid = Weather.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = LTWeather.MODID, value = Dist.CLIENT)
 public final class ClientWeather {
 	private static ClientWeather instance = new ClientWeather();
 
@@ -65,11 +61,7 @@ public final class ClientWeather {
 	}
 
 	public float getRainAmount() {
-		if (isPrecipitationServerSideControlled()) {
-			return this.state.rainAmount;
-		} else {
-			return ClientWeatherHelper.get().getRainStrengthAndControlVisuals(Minecraft.getInstance().player);
-		}
+		return this.state.rainAmount;
 	}
 
 	public float getVanillaRainAmount() {
@@ -98,10 +90,6 @@ public final class ClientWeather {
 	}
 
 	public boolean hasWeather() {
-		if (SceneEnhancer.FORCE_ON_DEBUG_TESTING) return true;
 		return this.state.hasWeather();
 	}
-
-	public boolean isPrecipitationServerSideControlled() {
-		return Weather.isLoveTropicsInstalled();
-	}}
+}

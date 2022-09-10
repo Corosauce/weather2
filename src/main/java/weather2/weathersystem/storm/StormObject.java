@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -761,7 +762,8 @@ public class StormObject extends WeatherObject {
 				if (world.isLoaded(new BlockPos(x, 0, z))) {
 					int y = world.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
-						addWeatherEffectLightning(new LightningBoltWeather(null, world, x, y, z), false);
+					CULog.dbg("todo fix lightning, register it");
+						//addWeatherEffectLightning(new LightningBoltWeather(null, world, x, y, z), false);
 					//}
 				}
 			}
@@ -960,6 +962,7 @@ public class StormObject extends WeatherObject {
 			WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(world.dimension());
 			
 			boolean tryFormStorm = false;
+			boolean tempAlwaysFormStorm = false;
 			
 			if (this.canBeDeadly && this.levelCurIntensityStage == STATE_NORMAL) {
 				if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
@@ -969,8 +972,8 @@ public class StormObject extends WeatherObject {
 						}
 					}
 				} else {
-					if (ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
-						if (lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks < world.getGameTime()) {
+					if (tempAlwaysFormStorm || ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
+						if (tempAlwaysFormStorm || lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks < world.getGameTime()) {
 							tryFormStorm = true;
 						}
 					}
@@ -981,7 +984,8 @@ public class StormObject extends WeatherObject {
 			    return;
             }
 
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension()) && tryFormStorm) {
+			String temp = manager.getWorld().dimension().location().toString();
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString()) && tryFormStorm) {
 				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
 				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
 

@@ -162,7 +162,7 @@ public class WeatherManagerServer extends WeatherManager {
 				System.out.println("cloud/cloudless/max count: " + countDbg + "/" + countDbg2 + "/" + (ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()));*/
 
 				//cloud formation spawning - REFINE ME!
-				if (!ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.shouldTickClouds(world.dimension())) {
+				if (!ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.shouldTickClouds(world.dimension().location().toString())) {
 					for (int i = 0; i < world.players().size(); i++) {
 						Player entP = world.players().get(i);
 
@@ -192,7 +192,7 @@ public class WeatherManagerServer extends WeatherManager {
 			}
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
-			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.dimension()) && world.getGameTime() % 200 == 0 && windMan.isHighWindEventActive()) {
+			if (!ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.dimension().location().toString()) && world.getGameTime() % 200 == 0 && windMan.isHighWindEventActive()) {
 				Random rand = new Random();
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
