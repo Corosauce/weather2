@@ -12,3 +12,13 @@ authors="Corosus"
 description='''
 
 '''
+
+[[mods]]
+modId="ltweather"
+version="${file.jarVersion}"
+displayName="Weather2"
+logoFile="itcrowd.png"
+authors="Corosus"
+description='''
+
+'''

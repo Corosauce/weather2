@@ -354,10 +354,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		if (world.isClientSide) {
 			tickClient();
 		}
-		
-		//if (size >= 2) {
+
 		if (getSandstormScale() > 0.2D) {
-			//tickBlockSandBuildup();
+			tickBlockSandBuildup();
 		}
 		
 		this.posGround = new Vec3(pos.x, yy, pos.z);

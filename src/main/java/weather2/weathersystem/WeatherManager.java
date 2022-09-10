@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilPhysics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -444,7 +445,7 @@ public abstract class WeatherManager implements IWorldData {
 		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + ":" + "weather_data");
 		worldNBTData.setDataHandler(this);
 
-		System.out.println("weather data: " + worldNBTData.getData());
+		CULog.dbg("weather data: " + worldNBTData.getData());
 
 		CompoundTag data = worldNBTData.getData();
 
@@ -492,7 +493,7 @@ public abstract class WeatherManager implements IWorldData {
 			}*/
 		}
 
-		System.out.println("reloaded weather objects: " + listStormObjects.size());
+		CULog.dbg("reloaded weather objects: " + listStormObjects.size());
 	}
 
 	public WindManager getWindManager() {
