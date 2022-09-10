@@ -1,6 +1,6 @@
 package weather2;
 
-import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
+import weather2.datatypes.PrecipitationType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;

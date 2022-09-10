@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.core.game.weather;
+package weather2.datatypes;
 
 public enum PrecipitationType {
 	NORMAL,

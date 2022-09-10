@@ -3,8 +3,8 @@ package weather2.client;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
-import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
-import com.lovetropics.minigames.common.core.game.weather.WeatherEventType;
+import weather2.datatypes.PrecipitationType;
+import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.*;
@@ -1385,10 +1385,8 @@ public class SceneEnhancer implements Runnable {
 		Minecraft client = Minecraft.getInstance();
 		Player player = client.player;
 		Level world = client.level;
-		Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
 		WindManager windMan = ClientTickHandler.weatherManager.getWindManager();
 		ClientTickHandler.checkClientWeather();
-		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 

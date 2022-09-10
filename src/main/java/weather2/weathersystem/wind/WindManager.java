@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import weather2.ServerWeatherProxy;
 import weather2.Weather;
 import weather2.config.ConfigLTOverrides;
 import weather2.config.ConfigMisc;
@@ -240,10 +241,9 @@ public class WindManager {
 					}
 				}
 
-				if (ConfigLTOverrides.windSpeedOverride) {
-					ServerLevel world = (ServerLevel) manager.getWorld();
-					WeatherController weatherController = WeatherControllerManager.forWorld(world);
-					windSpeedGlobal = weatherController.getWindSpeed();
+				float speedOverride = ServerWeatherProxy.getWindSpeed((ServerLevel) manager.getWorld());
+				if (speedOverride != -1) {
+					windSpeedGlobal = speedOverride;
 				}
 
 				//smooth use

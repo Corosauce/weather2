@@ -1,6 +1,6 @@
 package weather2.weathersystem.fog;
 
-import com.lovetropics.minigames.common.core.game.weather.WeatherEventType;
+import weather2.datatypes.WeatherEventType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;

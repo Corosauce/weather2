@@ -1,7 +1,7 @@
 package weather2.ltcompat;
 
-import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
 import com.lovetropics.weather.ClientWeather;
+import weather2.datatypes.PrecipitationType;
 
 public final class ClientWeatherIntegration {
 	private static ClientWeatherIntegration instance = new ClientWeatherIntegration();
@@ -26,7 +26,7 @@ public final class ClientWeatherIntegration {
 	}
 
 	public PrecipitationType getRainType() {
-		return ClientWeather.get().getRainType();
+		return TypeConverter.from(ClientWeather.get().getRainType());
 	}
 
 	public float getWindSpeed() {

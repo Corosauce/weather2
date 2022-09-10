@@ -23,10 +23,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
-import weather2.PacketNBTFromServer;
-import weather2.Weather;
-import weather2.WeatherBlocks;
-import weather2.WeatherNetworking;
+import weather2.*;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigStorm;
@@ -41,7 +38,6 @@ import weather2.weathersystem.wind.WindManager;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class WeatherManagerServer extends WeatherManager {
 	private final ServerLevel world;
@@ -60,15 +56,13 @@ public class WeatherManagerServer extends WeatherManager {
 	public void tick() {
 		super.tick();
 
-		WeatherController controller = WeatherControllerManager.forWorld(world);
-		if (controller != null) {
-			StormState snowstorm = controller.getSnowstorm();
-			StormState sandstorm = controller.getSandstorm();
-			if (snowstorm != null) {
-				tickStormBlockBuildup(snowstorm, Blocks.SNOW);
-			} else if (sandstorm != null) {
-				tickStormBlockBuildup(sandstorm, WeatherBlocks.blockSandLayer);
-			}
+		StormState snowstorm = ServerWeatherProxy.getSnowstormForEverywhere(world);
+		if (snowstorm != null) {
+			tickStormBlockBuildup(snowstorm, Blocks.SNOW);
+		}
+		StormState sandstorm = ServerWeatherProxy.getSandstormForEverywhere(world);
+		if (sandstorm != null) {
+			tickStormBlockBuildup(sandstorm, WeatherBlocks.blockSandLayer);
 		}
 
 		tickWeatherCoverage();
