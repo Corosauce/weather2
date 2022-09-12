@@ -34,8 +34,8 @@ public final class ClientWeatherProxy {
 		return ClientWeatherIntegration.get().getVanillaRainAmount();
 	}
 
-	public PrecipitationType getRainType() {
-		return ClientWeatherIntegration.get().getRainType();
+	public PrecipitationType getPrecipitationType() {
+		return ClientWeatherIntegration.get().getPrecipitationType();
 	}
 
 	public float getWindSpeed() {

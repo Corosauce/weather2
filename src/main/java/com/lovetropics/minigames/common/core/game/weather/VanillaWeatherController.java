@@ -64,7 +64,7 @@ public final class VanillaWeatherController implements WeatherController {
 	}
 
 	@Override
-	public PrecipitationType getRainType() {
+	public PrecipitationType getPrecipitationType() {
 		return state.precipitationType;
 	}
 

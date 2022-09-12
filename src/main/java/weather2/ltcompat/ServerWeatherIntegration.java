@@ -1,25 +1,24 @@
 package weather2.ltcompat;
 
-import com.lovetropics.minigames.common.core.game.weather.WeatherController;
-import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
+import com.lovetropics.weather.TypeBridge;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Tuple;
 import weather2.datatypes.StormState;
 
 public class ServerWeatherIntegration {
 
     public static float getWindSpeed(ServerLevel level) {
-        WeatherController weatherController = WeatherControllerManager.forWorld(level);
-        return weatherController.getWindSpeed();
+        return TypeBridge.getWindSpeed(level);
     }
 
     public static StormState getSandstormForEverywhere(ServerLevel level) {
-        WeatherController controller = WeatherControllerManager.forWorld(level);
-        return controller != null ? TypeConverter.from(controller.getSandstorm()) : null;
+        Tuple<Integer, Integer> data = TypeBridge.getSandstormData(level);
+        return new StormState(data.getA(), data.getB());
     }
 
     public static StormState getSnowstormForEverywhere(ServerLevel level) {
-        WeatherController controller = WeatherControllerManager.forWorld(level);
-        return controller != null ? TypeConverter.from(controller.getSnowstorm()) : null;
+        Tuple<Integer, Integer> data = TypeBridge.getSnowstormData(level);
+        return new StormState(data.getA(), data.getB());
     }
 
 }

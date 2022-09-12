@@ -101,7 +101,7 @@ public final class ServerWeatherController implements WeatherController {
 	}
 
 	@Override
-	public PrecipitationType getRainType() {
+	public PrecipitationType getPrecipitationType() {
 		return this.state.precipitationType;
 	}
 

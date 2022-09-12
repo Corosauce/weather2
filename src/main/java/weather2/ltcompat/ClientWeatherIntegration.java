@@ -1,6 +1,7 @@
 package weather2.ltcompat;
 
 import com.lovetropics.weather.ClientWeather;
+import com.lovetropics.weather.TypeBridge;
 import weather2.datatypes.PrecipitationType;
 
 public final class ClientWeatherIntegration {
@@ -25,8 +26,8 @@ public final class ClientWeatherIntegration {
 		return ClientWeather.get().getVanillaRainAmount();
 	}
 
-	public PrecipitationType getRainType() {
-		return TypeConverter.from(ClientWeather.get().getRainType());
+	public PrecipitationType getPrecipitationType() {
+		return PrecipitationType.VALUES[TypeBridge.getPrecipitationTypeOrdinal(ClientWeather.get())];
 	}
 
 	public float getWindSpeed() {

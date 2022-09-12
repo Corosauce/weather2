@@ -2,23 +2,7 @@ package com.lovetropics.minigames.common.core.game.weather;
 
 import net.minecraft.network.FriendlyByteBuf;
 
-public final class StormState {
-	private final int buildupTickRate;
-	private final int maxStackable;
-
-	public StormState(int buildupTickRate, int maxStackable) {
-		this.buildupTickRate = buildupTickRate;
-		this.maxStackable = maxStackable;
-	}
-
-	public int getBuildupTickRate() {
-		return buildupTickRate;
-	}
-
-	public int getMaxStackable() {
-		return maxStackable;
-	}
-
+public record StormState(int buildupTickRate, int maxStackable) {
 	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeVarInt(this.buildupTickRate);
 		buffer.writeVarInt(this.maxStackable);

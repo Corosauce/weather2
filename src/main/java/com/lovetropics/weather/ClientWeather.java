@@ -69,7 +69,7 @@ public final class ClientWeather {
 		return Math.min(this.state.rainAmount * 3F, 1F);
 	}
 
-	public PrecipitationType getRainType() {
+	public PrecipitationType getPrecipitationType() {
 		return this.state.precipitationType;
 	}
 

@@ -25,7 +25,7 @@ public interface WeatherController {
 
 	float getRainAmount();
 
-	PrecipitationType getRainType();
+	PrecipitationType getPrecipitationType();
 
 	float getWindSpeed();
 

@@ -15,7 +15,7 @@ public class SoundRegistry {
 
 	private static HashMap<String, SoundEvent> lookupStringToEvent = new HashMap<String, SoundEvent>();
 
-	@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
+	@Mod.EventBusSubscriber(modid = Weather.MODID,bus=Mod.EventBusSubscriber.Bus.MOD)
 	public static class RegistryEvents {
 		@SubscribeEvent(priority = EventPriority.HIGHEST)
 		public static void onBlocksRegistry(final RegistryEvent.Register<SoundEvent> event) {

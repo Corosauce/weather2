@@ -43,7 +43,6 @@ import weather2.config.ConfigSand;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
-import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.tornado.TornadoManagerTodoRenameMe;
 import weather2.weathersystem.wind.WindManager;
 
@@ -387,7 +386,7 @@ public class SceneEnhancer implements Runnable {
 	public void tickMisc() {
 
 		/*ClientWeatherProxy weather = ClientWeatherProxy.get();
-		if (weather.getRainType() == RainType.ACID) {
+		if (weather.getPrecipitationType() == RainType.ACID) {
 			if (LevelRenderer.RAIN_LOCATION != RAIN_TEXTURES_GREEN) {
 				LevelRenderer.RAIN_LOCATION = RAIN_TEXTURES_GREEN;
 			}
@@ -462,11 +461,11 @@ public class SceneEnhancer implements Runnable {
 				curPrecipVal = 1;
 			}
 
-			if (curPrecipVal > 0 && weather.getRainType() != PrecipitationType.SNOW) {
+			if (curPrecipVal > 0 && weather.getPrecipitationType() != PrecipitationType.SNOW) {
 
 				//particleAmp = 1;
 				//if (curPrecipVal != 0 && curPrecipVal != 0.5F) {
-					//Weather.dbg("curPrecipVal:" + curPrecipVal + " - " + weather.getRainType());
+					//Weather.dbg("curPrecipVal:" + curPrecipVal + " - " + weather.getPrecipitationType());
 				//}
 
 				int spawnCount;
@@ -559,7 +558,7 @@ public class SceneEnhancer implements Runnable {
 
 								windMan.applyWindForceNew(rain, 10F, 0.5F);
 
-								if (weather.getRainType() == PrecipitationType.ACID) {
+								if (weather.getPrecipitationType() == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -736,7 +735,7 @@ public class SceneEnhancer implements Runnable {
 
 								windMan.applyWindForceNew(rain, 1F / 5F, 0.5F);
 
-								if (weather.getRainType() == PrecipitationType.ACID) {
+								if (weather.getPrecipitationType() == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -833,7 +832,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 								rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 
-								if (weather.getRainType() == PrecipitationType.ACID) {
+								if (weather.getPrecipitationType() == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -1622,11 +1621,11 @@ public class SceneEnhancer implements Runnable {
 			return WeatherEventType.SNOWSTORM;
 		} else if (clientWeather.isHeatwave()) {
 			return WeatherEventType.HEATWAVE;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == PrecipitationType.ACID) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType() == PrecipitationType.ACID) {
 			return WeatherEventType.ACID_RAIN;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == PrecipitationType.NORMAL) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType() == PrecipitationType.NORMAL) {
 			return WeatherEventType.HEAVY_RAIN;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getRainType() == PrecipitationType.HAIL) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType() == PrecipitationType.HAIL) {
 			return WeatherEventType.HAIL;
 		} else {
 			return null;
