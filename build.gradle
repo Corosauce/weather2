@@ -88,7 +88,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            arg "-mixin.config=ltweather.mixins.json"
+            arg "-mixin.config=weather2.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -113,7 +113,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            arg "-mixin.config=ltweather.mixins.json"
+            arg "-mixin.config=weather2.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -169,7 +169,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 mixin {
     add sourceSets.main, 'weather2.refmap.json'
-    config 'ltweather.mixins.json'
+    config 'weather2.mixins.json'
 }
 
 repositories {
@@ -187,6 +187,7 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     implementation fg.deobf('com.corosus.coroutil:coroutil:1.18.1-1.2.37')
+    implementation fg.deobf("com.lovetropics.minigames:LTWeather:0.0.1-alpha+custom")
     //lazydfu-1.0-1.18+
     implementation fg.deobf("curse.maven:lazydfu-460819:3544496")
     minecraft 'net.minecraftforge:forge:1.18.1-39.0.5'
@@ -216,7 +217,7 @@ jar {
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "examplemodsareus",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'MixinConfigs': 'ltweather.mixins.json'
+                'MixinConfigs': 'weather2.mixins.json'
         ])
     }
 }

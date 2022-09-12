@@ -1,20 +1,10 @@
 modLoader="javafml"
 loaderVersion="[39,)"
-issueTrackerURL="https://github.com/LoveTropics/LTWeather/issues"
+issueTrackerURL="https://github.com/Corosauce/weather2/issues"
 license="All Rights Reserved"
 
 [[mods]]
 modId="weather2"
-version="${file.jarVersion}"
-displayName="Weather2"
-logoFile="itcrowd.png"
-authors="Corosus"
-description='''
-
-'''
-
-[[mods]]
-modId="ltweather"
 version="${file.jarVersion}"
 displayName="Weather2"
 logoFile="itcrowd.png"
