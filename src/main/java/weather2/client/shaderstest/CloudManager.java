@@ -37,7 +37,7 @@ public class CloudManager {
         CloudManager.NoiseParameters noiseParameters = new CloudManager.NoiseParameters(-9, 1.0D, 0.0D, 3.0D, 3.0D, 3.0D, 3.0D);
 
         perlinNoise = PerlinNoise.create(new LegacyRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
-        normalNoise = NormalNoise.create(new LegacyRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
+        //normalNoise = NormalNoise.create(new LegacyRandomSource(random.nextLong()), noiseParameters.firstOctave(), noiseParameters.amplitudes());
     }
 
     /*public static CloudManager getInstance() {

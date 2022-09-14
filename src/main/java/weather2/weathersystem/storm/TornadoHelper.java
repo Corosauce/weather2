@@ -253,7 +253,7 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            Biome bgb = parWorld.getBiome(new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z)));
+            Biome bgb = parWorld.m_204166_(new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))).m_203334_();
         	
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation

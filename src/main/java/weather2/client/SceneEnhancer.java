@@ -426,7 +426,7 @@ public class SceneEnhancer implements Runnable {
 
 		int precipitationHeight = entP.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ()))).getY();
 
-		Biome biome = entP.level.getBiome(new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ())));
+		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ()))).m_203334_();
 
 		Level world = entP.level;
 		Random rand = entP.level.random;
@@ -487,7 +487,7 @@ public class SceneEnhancer implements Runnable {
 				BlockPos posForTemperature = entP.blockPosition();
 
 				//rain
-				if (entP.level.getBiome(posForTemperature).getTemperature(posForTemperature) >= 0.15F) {
+				if (entP.level.m_204166_(posForTemperature).m_203334_().getTemperature(posForTemperature) >= 0.15F) {
 
 					//Weather.dbg("precip: " + curPrecipVal);
 

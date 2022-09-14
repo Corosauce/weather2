@@ -371,8 +371,8 @@ public class WeatherManagerServer extends WeatherManager {
 			BlockPos pos = new BlockPos(x, 0, z);
 
 			if (!world.isLoaded(pos)) continue;
-			//Biome biomeIn = world.getBiomeForCoordsBody(pos);
-			Biome biomeIn = world.getBiome(pos);
+			//Biome biomeIn = world.m_204166_ForCoordsBody(pos);
+			Biome biomeIn = world.m_204166_(pos).m_203334_();
 
 			if (WeatherObjectSandstorm.isDesert(biomeIn, true)) {
 				//found
@@ -388,13 +388,13 @@ public class WeatherManagerServer extends WeatherManager {
 				double distLeftRight = 20;
 				BlockPos posLeft = new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight));
 				if (!world.isLoaded(posLeft)) continue;
-				//if (!WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posLeft))) continue;
-				if (!WeatherObjectSandstorm.isDesert(world.getBiome(posLeft))) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posLeft))) continue;
+				if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posLeft).m_203334_())) continue;
 
 				BlockPos posRight = new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight));
 				if (!world.isLoaded(posRight)) continue;
-				//if (!WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posRight))) continue;
-				if (!WeatherObjectSandstorm.isDesert(world.getBiome(posRight))) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posRight))) continue;
+				if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posRight).m_203334_())) continue;
 
 				//go as far upwind as possible until no desert / unloaded area
 
@@ -403,8 +403,8 @@ public class WeatherManagerServer extends WeatherManager {
 				BlockPos posFindLastGoodDownwind = new BlockPos(foundPos);
 				double tickDist = 10;
 
-				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
-				while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiome(posFind))) {
+				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posFind))) {
+				while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_(posFind).m_203334_())) {
 					//tick last good
 					posFindLastGoodUpwind = new BlockPos(posFind);
 
@@ -418,8 +418,8 @@ public class WeatherManagerServer extends WeatherManager {
 				//reset for downwind scan
 				posFind = new BlockPos(foundPos);
 
-				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
-				while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiome(posFind))) {
+				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posFind))) {
+				while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_(posFind).m_203334_())) {
 					//tick last good
 					posFindLastGoodDownwind = new BlockPos(posFind);
 

@@ -213,7 +213,7 @@ public class StormObject extends WeatherObject {
 	public void initFirstTime() {
 		super.initFirstTime();
 		
-		Biome bgb = manager.getWorld().getBiome(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)));
+		Biome bgb = manager.getWorld().m_204166_(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).m_203334_();
 
 		
 		float temp = 1;
@@ -492,7 +492,7 @@ public class StormObject extends WeatherObject {
 					int i = entry.getKey();
 					Vec3 tryPos = null;
 
-					ent.setScale(800);
+					ent.setScale(800 * 0.15F);
 
 					double countPerLayer = 16;
 					double rotPos = i % 16;
@@ -500,7 +500,7 @@ public class StormObject extends WeatherObject {
 					double spawnRad = 80;
 					if (layerRot == 1) {
 						spawnRad = 60;
-						ent.setScale(600);
+						ent.setScale(600 * 0.15F);
 					}
 					double speed = 50D / (spawnRad * 2D);
 
@@ -863,7 +863,7 @@ public class StormObject extends WeatherObject {
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 
 			//Biome bgb = null;
-			Biome bgb = world.getBiome(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)));
+			Biome bgb = world.m_204166_(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).m_203334_();
 			
 			//temperature scan
 			if (bgb != null) {
@@ -1514,7 +1514,7 @@ public class StormObject extends WeatherObject {
 							particle = spawnFogParticle(tryPos.x, groundY + 3, tryPos.z, 0);
 						}
 						
-						particle.setScale(200);
+						particle.setScale(200 * 0.15F);
 						particle.rotationYaw = rand.nextInt(360);
 						particle.rotationPitch = rand.nextInt(360);
 						
@@ -1608,10 +1608,10 @@ public class StormObject extends WeatherObject {
 							
 							//highwind aka spout in this current code location
 							if (levelCurIntensityStage == STATE_HIGHWIND) {
-								particle.setScale(150);
+								particle.setScale(150 * 0.15F);
 								particle.setColor(finalBright-0.2F, finalBright-0.2F, finalBright);
 							} else {
-								particle.setScale(250);
+								particle.setScale(250 * 0.15F);
 								particle.setColor(finalBright, finalBright, finalBright);
 							}
 
@@ -1868,7 +1868,7 @@ public class StormObject extends WeatherObject {
 		        	speed /= 5D;
 				}
 		        
-		        ent.setScale((float) Math.min(maxParticleSize, curDist * 2F));
+		        ent.setScale((float) Math.min(maxParticleSize * 0.15F, curDist * 2F * 0.15F));
 		        
 		        if (curDist < 20) {
 		        	ent.remove();

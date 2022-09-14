@@ -442,7 +442,7 @@ public abstract class WeatherManager implements IWorldData {
 
 	public void read() {
 
-		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + ":" + "weather_data");
+		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + File.separator + "weather_data");
 		worldNBTData.setDataHandler(this);
 
 		CULog.dbg("weather data: " + worldNBTData.getData());

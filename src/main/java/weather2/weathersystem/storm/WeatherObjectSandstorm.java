@@ -135,7 +135,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	 */
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
 		//TODO: make sure new comparison works
-		return biome.equals(Biomes.DESERT)/* || biome.equals(Biomes.DESERT_HILLS)*/ || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getBiomeCategory().getName().toLowerCase().contains("desert");
+		return biome.equals(Biomes.DESERT)/* || biome.equals(Biomes.DESERT_HILLS)*/ || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getRegistryName().toString().toLowerCase().contains("desert");
 		//return biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || (!forSpawn && biome == Biomes.RIVER) || biome.getCategory().getName().toLowerCase().contains("desert");
 	}
 	
@@ -182,7 +182,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			
 			//only grow if in loaded area and in desert, also prevent it from growing again for some reason if it started dying already
 			if (isFrontGrowing && world.hasChunkAt(posBlock)) {
-				Biome biomeIn = world.getBiome(posBlock);
+				Biome biomeIn = world.m_204166_(posBlock).m_203334_();
 
 				if (onlyDecayFromTime) {
 					if (ageAtMaxSize > 20*20) {
@@ -305,7 +305,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					//avoid unloaded areas
 					if (!world.hasChunkAt(blockPos)) continue;
 
-					Biome biomeIn = world.getBiome(blockPos);
+					Biome biomeIn = world.m_204166_(blockPos).m_203334_();
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
 						//TODO: 1.14 uncomment

@@ -13,12 +13,12 @@ public class ServerWeatherIntegration {
 
     public static StormState getSandstormForEverywhere(ServerLevel level) {
         Tuple<Integer, Integer> data = TypeBridge.getSandstormData(level);
-        return new StormState(data.getA(), data.getB());
+        return data != null ? new StormState(data.getA(), data.getB()) : null;
     }
 
     public static StormState getSnowstormForEverywhere(ServerLevel level) {
         Tuple<Integer, Integer> data = TypeBridge.getSnowstormData(level);
-        return new StormState(data.getA(), data.getB());
+        return data != null ? new StormState(data.getA(), data.getB()) : null;
     }
 
 }
