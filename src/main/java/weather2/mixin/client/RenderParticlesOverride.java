@@ -1,5 +1,6 @@
 package weather2.mixin.client;
 
+import com.corosus.coroutil.util.CULog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,7 @@ public abstract class RenderParticlesOverride {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/particle/ParticleEngine;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V"))
     public void render(ParticleEngine particleManager, PoseStack matrixStackIn, MultiBufferSource.BufferSource bufferIn, LightTexture lightTextureIn, Camera activeRenderInfoIn, float partialTicks, @Nullable net.minecraft.client.renderer.culling.Frustum clippingHelper) {
-        //System.out.println("hooked render!");
+        //CULog.dbg("ParticleEngine render hook");
         ClientTickHandler.particleManagerExtended().render(matrixStackIn, bufferIn, lightTextureIn, activeRenderInfoIn, partialTicks, clippingHelper);
         particleManager.render(matrixStackIn, bufferIn, lightTextureIn, activeRenderInfoIn, partialTicks, clippingHelper);
 
@@ -35,6 +36,7 @@ public abstract class RenderParticlesOverride {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSnowAndRain(Lnet/minecraft/client/renderer/LightTexture;FDDD)V"))
     public void renderSnowAndRain(LevelRenderer worldRenderer, LightTexture lightmapIn, float partialTicks, double xIn, double yIn, double zIn) {
+        //CULog.dbg("renderSnowAndRain hook");
         //stopping vanilla from running renderRainSnow
     }
 
@@ -42,6 +44,7 @@ public abstract class RenderParticlesOverride {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V"))
     public void renderClouds(LevelRenderer instance, PoseStack poseStack, Matrix4f l, float i1, double f1, double f2, double d0) {
+        //CULog.dbg("renderClouds hook");
         //workaround for missing projection matrix info
         ICloudRenderHandler cloudRenderHandler = Minecraft.getInstance().level.effects().getCloudRenderHandler();
         if (cloudRenderHandler instanceof CloudRenderHandler) {

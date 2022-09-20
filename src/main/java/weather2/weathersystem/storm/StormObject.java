@@ -1121,7 +1121,7 @@ public class StormObject extends WeatherObject {
 							//Weather.dbg("storm ID: " + this.ID + " trying to hit next stage");
 							if (alwaysProgresses || levelCurIntensityStage < levelStormIntensityMax/*rand.nextInt(oddsTo1OfIntensityProgression) == 0*/) {
 								stageNext();
-								Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage);
+								Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage + " pos: " + pos);
 								//mark is tropical cyclone if needed! and never unmark it!
 								if (isInOcean) {
 									//make it ONLY allow to change during forming stage, so it locks in
@@ -1139,7 +1139,7 @@ public class StormObject extends WeatherObject {
 					}
 					
 					
-					Weather.dbg("storm ID: " + this.ID + " - growing, stage " + levelCurIntensityStage + " of max " + levelStormIntensityMax + ", at intensity: " + levelCurStagesIntensity);
+					Weather.dbg("storm ID: " + this.ID + " - growing, stage " + levelCurIntensityStage + " of max " + levelStormIntensityMax + ", at intensity: " + levelCurStagesIntensity + " pos: " + pos);
 					
 					if (levelCurStagesIntensity >= 1F) {
 						Weather.dbg("storm peaked at: " + levelCurIntensityStage);
@@ -1644,9 +1644,9 @@ public class StormObject extends WeatherObject {
 			} else {
 				 double var16 = this.pos.x - ent.getPosX();
                  double var18 = this.pos.z - ent.getPosZ();
-                 ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
-                 ent.rotationYaw += ent.getEntityId() % 90;
-                 ent.rotationPitch = -30F;
+                 ent.rotationYaw = -(float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
+                 ent.rotationYaw -= ent.getEntityId() % 90;
+                 ent.rotationPitch = 30F;
                  
                  //fade spout blue to grey
                  if (levelCurIntensityStage == STATE_HIGHWIND) {
@@ -1734,11 +1734,13 @@ public class StormObject extends WeatherObject {
 			        			angle += 50 + ((ent.getEntityId() % 5) * 4);
 			        		}
 			        	}
-			        	
-			        	double var16 = this.pos.x - ent.getPosX();
-		                double var18 = this.pos.z - ent.getPosZ();
-		                ent.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / Math.PI) - 90.0F;
-		                ent.rotationPitch = -20F - (ent.getEntityId() % 10);
+
+			        	double diffX = this.pos.x - ent.getPosX();
+		                double diffZ = this.pos.z - ent.getPosZ();
+		                ent.rotationYaw = (float)(Math.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F;
+		                ent.rotationYaw = -(float)(Math.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F;
+		                //ent.rotationYaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) + 90F;
+		                ent.rotationPitch = 20F - (ent.getEntityId() % 10);
 			        }
 			        
 			        
@@ -2186,7 +2188,7 @@ public class StormObject extends WeatherObject {
 	        ent.getPersistentData().putLong("lastPullTime", worldTime);
         }
         
-        //setVel(entity1, -moveX, pullY, moveZ);
+        setVel(entity1, -moveX, pullY, moveZ);
 	}
 	
 	public void setVel(Object entity, float f, float f1, float f2)

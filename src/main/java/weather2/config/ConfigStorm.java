@@ -29,7 +29,7 @@ public class ConfigStorm implements IConfigCategory {
 	//public static double Storm_Deadly_MinIntensity = 5.3D;
 	public static int Storm_HailPerTick = 10;
 	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
-	public static int Storm_OddsTo1OfLandBasedStorm = 1;
+	public static int Storm_OddsTo1OfLandBasedStorm = -1;
 	//public static int Storm_OddsTo1OfProgressionBase = 15;
 	//public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
 	public static int Storm_PercentChanceOf_HighWind = 90;

@@ -437,6 +437,7 @@ public class EntityRotFX extends TextureSheetParticle
     }
 
     public void setScale(float parScale) {
+        super.setSize(parScale, parScale);
         quadSize = parScale;
     }
 

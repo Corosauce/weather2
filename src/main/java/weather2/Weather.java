@@ -2,7 +2,10 @@ package weather2;
 
 import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,6 +16,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import weather2.command.WeatherCommand;
 import weather2.config.*;
 import weather2.util.WeatherUtilSound;
 
@@ -45,6 +49,7 @@ public class Weather
         modBus.register(WeatherBlocks.class);
 
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
+        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
         new File("./config/Weather2").mkdirs();
         configMisc = new ConfigMisc();
@@ -89,5 +94,11 @@ public class Weather
 
     public static boolean isLoveTropicsInstalled() {
         return ModList.get().isLoaded("ltminigames");
+    }
+
+    private void registerCommands(RegisterCommandsEvent event) {
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+
+        WeatherCommand.register(dispatcher);
     }
 }

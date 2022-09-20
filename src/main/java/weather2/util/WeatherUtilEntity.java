@@ -22,7 +22,7 @@ import net.minecraftforge.fml.util.thread.EffectiveSide;
 
 public class WeatherUtilEntity {
 	
-    public static float getWeight(Object entity1)
+    public static float getWeight(Object entity1, boolean forTornado)
     {
     	Level world = CoroUtilEntOrParticle.getWorld(entity1);
 
@@ -79,6 +79,66 @@ public class WeatherUtilEntity {
 
         return 1F;
     }
+
+
+
+	public static float getWeight(Object entity1)
+	{
+		Level world = CoroUtilEntOrParticle.getWorld(entity1);
+
+		if (world == null) {
+			return 1F;
+		}
+
+		if (isParticleRotServerSafe(world, entity1))
+		{
+			float var = WeatherUtilParticle.getParticleWeight((EntityRotFX)entity1);
+
+			if (var != -1)
+			{
+				return var;
+			}
+		}
+
+		if (entity1 instanceof Squid)
+		{
+			return 400F;
+		}
+
+		if (entity1 instanceof LivingEntity)
+		{
+			LivingEntity livingEnt = (LivingEntity) entity1;
+			int airTime = livingEnt.getPersistentData().getInt("timeInAir");
+			if (livingEnt.isOnGround() || livingEnt.isInWater())
+			{
+				airTime = 0;
+			}
+			else {
+				airTime++;
+			}
+
+			livingEnt.getPersistentData().putInt("timeInAir", airTime);
+
+			if (entity1 instanceof Player) {
+				if (((Player) entity1).abilities.instabuild) return 99999999F;
+				return 5.0F + airTime / 400.0F;
+			} else {
+				return 500.0F + (livingEnt.isOnGround() ? 2.0F : 0.0F) + (airTime / 400.0F);
+			}
+		}
+
+		if (entity1 instanceof Boat || entity1 instanceof ItemEntity || entity1 instanceof FishingHook)
+		{
+			return 4000F;
+		}
+
+		if (entity1 instanceof AbstractMinecart)
+		{
+			return 80F;
+		}
+
+		return 1F;
+	}
     
     public static boolean isParticleRotServerSafe(Level world, Object obj) {
     	if (EffectiveSide.get().equals(LogicalSide.SERVER)) {

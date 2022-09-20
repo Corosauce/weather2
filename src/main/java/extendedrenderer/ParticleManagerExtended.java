@@ -293,6 +293,8 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       posestack.mulPoseMatrix(p_107337_.last().pose());
       RenderSystem.applyModelViewMatrix();
 
+      RenderSystem.disableCull();
+
       for(ParticleRenderType particlerendertype : this.particles.keySet()) { // Forge: allow custom IParticleRenderType's
          if (particlerendertype == ParticleRenderType.NO_RENDER) continue;
          Iterable<Particle> iterable = this.particles.get(particlerendertype);
