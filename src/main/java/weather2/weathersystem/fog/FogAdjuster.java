@@ -82,15 +82,18 @@ public class FogAdjuster {
     public void tickGame(ClientWeatherProxy weather) {
         updateWeatherState();
 
-        if (lastWeatherType != null) {
-            if (randDelay <= 0) {
-                Random rand = new Random();
-                randDelay = 20 + rand.nextInt(5);
-                startRandom();
+        boolean fogDisco = false;
+        if (fogDisco) {
+            if (lastWeatherType != null) {
+                if (randDelay <= 0) {
+                    Random rand = new Random();
+                    randDelay = 20 + rand.nextInt(5);
+                    startRandom();
+                }
             }
-        }
 
-        randDelay--;
+            randDelay--;
+        }
 
         //System.out.println("lerpAmount: " + lerpAmount);
         //System.out.println("isFogOverriding(): " + isFogOverriding());

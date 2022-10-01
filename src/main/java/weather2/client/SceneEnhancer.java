@@ -1,5 +1,6 @@
 package weather2.client;
 
+import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
@@ -74,7 +75,7 @@ public class SceneEnhancer implements Runnable {
 	public static final ResourceLocation RAIN_TEXTURES_GREEN = new ResourceLocation(Weather.MODID, "textures/environment/rain_green.png");
 	public static final ResourceLocation RAIN_TEXTURES = new ResourceLocation("textures/environment/rain.png");
 
-	public static boolean FORCE_ON_DEBUG_TESTING = true;
+	public static boolean FORCE_ON_DEBUG_TESTING = false;
 
 	public static int fadeInTimer = 0;
 	public static int fadeInTimerMax = 400;
@@ -157,8 +158,7 @@ public class SceneEnhancer implements Runnable {
 				tryParticleSpawning();
 			}
 
-			FORCE_ON_DEBUG_TESTING = false;
-			if (true || /*weather.hasWeather() || */FORCE_ON_DEBUG_TESTING) {
+			if (weather.hasWeather() || FORCE_ON_DEBUG_TESTING) {
 				ClientWeatherHelper.get().tick();
 				tickParticlePrecipitation();
 				trySoundPlaying();
@@ -414,6 +414,8 @@ public class SceneEnhancer implements Runnable {
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 		float curPrecipVal = weather.getRainAmount();
+
+		//CULog.dbg("curPrecipVal: " + curPrecipVal);
 		ClientWeatherHelper.get().controlVisuals(curPrecipVal > 0);
 		//float curPrecipVal = getRainStrengthAndControlVisuals(entP);
 		float maxPrecip = 0.5F;
