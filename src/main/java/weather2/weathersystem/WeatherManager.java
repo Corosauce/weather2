@@ -417,7 +417,7 @@ public abstract class WeatherManager implements IWorldData {
 	@Override
 	public CompoundTag save(CompoundTag data) {
 
-		System.out.println("WeatherManager save");
+		CULog.dbg("WeatherManager save");
 
 		CompoundTag listStormsNBT = new CompoundTag();
 		for (int i = 0; i < listStormObjects.size(); i++) {
@@ -442,7 +442,7 @@ public abstract class WeatherManager implements IWorldData {
 
 	public void read() {
 
-		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + File.separator + "weather_data");
+		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + "-" + "weather_data");
 		worldNBTData.setDataHandler(this);
 
 		CULog.dbg("weather data: " + worldNBTData.getData());

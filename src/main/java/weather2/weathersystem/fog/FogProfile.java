@@ -12,15 +12,15 @@ public class FogProfile {
     private float fogEndSky;
 
     public FogProfile(FogProfile profile) {
-        this.rgb = profile.rgb;
+        this.rgb = new Vector3f(profile.rgb.x(), profile.rgb.y(), profile.rgb.z());
         this.fogStart = profile.fogStart;
-        this.fogStartSky = profile.fogStart;
+        this.fogStartSky = profile.fogStartSky;
         this.fogEnd = profile.fogEnd;
-        this.fogEndSky = profile.fogEnd;
+        this.fogEndSky = profile.fogEndSky;
     }
 
     public FogProfile(Vector3f rgb, float fogStart, float fogEnd) {
-        this.rgb = rgb;
+        this.rgb = new Vector3f(rgb.x(), rgb.y(), rgb.z());;
         this.fogStart = fogStart;
         this.fogStartSky = fogStart;
         this.fogEnd = fogEnd;
