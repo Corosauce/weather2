@@ -14,7 +14,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import com.mojang.math.Quaternion;
 import net.minecraft.world.phys.Vec3;
 import com.mojang.math.Vector3f;
@@ -437,7 +436,8 @@ public class EntityRotFX extends TextureSheetParticle
     }
 
     public void setScale(float parScale) {
-        super.setSize(parScale, parScale);
+        //dont set the AABB as big as the render scale, otherwise huge performance losses, we'll just use 0.3 in constructor for now
+        //super.setSize(parScale, parScale);
         quadSize = parScale;
     }
 
