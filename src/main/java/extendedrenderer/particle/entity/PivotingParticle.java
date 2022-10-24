@@ -38,7 +38,7 @@ public class PivotingParticle extends ParticleTexFX {
     @Override
     public Vec3 getPivotedPosition(float partialTicks) {
         Vec3 pivotLerped = pivotPrev.lerp(pivot, partialTicks);
-        Vec3 pivotRotLerped = pivotRot.lerp(pivotRotPrev, partialTicks);
+        Vec3 pivotRotLerped = pivotRotPrev.lerp(pivotRot, partialTicks);
         float x = (float) (-Math.sin(Math.toRadians(pivotRotLerped.y)) * pivotLerped.y);
         float z = (float) (Math.cos(Math.toRadians(pivotRotLerped.y)) * pivotLerped.y);
         return new Vec3(x, 0, z);

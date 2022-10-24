@@ -246,7 +246,9 @@ public class EntityRotFX extends TextureSheetParticle
     public void tick() {
         super.tick();
         this.prevRotationPitch = this.rotationPitch;
-        this.prevRotationYaw = this.rotationYaw;
+        if (!(this instanceof PivotingParticle)) {
+            this.prevRotationYaw = this.rotationYaw;
+        }
 
         Entity ent = Minecraft.getInstance().getCameraEntity();
 
@@ -705,6 +707,13 @@ public class EntityRotFX extends TextureSheetParticle
 
         if (x != 0.0D || y != 0.0D || z != 0.0D) {
             this.setBoundingBox(this.getBoundingBox().move(x, y, z));
+            /*Vec3 pivotedPosition = getPivotedPosition(0);
+            if (pivotedPosition != Vec3.ZERO) {
+                this.setBoundingBox(this.getBoundingBox().move(x + pivotedPosition.x, y + pivotedPosition.y, z + pivotedPosition.z));
+            } else {
+                this.setBoundingBox(this.getBoundingBox().move(x, y, z));
+            }*/
+
             this.setLocationFromBoundingbox();
         }
 
