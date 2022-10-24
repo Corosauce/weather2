@@ -412,7 +412,7 @@ public class EntityRotFX extends TextureSheetParticle
 
     public void setAge(int age)
     {
-        age = age;
+        this.age = age;
     }
 
     public int getLifetime()
@@ -572,9 +572,10 @@ public class EntityRotFX extends TextureSheetParticle
     public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 
         Vec3 Vector3d = renderInfo.getPosition();
-        float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) - Vector3d.x());
-        float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) - Vector3d.y());
-        float f2 = (float)(Mth.lerp(partialTicks, this.zo, this.z) - Vector3d.z());
+        Vec3 pivotedPosition = getPivotedPosition(partialTicks);
+        float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) + pivotedPosition.x - Vector3d.x());
+        float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) + pivotedPosition.y - Vector3d.y());
+        float f2 = (float)(Mth.lerp(partialTicks, this.zo, this.z) + pivotedPosition.z - Vector3d.z());
         Quaternion quaternion;
         if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
             quaternion = renderInfo.rotation();
@@ -847,5 +848,9 @@ public class EntityRotFX extends TextureSheetParticle
 
     public void setPosition(double posX, double posY, double posZ) {
         this.setPos(posX, posY, posZ);
+    }
+
+    public Vec3 getPivotedPosition(float partialTicks) {
+        return Vec3.ZERO;
     }
 }

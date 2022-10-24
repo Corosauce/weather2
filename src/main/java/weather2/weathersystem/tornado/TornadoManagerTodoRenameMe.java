@@ -25,6 +25,8 @@ public class TornadoManagerTodoRenameMe {
 
     private TornadoFunnel funnel;
 
+    private TornadoFunnelSimple funnelSimple;
+
     //public CubicBezierCurve bezierCurve;
     public List<CubicBezierCurve> curves = new ArrayList<>();
 
@@ -334,6 +336,14 @@ public class TornadoManagerTodoRenameMe {
         }
 
         //funnel.tickGame();
+
+        if (funnelSimple == null) {
+            ActiveTornadoConfig activeTornadoConfig = new ActiveTornadoConfig().setHeight(10).setRadiusOfBase(3).setSpinSpeed(360F / 20F).setRadiusIncreasePerLayer(0.5F);
+            funnelSimple = new TornadoFunnelSimple(activeTornadoConfig);
+            funnelSimple.pos = new Vector3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
+        }
+
+        funnelSimple.tickClient();
 
     }
 

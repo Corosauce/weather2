@@ -72,6 +72,8 @@ public class TornadoFunnel {
 
         Random rand = new Random();
 
+        //listFunnel.clear();
+
         while (listFunnel.size() < funnelPieces) {
             addPieceToEnd(new FunnelPiece());
         }
@@ -162,6 +164,7 @@ public class TornadoFunnel {
                 particleTest.setScale(0.1F);
                 //particleTest.setColor(0.1F * (particles.size() % particleCountCircle), 0, 0);
                 particleTest.setColor(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
+                particleTest.setGravity(0);
                 /*if (piece.listParticles.size() < particleCountCircle * 5) {
                     particleTest.setColor(1, 1, 1);
                 }*/
@@ -343,7 +346,8 @@ public class TornadoFunnel {
                     matrix.setIdentity();
                     matrix.mul(quaternionY);
                     matrix.mul(quatPitch);
-                    //matrix.mul(quaternionYCircle);
+                    //multiply in the radial shape of the tornado
+                    matrix.mul(quaternionYCircle);
                     vecNew.transform(matrix);
 
                     rotAroundPosX = vecNew.x();
