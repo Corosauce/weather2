@@ -11,6 +11,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -340,7 +342,7 @@ public class TornadoManagerTodoRenameMe {
         if (funnelSimple == null) {
             ActiveTornadoConfig activeTornadoConfig = new ActiveTornadoConfig().setHeight(10).setRadiusOfBase(3).setSpinSpeed(360F / 20F).setRadiusIncreasePerLayer(0.5F);
             funnelSimple = new TornadoFunnelSimple(activeTornadoConfig);
-            funnelSimple.pos = new Vector3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
+            funnelSimple.pos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         }
 
         funnelSimple.tickClient();
