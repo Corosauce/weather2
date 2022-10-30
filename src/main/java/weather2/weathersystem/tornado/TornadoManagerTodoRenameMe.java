@@ -345,7 +345,7 @@ public class TornadoManagerTodoRenameMe {
             funnelSimple.pos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         }
 
-        funnelSimple.tickClient();
+        //funnelSimple.tickClient();
 
     }
 
