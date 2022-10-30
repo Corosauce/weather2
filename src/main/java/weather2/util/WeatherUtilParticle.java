@@ -64,7 +64,7 @@ public class WeatherUtilParticle {
         	//ex.printStackTrace();
             try
             {
-                field = (ParticleEngine.class).getDeclaredField("byType");
+                field = (ParticleEngine.class).getDeclaredField("f_107289_");
                 field.setAccessible(true);
                 fxLayers = (Map<ParticleRenderType, Queue<Particle>>)field.get(Minecraft.getInstance().particleEngine);
             }
