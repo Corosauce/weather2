@@ -1,0 +1,36 @@
+name: Java CI with Gradle
+
+on: [push]
+jobs:
+
+  jdk17:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build
+
+    - name: Locate built JARfile
+      id: jar
+      run: echo "jarfile=$(find build/libs/ -name "*.jar" -not -name "*slim*" -not -name "*source*")" >> $GITHUB_OUTPUT
+
+    - name: Set Artifact name
+      id: jarname
+      run: echo "jarname=$(find build/libs/ -name "*.jar" -not -name "*slim*" -not -name "*source*" | sed 's:.*/::')" >> $GITHUB_OUTPUT
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+          name: ${{ steps.jarname.outputs.jarname }}
+          path: ${{ steps.jar.outputs.jarfile }}
