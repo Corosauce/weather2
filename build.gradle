@@ -58,9 +58,17 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.18.2-2.6.10'
+ext.projversion = 0
+project.projversion = '1.18.2-2.6.10'
 group = 'com.corosus.weather2' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'weather2'
+
+if (System.getenv('GITHUB_RUN_NUMBER')) {
+    project.buildnumber = System.getenv('GITHUB_RUN_NUMBER')
+    version = "${projversion}+${buildnumber}-gha"
+} else {
+    version = "${projversion}"
+}
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
