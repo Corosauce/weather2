@@ -35,6 +35,7 @@ import weather2.util.*;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
+import weather2.weathersystem.tornado.simple.Layer;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 import weather2.weathersystem.wind.WindManager;
 
@@ -557,6 +558,8 @@ public class StormObject extends WeatherObject {
 				
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					tornadoHelper.tick(manager.getWorld());
+
+					tornadoFunnelSimple.tickClient();
 				}
 				
 				if (levelCurIntensityStage >= STATE_HIGHWIND) {
@@ -566,10 +569,6 @@ public class StormObject extends WeatherObject {
 				}
 
 				tickMovementClient();
-
-				if (manager.getWorld().isClientSide()) {
-					tornadoFunnelSimple.tickClient();
-				}
 			}
 		} else {
 
@@ -581,6 +580,9 @@ public class StormObject extends WeatherObject {
 
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 				tornadoHelper.tick(manager.getWorld());
+
+				//TODO: TEMPPPPPPPPPPPP, make server logic split up
+				//tornadoFunnelSimple.tickClient();
 			}
 
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
@@ -745,7 +747,8 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (love_tropics_tweaks) {
-			finalSpeed = 0;
+			finalSpeed = 0.15F;
+			finalSpeed = 0F;
 		}
 		
 		if (manager.getWorld().getGameTime() % 100 == 0 && levelCurIntensityStage >= STATE_FORMING) {
@@ -1488,7 +1491,8 @@ public class StormObject extends WeatherObject {
 					
 					//Weather.dbg("listParticlesCloud.size(): " + listParticlesCloud.size());
 					
-					Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					//Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), layers.get(layer), pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
+					Vec3 tryPos = new Vec3(pos.x + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad), getPosTop().y + 30, pos.z + (rand.nextDouble()*spawnRad) - (rand.nextDouble()*spawnRad));
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						if (getAvoidAngleIfTerrainAtOrAheadOfPosition(getAdjustedAngle(), tryPos) == 0) {
 							EntityRotFX particle;
@@ -1977,10 +1981,18 @@ public class StormObject extends WeatherObject {
 	}
 
 	public void spinEntityv2(LivingEntity entity) {
-		double vecx = pos.x - entity.position().x;
-		double vecz = pos.z - entity.position().z;
+		Vec3 posCenter = getPosTop();
+		for (Layer layer : tornadoFunnelSimple.listLayers) {
+			if (entity.position().y - 1.5F < layer.getPos().y) {
+				posCenter = layer.getPos();
+				break;
+			}
+		}
 
-		Vec3 vecXZ = new Vec3(posGround.x, entity.getY(), posGround.z);
+		double vecx = posCenter.x - entity.position().x;
+		double vecz = posCenter.z - entity.position().z;
+
+		Vec3 vecXZ = new Vec3(posCenter.x, entity.getY(), posCenter.z);
 		double distXZ = Math.sqrt(entity.distanceToSqr(vecXZ));
 
 		float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
@@ -1989,6 +2001,7 @@ public class StormObject extends WeatherObject {
 
 		double entHeightFromBase = Math.max(0.1F, entity.getY() - posGround.y);
 		double heightMathMax = 50;
+		//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
 		double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
 
 		angle += (40 * heightAmp);
