@@ -598,8 +598,12 @@ public class TornadoHelper {
 			return canGrabEntityClient(ent);
 		} else {
 			if (ent instanceof Player) {
-				if (ConfigTornado.Storm_Tornado_grabPlayer) {
-					return true;
+				if (!((Player) ent).isCreative()) {
+					if (ConfigTornado.Storm_Tornado_grabPlayer) {
+						return true;
+					} else {
+						return false;
+					}
 				} else {
 					return false;
 				}
@@ -630,8 +634,12 @@ public class TornadoHelper {
 	public boolean canGrabEntityClient(Entity ent) {
 		ClientConfigData clientConfig = ClientTickHandler.clientConfigData;
 		if (ent instanceof Player) {
-			if (clientConfig.Storm_Tornado_grabPlayer) {
-				return true;
+			if (!((Player) ent).isCreative()) {
+				if (ConfigTornado.Storm_Tornado_grabPlayer) {
+					return true;
+				} else {
+					return false;
+				}
 			} else {
 				return false;
 			}

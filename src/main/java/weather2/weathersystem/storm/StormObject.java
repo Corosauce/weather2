@@ -1,6 +1,7 @@
 package weather2.weathersystem.storm;
 
 import com.corosus.coroutil.util.*;
+import com.mojang.datafixers.types.templates.CompoundList;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -369,6 +370,17 @@ public class StormObject extends WeatherObject {
 		ticksSinceLastPacketReceived = 0;//manager.getWorld().getGameTime();
 
 		weatherMachineControlled = parNBT.getBoolean("weatherMachineControlled");
+
+		//TODO: sync tornado config for size etc
+		String prefix = "tornadoFunnelData_layer_";
+		if (parNBT.contains(prefix + "count")) {
+			int count = parNBT.getInt(prefix + "count");
+			for (int i = 0; i < tornadoFunnelSimple.listLayers.size(); i++) {
+				Layer layer = tornadoFunnelSimple.listLayers.get(i);
+				Vec3 newPos = new Vec3(parNBT.getDouble(prefix + i + "_posX"), parNBT.getDouble(prefix + i + "_posY"), parNBT.getDouble(prefix + i + "_posZ"));
+				layer.setPos(newPos);
+			}
+		}
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -416,6 +428,18 @@ public class StormObject extends WeatherObject {
 		data.putBoolean("isFirenado", isFirenado);
 
 		data.putBoolean("weatherMachineControlled", weatherMachineControlled);
+
+		//sync the data heavy tornado funnel every 5 seconds
+		if (manager != null && manager.getWorld().getGameTime() % 100 == 0) {
+			String prefix = "tornadoFunnelData_layer_";
+			data.putInt(prefix + "count", tornadoFunnelSimple.listLayers.size());
+			for (int i = 0; i < tornadoFunnelSimple.listLayers.size(); i++) {
+				Vec3 layerPos = tornadoFunnelSimple.listLayers.get(i).getPos();
+				data.putDouble(prefix + i + "_posX", layerPos.x);
+				data.putDouble(prefix + i + "_posY", layerPos.y);
+				data.putDouble(prefix + i + "_posZ", layerPos.z);
+			}
+		}
 
 	}
 	
@@ -749,7 +773,7 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (love_tropics_tweaks) {
-			finalSpeed = 0.2F;
+			finalSpeed = 0.1F;
 			//finalSpeed = 0F;
 		}
 		

@@ -132,6 +132,10 @@ public class CachedNBTTagCompound {
 		cachedData.putDouble(key, newVal);
 	}
 
+	public boolean contains(String key) {
+		return newData.contains(key);
+	}
+
 	public void updateCacheFromNew() {
 		this.cachedData = this.newData;
 	}

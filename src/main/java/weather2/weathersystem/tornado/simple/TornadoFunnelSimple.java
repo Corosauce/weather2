@@ -65,7 +65,7 @@ public class TornadoFunnelSimple {
         config.setRadiusOfBase(5F + 5F);
         config.setHeight(150);
         config.setRadiusIncreasePerLayer(0.3F);
-        //config.setRadiusIncreasePerLayer(0.2F);
+        //config.setRadiusIncreasePerLayer(0.1F);
 
         //temp stress testing
         /*config.setHeight(config.getHeight() + adjHeight);
@@ -123,20 +123,20 @@ public class TornadoFunnelSimple {
 
             Vec3 posLayer = listLayers.get(i).getPos();
 
-            float relYUp1 = (float) (heightPerLayer * (radius / radiusMax));
+            float relYDown1 = (float) (heightPerLayer * (radius / radiusMax));
 
             Vec3 posLayerLower;
             if (i == 0) {
                 posLayerLower = new Vec3(pos.x, pos.y, pos.z);
             } else {
                 Vec3 temp = listLayers.get(i-1).getPos();
-                posLayerLower = new Vec3(temp.x, temp.y + relYUp1, temp.z);
+                posLayerLower = new Vec3(temp.x, temp.y + relYDown1, temp.z);
             }
 
             //if (i != 0) {
             double dist = posLayer.distanceTo(posLayerLower);
-            if (dist > 4F * (radius / radiusMax)) {
-                double dynamicSpeed = 0.5F * (Math.min(30F, dist));
+            if (dist > 0.1F * (radius / radiusMax)) {
+                double dynamicSpeed = 10F * (Math.min(30F, dist) / 30F);
                 double speed = dynamicSpeed;//0.01F;
                 Vec3 moveVec = posLayer.vectorTo(posLayerLower).normalize().multiply(speed, speed * 1F, speed);
                 Vec3 newPos = posLayer.add(moveVec);
@@ -361,6 +361,7 @@ public class TornadoFunnelSimple {
                 Vec3 posLayer = listLayers.get(i).getPos();
 
                 float relY = (float) (heightPerLayer * (i + 1) * (radius / radiusMax));
+                relY = 0;
                 particle.setPosition(posLayer.x + randX, posLayer.y + relY, posLayer.z + randZ);
                 particle.setPrevPosX(particle.x);
                 particle.setPrevPosY(particle.y);
