@@ -126,7 +126,7 @@ public class SceneEnhancer implements Runnable {
 				reset();
 			}
 
-			boolean testTornadoTech = true;
+			boolean testTornadoTech = false;
 
 			if (testTornadoTech) {
 				if (playerManagerClient == null) {
