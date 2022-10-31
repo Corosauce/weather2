@@ -544,6 +544,8 @@ public class StormObject extends WeatherObject {
 			}
 
 			tornadoFunnelSimple.pos = new Vec3(posGround.x, posGround.y, posGround.z);
+
+			tornadoFunnelSimple.tick();
 		}
 		
 		LogicalSide side = EffectiveSide.get();
@@ -747,7 +749,7 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (love_tropics_tweaks) {
-			//finalSpeed = 0.15F;
+			finalSpeed = 0.2F;
 			//finalSpeed = 0F;
 		}
 		
@@ -2394,6 +2396,10 @@ public class StormObject extends WeatherObject {
 		listParticlesFunnel.clear();
 		if (particleBehaviorFog != null && particleBehaviorFog.particles != null) particleBehaviorFog.particles.clear();
 		particleBehaviorFog = null;
+		tornadoHelper = null;
+		if (tornadoFunnelSimple != null) {
+			tornadoFunnelSimple.cleanupClient();
+		}
 	}
 	
 	public float getTemperatureMCToWeatherSys(float parOrigVal) {
