@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
 
 import java.util.ArrayList;
@@ -38,8 +39,11 @@ public class TornadoFunnelSimple {
     private float adjRadiusOfBase = 0.1F;
     private float adjRadiusIncreasePerLayer = 0.1F;
 
-    public TornadoFunnelSimple(ActiveTornadoConfig config) {
+    private StormObject stormObject;
+
+    public TornadoFunnelSimple(ActiveTornadoConfig config, StormObject stormObject) {
         this.config = config;
+        this.stormObject = stormObject;
     }
 
     public void init() {
@@ -58,9 +62,11 @@ public class TornadoFunnelSimple {
 
         //adjHeight = 1;
 
+        config.setRadiusOfBase(5F + (stormObject.tornadoHelper.getTornadoBaseSize() / 2));
+        config.setRadiusOfBase(5F + (stormObject.tornadoHelper.getTornadoBaseSize() / 3));
         config.setRadiusOfBase(5F + 5F);
-        config.setHeight(70);
-        config.setRadiusIncreasePerLayer(0.25F);
+        config.setHeight(150);
+        config.setRadiusIncreasePerLayer(0.35F);
         if (level.getGameTime() % 600 == 0) {
             //pos = new Vec3(6026, 79, 7239);
         }
@@ -69,7 +75,9 @@ public class TornadoFunnelSimple {
         double testSpeed = 0.4F;
         double xx = -Math.sin(testSpin) * testSpeed;
         double zz = Math.cos(testSpin) * testSpeed;
-        pos = pos.add(new Vec3(xx, 0, zz));
+        //pos = pos.add(new Vec3(xx, 0, zz));
+
+
 
         //temp stress testing
         /*config.setHeight(config.getHeight() + adjHeight);
@@ -134,7 +142,7 @@ public class TornadoFunnelSimple {
 
             float circumference = radius * 2 * Mth.PI;
             //float particleSpaceOccupy = 0.5F * (radius / radiusMax);
-            float particleSpaceOccupy = 3F * (radius / radiusMax);
+            float particleSpaceOccupy = 15F * (radius / radiusMax);
             float particlesPerLayer = (float) Math.floor(circumference / particleSpaceOccupy);
 
             Iterator<PivotingParticle> it = listLayer.iterator();
@@ -168,7 +176,7 @@ public class TornadoFunnelSimple {
                 }
             }
 
-            int debrisPerLayer = 40;
+            int debrisPerLayer = 20;
             //debrisPerLayer = 0;
 
             while (listLayerExtra.size() < debrisPerLayer) {
@@ -240,19 +248,22 @@ public class TornadoFunnelSimple {
 
                     Vec3 posLayer = listLayers.get(i).getPos();
 
+                    float relYUp1 = (float) (heightPerLayer * (radius / radiusMax));
+
                     Vec3 posLayerLower;
                     if (i == 0) {
                         posLayerLower = new Vec3(pos.x, pos.y, pos.z);
                     } else {
                         Vec3 temp = listLayers.get(i-1).getPos();
-                        posLayerLower = new Vec3(temp.x, temp.y, temp.z);
+                        posLayerLower = new Vec3(temp.x, temp.y + relYUp1, temp.z);
                     }
 
                     //if (i != 0) {
                         double dist = posLayer.distanceTo(posLayerLower);
-                        if (dist > 3F * (radius / radiusMax)) {
-                            double speed = 0.2F;
-                            Vec3 moveVec = posLayer.vectorTo(posLayerLower).normalize().multiply(speed, speed, speed);
+                        if (dist > 0.3F * (radius / radiusMax)) {
+                            double dynamicSpeed = 0.01F * (Math.min(30F, dist));
+                            double speed = dynamicSpeed;//0.01F;
+                            Vec3 moveVec = posLayer.vectorTo(posLayerLower).normalize().multiply(speed, speed * 1F, speed);
                             Vec3 newPos = posLayer.add(moveVec);
                             listLayers.get(i).setPos(new Vec3(newPos.x, newPos.y, newPos.z));
                         }
@@ -261,13 +272,14 @@ public class TornadoFunnelSimple {
                     //}
 
                     float relY = (float) (heightPerLayer * (i + 1) * (radius / radiusMax));
+                        relY = 0;
                     posLayer = listLayers.get(i).getPos();
                     particle.setPosition(posLayer.x + randX, posLayer.y + relY, posLayer.z + randZ);
                     particle.setPrevPosX(particle.x);
                     particle.setPrevPosY(particle.y);
                     particle.setPrevPosZ(particle.z);
 
-                    particle.setScale(5F * (radius / radiusMax));
+                    particle.setScale(10F * (radius / radiusMax));
                     particle.setAlpha(1F);
                 }
                 //particle.setAge(0);
@@ -414,5 +426,38 @@ public class TornadoFunnelSimple {
         particle.windWeight = 1F;
 
         return particle;
+    }
+
+    public Vec3 getPosTop() {
+        if (listLayers.size() == 0) return pos;
+        return listLayers.get(listLayers.size()-1).getPos();
+    }
+
+    public StormObject getStormObject() {
+        return stormObject;
+    }
+
+    public void setStormObject(StormObject stormObject) {
+        this.stormObject = stormObject;
+    }
+
+    public void cleanup() {
+        for (int i = 0; i < listLayers.size(); i++) {
+            List<PivotingParticle> listLayer = listLayers.get(i).getListParticles();
+            List<PivotingParticle> listLayerExtra = listLayers.get(i).getListParticlesExtra();
+            Iterator<PivotingParticle> it = listLayer.iterator();
+            while (it.hasNext()) {
+                PivotingParticle particle = it.next();
+                particle.remove();
+                it.remove();
+            }
+            it = listLayerExtra.iterator();
+            while (it.hasNext()) {
+                PivotingParticle particle = it.next();
+                particle.remove();
+                it.remove();
+            }
+        }
+        listLayers.clear();
     }
 }
