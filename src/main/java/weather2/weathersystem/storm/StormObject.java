@@ -747,8 +747,8 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (love_tropics_tweaks) {
-			finalSpeed = 0.15F;
-			finalSpeed = 0F;
+			//finalSpeed = 0.15F;
+			//finalSpeed = 0F;
 		}
 		
 		if (manager.getWorld().getGameTime() % 100 == 0 && levelCurIntensityStage >= STATE_FORMING) {
