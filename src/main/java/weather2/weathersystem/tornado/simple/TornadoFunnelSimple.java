@@ -203,7 +203,8 @@ public class TornadoFunnelSimple {
 
             while (listLayer.size() < particlesPerLayer) {
                 PivotingParticle particle = createParticle((ClientLevel) level, pos.x, pos.y, pos.z);
-                Minecraft.getInstance().particleEngine.add(particle);
+                particle.spawnAsWeatherEffect();
+                //Minecraft.getInstance().particleEngine.add(particle);
                 listLayer.add(particle);
             }
 
@@ -226,7 +227,8 @@ public class TornadoFunnelSimple {
             if (stormObject.manager.getWorld().isClientSide()) {
                 while (listLayerExtra.size() < debrisPerLayer) {
                     PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
-                    Minecraft.getInstance().particleEngine.add(particle);
+                    particle.spawnAsWeatherEffect();
+                    //Minecraft.getInstance().particleEngine.add(particle);
                     listLayerExtra.add(particle);
                 }
             }

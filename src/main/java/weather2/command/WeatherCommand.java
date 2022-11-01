@@ -6,9 +6,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.InterModComms;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
@@ -53,6 +55,15 @@ public class WeatherCommand {
 									return Command.SINGLE_SUCCESS;
 								}))
 								.then(literal("sandstorm").executes(c -> {
+
+									InterModComms.sendTo("weather2", "player_tornado", () -> {
+										CompoundTag tag = new CompoundTag();
+										tag.putString("uuid", c.getSource().getEntity().getUUID().toString());
+										tag.putInt("time_ticks", 800);
+										tag.putString("dimension", c.getSource().getEntity().getLevel().dimension().location().toString());
+										return tag;
+									});
+
 									c.getSource().sendSuccess(new TextComponent("Summoned Sandstorm"), true);
 									return Command.SINGLE_SUCCESS;
 								}))

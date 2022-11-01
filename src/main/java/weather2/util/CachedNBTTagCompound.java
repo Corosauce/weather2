@@ -87,7 +87,7 @@ public class CachedNBTTagCompound {
 	}
 
 	public void putString(String key, String newVal) {
-		if (!cachedData.contains(key) || cachedData.getString(key) != newVal || forced) {
+		if (!cachedData.contains(key) || !cachedData.getString(key).equals(newVal) || forced) {
 			newData.putString(key, newVal);
 		}
 		cachedData.putString(key, newVal);

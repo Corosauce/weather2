@@ -31,6 +31,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.world.BlockEvent;
 import weather2.ClientTickHandler;
+import weather2.Weather;
 import weather2.config.ClientConfigData;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
@@ -241,7 +242,7 @@ public class TornadoHelper {
         //int spawnYOffset = (int) storm.currentTopYBlock;
         int spawnYOffset = (int) storm.posBaseFormationPos.y;
 
-        if (!parWorld.isClientSide() && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado)/*getStorm().grabsBlocks*/)
+        if (!parWorld.isClientSide() && !Weather.isLoveTropicsInstalled() && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado)/*getStorm().grabsBlocks*/)
         {
             int yStart = 00;
             int yEnd = (int)storm.pos.y/* + 72*/;
@@ -600,6 +601,9 @@ public class TornadoHelper {
 			if (ent instanceof Player) {
 				if (!((Player) ent).isCreative()) {
 					if (ConfigTornado.Storm_Tornado_grabPlayer) {
+						if (storm.isPlayerControlled() && storm.spawnerUUID != null && storm.spawnerUUID.equals(ent.getUUID().toString())) {
+							return false;
+						}
 						return true;
 					} else {
 						return false;
@@ -636,6 +640,9 @@ public class TornadoHelper {
 		if (ent instanceof Player) {
 			if (!((Player) ent).isCreative()) {
 				if (ConfigTornado.Storm_Tornado_grabPlayer) {
+					if (storm.isPlayerControlled() && storm.spawnerUUID != null && storm.spawnerUUID.equals(ent.getUUID().toString())) {
+						return false;
+					}
 					return true;
 				} else {
 					return false;

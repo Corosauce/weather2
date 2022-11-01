@@ -383,6 +383,9 @@ public class StormObject extends WeatherObject {
 				layer.setPos(newPos);
 			}
 		}
+
+		playerControlled = parNBT.getBoolean("playerControlled");
+		spawnerUUID = parNBT.getString("spawnerUUID");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -442,6 +445,9 @@ public class StormObject extends WeatherObject {
 				data.putDouble(prefix + i + "_posZ", layerPos.z);
 			}
 		}
+
+		data.putBoolean("playerControlled", playerControlled);
+		data.putString("spawnerUUID", spawnerUUID);
 
 	}
 	
@@ -2411,8 +2417,8 @@ public class StormObject extends WeatherObject {
 		}
 
 		//TODO: 1.14 rotEffRenderer
-		//ExtendedRenderer.rotEffRenderer.addEffect(entityfx);
-		Minecraft.getInstance().particleEngine.add(entityfx);
+		entityfx.spawnAsWeatherEffect();
+		//Minecraft.getInstance().particleEngine.add(entityfx);
 		particleBehaviorFog.particles.add(entityfx);
 		return entityfx;
     }
@@ -2504,5 +2510,13 @@ public class StormObject extends WeatherObject {
 	public Player getPlayer() {
 		if (spawnerUUID.equals("")) return null;
 		return manager.getWorld().getPlayerByUUID(UUID.fromString(spawnerUUID));
+	}
+
+	public boolean isPlayerControlled() {
+		return playerControlled;
+	}
+
+	public void setPlayerControlled(boolean playerControlled) {
+		this.playerControlled = playerControlled;
 	}
 }
