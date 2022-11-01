@@ -197,6 +197,8 @@ public class StormObject extends WeatherObject {
 	public boolean isFirenado = false;
 
 	public List<LivingEntity> listEntitiesUnderClouds = new ArrayList<>();
+
+	private boolean playerControlled = false;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -373,7 +375,7 @@ public class StormObject extends WeatherObject {
 
 		//TODO: sync tornado config for size etc
 		String prefix = "tornadoFunnelData_layer_";
-		if (parNBT.contains(prefix + "count")) {
+		if (parNBT.contains(prefix + "count") && tornadoFunnelSimple != null) {
 			int count = parNBT.getInt(prefix + "count");
 			for (int i = 0; i < tornadoFunnelSimple.listLayers.size(); i++) {
 				Layer layer = tornadoFunnelSimple.listLayers.get(i);
@@ -430,7 +432,7 @@ public class StormObject extends WeatherObject {
 		data.putBoolean("weatherMachineControlled", weatherMachineControlled);
 
 		//sync the data heavy tornado funnel every 5 seconds
-		if (manager != null && manager.getWorld().getGameTime() % 100 == 0) {
+		if (manager != null && tornadoFunnelSimple != null && manager.getWorld().getGameTime() % 100 == 0) {
 			String prefix = "tornadoFunnelData_layer_";
 			data.putInt(prefix + "count", tornadoFunnelSimple.listLayers.size());
 			for (int i = 0; i < tornadoFunnelSimple.listLayers.size(); i++) {
@@ -690,6 +692,11 @@ public class StormObject extends WeatherObject {
 	
 	public void tickMovement() {
 
+		if (playerControlled) {
+			Player entP = manager.getWorld().getPlayerByUUID(UUID.fromString(spawnerUUID));
+			aimStormAtClosestOrProvidedPlayer(entP);
+		}
+
 		//storm movement via wind
 		float angle = getAdjustedAngle();
 
@@ -775,6 +782,16 @@ public class StormObject extends WeatherObject {
 		if (love_tropics_tweaks) {
 			finalSpeed = 0.1F;
 			//finalSpeed = 0F;
+		}
+
+		if (playerControlled) {
+			finalSpeed = 0.5F;
+			Player player = getPlayer();
+			if (player != null) {
+				if (posGround.distanceTo(player.position()) > 30) {
+					pos = new Vec3(player.position().x, player.position().y, player.position().z);
+				}
+			}
 		}
 		
 		if (manager.getWorld().getGameTime() % 100 == 0 && levelCurIntensityStage >= STATE_FORMING) {
@@ -1402,7 +1419,7 @@ public class StormObject extends WeatherObject {
             angleIsOverridden = true;
 			angleMovementTornadoOverride = yaw;
 			
-			Weather.dbg("stormfront aimed at player " + CoroUtilEntity.getName(entP));
+			//Weather.dbg("stormfront aimed at player " + CoroUtilEntity.getName(entP));
 		}
 	}
 	
@@ -2459,5 +2476,33 @@ public class StormObject extends WeatherObject {
 			return tornadoFunnelSimple.getPosTop();
 		}
 		return pos;
+	}
+
+	public void setupForcedTornado(Entity entity) {
+		this.layer = 0;
+		if (entity != null) {
+			this.spawnerUUID = entity.getUUID().toString();
+			this.naturallySpawned = false;
+			this.levelTemperature = 0.1F;
+			this.pos = entity.position();
+			this.levelWater = this.levelWaterStartRaining * 2;
+			this.attrib_precipitation = true;
+			this.levelCurIntensityStage = this.STATE_STAGE1;
+			this.alwaysProgresses = true;
+
+			this.initFirstTime();
+
+			//lock it to current stage or less
+			this.levelStormIntensityMax = this.levelCurIntensityStage;
+		}
+	}
+
+	public void setupPlayerControlledTornado(Entity entity) {
+		this.playerControlled = true;
+	}
+
+	public Player getPlayer() {
+		if (spawnerUUID.equals("")) return null;
+		return manager.getWorld().getPlayerByUUID(UUID.fromString(spawnerUUID));
 	}
 }

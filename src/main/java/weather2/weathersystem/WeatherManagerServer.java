@@ -647,4 +647,12 @@ public class WeatherManagerServer extends WeatherManager {
 		removeStormObject(parStorm.ID);
 		syncStormRemove(parStorm);
 	}
+
+	public void clearAllStorms() {
+		for (int i = 0; i < getStormObjects().size(); i++) {
+			WeatherObject so = getStormObjects().get(i);
+			removeStormObject(so.ID);
+			syncStormRemove(so);
+		}
+	}
 }

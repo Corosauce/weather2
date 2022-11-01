@@ -184,7 +184,7 @@ public class TornadoHelper {
 							//TileEntityRepairingBlock.replaceBlockAndBackup(world, snapshot.getPos(), ConfigTornado.Storm_Tornado_TicksToRepairBlock);
 							//world.setBlockState(snapshot.getPos(), Blocks.LEAVES.getDefaultState(), 3);
 						} else {
-							CULog.dbg("cant use repairing block on: " + snapshot.statePrev);
+							//CULog.dbg("cant use repairing block on: " + snapshot.statePrev);
 							world.setBlock(snapshot.getPos(), snapshot.getState(), 3);
 						}
 
