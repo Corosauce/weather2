@@ -30,9 +30,11 @@ public class WeatherManagerClient extends WeatherManager {
 	@Override
 	public void tick() {
 		super.tick();
-		ICloudRenderHandler cloudRenderHandler = ((ClientLevel)getWorld()).effects().getCloudRenderHandler();
-		if (cloudRenderHandler == null) {
-			((ClientLevel)getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
+		if (!Weather.isLoveTropicsInstalled()) {
+			ICloudRenderHandler cloudRenderHandler = ((ClientLevel) getWorld()).effects().getCloudRenderHandler();
+			if (cloudRenderHandler == null) {
+				((ClientLevel) getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
+			}
 		}
 		//((ClientLevel)getWorld()).effects().setCloudRenderHandler(null);
 		cloudManager.tick();

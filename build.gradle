@@ -207,7 +207,8 @@ dependencies {
 
     implementation fg.deobf('com.corosus.coroutil:coroutil:1.18.1-1.2.37')
     implementation fg.deobf("com.lovetropics.minigames:LTWeather:0.0.1-alpha+custom")
-    implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.1-alpha+custom")
+    implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.0-alpha+custom")
+    //implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.0-alpha+639-gha")
     //lazydfu-1.0-1.18+
     implementation fg.deobf("curse.maven:lazydfu-460819:3544496")
     //minecraft 'net.minecraftforge:forge:1.18.1-39.0.5'

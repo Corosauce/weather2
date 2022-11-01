@@ -87,7 +87,7 @@ public class CachedNBTTagCompound {
 	}
 
 	public void putString(String key, String newVal) {
-		if (!cachedData.contains(key) || cachedData.getString(key) != newVal || forced) {
+		if (!cachedData.contains(key) || !cachedData.getString(key).equals(newVal) || forced) {
 			newData.putString(key, newVal);
 		}
 		cachedData.putString(key, newVal);
@@ -130,6 +130,10 @@ public class CachedNBTTagCompound {
 			newData.putDouble(key, newVal);
 		}
 		cachedData.putDouble(key, newVal);
+	}
+
+	public boolean contains(String key) {
+		return newData.contains(key);
 	}
 
 	public void updateCacheFromNew() {

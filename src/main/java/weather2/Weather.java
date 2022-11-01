@@ -13,6 +13,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +24,7 @@ import weather2.util.WeatherUtilSound;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Weather.MODID)
@@ -44,6 +46,7 @@ public class Weather
         modBus.addListener(this::setup);
         MinecraftForge.EVENT_BUS.addListener(this::serverStop);
         modBus.addListener(this::clientSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 
         MinecraftForge.EVENT_BUS.register(this);
         modBus.register(WeatherBlocks.class);
@@ -77,6 +80,14 @@ public class Weather
     private void clientSetup(FMLClientSetupEvent event) {
         WeatherUtilSound.init();
 
+    }
+
+    private void processIMC(final InterModProcessEvent event)
+    {
+        // some example code to receive and process InterModComms from other mods
+        LOGGER.info("Got IMC {}", event.getIMCStream().
+                map(m->m.getMessageSupplier().get()).
+                collect(Collectors.toList()));
     }
 
     @SubscribeEvent

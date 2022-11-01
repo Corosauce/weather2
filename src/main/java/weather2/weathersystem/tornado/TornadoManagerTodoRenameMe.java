@@ -339,11 +339,11 @@ public class TornadoManagerTodoRenameMe {
 
         //funnel.tickGame();
 
-        if (funnelSimple == null) {
+        /*if (funnelSimple == null) {
             ActiveTornadoConfig activeTornadoConfig = new ActiveTornadoConfig().setHeight(10).setRadiusOfBase(3).setSpinSpeed(360F / 20F).setRadiusIncreasePerLayer(0.5F);
             funnelSimple = new TornadoFunnelSimple(activeTornadoConfig);
             funnelSimple.pos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-        }
+        }*/
 
         //funnelSimple.tickClient();
 
