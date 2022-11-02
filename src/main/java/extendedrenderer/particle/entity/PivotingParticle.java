@@ -2,6 +2,7 @@ package extendedrenderer.particle.entity;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 
@@ -74,5 +75,10 @@ public class PivotingParticle extends ParticleTexFX {
 
     public void setPivotRotPrev(Vec3 pivotRotPrev) {
         this.pivotRotPrev = pivotRotPrev;
+    }
+
+    @Override
+    public AABB getBoundingBoxForRender(float partialTicks) {
+        return getBoundingBox().move(getPivotedPosition(partialTicks));
     }
 }

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import extendedrenderer.particle.entity.EntityRotFX;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -306,7 +307,13 @@ public class ParticleManagerExtended implements PreparableReloadListener {
             particlerendertype.begin(bufferbuilder, this.textureManager);
 
             for(Particle particle : iterable) {
-               if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox())) continue;
+               if (particle instanceof EntityRotFX) {
+                  if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(((EntityRotFX)particle).getBoundingBoxForRender(p_107341_)))
+                     continue;
+               } else {
+                  if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox()))
+                     continue;
+               }
                try {
                   particle.render(bufferbuilder, p_107340_, p_107341_);
                } catch (Throwable throwable) {

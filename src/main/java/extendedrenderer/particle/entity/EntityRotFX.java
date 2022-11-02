@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import com.mojang.math.Quaternion;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.mojang.math.Vector3f;
 import net.minecraft.world.level.Level;
@@ -861,5 +862,9 @@ public class EntityRotFX extends TextureSheetParticle
 
     public Vec3 getPivotedPosition(float partialTicks) {
         return Vec3.ZERO;
+    }
+
+    public AABB getBoundingBoxForRender(float partialTicks) {
+        return this.getBoundingBox();
     }
 }
