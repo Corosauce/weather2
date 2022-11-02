@@ -8,6 +8,7 @@ import extendedrenderer.particle.entity.PivotingParticle;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.particle.entity.PivotingParticle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class TornadoFunnelSimple {
 
@@ -64,7 +66,8 @@ public class TornadoFunnelSimple {
         config.setRadiusOfBase(5F + (stormObject.tornadoHelper.getTornadoBaseSize() / 3));
         config.setRadiusOfBase(5F + 5F);
         config.setHeight(150);
-        config.setRadiusIncreasePerLayer(0.3F);
+        config.setRadiusIncreasePerLayer(0.5F);
+        config.setRadiusIncreasePerLayer(0.2F);
         //config.setRadiusIncreasePerLayer(0.1F);
 
         //temp stress testing
@@ -170,6 +173,13 @@ public class TornadoFunnelSimple {
 
         int particleCount = 0;
 
+        float adjustedRate = 1F;
+        if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+            adjustedRate = 0.6F;
+        } else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+            adjustedRate = 0.3F;
+        }
+
         for (int i = 0; i < layers; i++) {
 
             /**
@@ -186,7 +196,7 @@ public class TornadoFunnelSimple {
 
             float circumference = radius * 2 * Mth.PI;
             //float particleSpaceOccupy = 0.5F * (radius / radiusMax);
-            float particleSpaceOccupy = 15F * (radius / radiusMax);
+            float particleSpaceOccupy = (15F / adjustedRate) * (radius / radiusMax);
             float particlesPerLayer = (float) Math.floor(circumference / particleSpaceOccupy);
 
             Iterator<PivotingParticle> it = listLayer.iterator();
@@ -204,9 +214,11 @@ public class TornadoFunnelSimple {
             while (listLayer.size() < particlesPerLayer) {
                 PivotingParticle particle = createParticle((ClientLevel) level, pos.x, pos.y, pos.z);
                 particle.spawnAsWeatherEffect();
-                //Minecraft.getInstance().particleEngine.add(particle);
                 listLayer.add(particle);
             }
+
+            //extra debris
+            particlesPerLayer = (int) (20 * adjustedRate);
 
             //extra stuff
             Iterator<PivotingParticle> it2 = listLayerExtra.iterator();
@@ -221,14 +233,13 @@ public class TornadoFunnelSimple {
                 }
             }
 
-            int debrisPerLayer = 20;
+            //int debrisPerLayer = (int) (20 * adjustedRate);
             //debrisPerLayer = 0;
 
             if (stormObject.manager.getWorld().isClientSide()) {
-                while (listLayerExtra.size() < debrisPerLayer) {
+                while (listLayerExtra.size() < particlesPerLayer) {
                     PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
                     particle.spawnAsWeatherEffect();
-                    //Minecraft.getInstance().particleEngine.add(particle);
                     listLayerExtra.add(particle);
                 }
             }
@@ -255,7 +266,7 @@ public class TornadoFunnelSimple {
                     //float spinSpeedLayer = (float)layers / (float)(i+1);
                     float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
                     //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                    float spinAdj = (level.getGameTime() % 360) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+                    float spinAdj = (level.getGameTime()) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
                     float rot = (particleSpacingDegrees * index) + spinAdj;
                     particle.setPivotRotPrev(particle.getPivotRot());
                     particle.setPivotRot(new Vec3(0, rot, 0));
@@ -315,23 +326,23 @@ public class TornadoFunnelSimple {
             //TODO: oh god stop the copypasta
             it = listLayerExtra.iterator();
             index = 0;
-            particlesPerLayer = debrisPerLayer;
             while (it.hasNext()) {
                 particleCount++;
                 PivotingParticle particle = it.next();
-
-                float radAdj = (float)(particle.getEntityId() % debrisPerLayer) / (float)debrisPerLayer;
+                //particle.remove();
+                float radAdj = (float)(particle.getEntityId() % particlesPerLayer) / (float)particlesPerLayer;
                 radAdj = 0.4F + (radAdj * 0.6F);
                 float moar = i + (i * 0.5F);
                 radiusAdjustedForParticleSize = (radius * (radius / radiusMax) + moar) * radAdj;
                 //radiusAdjustedForParticleSize = radius * (3F * radAdj);
                 //radiusAdjustedForParticleSize = radius * 1.1F;
+                //radiusAdjustedForParticleSize = 20F;
 
                 float particleSpacingDegrees = 360 / particlesPerLayer;
                 //float spinSpeedLayer = (float)layers / (float)(i+1);
                 float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
                 //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                float spinAdj = (level.getGameTime() % 360) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+                float spinAdj = (level.getGameTime()) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
                 float rot = (particleSpacingDegrees * index) + spinAdj;
                 particle.setPivotRotPrev(particle.getPivotRot());
                 particle.setPivotRot(new Vec3(0, rot, 0));
@@ -341,13 +352,6 @@ public class TornadoFunnelSimple {
                 Vec3 pivotedPosition = particle.getPivotedPosition(0);
                 int randSizePos = 5;
                 Random rand = new Random(particle.getEntityId());
-                float randX = (rand.nextFloat() * (particle.getEntityId() % randSizePos)) - (randSizePos/2);
-                float randZ = (rand.nextFloat() * (particle.getEntityId() % randSizePos)) - (randSizePos/2);
-                randX = 0;
-                randZ = 0;
-
-                double var16 = 0 - pivotedPosition.x + randX;
-                double var18 = 0 - pivotedPosition.z + randZ;
 
                 particle.prevRotationYaw = particle.rotationYaw;
                 particle.rotationYaw += 5F;
@@ -364,7 +368,7 @@ public class TornadoFunnelSimple {
 
                 float relY = (float) (heightPerLayer * (i + 1) * (radius / radiusMax));
                 relY = 0;
-                particle.setPosition(posLayer.x + randX, posLayer.y + relY, posLayer.z + randZ);
+                particle.setPosition(posLayer.x, posLayer.y + relY, posLayer.z);
                 particle.setPrevPosX(particle.x);
                 particle.setPrevPosY(particle.y);
                 particle.setPrevPosZ(particle.z);
@@ -469,7 +473,31 @@ public class TornadoFunnelSimple {
         listLayers.clear();
     }
 
+    /**
+     * Dramatic version for effect
+     */
     public void cleanupClient() {
+        for (int i = 0; i < listLayers.size(); i++) {
+            listLayers.get(i).getListParticles().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle));
+            listLayers.get(i).getListParticlesExtra().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle));
+            listLayers.get(i).getListParticles().clear();
+            listLayers.get(i).getListParticlesExtra().clear();
+        }
+    }
+
+    public void disperseParticleSmoothly(PivotingParticle pivotingParticle) {
+        pivotingParticle.prevRotationYaw = pivotingParticle.rotationYaw;
+        pivotingParticle.setPivotPrev(pivotingParticle.getPivot());
+        pivotingParticle.setPivotRotPrev(pivotingParticle.getPivotRot());
+        Random rand = new Random();
+        pivotingParticle.setMotionX((rand.nextFloat() - rand.nextFloat()) * 2F);
+        pivotingParticle.setMotionZ((rand.nextFloat() - rand.nextFloat()) * 2F);
+        pivotingParticle.setMaxAge(100);
+        pivotingParticle.setTicksFadeOutMax(80);
+        pivotingParticle.spinFast = false;
+    }
+
+    public void cleanupClientQuick() {
         for (int i = 0; i < listLayers.size(); i++) {
             listLayers.get(i).getListParticles().stream().forEach(pivotingParticle -> pivotingParticle.remove());
             listLayers.get(i).getListParticlesExtra().stream().forEach(pivotingParticle -> pivotingParticle.remove());

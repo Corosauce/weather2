@@ -159,9 +159,9 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		float speedWind = windMan.getWindSpeedForClouds();
 
 		//TEMP
-		if (age > 300) {
+		/*if (age > 300) {
 			remove();
-		}
+		}*/
 		
 		/**
 		 * Progression

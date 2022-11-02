@@ -199,6 +199,7 @@ public class StormObject extends WeatherObject {
 	public List<LivingEntity> listEntitiesUnderClouds = new ArrayList<>();
 
 	private boolean playerControlled = false;
+	private int playerControllerdTimeLeft = 20;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -1282,6 +1283,16 @@ public class StormObject extends WeatherObject {
 			}
 			
 			
+		}
+
+		if (playerControlled) {
+			if (playerControllerdTimeLeft > 0) {
+				playerControllerdTimeLeft--;
+
+				if (playerControllerdTimeLeft <= 0) {
+					remove();
+				}
+			}
 		}
 	}
 	
@@ -2518,5 +2529,13 @@ public class StormObject extends WeatherObject {
 
 	public void setPlayerControlled(boolean playerControlled) {
 		this.playerControlled = playerControlled;
+	}
+
+	public int getPlayerControllerdTimeLeft() {
+		return playerControllerdTimeLeft;
+	}
+
+	public void setPlayerControllerdTimeLeft(int playerControllerdTimeLeft) {
+		this.playerControllerdTimeLeft = playerControllerdTimeLeft;
 	}
 }

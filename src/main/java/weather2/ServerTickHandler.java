@@ -68,6 +68,7 @@ public class ServerTickHandler {
 				String dimResource = tag.getString("dimension");
 				WeatherManagerServer wm = MANAGERSLOOKUP.get(dimResource);
 				if (wm != null) {
+					int timeTicks = tag.getInt("time_ticks");
 					String uuid = tag.getString("uuid");
 					Player player = wm.getWorld().getPlayerByUUID(UUID.fromString(uuid));
 					if (player != null) {
@@ -75,6 +76,7 @@ public class ServerTickHandler {
 
 						stormObject.setupForcedTornado(player);
 						stormObject.setupPlayerControlledTornado(player);
+						stormObject.setPlayerControllerdTimeLeft(timeTicks);
 
 						wm.addStormObject(stormObject);
 						wm.syncStormNew(stormObject);

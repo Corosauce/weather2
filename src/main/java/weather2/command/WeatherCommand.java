@@ -47,6 +47,7 @@ public class WeatherCommand {
 
 									stormObject.setupForcedTornado(c.getSource().getEntity());
 									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
+									stormObject.setPlayerControllerdTimeLeft(800);
 
 									wm.addStormObject(stormObject);
 									wm.syncStormNew(stormObject);
