@@ -1,11 +1,6 @@
 package weather2.weathersystem.tornado.simple;
 
-import com.corosus.coroutil.util.CULog;
-import com.mojang.math.Vector3d;
 import extendedrenderer.particle.ParticleRegistry;
-import extendedrenderer.particle.entity.ParticleCrossSection;
-import extendedrenderer.particle.entity.PivotingParticle;
-import extendedrenderer.particle.entity.ParticleTexFX;
 import extendedrenderer.particle.entity.PivotingParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
@@ -17,9 +12,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import weather2.util.WeatherUtil;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
 
@@ -27,19 +19,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
 
 public class TornadoFunnelSimple {
 
     private ActiveTornadoConfig config;
 
     public Vec3 pos = new Vec3(0, 0, 0);
-
-    //public List<List<PivotingParticle>> listLayers = new ArrayList<>();
     public List<Layer> listLayers = new ArrayList<>();
-
-    //public int amountPerLayer = 30;
-    //public int particleCount = amountPerLayer * 50;
 
     private float heightPerLayer = 1F;
 

@@ -4,6 +4,8 @@ import extendedrenderer.particle.entity.PivotingParticle;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +13,23 @@ import java.util.List;
 public class Layer {
 
     @OnlyIn(Dist.CLIENT)
-    private List<PivotingParticle> listParticles = new ArrayList<>();
+    private List<PivotingParticle> listParticles;
     @OnlyIn(Dist.CLIENT)
-    private List<PivotingParticle> listParticlesExtra = new ArrayList<>();
+    private List<PivotingParticle> listParticlesExtra;
     private Vec3 pos = Vec3.ZERO;
 
     public Layer(Vec3 pos) {
         this.pos = new Vec3(pos.x, pos.y, pos.z);
+
+        if (EffectiveSide.get() == LogicalSide.CLIENT) {
+            initClient();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void initClient() {
+        listParticles = new ArrayList<>();
+        listParticlesExtra = new ArrayList<>();
     }
 
     @OnlyIn(Dist.CLIENT)
