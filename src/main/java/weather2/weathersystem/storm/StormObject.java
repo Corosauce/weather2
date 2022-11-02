@@ -2053,7 +2053,11 @@ public class StormObject extends WeatherObject {
 		double vecz = posCenter.z - entity.position().z;
 
 		Vec3 vecXZ = new Vec3(posCenter.x, entity.getY(), posCenter.z);
-		double distXZ = Math.sqrt(entity.distanceToSqr(vecXZ));
+
+		double distXZMax = 120;
+		double distXZMaxForYGrab = 60;
+		double distXZ = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMax);
+		double distXZForYGrab = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMaxForYGrab);
 
 		float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
 
@@ -2067,31 +2071,19 @@ public class StormObject extends WeatherObject {
 		angle += (40 * heightAmp);
 
 		angle = (float) Math.toRadians(angle);
+		double pullY = 0.2 * (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
+		double pullXZ = 0.2 * (distXZMax - distXZ) / distXZMax;
+		double xx = -Math.sin(angle) * pullXZ;
+		double zz = Math.cos(angle) * pullXZ;
+		double yy = pullY;
 
-		float testSpeed = 0.1F;
-		double xx = -Math.sin(angle) * testSpeed;
-		double zz = Math.cos(angle) * testSpeed;
-		double yy = 0;
-		if (distXZ < 30) {
-			yy = 0.1F;
-		}
-
-		double distXZMax = 120;
-		double pullY = (distXZMax - distXZ) / distXZMax;
-		yy = pullY * 0.2F;
-
-		if (entity.getDeltaMovement().y > 0.3F) {
+		if (entity.getDeltaMovement().y > 0.5F) {
 			yy = 0;
 		}
 
 		entity.setDeltaMovement(entity.getDeltaMovement().x + xx, entity.getDeltaMovement().y + yy, entity.getDeltaMovement().z + zz);
 
-		//CULog.dbg("angle: " + angle);
-		//CULog.dbg("vec: " + xx + " - " + zz);
-
 		entity.fallDistance = 0;
-
-		//entity.
 	}
 	
 	public void spinEntity(Object entity1) {

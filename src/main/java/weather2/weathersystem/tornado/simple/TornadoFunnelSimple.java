@@ -333,6 +333,7 @@ public class TornadoFunnelSimple {
                 float radAdj = (float)(particle.getEntityId() % particlesPerLayer) / (float)particlesPerLayer;
                 radAdj = 0.4F + (radAdj * 0.6F);
                 float moar = i + (i * 0.5F);
+                moar = i * 0.5F;
                 radiusAdjustedForParticleSize = (radius * (radius / radiusMax) + moar) * radAdj;
                 //radiusAdjustedForParticleSize = radius * (3F * radAdj);
                 //radiusAdjustedForParticleSize = radius * 1.1F;
