@@ -132,6 +132,16 @@ public class CachedNBTTagCompound {
 		cachedData.putDouble(key, newVal);
 	}
 
+	public CompoundTag get(String key) {
+		return newData.getCompound(key);
+	}
+
+	/** warning, not cached **/
+	public void put(String key, CompoundTag tag) {
+		newData.put(key, tag);
+		cachedData.put(key, tag);
+	}
+
 	public boolean contains(String key) {
 		return newData.contains(key);
 	}

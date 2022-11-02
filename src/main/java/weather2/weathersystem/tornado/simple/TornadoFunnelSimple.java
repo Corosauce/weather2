@@ -29,10 +29,6 @@ public class TornadoFunnelSimple {
 
     private float heightPerLayer = 1F;
 
-    private float adjHeight = 0.1F;
-    private float adjRadiusOfBase = 0.1F;
-    private float adjRadiusIncreasePerLayer = 0.1F;
-
     private StormObject stormObject;
 
     public TornadoFunnelSimple(ActiveTornadoConfig config, StormObject stormObject) {
@@ -44,54 +40,16 @@ public class TornadoFunnelSimple {
         listLayers.clear();
     }
 
-    //TODO: sync the coords to client
     public void tick() {
-        Level level = stormObject.manager.getWorld();
-
-        config.setRadiusOfBase(5F + (stormObject.tornadoHelper.getTornadoBaseSize() / 2));
-        config.setRadiusOfBase(5F + (stormObject.tornadoHelper.getTornadoBaseSize() / 3));
-        config.setRadiusOfBase(5F + 5F);
-        config.setHeight(150);
-        config.setRadiusIncreasePerLayer(0.5F);
-        config.setRadiusIncreasePerLayer(0.2F);
-        //config.setRadiusIncreasePerLayer(0.1F);
-
-        //temp stress testing
-        /*config.setHeight(config.getHeight() + adjHeight);
-        if (config.getHeight() > 40) {
-            adjHeight = -0.1F;
-        } else if (config.getHeight() <= 0) {
-            adjHeight = 0.1F;
-        }
-
-        config.setRadiusOfBase(config.getRadiusOfBase() + adjRadiusOfBase * 0.3F);
-        if (config.getRadiusOfBase() > 10) {
-            adjRadiusOfBase = -0.1F;
-        } else if (config.getRadiusOfBase() <= 0) {
-            adjRadiusOfBase = 0.1F;
-        }
-
-        config.setRadiusIncreasePerLayer(config.getRadiusIncreasePerLayer() + adjRadiusIncreasePerLayer * 0.01F);
-        if (config.getRadiusIncreasePerLayer() > 0.9) {
-            adjRadiusIncreasePerLayer *= -1;
-        } else if (config.getRadiusIncreasePerLayer() <= 0.01F) {
-            adjRadiusIncreasePerLayer *= -1;
-        }*/
-
-
         int layers = (int) (config.getHeight() / heightPerLayer);
         float radiusMax = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (layers+1));
 
         for (int i = 0; i < layers; i++) {
 
             //grow layer count as height increases
-            //if (i < listLayers.size()+1) {
             if (i >= listLayers.size()) {
                 listLayers.add(new Layer(pos));
             }
-            /*if (i < layers+1) {
-                listLayers.add(new Layer(pos));
-            }*/
 
             /**
              * get radius for current layer
@@ -100,15 +58,6 @@ public class TornadoFunnelSimple {
              */
 
             float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i+1));
-            float radiusAdjustedForParticleSize = radius * (radius / radiusMax);
-
-            float circumference = radius * 2 * Mth.PI;
-            //float particleSpaceOccupy = 0.5F * (radius / radiusMax);
-            float particleSpaceOccupy = 15F * (radius / radiusMax);
-            float particlesPerLayer = (float) Math.floor(circumference / particleSpaceOccupy);
-
-            int debrisPerLayer = 20;
-            //debrisPerLayer = 0;
 
             Vec3 posLayer = listLayers.get(i).getPos();
 
@@ -144,6 +93,8 @@ public class TornadoFunnelSimple {
 
         int layers = (int) (config.getHeight() / heightPerLayer);
         float radiusMax = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (layers+1));
+
+        boolean isBaby = stormObject.isBaby();
 
         //cleanup layers beyond current size
         //while (listLayers.size() > layers) {
@@ -183,6 +134,7 @@ public class TornadoFunnelSimple {
             float circumference = radius * 2 * Mth.PI;
             //float particleSpaceOccupy = 0.5F * (radius / radiusMax);
             float particleSpaceOccupy = (15F / adjustedRate) * (radius / radiusMax);
+            if (isBaby) particleSpaceOccupy = (2F / adjustedRate) * (radius / radiusMax);
             float particlesPerLayer = (float) Math.floor(circumference / particleSpaceOccupy);
 
             Iterator<PivotingParticle> it = listLayer.iterator();
@@ -205,6 +157,7 @@ public class TornadoFunnelSimple {
 
             //extra debris
             particlesPerLayer = (int) (20 * adjustedRate);
+            if (isBaby) particlesPerLayer = (int) (10 * adjustedRate);
 
             //extra stuff
             Iterator<PivotingParticle> it2 = listLayerExtra.iterator();
@@ -302,9 +255,10 @@ public class TornadoFunnelSimple {
                     particle.setPrevPosZ(particle.z);
 
                     particle.setScale(10F * (radius / radiusMax));
+                    if (isBaby) particle.setScale(10F / 3F * (radius / radiusMax));
                     particle.setAlpha(1F);
                 }
-                particle.setAge(0);
+                //particle.setAge(0);
                 //particle.setColor(1, 1, 1);
                 index++;
             }
@@ -363,7 +317,7 @@ public class TornadoFunnelSimple {
                 particle.setScale(8 * 0.15F);
                 particle.setAlpha(1F);
 
-                particle.setAge(0);
+                //particle.setAge(0);
                 particle.setGravity(0);
                 //particle.setColor(1, 1, 1);
                 index++;

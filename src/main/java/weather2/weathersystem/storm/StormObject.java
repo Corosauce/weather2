@@ -1,7 +1,6 @@
 package weather2.weathersystem.storm;
 
 import com.corosus.coroutil.util.*;
-import com.mojang.datafixers.types.templates.CompoundList;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -9,17 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
@@ -38,7 +33,6 @@ import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
 import weather2.weathersystem.tornado.simple.Layer;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
-import weather2.weathersystem.wind.WindManager;
 
 import java.util.*;
 
@@ -199,7 +193,10 @@ public class StormObject extends WeatherObject {
 	public List<LivingEntity> listEntitiesUnderClouds = new ArrayList<>();
 
 	private boolean playerControlled = false;
-	private int playerControllerdTimeLeft = 20;
+	private int playerControlledTimeLeft = 20;
+	private boolean baby = false;
+
+	private boolean configNeedsSync = true;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -387,6 +384,12 @@ public class StormObject extends WeatherObject {
 
 		playerControlled = parNBT.getBoolean("playerControlled");
 		spawnerUUID = parNBT.getString("spawnerUUID");
+
+		if (parNBT.contains("config")) {
+			tornadoFunnelSimple.setConfig(ActiveTornadoConfig.deserialize(parNBT.get("config")));
+		}
+
+		baby = parNBT.getBoolean("baby");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -449,6 +452,12 @@ public class StormObject extends WeatherObject {
 
 		data.putBoolean("playerControlled", playerControlled);
 		data.putString("spawnerUUID", spawnerUUID);
+
+		if (configNeedsSync && tornadoFunnelSimple != null) {
+			data.put("config", tornadoFunnelSimple.getConfig().serialize());
+		}
+
+		data.putBoolean("baby", baby);
 
 	}
 	
@@ -559,9 +568,25 @@ public class StormObject extends WeatherObject {
 	}
 
 	public void setupTornado() {
-		ActiveTornadoConfig activeTornadoConfig = new ActiveTornadoConfig().setHeight(10).setRadiusOfBase(3).setSpinSpeed(360F / 20F).setRadiusIncreasePerLayer(0.5F);
+		ActiveTornadoConfig activeTornadoConfig;
+		if (isBaby()) {
+			activeTornadoConfig = new ActiveTornadoConfig()
+					.setHeight(20)
+					.setRadiusOfBase(5F + 0F)
+					.setSpinSpeed(360F / 20F)
+					.setRadiusIncreasePerLayer(0.2F)
+					.setEntityPullDistXZ(20)
+					.setEntityPullDistXZForY(5);
+		} else {
+			activeTornadoConfig = new ActiveTornadoConfig()
+					.setHeight(150)
+					.setRadiusOfBase(5F + 5F)
+					.setSpinSpeed(360F / 20F)
+					.setRadiusIncreasePerLayer(0.2F)
+					.setEntityPullDistXZ(120)
+					.setEntityPullDistXZForY(60);
+		}
 		tornadoFunnelSimple = new TornadoFunnelSimple(activeTornadoConfig, this);
-		tornadoFunnelSimple.pos = new Vec3(pos.x, pos.y, pos.z);
 	}
 	
 	public void tick() {
@@ -1286,10 +1311,10 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (playerControlled) {
-			if (playerControllerdTimeLeft > 0) {
-				playerControllerdTimeLeft--;
+			if (playerControlledTimeLeft > 0) {
+				playerControlledTimeLeft--;
 
-				if (playerControllerdTimeLeft <= 0) {
+				if (playerControlledTimeLeft <= 0) {
 					remove();
 				}
 			}
@@ -1528,7 +1553,7 @@ public class StormObject extends WeatherObject {
 
 		//spawn clouds
 
-		if (this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
+		if (!baby && this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
 			for (int i = 0; i < loopSize; i++) {
 				/*if (listParticlesCloud.size() == 0) {
 					double spawnRad = 1;
@@ -1586,7 +1611,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (levelCurIntensityStage >= STATE_HIGHWIND) {
+		if (levelCurIntensityStage >= STATE_HIGHWIND && !baby) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
@@ -2054,8 +2079,8 @@ public class StormObject extends WeatherObject {
 
 		Vec3 vecXZ = new Vec3(posCenter.x, entity.getY(), posCenter.z);
 
-		double distXZMax = 120;
-		double distXZMaxForYGrab = 60;
+		double distXZMax = tornadoFunnelSimple.getConfig().getEntityPullDistXZ();
+		double distXZMaxForYGrab = tornadoFunnelSimple.getConfig().getEntityPullDistXZForY();
 		double distXZ = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMax);
 		double distXZForYGrab = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMaxForYGrab);
 
@@ -2065,6 +2090,7 @@ public class StormObject extends WeatherObject {
 
 		double entHeightFromBase = Math.max(0.1F, entity.getY() - posGround.y);
 		double heightMathMax = 50;
+		if (baby) heightMathMax = 15;
 		//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
 		double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
 
@@ -2077,7 +2103,7 @@ public class StormObject extends WeatherObject {
 		double zz = Math.cos(angle) * pullXZ;
 		double yy = pullY;
 
-		if (entity.getDeltaMovement().y > 0.5F) {
+		if (!baby && entity.getDeltaMovement().y > 0.5F) {
 			yy = 0;
 		}
 
@@ -2523,11 +2549,19 @@ public class StormObject extends WeatherObject {
 		this.playerControlled = playerControlled;
 	}
 
-	public int getPlayerControllerdTimeLeft() {
-		return playerControllerdTimeLeft;
+	public int getPlayerControlledTimeLeft() {
+		return playerControlledTimeLeft;
 	}
 
-	public void setPlayerControllerdTimeLeft(int playerControllerdTimeLeft) {
-		this.playerControllerdTimeLeft = playerControllerdTimeLeft;
+	public void setPlayerControlledTimeLeft(int playerControlledTimeLeft) {
+		this.playerControlledTimeLeft = playerControlledTimeLeft;
+	}
+
+	public boolean isBaby() {
+		return baby;
+	}
+
+	public void setBaby(boolean baby) {
+		this.baby = baby;
 	}
 }

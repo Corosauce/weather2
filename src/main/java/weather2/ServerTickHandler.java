@@ -3,7 +3,6 @@ package weather2;
 import com.corosus.coroutil.util.CULog;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
@@ -76,7 +75,7 @@ public class ServerTickHandler {
 
 						stormObject.setupForcedTornado(player);
 						stormObject.setupPlayerControlledTornado(player);
-						stormObject.setPlayerControllerdTimeLeft(timeTicks);
+						stormObject.setPlayerControlledTimeLeft(timeTicks);
 
 						wm.addStormObject(stormObject);
 						wm.syncStormNew(stormObject);

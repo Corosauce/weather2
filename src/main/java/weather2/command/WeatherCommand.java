@@ -1,18 +1,12 @@
 package weather2.command;
 
-import com.corosus.coroutil.util.CULog;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.InterModComms;
 import weather2.ServerTickHandler;
-import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 
@@ -41,13 +35,41 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned Tornado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("tornadoPlayerBaby").executes(c -> {
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									StormObject stormObject = new StormObject(wm);
+
+									stormObject.setupForcedTornado(c.getSource().getEntity());
+									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
+									stormObject.setPlayerControlledTimeLeft(800);
+									stormObject.setBaby(true);
+
+									wm.addStormObject(stormObject);
+									wm.syncStormNew(stormObject);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned Baby Player Tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornadoBaby").executes(c -> {
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									StormObject stormObject = new StormObject(wm);
+
+									stormObject.setupForcedTornado(c.getSource().getEntity());
+									stormObject.setBaby(true);
+
+									wm.addStormObject(stormObject);
+									wm.syncStormNew(stormObject);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned Baby Tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
 								.then(literal("tornadoPlayer").executes(c -> {
 									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
 									StormObject stormObject = new StormObject(wm);
 
 									stormObject.setupForcedTornado(c.getSource().getEntity());
 									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
-									stormObject.setPlayerControllerdTimeLeft(800);
+									stormObject.setPlayerControlledTimeLeft(800);
 
 									wm.addStormObject(stormObject);
 									wm.syncStormNew(stormObject);
