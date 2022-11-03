@@ -414,6 +414,10 @@ public class SceneEnhancer implements Runnable {
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 		float curPrecipVal = weather.getRainAmount();
+		//workaround until i clean up logic that is flickering the state between heavy rain and null
+		if (curPrecipVal < 0.0001F) {
+			curPrecipVal = 0;
+		}
 
 		//CULog.dbg("curPrecipVal: " + curPrecipVal);
 		ClientWeatherHelper.get().controlVisuals(curPrecipVal > 0);
@@ -448,7 +452,9 @@ public class SceneEnhancer implements Runnable {
 		if (biome != null && (biome.getPrecipitation() != Biome.Precipitation.NONE))
 		{
 			//now absolute it for ez math
-			curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
+			//off cause ltminigames can give 1 tick under 0 worth of rain value change
+			//curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
+			curPrecipVal = Math.min(maxPrecip, Math.max(0, curPrecipVal));
 
 			curPrecipVal *= 1F;
 
