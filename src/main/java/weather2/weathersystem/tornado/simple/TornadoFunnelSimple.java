@@ -87,14 +87,8 @@ public class TornadoFunnelSimple {
 
     @OnlyIn(Dist.CLIENT)
     public void tickClient() {
+        long gameTime = stormObject.ticks;
 
-        //CULog.dbg("gametime2: " + stormObject.manager.getWorld().getGameTime());
-        //System.out.println("2gametime: " + stormObject.manager.getWorld().getGameTime());
-
-        long gameTime = stormObject.ticks;//(stormObject.manager.getWorld().getGameTime() + 52487532);
-
-        Player entP = Minecraft.getInstance().player;
-        //ClientLevel level = (ClientLevel) entP.level;
         Level level = stormObject.manager.getWorld();
 
         int layers = (int) (config.getHeight() / heightPerLayer);
@@ -211,7 +205,6 @@ public class TornadoFunnelSimple {
                     //float spinSpeedLayer = (float)layers / (float)(i+1);
                     float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
                     //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                    float range = 30F * (float) Math.sin((Math.toRadians(((gameTime * 0.5F) + (1 * 50)) % 360)));
                     float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
                     float rot = ((particleSpacingDegrees * index) + spinAdj);
                     particle.setPivotRotPrev(particle.getPivotRot());
