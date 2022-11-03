@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
@@ -874,6 +875,12 @@ public class StormObject extends WeatherObject {
 		Level world = manager.getWorld();
 		
 		currentTopYBlock = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
+
+		//TODO: temp for survive the tide rising mechanic that doesnt update heightmap
+		while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
+			currentTopYBlock++;
+		}
+
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER) {
 			if (rand.nextInt((int)Math.max(1, ConfigStorm.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
@@ -1328,10 +1335,20 @@ public class StormObject extends WeatherObject {
 				playerControlledTimeLeft--;
 
 				if (playerControlledTimeLeft <= 0) {
+					featherFallAllNearbyPlayers();
 					remove();
 				}
 			}
 		}
+	}
+
+	public void featherFallAllNearbyPlayers() {
+		/*double dist = 100 * 2;
+		AABB aabb = new AABB(pos.x, currentTopYBlock, pos.z, pos.x, currentTopYBlock, pos.z);
+		aabb = aabb.inflate(dist, maxHeight * 3, dist);
+		List list = manager.getWorld().getEntitiesOfClass(Entity.class, aabb);*/
+
+		tornadoHelper.forceRotate(manager.getWorld(), true);
 	}
 	
 	public WeatherEntityConfig getWeatherEntityConfigForStorm() {

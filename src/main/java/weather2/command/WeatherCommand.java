@@ -82,7 +82,8 @@ public class WeatherCommand {
 									InterModComms.sendTo("weather2", "player_tornado", () -> {
 										CompoundTag tag = new CompoundTag();
 										tag.putString("uuid", c.getSource().getEntity().getUUID().toString());
-										tag.putInt("time_ticks", 800);
+										tag.putInt("time_ticks", 1200);
+										tag.putBoolean("baby", true);
 										tag.putString("dimension", c.getSource().getEntity().getLevel().dimension().location().toString());
 										return tag;
 									});

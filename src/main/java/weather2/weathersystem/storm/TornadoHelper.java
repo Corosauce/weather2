@@ -10,6 +10,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
@@ -670,8 +672,13 @@ public class TornadoHelper {
 		//for moving blocks, other non livings
 		return true;
 	}
-	
-    public boolean forceRotate(Level parWorld/*Entity entity*/)
+
+	public boolean forceRotate(Level parWorld)
+	{
+		return forceRotate(parWorld, false);
+	}
+
+    public boolean forceRotate(Level parWorld, boolean featherFallInstead)
     {
     	
     	//changed for weather2:
@@ -706,13 +713,21 @@ public class TornadoHelper {
 								//if (entity1.world.isClientSide()) {
 								if (WeatherUtilEntity.isEntityOutside(entity1)) {
 									//Weather.dbg("entity1.motionY: " + entity1.motionY);
-									storm.spinEntityv2((LivingEntity) entity1);
+									if (featherFallInstead) {
+										((Player) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
+									} else {
+										storm.spinEntityv2((LivingEntity) entity1);
+									}
 									foundEnt = true;
 								}
 							} else if ((entity1 instanceof LivingEntity) && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
 								//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
 								//if (!entity1.world.isClientSide()) {
-								storm.spinEntityv2((LivingEntity) entity1);
+								if (featherFallInstead) {
+									((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
+								} else {
+									storm.spinEntityv2((LivingEntity) entity1);
+								}
 								//spin(entity, conf, entity1);
 								foundEnt = true;
 								//}
