@@ -197,6 +197,8 @@ public class StormObject extends WeatherObject {
 	private boolean baby = false;
 
 	private boolean configNeedsSync = true;
+
+	public int ticks;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -459,6 +461,13 @@ public class StormObject extends WeatherObject {
 
 		data.putBoolean("baby", baby);
 
+		//do a force sync every 30 seconds, solves issues like first data sometimes not coming in right: eg top y block if height never changes in flat world
+		if (manager != null && (manager.getWorld().getGameTime()) % (20*30) == 0) {
+			data.setUpdateForced(true);
+		} else {
+			data.setUpdateForced(false);
+		}
+
 	}
 	
 	public CompoundTag nbtForIMC() {
@@ -591,7 +600,11 @@ public class StormObject extends WeatherObject {
 	
 	public void tick() {
 		super.tick();
+		ticks++;
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
+
+		//CULog.dbg("gametime: " + manager.getWorld().getGameTime());
+		//System.out.println("1gametime: " + manager.getWorld().getGameTime());
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.x, currentTopYBlock, pos.z);

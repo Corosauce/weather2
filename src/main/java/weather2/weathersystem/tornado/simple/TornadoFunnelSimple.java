@@ -1,5 +1,6 @@
 package weather2.weathersystem.tornado.simple;
 
+import com.corosus.coroutil.util.CULog;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.PivotingParticle;
 import net.minecraft.client.Minecraft;
@@ -86,6 +87,11 @@ public class TornadoFunnelSimple {
 
     @OnlyIn(Dist.CLIENT)
     public void tickClient() {
+
+        //CULog.dbg("gametime2: " + stormObject.manager.getWorld().getGameTime());
+        //System.out.println("2gametime: " + stormObject.manager.getWorld().getGameTime());
+
+        long gameTime = stormObject.ticks;//(stormObject.manager.getWorld().getGameTime() + 52487532);
 
         Player entP = Minecraft.getInstance().player;
         //ClientLevel level = (ClientLevel) entP.level;
@@ -192,7 +198,7 @@ public class TornadoFunnelSimple {
                 if (!pivotingRotation) {
                     float particleSpacingRadians = (float) Math.toRadians(360 / particlesPerLayer);
                     //particleSpacingRadians = 5;
-                    float spinAdj = (float) (Math.toRadians(level.getGameTime() % 360) * 4.22F);
+                    float spinAdj = (float) (Math.toRadians(gameTime % 360) * 4.22F);
                     float relX = -Mth.sin((particleSpacingRadians * index) + spinAdj) * radius;
                     float relY = (float) (heightPerLayer * (i + 1));
                     float relZ = Mth.cos((particleSpacingRadians * index) + spinAdj) * radius;
@@ -205,8 +211,9 @@ public class TornadoFunnelSimple {
                     //float spinSpeedLayer = (float)layers / (float)(i+1);
                     float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
                     //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                    float spinAdj = (level.getGameTime()) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
-                    float rot = (particleSpacingDegrees * index) + spinAdj;
+                    float range = 30F * (float) Math.sin((Math.toRadians(((gameTime * 0.5F) + (1 * 50)) % 360)));
+                    float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+                    float rot = ((particleSpacingDegrees * index) + spinAdj);
                     particle.setPivotRotPrev(particle.getPivotRot());
                     particle.setPivotRot(new Vec3(0, rot, 0));
                     particle.setPivotPrev(particle.getPivot());
@@ -258,7 +265,7 @@ public class TornadoFunnelSimple {
                     if (isBaby) particle.setScale(10F / 3F * (radius / radiusMax));
                     particle.setAlpha(1F);
                 }
-                //particle.setAge(0);
+                particle.setAge(0);
                 //particle.setColor(1, 1, 1);
                 index++;
             }
@@ -283,7 +290,7 @@ public class TornadoFunnelSimple {
                 //float spinSpeedLayer = (float)layers / (float)(i+1);
                 float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
                 //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                float spinAdj = (level.getGameTime()) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+                float spinAdj = (gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
                 float rot = (particleSpacingDegrees * index) + spinAdj;
                 particle.setPivotRotPrev(particle.getPivotRot());
                 particle.setPivotRot(new Vec3(0, rot, 0));
@@ -317,7 +324,7 @@ public class TornadoFunnelSimple {
                 particle.setScale(8 * 0.15F);
                 particle.setAlpha(1F);
 
-                //particle.setAge(0);
+                particle.setAge(0);
                 particle.setGravity(0);
                 //particle.setColor(1, 1, 1);
                 index++;
