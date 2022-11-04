@@ -592,6 +592,7 @@ public class StormObject extends WeatherObject {
 					.setRadiusOfBase(0.5F)
 					.setSpinSpeed(360F / 20F)
 					.setRadiusIncreasePerLayer(0.02F)
+					/*.setRadiusIncreasePerLayer(0.08F)*/
 					.setEntityPullDistXZ(2)
 					.setEntityPullDistXZForY(2);
 		} else if (isBaby()) {

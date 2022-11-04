@@ -115,10 +115,12 @@ public class TornadoFunnelSimple {
         int particleCount = 0;
 
         float adjustedRate = 1F;
-        if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
-            adjustedRate = 0.6F;
-        } else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
-            adjustedRate = 0.3F;
+        if (!isPet) {
+            if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+                adjustedRate = 0.6F;
+            } else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+                adjustedRate = 0.3F;
+            }
         }
 
         for (int i = 0; i < layers; i++) {
@@ -253,7 +255,7 @@ public class TornadoFunnelSimple {
 
                 particle.setScale(10F * (radius / radiusMax));
                 if (isBaby) particle.setScale(10F / 3F * (radius / radiusMax));
-                if (isPet) particle.setScale(10F / 3F / 5F * (radius / radiusMax));
+                if (isPet) particle.setScale(10F / 3F / 7F * (radius / radiusMax));
                 particle.setAge(0);
                 //particle.setColor(1, 1, 1);
                 index++;
