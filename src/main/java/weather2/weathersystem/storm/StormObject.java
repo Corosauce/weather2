@@ -20,6 +20,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
@@ -911,6 +912,28 @@ public class StormObject extends WeatherObject {
 		if (Weather.isLoveTropicsInstalled()) {
 			while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
 				currentTopYBlock++;
+			}
+		}
+
+		if (isPet()) {
+			Player entP = getPlayer();
+			if (entP != null) {
+				if (entP.position().distanceTo(posGround) < 10) {
+					if (currentTopYBlock + 4 > entP.position().y) {
+						int y = (int) (entP.position().y + 2);
+						while (y > entP.position().y - 3) {
+							BlockPos blockPos = new BlockPos(pos.x, y, pos.z);
+							BlockPos blockPosUp = new BlockPos(pos.x, y+1, pos.z);
+							BlockState state = world.getBlockState(blockPos);
+							BlockState stateUp = world.getBlockState(blockPosUp);
+							if ((!state.isAir() && state.getCollisionShape(world, blockPosUp) != Shapes.empty()) && (stateUp.isAir() || stateUp.getCollisionShape(world, blockPosUp) == Shapes.empty())) {
+								currentTopYBlock = y+1;
+								break;
+							}
+							y--;
+						}
+					}
+				}
 			}
 		}
 
