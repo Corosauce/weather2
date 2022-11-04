@@ -77,6 +77,21 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned Player Tornado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("tornadoPet").executes(c -> {
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									StormObject stormObject = new StormObject(wm);
+
+									stormObject.setupForcedTornado(c.getSource().getEntity());
+									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
+									stormObject.setPlayerControlledTimeLeft(-1);
+									stormObject.setPet(true);
+
+									wm.addStormObject(stormObject);
+									wm.syncStormNew(stormObject);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned Pet Tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
 								.then(literal("sandstorm").executes(c -> {
 
 									InterModComms.sendTo("weather2", "player_tornado", () -> {

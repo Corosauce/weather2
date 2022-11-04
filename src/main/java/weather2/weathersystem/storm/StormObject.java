@@ -196,6 +196,7 @@ public class StormObject extends WeatherObject {
 	private boolean playerControlled = false;
 	private int playerControlledTimeLeft = 20;
 	private boolean baby = false;
+	private boolean pet = false;
 
 	private boolean configNeedsSync = true;
 
@@ -388,11 +389,12 @@ public class StormObject extends WeatherObject {
 		playerControlled = parNBT.getBoolean("playerControlled");
 		spawnerUUID = parNBT.getString("spawnerUUID");
 
-		if (parNBT.contains("config")) {
+		if (tornadoFunnelSimple != null && parNBT.contains("config")) {
 			tornadoFunnelSimple.setConfig(ActiveTornadoConfig.deserialize(parNBT.get("config")));
 		}
 
 		baby = parNBT.getBoolean("baby");
+		pet = parNBT.getBoolean("pet");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -461,6 +463,7 @@ public class StormObject extends WeatherObject {
 		}
 
 		data.putBoolean("baby", baby);
+		data.putBoolean("pet", pet);
 
 		//do a force sync every 30 seconds, solves issues like first data sometimes not coming in right: eg top y block if height never changes in flat world
 		if (manager != null && (manager.getWorld().getGameTime()) % (20*30) == 0) {
@@ -579,7 +582,15 @@ public class StormObject extends WeatherObject {
 
 	public void setupTornado() {
 		ActiveTornadoConfig activeTornadoConfig;
-		if (isBaby()) {
+		if (isPet()) {
+			activeTornadoConfig = new ActiveTornadoConfig()
+					.setHeight(1.7F)
+					.setRadiusOfBase(0.5F)
+					.setSpinSpeed(360F / 20F)
+					.setRadiusIncreasePerLayer(0.02F)
+					.setEntityPullDistXZ(2)
+					.setEntityPullDistXZForY(2);
+		} else if (isBaby()) {
 			activeTornadoConfig = new ActiveTornadoConfig()
 					.setHeight(20)
 					.setRadiusOfBase(5F + 0F)
@@ -738,9 +749,19 @@ public class StormObject extends WeatherObject {
 	
 	public void tickMovement() {
 
+		double distToTarget = 1F;
 		if (playerControlled) {
-			Player entP = manager.getWorld().getPlayerByUUID(UUID.fromString(spawnerUUID));
-			aimStormAtClosestOrProvidedPlayer(entP);
+			Player entP = getPlayer();
+			if (entP != null) {
+				if (!isPet()) {
+					aimStormAtClosestOrProvidedPlayer(entP);
+				} else {
+					distToTarget = entP.position().distanceTo(posGround);
+					if (distToTarget > 5F) {
+						aimStormAtClosestOrProvidedPlayer(entP);
+					}
+				}
+			}
 		}
 
 		//storm movement via wind
@@ -839,6 +860,13 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		}
+
+		if (isPet()) {
+			finalSpeed = 0.05F;
+			if (distToTarget > 5.5F) {
+				finalSpeed = 0.5F;
+			}
+		}
 		
 		if (manager.getWorld().getGameTime() % 100 == 0 && levelCurIntensityStage >= STATE_FORMING) {
 			
@@ -877,8 +905,10 @@ public class StormObject extends WeatherObject {
 		currentTopYBlock = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
 
 		//TODO: temp for survive the tide rising mechanic that doesnt update heightmap
-		while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
-			currentTopYBlock++;
+		if (Weather.isLoveTropicsInstalled()) {
+			while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
+				currentTopYBlock++;
+			}
 		}
 
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
@@ -1583,7 +1613,7 @@ public class StormObject extends WeatherObject {
 
 		//spawn clouds
 
-		if (!baby && this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
+		if (!pet && !baby && this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
 			for (int i = 0; i < loopSize; i++) {
 				/*if (listParticlesCloud.size() == 0) {
 					double spawnRad = 1;
@@ -1641,7 +1671,7 @@ public class StormObject extends WeatherObject {
 		}
 		
 		//ground effects
-		if (levelCurIntensityStage >= STATE_HIGHWIND && !baby) {
+		if (levelCurIntensityStage >= STATE_HIGHWIND && !baby && !pet) {
 			for (int i = 0; i < (stormType == TYPE_WATER ? 50 : 3)/*loopSize/2*/; i++) {
 				if (listParticlesGround.size() < (stormType == TYPE_WATER ? 600 : 150)/*size + extraSpawning*/) {
 					double spawnRad = size/4*3;
@@ -2095,7 +2125,7 @@ public class StormObject extends WeatherObject {
 		return 0;
 	}
 
-	public void spinEntityv2(LivingEntity entity) {
+	public void spinEntityv2(Entity entity) {
 		Vec3 posCenter = getPosTop();
 		for (Layer layer : tornadoFunnelSimple.listLayers) {
 			if (entity.position().y - 1.5F < layer.getPos().y) {
@@ -2117,23 +2147,33 @@ public class StormObject extends WeatherObject {
 		float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
 
 		angle += 50;
+		if (pet) angle += 50;
 
 		double entHeightFromBase = Math.max(0.1F, entity.getY() - posGround.y);
 		double heightMathMax = 50;
 		if (baby) heightMathMax = 15;
+		if (pet) heightMathMax = 4;
 		//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
 		double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
 
-		angle += (40 * heightAmp);
+		if (!pet) {
+			angle += (40 * heightAmp);
+		}
 
 		angle = (float) Math.toRadians(angle);
-		double pullY = 0.2 * (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
-		double pullXZ = 0.2 * (distXZMax - distXZ) / distXZMax;
+		double pullStrength = 0.2;
+		if (pet) pullStrength = 0.05;
+		double pullY = pullStrength* (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
+		double pullXZ = pullStrength * (distXZMax - distXZ) / distXZMax;
 		double xx = -Math.sin(angle) * pullXZ;
 		double zz = Math.cos(angle) * pullXZ;
 		double yy = pullY;
 
 		if (!baby && entity.getDeltaMovement().y > 0.5F) {
+			yy = 0;
+		}
+
+		if (pet && entity.getDeltaMovement().y > 0.15F) {
 			yy = 0;
 		}
 
@@ -2593,5 +2633,13 @@ public class StormObject extends WeatherObject {
 
 	public void setBaby(boolean baby) {
 		this.baby = baby;
+	}
+
+	public boolean isPet() {
+		return pet;
+	}
+
+	public void setPet(boolean pet) {
+		this.pet = pet;
 	}
 }

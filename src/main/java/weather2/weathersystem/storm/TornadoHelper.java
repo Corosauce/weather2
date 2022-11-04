@@ -235,8 +235,8 @@ public class TornadoHelper {
         /*if (parWorld.isClientSide()) {
         	soundUpdates();
         }*/
-        
-        forceRotate(parWorld);
+
+		forceRotate(parWorld);
         
         Random rand = new Random();
         
@@ -621,7 +621,7 @@ public class TornadoHelper {
 					return ConfigTornado.Storm_Tornado_grabVillagers;
 				}
 				if (ent instanceof ItemEntity) {
-					return ConfigTornado.Storm_Tornado_grabItems;
+					return ConfigTornado.Storm_Tornado_grabItems || storm.isPet();
 				}
 				if (ent instanceof Enemy) {
 					return ConfigTornado.Storm_Tornado_grabMobs;
@@ -660,7 +660,7 @@ public class TornadoHelper {
 				return clientConfig.Storm_Tornado_grabVillagers;
 			}
 			if (ent instanceof ItemEntity) {
-				return clientConfig.Storm_Tornado_grabItems;
+				return clientConfig.Storm_Tornado_grabItems || storm.isPet();
 			}
 			if (ent instanceof Enemy) {
 				return clientConfig.Storm_Tornado_grabMobs;
@@ -685,8 +685,16 @@ public class TornadoHelper {
     	//canEntityBeSeen commented out till replaced with coord one, might cause issues
     	
         double dist = grabDist * 2;
+		if (storm.isPet()) {
+			dist = 3F;
+		}
         AABB aabb = new AABB(storm.pos.x, storm.currentTopYBlock, storm.pos.z, storm.pos.x, storm.currentTopYBlock, storm.pos.z);
-        aabb = aabb.inflate(dist, this.storm.maxHeight * 3, dist);
+		if (storm.isPet()) {
+			aabb = aabb.inflate(dist, 3, dist);
+		} else {
+			aabb = aabb.inflate(dist, this.storm.maxHeight * 3, dist);
+		}
+
         List list = parWorld.getEntitiesOfClass(Entity.class, aabb);
         boolean foundEnt = false;
         int killCount = 0;
@@ -700,37 +708,43 @@ public class TornadoHelper {
                 if (canGrabEntity(entity1)) {
 					if (getDistanceXZ(storm.posBaseFormationPos, entity1.getX(), entity1.getY(), entity1.getZ()) < dist)
 					{
-						//TODO: 1.14 uncomment and remove false
-						if (false/* && (entity1 instanceof EntityMovingBlock && !((EntityMovingBlock)entity1).collideFalling)*/)
-						{
-							storm.spinEntity(entity1);
-							//spin(entity, conf, entity1);
-							foundEnt = true;
-						} else {
-							if (entity1 instanceof Player) {
-								//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
-								//actually we need to still change its motion var, otherwise weird things happen
-								//if (entity1.world.isClientSide()) {
-								if (WeatherUtilEntity.isEntityOutside(entity1)) {
-									//Weather.dbg("entity1.motionY: " + entity1.motionY);
-									if (featherFallInstead) {
-										((Player) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
-									} else {
-										storm.spinEntityv2((LivingEntity) entity1);
-									}
-									foundEnt = true;
-								}
-							} else if ((entity1 instanceof LivingEntity) && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
-								//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
-								//if (!entity1.world.isClientSide()) {
-								if (featherFallInstead) {
-									((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
-								} else {
-									storm.spinEntityv2((LivingEntity) entity1);
-								}
+						if (!storm.isPet()) {
+							//TODO: 1.14 uncomment and remove false
+							if (false/* && (entity1 instanceof EntityMovingBlock && !((EntityMovingBlock)entity1).collideFalling)*/) {
+								storm.spinEntity(entity1);
 								//spin(entity, conf, entity1);
 								foundEnt = true;
-								//}
+							} else {
+								if (entity1 instanceof Player) {
+									//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
+									//actually we need to still change its motion var, otherwise weird things happen
+									//if (entity1.world.isClientSide()) {
+									if (WeatherUtilEntity.isEntityOutside(entity1)) {
+										//Weather.dbg("entity1.motionY: " + entity1.motionY);
+										if (featherFallInstead) {
+											((Player) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
+										} else {
+											storm.spinEntityv2(entity1);
+										}
+										foundEnt = true;
+									}
+								} else if ((entity1 instanceof LivingEntity) && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
+									//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
+									//if (!entity1.world.isClientSide()) {
+									if (featherFallInstead) {
+										((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
+									} else {
+										storm.spinEntityv2(entity1);
+									}
+									//spin(entity, conf, entity1);
+									foundEnt = true;
+									//}
+								}
+							}
+						} else {
+							if (entity1 instanceof ItemEntity) {
+								storm.spinEntityv2(entity1);
+								foundEnt = true;
 							}
 						}
 					}
@@ -760,7 +774,7 @@ public class TornadoHelper {
     @OnlyIn(Dist.CLIENT)
     public void soundUpdates(boolean playFarSound, boolean playNearSound)
     {
-    	
+    	if (storm.isPet()) return;
     	Minecraft mc = Minecraft.getInstance();
     	
         if (mc.player == null)

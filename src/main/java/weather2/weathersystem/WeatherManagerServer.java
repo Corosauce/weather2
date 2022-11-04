@@ -85,6 +85,8 @@ public class WeatherManagerServer extends WeatherManager {
 					WeatherObject so = getStormObjects().get(i);
 					Player closestPlayer = world.getNearestPlayer(so.posGround.x, so.posGround.y, so.posGround.z, ConfigMisc.Misc_simBoxRadiusCutoff, EntitySelector.ENTITY_STILL_ALIVE);
 
+					if (so instanceof StormObject && ((StormObject) so).isPet()) continue;
+
 					//removed check is done in WeatherManagerBase
 					if (closestPlayer == null || ConfigMisc.Aesthetic_Only_Mode) {
 						so.ticksSinceNoNearPlayer += rate;
@@ -650,10 +652,15 @@ public class WeatherManagerServer extends WeatherManager {
 	}
 
 	public void clearAllStorms() {
-		for (int i = 0; i < getStormObjects().size(); i++) {
-			WeatherObject so = getStormObjects().get(i);
-			removeStormObject(so.ID);
+		Iterator<WeatherObject> it = getStormObjects().iterator();
+		while (it.hasNext()) {
+			WeatherObject so = it.next();
+			//removeStormObject(so.ID);
+			so.remove();
 			syncStormRemove(so);
+
 		}
+		getStormObjects().clear();
+		lookupStormObjectsByID.clear();
 	}
 }

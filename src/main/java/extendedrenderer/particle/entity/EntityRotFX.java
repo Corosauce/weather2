@@ -371,6 +371,7 @@ public class EntityRotFX extends TextureSheetParticle
         if (weatherMan == null) return;
         WindManager windMan = weatherMan.getWindManager();
         if (windMan == null) return;
+        if (this instanceof PivotingParticle) return;
         windMan.applyWindForceNew(this, 1F / 20F, 0.5F);
 
         /*if (!quatControl) {

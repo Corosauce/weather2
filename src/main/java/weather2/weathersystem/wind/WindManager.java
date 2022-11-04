@@ -66,7 +66,9 @@ public class WindManager {
 	}
 	
 	public float getWindSpeed() {
-		if (windTimeGust > 0) {
+		/*if (windSpeedEvent > 0) {
+			return windSpeedEvent;
+		} else */if (windTimeGust > 0) {
 			return windSpeedGust;
 		} else {
 			return windSpeedGlobal;
