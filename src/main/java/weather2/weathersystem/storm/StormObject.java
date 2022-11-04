@@ -268,7 +268,7 @@ public class StormObject extends WeatherObject {
 	}
 	
 	public boolean isTornadoFormingOrGreater() {
-		return stormType == TYPE_LAND && levelCurIntensityStage >= STATE_FORMING;
+		return (stormType == TYPE_LAND && levelCurIntensityStage >= STATE_FORMING) || isPet();
 	}
 	
 	public boolean isCycloneFormingOrGreater() {
