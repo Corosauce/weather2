@@ -742,7 +742,7 @@ public class TornadoHelper {
 								}
 							}
 						} else {
-							if (entity1 instanceof ItemEntity) {
+							if (entity1 instanceof ItemEntity && storm.isPetGrabsItems()) {
 								storm.spinEntityv2(entity1);
 								foundEnt = true;
 							}

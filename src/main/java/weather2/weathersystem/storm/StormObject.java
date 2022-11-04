@@ -197,6 +197,7 @@ public class StormObject extends WeatherObject {
 	private int playerControlledTimeLeft = 20;
 	private boolean baby = false;
 	private boolean pet = false;
+	private boolean petGrabsItems = false;
 
 	private boolean configNeedsSync = true;
 
@@ -395,6 +396,7 @@ public class StormObject extends WeatherObject {
 
 		baby = parNBT.getBoolean("baby");
 		pet = parNBT.getBoolean("pet");
+		petGrabsItems = parNBT.getBoolean("petGrabsItems");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -464,6 +466,7 @@ public class StormObject extends WeatherObject {
 
 		data.putBoolean("baby", baby);
 		data.putBoolean("pet", pet);
+		data.putBoolean("petGrabsItems", petGrabsItems);
 
 		//do a force sync every 30 seconds, solves issues like first data sometimes not coming in right: eg top y block if height never changes in flat world
 		if (manager != null && (manager.getWorld().getGameTime()) % (20*30) == 0) {
@@ -912,7 +915,7 @@ public class StormObject extends WeatherObject {
 		}
 
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
-		if (levelCurIntensityStage >= STATE_THUNDER) {
+		if (levelCurIntensityStage >= STATE_THUNDER && !isBaby() && !isPet()) {
 			if (rand.nextInt((int)Math.max(1, ConfigStorm.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
 				int x = (int) (pos.x + rand.nextInt(size) - rand.nextInt(size));
 				int z = (int) (pos.z + rand.nextInt(size) - rand.nextInt(size));
@@ -2641,5 +2644,13 @@ public class StormObject extends WeatherObject {
 
 	public void setPet(boolean pet) {
 		this.pet = pet;
+	}
+
+	public boolean isPetGrabsItems() {
+		return petGrabsItems;
+	}
+
+	public void setPetGrabsItems(boolean petGrabsItems) {
+		this.petGrabsItems = petGrabsItems;
 	}
 }

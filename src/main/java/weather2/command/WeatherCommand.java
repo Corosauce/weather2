@@ -85,11 +85,28 @@ public class WeatherCommand {
 									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
 									stormObject.setPlayerControlledTimeLeft(-1);
 									stormObject.setPet(true);
+									stormObject.setPetGrabsItems(true);
 
 									wm.addStormObject(stormObject);
 									wm.syncStormNew(stormObject);
 
 									c.getSource().sendSuccess(new TextComponent("Summoned Pet Tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornadoPetNoItems").executes(c -> {
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									StormObject stormObject = new StormObject(wm);
+
+									stormObject.setupForcedTornado(c.getSource().getEntity());
+									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
+									stormObject.setPlayerControlledTimeLeft(-1);
+									stormObject.setPet(true);
+									stormObject.setPetGrabsItems(false);
+
+									wm.addStormObject(stormObject);
+									wm.syncStormNew(stormObject);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned Pet Tornado with no item grab"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
 								.then(literal("sandstorm").executes(c -> {
