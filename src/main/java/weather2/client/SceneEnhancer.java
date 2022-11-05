@@ -158,6 +158,8 @@ public class SceneEnhancer implements Runnable {
 				tryParticleSpawning();
 			}
 
+			FORCE_ON_DEBUG_TESTING = false;
+
 			if (weather.hasWeather() || FORCE_ON_DEBUG_TESTING) {
 				ClientWeatherHelper.get().tick();
 				tickParticlePrecipitation();
@@ -628,7 +630,7 @@ public class SceneEnhancer implements Runnable {
                                 rain.setFacePlayer(false);
 
                                 //rain.setFacePlayer(true);
-                                rain.setScale(0.6F * 0.15F);
+                                rain.setScale(1.2F * 0.15F);
                                 rain.isTransparent = true;
                                 rain.setGravity(5.5F);
                                 //rain.isTransparent = true;

@@ -837,11 +837,19 @@ public class TornadoHelper {
 			}
             //tryPlaySound(snd_dmg_close[0], 0);
             //tryPlaySound(snd_dmg_close[0], 0);
-            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, volScaleClose, close);
+
+			float quietTornadoTweak = 1F;
+			if (Weather.isLoveTropicsInstalled()) {
+				/*quietTornadoTweak = 0.01F;
+				quietTornadoTweak = 0.0F;*/
+				close = 7;
+			}
+
+            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, volScaleClose * quietTornadoTweak, close);
 
             if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND/*getStorm().type == getStorm().TYPE_TORNADO*/)
             {
-                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, volScaleClose, close);
+                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, volScaleClose * quietTornadoTweak, close);
             }
         }
     }
