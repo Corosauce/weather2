@@ -8,11 +8,17 @@ import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.animal.Dolphin;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.tropicraft.core.common.entity.TropicraftEntities;
+import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
 
@@ -84,7 +90,23 @@ public class TornadoFunnelSimple {
                 Vec3 newPos = posLayer.add(moveVec);
                 listLayers.get(i).setPos(new Vec3(newPos.x, newPos.y, newPos.z));
             }
+        }
 
+        Level level = stormObject.manager.getWorld();
+
+        if (stormObject.isSharknado()) {
+            if (!level.isClientSide()) {
+                if (level.getGameTime() % 20 == 0) {
+                    SharkEntity ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
+                    Random rand = new Random();
+                    float xx = (rand.nextFloat() - 0.5F) * 10F;
+                    float zz = (rand.nextFloat() - 0.5F) * 10F;
+                    Vec3 posRand = new Vec3(pos.x + 0, pos.y + 3, pos.z + -5);
+                    ent.setPos(posRand);
+                    ent.setDeltaMovement(3F, 0, 0);
+                    level.addFreshEntity(ent);
+                }
+            }
         }
     }
 

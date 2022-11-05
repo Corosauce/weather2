@@ -9,8 +9,11 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.animal.Dolphin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -19,12 +22,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.*;
@@ -199,6 +204,7 @@ public class StormObject extends WeatherObject {
 	private boolean baby = false;
 	private boolean pet = false;
 	private boolean petGrabsItems = false;
+	private boolean sharknado = false;
 
 	private boolean configNeedsSync = true;
 
@@ -398,6 +404,7 @@ public class StormObject extends WeatherObject {
 		baby = parNBT.getBoolean("baby");
 		pet = parNBT.getBoolean("pet");
 		petGrabsItems = parNBT.getBoolean("petGrabsItems");
+		sharknado = parNBT.getBoolean("sharknado");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -468,6 +475,7 @@ public class StormObject extends WeatherObject {
 		data.putBoolean("baby", baby);
 		data.putBoolean("pet", pet);
 		data.putBoolean("petGrabsItems", petGrabsItems);
+		data.putBoolean("sharknado", sharknado);
 
 		//do a force sync every 30 seconds, solves issues like first data sometimes not coming in right: eg top y block if height never changes in flat world
 		if (manager != null && (manager.getWorld().getGameTime()) % (20*30) == 0) {
@@ -670,9 +678,6 @@ public class StormObject extends WeatherObject {
 
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 				tornadoHelper.tick(manager.getWorld());
-
-				//TODO: TEMPPPPPPPPPPPP, make server logic split up
-				//tornadoFunnelSimple.tickClient();
 			}
 
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
@@ -872,6 +877,10 @@ public class StormObject extends WeatherObject {
 				finalSpeed = 0.5F;
 			}
 		}
+
+		if (isSharknado()) {
+			finalSpeed = 0.1F;
+		}
 		
 		if (manager.getWorld().getGameTime() % 100 == 0 && levelCurIntensityStage >= STATE_FORMING) {
 			
@@ -913,6 +922,13 @@ public class StormObject extends WeatherObject {
 		if (Weather.isLoveTropicsInstalled()) {
 			while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
 				currentTopYBlock++;
+			}
+		}
+
+		if (isBaby()) {
+			Player player = getPlayer();
+			if (player != null) {
+				currentTopYBlock = (int) player.position().y;
 			}
 		}
 
@@ -1432,7 +1448,9 @@ public class StormObject extends WeatherObject {
 		levelCurStagesIntensity = 0F;
 		if (ConfigTornado.Storm_Tornado_aimAtPlayerOnSpawn) {
 			if (!hasStormPeaked && levelCurIntensityStage == STATE_FORMING) {
-				aimStormAtClosestOrProvidedPlayer(null);
+				if (!Weather.isLoveTropicsInstalled()) {
+					aimStormAtClosestOrProvidedPlayer(null);
+				}
 			}
 		}
 	}
@@ -1475,10 +1493,9 @@ public class StormObject extends WeatherObject {
 		}
 		
 		if (ConfigTornado.Storm_Tornado_aimAtPlayerOnSpawn) {
-			
-			//if (entP != null) {
+			if (!Weather.isLoveTropicsInstalled()) {
 				aimStormAtClosestOrProvidedPlayer(entP);
-			//}
+			}
 			
 		}
 	}
@@ -1534,22 +1551,28 @@ public class StormObject extends WeatherObject {
 		}
 		
 		if (entP != null) {
-			Random rand = new Random();
-			double var11 = entP.getX() - pos.x;
-            double var15 = entP.getZ() - pos.z;
-            float yaw = -(float)(Math.atan2(var11, var15) * 180.0D / Math.PI);
-            //weather override!
-            //yaw = weatherMan.wind.direction;
-            int size = ConfigTornado.Storm_Tornado_aimAtPlayerAngleVariance;
-            if (size > 0) {
-            	yaw += rand.nextInt(size) - (size / 2);
-            }
-            
-            angleIsOverridden = true;
-			angleMovementTornadoOverride = yaw;
-			
-			//Weather.dbg("stormfront aimed at player " + CoroUtilEntity.getName(entP));
+			aimAtCoords(entP.position());
 		}
+	}
+
+	public void aimAtCoords(Vec3 vec) {
+		Random rand = new Random();
+		double var11 = vec.x() - pos.x;
+		double var15 = vec.z() - pos.z;
+		float yaw = -(float)(Math.atan2(var11, var15) * 180.0D / Math.PI);
+		//weather override!
+		//yaw = weatherMan.wind.direction;
+		int size = ConfigTornado.Storm_Tornado_aimAtPlayerAngleVariance;
+		if (size > 0) {
+			if (!Weather.isLoveTropicsInstalled()) {
+				yaw += rand.nextInt(size) - (size / 2);
+			}
+		}
+
+		angleIsOverridden = true;
+		angleMovementTornadoOverride = yaw;
+
+		//Weather.dbg("stormfront aimed at player " + CoroUtilEntity.getName(entP));
 	}
 	
 	//FYI rain doesnt count as storm
@@ -2152,61 +2175,129 @@ public class StormObject extends WeatherObject {
 		return 0;
 	}
 
+	public Player getRandomNearPlayer(Entity entityLineOfSightSource) {
+		//Player player = manager.getWorld().getNearbyPlayers(TargetingConditions.forCombat().range(64.0D), )
+
+		List<? extends Player> players = manager.getWorld().players();
+		List<Player> playersNear = new ArrayList<>();
+		for (Player player : players) {
+			if (!player.isSpectator() && player.position().distanceTo(posGround) < 196 && player.hasLineOfSight(entityLineOfSightSource)) {
+				playersNear.add(player);
+			}
+		}
+		if (!playersNear.isEmpty()) {
+			Collections.shuffle(playersNear);
+			return playersNear.get(0);
+		}
+		return null;
+	}
+
 	public void spinEntityv2(Entity entity) {
-		Vec3 posCenter = getPosTop();
-		for (Layer layer : tornadoFunnelSimple.listLayers) {
-			if (entity.position().y - 1.5F < layer.getPos().y) {
-				posCenter = layer.getPos();
-				break;
+
+		if (entity.getPersistentData().getBoolean("tornado_shoot")) {
+			if (!entity.getPersistentData().contains("tornado_shoot_target")) {
+				Player player = getRandomNearPlayer(entity);
+				if (player != null) {
+					entity.getPersistentData().putString("tornado_shoot_target", player.getUUID().toString());
+				}
+			} else {
+				UUID uuid = UUID.fromString(entity.getPersistentData().getString("tornado_shoot_target"));
+				Player player = manager.getWorld().getPlayerByUUID(uuid);
+				if (player != null) {
+					double vecx = player.position().x - entity.position().x;
+					double vecy = player.position().y - entity.position().y;
+					double vecz = player.position().z - entity.position().z;
+					Vec3 vec = new Vec3(vecx, vecy, vecz);
+					double speed = 2F;
+					vec = vec.normalize().multiply(speed, speed, speed);
+					entity.setDeltaMovement(vec.x, vec.y, vec.z);
+					//entity.xo = entity.position().x - vec.x;
+					//entity.zo = entity.position().z - vec.z;
+					float rotationYaw = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI) - 90.0F;
+					//entity.setYRot(rotationYaw);
+					if (entity instanceof SharkEntity) {
+						//((SharkEntity) entity).swimYaw = rotationYaw;
+						//((SharkEntity) entity).targetVectorHeading = new Vec2((float) vecx, (float) vecz);
+					}
+
+					if (player.position().distanceTo(entity.position()) < 3 && entity.isAlive()) {
+						player.hurt(DamageSource.CACTUS, 1.5F);
+						entity.kill();
+					}
+
+					if (entity.isInWater()) {
+						entity.getPersistentData().putBoolean("tornado_shoot", false);
+					}
+				}
+			}
+		} else {
+			Vec3 posCenter = getPosTop();
+			for (Layer layer : tornadoFunnelSimple.listLayers) {
+				if (entity.position().y - 1.5F < layer.getPos().y) {
+					posCenter = layer.getPos();
+					break;
+				}
+			}
+
+			double vecx = posCenter.x - entity.position().x;
+			double vecz = posCenter.z - entity.position().z;
+
+			Vec3 vecXZ = new Vec3(posCenter.x, entity.getY(), posCenter.z);
+
+			double distXZMax = tornadoFunnelSimple.getConfig().getEntityPullDistXZ();
+			double distXZMaxForYGrab = tornadoFunnelSimple.getConfig().getEntityPullDistXZForY();
+			double distXZ = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMax);
+			double distXZForYGrab = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMaxForYGrab);
+
+			float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
+
+			angle += 50;
+			if (pet) angle += 50;
+
+			double entHeightFromBase = Math.max(0.1F, entity.getY() - posGround.y);
+			double heightMathMax = 50;
+			if (baby) heightMathMax = 15;
+			if (pet) heightMathMax = 4;
+			//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
+			double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
+
+			if (!pet) {
+				angle += (40 * heightAmp);
+			}
+
+			angle = (float) Math.toRadians(angle);
+			double pullStrength = 0.2;
+			double pullStrengthY = 0.2;
+			if (pet) pullStrength = 0.05;
+			if (pet) pullStrengthY = 0.05;
+			if (sharknado && entity instanceof Player) pullStrength = 0.05;
+			if (sharknado && entity instanceof Player) pullStrengthY = 0.1;
+			double pullY = pullStrengthY * (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
+			double pullXZ = pullStrength * (distXZMax - distXZ) / distXZMax;
+			double xx = -Math.sin(angle) * pullXZ;
+			double zz = Math.cos(angle) * pullXZ;
+			double yy = pullY;
+
+			if (!baby && entity.getDeltaMovement().y > 0.5F) {
+				yy = 0;
+			}
+
+			if (pet && entity.getDeltaMovement().y > 0.15F) {
+				yy = 0;
+			}
+
+			entity.setDeltaMovement(entity.getDeltaMovement().x + xx, entity.getDeltaMovement().y + yy, entity.getDeltaMovement().z + zz);
+
+			entity.fallDistance = 0;
+
+			if (isSharknado() && entity instanceof SharkEntity) {
+				if (entHeightFromBase > 90) {
+					entity.getPersistentData().putBoolean("tornado_shoot", true);
+				}
 			}
 		}
 
-		double vecx = posCenter.x - entity.position().x;
-		double vecz = posCenter.z - entity.position().z;
 
-		Vec3 vecXZ = new Vec3(posCenter.x, entity.getY(), posCenter.z);
-
-		double distXZMax = tornadoFunnelSimple.getConfig().getEntityPullDistXZ();
-		double distXZMaxForYGrab = tornadoFunnelSimple.getConfig().getEntityPullDistXZForY();
-		double distXZ = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMax);
-		double distXZForYGrab = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMaxForYGrab);
-
-		float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
-
-		angle += 50;
-		if (pet) angle += 50;
-
-		double entHeightFromBase = Math.max(0.1F, entity.getY() - posGround.y);
-		double heightMathMax = 50;
-		if (baby) heightMathMax = 15;
-		if (pet) heightMathMax = 4;
-		//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
-		double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
-
-		if (!pet) {
-			angle += (40 * heightAmp);
-		}
-
-		angle = (float) Math.toRadians(angle);
-		double pullStrength = 0.2;
-		if (pet) pullStrength = 0.05;
-		double pullY = pullStrength* (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
-		double pullXZ = pullStrength * (distXZMax - distXZ) / distXZMax;
-		double xx = -Math.sin(angle) * pullXZ;
-		double zz = Math.cos(angle) * pullXZ;
-		double yy = pullY;
-
-		if (!baby && entity.getDeltaMovement().y > 0.5F) {
-			yy = 0;
-		}
-
-		if (pet && entity.getDeltaMovement().y > 0.15F) {
-			yy = 0;
-		}
-
-		entity.setDeltaMovement(entity.getDeltaMovement().x + xx, entity.getDeltaMovement().y + yy, entity.getDeltaMovement().z + zz);
-
-		entity.fallDistance = 0;
 	}
 	
 	public void spinEntity(Object entity1) {
@@ -2611,22 +2702,38 @@ public class StormObject extends WeatherObject {
 	}
 
 	public void setupForcedTornado(Entity entity) {
-		this.layer = 0;
 		if (entity != null) {
 			this.spawnerUUID = entity.getUUID().toString();
-			this.naturallySpawned = false;
-			this.levelTemperature = 0.1F;
 			this.pos = entity.position();
-			this.levelWater = this.levelWaterStartRaining * 2;
-			this.attrib_precipitation = true;
-			this.levelCurIntensityStage = this.STATE_STAGE1;
-			this.alwaysProgresses = true;
-
-			this.initFirstTime();
-
-			//lock it to current stage or less
-			this.levelStormIntensityMax = this.levelCurIntensityStage;
 		}
+
+		this.layer = 0;
+		this.naturallySpawned = false;
+		this.levelTemperature = 0.1F;
+		this.levelWater = this.levelWaterStartRaining * 2;
+		this.attrib_precipitation = true;
+		this.levelCurIntensityStage = this.STATE_STAGE1;
+		this.alwaysProgresses = true;
+
+		this.initFirstTime();
+
+		//lock it to current stage or less
+		this.levelStormIntensityMax = this.levelCurIntensityStage;
+	}
+
+	public void setupTornadoAwayFromPlayersAimAtPlayers() {
+		List<? extends Player> players = manager.getWorld().players();
+		List<Player> playersNear = new ArrayList<>();
+		double xAdd = 0;
+		double yAdd = 0;
+		double zAdd = 0;
+		Vec3 vecAdd = new Vec3(0, 0, 0);
+		for (Player player : players) {
+			vecAdd = vecAdd.add(player.position());
+		}
+		vecAdd = new Vec3(vecAdd.x / players.size(), vecAdd.y / players.size(), vecAdd.z / players.size());
+		this.pos = vecAdd.add(150, 0, 150);
+		aimAtCoords(vecAdd);
 	}
 
 	public void setupPlayerControlledTornado(Entity entity) {
@@ -2677,4 +2784,13 @@ public class StormObject extends WeatherObject {
 	public void setPetGrabsItems(boolean petGrabsItems) {
 		this.petGrabsItems = petGrabsItems;
 	}
+
+	public boolean isSharknado() {
+		return sharknado;
+	}
+
+	public void setSharknado(boolean sharknado) {
+		this.sharknado = sharknado;
+	}
+
 }

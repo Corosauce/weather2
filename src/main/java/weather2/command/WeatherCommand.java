@@ -35,6 +35,19 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned Tornado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("sharknado").executes(c -> {
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									StormObject stormObject = new StormObject(wm);
+
+									stormObject.setupForcedTornado(c.getSource().getEntity());
+									stormObject.setSharknado(true);
+
+									wm.addStormObject(stormObject);
+									wm.syncStormNew(stormObject);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned Sharknado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
 								.then(literal("tornadoPlayerBaby").executes(c -> {
 									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
 									StormObject stormObject = new StormObject(wm);
@@ -109,18 +122,19 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned Pet Tornado with no item grab"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
-								.then(literal("sandstorm").executes(c -> {
+								.then(literal("tornadotest").executes(c -> {
 
-									InterModComms.sendTo("weather2", "player_tornado", () -> {
+									InterModComms.sendTo("weather2", "sharknado", () -> {
 										CompoundTag tag = new CompoundTag();
 										tag.putString("uuid", c.getSource().getEntity().getUUID().toString());
 										tag.putInt("time_ticks", 1200);
-										tag.putBoolean("baby", true);
+										tag.putBoolean("baby", false);
+										tag.putBoolean("sharknado", true);
 										tag.putString("dimension", c.getSource().getEntity().getLevel().dimension().location().toString());
 										return tag;
 									});
 
-									c.getSource().sendSuccess(new TextComponent("Summoned Sandstorm"), true);
+									c.getSource().sendSuccess(new TextComponent("Summoned Tornado Test"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
 

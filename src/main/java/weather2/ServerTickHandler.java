@@ -62,13 +62,14 @@ public class ServerTickHandler {
 
 	public static void processIMCMessages() {
 		InterModComms.getMessages("weather2").forEach((msg) -> {
-			if (msg.method().equals("player_tornado")) {
-				CompoundTag tag = (CompoundTag) msg.messageSupplier().get();
-				String dimResource = tag.getString("dimension");
-				WeatherManagerServer wm = MANAGERSLOOKUP.get(dimResource);
-				if (wm != null) {
+			CompoundTag tag = (CompoundTag) msg.messageSupplier().get();
+			String dimResource = tag.getString("dimension");
+			WeatherManagerServer wm = MANAGERSLOOKUP.get(dimResource);
+			if (wm != null) {
+				if (msg.method().equals("player_tornado")) {
 					int timeTicks = tag.getInt("time_ticks");
 					boolean baby = tag.getBoolean("baby");
+					//boolean sharknado = tag.getBoolean("sharknado");
 					String uuid = tag.getString("uuid");
 					Player player = wm.getWorld().getPlayerByUUID(UUID.fromString(uuid));
 					if (player != null) {
@@ -78,6 +79,7 @@ public class ServerTickHandler {
 						stormObject.setupPlayerControlledTornado(player);
 						stormObject.setPlayerControlledTimeLeft(timeTicks);
 						stormObject.setBaby(baby);
+						//stormObject.setSharknado(sharknado);
 
 						wm.addStormObject(stormObject);
 						wm.syncStormNew(stormObject);
@@ -86,9 +88,31 @@ public class ServerTickHandler {
 					} else {
 						CULog.err("error cant find player in dimension " + dimResource + " for uuid " + uuid + " via IMC");
 					}
-				} else {
-					CULog.err("error cant find WeatherManagerServer for dimension " + dimResource + " via IMC");
+				} else if (msg.method().equals("sharknado")) {
+					StormObject stormObject = new StormObject(wm);
+
+					stormObject.setupForcedTornado(null);
+					stormObject.setSharknado(true);
+					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
+
+					wm.addStormObject(stormObject);
+					wm.syncStormNew(stormObject);
+
+					CULog.dbg("processed imc message: " + tag);
+				} else if (msg.method().equals("tornado")) {
+					StormObject stormObject = new StormObject(wm);
+
+					stormObject.setupForcedTornado(null);
+					stormObject.setSharknado(false);
+					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
+
+					wm.addStormObject(stormObject);
+					wm.syncStormNew(stormObject);
+
+					CULog.dbg("processed imc message: " + tag);
 				}
+			} else {
+				CULog.err("error cant find WeatherManagerServer for dimension " + dimResource + " via IMC");
 			}
 		});
 	}
