@@ -29,7 +29,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.*;
@@ -2211,14 +2210,8 @@ public class StormObject extends WeatherObject {
 					double speed = 2F;
 					vec = vec.normalize().multiply(speed, speed, speed);
 					entity.setDeltaMovement(vec.x, vec.y, vec.z);
-					//entity.xo = entity.position().x - vec.x;
-					//entity.zo = entity.position().z - vec.z;
 					float rotationYaw = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI) - 90.0F;
-					//entity.setYRot(rotationYaw);
-					if (entity instanceof SharkEntity) {
-						//((SharkEntity) entity).swimYaw = rotationYaw;
-						//((SharkEntity) entity).targetVectorHeading = new Vec2((float) vecx, (float) vecz);
-					}
+					entity.setYRot(rotationYaw);
 
 					if (player.position().distanceTo(entity.position()) < 3 && entity.isAlive()) {
 						player.hurt(DamageSource.CACTUS, 1.5F);
@@ -2290,9 +2283,16 @@ public class StormObject extends WeatherObject {
 
 			entity.fallDistance = 0;
 
-			if (isSharknado() && entity instanceof SharkEntity) {
-				if (entHeightFromBase > 90) {
-					entity.getPersistentData().putBoolean("tornado_shoot", true);
+			if (entHeightFromBase > 90) {
+				if (Weather.isLoveTropicsInstalled()) {
+					//for LT, reenable or make it a soft dependency somehow
+					/*if (isSharknado() && entity instanceof SharkEntity) {
+						entity.getPersistentData().putBoolean("tornado_shoot", true);
+					}*/
+				} else {
+					if (isSharknado() && entity instanceof Dolphin) {
+						entity.getPersistentData().putBoolean("tornado_shoot", true);
+					}
 				}
 			}
 		}

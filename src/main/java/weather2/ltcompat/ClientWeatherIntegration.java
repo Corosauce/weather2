@@ -1,7 +1,5 @@
 package weather2.ltcompat;
 
-import com.lovetropics.weather.ClientWeather;
-import com.lovetropics.weather.TypeBridge;
 import weather2.datatypes.PrecipitationType;
 
 public final class ClientWeatherIntegration {
@@ -19,6 +17,41 @@ public final class ClientWeatherIntegration {
 	}
 
 	public float getRainAmount() {
+		return 0;
+	}
+
+	public float getVanillaRainAmount() {
+		return 0;
+	}
+
+	public PrecipitationType getPrecipitationType() {
+		return PrecipitationType.VALUES[0];
+	}
+
+	public float getWindSpeed() {
+		return 0;
+	}
+
+	public boolean isHeatwave() {
+		return false;
+	}
+
+	public boolean isSandstorm() {
+		return false;
+	}
+
+	public boolean isSnowstorm() {
+		return false;
+	}
+
+	public boolean hasWeather() {
+		return false;
+	}
+
+	/**
+	 * turn back on when LT is needed, activates dependency on LTWeather
+	 */
+	/*public float getRainAmount() {
 		return ClientWeather.get().getRainAmount();
 	}
 
@@ -48,5 +81,5 @@ public final class ClientWeatherIntegration {
 
 	public boolean hasWeather() {
 		return ClientWeather.get().hasWeather();
-	}
+	}*/
 }

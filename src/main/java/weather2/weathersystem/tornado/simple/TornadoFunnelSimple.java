@@ -1,6 +1,5 @@
 package weather2.weathersystem.tornado.simple;
 
-import com.corosus.coroutil.util.CULog;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.PivotingParticle;
 import net.minecraft.client.Minecraft;
@@ -8,17 +7,14 @@ import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.Dolphin;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.tropicraft.core.common.entity.TropicraftEntities;
-import net.tropicraft.core.common.entity.underdasea.SharkEntity;
+import weather2.Weather;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
 
@@ -97,11 +93,14 @@ public class TornadoFunnelSimple {
         if (stormObject.isSharknado()) {
             if (!level.isClientSide()) {
                 if (level.getGameTime() % 20 == 0) {
-                    SharkEntity ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
-                    Random rand = new Random();
-                    float xx = (rand.nextFloat() - 0.5F) * 10F;
-                    float zz = (rand.nextFloat() - 0.5F) * 10F;
-                    Vec3 posRand = new Vec3(pos.x + 0, pos.y + 3, pos.z + -5);
+                    Entity ent = null;
+                    if (Weather.isLoveTropicsInstalled()) {
+                        //for LT, reenable or make it a soft dependency somehow
+                        //ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
+                    } else {
+                        ent = new Dolphin(EntityType.DOLPHIN, level);
+                    }
+                    Vec3 posRand = new Vec3(pos.x + 0, pos.y + 3, pos.z - 5);
                     ent.setPos(posRand);
                     ent.setDeltaMovement(3F, 0, 0);
                     level.addFreshEntity(ent);
