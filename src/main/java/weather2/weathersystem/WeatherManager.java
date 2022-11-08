@@ -80,13 +80,17 @@ public abstract class WeatherManager implements IWorldData {
 		}
 	}
 
+	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos) {
+		return getClosestSandstormByIntensity(parPos, false);
+	}
+
 	/**
 	 * Gets the most intense sandstorm, used for effects and sounds
 	 *
 	 * @param parPos
 	 * @return
 	 */
-	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos/*, double maxDist*/) {
+	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos, boolean forced) {
 
 		WeatherObjectSandstorm bestStorm = null;
 		double closestDist = 9999999;

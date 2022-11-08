@@ -632,20 +632,16 @@ public class StormObject extends WeatherObject {
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
 		posGround = new Vec3(pos.x, currentTopYBlock, pos.z);
-
-		if (isTornadoFormingOrGreater()) {
-			if (tornadoFunnelSimple == null) {
-				setupTornado();
-			}
-
-			tornadoFunnelSimple.pos = new Vec3(posGround.x, posGround.y, posGround.z);
-
-			tornadoFunnelSimple.tick();
-		}
 		
 		LogicalSide side = EffectiveSide.get();
 		if (side == LogicalSide.CLIENT) {
 			if (!WeatherUtil.isPaused()) {
+
+				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
+					initTornadoIfNotSet();
+
+					tornadoFunnelSimple.tick();
+				}
 				
 				ticksSinceLastPacketReceived++;
 				
@@ -654,6 +650,7 @@ public class StormObject extends WeatherObject {
 				//}
 				
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
+					initTornadoIfNotSet();
 					tornadoHelper.tick(manager.getWorld());
 
 					tornadoFunnelSimple.tickClient();
@@ -668,6 +665,12 @@ public class StormObject extends WeatherObject {
 				tickMovementClient();
 			}
 		} else {
+
+			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
+				initTornadoIfNotSet();
+
+				tornadoFunnelSimple.tick();
+			}
 
 			if (isCloudlessStorm()) {
 				if (ConfigMisc.overcastMode && manager.getWorld().isRaining()) {
@@ -917,7 +920,7 @@ public class StormObject extends WeatherObject {
 		
 		currentTopYBlock = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
 
-		//TODO: temp for survive the tide rising mechanic that doesnt update heightmap
+		//for survive the tide rising mechanic that doesnt update heightmap
 		if (Weather.isLoveTropicsInstalled()) {
 			while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
 				currentTopYBlock++;
@@ -2791,6 +2794,14 @@ public class StormObject extends WeatherObject {
 
 	public void setSharknado(boolean sharknado) {
 		this.sharknado = sharknado;
+	}
+
+	public void initTornadoIfNotSet() {
+		if (tornadoFunnelSimple == null) {
+			setupTornado();
+		}
+
+		tornadoFunnelSimple.pos = new Vec3(posGround.x, posGround.y, posGround.z);
 	}
 
 }

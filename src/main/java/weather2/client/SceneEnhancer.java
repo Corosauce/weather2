@@ -4,6 +4,8 @@ import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
+import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.world.level.biome.Biomes;
 import weather2.datatypes.PrecipitationType;
 import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
@@ -93,6 +95,8 @@ public class SceneEnhancer implements Runnable {
 
 	public static TornadoManagerTodoRenameMe playerManagerClient;
 
+	private static Biome lastBiomeIn = null;
+
 	public SceneEnhancer() {
 		listPosRandom.clear();
 		listPosRandom.add(new BlockPos(0, -1, 0));
@@ -160,7 +164,7 @@ public class SceneEnhancer implements Runnable {
 
 			FORCE_ON_DEBUG_TESTING = false;
 
-			if (weather.hasWeather() || FORCE_ON_DEBUG_TESTING) {
+			if (weather.hasWeather() || !Weather.isLoveTropicsInstalled()) {
 				ClientWeatherHelper.get().tick();
 				tickParticlePrecipitation();
 				trySoundPlaying();
@@ -404,7 +408,7 @@ public class SceneEnhancer implements Runnable {
 
 		//if (true) return;
 
-		//FORCE_ON_DEBUG_TESTING = false;
+		FORCE_ON_DEBUG_TESTING = false;
 
 		Player entP = Minecraft.getInstance().player;
 
@@ -416,6 +420,11 @@ public class SceneEnhancer implements Runnable {
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 
 		float curPrecipVal = weather.getRainAmount();
+
+		if (FORCE_ON_DEBUG_TESTING) {
+			//curPrecipVal = 0.5F;
+		}
+
 		//workaround until i clean up logic that is flickering the state between heavy rain and null
 		if (curPrecipVal < 0.0001F) {
 			curPrecipVal = 0;
@@ -435,6 +444,9 @@ public class SceneEnhancer implements Runnable {
 		int precipitationHeight = entP.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ()))).getY();
 
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ()))).m_203334_();
+		//biome = OverworldBiomes.bambooJungle();
+		//biome = OverworldBiomes.plains(false, true, false);
+		lastBiomeIn = biome;
 
 		Level world = entP.level;
 		Random rand = entP.level.random;
@@ -467,11 +479,11 @@ public class SceneEnhancer implements Runnable {
 				adjustedRate = 0.2F;
 			}
 
-			if (FORCE_ON_DEBUG_TESTING) {
+			/*if (FORCE_ON_DEBUG_TESTING) {
 				curPrecipVal = 1;
-			}
+			}*/
 
-			if (curPrecipVal > 0 && weather.getPrecipitationType() != PrecipitationType.SNOW) {
+			if (curPrecipVal > 0) {
 
 				//particleAmp = 1;
 				//if (curPrecipVal != 0 && curPrecipVal != 0.5F) {
@@ -497,7 +509,7 @@ public class SceneEnhancer implements Runnable {
 				BlockPos posForTemperature = entP.blockPosition();
 
 				//rain
-				if (entP.level.m_204166_(posForTemperature).m_203334_().getTemperature(posForTemperature) >= 0.15F) {
+				if (weather.getPrecipitationType(biome) == PrecipitationType.NORMAL) {
 
 					//Weather.dbg("precip: " + curPrecipVal);
 
@@ -568,7 +580,7 @@ public class SceneEnhancer implements Runnable {
 
 								windMan.applyWindForceNew(rain, 10F, 0.5F);
 
-								if (weather.getPrecipitationType() == PrecipitationType.ACID) {
+								if (weather.getPrecipitationType(biome) == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -745,7 +757,7 @@ public class SceneEnhancer implements Runnable {
 
 								windMan.applyWindForceNew(rain, 1F / 5F, 0.5F);
 
-								if (weather.getPrecipitationType() == PrecipitationType.ACID) {
+								if (weather.getPrecipitationType(biome) == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -842,7 +854,7 @@ public class SceneEnhancer implements Runnable {
 								rain.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 								rain.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 
-								if (weather.getPrecipitationType() == PrecipitationType.ACID) {
+								if (weather.getPrecipitationType(biome) == PrecipitationType.ACID) {
 									rain.rCol = acidRainRed;
 									rain.gCol = acidRainGreen;
 									rain.bCol = acidRainBlue;
@@ -857,7 +869,9 @@ public class SceneEnhancer implements Runnable {
 						}
 					}
 				//snow
-				} else {
+				// &&
+					//						entP.level.m_204166_(posForTemperature).m_203334_().getTemperature(posForTemperature) >= 0.15F
+				} else if (weather.getPrecipitationType(biome) == PrecipitationType.SNOW) {
 					spawnCount = 0;
 					//less for snow, since it falls slower so more is on screen longer
 					spawnNeed = (int)(curPrecipVal * 40F * ConfigParticle.Precipitation_Particle_effect_rate * particleAmp);
@@ -883,7 +897,7 @@ public class SceneEnhancer implements Runnable {
 								snow.killWhenFarFromCameraAtLeast = 20;
 
 								snow.setMotionY(-0.1D);
-								snow.setScale(1.3F);
+								snow.setScale(1.3F * 0.15F);
 								snow.setGravity(0.1F);
 								snow.windWeight = 0.2F;
 								snow.setMaxAge(40);
@@ -1631,11 +1645,11 @@ public class SceneEnhancer implements Runnable {
 			return WeatherEventType.SNOWSTORM;
 		} else if (clientWeather.isHeatwave()) {
 			return WeatherEventType.HEATWAVE;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType() == PrecipitationType.ACID) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType(lastBiomeIn) == PrecipitationType.ACID) {
 			return WeatherEventType.ACID_RAIN;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType() == PrecipitationType.NORMAL) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType(lastBiomeIn) == PrecipitationType.NORMAL) {
 			return WeatherEventType.HEAVY_RAIN;
-		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType() == PrecipitationType.HAIL) {
+		} else if (clientWeather.getRainAmount() > 0 && clientWeather.getPrecipitationType(lastBiomeIn) == PrecipitationType.HAIL) {
 			return WeatherEventType.HAIL;
 		} else {
 			return null;

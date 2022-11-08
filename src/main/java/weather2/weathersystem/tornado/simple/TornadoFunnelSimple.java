@@ -47,6 +47,11 @@ public class TornadoFunnelSimple {
         if (stormObject.isPet()) {
             heightPerLayer = 0.2F;
         }
+
+        //dynamic sizing
+        config.setRadiusOfBase(stormObject.tornadoHelper.getTornadoBaseSize() / 2);
+
+
         int layers = (int) (config.getHeight() / heightPerLayer);
         float radiusMax = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (layers+1));
 

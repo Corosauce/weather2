@@ -1,5 +1,6 @@
 package weather2;
 
+import net.minecraft.world.level.biome.Biome;
 import weather2.datatypes.PrecipitationType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
@@ -7,6 +8,8 @@ import net.minecraft.world.phys.Vec3;
 import weather2.client.SceneEnhancer;
 import weather2.ltcompat.ClientWeatherIntegration;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
+
+import javax.annotation.Nullable;
 
 public final class ClientWeatherProxy {
 	private static ClientWeatherProxy instance = new ClientWeatherProxy();
@@ -34,8 +37,17 @@ public final class ClientWeatherProxy {
 		return ClientWeatherIntegration.get().getVanillaRainAmount();
 	}
 
-	public PrecipitationType getPrecipitationType() {
-		return ClientWeatherIntegration.get().getPrecipitationType();
+	@Nullable
+	public PrecipitationType getPrecipitationType(Biome biome) {
+		if (Weather.isLoveTropicsInstalled()) {
+			return ClientWeatherIntegration.get().getPrecipitationType();
+		} else {
+			if (biome == null) return null;
+			if (biome.getPrecipitation() == Biome.Precipitation.RAIN) return PrecipitationType.NORMAL;
+			if (biome.getPrecipitation() == Biome.Precipitation.SNOW) return PrecipitationType.SNOW;
+			if (biome.getPrecipitation() == Biome.Precipitation.NONE) return null;
+		}
+		return null;
 	}
 
 	public float getWindSpeed() {
