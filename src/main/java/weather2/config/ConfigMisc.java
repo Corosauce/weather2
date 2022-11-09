@@ -37,10 +37,10 @@ public class ConfigMisc implements IConfigCategory {
 	public static int Cloud_Formation_MinDistBetweenSpawned = 300;
 	@ConfigComment("For a second layer of passive non storm progressing cloudOption")
 	public static boolean Cloud_Layer1_Enable = false;
-	public static int Cloud_Layer0_Height = 200;
-	public static int Cloud_Layer1_Height = 350;
+	public static int Cloud_Layer0_Height = 200 + 64;
+	public static int Cloud_Layer1_Height = 350 + 64;
 	@ConfigComment("Not used at the moment")
-	public static int Cloud_Layer2_Height = 500;
+	public static int Cloud_Layer2_Height = 500 + 64;
 
 	@ConfigComment("How much to randomly change cloud coverage % amount, performed every 10 seconds")
 	public static double Cloud_Coverage_Random_Change_Amount = 0.05D;

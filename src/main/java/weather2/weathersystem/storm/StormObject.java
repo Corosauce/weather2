@@ -420,6 +420,9 @@ public class StormObject extends WeatherObject {
 		//data.putBoolean("attrib_highwind", attrib_highwind);
 		//data.putBoolean("attrib_tornado", attrib_tornado);
 		//data.putBoolean("attrib_hurricane", attrib_hurricane);
+		if (attrib_precipitation) {
+			CULog.dbg("syncing rain state true: " + pos);
+		}
 		data.putBoolean("attrib_rain", attrib_precipitation);
 		data.putBoolean("attrib_waterSpout", attrib_waterSpout);
 		
@@ -1123,7 +1126,7 @@ public class StormObject extends WeatherObject {
 			if (performBuildup) {
 				//System.out.println("RAIN BUILD TEMP OFF");
 				levelWater += levelWaterBuildRate;
-				Weather.dbg("building rain: " + levelWater);
+				Weather.dbg(ID + ": building rain: " + levelWater);
 			}
 			
 			//water values adjust when raining

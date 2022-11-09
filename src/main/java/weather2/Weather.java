@@ -1,5 +1,6 @@
 package weather2;
 
+import com.corosus.coroutil.util.CULog;
 import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
 import com.mojang.brigadier.CommandDispatcher;
@@ -100,7 +101,7 @@ public class Weather
     }*/
 
     public static void dbg(Object obj) {
-        System.out.println(obj);
+        CULog.dbg("" + obj);
     }
 
     public static boolean isLoveTropicsInstalled() {

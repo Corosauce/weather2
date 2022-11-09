@@ -421,13 +421,19 @@ public class SceneEnhancer implements Runnable {
 
 		float curPrecipVal = weather.getRainAmount();
 
+		if (entP.getLevel().getGameTime() % 40 == 0) {
+			Weather.dbg("curPrecipVal: " + curPrecipVal);
+		}
+
 		if (FORCE_ON_DEBUG_TESTING) {
 			//curPrecipVal = 0.5F;
 		}
 
 		//workaround until i clean up logic that is flickering the state between heavy rain and null
-		if (curPrecipVal < 0.0001F) {
-			curPrecipVal = 0;
+		if (Weather.isLoveTropicsInstalled()) {
+			if (curPrecipVal < 0.0001F) {
+				curPrecipVal = 0;
+			}
 		}
 
 		//CULog.dbg("curPrecipVal: " + curPrecipVal);
@@ -468,7 +474,11 @@ public class SceneEnhancer implements Runnable {
 			//now absolute it for ez math
 			//off cause ltminigames can give 1 tick under 0 worth of rain value change
 			//curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
-			curPrecipVal = Math.min(maxPrecip, Math.max(0, curPrecipVal));
+			if (Weather.isLoveTropicsInstalled()) {
+				curPrecipVal = Math.min(maxPrecip, Math.max(0, curPrecipVal));
+			} else {
+				curPrecipVal = Math.min(maxPrecip, Math.abs(curPrecipVal));
+			}
 
 			curPrecipVal *= 1F;
 
