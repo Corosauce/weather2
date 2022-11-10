@@ -287,6 +287,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
    }
 
    public void render(PoseStack p_107337_, MultiBufferSource.BufferSource p_107338_, LightTexture p_107339_, Camera p_107340_, float p_107341_, @Nullable net.minecraft.client.renderer.culling.Frustum clippingHelper) {
+      //if (true) return;
       p_107339_.turnOnLightLayer();
       RenderSystem.enableDepthTest();
       PoseStack posestack = RenderSystem.getModelViewStack();
@@ -296,6 +297,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
 
       RenderSystem.disableCull();
 
+      int particleCount = 0;
       for(ParticleRenderType particlerendertype : this.particles.keySet()) { // Forge: allow custom IParticleRenderType's
          if (particlerendertype == ParticleRenderType.NO_RENDER) continue;
          Iterable<Particle> iterable = this.particles.get(particlerendertype);
@@ -316,6 +318,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
                }
                try {
                   particle.render(bufferbuilder, p_107340_, p_107341_);
+                  particleCount++;
                } catch (Throwable throwable) {
                   CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Particle");
                   CrashReportCategory crashreportcategory = crashreport.addCategory("Particle being rendered");

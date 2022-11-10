@@ -1,11 +1,14 @@
 package weather2.util;
 
-import com.corosus.coroutil.util.CoroUtilCompatibility;
+import com.corosus.coroutil.util.CULog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -18,9 +21,98 @@ import net.minecraft.world.level.material.Material;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import weather2.config.ConfigTornado;
 
-import java.util.Calendar;
+import java.util.*;
 
 public class WeatherUtil {
+
+    public static HashMap<ResourceLocation, Boolean> listGrabBlockCache = new HashMap<>();
+    public static List<String> listGrabBlocks = new ArrayList<>();
+    public static List<String> listGrabBlockTags = new ArrayList<>();
+
+    public static String lastConfigChecked = "";
+
+    public static void updateGrabBlockList(String grabListStr) {
+        CULog.dbg("Updating weather2 tornado grab list");
+
+        listGrabBlocks.clear();
+        listGrabBlockTags.clear();
+        listGrabBlockCache.clear();
+
+        String[] splEnts = grabListStr.split(",");
+
+        for (String str : splEnts) {
+            str = str.trim();
+            if (str.contains("#")) {
+                listGrabBlockTags.add(addNamespaceIfMissing(str.substring(1)));
+            } else {
+                listGrabBlocks.add(addNamespaceIfMissing(str));
+            }
+        }
+    }
+
+    public static void testAllBlocks() {
+        //Blocks.GLASS
+        //if (!ConfigTornado.Storm_Tornado_GrabList.equals(lastConfigChecked)) {
+            lastConfigChecked = ConfigTornado.Storm_Tornado_GrabList;
+            CULog.log("PRINTING OUT ALL WEATHER2 TORNADO GRABBABLE BLOCKS WITH CURRENT CONFIG: ");
+            Registry.BLOCK.forEach(block -> {
+                List<BlockState> list = block.getStateDefinition().getPossibleStates();
+                for (BlockState state : list) {
+                    boolean result = canGrabViaLists(state);
+                    if (result) {
+                        CULog.log(state + " -> " + result);
+                    }
+                }
+            });
+
+            boolean wat = canGrabViaLists(Blocks.TORCH.defaultBlockState());
+            System.out.println("wat: " + wat);
+        //}
+    }
+
+    public static String addNamespaceIfMissing(String str) {
+        if (!str.contains(":")) {
+            str = "minecraft:" + str;
+        }
+        return str;
+    }
+
+    public static boolean isStateInListOfTags(BlockState state) {
+        for (String str : listGrabBlockTags) {
+            TagKey<Block> key = getTagKeyFor(str);
+            if (key != null) {
+                if (state.m_204336_(key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static TagKey<Block> getTagKeyFor(String str) {
+        return TagKey.m_203882_(Registry.BLOCK_REGISTRY, new ResourceLocation(str));
+    }
+
+    public static boolean canGrabViaLists(BlockState state) {
+        boolean returnVal = !ConfigTornado.Storm_Tornado_GrabListBlacklistMode;
+        ResourceLocation registeredName = state.getBlock().getRegistryName();
+        if (listGrabBlockCache.containsKey(registeredName)) {
+            return listGrabBlockCache.get(registeredName);
+        }
+
+        if (listGrabBlocks.contains(registeredName.toString())) {
+            listGrabBlockCache.put(registeredName, returnVal);
+            return returnVal;
+        }
+
+        if (isStateInListOfTags(state)) {
+            listGrabBlockCache.put(registeredName, returnVal);
+            return returnVal;
+        }
+
+        listGrabBlockCache.put(registeredName, !returnVal);
+        return !returnVal;
+    }
 	
     public static boolean isPaused() {
     	if (Minecraft.getInstance().isPaused()) return true;
@@ -73,12 +165,6 @@ public class WeatherUtil {
 
     public static boolean shouldGrabBlock(Level parWorld, BlockState state)
     {
-        //TODO: 1.14 unbork tornado grabbing
-        //return false;
-        //TODO: 1.14 uncomment
-
-        //TODO: block tags for logs, also im gonna go particles instead
-
         try
         {
             ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
@@ -90,22 +176,10 @@ public class WeatherUtil {
             if (ConfigTornado.Storm_Tornado_GrabCond_List)
             {
                 try {
-
-                    //TODO: 1.18
-                    /*if (!ConfigTornado.Storm_Tornado_GrabListBlacklistMode)
-                    {
-                        if (!((Boolean)blockIDToUseMapping.get(block)).booleanValue()) {
-                            result = false;
-                        }
-                    }
-                    else
-                    {
-                        if (((Boolean)blockIDToUseMapping.get(block)).booleanValue()) {
-                            result = false;
-                        }
-                    }*/
+                    result = canGrabViaLists(state);
                 } catch (Exception e) {
-                    //sometimes NPEs, just assume false if so
+                    //sometimes NPEs (pre 1.18), just assume false if so
+                    e.printStackTrace();
                     result = false;
                 }
             } else {
@@ -115,8 +189,7 @@ public class WeatherUtil {
                     float strMin = 0.0F;
                     float strMax = 0.74F;
 
-                    if (block == null)
-                    {
+                    if (block == null) {
                         result = false;
                         return result; //force return false to prevent unchecked future code outside scope
                     } else {
@@ -130,13 +203,8 @@ public class WeatherUtil {
                                 state.getMaterial() == Material.WOOL ||
                                 state.getMaterial() == Material.PLANT ||/*
                                 state.getMaterial() == Material.VINE ||*/
-                                block instanceof TallGrassBlock)
-                        {
-    	                    /*if (block.blockMaterial == Material.water) {
-    	                    	return false;
-    	                    }*/
-                            if (!safetyCheck(state))
-                            {
+                                block instanceof TallGrassBlock) {
+                            if (!safetyCheck(state)) {
                                 result = false;
                             }
                         } else {
@@ -148,7 +216,7 @@ public class WeatherUtil {
                 }
 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                    if (block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
+                    if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
                         result = false;
                     }
                     if (!canTornadoGrabBlockRefinedRules(state)) {

@@ -1,8 +1,10 @@
 package weather2.config;
 
+import com.corosus.coroutil.config.ConfigCoroUtil;
 import com.corosus.modconfig.ConfigComment;
 import com.corosus.modconfig.IConfigCategory;
 import weather2.Weather;
+import weather2.util.WeatherUtil;
 
 import java.io.File;
 
@@ -32,14 +34,15 @@ public class ConfigTornado implements IConfigCategory {
 	public static boolean Storm_Tornado_grabItems = false;
 	@ConfigComment("Grab blocks based on how well a diamond axe can mine the block, so mostly wooden blocks")
 	public static boolean Storm_Tornado_GrabCond_StrengthGrabbing = true;
-	@ConfigComment("Use a list of blocks instead of grabbing based on calculated strength of block, if true this overrides StrengthGrabbing and RefinedGrabRules")
+	@ConfigComment("Use a list of blocks or block tags instead of grabbing based on calculated strength of block, if true this overrides StrengthGrabbing and RefinedGrabRules")
 	public static boolean Storm_Tornado_GrabCond_List = false;
-	public static boolean Storm_Tornado_GrabCond_List_PartialMatches = false;
+	//removed, because tags should suffice, i hope
+	//public static boolean Storm_Tornado_GrabCond_List_PartialMatches = false;
 	//public static boolean Storm_Tornado_GrabCond_List_TrimSpaces = true;
 	@ConfigComment("Treat block grab list as a blacklist instead of whitelist")
 	public static boolean Storm_Tornado_GrabListBlacklistMode = false;
-	@ConfigComment("Enable GrabCond_List to use, add registered block names to list, use commas to separate values")
-	public static String Storm_Tornado_GrabList = "planks, leaves";
+	@ConfigComment("Enable Storm_Tornado_GrabCond_List to use, add registered block names or block tags to list, for tags, indicate with #, use commas to separate values, if namespace missing, 'minecraft:' is automatically used")
+	public static String Storm_Tornado_GrabList = "#fences, #minecraft:fence_gates, #wooden_doors, #wooden_stairs, #wooden_slabs, #flowers, #planks, #wool, #wooden_trapdoors, #wooden_pressure_plates, #cave_vines, #saplings, #banners, #leaves, #small_flowers, #beds, #tall_flowers, #flowers, #candles, #wall_signs, #signs, #fire, #campfires, #replaceable_plants, #wall_post_override";
 	@ConfigComment("Max amount of flying entity blocks allowed active, if it goes over this, it stops turning destroyed blocks into entities")
 	public static int Storm_Tornado_maxFlyingEntityBlocks = 200;
 	public static int Storm_Tornado_maxBlocksGrabbedPerTick = 5;
@@ -81,6 +84,10 @@ public class ConfigTornado implements IConfigCategory {
 
     @Override
     public void hookUpdatedValues() {
+		WeatherUtil.updateGrabBlockList(Storm_Tornado_GrabList);
 
+		//if (ConfigCoroUtil.useLoggingDebug) {
+			//WeatherUtil.testAllBlocks();
+		//}
     }
 }

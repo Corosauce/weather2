@@ -421,7 +421,7 @@ public class StormObject extends WeatherObject {
 		//data.putBoolean("attrib_tornado", attrib_tornado);
 		//data.putBoolean("attrib_hurricane", attrib_hurricane);
 		if (attrib_precipitation) {
-			CULog.dbg("syncing rain state true: " + pos);
+			//CULog.dbg("syncing rain state true: " + pos);
 		}
 		data.putBoolean("attrib_rain", attrib_precipitation);
 		data.putBoolean("attrib_waterSpout", attrib_waterSpout);
@@ -2707,7 +2707,7 @@ public class StormObject extends WeatherObject {
 		return pos;
 	}
 
-	public void setupForcedTornado(Entity entity) {
+	public void setupStorm(Entity entity) {
 		if (entity != null) {
 			this.spawnerUUID = entity.getUUID().toString();
 			this.pos = entity.position();

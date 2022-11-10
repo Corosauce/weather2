@@ -71,7 +71,7 @@ public class TornadoHelper {
      * - entity creation relocated to queue processing to initially prevent entity spam, but with entry lookup, not needed, other issues like collision are now the reason why we still relocated entity creation to queue process
      */
     private HashMap<BlockPos, BlockUpdateSnapshot> listBlockUpdateQueue = new HashMap<BlockPos, BlockUpdateSnapshot>();
-    private int queueProcessRate = 10;
+    private int queueProcessRate = 40;
 
     //for client player, for use of playing sounds
 	public static boolean isOutsideCached = false;
@@ -166,8 +166,228 @@ public class TornadoHelper {
         	return 5;
         }
 	}
-	
+
+
+
 	public void tick(Level parWorld) {
+
+		if (!parWorld.isClientSide()) {
+			if (parWorld.getGameTime() % queueProcessRate == 0) {
+				Iterator<BlockUpdateSnapshot> it = listBlockUpdateQueue.values().iterator();
+				while (it.hasNext()) {
+					BlockUpdateSnapshot snapshot = it.next();
+					Level world = WeatherUtil.getWorld(snapshot.getDimension());
+					if (world != null) {
+						world.setBlock(snapshot.getPos(), snapshot.getState(), 3);
+						if (snapshot.isCreateEntityForBlockRemoval()) {
+							//TODO: 1.14 uncomment
+							/*EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, snapshot.getPos().getX(), snapshot.getPos().getY(), snapshot.getPos().getZ(), snapshot.statePrev, storm);
+							double speed = 1D;
+							mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
+							mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
+							mBlock.motionY = 1D;
+							parWorld.addEntity(mBlock);*/
+						}
+					}
+				}
+				listBlockUpdateQueue.clear();
+			}
+		}
+
+		if (storm == null) return;
+
+		boolean seesLight = false;
+		tickGrabCount = 0;
+		removeCount = 0;
+		tryRipCount = 0;
+		int tryRipMax = 300;
+		if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE5) {
+			tryRipMax *= 2.5;
+		} else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE4) {
+			tryRipMax *= 1.8;
+		} else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE3) {
+			tryRipMax *= 1.5;
+		} else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE2) {
+			tryRipMax *= 1.2;
+		}
+		//tryRipMax = 1000;
+		int firesPerTickMax = 1;
+		//tornado profile changing from storm data
+		tornadoBaseSize = getTornadoBaseSize();
+
+		if (storm.stormType == storm.TYPE_WATER) {
+			tornadoBaseSize *= 3;
+		}
+
+		forceRotate(parWorld);
+
+		Random rand = new Random();
+		if (!parWorld.isClientSide() && !Weather.isLoveTropicsInstalled() && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado))
+		{
+			//int yStart = (int) (storm.posGround.y - 10);
+			int yStart = 0;
+			int yEnd = (int)storm.pos.y/* + 72*/;
+			int yInc = 1;
+			Biome bgb = parWorld.m_204166_(new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))).m_203334_();
+
+			//prevent grabbing in high areas (hills)
+			//TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
+			//TODO: 1.18: getDepth formally base height, seems entirely gone now
+			double depth = 0;
+			//depth = bgb.getDepth();
+			if (bgb != null && (depth/* + bgb.getScale()*/ <= 0.7 || storm.isFirenado)) {
+
+				int ii = 2;
+
+				int stageIntensity = (int) ((storm.levelCurIntensityStage+1 - storm.levelStormIntensityFormingStartVal));
+				int loopAmount = stageIntensity * 500;
+
+				if (storm.stormType == StormObject.TYPE_WATER) {
+					loopAmount = 1 + ii/2;
+				}
+
+				for (int k = 0; k < loopAmount; k++)
+				{
+					if (tryRipCount > tryRipMax) {
+						break;
+					}
+
+					int bottomY = (int) Math.max(1, storm.posBaseFormationPos.y - 10);
+					int topY = (int) Math.max(2, storm.getPosTop().y);
+					if (bottomY > topY) bottomY = topY - 1;
+					int tryY = rand.nextInt(bottomY, topY);
+
+					if (tryY > parWorld.getHeight()) {
+						tryY = parWorld.getHeight();
+					}
+
+					int tryX = (int)storm.pos.x + rand.nextInt(tornadoBaseSize + (ii)) - ((tornadoBaseSize / 2) + (ii / 2));
+					int tryZ = (int)storm.pos.z + rand.nextInt(tornadoBaseSize + (ii)) - ((tornadoBaseSize / 2) + (ii / 2));
+
+					double d0 = storm.pos.x - tryX;
+					double d2 = storm.pos.z - tryZ;
+					double dist = Mth.sqrt((float) (d0 * d0 + d2 * d2));
+					BlockPos pos = new BlockPos(tryX, tryY, tryZ);
+
+					if (dist < tornadoBaseSize/2 + ii/2 && tryRipCount < tryRipMax)
+					{
+
+						BlockState state = parWorld.getBlockState(pos);
+						Block blockID = state.getBlock();
+
+						boolean performed = false;
+
+						if (canGrab(parWorld, state, pos))
+						{
+							tryRipCount++;
+							seesLight = tryRip(parWorld, tryX, tryY, tryZ);
+
+							performed = seesLight;
+						}
+
+						if (!performed && ConfigTornado.Storm_Tornado_RefinedGrabRules) {
+							if (blockID == Blocks.GRASS_BLOCK/* && canGrab(parWorld, state, pos)*/) {
+								//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
+								if (!listBlockUpdateQueue.containsKey(pos)) {
+									listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.DIRT.defaultBlockState(), state, pos, false));
+								}
+
+							}
+						}
+					}
+				}
+
+				int spawnYOffset = (int) storm.posBaseFormationPos.y - 10;
+
+
+				for (int k = 0; k < 10; k++) {
+					int randSize = 40;
+
+					//if (storm.isFirenado) {
+					randSize = 10;
+					//}
+
+					int tryX = (int)storm.pos.x + rand.nextInt(randSize) - randSize/2;
+					int tryY = (int)spawnYOffset - 2 + rand.nextInt(8);
+					int tryZ = (int)storm.pos.z + rand.nextInt(randSize) - randSize/2;
+
+					double d0 = storm.pos.x - tryX;
+					double d2 = storm.pos.z - tryZ;
+					double dist = Mth.sqrt((float) (d0 * d0 + d2 * d2));
+
+					if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax) {
+						BlockPos pos = new BlockPos(tryX, tryY, tryZ);
+						BlockState state = parWorld.getBlockState(pos);
+						Block blockID = state.getBlock();
+
+						if (canGrab(parWorld, state, pos))
+						{
+							tryRipCount++;
+							tryRip(parWorld, tryX, tryY, tryZ);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			seesLight = true;
+		}
+
+		/*if (Math.abs((spawnYOffset - storm.pos.y)) > 5)
+		{
+			seesLight = true;
+		}*/
+
+		if (!parWorld.isClientSide() && storm.isFirenado) {
+			if (storm.levelCurIntensityStage >= storm.STATE_STAGE1)
+				for (int i = 0; i < firesPerTickMax; i++) {
+					BlockPos posUp = new BlockPos(storm.posGround.x, storm.posGround.y + rand.nextInt(30), storm.posGround.z);
+					BlockState state = parWorld.getBlockState(posUp);
+					if (CoroUtilBlock.isAir(state.getBlock())) {
+						//parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
+
+						//TODO: 1.14 uncomment
+					/*EntityMovingBlock mBlock = new EntityMovingBlock(parWorld, posUp.getX(), posUp.getY(), posUp.getZ(), Blocks.FIRE.getDefaultState(), storm);
+					mBlock.metadata = 15;
+					double speed = 2D;
+					mBlock.motionX += (rand.nextDouble() - rand.nextDouble()) * speed;
+					mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
+					mBlock.motionY = 1D;
+					mBlock.mode = 0;
+					parWorld.addEntity(mBlock);*/
+					}
+				}
+
+
+			int randSize = 10;
+
+			int tryX = (int)storm.pos.x + rand.nextInt(randSize) - randSize/2;
+
+			int tryZ = (int)storm.pos.z + rand.nextInt(randSize) - randSize/2;
+			int tryY = parWorld.getHeight(Heightmap.Types.MOTION_BLOCKING, tryX, tryZ) - 1;
+
+			double d0 = storm.pos.x - tryX;
+			double d2 = storm.pos.z - tryZ;
+			double dist = Mth.sqrt((float) (d0 * d0 + d2 * d2));
+
+			if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax) {
+				BlockPos pos = new BlockPos(tryX, tryY, tryZ);
+				Block block = parWorld.getBlockState(pos).getBlock();
+				BlockPos posUp = new BlockPos(tryX, tryY+1, tryZ);
+				Block blockUp = parWorld.getBlockState(posUp).getBlock();
+
+				if (!CoroUtilBlock.isAir(block) && CoroUtilBlock.isAir(blockUp))
+				{
+					parWorld.setBlock(posUp, Blocks.FIRE.defaultBlockState(), 3);
+				}
+			}
+		}
+	}
+	
+	public void tickOld(Level parWorld) {
+
+		queueProcessRate = 40;
 		
 		if (!parWorld.isClientSide()) {
 			if (parWorld.getGameTime() % queueProcessRate == 0) {
@@ -214,6 +434,16 @@ public class TornadoHelper {
         removeCount = 0;
         tryRipCount = 0;
         int tryRipMax = 300;
+		if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE5) {
+			tryRipMax *= 2.5;
+		} else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE4) {
+			tryRipMax *= 1.8;
+		} else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE3) {
+			tryRipMax *= 1.5;
+		} else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE2) {
+			tryRipMax *= 1.2;
+		}
+		tryRipMax = 1000;
         //int firesPerTick = 0;
 		int firesPerTickMax = 1;
 
@@ -246,7 +476,8 @@ public class TornadoHelper {
 
         if (!parWorld.isClientSide() && !Weather.isLoveTropicsInstalled() && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado)/*getStorm().grabsBlocks*/)
         {
-            int yStart = 00;
+            //int yStart = (int) (storm.posGround.y - 10);
+            int yStart = 0;
             int yEnd = (int)storm.pos.y/* + 72*/;
             int yInc = 1;
 
@@ -270,10 +501,10 @@ public class TornadoHelper {
 	                int YRand = i;//rand.nextInt(126)+2;
 	                int ii = YRand / 4;
 	
-	                if (i > 20 && rand.nextInt(2) != 0)
+	                /*if (i > 20 && rand.nextInt(2) != 0)
 	                {
 	                    continue;
-	                }
+	                }*/
 	
 	                if (tryRipCount > tryRipMax)
 	                {
@@ -333,7 +564,7 @@ public class TornadoHelper {
 	                        }
 	                        
 	                        if (!performed && ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-	                        	if (blockID == Blocks.GRASS/* && canGrab(parWorld, state, pos)*/) {
+	                        	if (blockID == Blocks.GRASS_BLOCK/* && canGrab(parWorld, state, pos)*/) {
 	                        		//parWorld.setBlockState(new BlockPos(tryX, tryY, tryZ), Blocks.dirt.getDefaultState());
 	                        		if (!listBlockUpdateQueue.containsKey(pos)) {
 	                        			listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.DIRT.defaultBlockState(), state, pos, false));
@@ -481,10 +712,6 @@ public class TornadoHelper {
 
 	public boolean tryRip(Level parWorld, int tryX, int tryY, int tryZ/*, boolean notify*/)
     {
-
-		//performance debug testing vars:
-		//relocated to be created upon snapshot tick (so 
-
         boolean tryRip = true;
 		BlockPos pos = new BlockPos(tryX, tryY, tryZ);
 		if (listBlockUpdateQueue.containsKey(pos)) {
@@ -492,25 +719,19 @@ public class TornadoHelper {
 		}
         
         if (!tryRip) return true;
-		
         if (!ConfigTornado.Storm_Tornado_grabBlocks) return true;
-        
         if (isNoDigCoord(tryX, tryY, tryZ)) return true;
 
         boolean seesLight = false;
         BlockState state = parWorld.getBlockState(pos);
         Block blockID = state.getBlock();
-
-		//CULog.dbg("tryRip: " + blockID);
-
-        //System.out.println(parWorld.getHeightValue(tryX, tryZ));
         if ((((WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ)).getY() - 1 == tryY) ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX + 1, 0, tryZ)).getY() - 1 < tryY ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ + 1)).getY() - 1 < tryY ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX - 1, 0, tryZ)).getY() - 1 < tryY ||
 		WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(tryX, 0, tryZ - 1)).getY() - 1 < tryY))) {
 
-        	int blockCount = 0;//getBlockCountForDim(parWorld);
+        	int blockCount = 0;
 
 			//old per storm blockCount seems glitched... lets use a global we cache count of
             if (parWorld.isLoaded(new BlockPos(storm.pos.x, 128, storm.pos.z)) &&
@@ -523,36 +744,14 @@ public class TornadoHelper {
                 {
                 	boolean playerClose = parWorld.getNearestPlayer(storm.posBaseFormationPos.x, storm.posBaseFormationPos.y, storm.posBaseFormationPos.z, 140, false) != null;
                     if (playerClose) {
-	                    
-	                    //blockCount++;
-	                    
-	                    //if (WeatherMod.debug && parWorld.getDayTime() % 60 == 0) System.out.println("ripping, count: " + WeatherMod.blockCount);
-
-	                    //this.activeBlocks.add(mBlock);
 	                    tickGrabCount++;
 	                    ripCount++;
-
-	                    if (ripCount % 10 == 0)
-	                    {
-	                        //System.out.println(ripCount);
-	                    }
-	                    else
-	                    {
-	                        //System.out.print(ripCount + " - ");
-	                    }
-
-	                    //mBlock.controller = this;
 	                    seesLight = true;
-
-
-
-
                     }
 
 					if (WeatherUtil.shouldRemoveBlock(state))
 					{
 						removeCount++;
-
 						boolean shouldEntityify = blockCount <= ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks;
 						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.AIR.defaultBlockState(), state, pos, playerClose && shouldEntityify));
 					}

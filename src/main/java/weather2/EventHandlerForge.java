@@ -80,7 +80,7 @@ public class EventHandlerForge {
 					 */
 
 					float playerAngle = -(float) (Math.toDegrees(Math.atan2(ent.getDeltaMovement().x, ent.getDeltaMovement().z)));
-					int phi = (int) (Math.abs(windMan.getWindAngle() - playerAngle) % 360);
+					int phi = (int) (Math.abs(windMan.getWindAngle(ent.position()) - playerAngle) % 360);
 					float diffAngle = phi > 180 ? 360 - phi : phi;
 					//System.out.println("diffAngle: " + diffAngle);
 					if (diffAngle < 90) {

@@ -7,6 +7,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
 import weather2.config.*;
+import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilSound;
 
 import java.io.File;
@@ -46,6 +48,7 @@ public class Weather
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::setup);
         MinecraftForge.EVENT_BUS.addListener(this::serverStop);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStart);
         modBus.addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 
@@ -89,6 +92,12 @@ public class Weather
         LOGGER.info("Got IMC {}", event.getIMCStream().
                 map(m->m.getMessageSupplier().get()).
                 collect(Collectors.toList()));
+    }
+
+    @SubscribeEvent
+    public void serverStart(ServerStartedEvent event) {
+        //initProperNeededForWorld = true;
+        //WeatherUtil.testAllBlocks();
     }
 
     @SubscribeEvent

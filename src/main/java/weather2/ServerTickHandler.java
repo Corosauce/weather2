@@ -75,7 +75,9 @@ public class ServerTickHandler {
 					if (player != null) {
 						StormObject stormObject = new StormObject(wm);
 
-						stormObject.setupForcedTornado(player);
+						stormObject.setupStorm(player);
+						stormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
+						stormObject.levelStormIntensityMax = StormObject.STATE_STAGE1;
 						stormObject.setupPlayerControlledTornado(player);
 						stormObject.setPlayerControlledTimeLeft(timeTicks);
 						stormObject.setBaby(baby);
@@ -91,7 +93,9 @@ public class ServerTickHandler {
 				} else if (msg.method().equals("sharknado")) {
 					StormObject stormObject = new StormObject(wm);
 
-					stormObject.setupForcedTornado(null);
+					stormObject.setupStorm(null);
+					stormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
+					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE1;
 					stormObject.setSharknado(true);
 					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
 
@@ -102,7 +106,9 @@ public class ServerTickHandler {
 				} else if (msg.method().equals("tornado")) {
 					StormObject stormObject = new StormObject(wm);
 
-					stormObject.setupForcedTornado(null);
+					stormObject.setupStorm(null);
+					stormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
+					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE1;
 					stormObject.setSharknado(false);
 					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
 

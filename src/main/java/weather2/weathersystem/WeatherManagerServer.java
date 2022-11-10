@@ -235,7 +235,7 @@ public class WeatherManagerServer extends WeatherManager {
 		WindManager windMan = getWindManager();
 		Random rand = world.random;
 
-		float angle = windMan.getWindAngle();
+		float angle = windMan.getWindAngle(null);
 
 		if (world.getGameTime() % stormState.getBuildupTickRate() == 0) {
 			List<ChunkHolder> list = Lists.newArrayList(((ServerLevel)world).getChunkSource().chunkMap.getChunks());

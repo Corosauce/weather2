@@ -66,9 +66,9 @@ public class WindManager {
 	}
 	
 	public float getWindSpeed() {
-		/*if (windSpeedEvent > 0) {
+		if (windSpeedEvent > 0) {
 			return windSpeedEvent;
-		} else */if (windTimeGust > 0) {
+		} else if (windTimeGust > 0) {
 			return windSpeedGust;
 		} else {
 			return windSpeedGlobal;
@@ -103,11 +103,32 @@ public class WindManager {
 		return windSpeedGlobal;
 	}
 
-	public float getWindAngle() {
-		if (windTimeGust > 0) {
+	public float getWindAngle(Vec3 pos) {
+		if (windTimeEvent > 0) {
+			return getWindAngleForEvents(pos);
+		} else if (windTimeGust > 0) {
 			return windAngleGust;
 		} else {
 			return windAngleGlobal;
+		}
+	}
+
+	/**
+	 * Returns angle in degrees, 0-360
+	 *
+	 * @return
+	 */
+	public float getWindAngleForEvents() {
+		return windAngleEvent;
+	}
+
+	public float getWindAngleForEvents(Vec3 pos) {
+		if (pos != null && !windOriginEvent.equals(BlockPos.ZERO)) {
+			double var11 = windOriginEvent.getX() + 0.5D - pos.x;
+			double var15 = windOriginEvent.getZ() + 0.5D - pos.z;
+			return (-((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI) - 45;
+		} else {
+			return windAngleEvent;
 		}
 	}
 
@@ -438,7 +459,10 @@ public class WindManager {
 	 * - profit
 	 */
 	public void applyWindForceNew(Object ent, float multiplier, float maxSpeed) {
-		Vec3 motion = applyWindForceImpl(new Vec3(CoroUtilEntOrParticle.getMotionX(ent), CoroUtilEntOrParticle.getMotionY(ent), CoroUtilEntOrParticle.getMotionZ(ent)),
+
+		Vec3 pos = new Vec3(CoroUtilEntOrParticle.getPosX(ent), CoroUtilEntOrParticle.getPosY(ent), CoroUtilEntOrParticle.getPosZ(ent));
+
+		Vec3 motion = applyWindForceImpl(pos, new Vec3(CoroUtilEntOrParticle.getMotionX(ent), CoroUtilEntOrParticle.getMotionY(ent), CoroUtilEntOrParticle.getMotionZ(ent)),
 				WeatherUtilEntity.getWeight(ent), multiplier, maxSpeed);
 		
 		CoroUtilEntOrParticle.setMotionX(ent, motion.x);
@@ -448,9 +472,9 @@ public class WindManager {
 	/**
 	 * Handle generic uses of wind force, for stuff like weather objects that arent entities or paticles
 	 */
-	public Vec3 applyWindForceImpl(Vec3 motion, float weight, float multiplier, float maxSpeed) {
+	public Vec3 applyWindForceImpl(Vec3 pos, Vec3 motion, float weight, float multiplier, float maxSpeed) {
 		float windSpeed = getWindSpeed();
-    	float windAngle = getWindAngle();
+    	float windAngle = getWindAngle(pos);
 
     	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
     	float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
@@ -523,7 +547,7 @@ public class WindManager {
 
 	public Vec3 getWindForce() {
 		float windSpeed = this.getWindSpeed();
-		float windAngle = this.getWindAngle();
+		float windAngle = this.getWindAngle(null);
 		float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
 		float windZ = (float) Math.cos(Math.toRadians(windAngle)) * windSpeed;
 		return new Vec3(windX, 0, windZ);
