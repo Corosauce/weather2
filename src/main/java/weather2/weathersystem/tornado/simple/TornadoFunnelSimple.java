@@ -51,6 +51,8 @@ public class TornadoFunnelSimple {
         //dynamic sizing
         config.setRadiusOfBase(stormObject.tornadoHelper.getTornadoBaseSize() / 2);
 
+        //TEMP!!!!
+        //config.setRadiusOfBase(5F + 5F);
 
         int layers = (int) (config.getHeight() / heightPerLayer);
         float radiusMax = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (layers+1));
@@ -59,7 +61,7 @@ public class TornadoFunnelSimple {
 
             //grow layer count as height increases
             if (i >= listLayers.size()) {
-                listLayers.add(new Layer(pos));
+                listLayers.add(new Layer(stormObject.posBaseFormationPos));
             }
 
             /**
@@ -68,7 +70,7 @@ public class TornadoFunnelSimple {
              * count = space per particle / circumference
              */
 
-            float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i+1));
+            float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i));
 
             Vec3 posLayer = listLayers.get(i).getPos();
 
@@ -76,6 +78,7 @@ public class TornadoFunnelSimple {
 
             Vec3 posLayerLower;
             if (i == 0) {
+                //posLayerLower = new Vec3(pos.x, pos.y, pos.z);
                 posLayerLower = new Vec3(pos.x, pos.y, pos.z);
             } else {
                 Vec3 temp = listLayers.get(i-1).getPos();
@@ -160,7 +163,7 @@ public class TornadoFunnelSimple {
             List<PivotingParticle> listLayer = listLayers.get(i).getListParticles();
             List<PivotingParticle> listLayerExtra = listLayers.get(i).getListParticlesExtra();
 
-            float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i+1));
+            float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i));
             float radiusAdjustedForParticleSize = radius * (radius / radiusMax);
 
             float circumference = radius * 2 * Mth.PI;
@@ -186,35 +189,6 @@ public class TornadoFunnelSimple {
                 PivotingParticle particle = createParticle((ClientLevel) level, pos.x, pos.y, pos.z);
                 particle.spawnAsWeatherEffect();
                 listLayer.add(particle);
-            }
-
-            //extra debris
-            particlesPerLayer = (int) (20 * adjustedRate);
-            if (isBaby) particlesPerLayer = (int) (10 * adjustedRate);
-            if (isPet) particlesPerLayer = (int) (5 * adjustedRate);
-
-            //extra stuff
-            Iterator<PivotingParticle> it2 = listLayerExtra.iterator();
-            float index2 = 0;
-            while (it2.hasNext()) {
-                PivotingParticle particle = it2.next();
-                if (!particle.isAlive() || index2 >= particlesPerLayer) {
-                    particle.remove();
-                    it2.remove();
-                } else {
-                    index2++;
-                }
-            }
-
-            //int debrisPerLayer = (int) (20 * adjustedRate);
-            //debrisPerLayer = 0;
-
-            if (stormObject.manager.getWorld().isClientSide()) {
-                while (listLayerExtra.size() < particlesPerLayer) {
-                    PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
-                    particle.spawnAsWeatherEffect();
-                    listLayerExtra.add(particle);
-                }
             }
 
             it = listLayer.iterator();
@@ -285,6 +259,39 @@ public class TornadoFunnelSimple {
                 particle.setAge(0);
                 //particle.setColor(1, 1, 1);
                 index++;
+            }
+
+            //extra debris
+
+            particlesPerLayer = (int) (20 * adjustedRate);
+            if (isBaby) particlesPerLayer = (int) (10 * adjustedRate);
+            if (isPet) particlesPerLayer = (int) (5 * adjustedRate);
+            if (stormObject.levelCurIntensityStage == StormObject.STATE_FORMING) {
+                particlesPerLayer = 0;
+            }
+
+            //extra stuff
+            Iterator<PivotingParticle> it2 = listLayerExtra.iterator();
+            float index2 = 0;
+            while (it2.hasNext()) {
+                PivotingParticle particle = it2.next();
+                if (!particle.isAlive() || index2 >= particlesPerLayer) {
+                    particle.remove();
+                    it2.remove();
+                } else {
+                    index2++;
+                }
+            }
+
+            //int debrisPerLayer = (int) (20 * adjustedRate);
+            //debrisPerLayer = 0;
+
+            if (stormObject.manager.getWorld().isClientSide()) {
+                while (listLayerExtra.size() < particlesPerLayer) {
+                    PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
+                    particle.spawnAsWeatherEffect();
+                    listLayerExtra.add(particle);
+                }
             }
 
             //TODO: oh god stop the copypasta

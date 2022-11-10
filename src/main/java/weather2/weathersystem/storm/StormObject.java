@@ -12,7 +12,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Dolphin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
@@ -88,7 +86,9 @@ public class StormObject extends WeatherObject {
 	
 	public boolean angleIsOverridden = false;
 	public float angleMovementTornadoOverride = 0;
-	
+
+	public float tempAngleFormingTornado = 0;
+
 	//growth / progression info
 	
 	public boolean isGrowing = true;
@@ -641,7 +641,7 @@ public class StormObject extends WeatherObject {
 			if (!WeatherUtil.isPaused()) {
 
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
-					initTornadoIfNotSet();
+					setAndUpdateTornado();
 
 					tornadoFunnelSimple.tick();
 				}
@@ -653,7 +653,7 @@ public class StormObject extends WeatherObject {
 				//}
 				
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
-					initTornadoIfNotSet();
+					setAndUpdateTornado();
 					tornadoHelper.tick(manager.getWorld());
 
 					tornadoFunnelSimple.tickClient();
@@ -666,11 +666,16 @@ public class StormObject extends WeatherObject {
 				}
 
 				tickMovementClient();
+
+				if (layer == 0) {
+					//sync X Y Z, Y gets changed below
+					posBaseFormationPos = calculateBaseFormationPos();
+				}
 			}
 		} else {
 
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
-				initTornadoIfNotSet();
+				setAndUpdateTornado();
 
 				tornadoFunnelSimple.tick();
 			}
@@ -725,41 +730,46 @@ public class StormObject extends WeatherObject {
 				//make layer 1 max size for visuals
 				size = maxSize;
 			}
+
+			if (layer == 0) {
+				//sync X Y Z, Y gets changed below
+				posBaseFormationPos = calculateBaseFormationPos();
+			}
 			
 			//overCastModeAndRaining = ConfigMisc.overcastMode && manager.getWorld().isRaining();
 	        
 		}
 		
-		if (layer == 0) {
-	        //sync X Y Z, Y gets changed below
-	        posBaseFormationPos = new Vec3(pos.x, pos.y, pos.z);
-	
-	        if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal) {
-	        	if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal + 1) {
-	        		formingStrength = 1;
-	        		posBaseFormationPos = new Vec3(posBaseFormationPos.x, posGround.y, posBaseFormationPos.z);
-	        	} else {
-	        		
-	        		//make it so storms touchdown at 0.5F intensity instead of 1 then instantly start going back up, keeps them down for a full 1F worth of intensity val
-	        		float intensityAdj = Math.min(1F, levelCurStagesIntensity * 2F);
-	        		
-	        		//shouldnt this just be intensityAdj?
-			        float val = (levelCurIntensityStage + intensityAdj) - StormObject.levelStormIntensityFormingStartVal;
-			        formingStrength = val;
-			        double yDiff = pos.y - posGround.y;
-			        posBaseFormationPos = new Vec3(posBaseFormationPos.x, pos.y - (yDiff * formingStrength), posBaseFormationPos.z);
-	        	}
-	        } else {
-	        	if (levelCurIntensityStage == STATE_HIGHWIND) {
-	        		formingStrength = 1;
-	        		posBaseFormationPos = new Vec3(posBaseFormationPos.x, posGround.y, posBaseFormationPos.z);
-	        	} else {
-		        	formingStrength = 0;
-	        		posBaseFormationPos = new Vec3(posBaseFormationPos.x, pos.y, posBaseFormationPos.z);
-	        	}
-	        }
+	}
+
+	public Vec3 calculateBaseFormationPos() {
+		Vec3 calculatedPos = new Vec3(pos.x, pos.y, pos.z);
+
+		if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal) {
+			if (levelCurIntensityStage >= StormObject.levelStormIntensityFormingStartVal + 1) {
+				formingStrength = 1;
+				calculatedPos = new Vec3(calculatedPos.x, posGround.y, calculatedPos.z);
+			} else {
+
+				//make it so storms touchdown at 0.5F intensity instead of 1 then instantly start going back up, keeps them down for a full 1F worth of intensity val
+				float intensityAdj = Math.min(1F, levelCurStagesIntensity * 2F);
+
+				//shouldnt this just be intensityAdj?
+				float val = (levelCurIntensityStage + intensityAdj) - StormObject.levelStormIntensityFormingStartVal;
+				formingStrength = val;
+				double yDiff = pos.y - posGround.y;
+				calculatedPos = new Vec3(calculatedPos.x, pos.y - (yDiff * formingStrength), calculatedPos.z);
+			}
+		} else {
+			if (levelCurIntensityStage == STATE_HIGHWIND) {
+				formingStrength = 1;
+				calculatedPos = new Vec3(calculatedPos.x, posGround.y, calculatedPos.z);
+			} else {
+				formingStrength = 0;
+				calculatedPos = new Vec3(calculatedPos.x, pos.y, calculatedPos.z);
+			}
 		}
-		
+		return calculatedPos;
 	}
 	
 	public void tickMovement() {
@@ -781,6 +791,14 @@ public class StormObject extends WeatherObject {
 
 		//storm movement via wind
 		float angle = getAdjustedAngle();
+		Random rand = new Random();
+
+		if (levelCurIntensityStage == STATE_FORMING) {
+			angle = tempAngleFormingTornado;
+
+			//if its an F0 forming, make it all over the place, adding on top of cloud direction each tick
+			angle += (rand.nextFloat() - rand.nextFloat()) * 30F;
+		}
 
 		if (angleIsOverridden) {
 			angle = angleMovementTornadoOverride;
@@ -810,7 +828,6 @@ public class StormObject extends WeatherObject {
 		//despite overridden angle, still avoid obstacles
 
 		//slight randomness to angle
-		Random rand = new Random();
 		angle += (rand.nextFloat() - rand.nextFloat()) * 0.15F;
 
 		//avoid large obstacles
@@ -827,6 +844,9 @@ public class StormObject extends WeatherObject {
 			}
 			angle += angleAdj;
 		}
+
+		//update new angle back to temp forming tornado angle
+		tempAngleFormingTornado = angle;
 		
 		//Weather.dbg("cur angle: " + angle);
 		
@@ -835,15 +855,15 @@ public class StormObject extends WeatherObject {
 		
 		float cloudSpeedAmp = 0.2F;
 
-		boolean love_tropics_tweaks = true;
+		boolean love_tropics_tweaks = Weather.isLoveTropicsInstalled();
 		//tweaking for lt
 		if (love_tropics_tweaks) cloudSpeedAmp = 3F;
 		
 		
 		
 		float finalSpeed = getAdjustedSpeed() * cloudSpeedAmp;
-		
-		if (levelCurIntensityStage >= STATE_FORMING) {
+
+		if (levelCurIntensityStage == STATE_FORMING) {
 			finalSpeed = 0.2F;
 		} else if (levelCurIntensityStage >= STATE_THUNDER) {
 			finalSpeed = 0.05F;
@@ -859,6 +879,10 @@ public class StormObject extends WeatherObject {
 		
 		if (!love_tropics_tweaks && finalSpeed > 0.3F) {
 			finalSpeed = 0.3F;
+		}
+
+		if (levelCurIntensityStage == STATE_FORMING) {
+			finalSpeed = 0.5F;
 		}
 
 		if (love_tropics_tweaks) {
@@ -921,43 +945,7 @@ public class StormObject extends WeatherObject {
 		Random rand = new Random();
 		Level world = manager.getWorld();
 		
-		currentTopYBlock = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
-
-		//for survive the tide rising mechanic that doesnt update heightmap
-		if (Weather.isLoveTropicsInstalled()) {
-			while (world.getBlockState(new BlockPos(pos.x, currentTopYBlock, pos.z)).getBlock() instanceof LiquidBlock && currentTopYBlock < world.getMaxBuildHeight()) {
-				currentTopYBlock++;
-			}
-		}
-
-		if (isBaby()) {
-			Player player = getPlayer();
-			if (player != null) {
-				currentTopYBlock = (int) player.position().y;
-			}
-		}
-
-		if (isPet()) {
-			Player entP = getPlayer();
-			if (entP != null) {
-				if (entP.position().distanceTo(posGround) < 10) {
-					if (currentTopYBlock + 4 > entP.position().y) {
-						int y = (int) (entP.position().y + 2);
-						while (y > entP.position().y - 3) {
-							BlockPos blockPos = new BlockPos(pos.x, y, pos.z);
-							BlockPos blockPosUp = new BlockPos(pos.x, y+1, pos.z);
-							BlockState state = world.getBlockState(blockPos);
-							BlockState stateUp = world.getBlockState(blockPosUp);
-							if ((!state.isAir() && state.getCollisionShape(world, blockPosUp) != Shapes.empty()) && (stateUp.isAir() || stateUp.getCollisionShape(world, blockPosUp) == Shapes.empty())) {
-								currentTopYBlock = y+1;
-								break;
-							}
-							y--;
-						}
-					}
-				}
-			}
-		}
+		currentTopYBlock = calculateTopYBlock();
 
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER && !isBaby() && !isPet()) {
@@ -1058,6 +1046,9 @@ public class StormObject extends WeatherObject {
 		
 		boolean isInOcean = false;
 		boolean isOverWater = false;
+		boolean tryFormStorm = false;
+		float levelStormIntensityRate = 0.02F;
+		float minIntensityToProgress = 0.6F;
 		
 		if (world.getGameTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
 
@@ -1165,8 +1156,7 @@ public class StormObject extends WeatherObject {
 			//actual storm formation chance
 			
 			WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(world.dimension());
-			
-			boolean tryFormStorm = false;
+
 			boolean tempAlwaysFormStorm = false;
 			
 			if (this.canBeDeadly && this.levelCurIntensityStage == STATE_NORMAL) {
@@ -1189,7 +1179,6 @@ public class StormObject extends WeatherObject {
 			    return;
             }
 
-			String temp = manager.getWorld().dimension().location().toString();
 			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString()) && tryFormStorm) {
 				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
 				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
@@ -1302,24 +1291,13 @@ public class StormObject extends WeatherObject {
 				} else {
 					attrib_waterSpout = false;
 				}
-				
-				float levelStormIntensityRate = 0.02F;
-				float minIntensityToProgress = 0.6F;
 				//change since storms have a predetermined max now, nevermind, storms take too long, limited simbox area
 				//minIntensityToProgress = 0.8F;
 				//int oddsTo1OfIntensityProgressionBase = ConfigStorm.Storm_OddsTo1OfProgressionBase;
-				
-				//speed up forming and greater progression when past forming state
-				if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
-					levelStormIntensityRate *= 3;
-					//oddsTo1OfIntensityProgressionBase /= 3;
-				}
 
 				//int oddsTo1OfIntensityProgression = oddsTo1OfIntensityProgressionBase + (levelCurIntensityStage * ConfigStorm.Storm_OddsTo1OfProgressionStageMultiplier);
 
 				if (!hasStormPeaked) {
-					
-					levelCurStagesIntensity += levelStormIntensityRate;
 					
 					if (levelCurIntensityStage < maxIntensityStage && (!ConfigTornado.Storm_NoTornadosOrCyclones || levelCurIntensityStage < STATE_FORMING-1)) {
 						if (levelCurStagesIntensity >= minIntensityToProgress) {
@@ -1404,8 +1382,23 @@ public class StormObject extends WeatherObject {
 					}
 				}
 			}
-			
-			
+		}
+
+		//tick this more often for smoother forming on the client side (packet sync rate is 2 so 2 is good enough here)
+		if (world.getGameTime() % 2 == 0) {
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString())/* && tryFormStorm*/) {
+				if (isRealStorm()) {
+
+					//speed up forming and greater progression when past forming state
+					if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
+						levelStormIntensityRate *= 3;
+						//oddsTo1OfIntensityProgressionBase /= 3;
+					}
+
+					//30F because this was ticking once every 60 ticks, now its every 2 ticks
+					levelCurStagesIntensity += levelStormIntensityRate / 30F;
+				}
+			}
 		}
 
 		if (playerControlled) {
@@ -2710,7 +2703,7 @@ public class StormObject extends WeatherObject {
 	public void setupStorm(Entity entity) {
 		if (entity != null) {
 			this.spawnerUUID = entity.getUUID().toString();
-			this.pos = entity.position();
+			initPositions(entity.position());
 		}
 
 		this.layer = 0;
@@ -2727,6 +2720,56 @@ public class StormObject extends WeatherObject {
 		this.levelStormIntensityMax = this.levelCurIntensityStage;
 	}
 
+	public void initPositions(Vec3 pos) {
+		this.pos = pos;
+
+		currentTopYBlock = calculateTopYBlock();
+		posGround = new Vec3(pos.x, currentTopYBlock, pos.z);
+		posBaseFormationPos = calculateBaseFormationPos();
+	}
+
+	public int calculateTopYBlock() {
+		Level world = manager.getWorld();
+		int calculatedYPos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
+
+		//for survive the tide rising mechanic that doesnt update heightmap
+		if (Weather.isLoveTropicsInstalled()) {
+			while (world.getBlockState(new BlockPos(pos.x, calculatedYPos, pos.z)).getBlock() instanceof LiquidBlock && calculatedYPos < world.getMaxBuildHeight()) {
+				calculatedYPos++;
+			}
+		}
+
+		if (isBaby()) {
+			Player player = getPlayer();
+			if (player != null) {
+				calculatedYPos = (int) player.position().y;
+			}
+		}
+
+		if (isPet()) {
+			Player entP = getPlayer();
+			if (entP != null) {
+				if (entP.position().distanceTo(posGround) < 10) {
+					if (calculatedYPos + 4 > entP.position().y) {
+						int y = (int) (entP.position().y + 2);
+						while (y > entP.position().y - 3) {
+							BlockPos blockPos = new BlockPos(pos.x, y, pos.z);
+							BlockPos blockPosUp = new BlockPos(pos.x, y+1, pos.z);
+							BlockState state = world.getBlockState(blockPos);
+							BlockState stateUp = world.getBlockState(blockPosUp);
+							if ((!state.isAir() && state.getCollisionShape(world, blockPosUp) != Shapes.empty()) && (stateUp.isAir() || stateUp.getCollisionShape(world, blockPosUp) == Shapes.empty())) {
+								calculatedYPos = y+1;
+								break;
+							}
+							y--;
+						}
+					}
+				}
+			}
+		}
+		return calculatedYPos;
+	}
+
 	public void setupTornadoAwayFromPlayersAimAtPlayers() {
 		List<? extends Player> players = manager.getWorld().players();
 		List<Player> playersNear = new ArrayList<>();
@@ -2738,7 +2781,7 @@ public class StormObject extends WeatherObject {
 			vecAdd = vecAdd.add(player.position());
 		}
 		vecAdd = new Vec3(vecAdd.x / players.size(), vecAdd.y / players.size(), vecAdd.z / players.size());
-		this.pos = vecAdd.add(150, 0, 150);
+		initPositions(vecAdd.add(150, 0, 150));
 		aimAtCoords(vecAdd);
 	}
 
@@ -2799,12 +2842,20 @@ public class StormObject extends WeatherObject {
 		this.sharknado = sharknado;
 	}
 
-	public void initTornadoIfNotSet() {
+	public void setAndUpdateTornado() {
 		if (tornadoFunnelSimple == null) {
 			setupTornado();
 		}
 
-		tornadoFunnelSimple.pos = new Vec3(posGround.x, posGround.y, posGround.z);
+		//tornadoFunnelSimple.pos = new Vec3(posGround.x, posGround.y, posGround.z);
+		tornadoFunnelSimple.pos = new Vec3(posGround.x, posBaseFormationPos.y, posGround.z);
 	}
 
+	public TornadoFunnelSimple getTornadoFunnelSimple() {
+		return tornadoFunnelSimple;
+	}
+
+	public void setTornadoFunnelSimple(TornadoFunnelSimple tornadoFunnelSimple) {
+		this.tornadoFunnelSimple = tornadoFunnelSimple;
+	}
 }

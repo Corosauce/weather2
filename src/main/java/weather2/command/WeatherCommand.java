@@ -73,7 +73,7 @@ public class WeatherCommand {
 									return Command.SINGLE_SUCCESS;
 								}))
 								.then(literal("tornado").executes(c -> {
-									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
+									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
 
 									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);
 									return Command.SINGLE_SUCCESS;
@@ -163,7 +163,7 @@ public class WeatherCommand {
 		stormObject.setupStorm(c.getSource().getEntity());
 		stormObject.levelCurIntensityStage = intensity;
 		stormObject.levelStormIntensityMax = intensity;
-		stormObject.pos = new Vec3(c.getSource().getPosition().x, StormObject.layers.get(stormObject.layer), c.getSource().getPosition().z);
+		stormObject.initPositions(new Vec3(c.getSource().getPosition().x, StormObject.layers.get(stormObject.layer), c.getSource().getPosition().z));
 
 		wm.addStormObject(stormObject);
 		wm.syncStormNew(stormObject);
