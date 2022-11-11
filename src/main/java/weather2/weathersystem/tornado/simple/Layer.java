@@ -17,6 +17,7 @@ public class Layer {
     @OnlyIn(Dist.CLIENT)
     private List<PivotingParticle> listParticlesExtra;
     private Vec3 pos = Vec3.ZERO;
+    private float rotation;
 
     public Layer(Vec3 pos) {
         this.pos = new Vec3(pos.x, pos.y, pos.z);
@@ -58,5 +59,13 @@ public class Layer {
 
     public void setPos(Vec3 pos) {
         this.pos = pos;
+    }
+
+    public float getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
     }
 }

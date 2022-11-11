@@ -58,6 +58,7 @@ public class TornadoFunnelSimple {
         sizeRadiusRate = 0.9F;
         sizeRadiusRate = 0.01F;
         sizeRadiusRate = 0.05F;
+        sizeRadiusRate = 0.01F;
 
         if (config.getRadiusOfBase() != targetSizeRadius) {
             CULog.dbg("tornado size transitioning: " + config.getRadiusOfBase());
@@ -219,26 +220,30 @@ public class TornadoFunnelSimple {
                 listLayer.add(particle);
             }
 
+
+            boolean pivotingRotation = true;
+            float particleSpacingDegrees = 360 / particlesPerLayer;
+            //float spinSpeedLayer = (float)layers / (float)(i+1);
+            float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
+            //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
+            float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
+
+            //new idea
+            //spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / 30F;
+
+            if (isPet) {
+                spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
+            }
+
+            listLayers.get(i).setRotation(listLayers.get(i).getRotation() + (50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize)));
+
             it = listLayer.iterator();
             index = 0;
             while (it.hasNext()) {
                 particleCount++;
                 PivotingParticle particle = it.next();
-                boolean pivotingRotation = true;
-                float particleSpacingDegrees = 360 / particlesPerLayer;
-                //float spinSpeedLayer = (float)layers / (float)(i+1);
-                float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
-                //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
 
-                //new idea
-                //spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / 30F;
-
-                if (isPet) {
-                    spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
-                }
-
-                float rot = ((particleSpacingDegrees * index) + spinAdj);
+                float rot = ((particleSpacingDegrees * index) + listLayers.get(i).getRotation());
                 particle.setPivotRotPrev(particle.getPivotRot());
                 particle.setPivotRot(new Vec3(0, rot, 0));
                 particle.setPivotPrev(particle.getPivot());
@@ -330,6 +335,15 @@ public class TornadoFunnelSimple {
                 }
             }*/
 
+            particleSpacingDegrees = 360 / particlesPerLayer;
+            //float spinSpeedLayer = (float)layers / (float)(i+1);
+            spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
+            //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
+            spinAdj = (gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+            if (isPet) {
+                spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+            }
+
             //TODO: oh god stop the copypasta
             it = listLayerExtra.iterator();
             index = 0;
@@ -337,6 +351,7 @@ public class TornadoFunnelSimple {
                 particleCount++;
                 PivotingParticle particle = it.next();
                 //particle.remove();
+
                 float radAdj = (float)(particle.getEntityId() % particlesPerLayer) / (float)particlesPerLayer;
                 radAdj = 0.4F + (radAdj * 0.6F);
                 float moar = i + (i * 0.5F);
@@ -347,15 +362,7 @@ public class TornadoFunnelSimple {
                 //radiusAdjustedForParticleSize = radius * 1.1F;
                 //radiusAdjustedForParticleSize = 20F;
 
-                float particleSpacingDegrees = 360 / particlesPerLayer;
-                //float spinSpeedLayer = (float)layers / (float)(i+1);
-                float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
-                //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                float spinAdj = (gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
-                if (isPet) {
-                    spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSize);
-                }
-                float rot = (particleSpacingDegrees * index) + spinAdj;
+                float rot = (particleSpacingDegrees * index) + listLayers.get(i).getRotation();
                 particle.setPivotRotPrev(particle.getPivotRot());
                 particle.setPivotRot(new Vec3(0, rot, 0));
                 particle.setPivotPrev(particle.getPivot());
