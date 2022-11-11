@@ -442,6 +442,10 @@ public class WeatherUtilBlock {
 		}
 	}
 
+	public static BlockPos getPrecipitationHeightSafe(Level world, BlockPos pos) {
+		return getPrecipitationHeightSafe(world, pos, Heightmap.Types.MOTION_BLOCKING);
+	}
+
 	/**
 	 * Safe version of World.getPrecipitationHeight that wont invoke chunkgen/chunkload if its requesting height in unloaded chunk
 	 *
@@ -449,9 +453,9 @@ public class WeatherUtilBlock {
 	 * @param pos
 	 * @return
 	 */
-	public static BlockPos getPrecipitationHeightSafe(Level world, BlockPos pos) {
+	public static BlockPos getPrecipitationHeightSafe(Level world, BlockPos pos, Heightmap.Types heightmapType) {
 		if (world.hasChunkAt(pos)) {
-			return world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos);
+			return world.getHeightmapPos(heightmapType, pos);
 		} else {
 			return new BlockPos(pos.getX(), 0, pos.getZ());
 		}

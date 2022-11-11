@@ -55,13 +55,10 @@ public class TornadoFunnelSimple {
 
         //dynamic sizing
         targetSizeRadius = stormObject.tornadoHelper.getTornadoBaseSize() / 2;
-        sizeRadiusRate = 0.9F;
-        sizeRadiusRate = 0.01F;
-        sizeRadiusRate = 0.05F;
         sizeRadiusRate = 0.01F;
 
         if (config.getRadiusOfBase() != targetSizeRadius) {
-            CULog.dbg("tornado size transitioning: " + config.getRadiusOfBase());
+            //CULog.dbg("tornado size transitioning: " + config.getRadiusOfBase());
             if (config.getRadiusOfBase() < targetSizeRadius) {
                 config.setRadiusOfBase(config.getRadiusOfBase() + sizeRadiusRate);
                 if (config.getRadiusOfBase() > targetSizeRadius) config.setRadiusOfBase(targetSizeRadius);
@@ -186,14 +183,6 @@ public class TornadoFunnelSimple {
 
             float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i));
             float radiusAdjustedForParticleSize = radius * (radius / radiusMax);
-            float radiusAdjustedForParticleSizeForSpeed = 50F * ((float)i / (float)layers);
-
-            //TODO: need a better formula here, but still without factoring in radius cause of resizing issues affecting spin speed weirdly
-            //this is a cheap fix to it for now, allowing no less than 10 for index to avoid insane speeds at bottom
-            radiusAdjustedForParticleSizeForSpeed = 50F * ((float)(Math.max(i, 15)) / (float)(layers));
-            if (i < 15) {
-                //radiusAdjustedForParticleSizeForSpeed = 100F;
-            }
 
             float circumference = radius * 2 * Mth.PI;
             //float particleSpaceOccupy = 0.5F * (radius / radiusMax);
@@ -220,22 +209,14 @@ public class TornadoFunnelSimple {
                 listLayer.add(particle);
             }
 
-
-            boolean pivotingRotation = true;
             float particleSpacingDegrees = 360 / particlesPerLayer;
-            //float spinSpeedLayer = (float)layers / (float)(i+1);
             float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
-            //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-            float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
-
-            //new idea
-            //spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / 30F;
 
             if (isPet) {
-                spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
+                listLayers.get(i).setRotation(listLayers.get(i).getRotation() + (10F * spinSpeedLayer / (radiusAdjustedForParticleSize)));
+            } else {
+                listLayers.get(i).setRotation(listLayers.get(i).getRotation() + (50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize)));
             }
-
-            listLayers.get(i).setRotation(listLayers.get(i).getRotation() + (50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize)));
 
             it = listLayer.iterator();
             index = 0;
@@ -339,7 +320,7 @@ public class TornadoFunnelSimple {
             //float spinSpeedLayer = (float)layers / (float)(i+1);
             spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
             //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-            spinAdj = (gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+            float spinAdj = (gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
             if (isPet) {
                 spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSize);
             }
@@ -414,7 +395,7 @@ public class TornadoFunnelSimple {
         //ParticleTexFX particle = new ParticleTexFX(world, x, y, z, 0, 0, 0, ParticleRegistry.square16);
         PivotingParticle particle = new PivotingParticle(world, x, y, z, 0, 0, 0, ParticleRegistry.cloud256);
         particle.setMaxAge(25000);
-        particle.setTicksFadeInMax(40);
+        particle.setTicksFadeInMax(80);
         //particle.setTicksFadeOutMax(20);
         particle.setParticleSpeed(0, 0, 0);
         particle.setScale(0.1F);

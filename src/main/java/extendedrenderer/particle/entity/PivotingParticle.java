@@ -1,5 +1,7 @@
 package extendedrenderer.particle.entity;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.phys.AABB;
@@ -80,5 +82,10 @@ public class PivotingParticle extends ParticleTexFX {
     @Override
     public AABB getBoundingBoxForRender(float partialTicks) {
         return getBoundingBox().move(getPivotedPosition(partialTicks));
+    }
+
+    @Override
+    public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
+        super.render(buffer, renderInfo, partialTicks);
     }
 }

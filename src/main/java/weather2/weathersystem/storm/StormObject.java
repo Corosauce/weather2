@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.animal.Dolphin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -456,7 +458,7 @@ public class StormObject extends WeatherObject {
 		data.putBoolean("weatherMachineControlled", weatherMachineControlled);
 
 		//sync the data heavy tornado funnel every 5 seconds
-		if (manager != null && tornadoFunnelSimple != null && manager.getWorld().getGameTime() % 100 == 0) {
+		if (manager != null && tornadoFunnelSimple != null && (manager.getWorld().getGameTime() % 100 == 0 || configNeedsSync)) {
 			String prefix = "tornadoFunnelData_layer_";
 			data.putInt(prefix + "count", tornadoFunnelSimple.listLayers.size());
 			for (int i = 0; i < tornadoFunnelSimple.listLayers.size(); i++) {
@@ -472,6 +474,8 @@ public class StormObject extends WeatherObject {
 
 		if (configNeedsSync && tornadoFunnelSimple != null) {
 			data.put("config", tornadoFunnelSimple.getConfig().serialize());
+
+			configNeedsSync = false;
 		}
 
 		data.putBoolean("baby", baby);
@@ -2730,7 +2734,20 @@ public class StormObject extends WeatherObject {
 
 	public int calculateTopYBlock() {
 		Level world = manager.getWorld();
-		int calculatedYPos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).getY();
+		int calculatedYPos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)), Heightmap.Types.WORLD_SURFACE_WG).getY();
+
+		boolean filterOutLogs = true;
+		if (filterOutLogs) {
+			int y = calculatedYPos-1;
+			BlockState state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
+			//System.out.println("state: " + state);
+			while ((state.m_204336_(BlockTags.LOGS) || state.m_204336_(BlockTags.LEAVES) || state.m_204336_(BlockTags.CAVE_VINES) || state.m_204336_(BlockTags.REPLACEABLE_PLANTS) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
+				y--;
+				state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
+				CULog.dbg("filter logs, found: " + state);
+			}
+			if (y > world.getMinBuildHeight()) calculatedYPos = y;
+		}
 
 		//for survive the tide rising mechanic that doesnt update heightmap
 		if (Weather.isLoveTropicsInstalled()) {
@@ -2746,6 +2763,7 @@ public class StormObject extends WeatherObject {
 			}
 		}
 
+		//buggy, needs rework
 		if (isPet()) {
 			Player entP = getPlayer();
 			if (entP != null) {

@@ -73,6 +73,10 @@ public class WeatherManagerServer extends WeatherManager {
 					.filter(wo -> world.getGameTime() % wo.getUpdateRateForNetwork() == 0)
 					.forEach(this::syncStormUpdate);
 
+			/*getStormObjects().stream()
+					.filter(wo -> world.getGameTime() % 2 == 0)
+					.forEach(this::syncStormUpdate);*/
+
 			//sync wind
 			if (world.getGameTime() % 60 == 0) {
 				syncWindUpdate(windMan);
@@ -165,7 +169,8 @@ public class WeatherManagerServer extends WeatherManager {
 				System.out.println("cloud/cloudless/max count: " + countDbg + "/" + countDbg2 + "/" + (ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()));*/
 
 				//cloud formation spawning - REFINE ME!
-				if (!Weather.isLoveTropicsInstalled() && !ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.shouldTickClouds(world.dimension().location().toString())) {
+				boolean spawnClouds = false;
+				if (spawnClouds && !Weather.isLoveTropicsInstalled() && !ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.shouldTickClouds(world.dimension().location().toString())) {
 					for (int i = 0; i < world.players().size(); i++) {
 						Player entP = world.players().get(i);
 

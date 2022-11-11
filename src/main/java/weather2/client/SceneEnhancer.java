@@ -422,7 +422,7 @@ public class SceneEnhancer implements Runnable {
 		float curPrecipVal = weather.getRainAmount();
 
 		if (entP.getLevel().getGameTime() % 40 == 0) {
-			Weather.dbg("curPrecipVal: " + curPrecipVal);
+			//Weather.dbg("curPrecipVal: " + curPrecipVal);
 		}
 
 		if (FORCE_ON_DEBUG_TESTING) {
