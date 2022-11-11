@@ -866,7 +866,7 @@ public class StormObject extends WeatherObject {
 		if (levelCurIntensityStage == STATE_FORMING) {
 			finalSpeed = 0.2F;
 		} else if (levelCurIntensityStage >= STATE_THUNDER) {
-			finalSpeed = 0.05F;
+			finalSpeed = 0.15F;
 		}
 		
 		if (!love_tropics_tweaks && levelCurIntensityStage >= levelStormIntensityFormingStartVal) {

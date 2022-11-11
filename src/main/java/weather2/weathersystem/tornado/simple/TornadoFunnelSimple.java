@@ -1,5 +1,6 @@
 package weather2.weathersystem.tornado.simple;
 
+import com.corosus.coroutil.util.CULog;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.PivotingParticle;
 import net.minecraft.client.Minecraft;
@@ -34,9 +35,13 @@ public class TornadoFunnelSimple {
 
     private StormObject stormObject;
 
+    private float targetSizeRadius = 0;
+    private float sizeRadiusRate = 0;
+
     public TornadoFunnelSimple(ActiveTornadoConfig config, StormObject stormObject) {
         this.config = config;
         this.stormObject = stormObject;
+        config.setRadiusOfBase(stormObject.tornadoHelper.getTornadoBaseSize() / 2);
     }
 
     public void init() {
@@ -49,7 +54,22 @@ public class TornadoFunnelSimple {
         }
 
         //dynamic sizing
-        config.setRadiusOfBase(stormObject.tornadoHelper.getTornadoBaseSize() / 2);
+        targetSizeRadius = stormObject.tornadoHelper.getTornadoBaseSize() / 2;
+        sizeRadiusRate = 0.9F;
+        sizeRadiusRate = 0.01F;
+        sizeRadiusRate = 0.05F;
+
+        if (config.getRadiusOfBase() != targetSizeRadius) {
+            CULog.dbg("tornado size transitioning: " + config.getRadiusOfBase());
+            if (config.getRadiusOfBase() < targetSizeRadius) {
+                config.setRadiusOfBase(config.getRadiusOfBase() + sizeRadiusRate);
+                if (config.getRadiusOfBase() > targetSizeRadius) config.setRadiusOfBase(targetSizeRadius);
+            } else {
+                config.setRadiusOfBase(config.getRadiusOfBase() - sizeRadiusRate);
+                if (config.getRadiusOfBase() < targetSizeRadius) config.setRadiusOfBase(targetSizeRadius);
+            }
+        }
+        //config.setRadiusOfBase(stormObject.tornadoHelper.getTornadoBaseSize() / 2);
 
         //TEMP!!!!
         //config.setRadiusOfBase(5F + 5F);
@@ -165,13 +185,21 @@ public class TornadoFunnelSimple {
 
             float radius = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (i));
             float radiusAdjustedForParticleSize = radius * (radius / radiusMax);
+            float radiusAdjustedForParticleSizeForSpeed = 50F * ((float)i / (float)layers);
+
+            //TODO: need a better formula here, but still without factoring in radius cause of resizing issues affecting spin speed weirdly
+            //this is a cheap fix to it for now, allowing no less than 10 for index to avoid insane speeds at bottom
+            radiusAdjustedForParticleSizeForSpeed = 50F * ((float)(Math.max(i, 15)) / (float)(layers));
+            if (i < 15) {
+                //radiusAdjustedForParticleSizeForSpeed = 100F;
+            }
 
             float circumference = radius * 2 * Mth.PI;
             //float particleSpaceOccupy = 0.5F * (radius / radiusMax);
             float particleSpaceOccupy = (15F / adjustedRate) * (radius / radiusMax);
             if (isBaby) particleSpaceOccupy = (2F / adjustedRate) * (radius / radiusMax);
             if (isPet) particleSpaceOccupy = (0.2F / adjustedRate) * (radius / radiusMax);
-            float particlesPerLayer = (float) Math.floor(circumference / particleSpaceOccupy);
+            float particlesPerLayer = (float) /*Math.floor(*/circumference / particleSpaceOccupy/*)*/;
 
             Iterator<PivotingParticle> it = listLayer.iterator();
             float index = 0;
@@ -201,10 +229,15 @@ public class TornadoFunnelSimple {
                 //float spinSpeedLayer = (float)layers / (float)(i+1);
                 float spinSpeedLayer = 1F - ((float)(i+1) / (float)layers) + 1F;
                 //float spinSpeedLayer = 1;//(float)layers / (float)(i+1);
-                float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+                float spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
+
+                //new idea
+                //spinAdj = ((int)gameTime) * 50.22F * spinSpeedLayer / 30F;
+
                 if (isPet) {
-                    spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSize);
+                    spinAdj = ((int) gameTime) * 10F * spinSpeedLayer / (radiusAdjustedForParticleSizeForSpeed);
                 }
+
                 float rot = ((particleSpacingDegrees * index) + spinAdj);
                 particle.setPivotRotPrev(particle.getPivotRot());
                 particle.setPivotRot(new Vec3(0, rot, 0));
@@ -256,7 +289,10 @@ public class TornadoFunnelSimple {
                 particle.setScale(10F * (radius / radiusMax));
                 if (isBaby) particle.setScale(10F / 3F * (radius / radiusMax));
                 if (isPet) particle.setScale(10F / 3F / 7F * (radius / radiusMax));
-                particle.setAge(0);
+                //allow fade in but stop age after
+                if (particle.getAge() > particle.getTicksFadeInMax()+1) {
+                    particle.setAge((int)particle.getTicksFadeInMax()+1);
+                }
                 //particle.setColor(1, 1, 1);
                 index++;
             }
@@ -286,13 +322,13 @@ public class TornadoFunnelSimple {
             //int debrisPerLayer = (int) (20 * adjustedRate);
             //debrisPerLayer = 0;
 
-            if (stormObject.manager.getWorld().isClientSide()) {
+            /*if (stormObject.manager.getWorld().isClientSide()) {
                 while (listLayerExtra.size() < particlesPerLayer) {
                     PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
                     particle.spawnAsWeatherEffect();
                     listLayerExtra.add(particle);
                 }
-            }
+            }*/
 
             //TODO: oh god stop the copypasta
             it = listLayerExtra.iterator();
@@ -370,8 +406,8 @@ public class TornadoFunnelSimple {
     private PivotingParticle createParticle(ClientLevel world, double x, double y, double z) {
         //ParticleTexFX particle = new ParticleTexFX(world, x, y, z, 0, 0, 0, ParticleRegistry.square16);
         PivotingParticle particle = new PivotingParticle(world, x, y, z, 0, 0, 0, ParticleRegistry.cloud256);
-        particle.setMaxAge(250);
-        //particle.setTicksFadeInMax(20);
+        particle.setMaxAge(25000);
+        particle.setTicksFadeInMax(40);
         //particle.setTicksFadeOutMax(20);
         particle.setParticleSpeed(0, 0, 0);
         particle.setScale(0.1F);

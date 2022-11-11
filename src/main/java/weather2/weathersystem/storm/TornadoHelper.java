@@ -297,7 +297,7 @@ public class TornadoHelper {
 						}
 					}
 
-					CULog.dbg("tryCount: " + tryCount);
+					//CULog.dbg("tryCount: " + tryCount);
 				} else {
 					int ii = 2;
 
@@ -389,7 +389,7 @@ public class TornadoHelper {
 						}
 					}
 
-					CULog.dbg("tryCount: " + tryCount);
+					//CULog.dbg("tryCount: " + tryCount);
 				}
 
 
