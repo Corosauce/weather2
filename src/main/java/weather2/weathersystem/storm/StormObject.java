@@ -209,7 +209,8 @@ public class StormObject extends WeatherObject {
 
 	private boolean configNeedsSync = true;
 
-	public int ticks;
+	private int age;
+	private int ageSinceTornadoTouchdown;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -631,7 +632,8 @@ public class StormObject extends WeatherObject {
 	
 	public void tick() {
 		super.tick();
-		ticks++;
+		age++;
+		if (levelCurIntensityStage >= STATE_STAGE1) ageSinceTornadoTouchdown++;
 		//Weather.dbg("ticking storm " + ID + " - manager: " + manager);
 
 		//CULog.dbg("gametime: " + manager.getWorld().getGameTime());
@@ -2245,25 +2247,34 @@ public class StormObject extends WeatherObject {
 			double distXZ = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMax);
 			double distXZForYGrab = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMaxForYGrab);
 
+			double grabAmp = (float)(levelCurIntensityStage - STATE_FORMING) / (float)(STATE_STAGE5 - STATE_FORMING);
+
 			float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
 
-			angle += 50;
+			//more is tighter
+			angle += 20;
 			if (pet) angle += 50;
 
-			double entHeightFromBase = Math.max(0.1F, entity.getY() - posGround.y);
-			double heightMathMax = 50;
+			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
+			double heightMathMax = 50 * 2.5;
+			heightMathMax = 50 * 3.5;
+			//amp from new size here?
 			if (baby) heightMathMax = 15;
 			if (pet) heightMathMax = 4;
 			//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
 			double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
+			//CULog.dbg("heightAmp: " + heightAmp);
 
 			if (!pet) {
 				angle += (40 * heightAmp);
 			}
 
+			angle -= 40 * grabAmp;
+
 			angle = (float) Math.toRadians(angle);
 			double pullStrength = 0.2;
 			double pullStrengthY = 0.2;
+			pullStrengthY += 0.3 * grabAmp;
 			if (pet) pullStrength = 0.05;
 			if (pet) pullStrengthY = 0.05;
 			if (sharknado && entity instanceof Player) pullStrength = 0.05;
@@ -2744,7 +2755,7 @@ public class StormObject extends WeatherObject {
 			while ((state.m_204336_(BlockTags.LOGS) || state.m_204336_(BlockTags.LEAVES) || state.m_204336_(BlockTags.CAVE_VINES) || state.m_204336_(BlockTags.REPLACEABLE_PLANTS) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
 				y--;
 				state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
-				CULog.dbg("filter logs, found: " + state);
+				//CULog.dbg("filter logs, found: " + state);
 			}
 			if (y > world.getMinBuildHeight()) calculatedYPos = y;
 		}
@@ -2875,5 +2886,21 @@ public class StormObject extends WeatherObject {
 
 	public void setTornadoFunnelSimple(TornadoFunnelSimple tornadoFunnelSimple) {
 		this.tornadoFunnelSimple = tornadoFunnelSimple;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public int getAgeSinceTornadoTouchdown() {
+		return ageSinceTornadoTouchdown;
+	}
+
+	public void setAgeSinceTornadoTouchdown(int ageSinceTornadoTouchdown) {
+		this.ageSinceTornadoTouchdown = ageSinceTornadoTouchdown;
 	}
 }

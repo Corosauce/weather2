@@ -965,7 +965,7 @@ public class TornadoHelper {
 		if (storm.isPet()) {
 			aabb = aabb.inflate(dist, 3, dist);
 		} else {
-			aabb = aabb.inflate(dist, this.storm.maxHeight * 3, dist);
+			aabb = aabb.inflate(dist, this.storm.maxHeight * 2.8, dist);
 		}
 
         List list = parWorld.getEntitiesOfClass(Entity.class, aabb);
