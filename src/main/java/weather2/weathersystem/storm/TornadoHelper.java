@@ -965,7 +965,7 @@ public class TornadoHelper {
 		if (storm.isPet()) {
 			aabb = aabb.inflate(dist, 3, dist);
 		} else {
-			aabb = aabb.inflate(dist, this.storm.maxHeight * 2.8, dist);
+			aabb = aabb.inflate(dist, this.storm.maxHeight * 3.8, dist);
 		}
 
         List list = parWorld.getEntitiesOfClass(Entity.class, aabb);
@@ -1001,7 +1001,7 @@ public class TornadoHelper {
 										}
 										foundEnt = true;
 									}
-								} else if ((entity1 instanceof LivingEntity) && WeatherUtilEntity.isEntityOutside(entity1, true)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
+								} else if ((entity1 instanceof LivingEntity) && WeatherUtilEntity.isEntityOutside(entity1, false)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
 									//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
 									//if (!entity1.world.isClientSide()) {
 									if (featherFallInstead) {

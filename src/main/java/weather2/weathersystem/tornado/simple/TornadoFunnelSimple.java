@@ -53,6 +53,9 @@ public class TornadoFunnelSimple {
             heightPerLayer = 0.2F;
         }
 
+        //TESTING
+        //config.setEntityPullDistXZForY(90);
+
         //dynamic sizing
         targetSizeRadius = stormObject.tornadoHelper.getTornadoBaseSize() / 2;
         sizeRadiusRate = 0.01F;

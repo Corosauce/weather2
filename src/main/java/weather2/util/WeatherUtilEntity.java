@@ -16,6 +16,8 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
@@ -177,23 +179,31 @@ public class WeatherUtilEntity {
 		if (cheapCheck) return false;
 
 		Vec3 vecTry = new Vec3(parPos.x + Direction.NORTH.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.NORTH.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		if (checkVecOutside(parWorld, parPos, vecTry)) {
+			return true;
+		}
 
 		vecTry = new Vec3(parPos.x + Direction.SOUTH.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.SOUTH.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		if (checkVecOutside(parWorld, parPos, vecTry)) {
+			return true;
+		}
 
 		vecTry = new Vec3(parPos.x + Direction.EAST.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.EAST.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		if (checkVecOutside(parWorld, parPos, vecTry)) {
+			return true;
+		}
 
 		vecTry = new Vec3(parPos.x + Direction.WEST.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.WEST.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) return true;
+		if (checkVecOutside(parWorld, parPos, vecTry)) {
+			return true;
+		}
 
 		return false;
 	}
 
 	public static boolean checkVecOutside(Level parWorld, Vec3 parPos, Vec3 parCheckPos) {
-		boolean dirNorth = parWorld.clip(new ClipContext(parPos, parCheckPos, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, null)) == null;
-		if (dirNorth) {
+		BlockHitResult blockhitresult = parWorld.clip(new ClipContext(parPos, parCheckPos, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, null));
+		if (blockhitresult.getType() == HitResult.Type.MISS) {
 			if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(parCheckPos.x), 0, Mth.floor(parCheckPos.z))).getY() < parCheckPos.y) return true;
 		}
 		return false;

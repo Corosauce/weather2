@@ -625,7 +625,7 @@ public class StormObject extends WeatherObject {
 					.setSpinSpeed(360F / 20F)
 					.setRadiusIncreasePerLayer(0.2F)
 					.setEntityPullDistXZ(120)
-					.setEntityPullDistXZForY(60);
+					.setEntityPullDistXZForY(90);
 		}
 		tornadoFunnelSimple = new TornadoFunnelSimple(activeTornadoConfig, this);
 	}
@@ -2269,12 +2269,13 @@ public class StormObject extends WeatherObject {
 				angle += (40 * heightAmp);
 			}
 
+			//wider grab as tornado gets bigger
 			angle -= 40 * grabAmp;
 
 			angle = (float) Math.toRadians(angle);
 			double pullStrength = 0.2;
 			double pullStrengthY = 0.2;
-			pullStrengthY += 0.3 * grabAmp;
+			pullStrengthY += 0.2 * grabAmp;
 			if (pet) pullStrength = 0.05;
 			if (pet) pullStrengthY = 0.05;
 			if (sharknado && entity instanceof Player) pullStrength = 0.05;
