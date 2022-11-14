@@ -105,7 +105,7 @@ public class TornadoFunnelSimple {
             //if (i != 0) {
             double dist = posLayer.distanceTo(posLayerLower);
             if (dist > 0.1F * (radius / radiusMax)) {
-                double dynamicSpeed = 10F * (Math.min(30F, dist) / 30F);
+                double dynamicSpeed = 15F * (Math.min(30F, dist) / 30F);
                 double speed = dynamicSpeed;//0.01F;
                 Vec3 moveVec = posLayer.vectorTo(posLayerLower).normalize().multiply(speed, speed * 1F, speed);
                 Vec3 newPos = posLayer.add(moveVec);

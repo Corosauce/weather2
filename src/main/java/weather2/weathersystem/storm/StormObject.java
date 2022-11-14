@@ -799,13 +799,6 @@ public class StormObject extends WeatherObject {
 		float angle = getAdjustedAngle();
 		Random rand = new Random();
 
-		if (levelCurIntensityStage == STATE_FORMING) {
-			angle = tempAngleFormingTornado;
-
-			//if its an F0 forming, make it all over the place, adding on top of cloud direction each tick
-			angle += (rand.nextFloat() - rand.nextFloat()) * 30F;
-		}
-
 		if (angleIsOverridden) {
 			angle = angleMovementTornadoOverride;
 			//debug
@@ -829,6 +822,13 @@ public class StormObject extends WeatherObject {
 				}
 
 			}*/
+		}
+
+		if (levelCurIntensityStage == STATE_FORMING) {
+			angle = tempAngleFormingTornado;
+
+			//if its an F0 forming, make it all over the place, adding on top of cloud direction each tick
+			angle += (rand.nextFloat() - rand.nextFloat()) * 30F;
 		}
 
 		//despite overridden angle, still avoid obstacles
@@ -888,7 +888,7 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (levelCurIntensityStage == STATE_FORMING) {
-			finalSpeed = 0.5F;
+			finalSpeed = 0.3F;
 		}
 
 		if (love_tropics_tweaks) {
@@ -950,8 +950,10 @@ public class StormObject extends WeatherObject {
 	public void tickWeatherEvents() {
 		Random rand = new Random();
 		Level world = manager.getWorld();
-		
-		currentTopYBlock = calculateTopYBlock();
+
+		//if (world.getGameTime() % 20 == 0){
+			currentTopYBlock = calculateTopYBlock();
+		//}
 
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER && !isBaby() && !isPet()) {
@@ -1340,12 +1342,15 @@ public class StormObject extends WeatherObject {
 						levelCurStagesIntensity -= levelStormIntensityRate * 0.9F;
 					} else {
 						levelCurStagesIntensity -= levelStormIntensityRate * 0.3F;
+						if (levelCurIntensityStage >= STATE_FORMING) {
+							Weather.dbg("storm ID: " + this.ID + " - active info, stage: " + levelCurIntensityStage + " levelCurStagesIntensity: " + levelCurStagesIntensity + " pos: " + pos);
+						}
 					}
 					
 					
 					if (levelCurStagesIntensity <= 0) {
 						stagePrev();
-						Weather.dbg("storm ID: " + this.ID + " - dying, stage: " + levelCurIntensityStage);
+						Weather.dbg("storm ID: " + this.ID + " - dying, stage: " + levelCurIntensityStage + " pos: " + pos);
 						if (levelCurIntensityStage <= 0) {
 							setNoStorm();
 						}
@@ -1393,7 +1398,7 @@ public class StormObject extends WeatherObject {
 		//tick this more often for smoother forming on the client side (packet sync rate is 2 so 2 is good enough here)
 		if (world.getGameTime() % 2 == 0) {
 			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString())/* && tryFormStorm*/) {
-				if (isRealStorm()) {
+				if (isRealStorm() && !hasStormPeaked) {
 
 					//speed up forming and greater progression when past forming state
 					if (levelCurIntensityStage >= levelStormIntensityFormingStartVal) {
@@ -2276,6 +2281,13 @@ public class StormObject extends WeatherObject {
 			double pullStrength = 0.2;
 			double pullStrengthY = 0.2;
 			pullStrengthY += 0.2 * grabAmp;
+			double pullYAmp = 1D;
+			//as tornado shrinks to and from forming, adjust its pull power
+			if (levelCurIntensityStage == STATE_FORMING) {
+				pullYAmp = levelCurStagesIntensity;
+			}
+			pullStrengthY *= pullYAmp;
+			pullStrength *= pullYAmp;
 			if (pet) pullStrength = 0.05;
 			if (pet) pullStrengthY = 0.05;
 			if (sharknado && entity instanceof Player) pullStrength = 0.05;
@@ -2748,17 +2760,21 @@ public class StormObject extends WeatherObject {
 		Level world = manager.getWorld();
 		int calculatedYPos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)), Heightmap.Types.WORLD_SURFACE_WG).getY();
 
+		//TODO: only recalc if pos x z changes
 		boolean filterOutLogs = true;
-		if (filterOutLogs) {
+		if (filterOutLogs && world.hasChunkAt(new BlockPos(pos))) {
 			int y = calculatedYPos-1;
 			BlockState state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
 			//System.out.println("state: " + state);
+			int iter = 0;
 			while ((state.m_204336_(BlockTags.LOGS) || state.m_204336_(BlockTags.LEAVES) || state.m_204336_(BlockTags.CAVE_VINES) || state.m_204336_(BlockTags.REPLACEABLE_PLANTS) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
 				y--;
 				state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
 				//CULog.dbg("filter logs, found: " + state);
+				iter++;
 			}
 			if (y > world.getMinBuildHeight()) calculatedYPos = y;
+			//CULog.dbg("filterOutLogs iter: " + iter);
 		}
 
 		//for survive the tide rising mechanic that doesnt update heightmap

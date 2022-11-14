@@ -1,11 +1,8 @@
 package weather2.client;
 
-import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
-import net.minecraft.data.worldgen.biome.OverworldBiomes;
-import net.minecraft.world.level.biome.Biomes;
 import weather2.datatypes.PrecipitationType;
 import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
@@ -46,6 +43,7 @@ import weather2.config.ConfigSand;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
+import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.tornado.TornadoManagerTodoRenameMe;
 import weather2.weathersystem.wind.WindManager;
 
@@ -1424,11 +1422,15 @@ public class SceneEnhancer implements Runnable {
 
 		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 
-		float adjustAmountSmooth = 1;
+		float adjustAmountSmooth = 0;
 
+		WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(player.position());
+		if (sandstorm != null) {
+			adjustAmountSmooth = (float) sandstorm.getDistanceAmp(player.position());
+		}
 
 		//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
-		if (adjustAmountSmooth > 0.25F/* && sandstorm != null*/) {
+		if (adjustAmountSmooth >= 0.25F/* && sandstorm != null*/) {
 
 
 

@@ -67,7 +67,7 @@ public final class ClientWeatherProxy {
 			if (player == null) return false;
 			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
 			WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
-			return sandstorm != null;
+			return sandstorm != null && sandstorm.getDistanceAmp(posPlayer) >= 0.25F;
 		}
 	}
 

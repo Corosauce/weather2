@@ -16,10 +16,10 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import weather2.Weather;
 import weather2.client.entity.particle.ParticleSandstorm;
 import weather2.config.ConfigSand;
 import weather2.util.CachedNBTTagCompound;
+import weather2.util.WeatherUtilPhysics;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
@@ -466,7 +466,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		double sizeRand = (sizeDyn + /*rand.nextDouble() * 30D*/ - inwardsAdj/*30D*/)/* / (double)heightLayer*/;
 
 			    		//TEMP TESTING
-			    		sizeRand = 5;
+			    		//sizeRand = 5;
 
 			    		double x = pos.x + (-Math.sin(Math.toRadians(i)) * (sizeRand));
 			    		double z = pos.z + (Math.cos(Math.toRadians(i)) * (sizeRand));
@@ -478,7 +478,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    				, 0, 0, 0, sprite);
 			    		particleBehavior.initParticle(part);
 			    		
-			    		part.angleToStorm = i;
+			    		part.angleToStorm = -i;
 			    		part.distAdj = sizeRand;
 			    		part.heightLayer = heightLayer;
 			    		part.lockPosition = true;
@@ -498,6 +498,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 			    		//part.setScale(100);
 
 			    		//part.windWeight = 5F;
+						part.windWeight = 1F;
 			    		
 			    		part.setKillOnCollide(true);
 			    		
@@ -577,7 +578,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 	    		part.isTransparent = true;
 	    		part.rotationYaw = (float)rand.nextInt(360);
 	    		part.rotationPitch = (float)rand.nextInt(360);
-				part.rotationYaw = 0;
+				//part.rotationYaw = 0;
 				part.rotationPitch = 0;
 	    		part.setLifetime(100);
 	    		part.setGravity(0.09F);
@@ -833,6 +834,12 @@ public class WeatherObjectSandstorm extends WeatherObject {
 		listParticlesCloud.clear();
 		if (particleBehavior != null && particleBehavior.particles != null) particleBehavior.particles.clear();
 		particleBehavior = null;
+	}
+
+	public double getDistanceAmp(Vec3 pos) {
+		double dist = WeatherUtilPhysics.getDistanceToShape(pos, getSandstormAsShape());
+		double distMax = 100D;
+		return Math.min(1D, 1D - (dist / distMax))/* * getSandstormScale()*/;
 	}
 
 }

@@ -169,7 +169,7 @@ public class WeatherManagerServer extends WeatherManager {
 				System.out.println("cloud/cloudless/max count: " + countDbg + "/" + countDbg2 + "/" + (ConfigStorm.Storm_MaxPerPlayerPerLayer * world.playerEntities.size()));*/
 
 				//cloud formation spawning - REFINE ME!
-				boolean spawnClouds = false;
+				boolean spawnClouds = true;
 				if (spawnClouds && !Weather.isLoveTropicsInstalled() && !ConfigMisc.Aesthetic_Only_Mode && WeatherUtilConfig.shouldTickClouds(world.dimension().location().toString())) {
 					for (int i = 0; i < world.players().size(); i++) {
 						Player entP = world.players().get(i);
@@ -214,7 +214,7 @@ public class WeatherManagerServer extends WeatherManager {
 							}
 						}
 					} else {
-						world.players().stream().forEach(player -> {
+                     						world.players().stream().forEach(player -> {
 							CompoundTag playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(player));
 							boolean sandstormMade = trySandstormForPlayer(player, playerNBT.getLong("lastSandstormTime"));
 							if (sandstormMade) {
@@ -345,7 +345,7 @@ public class WeatherManagerServer extends WeatherManager {
 	public boolean trySandstormForPlayer(Player player, long lastSandstormTime) {
 		boolean sandstormMade = false;
 		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level.getGameTime()) {
-			sandstormMade = trySpawnSandstormNearPos(player.level, player.getPosition(1));
+			sandstormMade = trySpawnSandstormNearPos(player.level, player.position());
 		}
 		return sandstormMade;
 	}

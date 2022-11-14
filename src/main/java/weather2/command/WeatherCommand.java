@@ -150,6 +150,21 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned tornado test"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("sandstorm_try").executes(c -> {
+
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									boolean sandstormMade = wm.trySpawnSandstormNearPos(c.getSource().getLevel(), c.getSource().getPosition());
+									if (sandstormMade) {
+										c.getSource().sendSuccess(new TextComponent("Summoned sandstorm"), true);
+										wm.getWindManager().stopLowWindEvent();
+										wm.getWindManager().startHighWindEvent();
+									} else {
+										c.getSource().sendSuccess(new TextComponent("Couldn't spawn, try being in a large desert"), true);
+									}
+
+
+									return Command.SINGLE_SUCCESS;
+								}))
 
 						)
 		);
