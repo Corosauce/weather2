@@ -94,6 +94,33 @@ public abstract class WeatherManager implements IWorldData {
 
 		WeatherObjectSandstorm bestStorm = null;
 		double closestDist = 9999999;
+
+		List<WeatherObject> listStorms = getStormObjects();
+
+		for (int i = 0; i < listStorms.size(); i++) {
+			WeatherObject wo = listStorms.get(i);
+			if (wo instanceof WeatherObjectSandstorm) {
+				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
+				if (sandstorm == null || sandstorm.isDead) continue;
+
+				double dist = parPos.distanceTo(sandstorm.pos);
+
+				if (closestDist > 0/* && dist < maxDist*/) {
+					if (dist < closestDist) {
+						closestDist = dist;
+						bestStorm = sandstorm;
+					}
+				}
+			}
+
+		}
+
+		return bestStorm;
+	}
+	/*public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos, boolean forced) {
+
+		WeatherObjectSandstorm bestStorm = null;
+		double closestDist = 9999999;
 		double mostIntense = 0;
 
 		List<WeatherObject> listStorms = getStormObjects();
@@ -118,7 +145,7 @@ public abstract class WeatherManager implements IWorldData {
 						bestStorm = sandstorm;
 					}
 					//if best is not within storm, compare distance to shape
-				} else if (closestDist > 0/* && dist < maxDist*/) {
+				} else if (closestDist > 0*//* && dist < maxDist*//*) {
 					if (dist < closestDist) {
 						closestDist = dist;
 						bestStorm = sandstorm;
@@ -129,7 +156,7 @@ public abstract class WeatherManager implements IWorldData {
 		}
 
 		return bestStorm;
-	}
+	}*/
 
 	public void reset() {
 		for (int i = 0; i < getStormObjects().size(); i++) {
@@ -383,8 +410,7 @@ public abstract class WeatherManager implements IWorldData {
 				}
 			} else if (wo instanceof WeatherObjectSandstorm && ConfigStorm.Storm_Deflector_RemoveSandstorms) {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
-				List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
-				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
+				double distToStorm = parPos.distanceTo(sandstorm.pos);
 				if (distToStorm < maxDist) {
 					storms.add(wo);
 				}
@@ -407,8 +433,7 @@ public abstract class WeatherManager implements IWorldData {
 				}
 			} else if (wo instanceof WeatherObjectSandstorm) {
 				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
-				List<Vec3> field_75884_a = sandstorm.getSandstormAsShape();
-				double distToStorm = CoroUtilPhysics.getDistanceToShape(parPos, field_75884_a);
+				double distToStorm = parPos.distanceTo(sandstorm.pos);
 				if (distToStorm < maxDist) {
 					storms.add(wo);
 				}

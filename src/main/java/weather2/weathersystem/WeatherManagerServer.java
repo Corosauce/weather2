@@ -64,6 +64,8 @@ public class WeatherManagerServer extends WeatherManager {
 			tickStormBlockBuildup(sandstorm, WeatherBlocks.blockSandLayer);
 		}
 
+		//tickStormBlockBuildup(new StormState(1, 2), WeatherBlocks.blockSandLayer);
+
 		tickWeatherCoverage();
 
 		if (world != null) {
@@ -357,7 +359,7 @@ public class WeatherManagerServer extends WeatherManager {
 		 * 3. scan upwind and downwind, require a good stretch of sand for a storm
 		 */
 
-		int searchRadius = 512;
+		int searchRadius = 64;
 
 		double angle = wind.getWindAngleForClouds();
 		//-1 for upwind
@@ -438,7 +440,7 @@ public class WeatherManagerServer extends WeatherManager {
 					posFind = new BlockPos(xx, 0, zz);
 				}
 
-				int minDistanceOfDesertStretchNeeded = 200;
+				int minDistanceOfDesertStretchNeeded = 20;
 				double dist = posFindLastGoodUpwind.distSqr(posFindLastGoodDownwind);
 
 				if (dist >= minDistanceOfDesertStretchNeeded * minDistanceOfDesertStretchNeeded) {

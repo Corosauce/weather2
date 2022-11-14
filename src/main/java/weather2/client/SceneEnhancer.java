@@ -1,5 +1,6 @@
 package weather2.client;
 
+import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
@@ -1426,13 +1427,15 @@ public class SceneEnhancer implements Runnable {
 
 		WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(player.position());
 		if (sandstorm != null) {
-			adjustAmountSmooth = (float) sandstorm.getDistanceAmp(player.position());
+			adjustAmountSmooth = sandstorm.getIntensity();
+			CULog.dbg("sandstorm: " + adjustAmountSmooth);
 		}
 
 		//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
 		if (adjustAmountSmooth >= 0.25F/* && sandstorm != null*/) {
 
-
+			//porting whee
+			adjustAmountSmooth += 0.5F;
 
 			Vec3 windForce = windMan.getWindForce();
 
