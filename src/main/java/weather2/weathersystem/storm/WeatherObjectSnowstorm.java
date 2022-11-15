@@ -1,14 +1,10 @@
 package weather2.weathersystem.storm;
 
-import java.util.Random;
-
-import com.corosus.coroutil.util.CU;
-import com.corosus.coroutil.util.CULog;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.WeatherBlocks;
@@ -18,14 +14,16 @@ import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.wind.WindManager;
 
-public class WeatherObjectSandstorm extends WeatherObject {
+import java.util.Random;
+
+public class WeatherObjectSnowstorm extends WeatherObject {
 
 	public int age = 0;
 	public int maxAge = 20*20;
 
 	public Random rand = new Random();
-	
-	public WeatherObjectSandstorm(WeatherManager parManager) {
+
+	public WeatherObjectSnowstorm(WeatherManager parManager) {
 		super(parManager);
 		
 		this.weatherObjectType = EnumWeatherObjectType.SAND;
