@@ -407,6 +407,10 @@ public class StormObject extends WeatherObject {
 		pet = parNBT.getBoolean("pet");
 		petGrabsItems = parNBT.getBoolean("petGrabsItems");
 		sharknado = parNBT.getBoolean("sharknado");
+
+		if (posBaseFormationPos == Vec3.ZERO) {
+			posBaseFormationPos = new Vec3(parNBT.getDouble("posBaseFormationPosX"), parNBT.getDouble("posBaseFormationPosX"), parNBT.getDouble("posBaseFormationPosX"));
+		}
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -490,6 +494,10 @@ public class StormObject extends WeatherObject {
 		} else {
 			data.setUpdateForced(false);
 		}
+
+		data.putDouble("posBaseFormationPosX", posBaseFormationPos.x);
+		data.putDouble("posBaseFormationPosY", posBaseFormationPos.y);
+		data.putDouble("posBaseFormationPosZ", posBaseFormationPos.z);
 
 	}
 	
@@ -650,6 +658,10 @@ public class StormObject extends WeatherObject {
 					setAndUpdateTornado();
 
 					tornadoFunnelSimple.tick();
+				} else {
+					if (tornadoFunnelSimple != null && tornadoFunnelSimple.listLayers.size() > 0) {
+						tornadoFunnelSimple.fadeOut();
+					}
 				}
 				
 				ticksSinceLastPacketReceived++;
@@ -657,7 +669,7 @@ public class StormObject extends WeatherObject {
 				//if (layer == 0) {
 					tickClient();
 				//}
-				
+
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					setAndUpdateTornado();
 					tornadoHelper.tick(manager.getWorld());

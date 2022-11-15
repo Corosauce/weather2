@@ -150,6 +150,14 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned tornado test"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("tornado_f0_max").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
+									stormObject.levelStormIntensityMax = StormObject.STATE_FORMING;
+									stormObject.alwaysProgresses = false;
+
+									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
 								.then(literal("sandstorm_try").executes(c -> {
 
 									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());

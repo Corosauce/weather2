@@ -365,7 +365,7 @@ public class TornadoFunnelSimple {
     private PivotingParticle createParticle(ClientLevel world, double x, double y, double z) {
         //ParticleTexFX particle = new ParticleTexFX(world, x, y, z, 0, 0, 0, ParticleRegistry.square16);
         PivotingParticle particle = new PivotingParticle(world, x, y, z, 0, 0, 0, ParticleRegistry.cloud256);
-        particle.setMaxAge(25000);
+        particle.setMaxAge(300);
         particle.setTicksFadeInMax(80);
         //particle.setTicksFadeOutMax(20);
         particle.setParticleSpeed(0, 0, 0);
@@ -440,21 +440,36 @@ public class TornadoFunnelSimple {
      */
     public void cleanupClient() {
         for (int i = 0; i < listLayers.size(); i++) {
-            listLayers.get(i).getListParticles().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle));
-            listLayers.get(i).getListParticlesExtra().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle));
+            listLayers.get(i).getListParticles().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle, true));
+            listLayers.get(i).getListParticlesExtra().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle, true));
             listLayers.get(i).getListParticles().clear();
             listLayers.get(i).getListParticlesExtra().clear();
         }
     }
 
-    public void disperseParticleSmoothly(PivotingParticle pivotingParticle) {
+    public void fadeOut() {
+        for (int i = 0; i < listLayers.size(); i++) {
+            listLayers.get(i).getListParticles().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle, false));
+            listLayers.get(i).getListParticlesExtra().stream().forEach(pivotingParticle -> disperseParticleSmoothly(pivotingParticle, false));
+            listLayers.get(i).getListParticles().clear();
+            listLayers.get(i).getListParticlesExtra().clear();
+        }
+    }
+
+    public void disperseParticleSmoothly(PivotingParticle pivotingParticle, boolean explode) {
         pivotingParticle.prevRotationYaw = pivotingParticle.rotationYaw;
         pivotingParticle.setPivotPrev(pivotingParticle.getPivot());
         pivotingParticle.setPivotRotPrev(pivotingParticle.getPivotRot());
         Random rand = new Random();
-        pivotingParticle.setMotionX((rand.nextFloat() - rand.nextFloat()) * 2F);
-        pivotingParticle.setMotionZ((rand.nextFloat() - rand.nextFloat()) * 2F);
-        pivotingParticle.setMaxAge(100);
+        if (explode) {
+            pivotingParticle.setMotionX((rand.nextFloat() - rand.nextFloat()) * 2F);
+            pivotingParticle.setMotionZ((rand.nextFloat() - rand.nextFloat()) * 2F);
+        } else {
+            pivotingParticle.setMotionX((rand.nextFloat() - rand.nextFloat()) * 0.4F);
+            pivotingParticle.setMotionZ((rand.nextFloat() - rand.nextFloat()) * 0.4F);
+        }
+        pivotingParticle.setAge(100);
+        pivotingParticle.setMaxAge(200);
         pivotingParticle.setTicksFadeOutMax(80);
         pivotingParticle.spinFast = false;
     }
