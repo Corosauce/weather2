@@ -27,7 +27,7 @@ public class FogAdjuster {
     private FogProfile activeProfile;
     private FogProfile activeProfileLerps;
 
-    private int lerpTicksCur = 0;
+    private int lerpTicksCur = 100;
     private int lerpTicksMax = 100;
 
     //reinit fog values when changes

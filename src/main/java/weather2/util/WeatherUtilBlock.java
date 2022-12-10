@@ -457,7 +457,7 @@ public class WeatherUtilBlock {
 		if (world.hasChunkAt(pos)) {
 			return world.getHeightmapPos(heightmapType, pos);
 		} else {
-			return new BlockPos(pos.getX(), 0, pos.getZ());
+			return new BlockPos(pos.getX(), -255, pos.getZ());
 		}
 	}
 }

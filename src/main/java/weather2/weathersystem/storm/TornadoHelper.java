@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -231,7 +232,7 @@ public class TornadoHelper {
 			int yStart = 0;
 			int yEnd = (int)storm.pos.y/* + 72*/;
 			int yInc = 1;
-			Biome bgb = parWorld.m_204166_(new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))).m_203334_();
+			Biome bgb = parWorld.m_204166_(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).m_203334_();
 
 			//prevent grabbing in high areas (hills)
 			//TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
@@ -555,7 +556,7 @@ public class TornadoHelper {
                 yStart = 10;
                 yEnd = 40;
             }*/
-            Biome bgb = parWorld.m_204166_(new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))).m_203334_();
+			Biome bgb = parWorld.m_204166_(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).m_203334_();
         	
             //prevent grabbing in high areas (hills)
             //TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
@@ -814,7 +815,7 @@ public class TornadoHelper {
 
                 lastGrabTime = System.currentTimeMillis() - 5;
 
-                if (blockID != Blocks.SNOW)
+                if (blockID != Blocks.PACKED_ICE && blockID != Blocks.ICE && blockID != Blocks.SNOW_BLOCK && blockID != Blocks.SNOW && blockID != Blocks.POWDER_SNOW)
                 {
                 	boolean playerClose = parWorld.getNearestPlayer(storm.posBaseFormationPos.x, storm.posBaseFormationPos.y, storm.posBaseFormationPos.z, 140, false) != null;
                     if (playerClose) {

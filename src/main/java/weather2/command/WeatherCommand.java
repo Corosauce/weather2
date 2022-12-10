@@ -13,6 +13,7 @@ import weather2.config.ConfigWind;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -161,13 +162,28 @@ public class WeatherCommand {
 								.then(literal("sandstorm_try").executes(c -> {
 
 									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
-									boolean sandstormMade = wm.trySpawnSandstormNearPos(c.getSource().getLevel(), c.getSource().getPosition());
+									boolean sandstormMade = wm.trySpawnParticleStormNearPos(c.getSource().getLevel(), c.getSource().getPosition(), WeatherObjectParticleStorm.StormType.SANDSTORM);
 									if (sandstormMade) {
 										c.getSource().sendSuccess(new TextComponent("Summoned sandstorm"), true);
 										wm.getWindManager().stopLowWindEvent();
 										wm.getWindManager().startHighWindEvent();
 									} else {
 										c.getSource().sendSuccess(new TextComponent("Couldn't spawn, try being in a large desert"), true);
+									}
+
+
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("snowstorm_try").executes(c -> {
+
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									boolean sandstormMade = wm.trySpawnParticleStormNearPos(c.getSource().getLevel(), c.getSource().getPosition(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
+									if (sandstormMade) {
+										c.getSource().sendSuccess(new TextComponent("Summoned snowstorm"), true);
+										wm.getWindManager().stopLowWindEvent();
+										wm.getWindManager().startHighWindEvent();
+									} else {
+										c.getSource().sendSuccess(new TextComponent("Couldn't spawn, try being in a large snowy area"), true);
 									}
 
 

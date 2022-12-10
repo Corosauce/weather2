@@ -66,7 +66,7 @@ public class WindManager {
 	}
 	
 	public float getWindSpeed() {
-		if (windSpeedEvent > 0) {
+		if (windTimeEvent > 0) {
 			return windSpeedEvent;
 		} else if (windTimeGust > 0) {
 			return windSpeedGust;
@@ -167,7 +167,8 @@ public class WindManager {
 		//debug
 		//Weather.dbg("wind angle: " + windAngleGlobal);
 		//windAngleGlobal = 90;
-		//windSpeedMin = 0.2F;
+		//TODO: TEMP!!!
+		//windSpeedGlobal = 0.5F;
 		//windAngleGlobal = 180;
 		//lowWindOddsTo1 = 20*200;
 		//lowWindTimer = 0;

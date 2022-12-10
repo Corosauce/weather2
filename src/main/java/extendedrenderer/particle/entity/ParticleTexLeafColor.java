@@ -9,6 +9,7 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -22,7 +23,8 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 	private static BlockColors colors;
 
 	//TODO: see forge note on field to use registry delegate
-	private static final Field _blockColorMap = null;//BlockColors.blockColors;
+	//private static final Field _blockColorMap = null;//BlockColors.blockColors;
+	private static final Field _blockColorMap = ObfuscationReflectionHelper.findField(BlockColors.class, "blockColors");
 	private static Map<IRegistryDelegate<Block>, BlockColor> blockColorMap;
 
 	private static ConcurrentHashMap<BlockState, int[]> colorCache = new ConcurrentHashMap<>();

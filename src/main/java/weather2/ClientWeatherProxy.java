@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import weather2.client.SceneEnhancer;
 import weather2.ltcompat.ClientWeatherIntegration;
+import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 
 import javax.annotation.Nullable;
@@ -66,13 +67,23 @@ public final class ClientWeatherProxy {
 			Player player = client.player;
 			if (player == null) return false;
 			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
-			WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(posPlayer);
+			WeatherObjectParticleStorm sandstorm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SANDSTORM);
 			return sandstorm != null && posPlayer.distanceTo(sandstorm.pos) < sandstorm.getSize();
 		}
 	}
 
 	public boolean isSnowstorm() {
-		return ClientWeatherIntegration.get().isSnowstorm();
+		//return ClientWeatherIntegration.get().isSnowstorm();
+		if (isWeatherEffectsServerSideControlled()) {
+			return ClientWeatherIntegration.get().isSnowstorm();
+		} else {
+			Minecraft client = Minecraft.getInstance();
+			Player player = client.player;
+			if (player == null) return false;
+			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
+			WeatherObjectParticleStorm sandstorm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SNOWSTORM);
+			return sandstorm != null && posPlayer.distanceTo(sandstorm.pos) < sandstorm.getSize();
+		}
 	}
 
 	public boolean hasWeather() {

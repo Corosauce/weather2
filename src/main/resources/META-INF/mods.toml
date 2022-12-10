@@ -12,3 +12,10 @@ authors="Corosus"
 description='''
 
 '''
+
+[[dependencies.weather2]]
+modId="coroutil"
+mandatory=true
+versionRange="[1.18.1-1.2.37,)"
+ordering="NONE"
+side="BOTH"

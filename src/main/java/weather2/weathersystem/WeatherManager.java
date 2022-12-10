@@ -1,29 +1,19 @@
 package weather2.weathersystem;
 
 import com.corosus.coroutil.util.CULog;
-import com.corosus.coroutil.util.CoroUtilPhysics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.io.FileUtils;
 import weather2.IWorldData;
-import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.WorldNBTData;
 import weather2.config.ConfigStorm;
-import weather2.weathersystem.storm.EnumWeatherObjectType;
-import weather2.weathersystem.storm.StormObject;
-import weather2.weathersystem.storm.WeatherObject;
-import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.*;
 import weather2.weathersystem.wind.WindManager;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.*;
 
 public abstract class WeatherManager implements IWorldData {
@@ -80,8 +70,8 @@ public abstract class WeatherManager implements IWorldData {
 		}
 	}
 
-	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos) {
-		return getClosestSandstormByIntensity(parPos, false);
+	public WeatherObjectParticleStorm getClosestParticleStormByIntensity(Vec3 parPos, WeatherObjectParticleStorm.StormType type) {
+		return getClosestParticleStormByIntensity(parPos, type, false);
 	}
 
 	/**
@@ -90,18 +80,18 @@ public abstract class WeatherManager implements IWorldData {
 	 * @param parPos
 	 * @return
 	 */
-	public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos, boolean forced) {
+	public WeatherObjectParticleStorm getClosestParticleStormByIntensity(Vec3 parPos, WeatherObjectParticleStorm.StormType type, boolean forced) {
 
-		WeatherObjectSandstorm bestStorm = null;
+		WeatherObjectParticleStorm bestStorm = null;
 		double closestDist = 9999999;
 
 		List<WeatherObject> listStorms = getStormObjects();
 
 		for (int i = 0; i < listStorms.size(); i++) {
 			WeatherObject wo = listStorms.get(i);
-			if (wo instanceof WeatherObjectSandstorm) {
-				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
-				if (sandstorm == null || sandstorm.isDead) continue;
+			if (wo instanceof WeatherObjectParticleStorm) {
+				WeatherObjectParticleStorm sandstorm = (WeatherObjectParticleStorm) wo;
+				if (sandstorm == null || sandstorm.isDead || sandstorm.getType() != type) continue;
 
 				double dist = parPos.distanceTo(sandstorm.pos);
 
@@ -117,46 +107,6 @@ public abstract class WeatherManager implements IWorldData {
 
 		return bestStorm;
 	}
-	/*public WeatherObjectSandstorm getClosestSandstormByIntensity(Vec3 parPos, boolean forced) {
-
-		WeatherObjectSandstorm bestStorm = null;
-		double closestDist = 9999999;
-		double mostIntense = 0;
-
-		List<WeatherObject> listStorms = getStormObjects();
-
-		for (int i = 0; i < listStorms.size(); i++) {
-			WeatherObject wo = listStorms.get(i);
-			if (wo instanceof WeatherObjectSandstorm) {
-				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm) wo;
-				if (sandstorm == null || sandstorm.isDead) continue;
-
-				List<Vec3> nodes = sandstorm.getSandstormAsShape();
-
-				double scale = sandstorm.getSandstormScale();
-				boolean inStorm = CoroUtilPhysics.isInConvexShape(parPos, nodes);
-				double dist = CoroUtilPhysics.getDistanceToShape(parPos, nodes);
-				//if best is within storm, compare intensity
-				if (inStorm) {
-					//System.out.println("in storm");
-					closestDist = 0;
-					if (scale > mostIntense) {
-						mostIntense = scale;
-						bestStorm = sandstorm;
-					}
-					//if best is not within storm, compare distance to shape
-				} else if (closestDist > 0*//* && dist < maxDist*//*) {
-					if (dist < closestDist) {
-						closestDist = dist;
-						bestStorm = sandstorm;
-					}
-				}
-			}
-
-		}
-
-		return bestStorm;
-	}*/
 
 	public void reset() {
 		for (int i = 0; i < getStormObjects().size(); i++) {
@@ -503,7 +453,12 @@ public abstract class WeatherManager implements IWorldData {
 				if (stormData.getInt("weatherObjectType") == EnumWeatherObjectType.CLOUD.ordinal()) {
 					wo = new StormObject(this);
 				} else if (stormData.getInt("weatherObjectType") == EnumWeatherObjectType.SAND.ordinal()) {
-					wo = new WeatherObjectSandstorm(this);
+					wo = new WeatherObjectParticleStorm(this);
+					((WeatherObjectParticleStorm)wo).setType(WeatherObjectParticleStorm.StormType.SANDSTORM);
+					//initStormNew???
+				} else if (stormData.getInt("weatherObjectType") == EnumWeatherObjectType.SNOW.ordinal()) {
+					wo = new WeatherObjectParticleStorm(this);
+					((WeatherObjectParticleStorm)wo).setType(WeatherObjectParticleStorm.StormType.SNOWSTORM);
 					//initStormNew???
 				}
 				try {

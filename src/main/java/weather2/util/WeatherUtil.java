@@ -12,10 +12,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.TallGrassBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -211,12 +208,11 @@ public class WeatherUtil {
                             result = false;
                         }
 
-
                     }
                 }
 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                    if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
+                    if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.DIRT_PATH || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
                         result = false;
                     }
                     if (!canTornadoGrabBlockRefinedRules(state)) {

@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -29,6 +30,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+import weather2.EntityRegistry;
 import weather2.ServerTickHandler;
 import weather2.Weather;
 import weather2.config.*;
@@ -231,10 +233,9 @@ public class StormObject extends WeatherObject {
 	
 	public void initFirstTime() {
 		super.initFirstTime();
-		
-		Biome bgb = manager.getWorld().m_204166_(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).m_203334_();
 
-		
+		Biome bgb = manager.getWorld().m_204166_(WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).m_203334_();
+
 		float temp = 1;
 		
 		if (bgb != null) {
@@ -970,14 +971,22 @@ public class StormObject extends WeatherObject {
 		//Weather.dbg("currentTopYBlock: " + currentTopYBlock);
 		if (levelCurIntensityStage >= STATE_THUNDER && !isBaby() && !isPet()) {
 			if (rand.nextInt((int)Math.max(1, ConfigStorm.Storm_LightningStrikeBaseValueOddsTo1 - (levelCurIntensityStage * 10))) == 0) {
-				int x = (int) (pos.x + rand.nextInt(size) - rand.nextInt(size));
-				int z = (int) (pos.z + rand.nextInt(size) - rand.nextInt(size));
+				int x = (int) Math.floor(pos.x + rand.nextInt(size) - rand.nextInt(size));
+				int z = (int) Math.floor(pos.z + rand.nextInt(size) - rand.nextInt(size));
 				if (world.isLoaded(new BlockPos(x, 0, z))) {
 					int y = world.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-					//if (world.canLightningStrikeAt(x, y, z)) {
-					CULog.dbg("todo fix lightning, register it");
-						//addWeatherEffectLightning(new LightningBoltWeather(null, world, x, y, z), false);
-					//}
+					if (world instanceof ServerLevel) {
+						Optional<BlockPos> optional = ((ServerLevel)world).findLightningRod(new BlockPos(x, y, z));
+						if (optional.isPresent()) {
+							x = optional.get().getX();
+							y = optional.get().getY();
+							z = optional.get().getZ();
+						}
+					}
+
+					LightningBoltWeatherNew ent = new LightningBoltWeatherNew(EntityRegistry.lightning_bolt, world);
+					ent.setPos(x, y, z);
+					addWeatherEffectLightning(ent, false);
 				}
 			}
 		}
@@ -986,8 +995,8 @@ public class StormObject extends WeatherObject {
 		if (isPrecipitating() && levelCurIntensityStage == STATE_HAIL && stormType == TYPE_LAND) {
 			//if (rand.nextInt(1) == 0) {
 			for (int i = 0; i < Math.max(1, ConfigStorm.Storm_HailPerTick * (size/maxSize)); i++) {
-				int x = (int) (pos.x + rand.nextInt(size) - rand.nextInt(size));
-				int z = (int) (pos.z + rand.nextInt(size) - rand.nextInt(size));
+				int x = (int) Math.floor(pos.x + rand.nextInt(size) - rand.nextInt(size));
+				int z = (int) Math.floor(pos.z + rand.nextInt(size) - rand.nextInt(size));
 				if (world.isLoaded(new BlockPos(x, static_YPos_layer0, z)) && (world.getNearestPlayer(x, 50, z, 80, false) != null)) {
 					//int y = world.getPrecipitationHeight(x, z);
 					//if (world.canLightningStrikeAt(x, y, z)) {
@@ -1079,8 +1088,8 @@ public class StormObject extends WeatherObject {
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 
 			//Biome bgb = null;
-			Biome bgb = world.m_204166_(new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))).m_203334_();
-			
+			Biome bgb = world.m_204166_(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).m_203334_();
+
 			//temperature scan
 			if (bgb != null) {
 
@@ -1339,6 +1348,13 @@ public class StormObject extends WeatherObject {
 								}
 							}
 						}
+
+						//new F0 forming touches down at 0.5, needs to switch to F1 if it can ASAP
+						if (levelCurIntensityStage == STATE_FORMING) {
+							if (levelCurStagesIntensity >= 0.5 && levelCurStagesIntensity < 0.9) {
+								levelCurStagesIntensity = 0.90F;
+							}
+						}
 					}
 					
 					
@@ -1357,6 +1373,16 @@ public class StormObject extends WeatherObject {
 						if (levelCurIntensityStage >= STATE_FORMING) {
 							Weather.dbg("storm ID: " + this.ID + " - active info, stage: " + levelCurIntensityStage + " levelCurStagesIntensity: " + levelCurStagesIntensity + " pos: " + pos);
 						}
+					}
+
+					//insta set it to 0.5 so it visually starts taking off if its dying
+					if (levelCurIntensityStage == STATE_FORMING) {
+						if (levelCurStagesIntensity > 0.5) {
+							levelCurStagesIntensity = 0.5F;
+						}
+
+						//extra decay to above code
+						levelCurStagesIntensity -= levelStormIntensityRate * 0.9F;
 					}
 					
 					
@@ -2715,13 +2741,15 @@ public class StormObject extends WeatherObject {
 		return parOrigVal;
 	}
 	
-	public void addWeatherEffectLightning(LightningBoltWeather parEnt, boolean custom) {
+	public void addWeatherEffectLightning(LightningBoltWeatherNew parEnt, boolean custom) {
 		//manager.getWorld().addWeatherEffect(parEnt);
 		/**
 		 * TODO: 1.14 fix lightning
 		 * manager.getWorld().weatherEffects.add(parEnt);
 		 * 		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
 		 */
+		manager.getWorld().addFreshEntity(parEnt);
+		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
 	}
 	
 	@Override

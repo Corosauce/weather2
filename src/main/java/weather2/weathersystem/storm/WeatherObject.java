@@ -30,7 +30,8 @@ public class WeatherObject {
 	//used as radius
 	public int size = 50;
 	public int maxSize = 0;
-	
+
+	//unused
 	public EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.CLOUD;
 
 	private CachedNBTTagCompound nbtCache;

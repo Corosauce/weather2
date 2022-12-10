@@ -1,9 +1,10 @@
 package weather2.client;
 
-import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
+import net.minecraft.world.level.block.GrassBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
 import weather2.datatypes.PrecipitationType;
 import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
@@ -44,6 +45,7 @@ import weather2.config.ConfigSand;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
+import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 import weather2.weathersystem.storm.WeatherObjectSandstorm;
 import weather2.weathersystem.tornado.TornadoManagerTodoRenameMe;
 import weather2.weathersystem.wind.WindManager;
@@ -448,7 +450,7 @@ public class SceneEnhancer implements Runnable {
 
 		int precipitationHeight = entP.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ()))).getY();
 
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), 0, Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		//biome = OverworldBiomes.bambooJungle();
 		//biome = OverworldBiomes.plains(false, true, false);
 		lastBiomeIn = biome;
@@ -559,7 +561,8 @@ public class SceneEnhancer implements Runnable {
 								rain.killWhenUnderCameraAtLeast = 5;
 								rain.setTicksFadeOutMaxOnDeath(5);
 								rain.setDontRenderUnderTopmostBlock(true);
-								rain.setExtraParticlesBaseAmount(extraRenderCount);
+								//rain.setExtraParticlesBaseAmount(extraRenderCount);
+								rain.setExtraParticlesBaseAmount((int) (10F * curPrecipVal));
 								rain.fastLight = true;
 								rain.setSlantParticleToWind(true);
 								rain.windWeight = 1F;
@@ -574,7 +577,6 @@ public class SceneEnhancer implements Runnable {
 								//rain.isTransparent = true;
 								rain.setLifetime(50);
 								//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
-								rain.setTicksFadeInMax(5);
 								rain.setTicksFadeInMax(5);
 								rain.setTicksFadeOutMax(5);
 								rain.setTicksFadeOutMaxOnDeath(5);
@@ -657,7 +659,6 @@ public class SceneEnhancer implements Runnable {
                                 //rain.isTransparent = true;
                                 rain.setLifetime(50);
                                 //opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
-                                rain.setTicksFadeInMax(5);
                                 rain.setTicksFadeInMax(5);
                                 rain.setTicksFadeOutMax(5);
                                 rain.setTicksFadeOutMaxOnDeath(4);
@@ -880,7 +881,7 @@ public class SceneEnhancer implements Runnable {
 				//snow
 				// &&
 					//						entP.level.m_204166_(posForTemperature).m_203334_().getTemperature(posForTemperature) >= 0.15F
-				} else if (weather.getPrecipitationType(biome) == PrecipitationType.SNOW) {
+				} else if (weather.getPrecipitationType(biome) == PrecipitationType.SNOW && !weather.isSnowstorm()) {
 					spawnCount = 0;
 					//less for snow, since it falls slower so more is on screen longer
 					spawnNeed = (int)(curPrecipVal * 40F * ConfigParticle.Precipitation_Particle_effect_rate * particleAmp);
@@ -902,9 +903,12 @@ public class SceneEnhancer implements Runnable {
 								snow.setKillWhenUnderTopmostBlock(true);
 								snow.setTicksFadeOutMaxOnDeath(5);
 								snow.setDontRenderUnderTopmostBlock(true);
-								snow.setExtraParticlesBaseAmount(10);
+								//snow.setExtraParticlesBaseAmount(10);
+								snow.setExtraParticlesBaseAmount((int) (10F * curPrecipVal));
 								snow.killWhenFarFromCameraAtLeast = 20;
 
+								snow.setMotionX(0);
+								snow.setMotionZ(0);
 								snow.setMotionY(-0.1D);
 								snow.setScale(1.3F * 0.15F);
 								snow.setGravity(0.1F);
@@ -917,6 +921,9 @@ public class SceneEnhancer implements Runnable {
 								//snow.setCanCollide(true);
 								//snow.setKillOnCollide(true);
 								snow.rotationYaw = snow.getWorld().random.nextInt(360) - 180F;
+								//if (windMan.windSpeedGlobal >= 0.1F) {
+									windMan.applyWindForceNew(snow, 1F, 0.5F);
+								//}
 								snow.spawnAsWeatherEffect();
 
 								spawnCount++;
@@ -928,6 +935,90 @@ public class SceneEnhancer implements Runnable {
 						}
 					}
 
+				}
+			}
+
+			{
+				//curPrecipVal = windMan.getWindSpeed();
+				/*int spawnNeed = (int) (curPrecipVal * 40F * PRECIPITATION_PARTICLE_EFFECT_RATE * particleAmp);
+				int safetyCutout = 100;
+
+				int extraRenderCount = (int) (15 * (adjustedRate / 2));
+
+				//attempt to fix the cluttering issue more noticable when barely anything spawning
+				if (curPrecipVal < 0.1 && PRECIPITATION_PARTICLE_EFFECT_RATE > 0) {
+					//swap rates
+					int oldVal = extraRenderCount;
+					extraRenderCount = spawnNeed;
+					spawnNeed = oldVal;
+				}*/
+
+				//int spawnCount = 0;
+
+				Vec3 windForce = windMan.getWindForce();
+
+				int spawnAreaSize = 25;
+
+				for (int i = 0; i < 1; i++) {
+					if (windMan.getWindSpeed() >= 0.1F && rand.nextInt(5) == 0) {
+						BlockPos pos = new BlockPos(
+								entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+								entP.getY() - 5 + rand.nextInt(25),
+								entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+						ParticleTexExtraRender dust = new ParticleTexExtraRender((ClientLevel) entP.level,
+								pos.getX(),
+								pos.getY(),
+								pos.getZ(),
+								0D, 0D, 0D, ParticleRegistry.squareGrey);
+						//rain.setCanCollide(true);
+						//rain.setKillOnCollide(true);
+						dust.setKillWhenUnderTopmostBlock(false);
+						dust.setCanCollide(false);
+						dust.killWhenUnderCameraAtLeast = 5;
+						dust.setTicksFadeOutMaxOnDeath(5);
+						dust.setDontRenderUnderTopmostBlock(true);
+						//rain.setExtraParticlesBaseAmount(extraRenderCount);
+						//rain.setExtraParticlesBaseAmount((int) (10F * curPrecipVal));
+						dust.setExtraParticlesBaseAmount(0);
+						dust.fastLight = true;
+						dust.windWeight = 1F;
+
+						/*dust.setMotionX(windForce.x);
+						dust.setMotionZ(windForce.z);
+						dust.setMotionY(windForce.y);*/
+
+						//old slanty rain way
+						dust.setFacePlayer(true);
+
+						//rain.setFacePlayer(true);
+						dust.setScale(0.1F * 0.15F);
+						dust.isTransparent = true;
+						dust.setGravity(0F);
+						//rain.isTransparent = true;
+						dust.setLifetime(50);
+						//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+						dust.setTicksFadeInMax(5);
+						dust.setTicksFadeOutMax(5);
+						dust.setTicksFadeOutMaxOnDeath(5);
+						float alpha = ((float) fadeInTimer / (float) fadeInTimerMax);
+
+						dust.setFullAlphaTarget(alpha * 0.6F);
+						dust.setFullAlphaTarget(0.6F);
+						dust.setAlpha(0);
+
+						dust.rotationYaw = dust.getWorld().random.nextInt(360) - 180F;
+						//rain.setMotionY(-0.5D/*-5D - (entP.world.rand.nextInt(5) * -1D)*/);
+
+						windMan.applyWindForceNew(dust, 10F, 0.5F);
+
+						dust.spawnAsWeatherEffect();
+
+						/*spawnCount++;
+						if (spawnCount >= spawnNeed) {
+							break;
+						}*/
+					}
 				}
 			}
 
@@ -992,6 +1083,7 @@ public class SceneEnhancer implements Runnable {
 							//snow.setCanCollide(true);
 							//snow.setKillOnCollide(true);
 							snow.rotationYaw = snow.getWorld().random.nextInt(360) - 180F;
+							windMan.applyWindForceNew(snow, 2F, 1F);
 							snow.spawnAsWeatherEffect();
 
 							spawnCount++;
@@ -1206,89 +1298,194 @@ public class SceneEnhancer implements Runnable {
 
 		spawnRate = (int)((double)spawnRate / particleAmp);
 
+		//Weather.dbg("spawnRate: " + spawnRate);
+
         for (int xx = curX - hsize; xx < curX + hsize; xx++)
         {
             for (int yy = curY - (hsize / 2); yy < curY + hsize; yy++)
             {
                 for (int zz = curZ - hsize; zz < curZ + hsize; zz++)
                 {
-                        //for (int i = 0; i < p_blocks_leaf.size(); i++)
-                        //{
-                            Block block = getBlock(worldRef, xx, yy, zz);
+					Block block = getBlock(worldRef, xx, yy, zz);
 
-                            //if (block != null && block.getMaterial() == Material.leaves)
+					if (block != null) {
+						Vec3 windForce = manager.wind.getWindForce();
 
-					/*block.getMaterial() == Material.fire*/
-					if (block != null && (block.defaultBlockState().getMaterial() == Material.LEAVES
-									|| block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
-							block.defaultBlockState().getMaterial() == Material.PLANT))
-                            {
+						//leaf particle spawning
+						if ((block.defaultBlockState().getMaterial() == Material.LEAVES
+								|| block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
+								block.defaultBlockState().getMaterial() == Material.PLANT)) {
 
-                            	lastTickFoundBlocks++;
+							lastTickFoundBlocks++;
 
-                            	if (worldRef.random.nextInt(spawnRate) == 0)
-                                {
-                            		//bottom of tree check || air beside vine check
+							if (worldRef.random.nextInt(spawnRate) == 0) {
+								//bottom of tree check || air beside vine check
 
-									//far out enough to avoid having the AABB already inside the block letting it phase through more
-									//close in as much as we can to make it look like it came from the block
-									double relAdj = 0.70D;
+								//far out enough to avoid having the AABB already inside the block letting it phase through more
+								//close in as much as we can to make it look like it came from the block
+								double relAdj = 0.70D;
 
-									BlockPos pos = getRandomWorkingPos(worldRef, new BlockPos(xx, yy, zz));
-									double xRand = 0;
-									double yRand = 0;
-									double zRand = 0;
+								BlockPos pos = getRandomWorkingPos(worldRef, new BlockPos(xx, yy, zz));
+								double xRand = 0;
+								double yRand = 0;
+								double zRand = 0;
 
-									if (pos != null) {
+								if (pos != null) {
 
-										//further limit the spawn position along the face side to prevent it clipping into perpendicular blocks
-										float particleAABB = 0.1F;
-										float particleAABBAndBuffer = particleAABB + 0.05F;
-										float invert = 1F - (particleAABBAndBuffer * 2F);
+									//further limit the spawn position along the face side to prevent it clipping into perpendicular blocks
+									float particleAABB = 0.1F;
+									float particleAABBAndBuffer = particleAABB + 0.05F;
+									float invert = 1F - (particleAABBAndBuffer * 2F);
 
-										if (pos.getY() != 0) {
-											xRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
-											zRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
-										} else if (pos.getX() != 0) {
-											yRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
-											zRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
-										} else if (pos.getZ() != 0) {
-											yRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
-											xRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
-										}
-
-										EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx, yy, zz, 0D, 0D, 0D, ParticleRegistry.leaf);
-										var31.setPos(xx + 0.5D + (pos.getX() * relAdj) + xRand,
-												yy + 0.5D + (pos.getY() * relAdj) + yRand,
-												zz + 0.5D + (pos.getZ() * relAdj) + zRand);
-										var31.setPrevPosX(var31.getPosX());
-										var31.setPrevPosY(var31.getPosY());
-										var31.setPrevPosZ(var31.getPosZ());
-										var31.setMotionX(0);
-										var31.setMotionY(0);
-										var31.setMotionZ(0);
-										var31.setSize(particleAABB, particleAABB);
-										//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
-										var31.setGravity(0.05F);
-										var31.setCanCollide(true);
-										var31.setKillOnCollide(false);
-										var31.collisionSpeedDampen = false;
-										var31.killWhenUnderCameraAtLeast = 20;
-										var31.killWhenFarFromCameraAtLeast = 20;
-										var31.isTransparent = false;
-
-										var31.rotationYaw = rand.nextInt(360);
-										var31.rotationPitch = rand.nextInt(360);
-										//var31.updateQuaternion(null);
-
-										spawnQueue.add(var31);
+									if (pos.getY() != 0) {
+										xRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+										zRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+									} else if (pos.getX() != 0) {
+										yRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+										zRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+									} else if (pos.getZ() != 0) {
+										yRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
+										xRand = particleAABBAndBuffer + (rand.nextDouble() - 0.5D) * invert;
 									}
+
+									EntityRotFX var31 = new ParticleTexLeafColor(worldRef, xx, yy, zz, 0D, 0D, 0D, ParticleRegistry.leaf);
+									var31.setPos(xx + 0.5D + (pos.getX() * relAdj) + xRand,
+											yy + 0.5D + (pos.getY() * relAdj) + yRand,
+											zz + 0.5D + (pos.getZ() * relAdj) + zRand);
+									var31.setPrevPosX(var31.getPosX());
+									var31.setPrevPosY(var31.getPosY());
+									var31.setPrevPosZ(var31.getPosZ());
+
+									var31.setMotionX(windForce.x / 2);
+									var31.setMotionZ(windForce.z / 2);
+									var31.setMotionY(windForce.y / 2);
+									var31.setSize(particleAABB, particleAABB);
+									//ParticleBreakingTemp test = new ParticleBreakingTemp(worldRef, (double)xx, (double)yy - 0.5, (double)zz, ParticleRegistry.leaf);
+									var31.setGravity(0.05F);
+									var31.setCanCollide(true);
+									var31.setKillOnCollide(false);
+									var31.collisionSpeedDampen = false;
+									var31.killWhenUnderCameraAtLeast = 20;
+									var31.killWhenFarFromCameraAtLeast = 20;
+									var31.isTransparent = false;
+
+									var31.rotationYaw = rand.nextInt(360);
+									var31.rotationPitch = rand.nextInt(360);
+									//var31.updateQuaternion(null);
+
+									spawnQueue.add(var31);
 								}
-                            }
-					//}
+							}
+						}
+						if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT || block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
+								block.defaultBlockState().getMaterial() == Material.PLANT) {
 
+							lastTickFoundBlocks++;
 
+							boolean spawnInside = false;
+							boolean spawnAbove = false;
+							boolean spawnAboveSnow = false;
 
+							//boolean placeAbove = false;
+							if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT) {
+								spawnAbove = true;
+							}
+
+							int oddsTo1 = spawnRate;
+							if (block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
+									block.defaultBlockState().getMaterial() == Material.PLANT) {
+								oddsTo1 = spawnRate / 3;
+								spawnInside = true;
+							}
+
+							//if (worldRef.random.nextInt(spawnRate) == 0) {
+							if (worldRef.random.nextInt(oddsTo1) == 0) {
+								BlockPos pos = new BlockPos(xx, yy, zz);
+								BlockPos posAbove = new BlockPos(xx, yy + 1, zz);
+								BlockState blockState = getBlockState(worldRef, pos);
+								BlockState blockStateAbove = getBlockState(worldRef, posAbove);
+								double xRand = 0;
+								double yRand = 0;
+								double zRand = 0;
+
+								if (blockStateAbove != null && (blockStateAbove.isAir() || blockStateAbove.getBlock() instanceof SnowLayerBlock)) {
+
+									spawnAboveSnow = blockStateAbove.getBlock() instanceof SnowLayerBlock;
+
+									ParticleTexLeafColor dust = new ParticleTexLeafColor(worldRef,
+											pos.getX(),
+											spawnAboveSnow ? posAbove.getY() : pos.getY(),
+											pos.getZ(),
+											0D, 0D, 0D, ParticleRegistry.squareGrey);
+									if (spawnAbove) {
+										if (spawnAboveSnow) {
+											dust.setPosition(posAbove.getX(), posAbove.getY() + 0.4F, posAbove.getZ());
+										} else {
+											dust.setPosition(posAbove.getX(), posAbove.getY() + 0.1F, posAbove.getZ());
+										}
+									} else if (spawnInside) {
+										dust.setPosition(pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+									}
+									dust.setPrevPosX(dust.getPosX());
+									dust.setPrevPosY(dust.getPosY());
+									dust.setPrevPosZ(dust.getPosZ());
+									//rain.setCanCollide(true);
+									dust.setKillOnCollide(false);
+									dust.setKillWhenUnderTopmostBlock(false);
+									dust.killWhenUnderCameraAtLeast = 5;
+									dust.setDontRenderUnderTopmostBlock(false);
+									//rain.setExtraParticlesBaseAmount(extraRenderCount);
+									//rain.setExtraParticlesBaseAmount((int) (10F * curPrecipVal));
+									//dust.setExtraParticlesBaseAmount(0);
+									dust.fastLight = true;
+									dust.windWeight = 1F;
+
+									/*dust.setMotionX(windForce.x);
+									dust.setMotionZ(windForce.z);
+									dust.setMotionY(windForce.y);*/
+
+									//old slanty rain way
+									dust.setFacePlayer(true);
+
+									//rain.setFacePlayer(true);
+									dust.setScale(0.15F * 0.15F);
+									dust.isTransparent = true;
+									dust.setGravity(0.0F);
+									dust.setCanCollide(false);
+									if (spawnInside) {
+										dust.setGravity(0.05F);
+										dust.setCanCollide(true);
+									}
+
+									//rain.isTransparent = true;
+									dust.setLifetime(30);
+									//opted to leave the popin for rain, its not as bad as snow, and using fade in causes less rain visual overall
+									dust.setTicksFadeInMax(5);
+									dust.setTicksFadeOutMax(5);
+									dust.setTicksFadeOutMaxOnDeath(5);
+									float alpha = ((float) fadeInTimer / (float) fadeInTimerMax);
+
+									dust.setFullAlphaTarget(alpha * 0.6F);
+									dust.setFullAlphaTarget(0.6F);
+									dust.setAlpha(0);
+
+									if (spawnAboveSnow) {
+										float brightness = 0.8F;
+										dust.setColor(brightness, brightness, brightness);
+									}
+									//dust.setColor(0, 1F, 0);
+
+									dust.rotationYaw = dust.getWorld().random.nextInt(360) - 180F;
+									//rain.setMotionY(-0.5D/*-5D - (entP.world.rand.nextInt(5) * -1D)*/);
+
+									//manager.wind.applyWindForceNew(dust, 10F, 0.5F);
+
+									//dust.spawnAsWeatherEffect();
+									spawnQueue.add(dust);
+								}
+							}
+						}
+					}
                 }
             }
         }
@@ -1390,6 +1587,30 @@ public class SceneEnhancer implements Runnable {
         }
     }
 
+	@OnlyIn(Dist.CLIENT)
+	private static BlockState getBlockState(Level parWorld, BlockPos pos)
+	{
+		return getBlockState(parWorld, pos.getX(), pos.getY(), pos.getZ());
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	private static BlockState getBlockState(Level parWorld, int x, int y, int z)
+	{
+		try
+		{
+			if (!parWorld.hasChunkAt(new BlockPos(x, 0, z)))
+			{
+				return null;
+			}
+
+			return parWorld.getBlockState(new BlockPos(x, y, z));
+		}
+		catch (Exception ex)
+		{
+			return null;
+		}
+	}
+
     public static boolean isFogOverridding() {
 		Minecraft client = Minecraft.getInstance();
 		BlockState blockAtCamera = client.gameRenderer.getMainCamera().getBlockAtCamera();
@@ -1425,7 +1646,7 @@ public class SceneEnhancer implements Runnable {
 
 		float adjustAmountSmooth = 0;
 
-		WeatherObjectSandstorm sandstorm = ClientTickHandler.weatherManager.getClosestSandstormByIntensity(player.position());
+		WeatherObjectParticleStorm sandstorm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(player.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
 		if (sandstorm != null) {
 			adjustAmountSmooth = sandstorm.getIntensity();
 			//CULog.dbg("sandstorm: " + adjustAmountSmooth);

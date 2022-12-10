@@ -13,10 +13,7 @@ import weather2.Weather;
 import weather2.client.shaderstest.Cloud;
 import weather2.client.shaderstest.CloudManager;
 import weather2.weathersystem.sky.CloudRenderHandler;
-import weather2.weathersystem.storm.EnumWeatherObjectType;
-import weather2.weathersystem.storm.StormObject;
-import weather2.weathersystem.storm.WeatherObject;
-import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.*;
 
 @OnlyIn(Dist.CLIENT)
 public class WeatherManagerClient extends WeatherManager {
@@ -72,7 +69,11 @@ public class WeatherManagerClient extends WeatherManager {
 			if (weatherObjectType == EnumWeatherObjectType.CLOUD) {
 				wo = new StormObject(ClientTickHandler.weatherManager);
 			} else if (weatherObjectType == EnumWeatherObjectType.SAND) {
-				wo = new WeatherObjectSandstorm(ClientTickHandler.weatherManager);
+				wo = new WeatherObjectParticleStorm(ClientTickHandler.weatherManager);
+				((WeatherObjectParticleStorm)wo).setType(WeatherObjectParticleStorm.StormType.SANDSTORM);
+			} else if (weatherObjectType == EnumWeatherObjectType.SNOW) {
+				wo = new WeatherObjectParticleStorm(ClientTickHandler.weatherManager);
+				((WeatherObjectParticleStorm)wo).setType(WeatherObjectParticleStorm.StormType.SNOWSTORM);
 			}
 
 			//StormObject so

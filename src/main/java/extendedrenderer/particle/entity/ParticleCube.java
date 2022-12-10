@@ -21,6 +21,8 @@ public class ParticleCube extends ParticleTexFX {
 	@Override
 	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 
+		//TODO: still just a copy of cross section
+
 		Vec3 Vector3d = renderInfo.getPosition();
 		float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) - Vector3d.x());
 		float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) - Vector3d.y());

@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 import weather2.*;
@@ -32,7 +31,7 @@ import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
-import weather2.weathersystem.storm.WeatherObjectSandstorm;
+import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 import weather2.weathersystem.wind.WindManager;
 
 import javax.annotation.Nullable;
@@ -210,15 +209,15 @@ public class WeatherManagerServer extends WeatherManager {
 						if (world.players().size() > 0) {
 							Player entP = world.players().get(rand.nextInt(world.players().size()));
 
-							boolean sandstormMade = trySandstormForPlayer(entP, lastSandstormFormed);
+							boolean sandstormMade = tryParticleStormForPlayer(entP, lastSandstormFormed);
 							if (sandstormMade) {
 								lastSandstormFormed = world.getGameTime();
 							}
 						}
 					} else {
-                     						world.players().stream().forEach(player -> {
+                     	world.players().stream().forEach(player -> {
 							CompoundTag playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(player));
-							boolean sandstormMade = trySandstormForPlayer(player, playerNBT.getLong("lastSandstormTime"));
+							boolean sandstormMade = tryParticleStormForPlayer(player, playerNBT.getLong("lastSandstormTime"));
 							if (sandstormMade) {
 								playerNBT.putLong("lastSandstormTime", world.getGameTime());
 							}
@@ -344,15 +343,17 @@ public class WeatherManagerServer extends WeatherManager {
 		}
 	}
 
-	public boolean trySandstormForPlayer(Player player, long lastSandstormTime) {
+	public boolean tryParticleStormForPlayer(Player player, long lastSandstormTime) {
 		boolean sandstormMade = false;
 		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level.getGameTime()) {
-			sandstormMade = trySpawnSandstormNearPos(player.level, player.position());
+			sandstormMade = trySpawnParticleStormNearPos(player.level, player.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
+		} else if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level.getGameTime()) {
+			sandstormMade = trySpawnParticleStormNearPos(player.level, player.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
 		}
 		return sandstormMade;
 	}
 
-	public boolean trySpawnSandstormNearPos(Level world, Vec3 posIn) {
+	public boolean trySpawnParticleStormNearPos(Level world, Vec3 posIn, WeatherObjectParticleStorm.StormType type) {
 		/**
 		 * 1. Start upwind
 		 * 2. Find random spot near there loaded and in desert
@@ -378,13 +379,13 @@ public class WeatherManagerServer extends WeatherManager {
 			int x = Mth.floor(posIn.x + vecX + rand.nextInt(searchRadius * 2) - searchRadius);
 			int z = Mth.floor(posIn.z + vecZ + rand.nextInt(searchRadius * 2) - searchRadius);
 
-			BlockPos pos = new BlockPos(x, 0, z);
+			BlockPos pos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(x, 0, z));
 
 			if (!world.isLoaded(pos)) continue;
 			//Biome biomeIn = world.m_204166_ForCoordsBody(pos);
 			Biome biomeIn = world.m_204166_(pos).m_203334_();
 
-			if (WeatherObjectSandstorm.isDesert(biomeIn, true)) {
+			if (WeatherObjectParticleStorm.canSpawnHere(world, pos, type, true)) {
 				//found
 				foundPos = pos;
 				//break;
@@ -396,15 +397,17 @@ public class WeatherManagerServer extends WeatherManager {
 				double dirZRight = Math.cos(Math.toRadians(angle+90));
 
 				double distLeftRight = 20;
-				BlockPos posLeft = new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight));
+				BlockPos posLeft = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight)));
 				if (!world.isLoaded(posLeft)) continue;
 				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posLeft))) continue;
-				if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posLeft).m_203334_())) continue;
+				if (!WeatherObjectParticleStorm.canSpawnHere(world, posLeft, type, false)) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posLeft).m_203334_())) continue;
 
-				BlockPos posRight = new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight));
+				BlockPos posRight = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight)));
 				if (!world.isLoaded(posRight)) continue;
 				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posRight))) continue;
-				if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posRight).m_203334_())) continue;
+				if (!WeatherObjectParticleStorm.canSpawnHere(world, posRight, type, false)) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posRight).m_203334_())) continue;
 
 				//go as far upwind as possible until no desert / unloaded area
 
@@ -414,7 +417,7 @@ public class WeatherManagerServer extends WeatherManager {
 				double tickDist = 10;
 
 				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posFind))) {
-				while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_(posFind).m_203334_())) {
+				while (world.isLoaded(posFind) && WeatherObjectParticleStorm.canSpawnHere(world, posFind, type, true)) {
 					//tick last good
 					posFindLastGoodUpwind = new BlockPos(posFind);
 
@@ -422,14 +425,14 @@ public class WeatherManagerServer extends WeatherManager {
 					int xx = Mth.floor(posFind.getX() + (dirX * -1D * tickDist));
 					int zz = Mth.floor(posFind.getZ() + (dirZ * -1D * tickDist));
 
-					posFind = new BlockPos(xx, 0, zz);
+					posFind = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(xx, 0, zz));
 				}
 
 				//reset for downwind scan
 				posFind = new BlockPos(foundPos);
 
 				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posFind))) {
-				while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_(posFind).m_203334_())) {
+				while (world.isLoaded(posFind) && WeatherObjectParticleStorm.canSpawnHere(world, posFind, type, true)) {
 					//tick last good
 					posFindLastGoodDownwind = new BlockPos(posFind);
 
@@ -437,7 +440,7 @@ public class WeatherManagerServer extends WeatherManager {
 					int xx = Mth.floor(posFind.getX() + (dirX * 1D * tickDist));
 					int zz = Mth.floor(posFind.getZ() + (dirZ * 1D * tickDist));
 
-					posFind = new BlockPos(xx, 0, zz);
+					posFind = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(xx, 0, zz));
 				}
 
 				int minDistanceOfDesertStretchNeeded = 20;
@@ -445,23 +448,22 @@ public class WeatherManagerServer extends WeatherManager {
 
 				if (dist >= minDistanceOfDesertStretchNeeded * minDistanceOfDesertStretchNeeded) {
 
-					WeatherObjectSandstorm sandstorm = new WeatherObjectSandstorm(this);
+					WeatherObjectParticleStorm storm = new WeatherObjectParticleStorm(this);
 
-					sandstorm.initFirstTime();
+					storm.setType(type);
+					storm.initFirstTime();
 					BlockPos posSpawn = new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(world, posFindLastGoodUpwind)).above();
-					sandstorm.initSandstormSpawn(new Vec3(posSpawn.getX(), posSpawn.getY(), posSpawn.getZ()));
-					addStormObject(sandstorm);
-					syncStormNew(sandstorm);
+					storm.initStormSpawn(new Vec3(posSpawn.getX(), posSpawn.getY(), posSpawn.getZ()));
+					addStormObject(storm);
+					syncStormNew(storm);
 
-					Weather.dbg("found decent spot and stretch for sandstorm, stretch: " + dist);
+					Weather.dbg("found decent spot and stretch for particle storm, stretch: " + dist + ", type: " + type);
 					return true;
 				}
-
-
 			}
 		}
 
-		Weather.dbg("couldnt spawn sandstorm");
+		Weather.dbg("couldnt spawn particle storm");
 		return false;
 
 		/*if (foundPos != null) {
