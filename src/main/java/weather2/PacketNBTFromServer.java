@@ -38,7 +38,7 @@ public class PacketNBTFromServer {
 
                     //System.out.println("Weather2 packet command from server: " + packetCommand);
                     if (packetCommand.equals("WeatherData")) {
-                        ClientTickHandler.checkClientWeather();
+                        ClientTickHandler.getClientWeather();
 
                         //this line still gets NPE's despite it checking if its null right before it, wtf
                         ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);

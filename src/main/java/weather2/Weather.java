@@ -53,7 +53,10 @@ public class Weather
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 
         MinecraftForge.EVENT_BUS.register(this);
-        modBus.register(WeatherBlocks.class);
+        //old
+        //modBus.register(WeatherBlocks.class);
+        //new
+        WeatherBlocks.registerHandlers(modBus);
 
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);

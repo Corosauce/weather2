@@ -243,7 +243,7 @@ public class FogAdjuster {
     }
 
     public boolean isFogOverriding() {
-        ClientTickHandler.checkClientWeather();
+        ClientTickHandler.getClientWeather();
         ClientWeatherProxy weather = ClientWeatherProxy.get();
         return (weather.isHeatwave() || weather.isSandstorm() || weather.isSnowstorm()) || lerpTicksCur < lerpTicksMax;
     }

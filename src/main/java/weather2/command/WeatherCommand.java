@@ -69,12 +69,40 @@ public class WeatherCommand {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_THUNDER);
 
 									stormObject.initRealStorm(null, null);
+									stormObject.levelCurIntensityStage = StormObject.STATE_THUNDER;
+									stormObject.levelStormIntensityMax = StormObject.STATE_THUNDER;
 
 									c.getSource().sendSuccess(new TextComponent("Summoned lightning storm"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
-								.then(literal("tornado").executes(c -> {
+								.then(literal("storm_highwind").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_HIGHWIND);
+
+									stormObject.initRealStorm(null, null);
+									stormObject.levelCurIntensityStage = StormObject.STATE_HIGHWIND;
+									stormObject.levelStormIntensityMax = StormObject.STATE_HIGHWIND;
+
+									c.getSource().sendSuccess(new TextComponent("Summoned highwind storm"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("storm_hail").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_HAIL);
+
+									stormObject.initRealStorm(null, null);
+									stormObject.levelCurIntensityStage = StormObject.STATE_HAIL;
+									stormObject.levelStormIntensityMax = StormObject.STATE_HAIL;
+
+									c.getSource().sendSuccess(new TextComponent("Summoned hail storm"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornado_forming").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornado_f1").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 
 									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);
 									return Command.SINGLE_SUCCESS;

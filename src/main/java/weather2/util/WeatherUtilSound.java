@@ -100,9 +100,15 @@ public class WeatherUtilSound {
         //ResourceLocation res = new ResourceLocation(var1);
         SoundEvent event = SoundRegistry.get(var1);
 
-        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parStorm, event, SoundSource.WEATHER, var5, var6, parCutOffRange);
+        try {
+            MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parStorm, event, SoundSource.WEATHER, var5, var6, parCutOffRange);
 
-        Minecraft.getInstance().getSoundManager().play(sound);
+            Minecraft.getInstance().getSoundManager().play(sound);
+        } catch (Exception ex) {
+            //catching annoying 'java.lang.NoClassDefFoundError: weather2/client/MovingSoundStreamingSource' crash when hot reloading in dev
+            ex.printStackTrace();
+        }
+
 
     }
 

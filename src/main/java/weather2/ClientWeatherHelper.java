@@ -34,19 +34,27 @@ public final class ClientWeatherHelper {
 		tickRainRates();
 	}
 
-	public float getRainStrengthAndControlVisuals(Player entP) {
-		return getRainStrengthAndControlVisuals(entP, false);
+	public float getPrecipitationStrength(Player entP) {
+		return getPrecipitationStrength(entP, false);
 	}
-	public float getRainStrengthAndControlVisuals(Player entP, boolean forOvercast) {
+
+	/**
+	 * returns 0 to 1 of storm strength
+	 *
+	 * @param entP
+	 * @param forOvercast
+	 * @return
+	 */
+	public float getPrecipitationStrength(Player entP, boolean forOvercast) {
 
 		if (entP == null) return 0;
 		double maxStormDist = 512 / 4 * 3;
 		Vec3 plPos = new Vec3(entP.getX(), StormObject.static_YPos_layer0, entP.getZ());
 		StormObject storm;
 
-		ClientTickHandler.checkClientWeather();
+		ClientTickHandler.getClientWeather();
 
-		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, true);
+		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, -1, true);
 
 		boolean closeEnough = false;
 		double stormDist = 9999;
@@ -75,9 +83,13 @@ public final class ClientWeatherHelper {
 		}
 
 		if (closeEnough) {
+			//max of 1 if at center of storm, subtract player xz distance out of the size to act like its a weaker storm
 			double stormIntensity = (sizeToUse - stormDist) / sizeToUse;
 
-			tempAdj = storm.levelTemperature/* > 0 ? 1F : -1F*/;
+			//why is this not a -1 or 1 anymore?!
+			//tempAdj = storm.levelTemperature/* > 0 ? 1F : -1F*/;
+
+			tempAdj = 1F;//storm.levelTemperature/* > 0 ? 1F : -1F*/;
 
 			//limit plain rain clouds to light intensity
 			if (storm.levelCurIntensityStage == StormObject.STATE_NORMAL) {
@@ -88,8 +100,11 @@ public final class ClientWeatherHelper {
 				stormIntensity = 0;
 			}
 
-			if (stormIntensity < overcastModeMinPrecip) {
-				stormIntensity = overcastModeMinPrecip;
+			//TODO: verify this if statement was added correctly
+			if (forOvercast) {
+				if (stormIntensity < overcastModeMinPrecip) {
+					stormIntensity = overcastModeMinPrecip;
+				}
 			}
 			if (forOvercast) {
 				curOvercastStrTarget = (float) stormIntensity;

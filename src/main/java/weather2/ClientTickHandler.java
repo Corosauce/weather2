@@ -69,7 +69,7 @@ public class ClientTickHandler
 		}
 
 		if (world != null) {
-			checkClientWeather();
+			getClientWeather();
 
 			weatherManager.tick();
 			sceneEnhancer.tickClient();
@@ -134,7 +134,7 @@ public class ClientTickHandler
 		ClientWeatherProxy.reset();
 	}
 
-    public static void checkClientWeather() {
+    public static WeatherManagerClient getClientWeather() {
 
     	try {
 			Level world = Minecraft.getInstance().level;
@@ -144,6 +144,7 @@ public class ClientTickHandler
     	} catch (Exception ex) {
     		Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
     	}
+		return weatherManager;
     }
 
     public static void init(Level world) {

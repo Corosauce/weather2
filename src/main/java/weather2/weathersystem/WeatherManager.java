@@ -18,7 +18,7 @@ import java.util.*;
 
 public abstract class WeatherManager implements IWorldData {
 	public final ResourceKey<Level> dimension;
-	public final WindManager wind = new WindManager(this);
+	private final WindManager wind = new WindManager(this);
 	private List<WeatherObject> listStormObjects = new ArrayList<>();
 	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
 
@@ -118,15 +118,6 @@ public abstract class WeatherManager implements IWorldData {
 		getStormObjects().clear();
 		lookupStormObjectsByID.clear();
 
-		/*for (int i = 0; i < getVolcanoObjects().size(); i++) {
-			VolcanoObject vo = getVolcanoObjects().get(i);
-
-			vo.reset();
-		}
-
-		getVolcanoObjects().clear();
-		lookupVolcanoes.clear();*/
-
 		wind.reset();
 
 		//do not reset this, its static (shared between client and server) and client side calls reset()
@@ -193,40 +184,15 @@ public abstract class WeatherManager implements IWorldData {
 		}
 	}
 
-	/*public List<VolcanoObject> getVolcanoObjects() {
-		return listVolcanoes;
-	}
-
-	public void addVolcanoObject(VolcanoObject so) {
-		if (!lookupVolcanoes.containsKey(so.ID)) {
-			listVolcanoes.add(so);
-			lookupVolcanoes.put(so.ID, so);
-		} else {
-			Weather.dbg("Weather2 WARNING!!! Client received new volcano create for an ID that is already active! design bug");
-		}
-	}
-
-	public void removeVolcanoObject(long ID) {
-		VolcanoObject vo = lookupVolcanoes.get(ID);
-
-		if (vo != null) {
-			vo.remove();
-			listVolcanoes.remove(vo);
-			lookupVolcanoes.remove(ID);
-
-			Weather.dbg("removing volcano");
-		}
-	}*/
-
 	public StormObject getClosestStormAny(Vec3 parPos, double maxDist) {
-		return getClosestStorm(parPos, maxDist, -1, true);
+		return getClosestStorm(parPos, maxDist, -1, -1, true);
 	}
 
 	public StormObject getClosestStorm(Vec3 parPos, double maxDist, int severityFlagMin) {
-		return getClosestStorm(parPos, maxDist, severityFlagMin, false);
+		return getClosestStorm(parPos, maxDist, severityFlagMin, -1, false);
 	}
 
-	public StormObject getClosestStorm(Vec3 parPos, double maxDist, int severityFlagMin, boolean orRain) {
+	public StormObject getClosestStorm(Vec3 parPos, double maxDist, int severityFlagMin, int severityFlagMax, boolean orRain) {
 
 		StormObject closestStorm = null;
 		double closestDist = Double.MAX_VALUE;
@@ -240,7 +206,7 @@ public abstract class WeatherManager implements IWorldData {
 				if (storm == null || storm.isDead) continue;
 				double dist = storm.pos.distanceTo(parPos);
 				if (dist < closestDist && dist <= maxDist) {
-					if ((storm.attrib_precipitation && orRain) || (severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin)) {
+					if ((storm.attrib_precipitation && orRain) || ((severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin) && (severityFlagMax == -1 || storm.levelCurIntensityStage <= severityFlagMax))) {
 						closestStorm = storm;
 						closestDist = dist;
 					}

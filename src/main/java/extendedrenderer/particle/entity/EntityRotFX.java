@@ -99,6 +99,9 @@ public class EntityRotFX extends TextureSheetParticle
     public double bounceSpeedAhead = 0.35D;
     public double bounceSpeedMaxAhead = 0.25D;
 
+    public boolean bounceOnVerticalImpact = false;
+    public double bounceOnVerticalImpactEnergy = 0.3F;
+
     public boolean spinFast = false;
     public float spinFastRate = 10F;
     public boolean spinTowardsMotionDirection = false;
@@ -309,9 +312,13 @@ public class EntityRotFX extends TextureSheetParticle
             }
         }
 
+        double speedXZ = Math.sqrt(getMotionX() * getMotionX() + /*getMotionY() * getMotionY() + */getMotionZ() * getMotionZ());
+        double spinFastRateAdj = spinFastRate * speedXZ * 10F;
+        //spinFastRateAdj = 0;
+
         if (spinFast) {
-            this.rotationPitch += this.entityID % 2 == 0 ? spinFastRate : -spinFastRate;
-            this.rotationYaw += this.entityID % 2 == 0 ? -spinFastRate : spinFastRate;
+            this.rotationPitch += this.entityID % 2 == 0 ? spinFastRateAdj : -spinFastRateAdj;
+            this.rotationYaw += this.entityID % 2 == 0 ? -spinFastRateAdj : spinFastRateAdj;
         }
 
         float angleToMovement = (float) (Math.toDegrees(Math.atan2(xd, zd)));
@@ -372,7 +379,12 @@ public class EntityRotFX extends TextureSheetParticle
         WindManager windMan = weatherMan.getWindManager();
         if (windMan == null) return;
         if (this instanceof PivotingParticle) return;
-        windMan.applyWindForceNew(this, 1F / 20F, 0.5F);
+        //particles on ground shouldnt get blown as hard (idea for hail)
+        if (onGround) {
+            //windMan.applyWindForceNew(this, (1F / 20F) * 0.3F, 0.5F);
+        } else {
+            windMan.applyWindForceNew(this, 1F / 20F, 0.5F);
+        }
 
         /*if (!quatControl) {
             rotationPrev = new Quaternion(rotation);
@@ -735,6 +747,10 @@ public class EntityRotFX extends TextureSheetParticle
             if (onGround || isCollidedVerticallyDownwards || isCollidedHorizontally || isCollidedVerticallyUpwards) {
                 onHit();
                 markCollided = true;
+            }
+
+            if (bounceOnVerticalImpact && (onGround || isCollidedVerticallyDownwards)) {
+                setMotionY(-getMotionY() * bounceOnVerticalImpactEnergy);
             }
         }
 

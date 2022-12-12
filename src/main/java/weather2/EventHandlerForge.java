@@ -23,7 +23,7 @@ public class EventHandlerForge {
 	@OnlyIn(Dist.CLIENT)
     public void worldRender(RenderLevelLastEvent event)
     {
-		ClientTickHandler.checkClientWeather();
+		ClientTickHandler.getClientWeather();
     }
 
 	@SubscribeEvent

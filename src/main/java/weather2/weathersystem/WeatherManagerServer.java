@@ -476,6 +476,8 @@ public class WeatherManagerServer extends WeatherManager {
 
 	public void trySpawnStormCloudNearPlayerForLayer(Player entP, int layer) {
 
+		if (true) return;
+
 		Random rand = new Random();
 
 		int tryCountMax = 10;

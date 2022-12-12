@@ -75,6 +75,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getRegistryName().toString().toLowerCase().contains("desert");
 	}
 
+	@Override
 	public int getSize() {
 		return 250;
 	}

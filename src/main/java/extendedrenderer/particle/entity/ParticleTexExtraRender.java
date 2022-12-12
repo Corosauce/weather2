@@ -122,7 +122,8 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		if (noExtraParticles) {
 			renderAmount = 1;
 		} else {
-			renderAmount = Math.min(extraParticlesBaseAmount + ((Math.max(0, severityOfRainRate-1)) * 5), CoroUtilParticle.maxRainDrops);
+			//renderAmount = Math.min(extraParticlesBaseAmount + ((Math.max(0, severityOfRainRate-1)) * 5), CoroUtilParticle.maxRainDrops);
+			renderAmount = Math.min(1 + extraParticlesBaseAmount, CoroUtilParticle.maxRainDrops);
 		}
 
 		//catch code hotload crash, doesnt help much anyways
@@ -134,13 +135,14 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 				if (ii != 0) {
 					xx = CoroUtilParticle.rainPositions[ii].x;
 					zz = CoroUtilParticle.rainPositions[ii].z;
+					//yy = CoroUtilParticle.rainPositions[ii].y;
 					yy = CoroUtilParticle.rainPositions[ii].y;
 				}
 
 				//prevent precip under overhangs/inside for extra render
 				if (this.isDontRenderUnderTopmostBlock()) {
 					int height2 = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.x + xx, this.y, this.z + zz)).getY();
-					if (this.y + yy <= height2) continue;
+					if (this.y + yy < height2) continue;
 				}
 
 				//TODO: 1.14 uncomment

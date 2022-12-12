@@ -5,14 +5,23 @@ import java.util.List;
 import java.util.Random;
 
 import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import weather2.ClientTickHandler;
+import weather2.ClientWeatherProxy;
+import weather2.datatypes.PrecipitationType;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleBehaviors {
@@ -29,6 +38,14 @@ public class ParticleBehaviors {
 	public float rateAlpha = 0.002F;
 	public float rateScale = 0.1F;
 	public int tickSmokifyTrigger = 40;
+
+	float acidRainRed = 0.5F;
+	float acidRainGreen = 1F;
+	float acidRainBlue = 0.5F;
+
+	float vanillaRainRed = 0.7F;
+	float vanillaRainGreen = 0.7F;
+	float vanillaRainBlue = 1F;
 	
 	public ParticleBehaviors(Vec3 source) {
 		coordSource = source;
@@ -181,6 +198,85 @@ public class ParticleBehaviors {
 		particle.setSize(0.01F, 0.01F);
 		
 		return particle;
+	}
+
+	public void initParticleRain(EntityRotFX particle, int extraRenderCount) {
+		particle.setKillWhenUnderTopmostBlock(true);
+		particle.setCanCollide(false);
+		particle.killWhenUnderCameraAtLeast = 5;
+		particle.setDontRenderUnderTopmostBlock(true);
+		if (particle instanceof ParticleTexExtraRender) {
+			((ParticleTexExtraRender)particle).setExtraParticlesBaseAmount(extraRenderCount);
+		}
+		particle.fastLight = true;
+		particle.setSlantParticleToWind(true);
+		particle.windWeight = 1F;
+		particle.setFacePlayer(false);
+		particle.setScale(2F * 0.15F);
+		particle.isTransparent = true;
+		particle.setGravity(1.8F);
+		particle.setLifetime(50);
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(3);
+		particle.setFullAlphaTarget(0.6F);
+		particle.setAlpha(0);
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.setMotionY(-0.5D);
+
+		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
+
+		Player entP = Minecraft.getInstance().player;
+		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
+			particle.rCol = acidRainRed;
+			particle.gCol = acidRainGreen;
+			particle.bCol = acidRainBlue;
+		} else {
+			particle.setFullAlphaTarget(0.8F);
+			particle.rCol = vanillaRainRed;
+			particle.gCol = vanillaRainGreen;
+			particle.bCol = vanillaRainBlue;
+		}
+
+		particle.spawnAsWeatherEffect();
+
+	}
+
+	public void initParticleSnow(EntityRotFX particle, int extraRenderCount) {
+		particle.setCanCollide(false);
+		particle.setKillWhenUnderTopmostBlock(true);
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.setDontRenderUnderTopmostBlock(true);
+		//particle.setExtraParticlesBaseAmount(10);
+		if (particle instanceof ParticleTexExtraRender) {
+			particle.setExtraParticlesBaseAmount((int) (10F * curPrecipVal * 5F));
+		}
+		particle.killWhenFarFromCameraAtLeast = 20;
+
+		particle.setMotionX(0);
+		particle.setMotionZ(0);
+		particle.setMotionY(-0.1D);
+		particle.setScale(1.3F * 0.15F);
+		particle.setGravity(0.1F);
+		particle.windWeight = 0.2F;
+		particle.setMaxAge(40);
+		particle.setFacePlayer(false);
+		particle.setTicksFadeInMax(5);
+		particle.setAlphaF(0);
+		particle.setTicksFadeOutMax(5);
+		//particle.setCanCollide(true);
+		//particle.setKillOnCollide(true);
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		//if (windMan.windSpeedGlobal >= 0.1F) {
+		windMan.applyWindForceNew(snow, 1F, 0.5F);
+		//}
+		particle.spawnAsWeatherEffect();
+
+		spawnCount++;
+		if (spawnCount >= spawnNeed) {
+			break;
+		}
 	}
 	
 	public static EntityRotFX setParticleRandoms(EntityRotFX particle, boolean yaw, boolean pitch) {

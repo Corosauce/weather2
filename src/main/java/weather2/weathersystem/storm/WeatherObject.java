@@ -137,5 +137,9 @@ public class WeatherObject {
 	public void setNbtCache(CachedNBTTagCompound nbtCache) {
 		this.nbtCache = nbtCache;
 	}
+
+	public int getSize() {
+		return size;
+	}
 	
 }
