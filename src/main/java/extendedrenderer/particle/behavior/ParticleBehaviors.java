@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
+import weather2.client.SceneEnhancer;
 import weather2.datatypes.PrecipitationType;
 
 @OnlyIn(Dist.CLIENT)
@@ -243,14 +244,87 @@ public class ParticleBehaviors {
 
 	}
 
+	public void initParticleGroundSplash(EntityRotFX particle) {
+		particle.setKillWhenUnderTopmostBlock(true);
+		particle.setCanCollide(false);
+		particle.killWhenUnderCameraAtLeast = 5;
+		boolean upward = rand.nextBoolean();
+		particle.windWeight = 20F;
+		particle.setFacePlayer(upward);
+		particle.setScale(0.2F + (rand.nextFloat() * 0.05F));
+		particle.setLifetime(15);
+		particle.setGravity(-0.0F);
+		particle.setTicksFadeInMax(0);
+		particle.setFullAlphaTarget(0.6F);
+		particle.setAlpha(0);
+		particle.setTicksFadeOutMax(4);
+		particle.renderOrder = 2;
+
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationPitch = 90;
+		particle.setMotionY(0D);
+		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
+
+		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
+
+		Player entP = Minecraft.getInstance().player;
+		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
+			particle.rCol = acidRainRed;
+			particle.gCol = acidRainGreen;
+			particle.bCol = acidRainBlue;
+		} else {
+			particle.rCol = vanillaRainRed;
+			particle.gCol = vanillaRainGreen;
+			particle.bCol = vanillaRainBlue;
+		}
+	}
+
+	public void initParticleRainDownfall(EntityRotFX particle) {
+		particle.setCanCollide(false);
+		particle.killWhenUnderCameraAtLeast = 15;
+		particle.setKillWhenUnderTopmostBlock(true);
+		particle.setKillWhenUnderTopmostBlock_ScanAheadRange(3);
+		particle.setTicksFadeOutMaxOnDeath(10);
+		particle.setDontRenderUnderTopmostBlock(false);
+		particle.windWeight = 5F;
+		particle.setFacePlayer(false);
+		particle.facePlayerYaw = true;
+		particle.setScale(12F + (rand.nextFloat() * 0.3F));
+		particle.setSize(10, 50);
+		particle.setLifetime(120);
+		particle.setGravity(0.35F);
+		particle.setTicksFadeInMax(20);
+		particle.setFullAlphaTarget(1F);
+		particle.setAlpha(0);
+		particle.setTicksFadeOutMax(10);
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationPitch = 0;
+		particle.setMotionY(-0.3D);
+		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
+		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
+
+		Player entP = Minecraft.getInstance().player;
+		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
+			particle.rCol = acidRainRed;
+			particle.gCol = acidRainGreen;
+			particle.bCol = acidRainBlue;
+		} else {
+			particle.rCol = vanillaRainRed;
+			particle.gCol = vanillaRainGreen;
+			particle.bCol = vanillaRainBlue;
+		}
+	}
+
 	public void initParticleSnow(EntityRotFX particle, int extraRenderCount) {
 		particle.setCanCollide(false);
 		particle.setKillWhenUnderTopmostBlock(true);
 		particle.setTicksFadeOutMaxOnDeath(5);
 		particle.setDontRenderUnderTopmostBlock(true);
-		//particle.setExtraParticlesBaseAmount(10);
 		if (particle instanceof ParticleTexExtraRender) {
-			particle.setExtraParticlesBaseAmount((int) (10F * curPrecipVal * 5F));
+			((ParticleTexExtraRender)particle).setExtraParticlesBaseAmount(extraRenderCount);
 		}
 		particle.killWhenFarFromCameraAtLeast = 20;
 
@@ -265,18 +339,62 @@ public class ParticleBehaviors {
 		particle.setTicksFadeInMax(5);
 		particle.setAlphaF(0);
 		particle.setTicksFadeOutMax(5);
-		//particle.setCanCollide(true);
-		//particle.setKillOnCollide(true);
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
-		//if (windMan.windSpeedGlobal >= 0.1F) {
-		windMan.applyWindForceNew(snow, 1F, 0.5F);
-		//}
+		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 		particle.spawnAsWeatherEffect();
+	}
 
-		spawnCount++;
-		if (spawnCount >= spawnNeed) {
-			break;
+	public void initParticleDust(EntityRotFX particle) {
+		particle.setKillWhenUnderTopmostBlock(false);
+		particle.setCanCollide(false);
+		particle.killWhenUnderCameraAtLeast = 5;
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.setDontRenderUnderTopmostBlock(true);
+		if (particle instanceof ParticleTexExtraRender) {
+			((ParticleTexExtraRender)particle).setExtraParticlesBaseAmount(0);
 		}
+		particle.fastLight = true;
+		particle.windWeight = 1F;
+		particle.setFacePlayer(true);
+		particle.setScale(0.1F * 0.15F);
+		particle.isTransparent = true;
+		particle.setGravity(0F);
+		particle.setLifetime(50);
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.setFullAlphaTarget(0.6F);
+		particle.setAlpha(0);
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
+	}
+
+	public void initParticleSnowstormCloudDust(EntityRotFX particle) {
+
+		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !SceneEnhancer.isPlayerOutside;
+
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		particle.setMotionX(windForce.x);
+		particle.setMotionZ(windForce.z);
+
+		particle.setFacePlayer(false);
+		particle.isTransparent = true;
+		particle.rotationYaw = (float)rand.nextInt(360);
+		particle.rotationPitch = (float)rand.nextInt(360);
+		particle.setLifetime(farSpawn ? 30 : 10);
+		particle.setGravity(0.09F);
+		particle.setAlpha(0F);
+		float brightnessMulti = 1F - (rand.nextFloat() * 0.4F);
+		particle.setColor(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+		particle.setScale(40 * 0.15F);
+		particle.setScale(30 * 0.15F);
+		particle.aboveGroundHeight = 0.2D;
+
+		particle.setKillOnCollide(true);
+
+		particle.windWeight = 1F;
+
+		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
 	}
 	
 	public static EntityRotFX setParticleRandoms(EntityRotFX particle, boolean yaw, boolean pitch) {

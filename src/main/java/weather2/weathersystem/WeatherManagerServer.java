@@ -362,7 +362,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 		int searchRadius = 64;
 
-		double angle = wind.getWindAngleForClouds();
+		double angle = getWindManager().getWindAngleForClouds();
 		//-1 for upwind
 		double dirX = -Math.sin(Math.toRadians(angle));
 		double dirZ = Math.cos(Math.toRadians(angle));
@@ -492,7 +492,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 		//use 256 or the cutoff val if its configured small
 		float windOffsetDist = Math.min(256, ConfigMisc.Misc_simBoxRadiusCutoff / 4 * 3);
-		double angle = wind.getWindAngleForClouds();
+		double angle = getWindManager().getWindAngleForClouds();
 		double vecX = -Math.sin(Math.toRadians(angle)) * windOffsetDist;
 		double vecZ = Math.cos(Math.toRadians(angle)) * windOffsetDist;
 

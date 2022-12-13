@@ -6,8 +6,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import weather2.WeatherBlocks;
 
-public class DeflectorBlockEntity extends BlockEntity {
-    public DeflectorBlockEntity(BlockPos p_155229_, BlockState p_155230_) {
+public class SirenBlockEntity extends BlockEntity {
+    public SirenBlockEntity(BlockPos p_155229_, BlockState p_155230_) {
         super(WeatherBlocks.BLOCK_ENTITY_DEFLECTOR.get(), p_155229_, p_155230_);
     }
 

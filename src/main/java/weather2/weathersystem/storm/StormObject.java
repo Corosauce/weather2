@@ -2171,11 +2171,11 @@ public class StormObject extends WeatherObject {
 	}
 	
 	public float getAdjustedSpeed() {
-		return manager.wind.getWindSpeedForClouds();
+		return manager.getWindManager().getWindSpeedForClouds();
 	}
 	
 	public float getAdjustedAngle() {
-		float angle = manager.wind.getWindAngleForClouds();
+		float angle = manager.getWindManager().getWindAngleForClouds();
 		
 		float angleAdjust = Math.max(10, Math.min(45, 45F * levelTemperature * 0.2F));
 		float targetYaw = 0;

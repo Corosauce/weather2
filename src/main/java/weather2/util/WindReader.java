@@ -15,12 +15,12 @@ public class WindReader {
 
 	public static float getWindAngle(Level world, Vec3 pos) {
 		WeatherManager weather = getWeatherManagerFor(world);
-		return weather != null ? weather.wind.getWindAngle(pos) : 0;
+		return weather != null ? weather.getWindManager().getWindAngle(pos) : 0;
 	}
 	
 	public static float getWindSpeed(Level world) {
 		WeatherManager weather = getWeatherManagerFor(world);
-		return weather != null ? weather.wind.getWindSpeed() : 0;
+		return weather != null ? weather.getWindManager().getWindSpeed() : 0;
 	}
 
 	private static WeatherManager getWeatherManagerFor(Level world) {
