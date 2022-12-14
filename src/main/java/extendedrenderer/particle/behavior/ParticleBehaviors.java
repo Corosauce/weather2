@@ -224,9 +224,7 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
 		particle.setMotionY(-0.5D);
-
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
-
 		Player entP = Minecraft.getInstance().player;
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
@@ -239,9 +237,7 @@ public class ParticleBehaviors {
 			particle.gCol = vanillaRainGreen;
 			particle.bCol = vanillaRainBlue;
 		}
-
 		particle.spawnAsWeatherEffect();
-
 	}
 
 	public void initParticleGroundSplash(EntityRotFX particle) {
@@ -259,15 +255,12 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		particle.setTicksFadeOutMax(4);
 		particle.renderOrder = 2;
-
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
 		particle.rotationPitch = 90;
 		particle.setMotionY(0D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
-
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
-
 		Player entP = Minecraft.getInstance().player;
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
@@ -304,7 +297,6 @@ public class ParticleBehaviors {
 		particle.setMotionY(-0.3D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
-
 		Player entP = Minecraft.getInstance().player;
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
@@ -320,31 +312,62 @@ public class ParticleBehaviors {
 
 	public void initParticleSnow(EntityRotFX particle, int extraRenderCount) {
 		particle.setCanCollide(false);
-		particle.setKillWhenUnderTopmostBlock(true);
+		//particle.setKillWhenUnderTopmostBlock(true);
 		particle.setTicksFadeOutMaxOnDeath(5);
 		particle.setDontRenderUnderTopmostBlock(true);
 		if (particle instanceof ParticleTexExtraRender) {
 			((ParticleTexExtraRender)particle).setExtraParticlesBaseAmount(extraRenderCount);
 		}
-		particle.killWhenFarFromCameraAtLeast = 20;
-
+		particle.killWhenFarFromCameraAtLeast = 15;
 		particle.setMotionX(0);
 		particle.setMotionZ(0);
 		particle.setMotionY(-0.1D);
 		particle.setScale(1.3F * 0.15F);
 		particle.setGravity(0.1F);
 		particle.windWeight = 0.2F;
-		particle.setMaxAge(40);
+		particle.setMaxAge(60);
 		particle.setFacePlayer(false);
 		particle.setTicksFadeInMax(5);
 		particle.setAlphaF(0);
 		particle.setTicksFadeOutMax(5);
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
-		particle.spawnAsWeatherEffect();
 	}
 
-	public void initParticleDust(EntityRotFX particle) {
+	public void initParticleHail(EntityRotFX particle) {
+		particle.setKillWhenUnderTopmostBlock(false);
+		particle.setCanCollide(true);
+		particle.setKillOnCollide(true);
+		particle.killWhenUnderCameraAtLeast = 5;
+		particle.setDontRenderUnderTopmostBlock(true);
+		particle.rotationYaw = rand.nextInt(360);
+		particle.rotationPitch = rand.nextInt(360);
+		particle.fastLight = true;
+		particle.setSlantParticleToWind(true);
+		particle.windWeight = 5F;
+		particle.spinFast = true;
+		particle.spinFastRate = 10F;
+		particle.setFacePlayer(false);
+		particle.setScale(0.7F * 0.15F);
+		particle.isTransparent = true;
+		particle.setGravity(3.5F);
+		particle.setLifetime(70);
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(50);
+		particle.setFullAlphaTarget(1F);
+		particle.setAlpha(0);
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.setMotionY(-0.5D);
+		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
+		particle.rCol = 0.9F;
+		particle.gCol = 0.9F;
+		particle.bCol = 0.9F;
+		particle.bounceOnVerticalImpact = true;
+		particle.bounceOnVerticalImpactEnergy = 0.2F;
+	}
+
+	public void initParticleDustAir(EntityRotFX particle) {
 		particle.setKillWhenUnderTopmostBlock(false);
 		particle.setCanCollide(false);
 		particle.killWhenUnderCameraAtLeast = 5;
@@ -369,14 +392,57 @@ public class ParticleBehaviors {
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 	}
 
+	public void initParticleDustGround(EntityRotFX particle, boolean spawnInside, boolean spawnAboveSnow) {
+		particle.setKillOnCollide(false);
+		particle.setKillWhenUnderTopmostBlock(false);
+		particle.killWhenUnderCameraAtLeast = 5;
+		particle.setDontRenderUnderTopmostBlock(false);
+		particle.fastLight = true;
+		particle.windWeight = 1F;
+		particle.setFacePlayer(true);
+		particle.setScale(0.15F * 0.15F);
+		particle.isTransparent = true;
+		particle.setGravity(0.0F);
+		particle.setCanCollide(false);
+		if (spawnInside) {
+			particle.setGravity(0.05F);
+			particle.setCanCollide(true);
+		}
+		particle.setLifetime(30);
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.setFullAlphaTarget(0.6F);
+		particle.setAlpha(0);
+		if (spawnAboveSnow) {
+			float brightness = 0.8F;
+			particle.setColor(brightness, brightness, brightness);
+		}
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+	}
+
+	public void initParticleLeaf(EntityRotFX particle, float particleAABB) {
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		particle.setMotionX(windForce.x / 2);
+		particle.setMotionZ(windForce.z / 2);
+		particle.setMotionY(windForce.y / 2);
+		particle.setSize(particleAABB, particleAABB);
+		particle.setGravity(0.05F);
+		particle.setCanCollide(true);
+		particle.setKillOnCollide(false);
+		particle.collisionSpeedDampen = false;
+		particle.killWhenUnderCameraAtLeast = 20;
+		particle.killWhenFarFromCameraAtLeast = 20;
+		particle.isTransparent = false;
+		particle.rotationYaw = rand.nextInt(360);
+		particle.rotationPitch = rand.nextInt(360);
+	}
+
 	public void initParticleSnowstormCloudDust(EntityRotFX particle) {
-
 		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !SceneEnhancer.isPlayerOutside;
-
 		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
 		particle.setMotionX(windForce.x);
 		particle.setMotionZ(windForce.z);
-
 		particle.setFacePlayer(false);
 		particle.isTransparent = true;
 		particle.rotationYaw = (float)rand.nextInt(360);
@@ -386,15 +452,91 @@ public class ParticleBehaviors {
 		particle.setAlpha(0F);
 		float brightnessMulti = 1F - (rand.nextFloat() * 0.4F);
 		particle.setColor(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
-		particle.setScale(40 * 0.15F);
 		particle.setScale(30 * 0.15F);
 		particle.aboveGroundHeight = 0.2D;
-
 		particle.setKillOnCollide(true);
-
+		particle.killWhenFarFromCameraAtLeast = 15;
 		particle.windWeight = 1F;
-
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
+	}
+
+	public void initParticleSandstormDust(EntityRotFX particle) {
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		particle.setMotionX(windForce.x);
+		particle.setMotionZ(windForce.z);
+		particle.setFacePlayer(false);
+		particle.isTransparent = true;
+		particle.rotationYaw = (float)rand.nextInt(360);
+		particle.rotationPitch = (float)rand.nextInt(360);
+		particle.setLifetime(40);
+		particle.setGravity(0.09F);
+		particle.setAlpha(0F);
+		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+		particle.setColor(0.65F * brightnessMulti, 0.6F * brightnessMulti, 0.3F * brightnessMulti);
+		particle.setScale(40 * 0.15F);
+		particle.aboveGroundHeight = 0.2D;
+		particle.setKillOnCollide(true);
+		particle.killWhenFarFromCameraAtLeast = 15;
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.windWeight = 1F;
+	}
+
+	public void initParticleSandstormTumbleweed(EntityRotFX particle) {
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		particle.setMotionX(windForce.x);
+		particle.setMotionZ(windForce.z);
+		particle.setFacePlayer(false);
+		particle.facePlayerYaw = false;
+		particle.spinTowardsMotionDirection = true;
+		particle.isTransparent = true;
+		particle.rotationYaw = (float)rand.nextInt(360);
+		particle.rotationPitch = (float)rand.nextInt(360);
+		particle.setLifetime(80);
+		particle.setGravity(0.3F);
+		particle.setAlpha(0F);
+		float brightnessMulti = 1F - (rand.nextFloat() * 0.2F);
+		particle.setColor(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+		particle.setScale(8 * 0.15F);
+		particle.aboveGroundHeight = 0.5D;
+		particle.collisionSpeedDampen = false;
+		particle.bounceSpeed = 0.03D;
+		particle.bounceSpeedAhead = 0.03D;
+		particle.setKillOnCollide(false);
+		particle.killWhenFarFromCameraAtLeast = 30;
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.windWeight = 1F;
+	}
+
+	public void initParticleSandstormDebris(EntityRotFX particle) {
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		particle.setMotionX(windForce.x);
+		particle.setMotionZ(windForce.z);
+		particle.setFacePlayer(false);
+		particle.spinFast = true;
+		particle.spinFastRate = 2F;
+		particle.isTransparent = true;
+		particle.rotationYaw = (float)rand.nextInt(360);
+		particle.rotationPitch = (float)rand.nextInt(360);
+		particle.setLifetime(80);
+		particle.setGravity(0.3F);
+		particle.setAlpha(0F);
+		float brightnessMulti = 1F - (rand.nextFloat() * 0.5F);
+		particle.setColor(1F * brightnessMulti, 1F * brightnessMulti, 1F * brightnessMulti);
+		particle.setScale(8 * 0.15F);
+		particle.aboveGroundHeight = 0.5D;
+		particle.collisionSpeedDampen = false;
+		particle.bounceSpeed = 0.03D;
+		particle.bounceSpeedAhead = 0.03D;
+		particle.setKillOnCollide(false);
+		particle.killWhenFarFromCameraAtLeast = 30;
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(5);
+		particle.windWeight = 1F;
 	}
 	
 	public static EntityRotFX setParticleRandoms(EntityRotFX particle, boolean yaw, boolean pitch) {
