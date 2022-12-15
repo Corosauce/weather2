@@ -95,16 +95,18 @@ public class TornadoFunnelSimple {
 
             Vec3 posLayerLower;
             if (i == 0) {
-                //posLayerLower = new Vec3(pos.x, pos.y, pos.z);
                 posLayerLower = new Vec3(pos.x, pos.y, pos.z);
             } else {
                 Vec3 temp = listLayers.get(i-1).getPos();
                 posLayerLower = new Vec3(temp.x, temp.y + relYDown1, temp.z);
             }
 
-            //if (i != 0) {
             double dist = posLayer.distanceTo(posLayerLower);
-            if (dist > 0.1F * (radius / radiusMax)) {
+            //easy way to fix the spawning at 0,0 issue
+            if (dist > 50) {
+                CULog.dbg("teleporting tornado layer to lower piece");
+                listLayers.get(i).setPos(new Vec3(posLayerLower.x, posLayerLower.y, posLayerLower.z));
+            } else if (dist > 0.1F * (radius / radiusMax)) {
                 double dynamicSpeed = 15F * (Math.min(30F, dist) / 30F);
                 double speed = dynamicSpeed;//0.01F;
                 Vec3 moveVec = posLayer.vectorTo(posLayerLower).normalize().multiply(speed, speed * 1F, speed);
@@ -206,7 +208,7 @@ public class TornadoFunnelSimple {
             }
             //cleanupList(listLayer, (int)particlesPerLayer);
 
-            while (listLayer.size() < particlesPerLayer) {
+            while (listLayer.size() < particlesPerLayer && i >= 6) {
                 PivotingParticle particle = createParticle((ClientLevel) level, pos.x, pos.y, pos.z);
                 particle.spawnAsWeatherEffect();
                 listLayer.add(particle);
@@ -262,6 +264,15 @@ public class TornadoFunnelSimple {
                 if (isPet) particle.setScale(10F / 3F / 7F * (radius / radiusMax));
                 //allow fade in but stop age after
                 if (particle.getAge() > particle.getTicksFadeInMax()+1) particle.setAge((int)particle.getTicksFadeInMax()+1);
+
+                /*particle.setScale(0.3F);
+
+                if (i % 2 == 0) {
+                    particle.setColor(0, 0, 0);
+                } else {
+                    particle.setColor(1, 1, 1);
+                }*/
+
                 index++;
             }
 
@@ -274,23 +285,11 @@ public class TornadoFunnelSimple {
                 particlesPerLayer = 0;
             }
 
-            //extra stuff
-            /*Iterator<PivotingParticle> it2 = listLayerExtra.iterator();
-            float index2 = 0;
-            while (it2.hasNext()) {
-                PivotingParticle particle = it2.next();
-                if (!particle.isAlive() || index2 >= particlesPerLayer) {
-                    particle.remove();
-                    it2.remove();
-                } else {
-                    index2++;
-                }
-            }*/
             cleanupList(listLayerExtra, (int)particlesPerLayer);
 
             //int particlesPerLayerDynamic = stormObject.getAgeSinceTornadoTouchdown()/20;
 
-            if (i <= layersWithDebris) {
+            if (i <= layersWithDebris && i >= 7) {
                 while (listLayerExtra.size() < particlesPerLayer) {
                     PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
                     particle.spawnAsWeatherEffect();

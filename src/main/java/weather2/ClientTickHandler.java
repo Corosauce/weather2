@@ -131,7 +131,8 @@ public class ClientTickHandler
 
     public static void resetClientWeather() {
 		weatherManager = null;
-		ClientWeatherProxy.reset();
+		ClientWeatherProxy.get().reset();
+		ClientWeatherHelper.get().reset();
 	}
 
     public static WeatherManagerClient getClientWeather() {

@@ -95,7 +95,7 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned hail storm"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
-								.then(literal("tornado_forming").executes(c -> {
+								.then(literal("tornado_f0").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
 
 									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);

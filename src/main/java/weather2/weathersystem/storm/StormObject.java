@@ -2698,7 +2698,6 @@ public class StormObject extends WeatherObject {
 			}
 		}
 
-		//TODO: 1.14 rotEffRenderer
 		entityfx.spawnAsWeatherEffect();
 		//Minecraft.getInstance().particleEngine.add(entityfx);
 		particleBehaviorFog.particles.add(entityfx);
@@ -2707,10 +2706,14 @@ public class StormObject extends WeatherObject {
 
 	@Override
 	public void cleanup() {
-		super.cleanup();
 		if (tornadoHelper != null) {
+			//we must save the animals
+			if (this.levelCurIntensityStage >= STATE_FORMING) {
+				featherFallAllNearbyPlayers();
+			}
 			tornadoHelper.cleanup();
 		}
+		super.cleanup();
 		tornadoHelper = null;
 		if (tornadoFunnelSimple != null) {
 			tornadoFunnelSimple.cleanup();

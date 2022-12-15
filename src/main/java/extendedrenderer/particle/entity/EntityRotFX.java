@@ -163,6 +163,11 @@ public class EntityRotFX extends TextureSheetParticle
 
     public ParticleBehaviors pb = null; //designed to be a reference to the central objects particle behavior
 
+    //workaround for avoiding using vanilla bb which causes huge performance issues for large sizes
+    private boolean useCustomBBForRenderCulling = false;
+    private static final AABB INITIAL_AABB = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+    private AABB bbRender = INITIAL_AABB;
+
     public EntityRotFX(ClientLevel par1World, double par2, double par4, double par6, double par8, double par10, double par12)
     {
         super(par1World, par2, par4, par6, par8, par10, par12);
@@ -454,6 +459,7 @@ public class EntityRotFX extends TextureSheetParticle
     public void setScale(float parScale) {
         //dont set the AABB as big as the render scale, otherwise huge performance losses, we'll just use 0.3 in constructor for now
         //super.setSize(parScale, parScale);
+        this.setSizeForRenderCulling(parScale, parScale);
         quadSize = parScale;
     }
 
@@ -721,6 +727,9 @@ public class EntityRotFX extends TextureSheetParticle
 
         if (x != 0.0D || y != 0.0D || z != 0.0D) {
             this.setBoundingBox(this.getBoundingBox().move(x, y, z));
+            if (useCustomBBForRenderCulling) {
+                this.setBoundingBoxForRender(this.getBoundingBoxForRender(1F).move(x, y, z));
+            }
             /*Vec3 pivotedPosition = getPivotedPosition(0);
             if (pivotedPosition != Vec3.ZERO) {
                 this.setBoundingBox(this.getBoundingBox().move(x + pivotedPosition.x, y + pivotedPosition.y, z + pivotedPosition.z));
@@ -881,7 +890,35 @@ public class EntityRotFX extends TextureSheetParticle
         return Vec3.ZERO;
     }
 
+    public void setBoundingBoxForRender(AABB p_107260_) {
+        this.bbRender = p_107260_;
+    }
+
     public AABB getBoundingBoxForRender(float partialTicks) {
-        return this.getBoundingBox();
+        if (useCustomBBForRenderCulling) {
+            return bbRender;
+        } else {
+            return this.getBoundingBox();
+        }
+    }
+
+    public void setSizeForRenderCulling(float p_107251_, float p_107252_) {
+        if (p_107251_ != this.bbWidth || p_107252_ != this.bbHeight) {
+            this.bbWidth = p_107251_;
+            this.bbHeight = p_107252_;
+            AABB aabb = this.getBoundingBox();
+            double d0 = (aabb.minX + aabb.maxX - (double)p_107251_) / 2.0D;
+            double d1 = (aabb.minZ + aabb.maxZ - (double)p_107251_) / 2.0D;
+            this.setBoundingBoxForRender(new AABB(d0, aabb.minY, d1, d0 + (double)this.bbWidth, aabb.minY + (double)this.bbHeight, d1 + (double)this.bbWidth));
+        }
+
+    }
+
+    public boolean isUseCustomBBForRenderCulling() {
+        return useCustomBBForRenderCulling;
+    }
+
+    public void setUseCustomBBForRenderCulling(boolean useCustomBBForRenderCulling) {
+        this.useCustomBBForRenderCulling = useCustomBBForRenderCulling;
     }
 }

@@ -52,6 +52,7 @@ public class ParticleBehaviorFog extends ParticleBehaviors {
 		
 		//location based color shift
 		//particle.setColor((float) (0.4F + (Math.abs(particle.posX / 300D) * 0.6D)), 0.4F, (float) (0.4F + (Math.abs(particle.posZ / 300D) * 0.6D)));
+		particle.setUseCustomBBForRenderCulling(true);
 		particle.setScale(0.25F + 0.2F * rand.nextFloat());
 		particle.brightness = 1F;
 		particle.setAlphaF(0);

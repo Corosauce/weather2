@@ -11,7 +11,7 @@ import weather2.weathersystem.storm.StormObject;
  * Also when LT isnt in control of the weather, logic redirects to here for weather2s more special rules
  */
 public final class ClientWeatherHelper {
-	private static ClientWeatherHelper instance = new ClientWeatherHelper();
+	private static ClientWeatherHelper instance;
 
 	private float curPrecipStr = 0F;
 	private float curPrecipStrTarget = 0F;
@@ -23,11 +23,18 @@ public final class ClientWeatherHelper {
 	}
 
 	public static ClientWeatherHelper get() {
+		if (instance == null) {
+			instance = new ClientWeatherHelper();
+		}
 		return instance;
 	}
 
-	public static void reset() {
-		instance = new ClientWeatherHelper();
+	public void reset() {
+		instance.curPrecipStr = 0F;
+		instance.curPrecipStrTarget = 0F;
+
+		instance.curOvercastStr = 0F;
+		instance.curOvercastStrTarget = 0F;
 	}
 
 	public void tick() {
@@ -152,18 +159,23 @@ public final class ClientWeatherHelper {
 
 	public void controlVisuals(boolean precipitating) {
 		Minecraft mc = Minecraft.getInstance();
+		ClientTickHandler.getClientWeather();
+		ClientWeatherProxy weather = ClientWeatherProxy.get();
+		float rainAmount = weather.getVanillaRainAmount();
 		if (precipitating) {
-			mc.level.getLevelData().setRaining(true);
-			//TODO: will this do to replace setThundering?
-			mc.level.setThunderLevel(1F);
+			mc.level.getLevelData().setRaining(rainAmount > 0);
+			mc.level.setRainLevel(rainAmount);
+			mc.level.setThunderLevel(rainAmount);
 		} else {
 			if (!ClientTickHandler.clientConfigData.overcastMode) {
 				mc.level.getLevelData().setRaining(false);
-				mc.level.setThunderLevel(0F);
+				mc.level.setRainLevel(0);
+				mc.level.setThunderLevel(0);
 			} else {
 				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
 					mc.level.getLevelData().setRaining(true);
-					mc.level.setThunderLevel(1F);
+					mc.level.setRainLevel(rainAmount);
+					mc.level.setThunderLevel(rainAmount);
 				} else {
 
 				}

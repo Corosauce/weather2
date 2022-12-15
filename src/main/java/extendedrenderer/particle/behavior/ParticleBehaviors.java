@@ -329,7 +329,7 @@ public class ParticleBehaviors {
 		particle.setFacePlayer(false);
 		particle.setTicksFadeInMax(5);
 		particle.setAlphaF(0);
-		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMax(10);
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 	}

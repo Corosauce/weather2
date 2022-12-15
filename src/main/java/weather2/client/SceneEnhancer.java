@@ -5,16 +5,20 @@ import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
-import net.minecraft.world.level.block.GrassBlock;
-import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.client.Camera;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.material.FluidState;
 import weather2.datatypes.PrecipitationType;
 import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.*;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.FlameParticle;
@@ -204,10 +208,9 @@ public class SceneEnhancer implements Runnable {
 	public synchronized void trySoundPlaying()
     {
 		try {
+			Minecraft client = Minecraft.getInstance();
 			if (lastTickAmbient < System.currentTimeMillis()) {
 	    		lastTickAmbient = System.currentTimeMillis() + 500;
-
-	    		Minecraft client = Minecraft.getInstance();
 
 	        	Level worldRef = client.level;
 	        	Player player = client.player;
@@ -277,11 +280,70 @@ public class SceneEnhancer implements Runnable {
 	            	}
 	            }
 			}
+
+			float vanillaCutoff = 0.2F;
+			float precipStrength = Math.abs(ClientWeatherHelper.get().getPrecipitationStrength(client.player));
+			if (precipStrength <= vanillaCutoff) {
+				tickRain();
+			}
 		} catch (Exception ex) {
     		System.out.println("Weather2: Error handling sound play queue: ");
     		ex.printStackTrace();
     	}
     }
+
+	/**
+	 * Modified copy of LevelRenderer.tickRain
+	 * @param p_109694_
+	 */
+	private int rainSoundTime;
+	public void tickRain() {
+		Minecraft minecraft = Minecraft.getInstance();
+		Player player = Minecraft.getInstance().player;
+
+		float f = minecraft.level.getRainLevel(1.0F) / (Minecraft.useFancyGraphics() ? 1.0F : 2.0F);
+		if (!(f <= 0.0F)) {
+			Random random = new Random(player.getLevel().getGameTime() * 312987231L);
+			LevelReader levelreader = minecraft.level;
+			BlockPos blockpos = player.blockPosition();
+			BlockPos blockpos1 = null;
+			int i = (int)(100.0F * f * f) / (minecraft.options.particles == ParticleStatus.DECREASED ? 2 : 1);
+
+			for(int j = 0; j < i; ++j) {
+				int k = random.nextInt(21) - 10;
+				int l = random.nextInt(21) - 10;
+				BlockPos blockpos2 = levelreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos.offset(k, 0, l));
+				Biome biome = levelreader.m_204166_(blockpos2).m_203334_();
+				if (blockpos2.getY() > levelreader.getMinBuildHeight() && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockpos2)) {
+					blockpos1 = blockpos2.below();
+					if (minecraft.options.particles == ParticleStatus.MINIMAL) {
+						break;
+					}
+
+					double d0 = random.nextDouble();
+					double d1 = random.nextDouble();
+					BlockState blockstate = levelreader.getBlockState(blockpos1);
+					FluidState fluidstate = levelreader.getFluidState(blockpos1);
+					VoxelShape voxelshape = blockstate.getCollisionShape(levelreader, blockpos1);
+					double d2 = voxelshape.max(Direction.Axis.Y, d0, d1);
+					double d3 = (double)fluidstate.getHeight(levelreader, blockpos1);
+					double d4 = Math.max(d2, d3);
+					ParticleOptions particleoptions = !fluidstate.m_205070_(FluidTags.LAVA) && !blockstate.is(Blocks.MAGMA_BLOCK) && !CampfireBlock.isLitCampfire(blockstate) ? ParticleTypes.RAIN : ParticleTypes.SMOKE;
+					minecraft.level.addParticle(particleoptions, (double)blockpos1.getX() + d0, (double)blockpos1.getY() + d4, (double)blockpos1.getZ() + d1, 0.0D, 0.0D, 0.0D);
+				}
+			}
+
+			if (blockpos1 != null && random.nextInt(3) < this.rainSoundTime++) {
+				this.rainSoundTime = 0;
+				if (blockpos1.getY() > blockpos.getY() + 1 && levelreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos).getY() > Mth.floor((float)blockpos.getY())) {
+					minecraft.level.playLocalSound(blockpos1, SoundEvents.WEATHER_RAIN_ABOVE, SoundSource.WEATHER, 0.1F, 0.5F, false);
+				} else {
+					minecraft.level.playLocalSound(blockpos1, SoundEvents.WEATHER_RAIN, SoundSource.WEATHER, 0.2F, 1.0F, false);
+				}
+			}
+
+		}
+	}
 
 	//Threaded function
     @OnlyIn(Dist.CLIENT)
@@ -335,16 +397,10 @@ public class SceneEnhancer implements Runnable {
     }
 
 	public void reset() {
-		//reset particle data, discard dead ones as that was a bug from weather1
-
-		/*if (ExtendedRenderer.rotEffRenderer != null) {
-			ExtendedRenderer.rotEffRenderer.clear();
-        }*/
-
 		if (WeatherUtilParticle.fxLayers == null) {
 			WeatherUtilParticle.getFXLayers();
 		}
-		//WeatherUtilSound.getSoundSystem();
+
 	}
 
 	private static void tickHeatwave(ClientWeatherProxy weather) {
@@ -405,7 +461,7 @@ public class SceneEnhancer implements Runnable {
 
 	public void tickEnvironmentalParticleSpawning() {
 
-		FORCE_ON_DEBUG_TESTING = true;
+		FORCE_ON_DEBUG_TESTING = false;
 
 		Player entP = Minecraft.getInstance().player;
 		WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
@@ -422,7 +478,7 @@ public class SceneEnhancer implements Runnable {
 		if (FORCE_ON_DEBUG_TESTING) {
 			curPrecipVal = 1F;
 			curPrecipVal = (float)((entP.getLevel().getGameTime() / 10) % 100) / 100F;
-			curPrecipVal = 0F;
+			//curPrecipVal = 0F;
 		}
 
 		//workaround until i clean up logic that is flickering the state between heavy rain and null
@@ -431,17 +487,9 @@ public class SceneEnhancer implements Runnable {
 				curPrecipVal = 0;
 			}
 		}
-
-		//CULog.dbg("curPrecipVal: " + curPrecipVal);
-		ClientWeatherHelper.get().controlVisuals(curPrecipVal > 0);
 		float maxPrecip = 1F;
 
-		if (entP.getLevel().getGameTime() % 40 == 0) {
-			if (ConfigCoroUtil.useLoggingDebug) {
-				System.out.printf("curPrecipVal: %.2f", curPrecipVal);
-				System.out.println("");
-			}
-		}
+
 
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		lastBiomeIn = biome;
@@ -528,12 +576,16 @@ public class SceneEnhancer implements Runnable {
 			isSnowstorm = false;
 			isSandstorm = true;
 			particleStormIntensity = 1F;
-		}
 
-		if (entP.getLevel().getGameTime() % 40 == 0) {
-			CULog.dbg("spawnNeed: " + spawnNeedBase);
-			CULog.dbg("extraRenderCount: " + extraRenderCount);
-			CULog.dbg("particleStormIntensity: " + particleStormIntensity);
+			if (entP.getLevel().getGameTime() % 40 == 0) {
+				if (ConfigCoroUtil.useLoggingDebug) {
+					System.out.printf("curPrecipVal: %.2f", curPrecipVal);
+					System.out.println("");
+				}
+				CULog.dbg("spawnNeed: " + spawnNeedBase);
+				CULog.dbg("extraRenderCount: " + extraRenderCount);
+				CULog.dbg("particleStormIntensity: " + particleStormIntensity);
+			}
 		}
 
 		//check rules same way vanilla texture precip does
@@ -1319,14 +1371,8 @@ public class SceneEnhancer implements Runnable {
     public static void renderTick(TickEvent.RenderTickEvent event) {
 		Minecraft client = Minecraft.getInstance();
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
-		//commented out hasWeather here for LT2020 because it was false before the transition was fully done, resulting in a tiny bit of rain that never goes away unless heatwave is active
-		//quick fix instead of redesigning code, hopefully doesnt have side effects, this just constantly sets the rain amounts anyways
-		if (client.level != null/* && weather.hasWeather()*/) {
-			ClientTickHandler.getClientWeather();
-			client.level.setRainLevel(weather.getVanillaRainAmount());
-			if (FORCE_ON_DEBUG_TESTING) {
-				//client.world.setRainStrength(1);
-			}
+		if (client.level != null) {
+			ClientWeatherHelper.get().controlVisuals(weather.getVanillaRainAmount() > 0);
 		}
 	}
 

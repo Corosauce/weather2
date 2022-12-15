@@ -8,6 +8,8 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -82,6 +84,12 @@ public class WeatherManagerServer extends WeatherManager {
 			if (world.getGameTime() % 60 == 0) {
 				syncWindUpdate(windMan);
 			}
+
+			/*for (Entity ent : world.getEntities().getAll()) {
+				if (ent instanceof LivingEntity) {
+					((LivingEntity) ent).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 600, 0, false, false, true));
+				}
+			}*/
 
 			//sim box work
 			int rate = 20;
@@ -476,7 +484,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 	public void trySpawnStormCloudNearPlayerForLayer(Player entP, int layer) {
 
-		if (true) return;
+		//if (true) return;
 
 		Random rand = new Random();
 

@@ -996,7 +996,7 @@ public class TornadoHelper {
 									if (WeatherUtilEntity.isEntityOutside(entity1)) {
 										//Weather.dbg("entity1.motionY: " + entity1.motionY);
 										if (featherFallInstead) {
-											((Player) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
+											((Player) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 600, 0, false, true, true));
 										} else {
 											storm.spinEntityv2(entity1);
 										}
@@ -1006,7 +1006,7 @@ public class TornadoHelper {
 									//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
 									//if (!entity1.world.isClientSide()) {
 									if (featherFallInstead) {
-										((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, true, true));
+										((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 600, 0, false, true, true));
 									} else {
 										storm.spinEntityv2(entity1);
 									}
@@ -1138,6 +1138,8 @@ public class TornadoHelper {
         //soundTarget = this;
         if (WeatherUtilSound.soundTimer[arrIndex] <= System.currentTimeMillis())
         {
+
+			//CULog.dbg("sound: " + sound[0] + " vol: " + vol + " parCutOffRange: " + parCutOffRange);
             //world.playSoundAtEntity(soundTarget, new StringBuilder().append("tornado."+sound).toString(), 1.0F, 1.0F);
             //((IWorldAccess)this.worldAccesses.get(var5)).playSound(var2, var1.posX, var1.posY - (double)var1.yOffset, var1.posZ, var3, var4);
         	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append("streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);

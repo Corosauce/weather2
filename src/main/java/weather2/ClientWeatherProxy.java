@@ -13,7 +13,7 @@ import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 import javax.annotation.Nullable;
 
 public final class ClientWeatherProxy {
-	private static ClientWeatherProxy instance = new ClientWeatherProxy();
+	private static ClientWeatherProxy instance;
 
 	private static boolean cacheIsSnowstorm = false;
 	private static boolean cacheIsSandstorm = false;
@@ -24,11 +24,16 @@ public final class ClientWeatherProxy {
 	}
 
 	public static ClientWeatherProxy get() {
+		if (instance == null) {
+			instance = new ClientWeatherProxy();
+		}
 		return instance;
 	}
 
-	public static void reset() {
-		instance = new ClientWeatherProxy();
+	public void reset() {
+		cacheIsSnowstorm = false;
+		cacheIsSandstorm = false;
+		cacheIsHail = false;
 	}
 
 	public float getRainAmount() {
@@ -40,7 +45,11 @@ public final class ClientWeatherProxy {
 	}
 
 	public float getVanillaRainAmount() {
-		return ClientWeatherIntegration.get().getVanillaRainAmount();
+		if (Weather.isLoveTropicsInstalled()) {
+			return ClientWeatherIntegration.get().getVanillaRainAmount();
+		} else {
+			return ClientWeatherHelper.get().getPrecipitationStrength(Minecraft.getInstance().player);
+		}
 	}
 
 	@Nullable

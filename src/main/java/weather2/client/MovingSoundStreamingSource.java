@@ -1,5 +1,6 @@
 package weather2.client;
 
+import com.corosus.coroutil.util.CULog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.world.entity.player.Player;
@@ -72,20 +73,19 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 
 		//if locked to player, don't dynamically adjust volume
 		if (!lockToPlayer) {
-			float var3 = (float)((cutOffRange - (double)Mth.sqrt((float) getDistanceFrom(realSource, entP.position()))) / cutOffRange);
-
-			if (var3 < 0.0F)
-			{
-				var3 = 0.0F;
+			double dist = getDistanceFrom(realSource, entP.position());
+			if (dist > cutOffRange) {
+				volume = 0;
+			} else {
+				volume = (float) (1F - (dist / cutOffRange));
 			}
-
-			volume = var3;
+			//CULog.dbg("sound: " + this.location + " vol: " + volume + " cutOffRange: " + cutOffRange + " dist: " + dist);
 		}
 
 	}
 
 	public double getDistanceFrom(Vec3 source, Vec3 targ)
 	{
-		return source.subtract(targ).length();
+		return source.distanceTo(targ);
 	}
 }
