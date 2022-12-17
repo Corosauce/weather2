@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexFX;
+import weather2.IWindHandler;
 
 public class WeatherUtilParticle {
     //public static ArrayDeque<Particle>[][] fxLayers;
@@ -83,6 +84,10 @@ public class WeatherUtilParticle {
         {
             return 1.1F;
         }*/
+
+        if (entity1 instanceof IWindHandler) {
+            return ((IWindHandler) entity1).getWindWeight();
+        }
 
         if (entity1 instanceof ParticleTexFX)
         {

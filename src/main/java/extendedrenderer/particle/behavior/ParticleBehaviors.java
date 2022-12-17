@@ -211,7 +211,7 @@ public class ParticleBehaviors {
 		}
 		particle.fastLight = true;
 		particle.setSlantParticleToWind(true);
-		particle.windWeight = 1F;
+		particle.windWeight = 5F;
 		particle.setFacePlayer(false);
 		particle.setScale(2F * 0.15F);
 		particle.isTransparent = true;
@@ -224,7 +224,7 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
 		particle.setMotionY(-0.5D);
-		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
+		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
@@ -250,7 +250,7 @@ public class ParticleBehaviors {
 		particle.setScale(0.2F + (rand.nextFloat() * 0.05F));
 		particle.setLifetime(15);
 		particle.setGravity(-0.0F);
-		particle.setTicksFadeInMax(0);
+		particle.setTicksFadeInMax(3);
 		particle.setFullAlphaTarget(0.6F);
 		particle.setAlpha(0);
 		particle.setTicksFadeOutMax(4);
@@ -260,7 +260,7 @@ public class ParticleBehaviors {
 		particle.setMotionY(0D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
-		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
+		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
 		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
@@ -324,12 +324,12 @@ public class ParticleBehaviors {
 		particle.setMotionY(-0.1D);
 		particle.setScale(1.3F * 0.15F);
 		particle.setGravity(0.1F);
-		particle.windWeight = 0.2F;
-		particle.setMaxAge(60);
+		particle.windWeight = 5F;
+		particle.setMaxAge(120);
 		particle.setFacePlayer(false);
 		particle.setTicksFadeInMax(5);
 		particle.setAlphaF(0);
-		particle.setTicksFadeOutMax(10);
+		particle.setTicksFadeOutMax(20);
 		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 	}
@@ -349,6 +349,7 @@ public class ParticleBehaviors {
 		particle.spinFastRate = 10F;
 		particle.setFacePlayer(false);
 		particle.setScale(0.7F * 0.15F);
+		particle.setScale(2F * 0.15F);
 		particle.isTransparent = true;
 		particle.setGravity(3.5F);
 		particle.setLifetime(70);
@@ -363,6 +364,41 @@ public class ParticleBehaviors {
 		particle.rCol = 0.9F;
 		particle.gCol = 0.9F;
 		particle.bCol = 0.9F;
+		particle.bounceOnVerticalImpact = true;
+		particle.bounceOnVerticalImpactEnergy = 0.2F;
+	}
+
+	public void initParticleCube(EntityRotFX particle) {
+		particle.setKillWhenUnderTopmostBlock(false);
+		particle.setCanCollide(true);
+		particle.setKillOnCollide(true);
+		particle.setKillOnCollideActivateAtAge(30);
+		particle.killWhenUnderCameraAtLeast = 0;
+		particle.setDontRenderUnderTopmostBlock(true);
+		particle.rotationYaw = rand.nextInt(360);
+		particle.rotationPitch = rand.nextInt(360);
+		particle.fastLight = true;
+		particle.windWeight = 5F;
+		particle.spinFast = true;
+		particle.spinFastRate = 1F;
+		particle.setFacePlayer(false);
+		particle.setScale(3F * 0.15F);
+		particle.isTransparent = false;
+		particle.setGravity(4F);
+		particle.setLifetime(20*20);
+		particle.setTicksFadeInMax(5);
+		particle.setTicksFadeOutMax(5);
+		particle.setTicksFadeOutMaxOnDeath(20);
+		particle.setFullAlphaTarget(1F);
+		particle.setAlpha(0);
+		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		//particle.setMotionY(-0.5D);
+		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
+		/*float tempBrightness = 0.5F;
+		particle.rCol = 0.5F * tempBrightness;
+		particle.gCol = 0.9F * tempBrightness;
+		particle.bCol = 0.5F * tempBrightness;*/
+		particle.setVanillaMotionDampen(true);
 		particle.bounceOnVerticalImpact = true;
 		particle.bounceOnVerticalImpactEnergy = 0.2F;
 	}

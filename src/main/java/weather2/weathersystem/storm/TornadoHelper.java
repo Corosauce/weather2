@@ -44,6 +44,7 @@ import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WeatherUtilSound;
+import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.tornado.simple.Layer;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
@@ -191,6 +192,7 @@ public class TornadoHelper {
 							mBlock.motionZ += (rand.nextDouble() - rand.nextDouble()) * speed;
 							mBlock.motionY = 1D;
 							parWorld.addEntity(mBlock);*/
+							//((WeatherManagerServer)this.storm.manager).syncBlockParticleNew(snapshot.getPos(), snapshot.getStatePrev(), storm);
 						}
 					}
 				}
@@ -829,6 +831,9 @@ public class TornadoHelper {
 						removeCount++;
 						boolean shouldEntityify = blockCount <= ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks;
 						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.AIR.defaultBlockState(), state, pos, playerClose && shouldEntityify));
+						if (playerClose && shouldEntityify) {
+							((WeatherManagerServer) this.storm.manager).syncBlockParticleNew(pos, state, storm);
+						}
 					}
                 }
 				if (blockID == Blocks.GLASS)

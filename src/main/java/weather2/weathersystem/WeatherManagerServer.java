@@ -4,6 +4,7 @@ import com.corosus.coroutil.util.CoroUtilEntity;
 import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
@@ -575,14 +577,27 @@ public class WeatherManagerServer extends WeatherManager {
 		data.putString("packetCommand", "WeatherData");
 		data.putString("command", "syncLightningNew");
 		CompoundTag nbt = new CompoundTag();
-		nbt.putInt("posX", Mth.floor(parEnt.getX()/* * 32.0D*/));
-		nbt.putInt("posY", Mth.floor(parEnt.getY()/* * 32.0D*/));
-		nbt.putInt("posZ", Mth.floor(parEnt.getZ()/* * 32.0D*/));
+		nbt.putInt("posX", Mth.floor(parEnt.getX()));
+		nbt.putInt("posY", Mth.floor(parEnt.getY()));
+		nbt.putInt("posZ", Mth.floor(parEnt.getZ()));
 		nbt.putInt("entityID", parEnt.getId());
 		nbt.putBoolean("custom", custom);
 		data.put("data", nbt);
-		/*Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
-		FMLInterModComms.sendRuntimeMessage(Weather.instance, Weather.MODID, "weather.lightning", data);*/
+
+		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
+	}
+
+	public void syncBlockParticleNew(BlockPos pos, BlockState state, WeatherObject owner) {
+		CompoundTag data = new CompoundTag();
+		data.putString("packetCommand", "WeatherData");
+		data.putString("command", "syncBlockParticleNew");
+		CompoundTag nbt = new CompoundTag();
+		nbt.putInt("posX", pos.getX());
+		nbt.putInt("posY", pos.getY());
+		nbt.putInt("posZ", pos.getZ());
+		nbt.put("blockstate", NbtUtils.writeBlockState(state));
+		nbt.putLong("ownerID", owner.ID);
+		data.put("data", nbt);
 
 		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 	}
@@ -603,14 +618,10 @@ public class WeatherManagerServer extends WeatherManager {
 		data.put("data", cache.getNewNBT());
 
 		if (entP == null) {
-			//Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getMinecartType().getId());
 			WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 		} else {
-			//Weather.eventChannel.sendTo(PacketHelper.getNBTPacket(data, Weather.eventChannelName), entP);
-			//WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().getDimension().getType()), new PacketNBTFromServer(data));
 			WeatherNetworking.HANDLER.sendTo(new PacketNBTFromServer(data), entP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
 		}
-		//PacketDispatcher.sendPacketToAllAround(parStorm.pos.xCoord, parStorm.pos.yCoord, parStorm.pos.zCoord, syncRange, getWorld().provider.dimensionId, WeatherPacketHelper.createPacketForServerToClientSerialization("WeatherData", data));
 	}
 
 	public void syncStormUpdate(WeatherObject parStorm) {
@@ -640,7 +651,6 @@ public class WeatherManagerServer extends WeatherManager {
 			}
 			System.out.println("sending    " + keys);
 		}
-		//Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 	}
 
@@ -652,7 +662,6 @@ public class WeatherManagerServer extends WeatherManager {
 		data.putBoolean("isVanillaRainActiveOnServer", isVanillaRainActiveOnServer);
 		data.putBoolean("isVanillaThunderActiveOnServer", isVanillaThunderActiveOnServer);
 		data.putInt("vanillaRainTimeOnServer", vanillaRainTimeOnServer);
-		//Weather.eventChannel.sendToDimension(PacketHelper.getNBTPacket(data, Weather.eventChannelName), getWorld().getDimension().getType().getId());
 		WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 	}
 

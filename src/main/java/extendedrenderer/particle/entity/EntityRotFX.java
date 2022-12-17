@@ -1,13 +1,14 @@
 package extendedrenderer.particle.entity;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.Camera;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
+import weather2.IWindHandler;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
 
@@ -30,9 +32,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @OnlyIn(Dist.CLIENT)
-public class EntityRotFX extends TextureSheetParticle
+public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 {
-    protected static final ParticleRenderType SORTED_TRANSLUCENT = new ParticleRenderType() {
+    public static final ParticleRenderType SORTED_TRANSLUCENT = new ParticleRenderType() {
 
         @Override
         public void begin(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
@@ -48,6 +50,28 @@ public class EntityRotFX extends TextureSheetParticle
         @Override
         public String toString() {
             return "PARTICLE_SHEET_SORTED_TRANSLUCENT";
+        }
+    };
+    public static final ParticleRenderType SORTED_OPAQUE_BLOCK = new ParticleRenderType() {
+
+        @Override
+        public void begin(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
+            RenderSystem.disableBlend();
+            RenderSystem.depthMask(true);
+            RenderSystem.setShader(GameRenderer::getParticleShader);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+            p_217600_1_.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+        }
+
+        @Override
+        public void end(Tesselator p_217599_1_) {
+            p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
+            ParticleRenderType.PARTICLE_SHEET_OPAQUE.end(p_217599_1_);
+        }
+
+        @Override
+        public String toString() {
+            return "PARTICLE_BLOCK_SHEET_SORTED_OPAQUE";
         }
     };
     public boolean weatherEffect = false;
@@ -81,6 +105,7 @@ public class EntityRotFX extends TextureSheetParticle
     public boolean isTransparent = true;
 
     public boolean killOnCollide = false;
+    public int killOnCollideActivateAtAge = 0;
 
     public boolean facePlayer = false;
 
@@ -272,7 +297,7 @@ public class EntityRotFX extends TextureSheetParticle
         }
 
         if (!this.removed && !fadingOut) {
-            if (killOnCollide) {
+            if (killOnCollide && (killOnCollideActivateAtAge == 0 || age >= killOnCollideActivateAtAge)) {
                 if (this.isCollided()) {
                     startDeath();
                 }
@@ -836,8 +861,6 @@ public class EntityRotFX extends TextureSheetParticle
 
     @Override
     public ParticleRenderType getRenderType() {
-        //TODO: replaces getFXLayer of 5, possibly reimplement extra layers later for clouds etc
-        //actually anything > 2 was custom texture sheet, then it just uses higher numbers for diff render orders, higher = later
         return SORTED_TRANSLUCENT;
     }
 
@@ -920,5 +943,23 @@ public class EntityRotFX extends TextureSheetParticle
 
     public void setUseCustomBBForRenderCulling(boolean useCustomBBForRenderCulling) {
         this.useCustomBBForRenderCulling = useCustomBBForRenderCulling;
+    }
+
+    @Override
+    public float getWindWeight() {
+        return windWeight;
+    }
+
+    @Override
+    public int getParticleDecayExtra() {
+        return 0;
+    }
+
+    public int getKillOnCollideActivateAtAge() {
+        return killOnCollideActivateAtAge;
+    }
+
+    public void setKillOnCollideActivateAtAge(int killOnCollideActivateAtAge) {
+        this.killOnCollideActivateAtAge = killOnCollideActivateAtAge;
     }
 }

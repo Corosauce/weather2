@@ -73,6 +73,8 @@ public class StormObject extends WeatherObject {
 	@OnlyIn(Dist.CLIENT)
 	public List<EntityRotFX> listParticlesFunnel;
 	@OnlyIn(Dist.CLIENT)
+	public List<EntityRotFX> listParticlesDebris;
+	@OnlyIn(Dist.CLIENT)
 	public ParticleBehaviorFog particleBehaviorFog;
 	
 	public int sizeMaxFunnelParticles = 600;
@@ -223,6 +225,7 @@ public class StormObject extends WeatherObject {
 		if (parManager.getWorld().isClientSide()) {
 			listParticlesCloud = new ArrayList<>();
 			listParticlesFunnel = new ArrayList<>();
+			listParticlesDebris = new ArrayList<>();
 			listParticlesGround = new ArrayList<>();
 			lookupParticlesCloud = new HashMap<>();
 			lookupParticlesCloudLower = new HashMap<>();
@@ -1940,6 +1943,45 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		}
+
+		if (isTornadoFormingOrGreater() || (attrib_waterSpout)) {
+			if (manager.getWorld().getGameTime() % 5 == 0) {
+				//CULog.dbg("listParticlesDebris.size(): " + listParticlesDebris.size());
+			}
+
+			for (int i = 0; i < listParticlesDebris.size(); i++) {
+				EntityRotFX ent = listParticlesDebris.get(i);
+				if (!ent.isAlive()/* && false*/) {
+					//CULog.dbg("removed: " + ent);
+					listParticlesDebris.remove(ent);
+				} else {
+
+					/*this.xxa *= 0.98F;
+					this.zza *= 0.98F;*/
+
+					double speedXZ = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
+					if (speedXZ < 30) {
+						Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.91F);
+						//Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.85F);
+						float damp = 1F;
+						motion = motion.multiply(damp, 1F, damp);
+						//System.out.println("motion: " + motion);
+						ent.setMotionX(motion.x);
+						ent.setMotionY(motion.y);
+						ent.setMotionZ(motion.z);
+
+						//trying to match entity drag and gravity
+						/*ent.setMotionX(ent.getMotionX() * 0.91);
+						ent.setMotionY(ent.getMotionY() - 0.08);
+						ent.setMotionZ(ent.getMotionZ() * 0.91);*/
+
+						//ent.setMotionX(ent.getMotionX() * 0.91);
+						//ent.setMotionY(ent.getMotionY() - 0.08);
+						//ent.setMotionZ(ent.getMotionZ() * 0.91);
+					}
+				}
+			}
+		}
 		
 		for (int i = 0; i < listParticlesCloud.size(); i++) {
 			EntityRotFX ent = listParticlesCloud.get(i);
@@ -2272,7 +2314,8 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		} else {
-			Vec3 posCenter = getPosTop();
+			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, 1F));
+			/*Vec3 posCenter = getPosTop();
 			for (Layer layer : tornadoFunnelSimple.listLayers) {
 				if (entity.position().y - 1.5F < layer.getPos().y) {
 					posCenter = layer.getPos();
@@ -2344,9 +2387,10 @@ public class StormObject extends WeatherObject {
 				yy = 0;
 			}
 
-			entity.setDeltaMovement(entity.getDeltaMovement().x + xx, entity.getDeltaMovement().y + yy, entity.getDeltaMovement().z + zz);
+			entity.setDeltaMovement(entity.getDeltaMovement().x + xx, entity.getDeltaMovement().y + yy, entity.getDeltaMovement().z + zz);*/
 
 			entity.fallDistance = 0;
+			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
 
 			if (entHeightFromBase > 90) {
 				if (Weather.isLoveTropicsInstalled()) {
@@ -2363,6 +2407,85 @@ public class StormObject extends WeatherObject {
 		}
 
 
+	}
+
+	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ) {
+		Vec3 posCenter = getPosTop();
+		for (Layer layer : tornadoFunnelSimple.listLayers) {
+			if (position.y - 1.5F < layer.getPos().y) {
+				posCenter = layer.getPos();
+				break;
+			}
+		}
+
+		double vecx = posCenter.x - position.x;
+		double vecz = posCenter.z - position.z;
+
+		Vec3 vecXZ = new Vec3(posCenter.x, position.y, posCenter.z);
+
+		double distXZMax = tornadoFunnelSimple.getConfig().getEntityPullDistXZ();
+		double distXZMaxForYGrab = tornadoFunnelSimple.getConfig().getEntityPullDistXZForY();
+		double distXZ = Math.min(position.distanceTo(vecXZ), distXZMax);
+		double distXZForYGrab = Math.min(position.distanceTo(vecXZ), distXZMaxForYGrab);
+
+		double grabAmp = (float)(levelCurIntensityStage - STATE_FORMING) / (float)(STATE_STAGE5 - STATE_FORMING);
+
+		float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
+
+		//more is tighter
+		angle += 20;
+		if (pet) angle += 50;
+
+		//TODO: test for particle cubes
+		angle += 20;
+
+		double entHeightFromBase = Math.max(0.1F, position.y - posBaseFormationPos.y);
+		double heightMathMax = 50 * 2.5;
+		heightMathMax = 50 * 3.5;
+		//amp from new size here?
+		if (baby) heightMathMax = 15;
+		if (pet) heightMathMax = 4;
+		//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
+		double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
+		//CULog.dbg("heightAmp: " + heightAmp);
+
+		if (!pet) {
+			angle += (40 * heightAmp);
+		}
+
+		//wider grab as tornado gets bigger
+		angle -= 40 * grabAmp;
+
+		angle = (float) Math.toRadians(angle);
+		double pullStrength = 0.2;
+		double pullStrengthY = 0.2;
+		pullStrengthY += 0.2 * grabAmp;
+		double pullYAmp = 1D;
+		//as tornado shrinks to and from forming, adjust its pull power
+		if (levelCurIntensityStage == STATE_FORMING) {
+			pullYAmp = levelCurStagesIntensity;
+		}
+		pullStrengthY *= pullYAmp;
+		pullStrength *= pullYAmp;
+		if (pet) pullStrength = 0.05;
+		if (pet) pullStrengthY = 0.05;
+		if (sharknado && forPlayer) pullStrength = 0.05;
+		if (sharknado && forPlayer) pullStrengthY = 0.1;
+		double pullY = pullStrengthY * (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
+		double pullXZ = pullStrength * (distXZMax - distXZ) / distXZMax;
+		double xx = -Math.sin(angle) * pullXZ;
+		double zz = Math.cos(angle) * pullXZ;
+		double yy = pullY;
+
+		if (!baby && motion.y > 0.5F) {
+			yy = 0;
+		}
+
+		if (pet && motion.y > 0.15F) {
+			yy = 0;
+		}
+
+		return new Vec3(motion.x + (xx * dampenXZ), motion.y + yy, motion.z + (zz * dampenXZ));
 	}
 	
 	public void spinEntity(Object entity1) {
@@ -2745,12 +2868,6 @@ public class StormObject extends WeatherObject {
 	}
 	
 	public void addWeatherEffectLightning(LightningBoltWeatherNew parEnt, boolean custom) {
-		//manager.getWorld().addWeatherEffect(parEnt);
-		/**
-		 * TODO: 1.14 fix lightning
-		 * manager.getWorld().weatherEffects.add(parEnt);
-		 * 		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
-		 */
 		manager.getWorld().addFreshEntity(parEnt);
 		((WeatherManagerServer)manager).syncLightningNew(parEnt, custom);
 	}

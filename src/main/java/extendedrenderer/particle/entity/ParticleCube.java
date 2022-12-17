@@ -3,26 +3,57 @@ package extendedrenderer.particle.entity;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class ParticleCube extends ParticleTexFX {
 
 	public ParticleCube(Level worldIn, double posXIn, double posYIn,
                         double posZIn, double mX, double mY, double mZ,
-                        TextureAtlasSprite par8Item) {
-		super((ClientLevel) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
+                        BlockState state) {
+		super((ClientLevel) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, ParticleRegistry.potato);
+
+		/**
+		 * really basic way to get a sprite from a blockstate, could easily get the wrong one if multiple quads are used per direction
+		 * should do fine for most blocks that have the same texture on every side
+		 */
+		BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
+		BakedModel model = blockrenderdispatcher.getBlockModel(state);
+		for(Direction direction : Direction.values()) {
+			List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
+			if (list.size() > 0) {
+				setSprite(list.get(0).getSprite());
+				break;
+			}
+		}
+		int multiplier = Minecraft.getInstance().getBlockColors().getColor(state, this.level, new BlockPos(posXIn, posYIn, posZIn), 0);
+		float mr = ((multiplier >>> 16) & 0xFF) / 255f;
+		float mg = ((multiplier >>> 8) & 0xFF) / 255f;
+		float mb = (multiplier & 0xFF) / 255f;
+		setColor(mr, mg, mb);
 	}
 
 	@Override
 	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
-
-		//TODO: still just a copy of cross section
-
+		//if (true) return;
 		Vec3 Vector3d = renderInfo.getPosition();
 		float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) - Vector3d.x());
 		float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) - Vector3d.y());
@@ -41,71 +72,98 @@ public class ParticleCube extends ParticleTexFX {
 			quaternion.mul(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
 		}
 
-		Vector3f[] avector3f = new Vector3f[]{
-				new Vector3f(-1.0F, -1.0F, 0.0F),
-				new Vector3f(-1.0F, 1.0F, 0.0F),
-				new Vector3f(1.0F, 1.0F, 0.0F),
-				new Vector3f(1.0F, -1.0F, 0.0F)};
+		TextureAtlasSprite sprite = null;
 
-		Vector3f[] avector3f2 = new Vector3f[]{
-				new Vector3f(0.0F, -1.0F, -1.0F),
-				new Vector3f(0.0F, 1.0F, -1.0F),
-				new Vector3f(0.0F, 1.0F, 1.0F),
-				new Vector3f(0.0F, -1.0F, 1.0F)};
+		List<Vector3f[]> faces = new ArrayList<>();
 
-		Vector3f[] avector3f3 = new Vector3f[]{
-				new Vector3f(-1.0F, 0.0F, -1.0F),
-				new Vector3f(-1.0F, 0.0F, 1.0F),
-				new Vector3f(1.0F, 0.0F, 1.0F),
-				new Vector3f(1.0F, 0.0F, -1.0F)};
+		Vector3f[] face;
+
+		//xy -z
+		face = new Vector3f[]{
+				new Vector3f(-1.0F, -1.0F, -1.0F),
+				new Vector3f(-1.0F, 1.0F, -1.0F),
+				new Vector3f(1.0F, 1.0F, -1.0F),
+				new Vector3f(1.0F, -1.0F, -1.0F)};
+		faces.add(face);
+
+		//xy +z
+		face = new Vector3f[]{
+				new Vector3f(-1.0F, -1.0F, 1.0F),
+				new Vector3f(-1.0F, 1.0F, 1.0F),
+				new Vector3f(1.0F, 1.0F, 1.0F),
+				new Vector3f(1.0F, -1.0F, 1.0F)};
+		faces.add(face);
+
+		//yz -x
+		face = new Vector3f[]{
+				new Vector3f(-1.0F, -1.0F, -1.0F),
+				new Vector3f(-1.0F, 1.0F, -1.0F),
+				new Vector3f(-1.0F, 1.0F, 1.0F),
+				new Vector3f(-1.0F, -1.0F, 1.0F)};
+		faces.add(face);
+
+		//yz +x
+		face = new Vector3f[]{
+				new Vector3f(1.0F, -1.0F, -1.0F),
+				new Vector3f(1.0F, 1.0F, -1.0F),
+				new Vector3f(1.0F, 1.0F, 1.0F),
+				new Vector3f(1.0F, -1.0F, 1.0F)};
+		faces.add(face);
+
+		//xz -y
+		face = new Vector3f[]{
+				new Vector3f(-1.0F, -1.0F, -1.0F),
+				new Vector3f(-1.0F, -1.0F, 1.0F),
+				new Vector3f(1.0F, -1.0F, 1.0F),
+				new Vector3f(1.0F, -1.0F, -1.0F)};
+		faces.add(face);
+
+		//xz +y
+		face = new Vector3f[]{
+				new Vector3f(-1.0F, 1.0F, -1.0F),
+				new Vector3f(-1.0F, 1.0F, 1.0F),
+				new Vector3f(1.0F, 1.0F, 1.0F),
+				new Vector3f(1.0F, 1.0F, -1.0F)};
+		faces.add(face);
 
 		float f4 = this.getQuadSize(partialTicks);
 
-		for(int i = 0; i < 4; ++i) {
-			Vector3f vector3f = avector3f[i];
-			vector3f.transform(quaternion);
-			vector3f.mul(f4);
-			vector3f.add(f, f1, f2);
-		}
-
-		for(int i = 0; i < 4; ++i) {
-			Vector3f vector3f = avector3f2[i];
-			vector3f.transform(quaternion);
-			vector3f.mul(f4);
-			vector3f.add(f, f1, f2);
-		}
-
-		for(int i = 0; i < 4; ++i) {
-			Vector3f vector3f = avector3f3[i];
-			vector3f.transform(quaternion);
-			vector3f.mul(f4);
-			vector3f.add(f, f1, f2);
+		for (Vector3f[] entryFace : faces) {
+			for(int i = 0; i < 4; ++i) {
+				entryFace[i].transform(quaternion);
+				entryFace[i].mul(f4);
+				entryFace[i].add(f, f1, f2);
+			}
 		}
 
 		float f7 = this.getU0();
 		float f8 = this.getU1();
 		float f5 = this.getV0();
 		float f6 = this.getV1();
+		if (sprite != null) {
+			f7 = sprite.getU0();
+			f8 = sprite.getU1();
+			f5 = sprite.getV0();
+			f6 = sprite.getV1();
+		}
 		int j = this.getLightColor(partialTicks);
 		if (j > 0) {
 			lastNonZeroBrightness = j;
 		} else {
 			j = lastNonZeroBrightness;
 		}
-		buffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		for (Vector3f[] entryFace : faces) {
+			buffer.vertex(entryFace[0].x(), entryFace[0].y(), entryFace[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+			buffer.vertex(entryFace[1].x(), entryFace[1].y(), entryFace[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+			buffer.vertex(entryFace[2].x(), entryFace[2].y(), entryFace[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+			buffer.vertex(entryFace[3].x(), entryFace[3].y(), entryFace[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+		}
 
-		buffer.vertex(avector3f2[0].x(), avector3f2[0].y(), avector3f2[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f2[1].x(), avector3f2[1].y(), avector3f2[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f2[2].x(), avector3f2[2].y(), avector3f2[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f2[3].x(), avector3f2[3].y(), avector3f2[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+	}
 
-		buffer.vertex(avector3f3[0].x(), avector3f3[0].y(), avector3f3[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f3[1].x(), avector3f3[1].y(), avector3f3[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f3[2].x(), avector3f3[2].y(), avector3f3[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-		buffer.vertex(avector3f3[3].x(), avector3f3[3].y(), avector3f3[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-
+	@Override
+	public ParticleRenderType getRenderType() {
+		return SORTED_OPAQUE_BLOCK;
+		//return super.getRenderType();
 	}
 }

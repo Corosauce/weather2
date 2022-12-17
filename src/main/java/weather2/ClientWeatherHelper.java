@@ -185,7 +185,7 @@ public final class ClientWeatherHelper {
 
 	public void tickRainRates() {
 
-		float rateChange = 0.0005F;
+		float rateChange = 0.0015F;
 
 		if (curOvercastStr > curOvercastStrTarget) {
 			curOvercastStr -= rateChange;

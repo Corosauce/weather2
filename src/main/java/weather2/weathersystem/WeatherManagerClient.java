@@ -1,18 +1,26 @@
 package weather2.weathersystem;
 
+import com.corosus.coroutil.util.CULog;
+import extendedrenderer.particle.ParticleRegistry;
+import extendedrenderer.particle.entity.ParticleCube;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ICloudRenderHandler;
+import net.minecraftforge.client.IWeatherParticleRenderHandler;
 import weather2.ClientTickHandler;
 import weather2.Weather;
+import weather2.client.SceneEnhancer;
 import weather2.client.shaderstest.Cloud;
 import weather2.client.shaderstest.CloudManager;
 import weather2.weathersystem.sky.CloudRenderHandler;
+import weather2.weathersystem.sky.WeatherParticleRenderHandler;
 import weather2.weathersystem.storm.*;
 
 @OnlyIn(Dist.CLIENT)
@@ -31,6 +39,10 @@ public class WeatherManagerClient extends WeatherManager {
 			ICloudRenderHandler cloudRenderHandler = ((ClientLevel) getWorld()).effects().getCloudRenderHandler();
 			if (cloudRenderHandler == null) {
 				((ClientLevel) getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
+			}
+			IWeatherParticleRenderHandler handler = ((ClientLevel) getWorld()).effects().getWeatherParticleRenderHandler();
+			if (handler == null) {
+				((ClientLevel) getWorld()).effects().setWeatherParticleRenderHandler(new WeatherParticleRenderHandler());
 			}
 
 			cloudManager.tick();
@@ -126,6 +138,34 @@ public class WeatherManagerClient extends WeatherManager {
 			vanillaRainTimeOnServer = parNBT.getInt("vanillaRainTimeOnServer");*/
 
 			//windMan.nbtSyncFromServer(nbt);
+		} else if (command.equals("syncBlockParticleNew")) {
+			//Weather.dbg("updating client side wind");
+
+			CompoundTag nbt = parNBT.getCompound("data");
+
+			int posX = nbt.getInt("posX");
+			int posY = nbt.getInt("posY") + 10;
+			int posZ = nbt.getInt("posZ");
+
+			BlockState state = NbtUtils.readBlockState(nbt.getCompound("blockstate"));
+
+			long ownerID = nbt.getLong("ownerID");
+
+			//CULog.dbg("add cube at " + posX + " " + posY + " " + posZ);
+
+			StormObject storm = getStormObjectByID(ownerID);
+			if (storm != null) {
+
+				ParticleCube hail = new ParticleCube(getWorld(),
+						posX,
+						posY,
+						posZ,
+						0D, 0D, 0D, state);
+				SceneEnhancer.particleBehavior.initParticleCube(hail);
+				storm.listParticlesDebris.add(hail);
+
+				hail.spawnAsWeatherEffect();
+			}
 		}
 	}
 }

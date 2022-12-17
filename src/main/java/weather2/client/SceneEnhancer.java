@@ -5,7 +5,6 @@ import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.ChunkCoordinatesBlock;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
-import net.minecraft.client.Camera;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvents;
@@ -282,10 +281,10 @@ public class SceneEnhancer implements Runnable {
 			}
 
 			float vanillaCutoff = 0.2F;
-			float precipStrength = Math.abs(ClientWeatherHelper.get().getPrecipitationStrength(client.player));
-			if (precipStrength <= vanillaCutoff) {
-				tickRain();
-			}
+			float precipStrength = ClientWeatherHelper.get().getPrecipitationStrength(client.player);
+			//if (precipStrength <= vanillaCutoff) {
+				tickRainSound();
+			//}
 		} catch (Exception ex) {
     		System.out.println("Weather2: Error handling sound play queue: ");
     		ex.printStackTrace();
@@ -293,21 +292,23 @@ public class SceneEnhancer implements Runnable {
     }
 
 	/**
+	 * This method is meant to keep playing rain sound past the point where vanilla cuts off its own rain sounds
+	 * edit: used to, now we just fully override
 	 * Modified copy of LevelRenderer.tickRain
 	 * @param p_109694_
 	 */
 	private int rainSoundTime;
-	public void tickRain() {
+	public void tickRainSound() {
 		Minecraft minecraft = Minecraft.getInstance();
 		Player player = Minecraft.getInstance().player;
 
-		float f = minecraft.level.getRainLevel(1.0F) / (Minecraft.useFancyGraphics() ? 1.0F : 2.0F);
-		if (!(f <= 0.0F)) {
+		float precipitationStrength = ClientWeatherHelper.get().getPrecipitationStrength(player);
+		if (!(precipitationStrength <= 0.0F)) {
 			Random random = new Random(player.getLevel().getGameTime() * 312987231L);
 			LevelReader levelreader = minecraft.level;
 			BlockPos blockpos = player.blockPosition();
 			BlockPos blockpos1 = null;
-			int i = (int)(100.0F * f * f) / (minecraft.options.particles == ParticleStatus.DECREASED ? 2 : 1);
+			int i = (int)(100.0F * precipitationStrength * precipitationStrength) / (minecraft.options.particles == ParticleStatus.DECREASED ? 2 : 1);
 
 			for(int j = 0; j < i; ++j) {
 				int k = random.nextInt(21) - 10;
@@ -336,9 +337,9 @@ public class SceneEnhancer implements Runnable {
 			if (blockpos1 != null && random.nextInt(3) < this.rainSoundTime++) {
 				this.rainSoundTime = 0;
 				if (blockpos1.getY() > blockpos.getY() + 1 && levelreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos).getY() > Mth.floor((float)blockpos.getY())) {
-					minecraft.level.playLocalSound(blockpos1, SoundEvents.WEATHER_RAIN_ABOVE, SoundSource.WEATHER, 0.1F, 0.5F, false);
+					minecraft.level.playLocalSound(blockpos1, SoundEvents.WEATHER_RAIN_ABOVE, SoundSource.WEATHER, 0.1F + (0.4F * precipitationStrength), 0.5F, false);
 				} else {
-					minecraft.level.playLocalSound(blockpos1, SoundEvents.WEATHER_RAIN, SoundSource.WEATHER, 0.2F, 1.0F, false);
+					minecraft.level.playLocalSound(blockpos1, SoundEvents.WEATHER_RAIN, SoundSource.WEATHER, 0.2F + (0.6F * precipitationStrength), 1.0F, false);
 				}
 			}
 
@@ -477,7 +478,7 @@ public class SceneEnhancer implements Runnable {
 
 		if (FORCE_ON_DEBUG_TESTING) {
 			curPrecipVal = 1F;
-			curPrecipVal = (float)((entP.getLevel().getGameTime() / 10) % 100) / 100F;
+			//curPrecipVal = (float)((entP.getLevel().getGameTime() / 10) % 100) / 100F;
 			//curPrecipVal = 0F;
 		}
 
@@ -496,8 +497,6 @@ public class SceneEnhancer implements Runnable {
 
 		Level world = entP.level;
 		Random rand = entP.level.random;
-
-		double particleAmp = 1F;
 
 		//funnel.tickGame();
 
@@ -523,7 +522,7 @@ public class SceneEnhancer implements Runnable {
 		 * then after 0.5, we up the extra render amount
 		 * ensures super low precip isnt patchy, and stops increasing rate of real particles at higher precip
 		 */
-		float curPrecipValMaxNoExtraRender = 0.5F;
+		float curPrecipValMaxNoExtraRender = 0.3F;
 		int extraRenderCountMax = 10;
 		int extraRenderCount = 0;
 
@@ -569,20 +568,25 @@ public class SceneEnhancer implements Runnable {
 		}
 
 		//dev testing
-		boolean devTest = false;
+		boolean devTest = true;
 		if (devTest) {
-			isRain = false;
+			/*isRain = false;
 			isSnow = false;
 			isSnowstorm = false;
 			isSandstorm = true;
 			particleStormIntensity = 1F;
+			*/
+
+			isRain = false;
+			isRain_DownfallSheet = false;
+
 
 			if (entP.getLevel().getGameTime() % 40 == 0) {
 				if (ConfigCoroUtil.useLoggingDebug) {
 					System.out.printf("curPrecipVal: %.2f", curPrecipVal);
 					System.out.println("");
 				}
-				CULog.dbg("spawnNeed: " + spawnNeedBase);
+				CULog.dbg("spawnNeedBase: " + spawnNeedBase);
 				CULog.dbg("extraRenderCount: " + extraRenderCount);
 				CULog.dbg("particleStormIntensity: " + particleStormIntensity);
 			}
@@ -595,7 +599,10 @@ public class SceneEnhancer implements Runnable {
 					spawnCount = 0;
 					int spawnAreaSize = 30;
 
-					int spawnNeed = (int) (spawnNeedBase * 200);
+					int spawnNeed = (int) (spawnNeedBase * 300);
+					if (entP.getLevel().getGameTime() % 40 == 0) {
+						CULog.dbg("rain spawnNeed: " + spawnNeed);
+					}
 
 					if (isRain_WaterParticle && spawnNeed > 0) {
 
@@ -625,7 +632,7 @@ public class SceneEnhancer implements Runnable {
 
 					spawnAreaSize = 40;
 					if (isRain_GroundSplash && curPrecipVal > 0.15) {
-						for (int i = 0; i < 30F * curPrecipVal * PRECIPITATION_PARTICLE_EFFECT_RATE * particleAmp * 4F * particleSettingsAmplifier; i++) {
+						for (int i = 0; i < 30F * curPrecipVal * PRECIPITATION_PARTICLE_EFFECT_RATE * 8F * particleSettingsAmplifier; i++) {
 							BlockPos pos = new BlockPos(
 									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.getY() - 5 + rand.nextInt(15),
@@ -707,7 +714,10 @@ public class SceneEnhancer implements Runnable {
 				} else if (isSnow) {
 					spawnCount = 0;
 					int spawnAreaSize = 50;
-					int spawnNeed = (int) (spawnNeedBase * 40);
+					int spawnNeed = (int) (spawnNeedBase * 80);
+					if (entP.getLevel().getGameTime() % 40 == 0) {
+						CULog.dbg("rain spawnNeed: " + spawnNeed);
+					}
 
 					if (spawnNeed > 0) {
 						for (int i = 0; i < safetyCutout/*curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
@@ -751,6 +761,12 @@ public class SceneEnhancer implements Runnable {
 									pos.getY(),
 									pos.getZ(),
 									0D, 0D, 0D, ParticleRegistry.hail);
+
+							/*ParticleCube hail = new ParticleCube((ClientLevel) entP.level,
+									pos.getX(),
+									pos.getY(),
+									pos.getZ(),
+									0D, 0D, 0D, ParticleRegistry.hail);*/
 							particleBehavior.initParticleHail(hail);
 
 							hail.spawnAsWeatherEffect();
@@ -798,7 +814,7 @@ public class SceneEnhancer implements Runnable {
 			int spawnAreaSize = 40;
 
 			if (groundFire) {
-				for (int i = 0; i < 10F * PRECIPITATION_PARTICLE_EFFECT_RATE * particleAmp * 1F * particleSettingsAmplifier; i++) {
+				for (int i = 0; i < 10F * PRECIPITATION_PARTICLE_EFFECT_RATE * 1F * particleSettingsAmplifier; i++) {
 					BlockPos pos = new BlockPos(
 							entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 							entP.getY() - 5 + rand.nextInt(15),

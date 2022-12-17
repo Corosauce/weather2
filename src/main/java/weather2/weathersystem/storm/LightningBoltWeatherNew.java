@@ -92,10 +92,10 @@ public class LightningBoltWeatherNew extends Entity {
             this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.WEATHER, 10000.0F, 0.8F + this.random.nextFloat() * 0.2F, false);
             this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.WEATHER, 2.0F, 0.5F + this.random.nextFloat() * 0.2F, false);
          } else {
-            Difficulty difficulty = this.level.getDifficulty();
+            /*Difficulty difficulty = this.level.getDifficulty();
             if (difficulty == Difficulty.NORMAL || difficulty == Difficulty.HARD) {
                this.spawnFire(4);
-            }
+            }*/
 
             this.powerLightningRod();
             clearCopperOnLightningStrike(this.level, this.getStrikePosition());
@@ -107,11 +107,11 @@ public class LightningBoltWeatherNew extends Entity {
       if (this.life < 0) {
          if (this.flashes == 0) {
             if (this.level instanceof ServerLevel) {
-               List<Entity> list = this.level.getEntities(this, new AABB(this.getX() - 15.0D, this.getY() - 15.0D, this.getZ() - 15.0D, this.getX() + 15.0D, this.getY() + 6.0D + 15.0D, this.getZ() + 15.0D), (p_147140_) -> {
+               /*List<Entity> list = this.level.getEntities(this, new AABB(this.getX() - 15.0D, this.getY() - 15.0D, this.getZ() - 15.0D, this.getX() + 15.0D, this.getY() + 6.0D + 15.0D, this.getZ() + 15.0D), (p_147140_) -> {
                   return p_147140_.isAlive() && !this.hitEntities.contains(p_147140_);
                });
 
-               /*for(ServerPlayer serverplayer : ((ServerLevel)this.level).getPlayers((p_147157_) -> {
+               for(ServerPlayer serverplayer : ((ServerLevel)this.level).getPlayers((p_147157_) -> {
                   return p_147157_.distanceTo(this) < 256.0F;
                })) {
                   CriteriaTriggers.LIGHTNING_STRIKE.trigger(serverplayer, this, list);
@@ -123,7 +123,7 @@ public class LightningBoltWeatherNew extends Entity {
             --this.flashes;
             this.life = 1;
             this.seed = this.random.nextLong();
-            this.spawnFire(0);
+            /*this.spawnFire(0);*/
          }
       }
 
