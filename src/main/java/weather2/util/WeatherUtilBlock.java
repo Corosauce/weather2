@@ -242,7 +242,7 @@ public class WeatherUtilBlock {
 			boolean sandMode = false;
 			if (blockLayerable == Blocks.SNOW) {
 				sandMode = false;
-			} else if (blockLayerable == WeatherBlocks.blockSandLayer) {
+			} else if (blockLayerable == WeatherBlocks.BLOCK_SAND_LAYER.get()) {
 				sandMode = true;
 			}
 			int foundBlocks = 0;
@@ -396,7 +396,7 @@ public class WeatherUtilBlock {
 		Block block = state.getBlock();
 		if (block == Blocks.SNOW) {
 			return state.getValue(SnowLayerBlock.LAYERS).intValue();
-		} else if (block == WeatherBlocks.blockSandLayer) {
+		} else if (block == WeatherBlocks.BLOCK_SAND_LAYER.get()) {
 			return state.getValue(SandLayerBlock.LAYERS).intValue();
 		} else if (block == Blocks.SAND || block == Blocks.SNOW_BLOCK) {
 			return 8;
@@ -412,7 +412,7 @@ public class WeatherUtilBlock {
 	public static int getHeightForLayeredBlock(BlockState state) {
 		if (state.getBlock() == Blocks.SNOW) {
 			return (state.getValue(SnowLayerBlock.LAYERS)).intValue();
-		} else if (state.getBlock() == WeatherBlocks.blockSandLayer) {
+		} else if (state.getBlock() == WeatherBlocks.BLOCK_SAND_LAYER.get()) {
 			return state.getValue(SandLayerBlock.LAYERS).intValue();
 		} else if (state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.SNOW_BLOCK) {
 			return 8;
@@ -430,7 +430,7 @@ public class WeatherUtilBlock {
 			} else {
 				return block.defaultBlockState().setValue(SnowLayerBlock.LAYERS, height);
 			}
-		} else if (block == WeatherBlocks.blockSandLayer) {
+		} else if (block == WeatherBlocks.BLOCK_SAND_LAYER.get()) {
 			if (height == layerableHeightPropMax && solidBlockUnderMode) {
 				return Blocks.SAND.defaultBlockState();
 			} else {

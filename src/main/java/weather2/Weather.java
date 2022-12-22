@@ -5,6 +5,8 @@ import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -17,10 +19,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
 import weather2.config.*;
+import weather2.data.WeatherRecipeProvider;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilSound;
 
@@ -43,6 +47,8 @@ public class Weather
     public static List<IConfigCategory> listConfigs = new ArrayList<>();
     public static ConfigMisc configMisc = null;
 
+    public static final CreativeModeTab CREATIVE_TAB = new WeatherTab();
+
     public Weather() {
         // Register the setup method for modloading
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -50,6 +56,7 @@ public class Weather
         MinecraftForge.EVENT_BUS.addListener(this::serverStop);
         MinecraftForge.EVENT_BUS.addListener(this::serverStart);
         modBus.addListener(this::clientSetup);
+        modBus.addListener(this::gatherData);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -57,9 +64,11 @@ public class Weather
         //modBus.register(WeatherBlocks.class);
         //new
         WeatherBlocks.registerHandlers(modBus);
+        WeatherItems.registerHandlers(modBus);
 
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+        MinecraftForge.EVENT_BUS.register(new WeatherBlocks());
 
         new File("./config/Weather2").mkdirs();
         configMisc = new ConfigMisc();
@@ -124,5 +133,12 @@ public class Weather
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
         WeatherCommand.register(dispatcher);
+    }
+
+    private void gatherData(GatherDataEvent event) {
+        DataGenerator gen = event.getGenerator();
+        if (event.includeServer()) {
+            gen.addProvider(new WeatherRecipeProvider(gen));
+        }
     }
 }

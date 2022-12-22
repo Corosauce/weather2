@@ -11,7 +11,7 @@ public class WeatherMachineBlockEntity extends BlockEntity {
         super(WeatherBlocks.BLOCK_ENTITY_DEFLECTOR.get(), p_155229_, p_155230_);
     }
 
-    public static void tick(Level p_155181_, BlockPos p_155182_, BlockState p_155183_, BlockEntity p_155184_) {
-        System.out.println("tick!");
+    public static void tickHelper(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+
     }
 }

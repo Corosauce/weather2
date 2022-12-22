@@ -266,17 +266,17 @@ public abstract class WeatherManager implements IWorldData {
 	 * @param maxDist
 	 * @return
 	 */
-	public WeatherObjectSandstorm getClosestSandstorm(Vec3 parPos, double maxDist) {
+	public WeatherObjectSandstormOld getClosestSandstorm(Vec3 parPos, double maxDist) {
 
-		WeatherObjectSandstorm closestStorm = null;
+		WeatherObjectSandstormOld closestStorm = null;
 		double closestDist = 9999999;
 
 		List<WeatherObject> listStorms = getStormObjects();
 
 		for (int i = 0; i < listStorms.size(); i++) {
 			WeatherObject wo = listStorms.get(i);
-			if (wo instanceof WeatherObjectSandstorm) {
-				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
+			if (wo instanceof WeatherObjectSandstormOld) {
+				WeatherObjectSandstormOld storm = (WeatherObjectSandstormOld) wo;
 				if (storm == null || storm.isDead) continue;
 				double dist = storm.pos.distanceTo(parPos);
 				/*if (getWorld().isRemote) {
@@ -300,8 +300,8 @@ public abstract class WeatherManager implements IWorldData {
 
 		for (int i = 0; i < getStormObjects().size(); i++) {
 			WeatherObject wo = getStormObjects().get(i);
-			if (wo instanceof WeatherObjectSandstorm) {
-				WeatherObjectSandstorm storm = (WeatherObjectSandstorm) wo;
+			if (wo instanceof WeatherObjectSandstormOld) {
+				WeatherObjectSandstormOld storm = (WeatherObjectSandstormOld) wo;
 				if (storm.isDead) continue;
 
 				if (storm.pos.distanceTo(parPos) < maxDist) {
@@ -324,8 +324,8 @@ public abstract class WeatherManager implements IWorldData {
 				if (storm.pos.distanceTo(parPos) < maxDist && ((storm.attrib_precipitation && ConfigStorm.Storm_Deflector_RemoveRainstorms) || storm.levelCurIntensityStage >= ConfigStorm.Storm_Deflector_MinStageRemove)) {
 					storms.add(storm);
 				}
-			} else if (wo instanceof WeatherObjectSandstorm && ConfigStorm.Storm_Deflector_RemoveSandstorms) {
-				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
+			} else if (wo instanceof WeatherObjectSandstormOld && ConfigStorm.Storm_Deflector_RemoveSandstorms) {
+				WeatherObjectSandstormOld sandstorm = (WeatherObjectSandstormOld)wo;
 				double distToStorm = parPos.distanceTo(sandstorm.pos);
 				if (distToStorm < maxDist) {
 					storms.add(wo);
@@ -347,8 +347,8 @@ public abstract class WeatherManager implements IWorldData {
 				if (storm.pos.distanceTo(parPos) < maxDist && (storm.attrib_precipitation || storm.levelCurIntensityStage > StormObject.STATE_NORMAL)) {
 					storms.add(storm);
 				}
-			} else if (wo instanceof WeatherObjectSandstorm) {
-				WeatherObjectSandstorm sandstorm = (WeatherObjectSandstorm)wo;
+			} else if (wo instanceof WeatherObjectSandstormOld) {
+				WeatherObjectSandstormOld sandstorm = (WeatherObjectSandstormOld)wo;
 				double distToStorm = parPos.distanceTo(sandstorm.pos);
 				if (distToStorm < maxDist) {
 					storms.add(wo);

@@ -168,7 +168,7 @@ public class WindManager {
 		//Weather.dbg("wind angle: " + windAngleGlobal);
 		//windAngleGlobal = 90;
 		//TODO: TEMP!!!
-		//windSpeedGlobal = 0.5F;
+		//indSpeedGlobal = 0.71F;
 		//windAngleGlobal = 180;
 		//lowWindOddsTo1 = 20*200;
 		//lowWindTimer = 0;

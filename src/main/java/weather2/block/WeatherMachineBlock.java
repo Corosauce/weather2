@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import weather2.WeatherBlocks;
 import weather2.blockentity.DeflectorBlockEntity;
+import weather2.blockentity.WeatherMachineBlockEntity;
 
 public class WeatherMachineBlock extends BaseEntityBlock {
 
@@ -21,7 +22,7 @@ public class WeatherMachineBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new DeflectorBlockEntity(p_153215_, p_153216_);
+        return new WeatherMachineBlockEntity(p_153215_, p_153216_);
     }
 
     @Override
@@ -29,9 +30,9 @@ public class WeatherMachineBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
-    @Nullable
+    /*@Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<T> p_153214_) {
-        return createTickerHelper(p_153214_, WeatherBlocks.BLOCK_ENTITY_DEFLECTOR.get(), DeflectorBlockEntity::tick);
-    }
+        return createTickerHelper(p_153214_, WeatherBlocks.BLOCK_ENTITY_WEATHER_MACHINE.get(), WeatherMachineBlockEntity::tickHelper);
+    }*/
 }

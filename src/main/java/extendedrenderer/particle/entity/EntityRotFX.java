@@ -411,7 +411,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         if (this instanceof PivotingParticle) return;
         //particles on ground shouldnt get blown as hard (idea for hail)
         if (onGround) {
-            //windMan.applyWindForceNew(this, (1F / 20F) * 0.3F, 0.5F);
+            windMan.applyWindForceNew(this, (1F / 20F) * 0.3F, 0.5F);
         } else {
             windMan.applyWindForceNew(this, 1F / 20F, 0.5F);
         }
@@ -752,7 +752,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
         if (x != 0.0D || y != 0.0D || z != 0.0D) {
             this.setBoundingBox(this.getBoundingBox().move(x, y, z));
-            if (useCustomBBForRenderCulling) {
+            if (isUseCustomBBForRenderCulling()) {
                 this.setBoundingBoxForRender(this.getBoundingBoxForRender(1F).move(x, y, z));
             }
             /*Vec3 pivotedPosition = getPivotedPosition(0);
@@ -918,7 +918,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
     }
 
     public AABB getBoundingBoxForRender(float partialTicks) {
-        if (useCustomBBForRenderCulling) {
+        if (isUseCustomBBForRenderCulling()) {
             return bbRender;
         } else {
             return this.getBoundingBox();

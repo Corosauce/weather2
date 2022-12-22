@@ -7,6 +7,7 @@ import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -215,6 +216,8 @@ public class StormObject extends WeatherObject {
 
 	private int age;
 	private int ageSinceTornadoTouchdown;
+
+	private boolean isBeingDeflectedCached = true;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -676,7 +679,9 @@ public class StormObject extends WeatherObject {
 
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					setAndUpdateTornado();
-					tornadoHelper.tick(manager.getWorld());
+					if (!isBeingDeflectedCached()) {
+						tornadoHelper.tick(manager.getWorld());
+					}
 
 					tornadoFunnelSimple.tickClient();
 				}
@@ -709,7 +714,9 @@ public class StormObject extends WeatherObject {
 			}
 
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
-				tornadoHelper.tick(manager.getWorld());
+				if (!isBeingDeflectedCached()) {
+					tornadoHelper.tick(manager.getWorld());
+				}
 			}
 
 			if (levelCurIntensityStage >= STATE_HIGHWIND) {
@@ -939,7 +946,11 @@ public class StormObject extends WeatherObject {
 			
 			//Weather.dbg("storm ID: " + this.ID + ", stage: " + levelCurIntensityStage + ", storm speed: " + finalSpeed);
 		}
-		
+
+		//push tornado away faster if being deflected
+		if (isBeingDeflectedCached()) {
+			finalSpeed *= 5;
+		}
 
 		if (!weatherMachineControlled) {
 			motion = new Vec3(vecX * finalSpeed, 0, vecZ * finalSpeed);
@@ -955,6 +966,19 @@ public class StormObject extends WeatherObject {
 			//actually move storm
 			pos = pos.add(motion);
 		}
+
+		if (levelCurIntensityStage >= STATE_FORMING) {
+			Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), new BlockPos(posGround), 128);
+			if (optional.isPresent()) {
+				isBeingDeflectedCached = true;
+				//CULog.dbg("optional.get(): " + optional.get());
+				aimAwayFromCoords(new Vec3(optional.get().getX(), optional.get().getY(), optional.get().getZ()));
+				((ServerLevel) this.manager.getWorld()).sendParticles(DustParticleOptions.REDSTONE, optional.get().getX() + 0.5D, optional.get().getY() + 0.5D, optional.get().getZ() + 0.5D, 1, 0.3D, 0D, 0.3D, 1D);
+			} else {
+				isBeingDeflectedCached = false;
+			}
+		}
+
 	}
 
 	public void tickMovementClient() {
@@ -988,7 +1012,7 @@ public class StormObject extends WeatherObject {
 					}
 
 					LightningBoltWeatherNew ent = new LightningBoltWeatherNew(EntityRegistry.lightning_bolt, world);
-					ent.setPos(x, y, z);
+					ent.setPos(x + 0.5, y, z + 0.5);
 					addWeatherEffectLightning(ent, false);
 				}
 			}
@@ -1338,7 +1362,8 @@ public class StormObject extends WeatherObject {
 								stageNext();
 								Weather.dbg("storm ID: " + this.ID + " - growing, stage: " + levelCurIntensityStage + " pos: " + pos);
 								//mark is tropical cyclone if needed! and never unmark it!
-								if (isInOcean) {
+								//TODO: re-enable this to allow hurricanes again
+								if (isInOcean && false) {
 									//make it ONLY allow to change during forming stage, so it locks in
 									if (levelCurIntensityStage == STATE_FORMING) {
 										Weather.dbg("storm ID: " + this.ID + " marked as tropical cyclone!");
@@ -1618,6 +1643,20 @@ public class StormObject extends WeatherObject {
 				yaw += rand.nextInt(size) - (size / 2);
 			}
 		}
+
+		angleIsOverridden = true;
+		angleMovementTornadoOverride = yaw;
+
+		//Weather.dbg("stormfront aimed at player " + CoroUtilEntity.getName(entP));
+	}
+
+	public void aimAwayFromCoords(Vec3 vec) {
+		Random rand = new Random();
+		double var11 = vec.x() - pos.x;
+		double var15 = vec.z() - pos.z;
+		float yaw = -(float)(Math.atan2(var11, var15) * 180.0D / Math.PI);
+		//invert
+		yaw += 180;
 
 		angleIsOverridden = true;
 		angleMovementTornadoOverride = yaw;
@@ -2821,6 +2860,10 @@ public class StormObject extends WeatherObject {
 			}
 		}
 
+		entityfx.setTicksFadeInMax(20);
+		entityfx.setTicksFadeOutMax(20);
+		entityfx.setTicksFadeOutMaxOnDeath(20);
+
 		entityfx.spawnAsWeatherEffect();
 		//Minecraft.getInstance().particleEngine.add(entityfx);
 		particleBehaviorFog.particles.add(entityfx);
@@ -3079,5 +3122,13 @@ public class StormObject extends WeatherObject {
 
 	public void setAgeSinceTornadoTouchdown(int ageSinceTornadoTouchdown) {
 		this.ageSinceTornadoTouchdown = ageSinceTornadoTouchdown;
+	}
+
+	public boolean isBeingDeflectedCached() {
+		return isBeingDeflectedCached;
+	}
+
+	public void setBeingDeflectedCached(boolean beingDeflectedCached) {
+		isBeingDeflectedCached = beingDeflectedCached;
 	}
 }

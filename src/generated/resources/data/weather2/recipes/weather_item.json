@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "X X",
+    "DID",
+    "X X"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:redstone"
+    },
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
+    "X": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "weather2:weather_item"
+  }
+}

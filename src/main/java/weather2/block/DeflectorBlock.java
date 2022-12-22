@@ -33,6 +33,6 @@ public class DeflectorBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<T> p_153214_) {
-        return createTickerHelper(p_153214_, WeatherBlocks.BLOCK_ENTITY_DEFLECTOR.get(), DeflectorBlockEntity::tick);
+        return createTickerHelper(p_153214_, WeatherBlocks.BLOCK_ENTITY_DEFLECTOR.get(), DeflectorBlockEntity::tickHelper);
     }
 }

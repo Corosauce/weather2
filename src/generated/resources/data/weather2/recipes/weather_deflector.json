@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XDX",
+    "DID",
+    "XDX"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:redstone"
+    },
+    "I": {
+      "item": "weather2:weather_item"
+    },
+    "X": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "weather2:weather_deflector"
+  }
+}

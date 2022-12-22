@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilEntity;
 import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
@@ -14,6 +15,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -21,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
@@ -64,7 +68,7 @@ public class WeatherManagerServer extends WeatherManager {
 		}
 		StormState sandstorm = ServerWeatherProxy.getSandstormForEverywhere(world);
 		if (sandstorm != null) {
-			tickStormBlockBuildup(sandstorm, WeatherBlocks.blockSandLayer);
+			tickStormBlockBuildup(sandstorm, WeatherBlocks.BLOCK_SAND_LAYER.get());
 		}
 
 		//tickStormBlockBuildup(new StormState(1, 2), WeatherBlocks.blockSandLayer);
@@ -244,6 +248,17 @@ public class WeatherManagerServer extends WeatherManager {
 				}
 			}
 		}
+	}
+
+	public Optional<BlockPos> findWeatherDeflector(ServerLevel level, BlockPos p_143249_, int range) {
+		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) -> {
+			return true;//return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
+		}, (p_184055_) -> {
+			return true;//p_184055_.getY() == level.getHeight(Heightmap.Types.WORLD_SURFACE, p_184055_.getX(), p_184055_.getZ()) - 1;
+		}, p_143249_, range, PoiManager.Occupancy.ANY);
+		return optional.map((p_184053_) -> {
+			return p_184053_.above(1);
+		});
 	}
 
 	public void tickStormBlockBuildup(StormState stormState, Block block) {

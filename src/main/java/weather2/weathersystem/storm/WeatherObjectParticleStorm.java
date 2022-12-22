@@ -120,7 +120,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 
 	public Block getBlockForBuildup() {
 		if (this.type == StormType.SANDSTORM) {
-			return WeatherBlocks.blockSandLayer;
+			return WeatherBlocks.BLOCK_SAND_LAYER.get();
 		} else if (this.type == StormType.SNOWSTORM) {
 			return Blocks.SNOW;
 		}

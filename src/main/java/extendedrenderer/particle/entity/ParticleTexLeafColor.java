@@ -61,7 +61,8 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 
 		int multiplier = this.colors.getColor(state, this.level, pos, 0);
 
-		colorCache.clear();
+		//was this supposed to be temp?!
+		//colorCache.clear();
 		int[] colors = colorCache.get(state);
 		if (colors == null) {
 

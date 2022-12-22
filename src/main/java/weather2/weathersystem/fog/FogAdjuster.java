@@ -1,6 +1,7 @@
 package weather2.weathersystem.fog;
 
 import com.corosus.coroutil.util.CULog;
+import net.minecraft.util.Mth;
 import weather2.datatypes.WeatherEventType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
@@ -27,8 +28,8 @@ public class FogAdjuster {
     private FogProfile activeProfile;
     private FogProfile activeProfileLerps;
 
-    private int lerpTicksCur = 100;
-    private int lerpTicksMax = 100;
+    private int lerpTicksCur = 20 * 15;
+    private int lerpTicksMax = 20 * 15;
 
     //reinit fog values when changes
     private boolean useFarFog = false;
@@ -143,9 +144,10 @@ public class FogAdjuster {
         fogVanilla.getRgb().set(event.getRed(), event.getGreen(), event.getBlue());
 
         if (SceneEnhancer.isFogOverridding()) {
-            event.setRed(activeProfile.getRgb().x());
-            event.setGreen(activeProfile.getRgb().y());
-            event.setBlue(activeProfile.getRgb().z());
+            float brightness = Mth.clamp(Mth.cos(Minecraft.getInstance().level.getTimeOfDay(1F) * ((float)Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
+            event.setRed(activeProfile.getRgb().x() * brightness);
+            event.setGreen(activeProfile.getRgb().y() * brightness);
+            event.setBlue(activeProfile.getRgb().z() * brightness);
         }
     }
 
@@ -253,17 +255,24 @@ public class FogAdjuster {
      */
     public void updateWeatherState() {
         WeatherEventType curWeather = SceneEnhancer.getWeatherState();
+        boolean match = false;
         if (curWeather != lastWeatherType) {
             if (curWeather == WeatherEventType.SANDSTORM) {
                 startSandstorm();
+                match = true;
             } else if (curWeather == WeatherEventType.SNOWSTORM) {
                 startSnowstorm();
+                match = true;
             } else if (curWeather == WeatherEventType.HEATWAVE) {
                 startHeatwave();
+                match = true;
             } else if (curWeather == null) {
                 restoreVanilla();
+                match = true;
             }
         }
-        lastWeatherType = curWeather;
+        if (match) {
+            lastWeatherType = curWeather;
+        }
     }
 }

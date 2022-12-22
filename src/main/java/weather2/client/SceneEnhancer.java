@@ -12,6 +12,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.material.FluidState;
+import weather2.config.ConfigMisc;
 import weather2.datatypes.PrecipitationType;
 import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
@@ -50,6 +51,7 @@ import weather2.config.ConfigSand;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
+import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 import weather2.weathersystem.tornado.TornadoManagerTodoRenameMe;
 import weather2.weathersystem.wind.WindManager;
@@ -92,6 +94,7 @@ public class SceneEnhancer implements Runnable {
 	private static FogAdjuster fogAdjuster;
 
 	public static boolean isPlayerOutside = true;
+	public static boolean isPlayerNearTornadoCached = false;
 
 	public static WeatherEventType lastWeatherType = null;
 
@@ -539,6 +542,15 @@ public class SceneEnhancer implements Runnable {
 		double spawnNeedBase = curPrecipCappedForSpawnNeed * ConfigParticle.Precipitation_Particle_effect_rate * particleSettingsAmplifier;
 		int safetyCutout = 100;
 
+		if (world.getGameTime() % 20 == 0) {
+			StormObject stormObject = ClientTickHandler.weatherManager.getClosestStorm(entP.position(), ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
+			if (stormObject != null && entP.position().distanceTo(stormObject.pos) < stormObject.getSize()) {
+				isPlayerNearTornadoCached = true;
+			} else {
+				isPlayerNearTornadoCached = false;
+			}
+		}
+
 		boolean isRain = weather.getPrecipitationType(biome) == PrecipitationType.NORMAL;
 		boolean isHail = weather.isHail();
 		boolean isSnowstorm = weather.isSnowstorm();
@@ -550,6 +562,11 @@ public class SceneEnhancer implements Runnable {
 		if (isHail) {
 			isRain_WaterParticle = false;
 			isRain_GroundSplash = false;
+			isRain_DownfallSheet = false;
+		}
+
+		//wind should be so rediculous that sheets of rain isnt gonna be happening in your face
+		if (isPlayerNearTornadoCached) {
 			isRain_DownfallSheet = false;
 		}
 
@@ -577,8 +594,8 @@ public class SceneEnhancer implements Runnable {
 			particleStormIntensity = 1F;
 			*/
 
-			isRain = false;
-			isRain_DownfallSheet = false;
+			//isRain = false;
+			//isRain_DownfallSheet = false;
 
 
 			if (entP.getLevel().getGameTime() % 40 == 0) {
@@ -720,7 +737,7 @@ public class SceneEnhancer implements Runnable {
 					}
 
 					if (spawnNeed > 0) {
-						for (int i = 0; i < safetyCutout/*curPrecipVal * 20F * ConfigParticle.Precipitation_Particle_effect_rate*/; i++) {
+						for (int i = 0; i < safetyCutout; i++) {
 							BlockPos pos = new BlockPos(
 									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.getY() - 5 + rand.nextInt(25),
@@ -780,34 +797,6 @@ public class SceneEnhancer implements Runnable {
 				}
 			}
 
-			//extra dust
-			{
-				int spawnAreaSize = 25;
-
-				for (int i = 0; i < 1; i++) {
-					if (windMan.getWindSpeed() >= 0.1F && rand.nextInt(5) == 0) {
-						BlockPos pos = new BlockPos(
-								entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
-								entP.getY() - 5 + rand.nextInt(25),
-								entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
-
-						ParticleTexExtraRender dust = new ParticleTexExtraRender((ClientLevel) entP.level,
-								pos.getX(),
-								pos.getY(),
-								pos.getZ(),
-								0D, 0D, 0D, ParticleRegistry.squareGrey);
-						particleBehavior.initParticleDustAir(dust);
-
-						dust.spawnAsWeatherEffect();
-
-						/*spawnCount++;
-						if (spawnCount >= spawnNeed) {
-							break;
-						}*/
-					}
-				}
-			}
-
 
 
 			boolean groundFire = ClientWeatherProxy.get().isHeatwave();
@@ -842,6 +831,38 @@ public class SceneEnhancer implements Runnable {
 						world.addParticle(ParticleTypes.SMOKE, pos.getX() + rand.nextFloat(), pos.getY() + 0.01D + maxY, pos.getZ() + rand.nextFloat(), 0.0D, 0.0D, 0.0D);
 						world.addParticle(ParticleTypes.FLAME, pos.getX() + rand.nextFloat(), pos.getY() + 0.01D + maxY, pos.getZ() + rand.nextFloat(), 0.0D, 0.0D, 0.0D);
 
+					}
+				}
+			}
+		}
+
+		//extra dust in the air
+		{
+			int spawnAreaSize = 25;
+			int spawnNeed = (int) (particleSettingsAmplifier * 5 * windMan.getWindSpeed());
+			spawnCount = 0;
+
+			for (int i = 0; i < safetyCutout; i++) {
+				if (windMan.getWindSpeed() >= 0.1F/* && rand.nextInt(1) == 0*/) {
+					BlockPos pos = new BlockPos(
+							entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
+							entP.getY() - 5 + rand.nextInt(25),
+							entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
+
+					if (canPrecipitateAt(world, pos)) {
+						ParticleTexExtraRender dust = new ParticleTexExtraRender((ClientLevel) entP.level,
+								pos.getX(),
+								pos.getY(),
+								pos.getZ(),
+								0D, 0D, 0D, ParticleRegistry.squareGrey);
+						particleBehavior.initParticleDustAir(dust);
+
+						dust.spawnAsWeatherEffect();
+
+						spawnCount++;
+						if (spawnCount >= spawnNeed) {
+							break;
+						}
 					}
 				}
 			}
@@ -938,7 +959,7 @@ public class SceneEnhancer implements Runnable {
 			boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 
 			//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
-			if (particleStormIntensity >= 0.25F) {
+			if (particleStormIntensity >= 0.1F) {
 
 				rand = client.level.random;
 				int spawnAreaSize = 60;
@@ -1106,7 +1127,7 @@ public class SceneEnhancer implements Runnable {
         float windStr = manager.getWindManager().getWindSpeed();
 
         //Wind requiring code goes below
-        int spawnRate = (int)(30 / (windStr + 0.001));
+        int spawnRateRandChanceOdds = (int)(30 / (windStr + 0.001));
 
 
 
@@ -1118,23 +1139,31 @@ public class SceneEnhancer implements Runnable {
         if (lastBlockCount > maxScaleSample) lastBlockCount = maxScaleSample-1;
         float scaleRate = (maxScaleSample - lastBlockCount) / maxScaleSample;
 
-        spawnRate = (int) ((spawnRate / (scaleRate + 0.001F)) / (particleCreationRate + 0.001F));
+        spawnRateRandChanceOdds = (int) ((spawnRateRandChanceOdds / (scaleRate + 0.001F)) / (particleCreationRate + 0.001F));
 
-        spawnRate *= (client.options.particles.getId()+1);
+		float particleSettingsAmplifier = 1F;
+		if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+			particleSettingsAmplifier = 0.5F;
+		} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+			particleSettingsAmplifier = 0.2F;
+		}
+
+        //spawnRate *= (client.options.particles.getId()+1);
+        spawnRateRandChanceOdds /= particleSettingsAmplifier;
         //since reducing threaded ticking to 200ms sleep, 1/4 rate, must decrease rand size
-        spawnRate /= 2;
+        spawnRateRandChanceOdds /= 2;
 
         //performance fix
-        if (spawnRate < 40)
+        if (spawnRateRandChanceOdds < 40)
         {
-            spawnRate = 40;
+            spawnRateRandChanceOdds = 40;
         }
 
         lastTickFoundBlocks = 0;
 
 		double particleAmp = 1F;
 
-		spawnRate = (int)((double)spawnRate / particleAmp);
+		spawnRateRandChanceOdds = (int)((double)spawnRateRandChanceOdds / particleAmp);
 
 		//Weather.dbg("spawnRate: " + spawnRate);
 
@@ -1154,7 +1183,7 @@ public class SceneEnhancer implements Runnable {
 
 							lastTickFoundBlocks++;
 
-							if (worldRef.random.nextInt(spawnRate) == 0) {
+							if (worldRef.random.nextInt(spawnRateRandChanceOdds) == 0) {
 								//bottom of tree check || air beside vine check
 
 								//far out enough to avoid having the AABB already inside the block letting it phase through more
@@ -1197,55 +1226,71 @@ public class SceneEnhancer implements Runnable {
 								}
 							}
 						}
-						if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT || block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
-								block.defaultBlockState().getMaterial() == Material.PLANT) {
-
-							lastTickFoundBlocks++;
-
-							boolean spawnInside = false;
-							boolean spawnAbove = false;
-							boolean spawnAboveSnow = false;
-
-							//boolean placeAbove = false;
-							if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT) {
-								spawnAbove = true;
-							}
-
-							int oddsTo1 = spawnRate;
-							if (block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
+						if (windStr >= 0.1F) {
+							if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT || block.defaultBlockState().getMaterial() == Material.SAND || block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
 									block.defaultBlockState().getMaterial() == Material.PLANT) {
-								oddsTo1 = spawnRate / 3;
-								spawnInside = true;
-							}
 
-							if (worldRef.random.nextInt(oddsTo1) == 0) {
-								BlockPos pos = new BlockPos(xx, yy, zz);
-								BlockPos posAbove = new BlockPos(xx, yy + 1, zz);
-								BlockState blockStateAbove = getBlockState(worldRef, posAbove);
+								lastTickFoundBlocks++;
 
-								if (blockStateAbove != null && (blockStateAbove.isAir() || blockStateAbove.getBlock() instanceof SnowLayerBlock)) {
+								boolean spawnInside = false;
+								boolean spawnAbove = false;
+								boolean spawnAboveSnow = false;
 
-									spawnAboveSnow = blockStateAbove.getBlock() instanceof SnowLayerBlock;
+								//boolean placeAbove = false;
+								if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT || block.defaultBlockState().getMaterial() == Material.SAND) {
+									spawnAbove = true;
+								}
 
-									ParticleTexLeafColor dust = new ParticleTexLeafColor(worldRef,
-											pos.getX(),
-											spawnAboveSnow ? posAbove.getY() : pos.getY(),
-											pos.getZ(),
-											0D, 0D, 0D, ParticleRegistry.squareGrey);
-									if (spawnAbove) {
-										if (spawnAboveSnow) {
-											dust.setPosition(posAbove.getX(), posAbove.getY() + 0.4F, posAbove.getZ());
+								int oddsTo1 = spawnRateRandChanceOdds;
+								if (block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
+										block.defaultBlockState().getMaterial() == Material.PLANT) {
+									oddsTo1 = spawnRateRandChanceOdds / 3;
+									spawnInside = true;
+								}
+
+								//oddsTo1 = (int) (oddsTo1 * (5F * windStr));
+
+								if (worldRef.random.nextInt(oddsTo1) == 0) {
+									BlockPos pos = new BlockPos(xx, yy, zz);
+									BlockPos posAbove = new BlockPos(xx, yy + 1, zz);
+									BlockState blockStateAbove = getBlockState(worldRef, posAbove);
+
+									if (blockStateAbove != null && (blockStateAbove.isAir() || blockStateAbove.getBlock() instanceof SnowLayerBlock)) {
+
+										spawnAboveSnow = blockStateAbove.getBlock() instanceof SnowLayerBlock;
+
+										boolean test = false;
+										if (!test) {
+											ParticleTexLeafColor dust = new ParticleTexLeafColor(worldRef,
+													pos.getX(),
+													spawnAboveSnow ? posAbove.getY() : pos.getY(),
+													pos.getZ(),
+													0D, 0D, 0D, ParticleRegistry.squareGrey);
+											if (spawnAbove) {
+												if (spawnAboveSnow) {
+													dust.setPosition(posAbove.getX(), posAbove.getY() + 0.4F, posAbove.getZ());
+												} else {
+													dust.setPosition(posAbove.getX(), posAbove.getY() + 0.1F, posAbove.getZ());
+												}
+											} else if (spawnInside) {
+												dust.setPosition(pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+											}
+											dust.setPrevPosX(dust.getPosX());
+											dust.setPrevPosY(dust.getPosY());
+											dust.setPrevPosZ(dust.getPosZ());
+											particleBehavior.initParticleDustGround(dust, spawnInside, spawnAboveSnow);
+											spawnQueue.add(dust);
 										} else {
-											dust.setPosition(posAbove.getX(), posAbove.getY() + 0.1F, posAbove.getZ());
+
+											DustEmitter dustEmitter = new DustEmitter(worldRef,
+													pos.getX(),
+													spawnAboveSnow ? posAbove.getY() : pos.getY(),
+													pos.getZ(),
+													0D, 0D, 0D);
+											dustEmitter.setLifetime(20);
+											spawnQueue.add(dustEmitter);
 										}
-									} else if (spawnInside) {
-										dust.setPosition(pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
 									}
-									dust.setPrevPosX(dust.getPosX());
-									dust.setPrevPosY(dust.getPosY());
-									dust.setPrevPosZ(dust.getPosZ());
-									particleBehavior.initParticleDustGround(dust, spawnInside, spawnAboveSnow);
-									spawnQueue.add(dust);
 								}
 							}
 						}

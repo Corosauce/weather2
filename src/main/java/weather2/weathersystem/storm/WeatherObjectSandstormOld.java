@@ -2,8 +2,6 @@ package weather2.weathersystem.storm;
 
 import java.util.Random;
 
-import com.corosus.coroutil.util.CU;
-import com.corosus.coroutil.util.CULog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
@@ -18,14 +16,14 @@ import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.wind.WindManager;
 
-public class WeatherObjectSandstorm extends WeatherObject {
+public class WeatherObjectSandstormOld extends WeatherObject {
 
 	public int age = 0;
 	public int maxAge = 20*20;
 
 	public Random rand = new Random();
 	
-	public WeatherObjectSandstorm(WeatherManager parManager) {
+	public WeatherObjectSandstormOld(WeatherManager parManager) {
 		super(parManager);
 		
 		this.weatherObjectType = EnumWeatherObjectType.SAND;
@@ -119,7 +117,7 @@ public class WeatherObjectSandstorm extends WeatherObject {
 					Biome biomeIn = world.m_204166_(blockPos).m_203334_();
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
-						WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, WeatherBlocks.blockSandLayer, 3);
+						WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, WeatherBlocks.BLOCK_SAND_LAYER.get(), 3);
 					}
 				}
 			}

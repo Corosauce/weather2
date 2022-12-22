@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "weather2:weather_deflector"
+    ]
+  },
+  "criteria": {
+    "has_weather_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "weather2:weather_item"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "weather2:weather_deflector"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_weather_item",
+      "has_the_recipe"
+    ]
+  ]
+}
