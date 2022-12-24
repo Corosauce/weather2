@@ -1,0 +1,13 @@
+itemGroup.Weather2=Weather2 Itens
+tile.weather2.tornado_sensor.name=Sensor de Tornado
+tile.weather2.tornado_siren.name=Rirene Meteorológica
+tile.weather2.tornado_siren_manual.name=Rirene Manual de Redstone
+tile.weather2.wind_vane.name=Cata-vento
+tile.weather2.weather_forecast.name=Radar Meteorológico
+tile.weather2.weather_machine.name=Máquina do Tempo (clique com o botão direito para pedalar)
+tile.weather2.weather_deflector.name=Defletor de tempo
+tile.weather2.anemometer.name=Anemômetro
+tile.weather2.sand_layer.name=Camada de Areia Colocável
+item.weather2.weather_item.name=Item de tempo
+item.weather2.sand_layer_placeable.name=Camada de Areia Colocável
+item.weather2.pocket_sand.name=Areia de Bolso!
