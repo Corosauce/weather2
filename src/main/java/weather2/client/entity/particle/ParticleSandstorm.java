@@ -22,11 +22,6 @@ public class ParticleSandstorm extends ParticleTexFX {
 		super((ClientLevel) worldIn, posXIn, posYIn, posZIn, mX, mY, mZ, par8Item);
 	}
 
-	/**
-	 *TODO: prevent rendering of particle if outside visible area of thick sandstorm fog
-	 * based on fps changes between performance settings, I suspect game is taking fps hit trying to render particles player cant see anyways due to sandstorm fog effect
-	 */
-
 	@Override
 	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 		super.render(buffer, renderInfo, partialTicks);

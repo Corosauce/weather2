@@ -252,7 +252,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 	public Optional<BlockPos> findWeatherDeflector(ServerLevel level, BlockPos p_143249_, int range) {
 		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) -> {
-			return true;//return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
+			return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
 		}, (p_184055_) -> {
 			return true;//p_184055_.getY() == level.getHeight(Heightmap.Types.WORLD_SURFACE, p_184055_.getX(), p_184055_.getZ()) - 1;
 		}, p_143249_, range, PoiManager.Occupancy.ANY);

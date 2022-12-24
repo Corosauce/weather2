@@ -144,7 +144,7 @@ public class WeatherManagerClient extends WeatherManager {
 			CompoundTag nbt = parNBT.getCompound("data");
 
 			int posX = nbt.getInt("posX");
-			int posY = nbt.getInt("posY") + 10;
+			int posY = nbt.getInt("posY") + 1;
 			int posZ = nbt.getInt("posZ");
 
 			BlockState state = NbtUtils.readBlockState(nbt.getCompound("blockstate"));

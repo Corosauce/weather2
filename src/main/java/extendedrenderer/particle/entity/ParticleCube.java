@@ -1,5 +1,6 @@
 package extendedrenderer.particle.entity;
 
+import com.corosus.coroutil.util.CULog;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
@@ -35,13 +36,14 @@ public class ParticleCube extends ParticleTexFX {
 		 * really basic way to get a sprite from a blockstate, could easily get the wrong one if multiple quads are used per direction
 		 * should do fine for most blocks that have the same texture on every side
 		 */
-		BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
-		BakedModel model = blockrenderdispatcher.getBlockModel(state);
-		for(Direction direction : Direction.values()) {
-			List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
-			if (list.size() > 0) {
-				setSprite(list.get(0).getSprite());
-				break;
+		TextureAtlasSprite sprite = getSpriteFromState(state);
+		if (sprite != null) {
+			setSprite(sprite);
+		} else {
+			CULog.dbg("unable to find sprite to use from block: " + state);
+			sprite = getSpriteFromState(Blocks.DIRT.defaultBlockState());
+			if (sprite != null) {
+				setSprite(sprite);
 			}
 		}
 		int multiplier = Minecraft.getInstance().getBlockColors().getColor(state, this.level, new BlockPos(posXIn, posYIn, posZIn), 0);
@@ -49,6 +51,18 @@ public class ParticleCube extends ParticleTexFX {
 		float mg = ((multiplier >>> 8) & 0xFF) / 255f;
 		float mb = (multiplier & 0xFF) / 255f;
 		setColor(mr, mg, mb);
+	}
+
+	public TextureAtlasSprite getSpriteFromState(BlockState state) {
+		BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
+		BakedModel model = blockrenderdispatcher.getBlockModel(state);
+		for(Direction direction : Direction.values()) {
+			List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
+			if (list.size() > 0) {
+				return list.get(0).getSprite();
+			}
+		}
+		return null;
 	}
 
 	@Override

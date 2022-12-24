@@ -43,8 +43,6 @@ public class WeatherBlocks {
     public static final String WEATHER_ITEM = "weather_item";
     public static final String POCKET_SAND = "pocket_sand";
 
-    //public static Block blockSandLayer;
-
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Weather.MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, Weather.MODID);
 
@@ -59,10 +57,11 @@ public class WeatherBlocks {
     public static final RegistryObject<BlockItem> BLOCK_TORNADO_SIREN_ITEM = ITEMS.register(TORNADO_SIREN, () -> new BlockItem(BLOCK_TORNADO_SIREN.get(), new Item.Properties().tab(Weather.CREATIVE_TAB)));
     public static final RegistryObject<BlockItem> BLOCK_SAND_LAYER_ITEM = ITEMS.register(SAND_LAYER, () -> new BlockItem(BLOCK_SAND_LAYER.get(), new Item.Properties().tab(Weather.CREATIVE_TAB)));
 
-    @SuppressWarnings("ConstantConditions") //no datafixer type needed
+    @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<BlockEntityType<DeflectorBlockEntity>> BLOCK_ENTITY_DEFLECTOR = BLOCK_ENTITIES.register(DEFLECTOR, () ->
             BlockEntityType.Builder.of(DeflectorBlockEntity::new, BLOCK_DEFLECTOR.get()).build(null));
 
+    @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<BlockEntityType<SirenBlockEntity>> BLOCK_ENTITY_TORNADO_SIREN = BLOCK_ENTITIES.register(TORNADO_SIREN, () ->
             BlockEntityType.Builder.of(SirenBlockEntity::new, BLOCK_TORNADO_SIREN.get()).build(null));
 

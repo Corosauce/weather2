@@ -418,6 +418,8 @@ public class StormObject extends WeatherObject {
 		if (posBaseFormationPos == Vec3.ZERO) {
 			posBaseFormationPos = new Vec3(parNBT.getDouble("posBaseFormationPosX"), parNBT.getDouble("posBaseFormationPosX"), parNBT.getDouble("posBaseFormationPosX"));
 		}
+
+		isBeingDeflectedCached = parNBT.getBoolean("isBeingDeflectedCached");
 	}
 	
 	//compose nbt data for packet (and serialization in future)
@@ -505,6 +507,8 @@ public class StormObject extends WeatherObject {
 		data.putDouble("posBaseFormationPosX", posBaseFormationPos.x);
 		data.putDouble("posBaseFormationPosY", posBaseFormationPos.y);
 		data.putDouble("posBaseFormationPosZ", posBaseFormationPos.z);
+
+		data.putBoolean("isBeingDeflectedCached", isBeingDeflectedCached);
 
 	}
 	

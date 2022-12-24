@@ -212,7 +212,7 @@ public class WeatherUtil {
                 }
 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                    if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.DIRT_PATH || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
+                    if (block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.ROOTED_DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.DIRT_PATH || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
                         result = false;
                     }
                     if (!canTornadoGrabBlockRefinedRules(state)) {

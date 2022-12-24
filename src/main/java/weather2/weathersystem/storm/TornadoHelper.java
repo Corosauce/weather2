@@ -509,7 +509,7 @@ public class TornadoHelper {
 						removeCount++;
 						boolean shouldEntityify = blockCount <= ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks;
 						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.AIR.defaultBlockState(), state, pos, playerClose && shouldEntityify));
-						if (playerClose && shouldEntityify) {
+						if (playerClose && shouldEntityify && (state.canOcclude() || state.getMaterial().equals(Material.LEAVES))) {
 							((WeatherManagerServer) this.storm.manager).syncBlockParticleNew(pos, state, storm);
 						}
 					}

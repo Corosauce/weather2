@@ -115,7 +115,7 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(new TextComponent("Summoned sharknado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
-								.then(literal("tornado_player_baby").executes(c -> {
+								/*.then(literal("tornado_player_baby").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 
 									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
@@ -132,7 +132,7 @@ public class WeatherCommand {
 
 									c.getSource().sendSuccess(new TextComponent("Summoned baby tornado"), true);
 									return Command.SINGLE_SUCCESS;
-								}))
+								}))*/
 								.then(literal("tornado_player").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 
@@ -141,7 +141,7 @@ public class WeatherCommand {
 
 									c.getSource().sendSuccess(new TextComponent("Summoned player tornado"), true);
 									return Command.SINGLE_SUCCESS;
-								}))
+								}))/*
 								.then(literal("tornado_pet").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 
@@ -178,7 +178,7 @@ public class WeatherCommand {
 
 									c.getSource().sendSuccess(new TextComponent("Summoned tornado test"), true);
 									return Command.SINGLE_SUCCESS;
-								}))
+								}))*/
 								.then(literal("tornado_f0_max").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
 									stormObject.levelStormIntensityMax = StormObject.STATE_FORMING;

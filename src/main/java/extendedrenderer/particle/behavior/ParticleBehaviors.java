@@ -321,9 +321,9 @@ public class ParticleBehaviors {
 		particle.killWhenFarFromCameraAtLeast = 15;
 		particle.setMotionX(0);
 		particle.setMotionZ(0);
-		particle.setMotionY(-0.1D);
+		//particle.setMotionY(-0.1D);
 		particle.setScale(1.3F * 0.15F);
-		particle.setGravity(0.1F);
+		particle.setGravity(0.05F);
 		particle.windWeight = 5F;
 		particle.setMaxAge(120);
 		particle.setFacePlayer(false);
@@ -494,6 +494,7 @@ public class ParticleBehaviors {
 		particle.rotationYaw = (float)rand.nextInt(360);
 		particle.rotationPitch = (float)rand.nextInt(360);
 		particle.setLifetime(farSpawn ? 30 : 10);
+		particle.setLifetime(40);
 		particle.setGravity(0.09F);
 		particle.setAlpha(0F);
 		float brightnessMulti = 1F - (rand.nextFloat() * 0.4F);
