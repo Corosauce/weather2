@@ -1,0 +1,15 @@
+{
+  "itemGroup.weather2": "Weather2 Items",
+  "block.weather2.tornado_sensor": "Tornado Sensor",
+  "block.weather2.tornado_siren": "Weather Siren",
+  "block.weather2.tornado_siren_manual": "Manual Redstone Siren",
+  "block.weather2.wind_vane": "Wind Vane",
+  "block.weather2.weather_forecast": "Weather Radar",
+  "block.weather2.weather_machine": "Weather Machine (right click to cycle)",
+  "block.weather2.weather_deflector": "Weather Deflector",
+  "block.weather2.anemometer": "Anemometer",
+  "block.weather2.sand_layer": "Placeable Sand Layer",
+  "item.weather2.weather_item": "Weather Item",
+  "item.weather2.sand_layer_placeable": "Placeable Sand Layer",
+  "item.weather2.pocket_sand": "Pocket Sand!"
+}
