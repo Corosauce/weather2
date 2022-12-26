@@ -981,6 +981,8 @@ public class StormObject extends WeatherObject {
 			} else {
 				isBeingDeflectedCached = false;
 			}
+		} else {
+			isBeingDeflectedCached = false;
 		}
 
 	}

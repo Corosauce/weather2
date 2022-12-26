@@ -311,13 +311,13 @@ public class TornadoHelper {
 							break;
 						}
 
-						int bottomY = (int) Math.max(1, storm.posBaseFormationPos.y - 10);
-						int topY = (int) Math.max(2, storm.getPosTop().y);
+						int bottomY = (int) Math.max(parWorld.getMinBuildHeight(), storm.posBaseFormationPos.y - 10);
+						int topY = (int) Math.max(parWorld.getMaxBuildHeight(), storm.getPosTop().y);
 						if (bottomY >= topY) bottomY = topY - 1;
 						int tryY = rand.nextInt(bottomY, topY);
 
-						if (tryY > parWorld.getHeight()) {
-							tryY = parWorld.getHeight();
+						if (tryY > parWorld.getMaxBuildHeight()) {
+							tryY = parWorld.getMaxBuildHeight();
 						}
 
 						int tryX = (int)storm.pos.x + rand.nextInt(tornadoBaseSize + (ii)) - ((tornadoBaseSize / 2) + (ii / 2));

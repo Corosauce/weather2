@@ -162,10 +162,11 @@ public final class ClientWeatherHelper {
 		ClientTickHandler.getClientWeather();
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 		float rainAmount = weather.getVanillaRainAmount();
+		float visualDarknessAmplifier = 0.5F;
 		if (precipitating) {
 			mc.level.getLevelData().setRaining(rainAmount > 0);
-			mc.level.setRainLevel(rainAmount);
-			mc.level.setThunderLevel(rainAmount);
+			mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
+			mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);
 		} else {
 			if (!ClientTickHandler.clientConfigData.overcastMode) {
 				mc.level.getLevelData().setRaining(false);
@@ -174,8 +175,8 @@ public final class ClientWeatherHelper {
 			} else {
 				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
 					mc.level.getLevelData().setRaining(true);
-					mc.level.setRainLevel(rainAmount);
-					mc.level.setThunderLevel(rainAmount);
+					mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
+					mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);
 				} else {
 
 				}
