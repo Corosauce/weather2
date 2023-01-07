@@ -24,8 +24,8 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 
 	//TODO: see forge note on field to use registry delegate
 	//private static final Field _blockColorMap = null;//BlockColors.blockColors;
-	private static final Field _blockColorMap = ObfuscationReflectionHelper.findField(BlockColors.class, "blockColors");
-	private static Map<IRegistryDelegate<Block>, BlockColor> blockColorMap;
+	//private static final Field _blockColorMap = ObfuscationReflectionHelper.findField(BlockColors.class, "blockColors");
+	//private static Map<IRegistryDelegate<Block>, BlockColor> blockColorMap;
 
 	private static ConcurrentHashMap<BlockState, int[]> colorCache = new ConcurrentHashMap<>();
 	/*static {
@@ -43,11 +43,11 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		
 		if (colors == null) {
 		    colors = Minecraft.getInstance().getBlockColors();
-			try {
+			/*try {
 				blockColorMap = (Map<IRegistryDelegate<Block>, BlockColor>) _blockColorMap.get(colors);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);
-			}
+			}*/
 		}
 		
 		BlockPos pos = new BlockPos(posXIn, posYIn, posZIn);
@@ -149,7 +149,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 	}
 
 	private final boolean hasColor(BlockState state) {
-		return blockColorMap.containsKey(state.getBlock().delegate);
+		return false;//blockColorMap.containsKey(state.getBlock().delegate);
 	}
 
 }
