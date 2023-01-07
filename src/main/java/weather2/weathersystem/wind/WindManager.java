@@ -5,10 +5,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import weather2.ClientTickHandler;
 import weather2.ServerWeatherProxy;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
@@ -474,7 +476,12 @@ public class WindManager {
 	 * Handle generic uses of wind force, for stuff like weather objects that arent entities or paticles
 	 */
 	public Vec3 applyWindForceImpl(Vec3 pos, Vec3 motion, float weight, float multiplier, float maxSpeed) {
-		float windSpeed = getWindSpeed();
+		float windSpeed = 0;
+		if (pos != null && false) {
+			windSpeed = getWindSpeedPerlinNoise(pos);
+		} else {
+			windSpeed = getWindSpeed();
+		}
     	float windAngle = getWindAngle(pos);
 
     	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
@@ -600,6 +607,19 @@ public class WindManager {
 
 
 		return data;
+	}
+
+	public float getWindSpeedPerlinNoise(Vec3 pos) {
+		PerlinNoise perlinNoise = ClientTickHandler.weatherManager.cloudManager.getPerlinNoise();
+		/*int indexX = index % xWide;
+		int indexZ = index / xWide;*/
+		int indexX = (int)pos.x;
+		int indexZ = (int)pos.z;
+		double scale = 5;
+		long time = Minecraft.getInstance().level.getGameTime() * 1;
+		double posYAdj = 0;
+		double noiseVal = perlinNoise.getValue(((indexX) * scale) + time, ((indexZ) * scale) + time, posYAdj) + 0.2F;
+		return (float) noiseVal * 2F;
 	}
 
 }

@@ -36,6 +36,17 @@ public class WeatherRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
                 .save(consumer);
 
+        ShapedRecipeBuilder.shaped(WeatherBlocks.BLOCK_FORECAST_ITEM.get(), 1)
+                .pattern("XDX").pattern("DID").pattern("XDX")
+                .define('D', Items.REDSTONE)
+                .define('I', Items.COMPASS)
+                .define('X', WeatherItems.WEATHER_ITEM.get())
+                .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
+                .save(consumer);
+
+        //if (!ConfigMisc.Block_WeatherForecastNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_forecast), group,
+        //				new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.COMPASS, 'X', itemWeatherRecipe});
+
         //TODO: change back to orig recipe once we add sensor block
         ShapedRecipeBuilder.shaped(WeatherBlocks.BLOCK_TORNADO_SIREN_ITEM.get(), 1)
                 .pattern("X X").pattern("DID").pattern("X X")

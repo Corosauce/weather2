@@ -585,7 +585,7 @@ public class SceneEnhancer implements Runnable {
 		}
 
 		//dev testing
-		boolean devTest = true;
+		boolean devTest = false;
 		if (devTest) {
 			/*isRain = false;
 			isSnow = false;

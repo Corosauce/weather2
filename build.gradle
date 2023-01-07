@@ -61,7 +61,7 @@ apply plugin: 'org.spongepowered.mixin'
 ext.buildnumber = 0
 ext.projversion = 0
 
-project.projversion = '1.18.2-2.7.1'
+project.projversion = '1.18.2-2.7.3'
 group = 'com.corosus.weather2' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'weather2'
 

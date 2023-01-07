@@ -2,8 +2,12 @@ package weather2.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.RangeArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.phys.Vec3;
@@ -15,6 +19,7 @@ import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 
+import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class WeatherCommand {
@@ -31,6 +36,13 @@ public class WeatherCommand {
 								.then(literal("print_grab_list").executes(c -> {
 									WeatherUtil.testAllBlocks();
 									c.getSource().sendSuccess(new TextComponent("Tornado grab list printed to debug.log"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("storm_chance").executes(c -> {
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									float chance = wm.getBiomeBasedStormSpawnChanceInArea(new BlockPos(c.getSource().getPosition().x, c.getSource().getPosition().y, c.getSource().getPosition().z));
+
+									c.getSource().sendSuccess(new TextComponent("Likelyhood of storms to spawn here within 1024 blocks: " + (chance * 100)), true);
 									return Command.SINGLE_SUCCESS;
 								}))
 						)
@@ -55,6 +67,24 @@ public class WeatherCommand {
 									wm.getWindManager().startLowWindEvent();
 									wm.getWindManager().windSpeedGlobal = (float) (ConfigWind.windSpeedMin + 0.2F);
 									c.getSource().sendSuccess(new TextComponent("Started low wind event"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+						)
+						.then(literal("wind_angle").requires(s -> s.hasPermission(2))
+								.then(argument("angle", IntegerArgumentType.integer(0, 359)).executes(c -> {
+									int angle = IntegerArgumentType.getInteger(c, "angle");
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									wm.getWindManager().windAngleGlobal = angle;
+									c.getSource().sendSuccess(new TextComponent("Set wind angle for clouds to " + angle), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+						)
+						.then(literal("wind_speed").requires(s -> s.hasPermission(2))
+								.then(argument("speed", FloatArgumentType.floatArg(0, 1.5F)).executes(c -> {
+									float speed = FloatArgumentType.getFloat(c, "speed");
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									wm.getWindManager().windSpeedGlobal = speed;
+									c.getSource().sendSuccess(new TextComponent("Set wind speed for clouds to " + speed), true);
 									return Command.SINGLE_SUCCESS;
 								}))
 						)
@@ -98,17 +128,36 @@ public class WeatherCommand {
 								.then(literal("tornado_f0").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
 
-									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);
+									c.getSource().sendSuccess(new TextComponent("Summoned forming tornado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
 								.then(literal("tornado_f1").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 
-									c.getSource().sendSuccess(new TextComponent("Summoned tornado"), true);
+									c.getSource().sendSuccess(new TextComponent("Summoned f1 tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornado_f2").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE2);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned f2 tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornado_f3").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE3);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned f3 tornado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("tornado_f4").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE4);
+
+									c.getSource().sendSuccess(new TextComponent("Summoned f4 tornado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
 								.then(literal("sharknado").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
+									stormObject.levelStormIntensityMax = StormObject.STATE_STAGE4;
 
 									stormObject.setSharknado(true);
 

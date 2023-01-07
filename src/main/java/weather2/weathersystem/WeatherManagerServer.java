@@ -1,6 +1,7 @@
 package weather2.weathersystem;
 
 import com.corosus.coroutil.util.CULog;
+import com.corosus.coroutil.util.CoroUtilCompatibility;
 import com.corosus.coroutil.util.CoroUtilEntity;
 import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
@@ -533,9 +534,9 @@ public class WeatherManagerServer extends WeatherManager {
 			//Weather.dbg("spawning storm at: " + spawnX + " - " + spawnZ);
 
 			StormObject so = new StormObject(this);
-			so.initFirstTime();
 			so.pos = tryPos;
 			so.layer = layer;
+			so.initFirstTime();
 			//make only layer 0 produce deadly storms
 			if (layer != 0) {
 				so.canBeDeadly = false;
@@ -705,5 +706,38 @@ public class WeatherManagerServer extends WeatherManager {
 		}
 		getStormObjects().clear();
 		lookupStormObjectsByID.clear();
+	}
+
+	/**
+	 * @param posCenter
+	 * @return value between 0 and 1, 0 = no chance, 1 = high chance
+	 */
+	public float getBiomeBasedStormSpawnChanceInArea(BlockPos posCenter) {
+
+		int scanResolution = 64;
+		float samples = 0;
+		float allTemperaturesAdded = 0;
+		/**
+		 * The closer to 0 allTemperaturesAdded is the more likely storms can spawn, the closer it is to samples or -samples the less likely storms can spawn
+		 * 0 = found equal amount of warm and cold biomes, great env for spawning
+		 * negative or positive sample count = found either only warm or only cold
+		 */
+		for (int x = -ConfigMisc.Misc_simBoxRadiusSpawn; x <= ConfigMisc.Misc_simBoxRadiusSpawn; x += scanResolution) {
+			for (int z = -ConfigMisc.Misc_simBoxRadiusSpawn; z <= ConfigMisc.Misc_simBoxRadiusSpawn; z += scanResolution) {
+				BlockPos pos = new BlockPos(posCenter.getX() + x, posCenter.getY(), posCenter.getZ() + z);
+				if (getWorld().isLoaded(pos)) {
+					pos = WeatherUtilBlock.getPrecipitationHeightSafe(getWorld(), pos);
+					Biome bgb = getWorld().m_204166_(pos).m_203334_();
+					allTemperaturesAdded += StormObject.getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(getWorld(), bgb, pos));
+					samples++;
+				}
+			}
+		}
+
+		CULog.dbg("samples: " + samples);
+		CULog.dbg("allTemperaturesAdded: " + allTemperaturesAdded);
+
+		float chance = 1 - (Math.abs(allTemperaturesAdded) / samples);
+		return chance;
 	}
 }

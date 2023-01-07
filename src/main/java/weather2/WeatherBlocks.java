@@ -48,6 +48,7 @@ public class WeatherBlocks {
 
     public static final RegistryObject<SandLayerBlock> BLOCK_SAND_LAYER = BLOCKS.register(SAND_LAYER, () -> new SandLayerBlock(BlockBehaviour.Properties.of(Material.SAND).randomTicks().strength(0.1F).requiresCorrectToolForDrops().sound(SoundType.SAND)));
     public static final RegistryObject<DeflectorBlock> BLOCK_DEFLECTOR = BLOCKS.register(DEFLECTOR, () -> new DeflectorBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+    public static final RegistryObject<ForecastBlock> BLOCK_FORECAST = BLOCKS.register(WEATHER_FORECAST, () -> new ForecastBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     //public static final RegistryObject<SensorBlock> BLOCK_TORNADO_SENSOR = BLOCKS.register(TORNADO_SENSOR, () -> new SensorBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<SirenBlock> BLOCK_TORNADO_SIREN = BLOCKS.register(TORNADO_SIREN, () -> new SirenBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     //public static final RegistryObject<WeatherMachineBlock> BLOCK_WEATHER_MACHINE = BLOCKS.register(WEATHER_MACHINE, () -> new WeatherMachineBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
@@ -56,6 +57,7 @@ public class WeatherBlocks {
     public static final RegistryObject<BlockItem> BLOCK_DEFLECTOR_ITEM = ITEMS.register(DEFLECTOR, () -> new BlockItem(BLOCK_DEFLECTOR.get(), new Item.Properties().tab(Weather.CREATIVE_TAB)));
     public static final RegistryObject<BlockItem> BLOCK_TORNADO_SIREN_ITEM = ITEMS.register(TORNADO_SIREN, () -> new BlockItem(BLOCK_TORNADO_SIREN.get(), new Item.Properties().tab(Weather.CREATIVE_TAB)));
     public static final RegistryObject<BlockItem> BLOCK_SAND_LAYER_ITEM = ITEMS.register(SAND_LAYER, () -> new BlockItem(BLOCK_SAND_LAYER.get(), new Item.Properties().tab(Weather.CREATIVE_TAB)));
+    public static final RegistryObject<BlockItem> BLOCK_FORECAST_ITEM = ITEMS.register(WEATHER_FORECAST, () -> new BlockItem(BLOCK_FORECAST.get(), new Item.Properties().tab(Weather.CREATIVE_TAB)));
 
     @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<BlockEntityType<DeflectorBlockEntity>> BLOCK_ENTITY_DEFLECTOR = BLOCK_ENTITIES.register(DEFLECTOR, () ->

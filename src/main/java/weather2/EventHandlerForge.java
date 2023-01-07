@@ -1,7 +1,13 @@
 package weather2;
 
+import com.corosus.coroutil.util.CULog;
+import com.corosus.coroutil.util.CoroUtilCompatibility;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
@@ -12,6 +18,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import weather2.client.SceneEnhancer;
+import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
@@ -51,6 +58,20 @@ public class EventHandlerForge {
 		if (ent.level.isClientSide && (ent instanceof Player && ((Player) ent).isLocalPlayer())) {
 			onClientPlayerUpdate(event);
 		}
+		/*if (!ent.level.isClientSide && ent instanceof Player) {
+			onServerPlayerUpdate(event);
+		}*/
+	}
+
+	public void onServerPlayerUpdate(LivingEvent.LivingUpdateEvent event) {
+		Level level = event.getEntity().level;
+		if (level.getGameTime() % 40 == 0) {
+			Entity ent = event.getEntity();
+			Biome bgb = level.m_204166_(WeatherUtilBlock.getPrecipitationHeightSafe(level, new BlockPos(Mth.floor(ent.position().x), 0, Mth.floor(ent.position().z)))).m_203334_();
+			float biomeTemp = CoroUtilCompatibility.getAdjustedTemperature(ent.level, bgb, new BlockPos(Mth.floor(ent.position().x), Mth.floor(ent.position().y), Mth.floor(ent.position().z)));
+			CULog.dbg("biomeTemp: " + biomeTemp);
+		}
+
 	}
 
 	@SubscribeEvent

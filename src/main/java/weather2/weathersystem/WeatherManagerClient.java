@@ -45,7 +45,10 @@ public class WeatherManagerClient extends WeatherManager {
 				((ClientLevel) getWorld()).effects().setWeatherParticleRenderHandler(new WeatherParticleRenderHandler());
 			}
 
-			cloudManager.tick();
+			boolean cloudTest = false;
+			if (cloudTest) {
+				cloudManager.tick();
+			}
 		}
 		//((ClientLevel)getWorld()).effects().setCloudRenderHandler(null);
 

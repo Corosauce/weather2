@@ -1,13 +1,16 @@
 package weather2.weathersystem.storm;
 
+import com.corosus.coroutil.config.ConfigCoroUtil;
 import com.corosus.coroutil.util.*;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.ParticleCrossSection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -34,6 +37,7 @@ import net.minecraftforge.fml.util.thread.EffectiveSide;
 import weather2.EntityRegistry;
 import weather2.ServerTickHandler;
 import weather2.Weather;
+import weather2.client.SceneEnhancer;
 import weather2.config.*;
 import weather2.player.PlayerData;
 import weather2.util.*;
@@ -218,6 +222,8 @@ public class StormObject extends WeatherObject {
 	private int ageSinceTornadoTouchdown;
 
 	private boolean isBeingDeflectedCached = true;
+
+	private boolean debugCloudTemperature = false;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -252,6 +258,7 @@ public class StormObject extends WeatherObject {
 		//initial setting, more apparent than gradual adjustments
 		if (naturallySpawned) {
 			levelTemperature = getTemperatureMCToWeatherSys(temp);
+			CULog.dbg("init levelTemperature: " + levelTemperature);
 		}
 		//levelWater = 0;
 		levelWindMomentum = 0;
@@ -665,6 +672,8 @@ public class StormObject extends WeatherObject {
 		if (side == LogicalSide.CLIENT) {
 			if (!WeatherUtil.isPaused()) {
 
+				//CULog.dbg("levelTemperature: " + levelTemperature);
+
 				if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 					setAndUpdateTornado();
 
@@ -704,6 +713,10 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		} else {
+
+			/*if (ConfigCoroUtil.useLoggingDebug) {
+				((ServerLevel) this.manager.getWorld()).sendParticles(ParticleTypes.HEART, this.pos.x, 200, this.pos.z, 10, 0.3D, 0D, 0.3D, 1D);
+			}*/
 
 			if (isTornadoFormingOrGreater() || isCycloneFormingOrGreater()) {
 				setAndUpdateTornado();
@@ -954,6 +967,11 @@ public class StormObject extends WeatherObject {
 		//push tornado away faster if being deflected
 		if (isBeingDeflectedCached()) {
 			finalSpeed *= 5;
+		}
+
+		boolean testing = false;
+		if (testing) {
+			finalSpeed = 0.5F;
 		}
 
 		if (!weatherMachineControlled) {
@@ -1241,7 +1259,10 @@ public class StormObject extends WeatherObject {
 			    return;
             }
 
-			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode) && WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString()) && tryFormStorm) {
+			boolean tempWorkAroundSpawnStorms = false;
+
+			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode)
+					&& WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString()) && tryFormStorm) {
 				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
 				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
 
@@ -1263,7 +1284,7 @@ public class StormObject extends WeatherObject {
 					} else {
 						playerNBT.putLong("lastStormDeadlyTime", world.getGameTime());
 					}
-				} else if (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0) {
+				} else if ((tempWorkAroundSpawnStorms && rand.nextInt(100) == 0) || (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0)) {
 					Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
 
 					if (entP != null) {
@@ -1679,6 +1700,22 @@ public class StormObject extends WeatherObject {
 	
 	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
+
+		if (ConfigCoroUtil.useLoggingDebug) {
+			TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
+
+			ParticleCrossSection part = new ParticleCrossSection(manager.getWorld(), pos.x, pos.y - 20, pos.z,
+					0, 0, 0, sprite);
+			SceneEnhancer.particleBehavior.initParticle(part);
+			SceneEnhancer.particleBehavior.initParticleSandstormTumbleweed(part);
+			part.windWeight = 9999;
+			part.setGravity(0.5F);
+			if (cloudlessStorm) {
+				part.setGravity(0);
+			}
+			SceneEnhancer.particleBehavior.particles.add(part);
+			part.spawnAsWeatherEffect();
+		}
 
 		if (isCloudlessStorm()) return;
 
@@ -2264,7 +2301,8 @@ public class StormObject extends WeatherObject {
 	public float getAdjustedAngle() {
 		float angle = manager.getWindManager().getWindAngleForClouds();
 		
-		float angleAdjust = Math.max(10, Math.min(45, 45F * levelTemperature * 0.2F));
+		//float angleAdjust = Math.max(10, Math.min(45, 45F * levelTemperature * 0.6F));
+		float angleAdjust = 45;
 		float targetYaw = 0;
 		
 		//coldfronts go south to 0, warmfronts go north to 180
@@ -2282,8 +2320,10 @@ public class StormObject extends WeatherObject {
 			if (bestMove > 0) angle -= angleAdjust;
 			if (bestMove < 0) angle += angleAdjust;
 		}
-		
-		//Weather.dbg("ID: " + ID + " - " + manager.wind.getWindAngleForClouds() + " - final angle: " + angle);
+
+		if (manager.getWorld().getGameTime() % 40 == 0) {
+			//Weather.dbg("ID: " + ID + " - " + manager.getWindManager().getWindAngleForClouds() + " - final angle: " + angle + " levelTemperature: " + levelTemperature);
+		}
 		
 		return angle;
 	}
@@ -2808,8 +2848,9 @@ public class StormObject extends WeatherObject {
 		//entityfx.spawnY = ((int)200 - 5) + rand.nextFloat() * 5;
 		entityfx.setCanCollide(false);
     	entityfx.callUpdatePB = false;
-    	
-    	boolean debug = false;
+
+		debugCloudTemperature = false;
+    	boolean debug = debugCloudTemperature;
     	
     	if (debug) {
     		//entityfx.setMaxAge(50 + rand.nextInt(10));
@@ -2906,14 +2947,12 @@ public class StormObject extends WeatherObject {
 		}
 	}
 	
-	public float getTemperatureMCToWeatherSys(float parOrigVal) {
-		//Weather.dbg("orig val: " + parOrigVal);
-		//-0.7 to make 0 be the middle average
-		parOrigVal -= 0.7;
-		//multiply by 2 for an increased difference, for more to work with
-		parOrigVal *= 2F;
-		//Weather.dbg("final val: " + parOrigVal);
-		return parOrigVal;
+	public static float getTemperatureMCToWeatherSys(float parOrigVal) {
+		if (parOrigVal > 0) {
+			return 1;
+		} else {
+ 			return -1;
+		}
 	}
 	
 	public void addWeatherEffectLightning(LightningBoltWeatherNew parEnt, boolean custom) {
@@ -2949,7 +2988,7 @@ public class StormObject extends WeatherObject {
 		this.levelWater = this.levelWaterStartRaining * 2;
 		this.attrib_precipitation = true;
 		this.levelCurIntensityStage = this.STATE_STAGE1;
-		this.alwaysProgresses = true;
+		this.alwaysProgresses = false;
 
 		this.initFirstTime();
 

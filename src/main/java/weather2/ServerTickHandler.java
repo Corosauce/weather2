@@ -95,7 +95,7 @@ public class ServerTickHandler {
 
 					stormObject.setupStorm(null);
 					stormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
-					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE1;
+					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE4;
 					stormObject.setSharknado(true);
 					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
 
@@ -108,7 +108,7 @@ public class ServerTickHandler {
 
 					stormObject.setupStorm(null);
 					stormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
-					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE1;
+					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE4;
 					stormObject.setSharknado(false);
 					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
 
