@@ -162,7 +162,7 @@ public final class ClientWeatherHelper {
 		ClientTickHandler.getClientWeather();
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 		float rainAmount = weather.getVanillaRainAmount();
-		float visualDarknessAmplifier = 0.5F;
+		float visualDarknessAmplifier = 1.0F;
 		if (precipitating) {
 			mc.level.getLevelData().setRaining(rainAmount > 0);
 			mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
