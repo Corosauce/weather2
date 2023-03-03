@@ -280,14 +280,12 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       }
    }
 
-   /**@deprecated Forge: use {@link #render(PoseStack, MultiBufferSource.BufferSource, LightTexture, Camera, float, net.minecraft.client.renderer.culling.Frustum)} with Frustum as additional parameter*/
-   @Deprecated
-   public void render(PoseStack p_107337_, MultiBufferSource.BufferSource p_107338_, LightTexture p_107339_, Camera p_107340_, float p_107341_) {
-       render(p_107337_, p_107338_, p_107339_, p_107340_, p_107341_, null);
-   }
-
    public void render(PoseStack p_107337_, MultiBufferSource.BufferSource p_107338_, LightTexture p_107339_, Camera p_107340_, float p_107341_, @Nullable net.minecraft.client.renderer.culling.Frustum clippingHelper) {
       //if (true) return;
+      float fogStart = RenderSystem.getShaderFogStart();
+      float fogEnd = RenderSystem.getShaderFogEnd();
+      RenderSystem.setShaderFogStart(99999);
+      RenderSystem.setShaderFogEnd(99999);
       p_107339_.turnOnLightLayer();
       RenderSystem.enableDepthTest();
       PoseStack posestack = RenderSystem.getModelViewStack();
@@ -310,7 +308,13 @@ public class ParticleManagerExtended implements PreparableReloadListener {
 
             for(Particle particle : iterable) {
                if (particle instanceof EntityRotFX) {
-                  if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(((EntityRotFX)particle).getBoundingBoxForRender(p_107341_)))
+                  EntityRotFX rotFX = (EntityRotFX) particle;
+                  if (rotFX.getRenderDistanceCull() != -1) {
+                     if (p_107340_.getPosition().distanceTo(rotFX.getPos()) > rotFX.getRenderDistanceCull()) {
+                        continue;
+                     }
+                  }
+                  if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(rotFX.getBoundingBoxForRender(p_107341_)))
                      continue;
                } else {
                   if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox()))
@@ -337,6 +341,8 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       RenderSystem.depthMask(true);
       RenderSystem.disableBlend();
       p_107339_.turnOffLightLayer();
+      RenderSystem.setShaderFogStart(fogStart);
+      RenderSystem.setShaderFogEnd(fogEnd);
    }
 
    public void setLevel(@Nullable ClientLevel p_107343_) {

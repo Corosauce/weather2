@@ -6,7 +6,10 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleCrossSection;
+import extendedrenderer.particle.entity.ParticlePerlinCloud;
+import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -224,6 +227,9 @@ public class StormObject extends WeatherObject {
 	private boolean isBeingDeflectedCached = true;
 
 	private boolean debugCloudTemperature = false;
+
+	@OnlyIn(Dist.CLIENT)
+	public EntityRotFX perlinCloud;
     
 	public StormObject(WeatherManager parManager) {
 		super(parManager);
@@ -1701,7 +1707,7 @@ public class StormObject extends WeatherObject {
 	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
 
-		if (ConfigCoroUtil.useLoggingDebug) {
+		if (false && ConfigCoroUtil.useLoggingDebug && SceneEnhancer.particleBehavior != null) {
 			TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
 
 			ParticleCrossSection part = new ParticleCrossSection(manager.getWorld(), pos.x, pos.y - 20, pos.z,
@@ -1792,10 +1798,27 @@ public class StormObject extends WeatherObject {
 
 		//maintain clouds new system
 
+		boolean perlinCloudTest = false;
+		if (perlinCloudTest) {
+			if (perlinCloud == null || !perlinCloud.isAlive()) {
+				ParticlePerlinCloud particle = new ParticlePerlinCloud(entP.level,
+						pos.x,
+						pos.y,
+						pos.z,
+						0D, 0D, 0D, ParticleRegistry.square16);
+				particle.scale(75);
+				particle.setGravity(0);
+				particle.spawnAsWeatherEffect();
+				perlinCloud = particle;
+			} else {
+				perlinCloud.setPosition(pos.x, pos.y + ((ID % 50) * 0.1F), pos.z);
+				perlinCloud.setAge(0);
+			}
+		}
 
 		//spawn clouds
-
-		if (!pet && !baby && this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
+		boolean spawnClouds = true;
+		if (spawnClouds && !pet && !baby && this.manager.getWorld().getGameTime() % (delay + (isSpinning() ? ConfigStorm.Storm_ParticleSpawnDelay : ConfigMisc.Cloud_ParticleSpawnDelay)) == 0) {
 			for (int i = 0; i < loopSize; i++) {
 				/*if (listParticlesCloud.size() == 0) {
 					double spawnRad = 1;

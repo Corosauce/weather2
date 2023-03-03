@@ -127,6 +127,7 @@ public class WeatherCommand {
 								}))
 								.then(literal("tornado_f0").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
+									stormObject.levelStormIntensityMax = StormObject.STATE_STAGE1;
 
 									c.getSource().sendSuccess(new TextComponent("Summoned forming tornado"), true);
 									return Command.SINGLE_SUCCESS;

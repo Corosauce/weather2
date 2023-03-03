@@ -105,6 +105,8 @@ public class SceneEnhancer implements Runnable {
 
 	private static Biome lastBiomeIn = null;
 
+	private static List<ParticleBird> listBirds = new ArrayList<>();
+
 	public SceneEnhancer() {
 		listPosRandom.clear();
 		listPosRandom.add(new BlockPos(0, -1, 0));
@@ -449,6 +451,18 @@ public class SceneEnhancer implements Runnable {
 	}
 
 	public void tickMisc() {
+
+		Minecraft mc = Minecraft.getInstance();
+		Player player = mc.player;
+		if (mc.level.getGameTime() % 100 == 0) {
+			listBirds.forEach(particleBird -> particleBird.remove());
+			listBirds.clear();
+			for (int i = 0; i < 50; i++) {
+				ParticleBird bird = new ParticleBird(mc.level, player.getX() + mc.level.random.nextDouble() * 3, player.getY() + 10, player.getZ() + mc.level.random.nextDouble() * 3, 0, 0, 0);
+				bird.spawnAsWeatherEffect();
+				listBirds.add(bird);
+			}
+		}
 
 		/*ClientWeatherProxy weather = ClientWeatherProxy.get();
 		if (weather.getPrecipitationType() == RainType.ACID) {
@@ -1624,5 +1638,13 @@ public class SceneEnhancer implements Runnable {
 
 	public static float getParticleFadeInLerpForNewWeatherState() {
     	return (float)particleRateLerp / (float)particleRateLerpMax;
+	}
+
+	public static List<ParticleBird> getListBirds() {
+		return listBirds;
+	}
+
+	public static void setListBirds(List<ParticleBird> listBirds) {
+		SceneEnhancer.listBirds = listBirds;
 	}
 }
