@@ -29,7 +29,7 @@ public class ConfigStorm implements IConfigCategory {
 	//public static double Storm_Deadly_MinIntensity = 5.3D;
 	public static int Storm_HailPerTick = 10;
 	public static int Storm_OddsTo1OfOceanBasedStorm = 300;
-	public static int Storm_OddsTo1OfLandBasedStorm = -1;
+	//public static int Storm_OddsTo1OfLandBasedStorm = -1;
 	//public static int Storm_OddsTo1OfProgressionBase = 15;
 	//public static int Storm_OddsTo1OfProgressionStageMultiplier = 3;
 	public static int Storm_PercentChanceOf_HighWind = 90;
@@ -59,6 +59,16 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Server_Storm_Deadly_OddsTo1 = 30;
 	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, replaces use of Player_Storm_Deadly_TimeBetweenInTicks")
 	public static int Server_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3;
+
+	@ConfigComment("For areas without the right mix of hot and cold biomes")
+	public static int Player_Storm_Deadly_OddsTo1_Land_Based = 300;
+	@ConfigComment("For areas without the right mix of hot and cold biomes")
+	public static int Player_Storm_Deadly_TimeBetweenInTicks_Land_Based = 20*60*20*10; //10 mc days
+	@ConfigComment("For areas without the right mix of hot and cold biomes")
+	public static int Server_Storm_Deadly_OddsTo1_Land_Based = 300;
+	@ConfigComment("For areas without the right mix of hot and cold biomes")
+	public static int Server_Storm_Deadly_TimeBetweenInTicks_Land_Based = 20*60*20*10; //10 mc days
+
 	public static boolean preventServerThunderstorms = true;
 	//lightning
 	public static int Lightning_OddsTo1OfFire = 20;

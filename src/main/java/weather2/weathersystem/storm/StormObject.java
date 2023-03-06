@@ -1244,11 +1244,15 @@ public class StormObject extends WeatherObject {
 					if (ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks != -1) {
 						if (wm.lastStormFormed == 0 || wm.lastStormFormed + ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks < world.getGameTime()) {
 							tryFormStorm = true;
+						} else if (ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks_Land_Based != -1 && wm.lastStormFormed + ConfigStorm.Server_Storm_Deadly_TimeBetweenInTicks_Land_Based < world.getGameTime()) {
+							tryFormStorm = true;
 						}
 					}
 				} else {
 					if (tempAlwaysFormStorm || ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks != -1) {
 						if (tempAlwaysFormStorm || lastStormDeadlyTime == 0 || lastStormDeadlyTime + ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks < world.getGameTime()) {
+							tryFormStorm = true;
+						} else if (ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks_Land_Based != -1 && lastStormDeadlyTime + ConfigStorm.Player_Storm_Deadly_TimeBetweenInTicks_Land_Based < world.getGameTime()) {
 							tryFormStorm = true;
 						}
 					}
@@ -1259,15 +1263,15 @@ public class StormObject extends WeatherObject {
 			    return;
             }
 
-			boolean tempWorkAroundSpawnStorms = false;
-
 			if (((ConfigMisc.overcastMode && manager.getWorld().isRaining()) || !ConfigMisc.overcastMode)
 					&& WeatherUtilConfig.listDimensionsStorms.contains(manager.getWorld().dimension().location().toString()) && tryFormStorm) {
 				int stormFrontCollideDist = ConfigStorm.Storm_Deadly_CollideDistance;
 				int randomChanceOfCollide = ConfigStorm.Player_Storm_Deadly_OddsTo1;
+				int randomChanceOfCollideLand = ConfigStorm.Player_Storm_Deadly_OddsTo1_Land_Based;
 
 				if (ConfigStorm.Server_Storm_Deadly_UseGlobalRate) {
 					randomChanceOfCollide = ConfigStorm.Server_Storm_Deadly_OddsTo1;
+					randomChanceOfCollideLand = ConfigStorm.Server_Storm_Deadly_OddsTo1_Land_Based;
 				}
 
 				if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
@@ -1284,7 +1288,7 @@ public class StormObject extends WeatherObject {
 					} else {
 						playerNBT.putLong("lastStormDeadlyTime", world.getGameTime());
 					}
-				} else if ((tempWorkAroundSpawnStorms && rand.nextInt(100) == 0) || (!isInOcean && ConfigStorm.Storm_OddsTo1OfLandBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfLandBasedStorm) == 0)) {
+				} else if ((!isInOcean && randomChanceOfCollideLand > 0 && rand.nextInt(randomChanceOfCollideLand) == 0)) {
 					Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
 
 					if (entP != null) {
@@ -1701,7 +1705,7 @@ public class StormObject extends WeatherObject {
 	@OnlyIn(Dist.CLIENT)
 	public void tickClient() {
 
-		if (ConfigCoroUtil.useLoggingDebug) {
+		if (false && ConfigCoroUtil.useLoggingDebug && SceneEnhancer.particleBehavior != null) {
 			TextureAtlasSprite sprite = ParticleRegistry.tumbleweed;
 
 			ParticleCrossSection part = new ParticleCrossSection(manager.getWorld(), pos.x, pos.y - 20, pos.z,
