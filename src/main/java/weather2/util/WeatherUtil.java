@@ -1,6 +1,8 @@
 package weather2.util;
 
 import com.corosus.coroutil.util.CULog;
+import com.mojang.math.Vector3d;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -260,6 +262,20 @@ public class WeatherUtil {
             }
         }
         return true;
+    }
+
+    public static float dist(Vector3f vec1, Vector3f vec2) {
+        double d0 = vec2.x() - vec1.x();
+        double d1 = vec2.y() - vec1.y();
+        double d2 = vec2.z() - vec1.z();
+        return (float) Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+    }
+
+    public static double dist(Vector3d vec1, Vector3d vec2) {
+        double d0 = vec2.x - vec1.x;
+        double d1 = vec2.y - vec1.y;
+        double d2 = vec2.z - vec1.z;
+        return Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
     }
     
 }

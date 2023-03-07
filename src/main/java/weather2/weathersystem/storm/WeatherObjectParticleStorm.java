@@ -10,7 +10,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.WeatherBlocks;
+import weather2.client.SceneEnhancer;
 import weather2.config.ConfigSand;
+import weather2.config.ConfigSnow;
+import weather2.datatypes.PrecipitationType;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
@@ -60,14 +63,16 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 		if (type == StormType.SANDSTORM) {
 			return isDesert(biomeIn, forSpawn);
 		} else if (type == StormType.SNOWSTORM) {
-			return isColdForStorm(biomeIn, forSpawn);
+			return isColdForStorm(world, biomeIn, forSpawn, pos);
 		}
 		return false;
 	}
 
-	public static boolean isColdForStorm(Biome biome, boolean forSpawn) {
-		return biome.getPrecipitation() == Biome.Precipitation.SNOW;
-		//return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getRegistryName().toString().toLowerCase().contains("desert");
+	public static boolean isColdForStorm(Level world, Biome biome, boolean forSpawn, BlockPos pos) {
+		//return biome.getPrecipitation() == Biome.Precipitation.SNOW;
+		//adjusted to this way to make it work with serene seasons
+		boolean canPrecip = biome.getPrecipitation() == Biome.Precipitation.RAIN || biome.getPrecipitation() == Biome.Precipitation.SNOW;
+		return canPrecip && SceneEnhancer.shouldSnowHere(world, biome, pos);
 	}
 
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
@@ -137,6 +142,15 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 		//keep it set to do a lot of work only occasionally, prevents chunk render tick spam for client which kills fps
 		int delay = ConfigSand.Sandstorm_Sand_Buildup_TickRate;
 		int loop = (int)((float)ConfigSand.Sandstorm_Sand_Buildup_LoopAmountBase * getIntensity());
+		boolean buildupOutsideArea = ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert;
+		int maxBlockStackingAllowed = ConfigSand.Sandstorm_Sand_Block_Max_Height;
+
+		if (getType() == StormType.SNOWSTORM) {
+			delay = ConfigSnow.Snowstorm_Snow_Buildup_TickRate;
+			loop = (int)((float)ConfigSnow.Snowstorm_Snow_Buildup_LoopAmountBase * getIntensity());
+			buildupOutsideArea = ConfigSnow.Snowstorm_Snow_Buildup_AllowOutsideColdBiomes;
+			maxBlockStackingAllowed = ConfigSnow.Snowstorm_Snow_Block_Max_Height;
+		}
 
 		//sand block buildup
 		if (!world.isClientSide) {
@@ -155,8 +169,9 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 						//avoid unloaded areas
 						if (!world.hasChunkAt(blockPos)) continue;
 
-						if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || canSpawnHere(world, blockPos, getType(), false)) {
-							WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, getBlockForBuildup(), 3);
+						if (buildupOutsideArea ||
+								canSpawnHere(world, blockPos, getType(), false)) {
+							WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, getBlockForBuildup(), maxBlockStackingAllowed);
 						}
 					}
 				}

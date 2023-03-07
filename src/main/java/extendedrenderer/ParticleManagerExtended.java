@@ -239,7 +239,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       if (!this.particlesToAdd.isEmpty()) {
          while((particle = this.particlesToAdd.poll()) != null) {
             this.particles.computeIfAbsent(particle.getRenderType(), (p_107347_) -> {
-               return EvictingQueue.create(16384);
+               return EvictingQueue.create(16384 * 2);
             }).add(particle);
          }
       }
@@ -288,6 +288,10 @@ public class ParticleManagerExtended implements PreparableReloadListener {
 
    public void render(PoseStack p_107337_, MultiBufferSource.BufferSource p_107338_, LightTexture p_107339_, Camera p_107340_, float p_107341_, @Nullable net.minecraft.client.renderer.culling.Frustum clippingHelper) {
       //if (true) return;
+      float fogStart = RenderSystem.getShaderFogStart();
+      float fogEnd = RenderSystem.getShaderFogEnd();
+      RenderSystem.setShaderFogStart(fogStart * 4);
+      RenderSystem.setShaderFogEnd(fogEnd * 4);
       p_107339_.turnOnLightLayer();
       RenderSystem.enableDepthTest();
       PoseStack posestack = RenderSystem.getModelViewStack();
@@ -337,6 +341,8 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       RenderSystem.depthMask(true);
       RenderSystem.disableBlend();
       p_107339_.turnOffLightLayer();
+      RenderSystem.setShaderFogStart(fogStart);
+      RenderSystem.setShaderFogEnd(fogEnd);
    }
 
    public void setLevel(@Nullable ClientLevel p_107343_) {

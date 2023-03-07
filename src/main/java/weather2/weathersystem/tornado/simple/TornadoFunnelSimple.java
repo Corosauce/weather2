@@ -37,6 +37,7 @@ public class TornadoFunnelSimple {
 
     private float targetSizeRadius = 0;
     private float sizeRadiusRate = 0;
+    private float renderDistCutoff = 50;
 
     public TornadoFunnelSimple(ActiveTornadoConfig config, StormObject stormObject) {
         this.config = config;
@@ -141,6 +142,8 @@ public class TornadoFunnelSimple {
         long gameTime = stormObject.getAge();
 
         Level level = stormObject.manager.getWorld();
+
+        renderDistCutoff = Minecraft.getInstance().gameRenderer.getRenderDistance() * 4;
 
         int layers = (int) (config.getHeight() / heightPerLayer);
         float radiusMax = config.getRadiusOfBase() + (config.getRadiusIncreasePerLayer() * (layers+1));
@@ -378,6 +381,7 @@ public class TornadoFunnelSimple {
         particle.setColor(finalBright-0.2F, finalBright-0.2F, finalBright-0.2F);
         particle.setGravity(0);
         particle.rotationYaw = world.random.nextFloat() * 360;
+        particle.setRenderDistanceCull(renderDistCutoff);
         return particle;
     }
 
@@ -413,6 +417,7 @@ public class TornadoFunnelSimple {
         particle.setKillOnCollide(false);
 
         particle.windWeight = 1F;
+        particle.setRenderDistanceCull(renderDistCutoff);
 
         return particle;
     }

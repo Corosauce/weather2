@@ -1,10 +1,7 @@
 package weather2.client;
 
 import com.corosus.coroutil.config.ConfigCoroUtil;
-import com.corosus.coroutil.util.CULog;
-import com.corosus.coroutil.util.ChunkCoordinatesBlock;
-import com.corosus.coroutil.util.CoroUtilBlock;
-import com.corosus.coroutil.util.CoroUtilEntOrParticle;
+import com.corosus.coroutil.util.*;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvents;
@@ -297,6 +294,7 @@ public class SceneEnhancer implements Runnable {
 	/**
 	 * This method is meant to keep playing rain sound past the point where vanilla cuts off its own rain sounds
 	 * edit: used to, now we just fully override
+	 * edit2: it also now prevents rain sounds when its actually snowing
 	 * Modified copy of LevelRenderer.tickRain
 	 * @param p_109694_
 	 */
@@ -306,7 +304,7 @@ public class SceneEnhancer implements Runnable {
 		Player player = Minecraft.getInstance().player;
 
 		float precipitationStrength = ClientWeatherHelper.get().getPrecipitationStrength(player);
-		if (!(precipitationStrength <= 0.0F)) {
+		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level, player.level.m_204166_(player.blockPosition()).m_203334_(), player.blockPosition())) {
 			Random random = new Random(player.getLevel().getGameTime() * 312987231L);
 			LevelReader levelreader = minecraft.level;
 			BlockPos blockpos = player.blockPosition();
@@ -494,8 +492,8 @@ public class SceneEnhancer implements Runnable {
 		float maxPrecip = 1F;
 
 
-
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		BlockPos posPlayer = new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()));
+		Biome biome = entP.level.m_204166_(posPlayer).m_203334_();
 		lastBiomeIn = biome;
 
 		Level world = entP.level;
@@ -551,11 +549,14 @@ public class SceneEnhancer implements Runnable {
 			}
 		}
 
-		boolean isRain = weather.getPrecipitationType(biome) == PrecipitationType.NORMAL;
+		//adjusted to this way to make it work with serene seasons
+		boolean canPrecip = weather.getPrecipitationType(biome) == PrecipitationType.NORMAL || weather.getPrecipitationType(biome) == PrecipitationType.SNOW;
+
+		boolean isRain = canPrecip && shouldRainHere(world, biome, posPlayer);
 		boolean isHail = weather.isHail();
 		boolean isSnowstorm = weather.isSnowstorm();
 		boolean isSandstorm = weather.isSandstorm();
-		boolean isSnow = weather.getPrecipitationType(biome) == PrecipitationType.SNOW && !weather.isSnowstorm() && !isHail;
+		boolean isSnow = canPrecip && !weather.isSnowstorm() && !isHail && shouldSnowHere(world, biome, posPlayer);
 		boolean isRain_WaterParticle = true;
 		boolean isRain_GroundSplash = true;
 		boolean isRain_DownfallSheet = true;
@@ -1624,5 +1625,29 @@ public class SceneEnhancer implements Runnable {
 
 	public static float getParticleFadeInLerpForNewWeatherState() {
     	return (float)particleRateLerp / (float)particleRateLerpMax;
+	}
+
+	/**
+	 * Needed for serene seasons compat
+	 *
+	 * @param level
+	 * @param biome
+	 * @param pos
+	 * @return
+	 */
+	public static boolean shouldRainHere(Level level, Biome biome, BlockPos pos) {
+		return CoroUtilCompatibility.warmEnoughToRain(biome, pos, level);
+	}
+
+	/**
+	 * Needed for serene seasons compat
+	 *
+	 * @param level
+	 * @param biome
+	 * @param pos
+	 * @return
+	 */
+	public static boolean shouldSnowHere(Level level, Biome biome, BlockPos pos) {
+		return CoroUtilCompatibility.coldEnoughToSnow(biome, pos, level);
 	}
 }

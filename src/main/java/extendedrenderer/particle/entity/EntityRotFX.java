@@ -192,6 +192,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
     private boolean useCustomBBForRenderCulling = false;
     private static final AABB INITIAL_AABB = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
     private AABB bbRender = INITIAL_AABB;
+    private float renderDistanceCull = -1;
 
     public EntityRotFX(ClientLevel par1World, double par2, double par4, double par6, double par8, double par10, double par12)
     {
@@ -961,5 +962,13 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
     public void setKillOnCollideActivateAtAge(int killOnCollideActivateAtAge) {
         this.killOnCollideActivateAtAge = killOnCollideActivateAtAge;
+    }
+
+    public float getRenderDistanceCull() {
+        return renderDistanceCull;
+    }
+
+    public void setRenderDistanceCull(float renderDistanceCull) {
+        this.renderDistanceCull = renderDistanceCull;
     }
 }

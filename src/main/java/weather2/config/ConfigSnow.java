@@ -1,5 +1,6 @@
 package weather2.config;
 
+import com.corosus.modconfig.ConfigComment;
 import com.corosus.modconfig.IConfigCategory;
 import weather2.Weather;
 
@@ -8,13 +9,17 @@ import java.io.File;
 
 public class ConfigSnow implements IConfigCategory {
 
+    @ConfigComment("Amount of game ticks between sand buildup iterations, keep it high to prevent client side chunk tick spam that destroys FPS")
+    public static int Snowstorm_Snow_Buildup_TickRate = 40;
 
-	//snow
-	public static boolean Snow_PerformSnowfall = false;
-	//public static boolean Snow_ExtraPileUp = false;
-	public static int Snow_RarityOfBuildup = 64;
-	//public static int Snow_MaxBlockBuildupHeight = 3;
-	//public static boolean Snow_SmoothOutPlacement = false;
+    @ConfigComment("Base amount of loops done per iteration, scaled by the snowstorms intensity (value given here is the max possible), eg: at max storm intensity, every 40th tick, itll try to build up snow in 800 places around the storm")
+    public static int Snowstorm_Snow_Buildup_LoopAmountBase = 800;
+
+    @ConfigComment("Max height of snow allowed to buildup against something, higher = things get more buried over time")
+    public static int Snowstorm_Snow_Block_Max_Height = 5;
+
+    @ConfigComment("Allow layered snow blocks to buildup outside cold biomes where snowstorm is")
+    public static boolean Snowstorm_Snow_Buildup_AllowOutsideColdBiomes = true;
 
     @Override
     public String getName() {

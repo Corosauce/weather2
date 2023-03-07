@@ -1,5 +1,6 @@
 package weather2;
 
+import com.corosus.coroutil.util.CULog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -163,6 +164,9 @@ public final class ClientWeatherHelper {
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 		float rainAmount = weather.getVanillaRainAmount();
 		float visualDarknessAmplifier = 0.5F;
+		//using 1F to make shaders happy
+		visualDarknessAmplifier = 1F;
+		//CULog.dbg("rainAmount: " + rainAmount);
 		if (precipitating) {
 			mc.level.getLevelData().setRaining(rainAmount > 0);
 			mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
@@ -182,6 +186,11 @@ public final class ClientWeatherHelper {
 				}
 			}
 		}
+
+		//TESTING
+		/*mc.level.getLevelData().setRaining(true);
+		mc.level.setRainLevel(1);
+		mc.level.setThunderLevel(1);*/
 	}
 
 	public void tickRainRates() {

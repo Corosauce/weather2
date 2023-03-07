@@ -25,6 +25,9 @@ public class ConfigSand implements IConfigCategory {
     @ConfigComment("Base amount of loops done per iteration, scaled by the sandstorms intensity (value given here is the max possible)")
     public static int Sandstorm_Sand_Buildup_LoopAmountBase = 800;
 
+    @ConfigComment("Max height of sand allowed to buildup against something, higher = things get more buried over time")
+    public static int Sandstorm_Sand_Block_Max_Height = 3;
+
     @ConfigComment("Allow layered sand blocks to buildup outside deserty biomes where sandstorm is")
     public static boolean Sandstorm_Sand_Buildup_AllowOutsideDesert = true;
 

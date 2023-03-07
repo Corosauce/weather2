@@ -61,7 +61,7 @@ apply plugin: 'org.spongepowered.mixin'
 ext.buildnumber = 0
 ext.projversion = 0
 
-project.projversion = '1.18.2-2.7.4'
+project.projversion = '1.18.2-2.7.5'
 group = 'com.corosus.weather2' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'weather2'
 
@@ -205,7 +205,7 @@ dependencies {
     //implementation fg.deobf(ltlib)
 
 
-    implementation fg.deobf('com.corosus.coroutil:coroutil:1.18.1-1.2.43')
+    implementation fg.deobf('com.corosus.coroutil:coroutil:1.18.2-1.2.45')
     //implementation fg.deobf("com.lovetropics.minigames:LTWeather:0.0.1-alpha+custom")
     //implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.0-alpha+custom")
     //implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.0-alpha+639-gha")
