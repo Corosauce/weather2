@@ -1,6 +1,5 @@
 package weather2.config;
 
-import com.corosus.coroutil.config.ConfigCoroUtil;
 import com.corosus.modconfig.ConfigComment;
 import com.corosus.modconfig.IConfigCategory;
 import weather2.Weather;
@@ -12,21 +11,20 @@ import java.io.File;
 public class ConfigTornado implements IConfigCategory {
 
 
-
     @ConfigComment("Prevents tearing up of dirt, grass, sand and logs, overrides strength based grabbing")
-	public static boolean Storm_Tornado_RefinedGrabRules = true;
-	@ConfigComment("Makes weather boring! or peacefull?")
-	public static boolean Storm_NoTornadosOrCyclones = false;
-	//tornado
-	@ConfigComment("Grab player or not")
-	public static boolean Storm_Tornado_grabPlayer = true;
-	@ConfigComment("Prevent grabbing of non players")
-	public static boolean Storm_Tornado_grabPlayersOnly = false;
-	@ConfigComment("Grab hostile mobs, overridden by Storm_Tornado_grabPlayersOnly")
-	public static boolean Storm_Tornado_grabMobs = true;
-	@ConfigComment("Grab animals, overridden by Storm_Tornado_grabPlayersOnly")
-	public static boolean Storm_Tornado_grabAnimals = true;
-	@ConfigComment("Grab villagers, overridden by Storm_Tornado_grabPlayersOnly")
+    public static boolean Storm_Tornado_RefinedGrabRules = true;
+    @ConfigComment("Makes weather boring! or peaceful?")
+    public static boolean Storm_NoTornadoesOrCyclones = false;
+    //tornado
+    @ConfigComment("Grab player or not")
+    public static boolean Storm_Tornado_grabPlayer = true;
+    @ConfigComment("Prevent grabbing of non players")
+    public static boolean Storm_Tornado_grabPlayersOnly = false;
+    @ConfigComment("Grab hostile mobs, overridden by Storm_Tornado_grabPlayersOnly")
+    public static boolean Storm_Tornado_grabMobs = true;
+    @ConfigComment("Grab animals, overridden by Storm_Tornado_grabPlayersOnly")
+    public static boolean Storm_Tornado_grabAnimals = true;
+    @ConfigComment("Grab villagers, overridden by Storm_Tornado_grabPlayersOnly")
 	public static boolean Storm_Tornado_grabVillagers = true;
 	@ConfigComment("Tear up blocks from the ground based on conditions defined")
 	public static boolean Storm_Tornado_grabBlocks = true;
@@ -48,7 +46,8 @@ public class ConfigTornado implements IConfigCategory {
 	public static int Storm_Tornado_maxBlocksGrabbedPerTick = 5;
 	@ConfigComment("How rarely a block will be removed while spinning around a tornado")
 	public static int Storm_Tornado_rarityOfDisintegrate = 15;
-	public static int Storm_Tornado_rarityOfBreakOnFall = 5;
+    @ConfigComment("No comment is given")
+    public static int Storm_Tornado_rarityOfBreakOnFall = 5;
 	//@ConfigComment(":D")
 	//public static int Storm_Tornado_rarityOfFirenado = -1;
 	@ConfigComment("Make tornados initial heading aimed towards closest player")

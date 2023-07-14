@@ -2,12 +2,13 @@ package weather2.weathersystem.fog;
 
 import com.corosus.coroutil.util.CULog;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import weather2.datatypes.WeatherEventType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.entity.player.Player;
 import com.mojang.math.Vector3f;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
@@ -89,7 +90,7 @@ public class FogAdjuster {
         if (fogDisco) {
             if (lastWeatherType != null) {
                 if (randDelay <= 0) {
-                    Random rand = new Random();
+                    RandomSource rand = RandomSource.create();
                     randDelay = 20 + rand.nextInt(5);
                     startRandom();
                 }
@@ -137,21 +138,21 @@ public class FogAdjuster {
         }
     }
 
-    public void onFogColors(EntityViewRenderEvent.FogColors event) {
+    public void onFogColors(ViewportEvent.ComputeFogColor event) {
         updateWeatherState();
 
         //get vanilla settings
         fogVanilla.getRgb().set(event.getRed(), event.getGreen(), event.getBlue());
 
         if (SceneEnhancer.isFogOverridding()) {
-            float brightness = Mth.clamp(Mth.cos(Minecraft.getInstance().level.getTimeOfDay(1F) * ((float)Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
+            float brightness = Mth.clamp(Mth.cos(Minecraft.getInstance().level.getTimeOfDay(1F) * ((float) Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
             event.setRed(activeProfile.getRgb().x() * brightness);
             event.setGreen(activeProfile.getRgb().y() * brightness);
             event.setBlue(activeProfile.getRgb().z() * brightness);
         }
     }
 
-    public void onFogRender(EntityViewRenderEvent.RenderFogEvent event) {
+    public void onFogRender(ViewportEvent.RenderFog event) {
         updateWeatherState();
 
         //get vanilla settings
@@ -177,7 +178,7 @@ public class FogAdjuster {
     }
 
     public void startRandom() {
-        Random rand = new Random();
+        RandomSource rand = RandomSource.create();
         int randFog = 0;
         if (activeProfile.getFogEnd() < 50) {
             randFog = 50 + rand.nextInt(50);

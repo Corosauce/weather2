@@ -14,8 +14,10 @@ public class ConfigSand implements IConfigCategory {
     public static boolean Storm_NoSandstorms = false;
 
 	//sandstorm settings
-	public static boolean Sandstorm_UseGlobalServerRate = false;
-	public static int Sandstorm_OddsTo1 = 30;
+    @ConfigComment("No comment is given")
+    public static boolean Sandstorm_UseGlobalServerRate = false;
+    @ConfigComment("No comment is given")
+    public static int Sandstorm_OddsTo1 = 30;
 	@ConfigComment("Time between sandstorms for either each player or entire server depending on if global rate is on, default: 3 client days")
 	public static int Sandstorm_TimeBetweenInTicks = 20*60*20*3;
 
@@ -31,10 +33,14 @@ public class ConfigSand implements IConfigCategory {
     @ConfigComment("Allow layered sand blocks to buildup outside deserty biomes where sandstorm is")
     public static boolean Sandstorm_Sand_Buildup_AllowOutsideDesert = true;
 
+    @ConfigComment("No comment is given")
     public static double Sandstorm_Particle_Dust_effect_rate = 0.6D;
+    @ConfigComment("No comment is given")
     public static double Precipitation_Particle_effect_rate = 0.7D;
+    @ConfigComment("No comment is given")
     public static double Sandstorm_Particle_Debris_effect_rate = 0.6D;
 
+    @ConfigComment("No comment is given")
     public static boolean Sandstorm_Siren_PleaseNoDarude = false;
 
     @Override

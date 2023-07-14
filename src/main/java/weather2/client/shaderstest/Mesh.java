@@ -2,6 +2,7 @@ package weather2.client.shaderstest;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.util.RandomSource;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -39,9 +40,9 @@ public class Mesh {
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
 
-        float radius = 10;
-        Random rand = new Random();
-        /*for (int i = 0; i < extraRenders; i++) {
+        /*float radius = 10;
+        RandomSource rand = RandomSource.create();
+        for (int i = 0; i < extraRenders; i++) {
             Matrix4fe matOffset = new Matrix4fe();
             matOffset.identity();
             matOffset.translate(rand.nextFloat() * radius - rand.nextFloat() * radius, rand.nextFloat() * radius - rand.nextFloat() * radius, rand.nextFloat() * radius - rand.nextFloat() * radius);

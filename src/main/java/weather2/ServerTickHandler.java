@@ -3,14 +3,14 @@ package weather2;
 import com.corosus.coroutil.util.CULog;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -26,28 +26,28 @@ public class ServerTickHandler {
 	private static final Map<ResourceKey<Level>, WeatherManagerServer> MANAGERS = new Reference2ObjectOpenHashMap<>();
 	private static final HashMap<String, WeatherManagerServer> MANAGERSLOOKUP = new HashMap<>();
 
-	@SubscribeEvent
-	public static void onWorldLoad(WorldEvent.Load event) {
-		LevelAccessor world = event.getWorld();
-		if (!world.isClientSide() && world instanceof ServerLevel) {
-			ServerLevel serverWorld = (ServerLevel) world;
-			ResourceKey<Level> dimension = serverWorld.dimension();
-			WeatherManagerServer weatherManagerServer = new WeatherManagerServer(serverWorld);
-			weatherManagerServer.read();
-			MANAGERS.put(dimension, weatherManagerServer);
-			MANAGERSLOOKUP.put(dimension.location().toString(), weatherManagerServer);
-		}
-	}
+    @SubscribeEvent
+    public static void onWorldLoad(LevelEvent.Load event) {
+        LevelAccessor world = event.getLevel();
+        if (!world.isClientSide() && world instanceof ServerLevel) {
+            ServerLevel serverWorld = (ServerLevel) world;
+            ResourceKey<Level> dimension = serverWorld.dimension();
+            WeatherManagerServer weatherManagerServer = new WeatherManagerServer(serverWorld);
+            weatherManagerServer.read();
+            MANAGERS.put(dimension, weatherManagerServer);
+            MANAGERSLOOKUP.put(dimension.location().toString(), weatherManagerServer);
+        }
+    }
 
-	@SubscribeEvent
-	public static void onWorldUnload(WorldEvent.Unload event) {
-		LevelAccessor world = event.getWorld();
-		if (!world.isClientSide() && world instanceof ServerLevel) {
-			ServerLevel serverWorld = (ServerLevel) world;
-			MANAGERS.remove(serverWorld.dimension());
-			MANAGERSLOOKUP.remove(serverWorld.dimension().toString());
-		}
-	}
+    @SubscribeEvent
+    public static void onWorldUnload(LevelEvent.Unload event) {
+        LevelAccessor world = event.getLevel();
+        if (!world.isClientSide() && world instanceof ServerLevel) {
+            ServerLevel serverWorld = (ServerLevel) world;
+            MANAGERS.remove(serverWorld.dimension());
+            MANAGERSLOOKUP.remove(serverWorld.dimension().toString());
+        }
+    }
 
 	@SubscribeEvent
 	public static void tickServer(TickEvent.ServerTickEvent event) {

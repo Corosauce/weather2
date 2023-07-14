@@ -15,8 +15,6 @@ import weather2.util.WeatherUtilSound;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 
-import java.util.List;
-
 public class SirenBlockEntity extends BlockEntity {
 
     public long lastPlayTime = 0L;
@@ -58,7 +56,7 @@ public class SirenBlockEntity extends BlockEntity {
 
                         if (pos.distanceTo(storm.pos) < storm.getSize()) {
                             String soundToPlay = "siren_sandstorm_5_extra";
-                            if (level.random.nextBoolean()) {
+                            if (level.random.nextBoolean()) {// ATTENTION
                                 soundToPlay = "siren_sandstorm_6_extra";
                             }
 

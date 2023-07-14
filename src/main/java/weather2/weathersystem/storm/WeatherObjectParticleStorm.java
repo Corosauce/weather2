@@ -1,32 +1,32 @@
 package weather2.weathersystem.storm;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.Tags;
 import weather2.WeatherBlocks;
 import weather2.client.SceneEnhancer;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigSnow;
-import weather2.datatypes.PrecipitationType;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.wind.WindManager;
-
-import java.util.Random;
 
 public class WeatherObjectParticleStorm extends WeatherObject {
 
 	public int age = 0;
 	public int maxAge = 20*20;
 
-	public Random rand = new Random();
+	public RandomSource rand = RandomSource.create();
 
 	public StormType type;
 
@@ -59,7 +59,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 	}
 
 	public static boolean canSpawnHere(Level world, BlockPos pos, StormType type, boolean forSpawn) {
-		Biome biomeIn = world.m_204166_(pos).m_203334_();
+		Holder<Biome> biomeIn = world.getBiome(pos);
 		if (type == StormType.SANDSTORM) {
 			return isDesert(biomeIn, forSpawn);
 		} else if (type == StormType.SNOWSTORM) {
@@ -68,23 +68,24 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 		return false;
 	}
 
-	public static boolean isColdForStorm(Level world, Biome biome, boolean forSpawn, BlockPos pos) {
+	public static boolean isColdForStorm(Level world, Holder<Biome> biomeHolder, boolean forSpawn, BlockPos pos) {
+		Biome biome = biomeHolder.get();
 		//return biome.getPrecipitation() == Biome.Precipitation.SNOW;
 		//adjusted to this way to make it work with serene seasons
-		boolean canPrecip = biome.getPrecipitation() == Biome.Precipitation.RAIN || biome.getPrecipitation() == Biome.Precipitation.SNOW;
+		boolean canPrecip = biome.getPrecipitation() == Biome.Precipitation.RAIN ||
+				biome.getPrecipitation() == Biome.Precipitation.SNOW;
 		return canPrecip && SceneEnhancer.shouldSnowHere(world, biome, pos);
 	}
 
-	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		//TODO: make sure new comparison works
-		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getRegistryName().toString().toLowerCase().contains("desert");
+	public static boolean isDesert(Holder<Biome> biomeHolder, boolean forSpawn) {
+		return biomeHolder.is(Tags.Biomes.IS_DESERT) || (!forSpawn && biomeHolder.is(BiomeTags.IS_RIVER));
 	}
 
 	@Override
 	public int getSize() {
 		return 250;
 	}
-	
+
 	@Override
 	public void tick() {
 		super.tick();
@@ -180,7 +181,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 	}
 
 	public Vec3 getRandomPosInStorm() {
-		Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 		int x = (int) Math.floor(posGround.x + rand.nextInt(getSize()) - rand.nextInt(getSize()));
 		int z = (int) Math.floor(posGround.z + rand.nextInt(getSize()) - rand.nextInt(getSize()));
 		int y = WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(x, 128, z)).getY();

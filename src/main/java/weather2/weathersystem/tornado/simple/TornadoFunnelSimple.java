@@ -8,6 +8,7 @@ import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Dolphin;
@@ -22,7 +23,6 @@ import weather2.weathersystem.tornado.ActiveTornadoConfig;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 public class TornadoFunnelSimple {
 
@@ -167,9 +167,9 @@ public class TornadoFunnelSimple {
 
         float adjustedRate = 1F;
         if (!isPet) {
-            if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+            if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
                 adjustedRate = 0.6F;
-            } else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+            } else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
                 adjustedRate = 0.3F;
             }
         }
@@ -464,7 +464,7 @@ public class TornadoFunnelSimple {
         pivotingParticle.prevRotationYaw = pivotingParticle.rotationYaw;
         pivotingParticle.setPivotPrev(pivotingParticle.getPivot());
         pivotingParticle.setPivotRotPrev(pivotingParticle.getPivotRot());
-        Random rand = new Random();
+        RandomSource rand = RandomSource.create();
         if (explode) {
             pivotingParticle.setMotionX((rand.nextFloat() - rand.nextFloat()) * 2F);
             pivotingParticle.setMotionZ((rand.nextFloat() - rand.nextFloat()) * 2F);

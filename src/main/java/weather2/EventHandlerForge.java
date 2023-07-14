@@ -10,9 +10,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
-import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.ViewportEvent.ComputeFogColor;
+import net.minecraftforge.client.event.ViewportEvent.RenderFog;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,21 +28,21 @@ public class EventHandlerForge {
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-    public void worldRender(RenderLevelLastEvent event)
-    {
-		ClientTickHandler.getClientWeather();
-    }
+	public void worldRender(RenderLevelStageEvent event) {
+		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER)
+			ClientTickHandler.getClientWeather();
+	}
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-    public void onFogColors(FogColors event) {
-        SceneEnhancer.getFogAdjuster().onFogColors(event);
-		
+	public void onFogColors(ComputeFogColor event) {
+		SceneEnhancer.getFogAdjuster().onFogColors(event);
+
 	}
-	
+
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void onFogRender(RenderFogEvent event) {
+	public void onFogRender(RenderFog event) {
 		SceneEnhancer.getFogAdjuster().onFogRender(event);
 	}
 	
@@ -53,7 +53,7 @@ public class EventHandlerForge {
 	}
 
 	@SubscribeEvent
-	public void onEntityLivingUpdate(LivingEvent.LivingUpdateEvent event) {
+	public void onEntityLivingUpdate(LivingEvent.LivingTickEvent event) {
 		Entity ent = event.getEntity();
 		if (ent.level.isClientSide && (ent instanceof Player && ((Player) ent).isLocalPlayer())) {
 			onClientPlayerUpdate(event);
@@ -63,11 +63,11 @@ public class EventHandlerForge {
 		}*/
 	}
 
-	public void onServerPlayerUpdate(LivingEvent.LivingUpdateEvent event) {
+	public void onServerPlayerUpdate(LivingEvent.LivingTickEvent event) {
 		Level level = event.getEntity().level;
 		if (level.getGameTime() % 40 == 0) {
 			Entity ent = event.getEntity();
-			Biome bgb = level.m_204166_(WeatherUtilBlock.getPrecipitationHeightSafe(level, new BlockPos(Mth.floor(ent.position().x), 0, Mth.floor(ent.position().z)))).m_203334_();
+			Biome bgb = level.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(level, new BlockPos(Mth.floor(ent.position().x), 0, Mth.floor(ent.position().z)))).get();
 			float biomeTemp = CoroUtilCompatibility.getAdjustedTemperature(ent.level, bgb, new BlockPos(Mth.floor(ent.position().x), Mth.floor(ent.position().y), Mth.floor(ent.position().z)));
 			CULog.dbg("biomeTemp: " + biomeTemp);
 		}
@@ -76,7 +76,7 @@ public class EventHandlerForge {
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void onClientPlayerUpdate(LivingEvent.LivingUpdateEvent event) {
+	public void onClientPlayerUpdate(LivingEvent.LivingTickEvent event) {
 
 		Entity ent = event.getEntity();
 		WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;

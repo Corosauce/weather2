@@ -5,6 +5,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
@@ -36,7 +37,7 @@ public class CloudPiece {
     public float alpha = 1F;
     public float scale = 1F;
 
-    public Random rand = new Random();
+    public RandomSource rand;
 
     public AABB aabb = new AABB(0, 0, 0, 1, 1, 1);
 
@@ -49,7 +50,7 @@ public class CloudPiece {
     public int fadeOutMax = 10;
 
     public CloudPiece() {
-        rand = new Random(5);
+        rand = RandomSource.create(5);
     }
 
     public void tick() {
@@ -60,14 +61,13 @@ public class CloudPiece {
         fadeInMax = 15;
         fadeOutMax = 15;
 
-        rand = new Random(index);
+        rand = RandomSource.create(index);
         long time = Minecraft.getInstance().level.getGameTime();
 
         int testmodes = 4;
 
         if (testmodes == 0) {
 
-            //Random rand = new Random();
             int range = 150;
             posY = 2 + rand.nextInt(range);
 

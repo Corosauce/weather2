@@ -2,6 +2,7 @@ package weather2.blockentity;
 
 import com.corosus.coroutil.util.CULog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,7 +31,7 @@ public class DeflectorBlockEntity extends BlockEntity {
     public void init() {
         if (!level.isClientSide()) {
             CULog.dbg("adding weather deflector poi at " + getBlockPos());
-            ((ServerLevel)level).getPoiManager().add(getBlockPos(), WeatherBlocks.POI_DEFLECTOR);
+            ((ServerLevel) level).getPoiManager().add(getBlockPos(), Holder.direct(WeatherBlocks.POI_DEFLECTOR_INSTANCE.get()));
         }
     }
 }

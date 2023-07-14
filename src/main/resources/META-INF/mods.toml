@@ -1,6 +1,6 @@
-modLoader="javafml"
-loaderVersion="[39,)"
-issueTrackerURL="https://github.com/Corosauce/weather2/issues"
+modLoader = "javafml"
+loaderVersion = "[41,)"
+issueTrackerURL = "https://github.com/Corosauce/weather2/issues"
 license="All Rights Reserved"
 
 [[mods]]
@@ -15,7 +15,7 @@ description='''
 
 [[dependencies.weather2]]
 modId="coroutil"
-mandatory=true
-versionRange="[1.18.1-1.2.37,)"
-ordering="NONE"
+mandatory = true
+versionRange = "[1.19.2-1.2.37,)"
+ordering = "NONE"
 side="BOTH"

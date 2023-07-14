@@ -4,10 +4,11 @@ import com.corosus.coroutil.util.CoroUtilEntOrParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
@@ -19,8 +20,6 @@ import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
-
-import java.util.Random;
 
 public class WindManager {
 	public WeatherManager manager;
@@ -61,8 +60,8 @@ public class WindManager {
 	
 	public WindManager(WeatherManager parManager) {
 		manager = parManager;
-		
-		Random rand = new Random();
+
+		RandomSource rand = RandomSource.create();
 		
 		windAngleGlobal = rand.nextInt(360);
 	}
@@ -78,7 +77,7 @@ public class WindManager {
 	}
 
 	public void startHighWindEvent() {
-		highWindTimer = ConfigWind.highWindTimerEnableAmountBase + (new Random()).nextInt(ConfigWind.highWindTimerEnableAmountRnd);
+		highWindTimer = ConfigWind.highWindTimerEnableAmountBase + RandomSource.create().nextInt(ConfigWind.highWindTimerEnableAmountRnd);
 	}
 
 	public boolean isHighWindEventActive() {
@@ -90,7 +89,7 @@ public class WindManager {
 	}
 
 	public void startLowWindEvent() {
-		lowWindTimer = ConfigWind.lowWindTimerEnableAmountBase + (new Random()).nextInt(ConfigWind.lowWindTimerEnableAmountRnd);
+		lowWindTimer = ConfigWind.lowWindTimerEnableAmountBase + RandomSource.create().nextInt(ConfigWind.lowWindTimerEnableAmountRnd);
 	}
 
 	public void stopLowWindEvent() {
@@ -164,7 +163,7 @@ public class WindManager {
 
 	public void tick() {
 
-		Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 
 		//debug
 		//Weather.dbg("wind angle: " + windAngleGlobal);
@@ -316,7 +315,7 @@ public class WindManager {
 				}
 
 				//global wind angle
-				//windAngleGlobal += ((new Random()).nextInt(5) - 2) * 0.2F;
+				//windAngleGlobal += (RandomSource.create().nextInt(5) - 2) * 0.2F;
 				windAngleGlobal += (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate) - (rand.nextFloat() * ConfigWind.globalWindChangeAmountRate);
 
 				//windAngleGlobal += 0.1;
@@ -381,7 +380,7 @@ public class WindManager {
 	}
 
 	/*public void tick(Level world) {
-		Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 
 		FORCE_ON_DEBUG_TESTING = true;
 

@@ -16,14 +16,15 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class ParticleCube extends ParticleTexFX {
 
@@ -57,7 +58,7 @@ public class ParticleCube extends ParticleTexFX {
 		BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
 		BakedModel model = blockrenderdispatcher.getBlockModel(state);
 		for(Direction direction : Direction.values()) {
-			List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
+			List<BakedQuad> list = model.getQuads(state, direction, RandomSource.create(), ModelData.EMPTY, null);
 			if (list.size() > 0) {
 				return list.get(0).getSprite();
 			}

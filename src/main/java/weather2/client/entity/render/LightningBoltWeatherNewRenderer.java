@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.weathersystem.storm.LightningBoltWeatherNew;
@@ -25,7 +26,7 @@ public class LightningBoltWeatherNewRenderer extends EntityRenderer<LightningBol
       float[] afloat1 = new float[8];
       float f = 0.0F;
       float f1 = 0.0F;
-      Random random = new Random(p_115266_.seed);
+      RandomSource random = RandomSource.create(p_115266_.seed);
 
       for(int i = 7; i >= 0; --i) {
          afloat[i] = f;
@@ -38,7 +39,7 @@ public class LightningBoltWeatherNewRenderer extends EntityRenderer<LightningBol
       Matrix4f matrix4f = p_115269_.last().pose();
 
       for(int j = 0; j < 4; ++j) {
-         Random random1 = new Random(p_115266_.seed);
+         RandomSource random1 = RandomSource.create(p_115266_.seed);
 
          for(int k = 0; k < 3; ++k) {
             int l = 7;

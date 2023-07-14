@@ -2,6 +2,7 @@ package weather2.client.shaderstest;
 
 import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import weather2.weathersystem.sky.CloudRenderHandler;
 
@@ -250,7 +251,7 @@ public class MeshBufferManagerParticle {
                 0.46193552017211903F,0.461935520172119F,3.462114691734314F
         };
 
-        Random rand = new Random(5);
+        RandomSource rand = RandomSource.create(5);
 
         /*positions = new float[]{
                 -0.5f, 0.5f, 0.0f,

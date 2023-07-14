@@ -1,14 +1,15 @@
 package weather2.weathersystem.storm;
 
-import java.util.Random;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Holder;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.Tags;
 import weather2.WeatherBlocks;
 import weather2.config.ConfigSand;
 import weather2.util.CachedNBTTagCompound;
@@ -21,32 +22,31 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 	public int age = 0;
 	public int maxAge = 20*20;
 
-	public Random rand = new Random();
+	public RandomSource rand = RandomSource.create();
 	
 	public WeatherObjectSandstormOld(WeatherManager parManager) {
 		super(parManager);
-		
+
 		this.weatherObjectType = EnumWeatherObjectType.SAND;
 	}
-	
+
 	public void initSandstormSpawn(Vec3 pos) {
 		this.pos = pos;
-		this.maxAge = 20*60*5;
-	}
-	
-	public static boolean isDesert(Biome biome) {
-		return isDesert(biome, false);
+		this.maxAge = 20 * 60 * 5;
 	}
 
-	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		//TODO: make sure new comparison works
-		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getRegistryName().toString().toLowerCase().contains("desert");
+	public static boolean isDesert(Holder<Biome> biomeHolder) {
+		return isDesert(biomeHolder, false);
+	}
+
+	public static boolean isDesert(Holder<Biome> biomeHolder, boolean forSpawn) {
+		return biomeHolder.is(Tags.Biomes.IS_DESERT) || (!forSpawn && biomeHolder.is(BiomeTags.IS_RIVER));
 	}
 
 	public int getSize() {
 		return 250;
 	}
-	
+
 	@Override
 	public void tick() {
 		super.tick();
@@ -114,7 +114,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 					//avoid unloaded areas
 					if (!world.hasChunkAt(blockPos)) continue;
 
-					Biome biomeIn = world.m_204166_(blockPos).m_203334_();
+					Holder<Biome> biomeIn = world.getBiome(blockPos);
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
 						WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, WeatherBlocks.BLOCK_SAND_LAYER.get(), 3);
@@ -125,7 +125,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 	}
 
 	public Vec3 getRandomPosInSandstorm() {
-		Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 		int x = (int) Math.floor(posGround.x + rand.nextInt(getSize()) - rand.nextInt(getSize()));
 		int z = (int) Math.floor(posGround.z + rand.nextInt(getSize()) - rand.nextInt(getSize()));
 		int y = WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(x, 128, z)).getY();

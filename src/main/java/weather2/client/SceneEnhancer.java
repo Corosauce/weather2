@@ -2,49 +2,50 @@ package weather2.client;
 
 import com.corosus.coroutil.config.ConfigCoroUtil;
 import com.corosus.coroutil.util.*;
-import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.material.FluidState;
-import weather2.config.ConfigMisc;
-import weather2.datatypes.PrecipitationType;
-import weather2.datatypes.WeatherEventType;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.ParticleStatus;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SuspendedParticle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.ParticleStatus;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.Vec3i;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import weather2.*;
 import weather2.client.entity.particle.ParticleHail;
 import weather2.client.entity.particle.ParticleSandstorm;
+import weather2.config.ConfigMisc;
 import weather2.config.ConfigParticle;
 import weather2.config.ConfigSand;
+import weather2.datatypes.PrecipitationType;
+import weather2.datatypes.WeatherEventType;
 import weather2.util.*;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.fog.FogAdjuster;
@@ -218,7 +219,7 @@ public class SceneEnhancer implements Runnable {
 	            int hsize = size / 2;
 	            BlockPos cur = player.blockPosition();
 
-	            Random rand = new Random();
+				RandomSource rand = RandomSource.create();
 
 	            //trim out distant sound locations, also tick last time played
 	            for (int i = 0; i < soundLocations.size(); i++) {
@@ -304,21 +305,21 @@ public class SceneEnhancer implements Runnable {
 		Player player = Minecraft.getInstance().player;
 
 		float precipitationStrength = ClientWeatherHelper.get().getPrecipitationStrength(player);
-		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level, player.level.m_204166_(player.blockPosition()).m_203334_(), player.blockPosition())) {
-			Random random = new Random(player.getLevel().getGameTime() * 312987231L);
+		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level, player.level.getBiome(player.blockPosition()).get(), player.blockPosition())) {
+			RandomSource random = RandomSource.create(player.getLevel().getGameTime() * 312987231L);
 			LevelReader levelreader = minecraft.level;
 			BlockPos blockpos = player.blockPosition();
 			BlockPos blockpos1 = null;
-			int i = (int)(100.0F * precipitationStrength * precipitationStrength) / (minecraft.options.particles == ParticleStatus.DECREASED ? 2 : 1);
+			int i = (int) (100.0F * precipitationStrength * precipitationStrength) / (minecraft.options.particles().get() == ParticleStatus.DECREASED ? 2 : 1);
 
-			for(int j = 0; j < i; ++j) {
+			for (int j = 0; j < i; ++j) {
 				int k = random.nextInt(21) - 10;
 				int l = random.nextInt(21) - 10;
 				BlockPos blockpos2 = levelreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos.offset(k, 0, l));
-				Biome biome = levelreader.m_204166_(blockpos2).m_203334_();
+				Biome biome = levelreader.getBiome(blockpos2).get();
 				if (blockpos2.getY() > levelreader.getMinBuildHeight() && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockpos2)) {
 					blockpos1 = blockpos2.below();
-					if (minecraft.options.particles == ParticleStatus.MINIMAL) {
+					if (minecraft.options.particles().get() == ParticleStatus.MINIMAL) {
 						break;
 					}
 
@@ -330,7 +331,7 @@ public class SceneEnhancer implements Runnable {
 					double d2 = voxelshape.max(Direction.Axis.Y, d0, d1);
 					double d3 = (double)fluidstate.getHeight(levelreader, blockpos1);
 					double d4 = Math.max(d2, d3);
-					ParticleOptions particleoptions = !fluidstate.m_205070_(FluidTags.LAVA) && !blockstate.is(Blocks.MAGMA_BLOCK) && !CampfireBlock.isLitCampfire(blockstate) ? ParticleTypes.RAIN : ParticleTypes.SMOKE;
+					ParticleOptions particleoptions = !fluidstate.is(FluidTags.LAVA) && !blockstate.is(Blocks.MAGMA_BLOCK) && !CampfireBlock.isLitCampfire(blockstate) ? ParticleTypes.RAIN : ParticleTypes.SMOKE;
 					minecraft.level.addParticle(particleoptions, (double)blockpos1.getX() + d0, (double)blockpos1.getY() + d4, (double)blockpos1.getZ() + d1, 0.0D, 0.0D, 0.0D);
 				}
 			}
@@ -429,7 +430,7 @@ public class SceneEnhancer implements Runnable {
 
 	public static boolean tryPlayPlayerLockedSound(String[] sound, int arrIndex, Entity source, float vol)
 	{
-		Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 
 		if (WeatherUtilSound.soundTimer[arrIndex] <= System.currentTimeMillis())
 		{
@@ -493,11 +494,11 @@ public class SceneEnhancer implements Runnable {
 
 
 		BlockPos posPlayer = new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()));
-		Biome biome = entP.level.m_204166_(posPlayer).m_203334_();
+		Biome biome = entP.level.getBiome(posPlayer).get();
 		lastBiomeIn = biome;
 
 		Level world = entP.level;
-		Random rand = entP.level.random;
+		RandomSource rand = entP.level.random;
 
 		//funnel.tickGame();
 
@@ -512,9 +513,9 @@ public class SceneEnhancer implements Runnable {
 		}
 
 		float particleSettingsAmplifier = 1F;
-		if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+		if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
 			particleSettingsAmplifier = 0.5F;
-		} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+		} else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
 			particleSettingsAmplifier = 0.2F;
 		}
 
@@ -981,9 +982,9 @@ public class SceneEnhancer implements Runnable {
 					adjustAmountSmooth75 *= 0.3F;
 				}
 
-				/*if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+				/*if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
 					adjustAmountSmooth75 *= 0.5F;
-				} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+				} else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
 					adjustAmountSmooth75 *= 0.25F;
 				}*/
 
@@ -1124,7 +1125,7 @@ public class SceneEnhancer implements Runnable {
 
         threadLastWorldTickTime = worldRef.getGameTime();
 
-        Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 
         //mining a tree causes leaves to fall
         int size = 40;
@@ -1151,13 +1152,13 @@ public class SceneEnhancer implements Runnable {
         spawnRateRandChanceOdds = (int) ((spawnRateRandChanceOdds / (scaleRate + 0.001F)) / (particleCreationRate + 0.001F));
 
 		float particleSettingsAmplifier = 1F;
-		if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+		if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
 			particleSettingsAmplifier = 0.5F;
-		} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+		} else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
 			particleSettingsAmplifier = 0.2F;
 		}
 
-        //spawnRate *= (client.options.particles.getId()+1);
+		//spawnRate *= (client.options.particles().get().getId()+1);
         spawnRateRandChanceOdds /= particleSettingsAmplifier;
         //since reducing threaded ticking to 200ms sleep, 1/4 rate, must decrease rand size
         spawnRateRandChanceOdds /= 2;
@@ -1192,7 +1193,7 @@ public class SceneEnhancer implements Runnable {
 
 							lastTickFoundBlocks++;
 
-							if (worldRef.random.nextInt(spawnRateRandChanceOdds) == 0) {
+							if (rand.nextInt(spawnRateRandChanceOdds) == 0) {
 								//bottom of tree check || air beside vine check
 
 								//far out enough to avoid having the AABB already inside the block letting it phase through more
@@ -1259,7 +1260,7 @@ public class SceneEnhancer implements Runnable {
 
 								//oddsTo1 = (int) (oddsTo1 * (5F * windStr));
 
-								if (worldRef.random.nextInt(oddsTo1) == 0) {
+								if (rand.nextInt(oddsTo1) == 0) {
 									BlockPos pos = new BlockPos(xx, yy, zz);
 									BlockPos posAbove = new BlockPos(xx, yy + 1, zz);
 									BlockState blockStateAbove = getBlockState(worldRef, posAbove);
@@ -1472,7 +1473,7 @@ public class SceneEnhancer implements Runnable {
 
 			Vec3 windForce = windMan.getWindForce();
 
-			Random rand = client.level.random;
+			RandomSource rand = RandomSource.create();
 			int spawnAreaSize = 80;
 
 			double sandstormParticleRateDebris = ConfigSand.Sandstorm_Particle_Debris_effect_rate;
@@ -1484,9 +1485,9 @@ public class SceneEnhancer implements Runnable {
 				adjustAmountSmooth75 *= 0.3F;
 			}
 
-			if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+			if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
 				adjustAmountSmooth75 *= 0.5F;
-			} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+			} else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
 				adjustAmountSmooth75 *= 0.25F;
 			}
 
@@ -1636,7 +1637,7 @@ public class SceneEnhancer implements Runnable {
 	 * @return
 	 */
 	public static boolean shouldRainHere(Level level, Biome biome, BlockPos pos) {
-		return CoroUtilCompatibility.warmEnoughToRain(biome, pos, level);
+		return CoroUtilCompatibility.getAdjustedTemperature(level, biome, pos) >= 0.15F;
 	}
 
 	/**
@@ -1648,6 +1649,6 @@ public class SceneEnhancer implements Runnable {
 	 * @return
 	 */
 	public static boolean shouldSnowHere(Level level, Biome biome, BlockPos pos) {
-		return CoroUtilCompatibility.coldEnoughToSnow(biome, pos, level);
+		return !shouldRainHere(level, biome, pos);
 	}
 }

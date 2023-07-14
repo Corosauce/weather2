@@ -10,11 +10,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * To contain the full funnel, with each component piece
@@ -70,7 +73,7 @@ public class TornadoFunnel {
 
         Player entP = Minecraft.getInstance().player;
 
-        Random rand = new Random();
+        RandomSource rand = RandomSource.create();
 
         //listFunnel.clear();
 
@@ -132,7 +135,7 @@ public class TornadoFunnel {
             if (piece.bezierCurve == null || entP.level.getGameTime() % 40 == 0) {
                 Vector3f[] vecs = new Vector3f[4];
                 for (int ii = 0; ii < vecs.length; ii++) {
-                    vecs[ii] = new Vector3f(entP.level.random.nextFloat(), entP.level.random.nextFloat(), entP.level.random.nextFloat());
+                    vecs[ii] = new Vector3f(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                 }
                 piece.bezierCurve = new CubicBezierCurve(vecs);
             }
@@ -140,7 +143,7 @@ public class TornadoFunnel {
             if (bezierCurve == null || entP.level.getGameTime() % 40 == 0) {
                 Vector3f[] vecs = new Vector3f[4];
                 for (int ii = 0; ii < vecs.length; ii++) {
-                    vecs[ii] = new Vector3f(entP.level.random.nextFloat(), entP.level.random.nextFloat(), entP.level.random.nextFloat());
+                    vecs[ii] = new Vector3f(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                 }
                 bezierCurve = new CubicBezierCurve(vecs);
             }
@@ -163,7 +166,7 @@ public class TornadoFunnel {
                 particleTest.setParticleSpeed(0, 0, 0);
                 particleTest.setScale(0.1F);
                 //particleTest.setColor(0.1F * (particles.size() % particleCountCircle), 0, 0);
-                particleTest.setColor(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
+                particleTest.setColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                 particleTest.setGravity(0);
                 /*if (piece.listParticles.size() < particleCountCircle * 5) {
                     particleTest.setColor(1, 1, 1);
@@ -205,7 +208,7 @@ public class TornadoFunnel {
             double rate = 0.2F/* + (ii * 0.1F)*/;
             double distMax = 5 + (listFunnel.size() - ii);
 
-            Random rand = new Random();
+            RandomSource rand = RandomSource.create();
 
             piece.posEnd.add(new Vector3d(rate * piece.vecDirX, 0, rate * piece.vecDirZ * 0.7));
             //piece.posEnd = piece.posEnd.add(rate * random.nextFloat() * piece.vecDirX, 0, rate * random.nextFloat() * piece.vecDirZ);

@@ -1,16 +1,15 @@
 package weather2.weathersystem.storm;
 
-import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +32,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ClientConfigData;
@@ -48,7 +47,10 @@ import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.tornado.simple.Layer;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 public class TornadoHelper {
 	
@@ -221,21 +223,22 @@ public class TornadoHelper {
 
 		forceRotate(parWorld);
 
-		Random rand = new Random();
+		RandomSource rand = RandomSource.create();
 		if (!parWorld.isClientSide() && !Weather.isLoveTropicsInstalled() && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado))
 		{
 			//int yStart = (int) (storm.posGround.y - 10);
 			int yStart = 0;
-			int yEnd = (int)storm.pos.y/* + 72*/;
+			int yEnd = (int) storm.pos.y/* + 72*/;
 			int yInc = 1;
-			Biome bgb = parWorld.m_204166_(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).m_203334_();
+			Biome bgb = parWorld.getBiome(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).get();
 
 			//prevent grabbing in high areas (hills)
 			//TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
 			//TODO: 1.18: getDepth formally base height, seems entirely gone now
 			double depth = 0;
 			//depth = bgb.getDepth();
-			if (bgb != null && (depth/* + bgb.getScale()*/ <= 0.7 || storm.isFirenado)) {
+			/* + bgb.getScale()*/
+			if (depth/* + bgb.getScale()*/ <= 0.7 || storm.isFirenado) {
 
 				boolean newTest = false;
 
@@ -815,7 +818,7 @@ public class TornadoHelper {
     {
         Entity soundTarget = source;
 
-        Random rand = new Random();
+		RandomSource rand = RandomSource.create();
         
         // should i?
         //soundTarget = this;
