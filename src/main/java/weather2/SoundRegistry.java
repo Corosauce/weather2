@@ -7,12 +7,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 
-import java.util.HashMap;
-
 public class SoundRegistry {
-
-    private static HashMap<String, SoundEvent> lookupStringToEvent = new HashMap<String, SoundEvent>();
-
     @Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
         @SubscribeEvent
@@ -60,14 +55,10 @@ public class SoundRegistry {
         ResourceLocation resLoc = new ResourceLocation(Weather.MODID, soundPath);
         SoundEvent event = new SoundEvent(resLoc);
         regEvent.register(ForgeRegistries.Keys.SOUND_EVENTS, resLoc, () -> event);
-        if (lookupStringToEvent.containsKey(soundPath)) {
-            System.out.println("WEATHER SOUNDS WARNING: duplicate sound registration for " + soundPath);
-        }
-        lookupStringToEvent.put(soundPath, event);
     }
 
 	public static SoundEvent get(String soundPath) {
-		return lookupStringToEvent.get(soundPath);
+		return ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(Weather.MODID, soundPath));
 	}
 
 }
