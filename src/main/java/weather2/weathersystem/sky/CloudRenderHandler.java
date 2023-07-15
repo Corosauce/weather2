@@ -16,17 +16,14 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.data.worldgen.DimensionTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
-import net.minecraftforge.client.extensions.IForgeDimensionSpecialEffects;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
@@ -40,8 +37,6 @@ import weather2.client.shaderstest.InstancedMeshParticle;
 import weather2.client.shaderstest.MeshBufferManagerParticle;
 import weather2.client.shaderstest.Model;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -57,8 +52,8 @@ public class CloudRenderHandler extends DimensionSpecialEffects.OverworldEffects
 
     private int sphereIndex = 0;
 
-    private RandomSource rand = RandomSource.create();
-    private RandomSource rand2 = RandomSource.create();
+    private Random rand = new Random();
+    private Random rand2 = new Random();
 
     private boolean mode_triangles = true;
     public Frustum cullingFrustum;
@@ -232,8 +227,8 @@ public class CloudRenderHandler extends DimensionSpecialEffects.OverworldEffects
             y = 0;
             z = 0;
 
-            rand = RandomSource.create(33);
-            rand2 = RandomSource.create(33);
+            rand = new Random(33);
+            rand2 = new Random(33);
 
             double scalecluster = 4.0;
 
@@ -632,7 +627,7 @@ public class CloudRenderHandler extends DimensionSpecialEffects.OverworldEffects
     }
 
     private void renderCube(BufferBuilder bufferIn, double cloudsX, double cloudsY, double cloudsZ, Vec3 cloudsColor, float scale) {
-        RandomSource rand = rand2;
+        Random rand = rand2;
 
         Quaternion q2 = new Quaternion(0, 0, 0, 1);
         int range = 5;

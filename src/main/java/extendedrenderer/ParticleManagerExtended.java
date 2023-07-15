@@ -55,7 +55,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
     private final Map<ParticleRenderType, Queue<Particle>> particles = Maps.newTreeMap(net.minecraftforge.client.ForgeHooksClient.makeParticleRenderTypeComparator(RENDER_ORDER));
     private final Queue<TrackingEmitter> trackingEmitters = Queues.newArrayDeque();
     private final TextureManager textureManager;
-    private final RandomSource random = RandomSource.create();
+    private final Random random = new Random();
     private final Map<ResourceLocation, ParticleProvider<?>> providers = new java.util.HashMap<>();
     private final Queue<Particle> particlesToAdd = Queues.newArrayDeque();
     private final Map<ResourceLocation, ParticleManagerExtended.MutableSpriteSet> spriteSets = Maps.newHashMap();
@@ -332,7 +332,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
     }
 
     public void crack(BlockPos p_107368_, Direction p_107369_) {
-        final RandomSource random = RandomSource.create();
+        final Random random = new Random();
         BlockState blockstate = this.level.getBlockState(p_107368_);
         if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
             int i = p_107368_.getX();

@@ -23,6 +23,7 @@ import weather2.datatypes.PrecipitationType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleBehaviors {
@@ -30,7 +31,7 @@ public class ParticleBehaviors {
 	public List<EntityRotFX> particles = new ArrayList<EntityRotFX>();
 	public Vec3 coordSource;
 	public Entity sourceEntity = null;
-	public RandomSource rand = RandomSource.create();
+	public Random rand = new Random();
 	
 	//Visual tweaks
 	public float rateDarken = 0.025F;
@@ -587,14 +588,14 @@ public class ParticleBehaviors {
 	}
 	
 	public static EntityRotFX setParticleRandoms(EntityRotFX particle, boolean yaw, boolean pitch) {
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 		if (yaw) particle.rotationYaw = rand.nextInt(360);
 		if (pitch) particle.rotationPitch = rand.nextInt(360);
 		return particle;
 	}
 	
 	public static EntityRotFX setParticleFire(EntityRotFX particle) {
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 		particle.setColor(0.6F + (rand.nextFloat() * 0.4F), 0.2F + (rand.nextFloat() * 0.2F), 0);
 		particle.setScale(0.25F + 0.2F * rand.nextFloat());
 		particle.brightness = 1F;

@@ -3,7 +3,6 @@ package weather2.weathersystem.storm;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BiomeTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
@@ -17,13 +16,15 @@ import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.wind.WindManager;
 
+import java.util.Random;
+
 public class WeatherObjectSandstormOld extends WeatherObject {
 
 	public int age = 0;
-	public int maxAge = 20*20;
+	public int maxAge = 20 * 20;
 
-	public RandomSource rand = RandomSource.create();
-	
+	public Random rand = new Random();
+
 	public WeatherObjectSandstormOld(WeatherManager parManager) {
 		super(parManager);
 
@@ -125,7 +126,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 	}
 
 	public Vec3 getRandomPosInSandstorm() {
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 		int x = (int) Math.floor(posGround.x + rand.nextInt(getSize()) - rand.nextInt(getSize()));
 		int z = (int) Math.floor(posGround.z + rand.nextInt(getSize()) - rand.nextInt(getSize()));
 		int y = WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(x, 128, z)).getY();

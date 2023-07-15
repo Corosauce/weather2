@@ -219,7 +219,7 @@ public class SceneEnhancer implements Runnable {
 	            int hsize = size / 2;
 	            BlockPos cur = player.blockPosition();
 
-				RandomSource rand = RandomSource.create();
+				Random rand = new Random();
 
 	            //trim out distant sound locations, also tick last time played
 	            for (int i = 0; i < soundLocations.size(); i++) {
@@ -430,7 +430,7 @@ public class SceneEnhancer implements Runnable {
 
 	public static boolean tryPlayPlayerLockedSound(String[] sound, int arrIndex, Entity source, float vol)
 	{
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
 		if (WeatherUtilSound.soundTimer[arrIndex] <= System.currentTimeMillis())
 		{
@@ -498,7 +498,7 @@ public class SceneEnhancer implements Runnable {
 		lastBiomeIn = biome;
 
 		Level world = entP.level;
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
 		//funnel.tickGame();
 
@@ -969,7 +969,7 @@ public class SceneEnhancer implements Runnable {
 			//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
 			if (particleStormIntensity >= 0.1F) {
 
-				rand = RandomSource.create();
+				rand = new Random();
 				int spawnAreaSize = 60;
 
 				double sandstormParticleRateDebris = ConfigSand.Sandstorm_Particle_Debris_effect_rate;
@@ -1125,7 +1125,7 @@ public class SceneEnhancer implements Runnable {
 
         threadLastWorldTickTime = worldRef.getGameTime();
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
         //mining a tree causes leaves to fall
         int size = 40;
@@ -1473,7 +1473,7 @@ public class SceneEnhancer implements Runnable {
 
 			Vec3 windForce = windMan.getWindForce();
 
-			RandomSource rand = RandomSource.create();
+			Random rand = new Random();
 			int spawnAreaSize = 80;
 
 			double sandstormParticleRateDebris = ConfigSand.Sandstorm_Particle_Debris_effect_rate;

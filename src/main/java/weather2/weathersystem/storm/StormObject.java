@@ -841,7 +841,7 @@ public class StormObject extends WeatherObject {
 
         //storm movement via wind
         float angle = getAdjustedAngle();
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
 
         if (angleIsOverridden) {
             angle = angleMovementTornadoOverride;
@@ -851,7 +851,7 @@ public class StormObject extends WeatherObject {
 				if (entP != null) {
 
 					//even more debug, heat seak test
-					//RandomSource rand = RandomSource.create();
+					//Random rand = new Random();
 					double var11 = entP.posX - pos.x;
 		            double var15 = entP.posZ - pos.z;
 		            float yaw = -((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI;
@@ -1015,7 +1015,7 @@ public class StormObject extends WeatherObject {
     }
 
     public void tickWeatherEvents() {
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         Level world = manager.getWorld();
 
         //if (world.getGameTime() % 20 == 0){
@@ -1158,7 +1158,7 @@ public class StormObject extends WeatherObject {
 
             boolean performBuildup = false;
 
-            RandomSource rand = RandomSource.create();
+            Random rand = new Random();
 
             if (!isPrecipitating() && rand.nextInt(randomChanceOfWaterBuildFromNothing) == 0) {
                 performBuildup = true;
@@ -1603,7 +1603,7 @@ public class StormObject extends WeatherObject {
     }
 
     public int rollDiceOnMaxIntensity() {
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         int randVal = rand.nextInt(100);
         if (stormType == TYPE_LAND) {
             if (randVal <= ConfigStorm.Storm_PercentChanceOf_F5_Tornado) {
@@ -1658,7 +1658,7 @@ public class StormObject extends WeatherObject {
     }
 
     public void aimAtCoords(Vec3 vec) {
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         double var11 = vec.x() - pos.x;
         double var15 = vec.z() - pos.z;
         float yaw = -(float) (Math.atan2(var11, var15) * 180.0D / Math.PI);
@@ -1678,7 +1678,7 @@ public class StormObject extends WeatherObject {
     }
 
     public void aimAwayFromCoords(Vec3 vec) {
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         double var11 = vec.x() - pos.x;
         double var15 = vec.z() - pos.z;
         float yaw = -(float) (Math.atan2(var11, var15) * 180.0D / Math.PI);
@@ -1784,7 +1784,7 @@ public class StormObject extends WeatherObject {
 
         //Weather.dbg("size: " + size + " - delay: " + delay);
 
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
 
         Vec3 playerAdjPos = new Vec3(entP.getX(), pos.y, entP.getZ());
         double maxSpawnDistFromPlayer = 512;
@@ -2577,7 +2577,7 @@ public class StormObject extends WeatherObject {
         StormObject entity = this;
         WeatherEntityConfig conf = getWeatherEntityConfigForStorm();//WeatherTypes.weatherEntTypes.get(curWeatherType);
 
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
 		
     	/*if (entity instanceof EntTornado) {
     		entT = (EntTornado) entity;
@@ -2820,7 +2820,7 @@ public class StormObject extends WeatherObject {
     @OnlyIn(Dist.CLIENT)
     public EntityRotFX spawnFogParticle(double x, double y, double z, int parRenderOrder, TextureAtlasSprite tex) {
         double speed = 0D;
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         EntityRotFX entityfx = particleBehaviorFog.spawnNewParticleIconFX(Minecraft.getInstance().level, tex, x, y, z, (rand.nextDouble() - rand.nextDouble()) * speed, 0.0D/*(rand.nextDouble() - rand.nextDouble()) * speed*/, (rand.nextDouble() - rand.nextDouble()) * speed, parRenderOrder);
         particleBehaviorFog.initParticle(entityfx);
 

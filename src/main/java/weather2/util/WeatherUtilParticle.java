@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.IWindHandler;
@@ -14,6 +13,7 @@ import weather2.IWindHandler;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 
 public class WeatherUtilParticle {
     //public static ArrayDeque<Particle>[][] fxLayers;
@@ -26,7 +26,7 @@ public class WeatherUtilParticle {
     /*public static int effSandID = 4;
     public static int effWind2ID = 2;*/
 
-    public static RandomSource rand = RandomSource.create();
+    public static Random rand = new Random();
     //public static int rainDrops = 20;
     
     

@@ -8,7 +8,6 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
@@ -17,6 +16,7 @@ import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class TornadoManagerTodoRenameMe {
 
@@ -36,7 +36,7 @@ public class TornadoManagerTodoRenameMe {
 
     public void tick(Level world) {
         Minecraft mc = Minecraft.getInstance();
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         if (mc.level == null || mc.player == null) return;
 
         if (mc.level.getGameTime() % 1 == 0) {

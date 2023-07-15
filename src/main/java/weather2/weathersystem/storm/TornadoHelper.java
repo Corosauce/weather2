@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -47,10 +46,7 @@ import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.tornado.simple.Layer;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TornadoHelper {
 	
@@ -223,7 +219,7 @@ public class TornadoHelper {
 
 		forceRotate(parWorld);
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 		if (!parWorld.isClientSide() && !Weather.isLoveTropicsInstalled() && (ConfigTornado.Storm_Tornado_grabBlocks || storm.isFirenado))
 		{
 			//int yStart = (int) (storm.posGround.y - 10);
@@ -818,7 +814,7 @@ public class TornadoHelper {
     {
         Entity soundTarget = source;
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
         
         // should i?
         //soundTarget = this;

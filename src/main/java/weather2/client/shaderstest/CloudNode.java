@@ -2,7 +2,6 @@ package weather2.client.shaderstest;
 
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.RandomSource;
 import weather2.ClientTickHandler;
 
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class CloudNode {
         }
 
         if (depth < depth_max) {
-            RandomSource rand = RandomSource.create();
+            Random rand = new Random();
             //for (int i = 0; i < 3; i++) {
             while (listNodes.size() < 3) {
                 CloudNode node = new CloudNode(cloud, this, new Vector3f(rand.nextFloat() - rand.nextFloat(), rand.nextFloat() - rand.nextFloat(), rand.nextFloat() - rand.nextFloat()));

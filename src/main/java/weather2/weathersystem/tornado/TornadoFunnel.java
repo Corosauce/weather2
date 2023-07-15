@@ -10,14 +10,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * To contain the full funnel, with each component piece
@@ -73,7 +69,7 @@ public class TornadoFunnel {
 
         Player entP = Minecraft.getInstance().player;
 
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
 
         //listFunnel.clear();
 
@@ -208,7 +204,7 @@ public class TornadoFunnel {
             double rate = 0.2F/* + (ii * 0.1F)*/;
             double distMax = 5 + (listFunnel.size() - ii);
 
-            RandomSource rand = RandomSource.create();
+            Random rand = new Random();
 
             piece.posEnd.add(new Vector3d(rate * piece.vecDirX, 0, rate * piece.vecDirZ * 0.7));
             //piece.posEnd = piece.posEnd.add(rate * random.nextFloat() * piece.vecDirX, 0, rate * random.nextFloat() * piece.vecDirZ);

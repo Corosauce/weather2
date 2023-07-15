@@ -21,6 +21,8 @@ import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 
+import java.util.Random;
+
 public class WindManager {
 	public WeatherManager manager;
 
@@ -61,7 +63,7 @@ public class WindManager {
 	public WindManager(WeatherManager parManager) {
 		manager = parManager;
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 		
 		windAngleGlobal = rand.nextInt(360);
 	}
@@ -163,7 +165,7 @@ public class WindManager {
 
 	public void tick() {
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
 		//debug
 		//Weather.dbg("wind angle: " + windAngleGlobal);
@@ -380,7 +382,7 @@ public class WindManager {
 	}
 
 	/*public void tick(Level world) {
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
 		FORCE_ON_DEBUG_TESTING = true;
 
@@ -620,5 +622,4 @@ public class WindManager {
 		double noiseVal = perlinNoise.getValue(((indexX) * scale) + time, ((indexZ) * scale) + time, posYAdj) + 0.2F;
 		return (float) noiseVal * 2F;
 	}
-
 }

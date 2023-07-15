@@ -41,10 +41,7 @@ import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 import weather2.weathersystem.wind.WindManager;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class WeatherManagerServer extends WeatherManager {
 	private final ServerLevel world;
@@ -152,7 +149,7 @@ public class WeatherManagerServer extends WeatherManager {
 				}*/
 
 
-				RandomSource rand = RandomSource.create();
+				Random rand = new Random();
 
 				//test with high wind to maximize movement/recycling
 				//cloud data:
@@ -216,7 +213,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 			//if dimension can have storms, tick sandstorm spawning every 10 seconds
 			if (!Weather.isLoveTropicsInstalled() && !ConfigMisc.Aesthetic_Only_Mode && !ConfigSand.Storm_NoSandstorms && WeatherUtilConfig.listDimensionsStorms.contains(world.dimension().location().toString()) && world.getGameTime() % 200 == 0 && windMan.isHighWindEventActive()) {
-				RandomSource rand = RandomSource.create();
+				Random rand = new Random();
 				if (ConfigSand.Sandstorm_OddsTo1 <= 0 || rand.nextInt(ConfigSand.Sandstorm_OddsTo1) == 0) {
 					if (ConfigSand.Sandstorm_UseGlobalServerRate) {
 						//get a random player to try and spawn for, will recycle another if it cant spawn
@@ -340,7 +337,7 @@ public class WeatherManagerServer extends WeatherManager {
 			//cloudIntensity = 0.3F;
 
 			if (world.getGameTime() % 200 == 0) {
-				RandomSource rand = RandomSource.create();
+				Random rand = new Random();
 				cloudIntensity += (float)((rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount) - (rand.nextDouble() * ConfigMisc.Cloud_Coverage_Random_Change_Amount));
 				if (ConfigMisc.overcastMode && world.isRaining()) {
 					cloudIntensity = 1;
@@ -391,7 +388,7 @@ public class WeatherManagerServer extends WeatherManager {
 		double vecX = dirX * searchRadius/2 * -1;
 		double vecZ = dirZ * searchRadius/2 * -1;
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
 		BlockPos foundPos = null;
 
@@ -500,7 +497,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 		//if (true) return;
 
-		RandomSource rand = RandomSource.create();
+		Random rand = new Random();
 
 		int tryCountMax = 10;
 		int tryCountCur = 0;

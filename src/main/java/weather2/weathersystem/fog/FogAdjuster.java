@@ -1,17 +1,16 @@
 package weather2.weathersystem.fog;
 
 import com.corosus.coroutil.util.CULog;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import weather2.datatypes.WeatherEventType;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import com.mojang.math.Vector3f;
 import net.minecraftforge.client.event.ViewportEvent;
 import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
+import weather2.datatypes.WeatherEventType;
 import weather2.util.WeatherUtilEntity;
 
 import java.util.Random;
@@ -90,7 +89,7 @@ public class FogAdjuster {
         if (fogDisco) {
             if (lastWeatherType != null) {
                 if (randDelay <= 0) {
-                    RandomSource rand = RandomSource.create();
+                    Random rand = new Random();
                     randDelay = 20 + rand.nextInt(5);
                     startRandom();
                 }
@@ -178,7 +177,7 @@ public class FogAdjuster {
     }
 
     public void startRandom() {
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         int randFog = 0;
         if (activeProfile.getFogEnd() < 50) {
             randFog = 50 + rand.nextInt(50);

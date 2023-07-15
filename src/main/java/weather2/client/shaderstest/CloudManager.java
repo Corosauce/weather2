@@ -14,7 +14,10 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 import weather2.ClientTickHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class CloudManager {
 
@@ -117,7 +120,7 @@ public class CloudManager {
             cloudPiece.tick();
         }
 
-        RandomSource random = RandomSource.create();
+        Random random = new Random();
         while (listClouds.size() < 10) {
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;

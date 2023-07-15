@@ -23,6 +23,7 @@ import weather2.weathersystem.tornado.ActiveTornadoConfig;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class TornadoFunnelSimple {
 
@@ -464,7 +465,7 @@ public class TornadoFunnelSimple {
         pivotingParticle.prevRotationYaw = pivotingParticle.rotationYaw;
         pivotingParticle.setPivotPrev(pivotingParticle.getPivot());
         pivotingParticle.setPivotRotPrev(pivotingParticle.getPivotRot());
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
         if (explode) {
             pivotingParticle.setMotionX((rand.nextFloat() - rand.nextFloat()) * 2F);
             pivotingParticle.setMotionZ((rand.nextFloat() - rand.nextFloat()) * 2F);

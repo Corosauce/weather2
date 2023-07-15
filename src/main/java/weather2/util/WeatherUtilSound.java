@@ -3,7 +3,6 @@ package weather2.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,6 +11,7 @@ import weather2.client.MovingSoundStreamingSource;
 import weather2.weathersystem.storm.StormObject;
 
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * TODO: rewrite this to use a class that contains array of sounds, amount of them, length of them, and the last played time and next random index
@@ -34,7 +34,7 @@ public class WeatherUtilSound {
     public static long soundTimer[] = new long[6];
     
     public static void init() {
-        RandomSource rand = RandomSource.create();
+        Random rand = new Random();
     	snd_tornado_dmg_close[0] = "destruction_0_";
         snd_tornado_dmg_close[1] = "destruction_1_";
         snd_tornado_dmg_close[2] = "destruction_2_";
