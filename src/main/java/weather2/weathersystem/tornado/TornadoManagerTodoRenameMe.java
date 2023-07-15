@@ -8,10 +8,10 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ public class TornadoManagerTodoRenameMe {
 
     public void tick(Level world) {
         Minecraft mc = Minecraft.getInstance();
+        RandomSource rand = RandomSource.create();
         if (mc.level == null || mc.player == null) return;
 
         if (mc.level.getGameTime() % 1 == 0) {
@@ -52,15 +53,15 @@ public class TornadoManagerTodoRenameMe {
                         //particleTest.setMotion(0, 0, 0);
                         particleTest.setScale(0.2F);
                         //particleTest.setColor(0.1F * (particles.size() % particleCountCircle), 0, 0);
-                        particleTest.setColor(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
+                        particleTest.setColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                         if (particles.size() < particleCountCircle * 5) {
                             particleTest.setColor(1, 1, 1);
                         }
-                        float randGrey = 0.4F + (world.random.nextFloat() * 0.4F);
+                        float randGrey = 0.4F + (rand.nextFloat() * 0.4F);
                         particleTest.setColor(randGrey, randGrey, randGrey);
                         //particleTest.move(0, -0.1, 0);
                         mc.particleEngine.add(particleTest);
-                        //particleTest.setAngle(world.randomom.nextInt(360));
+                        //particleTest.setAngle(rand.nextInt(360));
                         particles.add(particleTest);
                     }
 
@@ -107,7 +108,7 @@ public class TornadoManagerTodoRenameMe {
                         //Vector3f[] vecs = new Vector3f[4];
                         Vector3f[] vecs = new Vector3f[10];
                         for (int i = 0; i < vecs.length; i++) {
-                            vecs[i] = new Vector3f(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
+                            vecs[i] = new Vector3f(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                         }
                         curves.add(new CubicBezierCurve(vecs));
                     }
@@ -131,7 +132,7 @@ public class TornadoManagerTodoRenameMe {
                     /*if (bezierCurve == null) {
                         Vector3f[] vecs = new Vector3f[4];
                         for (int i = 0; i < vecs.length; i++) {
-                            vecs[i] = new Vector3f(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
+                            vecs[i] = new Vector3f(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                         }
                         bezierCurve = new CubicBezierCurve(vecs);
                     }*/
@@ -139,7 +140,7 @@ public class TornadoManagerTodoRenameMe {
                     /*if (bezierCurve != null) {
                         float randScale = 0.1F;
                         for (int i = 0; i < bezierCurve.P.length; i++) {
-                            bezierCurve.P[i].add((world.random.nextFloat() - world.random.nextFloat()) * randScale, (world.random.nextFloat() - world.random.nextFloat()) * randScale, (world.random.nextFloat() - world.random.nextFloat()) * randScale);
+                            bezierCurve.P[i].add((rand.nextFloat() - rand.nextFloat()) * randScale, (rand.nextFloat() - rand.nextFloat()) * randScale, (rand.nextFloat() - rand.nextFloat()) * randScale);
                             bezierCurve.P[i].normalize();
                         }
                     }*/
@@ -148,7 +149,7 @@ public class TornadoManagerTodoRenameMe {
                         float randScale = 0.1F;
                         for (int i = 0; i < bezierCurve.P.length; i++) {
                             if (vecSpeeds[i] == null) {
-                                vecSpeeds[i] = new Vector3f(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
+                                vecSpeeds[i] = new Vector3f(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                             }
 
                             bezierCurve.P[i].add(vecSpeeds[i].x() * 0.01F, vecSpeeds[i].y() * 0.01F, vecSpeeds[i].z() * 0.01F);
@@ -177,19 +178,19 @@ public class TornadoManagerTodoRenameMe {
                             float randSpeed = 1.5F;
 
                             if (bezierCurve.P[i].x() > maxXZ) {
-                                vecSpeeds[i].set(world.random.nextFloat() * -1 * randSpeed, vecSpeeds[i].y(), vecSpeeds[i].z());
+                                vecSpeeds[i].set(rand.nextFloat() * -1 * randSpeed, vecSpeeds[i].y(), vecSpeeds[i].z());
                             } else if (bezierCurve.P[i].x() < minXZ) {
-                                vecSpeeds[i].set(world.random.nextFloat() * randSpeed, vecSpeeds[i].y(), vecSpeeds[i].z());
+                                vecSpeeds[i].set(rand.nextFloat() * randSpeed, vecSpeeds[i].y(), vecSpeeds[i].z());
                             }
                             if (bezierCurve.P[i].y() > maxY) {
-                                vecSpeeds[i].set(vecSpeeds[i].x(), world.random.nextFloat() * -1 * randSpeed, vecSpeeds[i].z());
+                                vecSpeeds[i].set(vecSpeeds[i].x(), rand.nextFloat() * -1 * randSpeed, vecSpeeds[i].z());
                             } else if (bezierCurve.P[i].y() < minY) {
-                                vecSpeeds[i].set(vecSpeeds[i].x(), world.random.nextFloat() * randSpeed, vecSpeeds[i].z());
+                                vecSpeeds[i].set(vecSpeeds[i].x(), rand.nextFloat() * randSpeed, vecSpeeds[i].z());
                             }
                             if (bezierCurve.P[i].z() > maxXZ) {
-                                vecSpeeds[i].set(vecSpeeds[i].x(), vecSpeeds[i].y(), world.random.nextFloat() * -1 * randSpeed);
+                                vecSpeeds[i].set(vecSpeeds[i].x(), vecSpeeds[i].y(), rand.nextFloat() * -1 * randSpeed);
                             } else if (bezierCurve.P[i].z() < minXZ) {
-                                vecSpeeds[i].set(vecSpeeds[i].x(), vecSpeeds[i].y(), world.random.nextFloat() * randSpeed);
+                                vecSpeeds[i].set(vecSpeeds[i].x(), vecSpeeds[i].y(), rand.nextFloat() * randSpeed);
                             }
                             //bezierCurve.P[i].normalize();
                         }

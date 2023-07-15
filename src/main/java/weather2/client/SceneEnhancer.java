@@ -263,7 +263,7 @@ public class SceneEnhancer implements Runnable {
 									} else {
 										windSpeed = WindReader.getWindSpeed(client.level);
 										//if (windSpeed > 0.3F) {
-										if (client.level.random.nextInt(15) == 0) {
+										if (RandomSource.create().nextInt(15) == 0) {
 											soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
 											//client.getSoundHandler().playSound(Weather.modID + ":wind_calmfade", cCor.getPosX(), cCor.getPosY(), cCor.getPosZ(), (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
 											//client.world.playSound(cCor.getPosX(), cCor.getPosY(), cCor.getPosZ(), Weather.modID + ":env.wind_calmfade", (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F), false);
@@ -498,7 +498,7 @@ public class SceneEnhancer implements Runnable {
 		lastBiomeIn = biome;
 
 		Level world = entP.level;
-		RandomSource rand = entP.level.random;
+		RandomSource rand = RandomSource.create();
 
 		//funnel.tickGame();
 
@@ -969,7 +969,7 @@ public class SceneEnhancer implements Runnable {
 			//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
 			if (particleStormIntensity >= 0.1F) {
 
-				rand = client.level.random;
+				rand = RandomSource.create();
 				int spawnAreaSize = 60;
 
 				double sandstormParticleRateDebris = ConfigSand.Sandstorm_Particle_Debris_effect_rate;

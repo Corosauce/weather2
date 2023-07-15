@@ -376,11 +376,11 @@ public class TornadoFunnelSimple {
         particle.setScale(15F);
         //particle.setColor(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
         float baseBright = 0.3F;
-        float randFloat = (world.random.nextFloat() * 0.6F);
-        float finalBright = Math.min(1F, baseBright+randFloat);
+        float randFloat = (RandomSource.create().nextFloat() * 0.6F);
+        float finalBright = Math.min(1F, baseBright + randFloat);
         particle.setColor(finalBright-0.2F, finalBright-0.2F, finalBright-0.2F);
         particle.setGravity(0);
-        particle.rotationYaw = world.random.nextFloat() * 360;
+        particle.rotationYaw = RandomSource.create().nextFloat() * 360;
         particle.setRenderDistanceCull(renderDistCutoff);
         return particle;
     }

@@ -332,6 +332,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
     }
 
     public void crack(BlockPos p_107368_, Direction p_107369_) {
+        final RandomSource random = RandomSource.create();
         BlockState blockstate = this.level.getBlockState(p_107368_);
         if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
             int i = p_107368_.getX();
@@ -339,9 +340,9 @@ public class ParticleManagerExtended implements PreparableReloadListener {
             int k = p_107368_.getZ();
             float f = 0.1F;
             AABB aabb = blockstate.getShape(this.level, p_107368_).bounds();
-            double d0 = (double) i + this.random.nextDouble() * (aabb.maxX - aabb.minX - (double) 0.2F) + (double) 0.1F + aabb.minX;
-            double d1 = (double) j + this.random.nextDouble() * (aabb.maxY - aabb.minY - (double) 0.2F) + (double) 0.1F + aabb.minY;
-            double d2 = (double) k + this.random.nextDouble() * (aabb.maxZ - aabb.minZ - (double) 0.2F) + (double) 0.1F + aabb.minZ;
+            double d0 = (double) i + random.nextDouble() * (aabb.maxX - aabb.minX - (double) 0.2F) + (double) 0.1F + aabb.minX;
+            double d1 = (double) j + random.nextDouble() * (aabb.maxY - aabb.minY - (double) 0.2F) + (double) 0.1F + aabb.minY;
+            double d2 = (double) k + random.nextDouble() * (aabb.maxZ - aabb.minZ - (double) 0.2F) + (double) 0.1F + aabb.minZ;
             if (p_107369_ == Direction.DOWN) {
                 d1 = (double) j + aabb.minY - (double) 0.1F;
             }
