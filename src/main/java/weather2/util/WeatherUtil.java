@@ -159,25 +159,21 @@ public class WeatherUtil {
         return false;
     }
 
-    public static boolean isSolidBlock(Block id)
-    {
+    public static boolean isSolidBlock(Block id) {
         return (id == Blocks.STONE ||
                 id == Blocks.COBBLESTONE ||
                 id == Blocks.SANDSTONE);
     }
 
-    public static boolean shouldGrabBlock(Level parWorld, BlockState state)
-    {
-        try
-        {
+    public static boolean shouldGrabBlock(Level parWorld, BlockState state, BlockPos pos) {
+        try {
             ItemStack itemStr = new ItemStack(Items.DIAMOND_AXE);
 
             Block block = state.getBlock();
 
             boolean result = true;
 
-            if (ConfigTornado.Storm_Tornado_GrabCond_List)
-            {
+            if (ConfigTornado.Storm_Tornado_GrabCond_List) {
                 try {
                     result = canGrabViaLists(state);
                 } catch (Exception e) {
@@ -198,7 +194,7 @@ public class WeatherUtil {
                     } else {
 
                         //float strVsBlock = block.getBlockHardness(block.defaultBlockState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.defaultBlockState()) - 1) / 4F));
-                        float strVsBlock = state.getDestroySpeed(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getDestroySpeed(block.defaultBlockState()) - 1) / 4F));
+                        float strVsBlock = state.getDestroySpeed(parWorld, pos) - (((itemStr.getDestroySpeed(block.defaultBlockState()) - 1) / 4F));
 
                         //System.out.println(strVsBlock);
                         if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||

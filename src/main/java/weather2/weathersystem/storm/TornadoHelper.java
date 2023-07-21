@@ -529,7 +529,7 @@ public class TornadoHelper {
 				state.getBlock() != Blocks.FIRE &&
 				//TODO: 1.14 uncomment
 				/*state.getBlock() != CommonProxy.blockRepairingBlock &&*/
-				WeatherUtil.shouldGrabBlock(parWorld, state) &&
+				WeatherUtil.shouldGrabBlock(parWorld, state, pos) &&
 				!isBlockGrabbingBlocked(parWorld, state, pos))
         {
         	return canGrabEventCheck(parWorld, state, pos);
