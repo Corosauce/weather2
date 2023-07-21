@@ -11,13 +11,11 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -25,7 +23,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
@@ -152,7 +149,6 @@ public class WeatherManagerServer extends WeatherManager {
 				}*/
 
 
-
 				Random rand = new Random();
 
 				//test with high wind to maximize movement/recycling
@@ -252,20 +248,17 @@ public class WeatherManagerServer extends WeatherManager {
 	}
 
 	public Optional<BlockPos> findWeatherDeflector(ServerLevel level, BlockPos p_143249_, int range) {
-		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) -> {
-			return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
-		}, (p_184055_) -> {
+		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) ->
+				p_184069_.get() == WeatherBlocks.POI_DEFLECTOR_INSTANCE.get(), (p_184055_) -> {
 			return true;//p_184055_.getY() == level.getHeight(Heightmap.Types.WORLD_SURFACE, p_184055_.getX(), p_184055_.getZ()) - 1;
 		}, p_143249_, range, PoiManager.Occupancy.ANY);
-		return optional.map((p_184053_) -> {
-			return p_184053_.above(1);
-		});
+		return optional.map((p_184053_) -> p_184053_.above(1));
 	}
 
 	public void tickStormBlockBuildup(StormState stormState, Block block) {
 		Level world = getWorld();
 		WindManager windMan = getWindManager();
-		Random rand = world.random;
+		RandomSource rand = world.random;
 
 		float angle = windMan.getWindAngle(null);
 
@@ -408,8 +401,8 @@ public class WeatherManagerServer extends WeatherManager {
 			BlockPos pos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(x, 0, z));
 
 			if (!world.isLoaded(pos)) continue;
-			//Biome biomeIn = world.m_204166_ForCoordsBody(pos);
-			Biome biomeIn = world.m_204166_(pos).m_203334_();
+			//Biome biomeIn = world.getBiomeForCoordsBody(pos);
+			Biome biomeIn = world.getBiome(pos).get();
 
 			if (WeatherObjectParticleStorm.canSpawnHere(world, pos, type, true)) {
 				//found
@@ -417,23 +410,23 @@ public class WeatherManagerServer extends WeatherManager {
 				//break;
 
 				//check left and right about 20 blocks, if its not still desert, force retry
-				double dirXLeft = -Math.sin(Math.toRadians(angle-90));
-				double dirZLeft = Math.cos(Math.toRadians(angle-90));
-				double dirXRight = -Math.sin(Math.toRadians(angle+90));
+				double dirXLeft = -Math.sin(Math.toRadians(angle - 90));
+				double dirZLeft = Math.cos(Math.toRadians(angle - 90));
+				double dirXRight = -Math.sin(Math.toRadians(angle + 90));
 				double dirZRight = Math.cos(Math.toRadians(angle+90));
 
 				double distLeftRight = 20;
 				BlockPos posLeft = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight)));
 				if (!world.isLoaded(posLeft)) continue;
-				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posLeft))) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posLeft))) continue;
 				if (!WeatherObjectParticleStorm.canSpawnHere(world, posLeft, type, false)) continue;
-				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posLeft).m_203334_())) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.getBiome(posLeft).m_203334_())) continue;
 
 				BlockPos posRight = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight)));
 				if (!world.isLoaded(posRight)) continue;
-				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posRight))) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posRight))) continue;
 				if (!WeatherObjectParticleStorm.canSpawnHere(world, posRight, type, false)) continue;
-				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posRight).m_203334_())) continue;
+				//if (!WeatherObjectSandstorm.isDesert(world.getBiome(posRight).m_203334_())) continue;
 
 				//go as far upwind as possible until no desert / unloaded area
 
@@ -442,7 +435,7 @@ public class WeatherManagerServer extends WeatherManager {
 				BlockPos posFindLastGoodDownwind = new BlockPos(foundPos);
 				double tickDist = 10;
 
-				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posFind))) {
+				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
 				while (world.isLoaded(posFind) && WeatherObjectParticleStorm.canSpawnHere(world, posFind, type, true)) {
 					//tick last good
 					posFindLastGoodUpwind = new BlockPos(posFind);
@@ -457,7 +450,7 @@ public class WeatherManagerServer extends WeatherManager {
 				//reset for downwind scan
 				posFind = new BlockPos(foundPos);
 
-				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posFind))) {
+				//while (world.isLoaded(posFind) && WeatherObjectSandstorm.isDesert(world.getBiomeForCoordsBody(posFind))) {
 				while (world.isLoaded(posFind) && WeatherObjectParticleStorm.canSpawnHere(world, posFind, type, true)) {
 					//tick last good
 					posFindLastGoodDownwind = new BlockPos(posFind);
@@ -727,7 +720,7 @@ public class WeatherManagerServer extends WeatherManager {
 				BlockPos pos = new BlockPos(posCenter.getX() + x, posCenter.getY(), posCenter.getZ() + z);
 				if (getWorld().isLoaded(pos)) {
 					pos = WeatherUtilBlock.getPrecipitationHeightSafe(getWorld(), pos);
-					Biome bgb = getWorld().m_204166_(pos).m_203334_();
+					Biome bgb = getWorld().getBiome(pos).get();
 					allTemperaturesAdded += StormObject.getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(getWorld(), bgb, pos));
 					samples++;
 				}

@@ -9,24 +9,12 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
-import com.mojang.blaze3d.shaders.AbstractUniform;
-import com.mojang.blaze3d.shaders.BlendMode;
-import com.mojang.blaze3d.shaders.Program;
-import com.mojang.blaze3d.shaders.ProgramManager;
-import com.mojang.blaze3d.shaders.Shader;
-import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.shaders.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -37,15 +25,23 @@ import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import weather2.client.shaderstest.InstancedMeshParticle;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @OnlyIn(Dist.CLIENT)
 public class ShaderInstanceExtended implements Shader, AutoCloseable {
     private static final String SHADER_PATH = "shaders/core/";
     private static final String SHADER_INCLUDE_PATH = "shaders/include/";
-    static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
     private static final boolean ALWAYS_REAPPLY = true;
     private static ShaderInstanceExtended lastAppliedShader;
@@ -70,6 +66,8 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
     @Nullable
     public final Uniform PROJECTION_MATRIX;
     @Nullable
+    public final Uniform INVERSE_VIEW_ROTATION_MATRIX;
+    @Nullable
     public final Uniform TEXTURE_MATRIX;
     @Nullable
     public final Uniform SCREEN_SIZE;
@@ -86,6 +84,8 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
     @Nullable
     public final Uniform FOG_COLOR;
     @Nullable
+    public final Uniform FOG_SHAPE;
+    @Nullable
     public final Uniform LINE_WIDTH;
     @Nullable
     public final Uniform GAME_TIME;
@@ -93,7 +93,7 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
     public final Uniform CHUNK_OFFSET;
 
     @Nullable
-    public final Uniform CUSTOM_TIME;
+    public final Uniform CUSTOM_TIME;// WEATHER ADDED
 
     @Deprecated // FORGE: Use the ResourceLocation variant below
     public ShaderInstanceExtended(ResourceProvider p_173336_, String p_173337_, VertexFormat p_173338_) throws IOException {
@@ -103,107 +103,122 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
         this.name = shaderLocation.getNamespace().equals("minecraft") ? shaderLocation.getPath() : shaderLocation.toString();
         this.vertexFormat = p_173338_;
         ResourceLocation resourcelocation = new ResourceLocation(shaderLocation.getNamespace(), "shaders/core/" + shaderLocation.getPath() + ".json");
-        Resource resource = null;
 
         try {
-            resource = p_173336_.getResource(resourcelocation);
-            JsonObject jsonobject = GsonHelper.parse(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
-            String s = GsonHelper.getAsString(jsonobject, "vertex");
-            String s1 = GsonHelper.getAsString(jsonobject, "fragment");
-            JsonArray jsonarray = GsonHelper.getAsJsonArray(jsonobject, "samplers", (JsonArray)null);
-            if (jsonarray != null) {
-                int i = 0;
+            Reader reader = p_173336_.openAsReader(resourcelocation);
 
-                for(JsonElement jsonelement : jsonarray) {
-                    try {
-                        this.parseSamplerNode(jsonelement);
-                    } catch (Exception exception2) {
-                        ChainedJsonException chainedjsonexception1 = ChainedJsonException.forException(exception2);
-                        chainedjsonexception1.prependJsonKey("samplers[" + i + "]");
-                        throw chainedjsonexception1;
+            try {
+                JsonObject jsonobject = GsonHelper.parse(reader);
+                String s1 = GsonHelper.getAsString(jsonobject, "vertex");
+                String s = GsonHelper.getAsString(jsonobject, "fragment");
+                JsonArray jsonarray = GsonHelper.getAsJsonArray(jsonobject, "samplers", (JsonArray) null);
+                if (jsonarray != null) {
+                    int i = 0;
+
+                    for (JsonElement jsonelement : jsonarray) {
+                        try {
+                            this.parseSamplerNode(jsonelement);
+                        } catch (Exception exception2) {
+                            ChainedJsonException chainedjsonexception1 = ChainedJsonException.forException(exception2);
+                            chainedjsonexception1.prependJsonKey("samplers[" + i + "]");
+                            throw chainedjsonexception1;
+                        }
+
+                        ++i;
                     }
-
-                    ++i;
                 }
-            }
 
-            JsonArray jsonarray1 = GsonHelper.getAsJsonArray(jsonobject, "attributes", (JsonArray)null);
-            if (jsonarray1 != null) {
-                int j = 0;
-                this.attributes = Lists.newArrayListWithCapacity(jsonarray1.size());
-                this.attributeNames = Lists.newArrayListWithCapacity(jsonarray1.size());
+                JsonArray jsonarray1 = GsonHelper.getAsJsonArray(jsonobject, "attributes", (JsonArray) null);
+                if (jsonarray1 != null) {
+                    int j = 0;
+                    this.attributes = Lists.newArrayListWithCapacity(jsonarray1.size());
+                    this.attributeNames = Lists.newArrayListWithCapacity(jsonarray1.size());
 
-                for(JsonElement jsonelement1 : jsonarray1) {
-                    try {
-                        this.attributeNames.add(GsonHelper.convertToString(jsonelement1, "attribute"));
-                    } catch (Exception exception1) {
-                        ChainedJsonException chainedjsonexception2 = ChainedJsonException.forException(exception1);
-                        chainedjsonexception2.prependJsonKey("attributes[" + j + "]");
-                        throw chainedjsonexception2;
+                    for (JsonElement jsonelement1 : jsonarray1) {
+                        try {
+                            this.attributeNames.add(GsonHelper.convertToString(jsonelement1, "attribute"));
+                        } catch (Exception exception1) {
+                            ChainedJsonException chainedjsonexception2 = ChainedJsonException.forException(exception1);
+                            chainedjsonexception2.prependJsonKey("attributes[" + j + "]");
+                            throw chainedjsonexception2;
+                        }
+
+                        ++j;
                     }
-
-                    ++j;
+                } else {
+                    this.attributes = null;
+                    this.attributeNames = null;
                 }
-            } else {
-                this.attributes = null;
-                this.attributeNames = null;
-            }
 
-            JsonArray jsonarray2 = GsonHelper.getAsJsonArray(jsonobject, "uniforms", (JsonArray)null);
-            if (jsonarray2 != null) {
-                int k = 0;
+                JsonArray jsonarray2 = GsonHelper.getAsJsonArray(jsonobject, "uniforms", (JsonArray) null);
+                if (jsonarray2 != null) {
+                    int k = 0;
 
-                for(JsonElement jsonelement2 : jsonarray2) {
-                    try {
-                        this.parseUniformNode(jsonelement2);
-                    } catch (Exception exception) {
-                        ChainedJsonException chainedjsonexception3 = ChainedJsonException.forException(exception);
-                        chainedjsonexception3.prependJsonKey("uniforms[" + k + "]");
-                        throw chainedjsonexception3;
+                    for (JsonElement jsonelement2 : jsonarray2) {
+                        try {
+                            this.parseUniformNode(jsonelement2);
+                        } catch (Exception exception) {
+                            ChainedJsonException chainedjsonexception3 = ChainedJsonException.forException(exception);
+                            chainedjsonexception3.prependJsonKey("uniforms[" + k + "]");
+                            throw chainedjsonexception3;
+                        }
+
+                        ++k;
                     }
-
-                    ++k;
-                }
-            }
-
-            this.blend = parseBlendNode(GsonHelper.getAsJsonObject(jsonobject, "blend", (JsonObject)null));
-            this.vertexProgram = getOrCreate(p_173336_, Program.Type.VERTEX, s);
-            this.fragmentProgram = getOrCreate(p_173336_, Program.Type.FRAGMENT, s1);
-            this.programId = ProgramManager.createProgram();
-            if (this.attributeNames != null) {
-                int l = 0;
-
-                for(String s2 : p_173338_.getElementAttributeNames()) {
-                    //Uniform.glBindAttribLocation(this.programId, l, s2);
-                    //Uniform.glBindAttribLocation(this.programId, getAttribLocationForAttrib(s2), s2);
-                    this.attributes.add(l);
-                    ++l;
                 }
 
-                Uniform.glBindAttribLocation(this.programId, 0, "Position");
-                Uniform.glBindAttribLocation(this.programId, 1, "UV0");
-                Uniform.glBindAttribLocation(this.programId, 2, "Normal");
-                //ShaderManager.glBindAttribLocation(programId, vertexShaderAttributeVertexNormal, "vertexNormal");
-                /*Uniform.glBindAttribLocation(this.programId, vertexShaderAttributeModelMatrix, "Color");
-                Uniform.glBindAttribLocation(this.programId, vertexShaderAttributeBrightness, "Normal");*/
-                Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh, "ModelMatrix");
-                Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh + 4, "Brightness");
-                Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh + 5, "Color");
+                this.blend = parseBlendNode(GsonHelper.getAsJsonObject(jsonobject, "blend", (JsonObject) null));
+                this.vertexProgram = getOrCreate(p_173336_, Program.Type.VERTEX, s1);
+                this.fragmentProgram = getOrCreate(p_173336_, Program.Type.FRAGMENT, s);
+                this.programId = ProgramManager.createProgram();
+                if (this.attributeNames != null) {
+                    int l = 0;
+
+                    for (String s2 : p_173338_.getElementAttributeNames()) {
+//                        Uniform.glBindAttribLocation(this.programId, l, s2);// WEATHER COMMENTED OUT
+                        this.attributes.add(l);
+                        ++l;
+                    }
+                    // WEATHER ADDED
+                    Uniform.glBindAttribLocation(this.programId, 0, "Position");
+                    Uniform.glBindAttribLocation(this.programId, 1, "UV0");
+                    Uniform.glBindAttribLocation(this.programId, 2, "Normal");
+                    //ShaderManager.glBindAttribLocation(programId, vertexShaderAttributeVertexNormal, "vertexNormal");
+                    //Uniform.glBindAttribLocation(this.programId, vertexShaderAttributeModelMatrix, "Color");
+                    //Uniform.glBindAttribLocation(this.programId, vertexShaderAttributeBrightness, "Normal");
+                    Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh, "ModelMatrix");
+                    Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh + 4, "Brightness");
+                    Uniform.glBindAttribLocation(this.programId, InstancedMeshParticle.vboSizeMesh + 5, "Color");
+                    // WEATHER ADDED END
+                }
+
+                ProgramManager.linkShader(this);
+                this.updateLocations();
+            } catch (Throwable throwable1) {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (Throwable throwable) {
+                        throwable1.addSuppressed(throwable);
+                    }
+                }
+
+                throw throwable1;
             }
 
-            ProgramManager.linkShader(this);
-            this.updateLocations();
+            if (reader != null) {
+                reader.close();
+            }
         } catch (Exception exception3) {
             ChainedJsonException chainedjsonexception = ChainedJsonException.forException(exception3);
             chainedjsonexception.setFilenameAndFlush(resourcelocation.getPath());
             throw chainedjsonexception;
-        } finally {
-            IOUtils.closeQuietly((Closeable)resource);
         }
 
         this.markDirty();
         this.MODEL_VIEW_MATRIX = this.getUniform("ModelViewMat");
         this.PROJECTION_MATRIX = this.getUniform("ProjMat");
+        this.INVERSE_VIEW_ROTATION_MATRIX = this.getUniform("IViewRotMat");
         this.TEXTURE_MATRIX = this.getUniform("TextureMat");
         this.SCREEN_SIZE = this.getUniform("ScreenSize");
         this.COLOR_MODULATOR = this.getUniform("ColorModulator");
@@ -212,16 +227,12 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
         this.FOG_START = this.getUniform("FogStart");
         this.FOG_END = this.getUniform("FogEnd");
         this.FOG_COLOR = this.getUniform("FogColor");
+        this.FOG_SHAPE = this.getUniform("FogShape");
         this.LINE_WIDTH = this.getUniform("LineWidth");
         this.GAME_TIME = this.getUniform("GameTime");
         this.CHUNK_OFFSET = this.getUniform("ChunkOffset");
-
-        this.CUSTOM_TIME = this.getUniform("CustomTime");
-    }/*
-
-    public int getAttribLocationForAttrib(String attrib) {
-
-    }*/
+        this.CUSTOM_TIME = this.getUniform("CustomTime");// WEATHER ADDED
+    }
 
     private static Program getOrCreate(final ResourceProvider p_173341_, Program.Type p_173342_, String p_173343_) throws IOException {
         Program program1 = p_173342_.getPrograms().get(p_173343_);
@@ -230,52 +241,66 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
             ResourceLocation loc = new ResourceLocation(p_173343_);
             String s = "shaders/core/" + loc.getPath() + p_173342_.getExtension();
             ResourceLocation resourcelocation = new ResourceLocation(loc.getNamespace(), s);
-            Resource resource = p_173341_.getResource(resourcelocation);
-            final String s1 = FileUtil.getFullResourcePath(s);
+            Resource resource = p_173341_.getResourceOrThrow(resourcelocation);
+            InputStream inputstream = resource.open();
 
             try {
-                program = Program.compileShader(p_173342_, p_173343_, resource.getInputStream(), resource.getSourceName(), new GlslPreprocessor() {
+                final String s1 = FileUtil.getFullResourcePath(s);
+                program = Program.compileShader(p_173342_, p_173343_, inputstream, resource.sourcePackId(), new GlslPreprocessor() {
                     private final Set<String> importedPaths = Sets.newHashSet();
 
                     public String applyImport(boolean p_173374_, String p_173375_) {
-                        p_173375_ = FileUtil.normalizeResourcePath((p_173374_ ? s1 : "shaders/include/") + p_173375_);
-                        if (!this.importedPaths.add(p_173375_)) {
+                        // FORGE: use the mod's namespace to look up resources if specified
+                        ResourceLocation resourcelocation = net.minecraftforge.client.ForgeHooksClient.getShaderImportLocation(s1, p_173374_, p_173375_);
+                        if (!this.importedPaths.add(resourcelocation.toString())) {
                             return null;
                         } else {
-                            ResourceLocation resourcelocation1 = new ResourceLocation(p_173375_);
 
                             try {
-                                Resource resource1 = p_173341_.getResource(resourcelocation1);
+                                Reader reader = p_173341_.openAsReader(resourcelocation);
 
                                 String s2;
                                 try {
-                                    s2 = IOUtils.toString(resource1.getInputStream(), StandardCharsets.UTF_8);
-                                } catch (Throwable throwable1) {
-                                    if (resource1 != null) {
+                                    s2 = IOUtils.toString(reader);
+                                } catch (Throwable throwable3) {
+                                    if (reader != null) {
                                         try {
-                                            resource1.close();
-                                        } catch (Throwable throwable) {
-                                            throwable1.addSuppressed(throwable);
+                                            reader.close();
+                                        } catch (Throwable throwable2) {
+                                            throwable3.addSuppressed(throwable2);
                                         }
                                     }
 
-                                    throw throwable1;
+                                    throw throwable3;
                                 }
 
-                                if (resource1 != null) {
-                                    resource1.close();
+                                if (reader != null) {
+                                    reader.close();
                                 }
 
                                 return s2;
                             } catch (IOException ioexception) {
-                                ShaderInstanceExtended.LOGGER.error("Could not open GLSL import {}: {}", p_173375_, ioexception.getMessage());
+                                // FORGE: specify the namespace of the failed import in case of duplicates from multiple mods
+                                ShaderInstanceExtended.LOGGER.error("Could not open GLSL import {}: {}", resourcelocation, ioexception.getMessage());
                                 return "#error " + ioexception.getMessage();
                             }
                         }
                     }
                 });
-            } finally {
-                IOUtils.closeQuietly((Closeable)resource);
+            } catch (Throwable throwable1) {
+                if (inputstream != null) {
+                    try {
+                        inputstream.close();
+                    } catch (Throwable throwable) {
+                        throwable1.addSuppressed(throwable);
+                    }
+                }
+
+                throw throwable1;
+            }
+
+            if (inputstream != null) {
+                inputstream.close();
             }
         } else {
             program = program1;
@@ -372,10 +397,10 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
         this.dirty = false;
         lastAppliedShader = this;
         this.blend.apply();
-
+        // WEATHER ADDED
         //TODO: TEMP!!!!!
         ProgramManager.glUseProgram(this.programId);
-
+        // WEATHER ADDED END
         if (this.programId != lastProgramId) {
             ProgramManager.glUseProgram(this.programId);
             lastProgramId = this.programId;
@@ -425,7 +450,7 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
     }
 
     public AbstractUniform safeGetUniform(String p_173357_) {
-        RenderSystem.isOnGameThread();
+        RenderSystem.assertOnGameThread();
         Uniform uniform = this.getUniform(p_173357_);
         return (AbstractUniform)(uniform == null ? DUMMY_UNIFORM : uniform);
     }
@@ -519,7 +544,7 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
             } else if (i <= 7) {
                 uniform.setSafe(afloat[0], afloat[1], afloat[2], afloat[3]);
             } else {
-                uniform.set(afloat);
+                uniform.set(Arrays.copyOfRange(afloat, 0, j));
             }
 
             this.uniforms.add(uniform);

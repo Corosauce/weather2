@@ -2,15 +2,15 @@ package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CoroUtilParticle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import com.mojang.math.Quaternion;
-import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import weather2.ClientTickHandler;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
@@ -347,7 +347,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 			Quaternion.mul(qY, qX, this.rotation);
 
 			if (extraYRotation != 0) {
-				//float rot = (new Random()).nextFloat() * 360F;
+				//float rot = (RandomSource.create()).nextFloat() * 360F;
 				qY = new Quaternion();
 				qY.setFromAxisAngle(new Vector4f(0, 1, 0, extraYRotation));
 				Quaternion.mul(this.rotation, qY, this.rotation);

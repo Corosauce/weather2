@@ -1,20 +1,15 @@
 package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CoroUtilColor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.registries.IRegistryDelegate;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ParticleTexLeafColor extends ParticleTexFX {
@@ -91,9 +86,9 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		}
 		
 		// Randomize the color with exponential decrease in likelihood. That is, the first color has a 50% chance, then 25%, etc.
-		int randMax = 1 << (colors.length - 1);
-		int choice = 32 - Integer.numberOfLeadingZeros(worldIn.random.nextInt(randMax));
-		int color = colors[choice];
+        int randMax = 1 << (colors.length - 1);
+        int choice = 32 - Integer.numberOfLeadingZeros(RandomSource.create().nextInt(randMax));
+        int color = colors[choice];
 
 		float mr = ((multiplier >>> 16) & 0xFF) / 255f;
 		float mg = ((multiplier >>> 8) & 0xFF) / 255f;

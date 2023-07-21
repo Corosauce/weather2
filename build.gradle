@@ -50,6 +50,7 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    mavenLocal()
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -61,7 +62,7 @@ apply plugin: 'org.spongepowered.mixin'
 ext.buildnumber = 0
 ext.projversion = 0
 
-project.projversion = '1.18.2-2.7.5'
+project.projversion = "${mod_version}"
 group = 'com.corosus.weather2' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'weather2'
 
@@ -88,7 +89,7 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.18.1'
+    mappings channel: 'official', version: '1.19.2'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -205,15 +206,12 @@ dependencies {
     //implementation fg.deobf(ltlib)
 
 
-    implementation fg.deobf('com.corosus.coroutil:coroutil:1.18.2-1.2.45')
+    implementation fg.deobf('com.corosus.coroutil:CoroUtil:1.19.2-1.2.37')
     //implementation fg.deobf("com.lovetropics.minigames:LTWeather:0.0.1-alpha+custom")
     //implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.0-alpha+custom")
     //implementation fg.deobf("com.lovetropics.minigames:LTMinigames:0.1.0-alpha+639-gha")
-    //lazydfu-1.0-1.18+
-    implementation fg.deobf("curse.maven:lazydfu-460819:3544496")
-    //minecraft 'net.minecraftforge:forge:1.18.1-39.0.5'
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
-    //minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation fg.deobf("curse.maven:lazy-dfu-forge-460819:4327266")
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
 
     // Real mod deobf dependency examples - these get remapped to your current mappings

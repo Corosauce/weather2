@@ -1,21 +1,19 @@
 package weather2.util;
 
+import extendedrenderer.particle.entity.EntityRotFX;
+import extendedrenderer.particle.entity.ParticleTexFX;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import weather2.IWindHandler;
+
 import java.lang.reflect.Field;
-import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
-
-import com.google.common.collect.Maps;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import extendedrenderer.particle.entity.EntityRotFX;
-import extendedrenderer.particle.entity.ParticleTexFX;
-import weather2.IWindHandler;
 
 public class WeatherUtilParticle {
     //public static ArrayDeque<Particle>[][] fxLayers;
@@ -27,7 +25,7 @@ public class WeatherUtilParticle {
     public static int effSnowID = 3;
     /*public static int effSandID = 4;
     public static int effWind2ID = 2;*/
-    
+
     public static Random rand = new Random();
     //public static int rainDrops = 20;
     

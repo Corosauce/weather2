@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import weather2.WeatherBlocks;
 import weather2.blockentity.DeflectorBlockEntity;
 
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+
 public class DeflectorBlock extends BaseEntityBlock {
 
     public DeflectorBlock(Properties p_49224_) {

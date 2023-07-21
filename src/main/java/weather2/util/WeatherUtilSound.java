@@ -1,8 +1,8 @@
 package weather2.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,7 +34,7 @@ public class WeatherUtilSound {
     public static long soundTimer[] = new long[6];
     
     public static void init() {
-    	Random rand = new Random();
+        Random rand = new Random();
     	snd_tornado_dmg_close[0] = "destruction_0_";
         snd_tornado_dmg_close[1] = "destruction_1_";
         snd_tornado_dmg_close[2] = "destruction_2_";

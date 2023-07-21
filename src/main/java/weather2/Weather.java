@@ -4,10 +4,12 @@ import com.corosus.coroutil.util.CULog;
 import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
 import com.mojang.brigadier.CommandDispatcher;
+import extendedrenderer.ParticleRegistry2ElectricBubbleoo;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -19,13 +21,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
 import weather2.config.*;
 import weather2.data.WeatherRecipeProvider;
-import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilSound;
 
 import java.io.File;
@@ -65,6 +65,8 @@ public class Weather
         //new
         WeatherBlocks.registerHandlers(modBus);
         WeatherItems.registerHandlers(modBus);
+        WeatherEntityTypes.registerHandlers(modBus);
+        ParticleRegistry2ElectricBubbleoo.registerHandlers(modBus);
 
         MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
@@ -137,8 +139,6 @@ public class Weather
 
     private void gatherData(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
-        if (event.includeServer()) {
-            gen.addProvider(new WeatherRecipeProvider(gen));
-        }
+        gen.addProvider(event.includeServer(), new WeatherRecipeProvider(gen));
     }
 }

@@ -12,7 +12,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by corosus on 08/05/17.
@@ -39,9 +38,9 @@ public class Mesh {
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
 
-        float radius = 10;
+        /*float radius = 10;
         Random rand = new Random();
-        /*for (int i = 0; i < extraRenders; i++) {
+        for (int i = 0; i < extraRenders; i++) {
             Matrix4fe matOffset = new Matrix4fe();
             matOffset.identity();
             matOffset.translate(rand.nextFloat() * radius - rand.nextFloat() * radius, rand.nextFloat() * radius - rand.nextFloat() * radius, rand.nextFloat() * radius - rand.nextFloat() * radius);

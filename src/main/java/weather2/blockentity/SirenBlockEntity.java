@@ -1,6 +1,7 @@
 package weather2.blockentity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,8 +15,6 @@ import weather2.config.ConfigSand;
 import weather2.util.WeatherUtilSound;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
-
-import java.util.List;
 
 public class SirenBlockEntity extends BlockEntity {
 
@@ -58,7 +57,7 @@ public class SirenBlockEntity extends BlockEntity {
 
                         if (pos.distanceTo(storm.pos) < storm.getSize()) {
                             String soundToPlay = "siren_sandstorm_5_extra";
-                            if (level.random.nextBoolean()) {
+                            if (RandomSource.create().nextBoolean()) {// ATTENTION
                                 soundToPlay = "siren_sandstorm_6_extra";
                             }
 

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -201,7 +202,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         //this.isImmuneToFire = true;
         //this.setMaxAge(100);
 
-        this.entityID = par1World.random.nextInt(100000);
+        this.entityID = RandomSource.create().nextInt(100000);
 
         //rotation = new Quaternion();
 

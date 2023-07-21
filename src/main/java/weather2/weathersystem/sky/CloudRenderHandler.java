@@ -9,18 +9,26 @@ import com.mojang.math.Vector3f;
 import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.ICloudRenderHandler;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import weather2.ClientTickHandler;
+import weather2.Weather;
 import weather2.client.shaders.ShaderInstanceExtended;
 import weather2.client.shaders.VertexBufferInstanced;
 import weather2.client.shaders.WeatherShaders;
@@ -29,20 +37,18 @@ import weather2.client.shaderstest.InstancedMeshParticle;
 import weather2.client.shaderstest.MeshBufferManagerParticle;
 import weather2.client.shaderstest.Model;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 
-public class CloudRenderHandler implements ICloudRenderHandler {
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public class CloudRenderHandler extends DimensionSpecialEffects.OverworldEffects {
 
     private boolean cloudsNeedUpdate = true;
     private VertexBufferInstanced cloudsVBOOld;
     private VertexBufferInstanced cloudsVBO;
-    //private VertexBuffer cloudVBO;
 
     private int sphereIndex = 0;
 
@@ -52,14 +58,24 @@ public class CloudRenderHandler implements ICloudRenderHandler {
     private boolean mode_triangles = true;
     public Frustum cullingFrustum;
 
-    @Override
-    public void render(int ticks, float partialTicks, PoseStack matrixStackIn, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
-        //dont use until interface is fixed to add projection matrix
-        //this.render(ticks, partialTicks, matrixStackIn, null, world, mc, viewEntityX, viewEntityY, viewEntityZ);
+    @SubscribeEvent
+    public void register(RegisterDimensionSpecialEffectsEvent event) {
+        if (!Weather.isLoveTropicsInstalled())
+            event.register(BuiltinDimensionTypes.OVERWORLD_EFFECTS, this);
     }
-    //PoseStack matrixStackIn, Matrix4f projectionMatrix, float p_172957_, double p_172958_, double viewEntityY, double p_172960_
 
-    //public void render(int ticks, float partialTicks, PoseStack matrixStackIn, Matrix4f projectionMatrix, ClientLevel world, Minecraft mc, double viewEntityX, double viewEntityY, double viewEntityZ) {
+    @Override
+    public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+        this.render(poseStack, projectionMatrix, partialTick, camX, camY, camZ);
+        //stopping vanilla from running rendering clouds
+        return true;
+    }
+
+    @Override
+    public boolean renderSnowAndRain(ClientLevel level, int ticks, float partialTick, LightTexture lightTexture, double camX, double camY, double camZ) {
+        //stopping vanilla from running rendering rain and snow
+        return true;
+    }
 
     public void prepareCullFrustum(PoseStack p_172962_, Vec3 p_172963_, Matrix4f p_172964_) {
         Matrix4f matrix4f = p_172962_.last().pose();
@@ -335,7 +351,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
             }
 
             bufferbuilder.end();
-            this.cloudsVBO.upload(bufferbuilder);
+            this.cloudsVBO.upload(bufferbuilder.end());
         }
 
         matrixStackIn.pushPose();/*
@@ -442,7 +458,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 double y = 128 - viewEntityY + 0.001;
                 double z = 6972 - (playerZ);
 
-                Random rand = new Random(3);
+                RandomSource rand = RandomSource.create(3);
 
                 int randRangeY = 40;
                 int randRange = 250;
@@ -485,7 +501,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 }
 
                 bufferbuilder.end();
-                this.cloudsVBOOld.upload(bufferbuilder);
+                this.cloudsVBOOld.upload(bufferbuilder.end());
             }
 
             /*if (!customShader) {
@@ -540,7 +556,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                 y = 128 - viewEntityY + 0.001;
                 z = -50 - (playerZ);
 
-                Random rand = new Random(3);
+                RandomSource rand = RandomSource.create(3);
 
                 int randRangeY = 40;
                 int randRange = 250;
@@ -699,7 +715,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         float particleAlpha = 1;
 
         boolean alt = false;
-        Random rand = new Random(555);
+        RandomSource rand = RandomSource.create(555);
 
         int nSegments = 6;
         int nSlices = 6;
@@ -710,7 +726,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         float lengthInv = 1.0f / radius;
 
-        rand = new Random(555);
+        rand = RandomSource.create(555);
 
         String verts = "";
         boolean outputVerts = false;
@@ -786,24 +802,25 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                      * . .
                      * .
                      */
-                    bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                    bufferIn.vertex(x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    ;
 
                     if (outputVerts) {
-                        verts += x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
                     }
 
@@ -812,45 +829,47 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                      * . .
                      */
                     bufferIn.vertex(
-                            x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
-                            y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
-                            z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
+                                    x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
+                                    y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
+                                    z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
                             .uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
 
                     bufferIn.vertex(
-                            x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
-                            y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
-                            z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
-                            .uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                                    x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
+                                    y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
+                                    z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
+                            .uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    ;
 
-                    bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
-                            y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
-                            z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
+                    bufferIn.vertex(x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
+                                    y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
+                                    z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
                             .uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
 
                     if (outputVerts) {
-                        verts += x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
                     }
 
                 } else {
                     // render shape = U ?
-                    bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
-                    bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    ;
+                    bufferIn.vertex(x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
                 }
 
 
@@ -892,7 +911,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
         float particleAlpha = 1;
 
         boolean alt = false;
-        Random rand = new Random(555);
+        RandomSource rand = RandomSource.create(555);
 
         int nSegments = 6;
         int nSlices = 6;
@@ -907,7 +926,7 @@ public class CloudRenderHandler implements ICloudRenderHandler {
 
         float lengthInv = 1.0f / radius;
 
-        rand = new Random(555);
+        rand = RandomSource.create(555);
 
         String verts = "";
         boolean outputVerts = false;
@@ -986,21 +1005,21 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                      * . .
                      * .
                      */
-                    /*bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;*/
+                    /*bufferIn.vertex(x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;*/
 
-                    model.positions.add((float) (x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
-                    model.positions.add((float) (y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
-                    model.positions.add((float) (z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
+                    model.positions.add((float) (x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
+                    model.positions.add((float) (y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
+                    model.positions.add((float) (z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
 
-                    model.positions.add((float) (x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
-                    model.positions.add((float) (y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
-                    model.positions.add((float) (z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
+                    model.positions.add((float) (x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
+                    model.positions.add((float) (y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
+                    model.positions.add((float) (z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
 
-                    model.positions.add((float) (x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
-                    model.positions.add((float) (y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
-                    model.positions.add((float) (z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
+                    model.positions.add((float) (x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
+                    model.positions.add((float) (y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
+                    model.positions.add((float) (z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
 
                     model.uv.add(f7);
                     model.uv.add(f5);
@@ -1018,19 +1037,19 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     }
 
                     if (outputVerts) {
-                        verts += x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
                     }
 
@@ -1039,33 +1058,33 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                      * . .
                      */
                     /*bufferIn.vertex(
-                                    x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
-                                    y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
-                                    z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
+                                    x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
+                                    y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
+                                    z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
                             .uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
 
                     bufferIn.vertex(
-                                    x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
-                                    y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
-                                    z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
+                                    x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
+                                    y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
+                                    z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
                             .uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
 
-                    bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
-                                    y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
-                                    z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
+                    bufferIn.vertex(x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX,
+                                    y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY,
+                                    z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ)
                             .uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();*/
 
-                    model.positions.add((float) (x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
-                    model.positions.add((float) (y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
-                    model.positions.add((float) (z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
+                    model.positions.add((float) (x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
+                    model.positions.add((float) (y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
+                    model.positions.add((float) (z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
 
-                    model.positions.add((float) (x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
-                    model.positions.add((float) (y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
-                    model.positions.add((float) (z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
+                    model.positions.add((float) (x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
+                    model.positions.add((float) (y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
+                    model.positions.add((float) (z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
 
-                    model.positions.add((float) (x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
-                    model.positions.add((float) (y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
-                    model.positions.add((float) (z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
+                    model.positions.add((float) (x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX));
+                    model.positions.add((float) (y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY));
+                    model.positions.add((float) (z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ));
 
                     model.uv.add(f7);
                     model.uv.add(f6);
@@ -1083,28 +1102,28 @@ public class CloudRenderHandler implements ICloudRenderHandler {
                     }
 
                     if (outputVerts) {
-                        verts += x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
 
-                        verts += x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
-                        verts += y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
-                        verts += z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
+                        verts += x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX + "F,";
+                        verts += y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY + "F,";
+                        verts += z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ + "F,"
                                 + System.getProperty("line.separator");
                     }
 
                 } else {
                     // render shape = U ?
-                    /*bufferIn.vertex(x1 * zr0 * radius2 + ((new Random((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((new Random((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x0 * zr0 * radius2 + ((new Random((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((new Random((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((new Random((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
-                    bufferIn.vertex(x0 * zr1 * radius2 + ((new Random((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((new Random((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
-                    bufferIn.vertex(x1 * zr1 * radius2 + ((new Random((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((new Random((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((new Random((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();*/
+                    /*bufferIn.vertex(x1 * zr0 * radius2 + ((RandomSource.create((long) (x1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr0 * radius2 + ((RandomSource.create((long) (y1 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x0 * zr0 * radius2 + ((RandomSource.create((long) (x0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr0 * radius2 + ((RandomSource.create((long) (y0 * zr0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z0 * radius2 + ((RandomSource.create((long) (z0 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();;
+                    bufferIn.vertex(x0 * zr1 * radius2 + ((RandomSource.create((long) (x0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y0 * zr1 * radius2 + ((RandomSource.create((long) (y0 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f8, f5).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();
+                    bufferIn.vertex(x1 * zr1 * radius2 + ((RandomSource.create((long) (x1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsX, y1 * zr1 * radius2 + ((RandomSource.create((long) (y1 * zr1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsY, z1 * radius2 + ((RandomSource.create((long) (z1 * radius2) + sphereIndex)).nextFloat() * randAmt - (randAmt / 2F)) + cloudsZ).uv(f7, f6).color(particleRed, particleGreen, particleBlue, particleAlpha).normal(n1, n2, n3).endVertex();*/
                 }
 
 

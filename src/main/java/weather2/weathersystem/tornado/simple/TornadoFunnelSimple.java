@@ -8,6 +8,7 @@ import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Dolphin;
@@ -167,9 +168,9 @@ public class TornadoFunnelSimple {
 
         float adjustedRate = 1F;
         if (!isPet) {
-            if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+            if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
                 adjustedRate = 0.6F;
-            } else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+            } else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
                 adjustedRate = 0.3F;
             }
         }
@@ -376,11 +377,11 @@ public class TornadoFunnelSimple {
         particle.setScale(15F);
         //particle.setColor(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
         float baseBright = 0.3F;
-        float randFloat = (world.random.nextFloat() * 0.6F);
-        float finalBright = Math.min(1F, baseBright+randFloat);
+        float randFloat = (RandomSource.create().nextFloat() * 0.6F);
+        float finalBright = Math.min(1F, baseBright + randFloat);
         particle.setColor(finalBright-0.2F, finalBright-0.2F, finalBright-0.2F);
         particle.setGravity(0);
-        particle.rotationYaw = world.random.nextFloat() * 360;
+        particle.rotationYaw = RandomSource.create().nextFloat() * 360;
         particle.setRenderDistanceCull(renderDistCutoff);
         return particle;
     }

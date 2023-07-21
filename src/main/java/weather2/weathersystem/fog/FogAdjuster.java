@@ -1,16 +1,16 @@
 package weather2.weathersystem.fog;
 
 import com.corosus.coroutil.util.CULog;
-import net.minecraft.util.Mth;
-import weather2.datatypes.WeatherEventType;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import com.mojang.math.Vector3f;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
+import weather2.datatypes.WeatherEventType;
 import weather2.util.WeatherUtilEntity;
 
 import java.util.Random;
@@ -137,21 +137,21 @@ public class FogAdjuster {
         }
     }
 
-    public void onFogColors(EntityViewRenderEvent.FogColors event) {
+    public void onFogColors(ViewportEvent.ComputeFogColor event) {
         updateWeatherState();
 
         //get vanilla settings
         fogVanilla.getRgb().set(event.getRed(), event.getGreen(), event.getBlue());
 
         if (SceneEnhancer.isFogOverridding()) {
-            float brightness = Mth.clamp(Mth.cos(Minecraft.getInstance().level.getTimeOfDay(1F) * ((float)Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
+            float brightness = Mth.clamp(Mth.cos(Minecraft.getInstance().level.getTimeOfDay(1F) * ((float) Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
             event.setRed(activeProfile.getRgb().x() * brightness);
             event.setGreen(activeProfile.getRgb().y() * brightness);
             event.setBlue(activeProfile.getRgb().z() * brightness);
         }
     }
 
-    public void onFogRender(EntityViewRenderEvent.RenderFogEvent event) {
+    public void onFogRender(ViewportEvent.RenderFog event) {
         updateWeatherState();
 
         //get vanilla settings

@@ -1,9 +1,5 @@
 package extendedrenderer.particle.behavior;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
@@ -12,6 +8,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -23,6 +20,10 @@ import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
 import weather2.datatypes.PrecipitationType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleBehaviors {
@@ -222,11 +223,11 @@ public class ParticleBehaviors {
 		particle.setTicksFadeOutMaxOnDeath(3);
 		particle.setFullAlphaTarget(0.6F);
 		particle.setAlpha(0);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = rand.nextInt(360) - 180F;
 		particle.setMotionY(-0.5D);
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level.getBiome(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).get();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;
@@ -255,14 +256,14 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		particle.setTicksFadeOutMax(4);
 		particle.renderOrder = 2;
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = rand.nextInt(360) - 180F;
 		particle.rotationPitch = 90;
 		particle.setMotionY(0D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level.getBiome(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).get();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;
@@ -292,13 +293,13 @@ public class ParticleBehaviors {
 		particle.setFullAlphaTarget(1F);
 		particle.setAlpha(0);
 		particle.setTicksFadeOutMax(10);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = rand.nextInt(360) - 180F;
 		particle.rotationPitch = 0;
 		particle.setMotionY(-0.3D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level.getBiome(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).get();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;
@@ -330,7 +331,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeInMax(5);
 		particle.setAlphaF(0);
 		particle.setTicksFadeOutMax(20);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = rand.nextInt(360) - 180F;
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 	}
 
@@ -358,7 +359,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeOutMaxOnDeath(50);
 		particle.setFullAlphaTarget(1F);
 		particle.setAlpha(0);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = rand.nextInt(360) - 180F;
 		particle.setMotionY(-0.5D);
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 		particle.rCol = 0.9F;
@@ -391,7 +392,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeOutMaxOnDeath(20);
 		particle.setFullAlphaTarget(1F);
 		particle.setAlpha(0);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = RandomSource.create().nextInt(360) - 180F;
 		//particle.setMotionY(-0.5D);
 		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 		/*float tempBrightness = 0.5F;
@@ -429,7 +430,7 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		float brightness = 0.5F + (rand.nextFloat() * 0.5F);
 		particle.setColor(particle.rCol * brightness, particle.gCol * brightness, particle.bCol * brightness);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = rand.nextInt(360) - 180F;
 		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 	}
 
@@ -464,7 +465,7 @@ public class ParticleBehaviors {
 			float brightness = 0.5F;
 			particle.setColor(particle.rCol * brightness, particle.gCol * brightness, particle.bCol * brightness);
 		}
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = RandomSource.create().nextInt(360) - 180F;
 	}
 
 	public void initParticleLeaf(EntityRotFX particle, float particleAABB) {

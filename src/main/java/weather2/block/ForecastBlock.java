@@ -1,7 +1,7 @@
 package weather2.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +19,8 @@ import weather2.ServerTickHandler;
 import weather2.WeatherBlocks;
 import weather2.blockentity.DeflectorBlockEntity;
 import weather2.weathersystem.WeatherManagerServer;
+
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 public class ForecastBlock extends Block {
 
@@ -38,7 +40,7 @@ public class ForecastBlock extends Block {
             WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(p_60506_.getLevel().dimension());
             float chance = wm.getBiomeBasedStormSpawnChanceInArea(new BlockPos(p_60506_.blockPosition()));
 
-            p_60506_.sendMessage(new TextComponent(String.format("Likelyhood of storms to spawn here within 1024 blocks: %.2f", (chance * 100F)) + "%"), p_60506_.getUUID());
+            p_60506_.sendSystemMessage(Component.literal(String.format("Likelyhood of storms to spawn here within 1024 blocks: %.2f", (chance * 100F)) + "%"));
         }
 
         return InteractionResult.CONSUME;

@@ -1,12 +1,11 @@
 package weather2.client;
 
-import com.corosus.coroutil.util.CULog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.Mth;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import weather2.weathersystem.storm.StormObject;
 
@@ -18,8 +17,8 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 	public boolean lockToPlayer = false;
 
 	public MovingSoundStreamingSource(Vec3 parPos, SoundEvent event, SoundSource category, float parVolume, float parPitch, boolean lockToPlayer) {
-		super(event, category);
-		this.looping = false;
+        super(event, category, SoundInstance.createUnseededRandom());
+        this.looping = false;
 		this.volume = parVolume;
 		this.pitch = parPitch;
 		this.realSource = parPos;
@@ -32,8 +31,8 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 	//constructor for non moving sounds
 	public MovingSoundStreamingSource(Vec3 parPos, SoundEvent event, SoundSource category, float parVolume, float parPitch, float parCutOffRange)
 	{
-		super(event, category);
-		this.looping = false;
+        super(event, category, SoundInstance.createUnseededRandom());
+        this.looping = false;
 		this.volume = parVolume;
 		this.pitch = parPitch;
 		cutOffRange = parCutOffRange;
@@ -46,8 +45,8 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 	//constructor for moving sounds
 	public MovingSoundStreamingSource(StormObject parStorm, SoundEvent event, SoundSource category, float parVolume, float parPitch, float parCutOffRange)
 	{
-		super(event, category);
-		this.storm = parStorm;
+        super(event, category, SoundInstance.createUnseededRandom());
+        this.storm = parStorm;
 		this.looping = false;
 		this.volume = parVolume;
 		this.pitch = parPitch;
