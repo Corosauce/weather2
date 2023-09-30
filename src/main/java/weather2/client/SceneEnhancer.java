@@ -304,8 +304,8 @@ public class SceneEnhancer implements Runnable {
 		Player player = Minecraft.getInstance().player;
 
 		float precipitationStrength = ClientWeatherHelper.get().getPrecipitationStrength(player);
-		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level, player.level.m_204166_(player.blockPosition()).m_203334_(), player.blockPosition())) {
-			Random random = new Random(player.getLevel().getGameTime() * 312987231L);
+		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level(), player.level().getBiome(player.blockPosition()).get(), player.blockPosition())) {
+			Random random = new Random(player.level().getGameTime() * 312987231L);
 			LevelReader levelreader = minecraft.level;
 			BlockPos blockpos = player.blockPosition();
 			BlockPos blockpos1 = null;
@@ -315,8 +315,8 @@ public class SceneEnhancer implements Runnable {
 				int k = random.nextInt(21) - 10;
 				int l = random.nextInt(21) - 10;
 				BlockPos blockpos2 = levelreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos.offset(k, 0, l));
-				Biome biome = levelreader.m_204166_(blockpos2).m_203334_();
-				if (blockpos2.getY() > levelreader.getMinBuildHeight() && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.getPrecipitation() == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockpos2)) {
+				Biome biome = levelreader.getBiome(blockpos2).get();
+				if (blockpos2.getY() > levelreader.getMinBuildHeight() && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.getPrecipitationAt(blockpos2) == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockpos2)) {
 					blockpos1 = blockpos2.below();
 					if (minecraft.options.particles == ParticleStatus.MINIMAL) {
 						break;
@@ -330,7 +330,7 @@ public class SceneEnhancer implements Runnable {
 					double d2 = voxelshape.max(Direction.Axis.Y, d0, d1);
 					double d3 = (double)fluidstate.getHeight(levelreader, blockpos1);
 					double d4 = Math.max(d2, d3);
-					ParticleOptions particleoptions = !fluidstate.m_205070_(FluidTags.LAVA) && !blockstate.is(Blocks.MAGMA_BLOCK) && !CampfireBlock.isLitCampfire(blockstate) ? ParticleTypes.RAIN : ParticleTypes.SMOKE;
+					ParticleOptions particleoptions = !fluidstate.is(FluidTags.LAVA) && !blockstate.is(Blocks.MAGMA_BLOCK) && !CampfireBlock.isLitCampfire(blockstate) ? ParticleTypes.RAIN : ParticleTypes.SMOKE;
 					minecraft.level.addParticle(particleoptions, (double)blockpos1.getX() + d0, (double)blockpos1.getY() + d4, (double)blockpos1.getZ() + d1, 0.0D, 0.0D, 0.0D);
 				}
 			}
@@ -492,12 +492,12 @@ public class SceneEnhancer implements Runnable {
 		float maxPrecip = 1F;
 
 
-		BlockPos posPlayer = new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()));
-		Biome biome = entP.level.m_204166_(posPlayer).m_203334_();
+		BlockPos posPlayer = CoroUtilBlock.blockPos(entP.getX(), entP.getY(), entP.getZ());
+		Biome biome = entP.level().getBiome(posPlayer).get();
 		lastBiomeIn = biome;
 
-		Level world = entP.level;
-		Random rand = entP.level.random;
+		Level world = entP.level();
+		Random rand = CoroUtilMisc.random();
 
 		//funnel.tickGame();
 
@@ -599,7 +599,7 @@ public class SceneEnhancer implements Runnable {
 			//isRain_DownfallSheet = false;
 
 
-			if (entP.getLevel().getGameTime() % 40 == 0) {
+			if (entP.level().getGameTime() % 40 == 0) {
 				if (ConfigCoroUtil.useLoggingDebug) {
 					System.out.printf("curPrecipVal: %.2f", curPrecipVal);
 					System.out.println("");
@@ -611,27 +611,27 @@ public class SceneEnhancer implements Runnable {
 		}
 
 		//check rules same way vanilla texture precip does
-		if (biome != null && (biome.getPrecipitation() != Biome.Precipitation.NONE)) {
+		if (biome != null && (biome.getPrecipitationAt(posPlayer) != Biome.Precipitation.NONE)) {
 			if (curPrecipVal > 0) {
 				if (isRain) {
 					spawnCount = 0;
 					int spawnAreaSize = 30;
 
 					int spawnNeed = (int) (spawnNeedBase * 300);
-					if (entP.getLevel().getGameTime() % 40 == 0) {
+					if (entP.level().getGameTime() % 40 == 0) {
 						CULog.dbg("rain spawnNeed: " + spawnNeed);
 					}
 
 					if (isRain_WaterParticle && spawnNeed > 0) {
 
 						for (int i = 0; i < safetyCutout; i++) {
-							BlockPos pos = new BlockPos(
+							BlockPos pos = CoroUtilBlock.blockPos(
 									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.getY() - 5 + rand.nextInt(25),
 									entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
 							if (canPrecipitateAt(world, pos)) {
-								ParticleTexExtraRender rain = new ParticleTexExtraRender((ClientLevel) entP.level,
+								ParticleTexExtraRender rain = new ParticleTexExtraRender((ClientLevel) entP.level(),
 										pos.getX(),
 										pos.getY(),
 										pos.getZ(),
@@ -651,7 +651,7 @@ public class SceneEnhancer implements Runnable {
 					spawnAreaSize = 40;
 					if (isRain_GroundSplash && curPrecipVal > 0.15) {
 						for (int i = 0; i < 30F * curPrecipVal * PRECIPITATION_PARTICLE_EFFECT_RATE * 8F * particleSettingsAmplifier; i++) {
-							BlockPos pos = new BlockPos(
+							BlockPos pos = CoroUtilBlock.blockPos(
 									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.getY() - 5 + rand.nextInt(15),
 									entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -680,7 +680,7 @@ public class SceneEnhancer implements Runnable {
 									pos = pos.offset(0,1,0);
 								}
 
-								ParticleTexFX rain = new ParticleTexFX((ClientLevel) entP.level,
+								ParticleTexFX rain = new ParticleTexFX((ClientLevel) entP.level(),
 										pos.getX() + rand.nextFloat(),
 										pos.getY() + 0.01D + maxY,
 										pos.getZ() + rand.nextFloat(),
@@ -709,7 +709,7 @@ public class SceneEnhancer implements Runnable {
 						double closeDistCutoff = 10D;
 
 						for (int i = 0; i < 2F * curPrecipVal * PRECIPITATION_PARTICLE_EFFECT_RATE * particleSettingsAmplifier * 0.5F; i++) {
-							BlockPos pos = new BlockPos(
+							BlockPos pos = CoroUtilBlock.blockPos(
 									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.getY() + 5 + rand.nextInt(15),
 									entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -717,7 +717,7 @@ public class SceneEnhancer implements Runnable {
 							if (WeatherUtilEntity.getDistanceSqEntToPos(entP, pos) < closeDistCutoff * closeDistCutoff) continue;
 
 							if (canPrecipitateAt(world, pos.above(-scanAheadRange))/*world.isRainingAt(pos)*/) {
-								ParticleTexFX rain = new ParticleTexFX((ClientLevel) entP.level,
+								ParticleTexFX rain = new ParticleTexFX((ClientLevel) entP.level(),
 										pos.getX() + rand.nextFloat(),
 										pos.getY() - 1 + 0.01D,
 										pos.getZ() + rand.nextFloat(),
@@ -733,19 +733,19 @@ public class SceneEnhancer implements Runnable {
 					spawnCount = 0;
 					int spawnAreaSize = 50;
 					int spawnNeed = (int) (spawnNeedBase * 80);
-					if (entP.getLevel().getGameTime() % 40 == 0) {
+					if (entP.level().getGameTime() % 40 == 0) {
 						CULog.dbg("rain spawnNeed: " + spawnNeed);
 					}
 
 					if (spawnNeed > 0) {
 						for (int i = 0; i < safetyCutout; i++) {
-							BlockPos pos = new BlockPos(
+							BlockPos pos = CoroUtilBlock.blockPos(
 									entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 									entP.getY() - 5 + rand.nextInt(25),
 									entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
 							if (canPrecipitateAt(world, pos)) {
-								ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level, pos.getX(), pos.getY(), pos.getZ(),
+								ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level(), pos.getX(), pos.getY(), pos.getZ(),
 										0D, 0D, 0D, ParticleRegistry.snow);
 
 								particleBehavior.initParticleSnow(snow, extraRenderCount);
@@ -768,13 +768,13 @@ public class SceneEnhancer implements Runnable {
 
 				if ((getWeatherState() == WeatherEventType.HAIL || isHail) && spawnNeed > 0) {
 					for (int i = 0; i < safetyCutout / 4; i++) {
-						BlockPos pos = new BlockPos(
+						BlockPos pos = CoroUtilBlock.blockPos(
 								entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 								entP.getY() - 5 + rand.nextInt(25),
 								entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
 						if (canPrecipitateAt(world, pos)) {
-							ParticleHail hail = new ParticleHail((ClientLevel) entP.level,
+							ParticleHail hail = new ParticleHail((ClientLevel) entP.level(),
 									pos.getX(),
 									pos.getY(),
 									pos.getZ(),
@@ -805,7 +805,7 @@ public class SceneEnhancer implements Runnable {
 
 			if (groundFire) {
 				for (int i = 0; i < 10F * PRECIPITATION_PARTICLE_EFFECT_RATE * 1F * particleSettingsAmplifier; i++) {
-					BlockPos pos = new BlockPos(
+					BlockPos pos = CoroUtilBlock.blockPos(
 							entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 							entP.getY() - 5 + rand.nextInt(15),
 							entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -845,13 +845,13 @@ public class SceneEnhancer implements Runnable {
 
 			for (int i = 0; i < safetyCutout; i++) {
 				if (windMan.getWindSpeed() >= 0.1F/* && rand.nextInt(1) == 0*/) {
-					BlockPos pos = new BlockPos(
+					BlockPos pos = CoroUtilBlock.blockPos(
 							entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 							entP.getY() - 5 + rand.nextInt(25),
 							entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
 
 					if (canPrecipitateAt(world, pos)) {
-						ParticleTexExtraRender dust = new ParticleTexExtraRender((ClientLevel) entP.level,
+						ParticleTexExtraRender dust = new ParticleTexExtraRender((ClientLevel) entP.level(),
 								pos.getX(),
 								pos.getY(),
 								pos.getZ(),
@@ -898,7 +898,7 @@ public class SceneEnhancer implements Runnable {
 
 					//snow
 					for (int i = 0; i < Math.max(1, safetyCutout * particleSettingsAmplifierExtra)/*curPrecipVal * 20F * PRECIPITATION_PARTICLE_EFFECT_RATE*/; i++) {
-						BlockPos pos = new BlockPos(
+						BlockPos pos = CoroUtilBlock.blockPos(
 								entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 								entP.getY() - 5 + rand.nextInt(20),
 								entP.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -912,7 +912,7 @@ public class SceneEnhancer implements Runnable {
 							continue;
 
 						if (canPrecipitateAt(world, pos)) {
-							ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level, pos.getX(), pos.getY(), pos.getZ(),
+							ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level(), pos.getX(), pos.getY(), pos.getZ(),
 									0D, 0D, 0D, ParticleRegistry.snow);
 
 							particleBehavior.initParticleSnow(snow, (int)(10 * particleStormIntensity));
@@ -930,7 +930,7 @@ public class SceneEnhancer implements Runnable {
 					//extra snow cloud dust
 					for (int i = 0; i < (particleSettingsAmplifier * yetAnotherRateNumber * adjustAmountSmooth75 * sandstormParticleRateDust)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
 
-						BlockPos pos = new BlockPos(
+						BlockPos pos = CoroUtilBlock.blockPos(
 								player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 								player.getY() - 2 + rand.nextInt(10),
 								player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -968,7 +968,7 @@ public class SceneEnhancer implements Runnable {
 			//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
 			if (particleStormIntensity >= 0.1F) {
 
-				rand = client.level.random;
+				rand = CoroUtilMisc.random();
 				int spawnAreaSize = 60;
 
 				double sandstormParticleRateDebris = ConfigSand.Sandstorm_Particle_Debris_effect_rate;
@@ -994,7 +994,7 @@ public class SceneEnhancer implements Runnable {
 				//extra dust
 				for (int i = 0; i < ((float) 60 * adjustAmountSmooth75 * sandstormParticleRateDust)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
 
-					BlockPos pos = new BlockPos(
+					BlockPos pos = CoroUtilBlock.blockPos(
 							player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 							player.getY() - 2 + rand.nextInt(10),
 							player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -1016,7 +1016,7 @@ public class SceneEnhancer implements Runnable {
 
 				//tumbleweed
 				for (int i = 0; i < ((float) 1 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
-					BlockPos pos = new BlockPos(
+					BlockPos pos = CoroUtilBlock.blockPos(
 							player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 							player.getY() - 2 + rand.nextInt(10),
 							player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -1037,7 +1037,7 @@ public class SceneEnhancer implements Runnable {
 
 				//debris
 				for (int i = 0; i < ((float) 8 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
-					BlockPos pos = new BlockPos(
+					BlockPos pos = CoroUtilBlock.blockPos(
 							player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 							player.getY() - 2 + rand.nextInt(10),
 							player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -1472,7 +1472,7 @@ public class SceneEnhancer implements Runnable {
 
 			Vec3 windForce = windMan.getWindForce();
 
-			Random rand = client.level.random;
+			Random rand = CoroUtilMisc.random();
 			int spawnAreaSize = 80;
 
 			double sandstormParticleRateDebris = ConfigSand.Sandstorm_Particle_Debris_effect_rate;
@@ -1495,7 +1495,7 @@ public class SceneEnhancer implements Runnable {
 			//extra dust
 			for (int i = 0; i < ((float)60 * adjustAmountSmooth75 * sandstormParticleRateDust)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
 
-				BlockPos pos = new BlockPos(
+				BlockPos pos = CoroUtilBlock.blockPos(
 						player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 						player.getY() - 2 + rand.nextInt(10),
 						player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -1521,7 +1521,7 @@ public class SceneEnhancer implements Runnable {
 			//tumbleweed
 			for (int i = 0; i < ((float)1 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
 
-				BlockPos pos = new BlockPos(
+				BlockPos pos = CoroUtilBlock.blockPos(
 						player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 						player.getY() - 2 + rand.nextInt(10),
 						player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));
@@ -1542,7 +1542,7 @@ public class SceneEnhancer implements Runnable {
 
 			//debris
 			for (int i = 0; i < ((float)8 * adjustAmountSmooth75 * sandstormParticleRateDebris)/*adjustAmountSmooth * 20F * ConfigMisc.Particle_Precipitation_effect_rate*/; i++) {
-				BlockPos pos = new BlockPos(
+				BlockPos pos = CoroUtilBlock.blockPos(
 						player.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
 						player.getY() - 2 + rand.nextInt(10),
 						player.getZ() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2));

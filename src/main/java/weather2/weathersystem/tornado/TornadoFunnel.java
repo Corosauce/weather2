@@ -1,9 +1,6 @@
 package weather2.weathersystem.tornado;
 
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
+import com.corosus.coroutil.util.CoroUtilBlock;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import net.minecraft.client.Minecraft;
@@ -13,6 +10,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
+import org.joml.Quaternionf;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -129,30 +130,30 @@ public class TornadoFunnel {
                 piece.listParticles.remove(piece.listParticles.size() - 1);
             }*/
 
-            if (piece.bezierCurve == null || entP.level.getGameTime() % 40 == 0) {
+            if (piece.bezierCurve == null || entP.level().getGameTime() % 40 == 0) {
                 Vector3f[] vecs = new Vector3f[4];
                 for (int ii = 0; ii < vecs.length; ii++) {
-                    vecs[ii] = new Vector3f(entP.level.random.nextFloat(), entP.level.random.nextFloat(), entP.level.random.nextFloat());
+                    vecs[ii] = new Vector3f(entP.level().random.nextFloat(), entP.level().random.nextFloat(), entP.level().random.nextFloat());
                 }
                 piece.bezierCurve = new CubicBezierCurve(vecs);
             }
 
-            if (bezierCurve == null || entP.level.getGameTime() % 40 == 0) {
+            if (bezierCurve == null || entP.level().getGameTime() % 40 == 0) {
                 Vector3f[] vecs = new Vector3f[4];
                 for (int ii = 0; ii < vecs.length; ii++) {
-                    vecs[ii] = new Vector3f(entP.level.random.nextFloat(), entP.level.random.nextFloat(), entP.level.random.nextFloat());
+                    vecs[ii] = new Vector3f(entP.level().random.nextFloat(), entP.level().random.nextFloat(), entP.level().random.nextFloat());
                 }
                 bezierCurve = new CubicBezierCurve(vecs);
             }
 
             while (piece.listParticles.size() < particleCount) {
-                BlockPos pos = new BlockPos(piece.posEnd.x, piece.posEnd.y, piece.posEnd.z);
+                BlockPos pos = CoroUtilBlock.blockPos(piece.posEnd.x, piece.posEnd.y, piece.posEnd.z);
 
                 //if (entP.getDistanceSq(pos) < 10D * 10D) continue;
 
                 //pos = world.getPrecipitationHeight(pos).add(0, 1, 0);
 
-                ClientLevel world = (ClientLevel)entP.level;
+                ClientLevel world = (ClientLevel)entP.level();
 
                 ParticleTexFX particleTest = new ParticleTexFX(world, pos.getX() + rand.nextFloat(),
                         pos.getY(),
@@ -330,10 +331,10 @@ public class TornadoFunnel {
                     float yDiffDist = 2F;
                     float curveAmp = 1F;
 
-                    Quaternion quaternionY = new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), -y, true);
-                    Quaternion quaternionYCircle = new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), -y2, true);
+                    Quaternionf quaternionY = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y, true);
+                    Quaternionf quaternionYCircle = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y2, true);
 
-                    Quaternion quatPitch = new Quaternion(new Vector3f(1.0F, 0.0F, 0.0F), -pitchAngle, true);
+                    Quaternionf quatPitch = new Quaternionf(new Vector3f(1.0F, 0.0F, 0.0F), -pitchAngle, true);
                     Vector3f vecCurve = piece.bezierCurve.getValue((float)curvePoint);
                     //Vector3f vecNew = new Vector3f((float)vecCurve.x * curveAmp, 1 + ((float)yDiff) * yDiffDist, (float)vecCurve.z * curveAmp);
                     Vector3f vecNew = new Vector3f((float)vecCurve.x() * curveAmp, 1 + ((float)yDiff) * yDiffDist, (float)vecCurve.z() * curveAmp);

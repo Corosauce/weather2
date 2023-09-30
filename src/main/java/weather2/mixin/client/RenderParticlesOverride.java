@@ -44,7 +44,7 @@ public abstract class RenderParticlesOverride {
     public void renderClouds(LevelRenderer instance, PoseStack poseStack, Matrix4f l, float i1, double f1, double f2, double d0) {
         //CULog.dbg("renderClouds hook");
         //workaround for missing projection matrix info
-        ICloudRenderHandler cloudRenderHandler = Minecraft.getInstance().level.effects().getCloudRenderHandler();
+        ICloudRenderHandler cloudRenderHandler = Minecraft.getInstance().level().effects().getCloudRenderHandler();
         if (cloudRenderHandler instanceof CloudRenderHandler) {
             ((CloudRenderHandler)cloudRenderHandler).render(poseStack, l, i1, f1, f2, d0);
         } else {

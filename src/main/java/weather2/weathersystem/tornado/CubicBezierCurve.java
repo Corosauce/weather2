@@ -1,7 +1,7 @@
 package weather2.weathersystem.tornado;
 
 
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 /**
  * source: http://www.java2s.com/Code/Java/2D-Graphics-GUI/AclassthatmodelsaCubicBeziercurve.htm

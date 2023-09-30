@@ -1,5 +1,6 @@
 package weather2.weathersystem.storm;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -59,7 +60,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 	}
 
 	public static boolean canSpawnHere(Level world, BlockPos pos, StormType type, boolean forSpawn) {
-		Biome biomeIn = world.m_204166_(pos).m_203334_();
+		Biome biomeIn = world.getBiome(pos).get();
 		if (type == StormType.SANDSTORM) {
 			return isDesert(biomeIn, forSpawn);
 		} else if (type == StormType.SNOWSTORM) {
@@ -71,7 +72,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 	public static boolean isColdForStorm(Level world, Biome biome, boolean forSpawn, BlockPos pos) {
 		//return biome.getPrecipitation() == Biome.Precipitation.SNOW;
 		//adjusted to this way to make it work with serene seasons
-		boolean canPrecip = biome.getPrecipitation() == Biome.Precipitation.RAIN || biome.getPrecipitation() == Biome.Precipitation.SNOW;
+		boolean canPrecip = biome.getPrecipitationAt(pos) == Biome.Precipitation.RAIN || biome.getPrecipitationAt(pos) == Biome.Precipitation.SNOW;
 		return canPrecip && SceneEnhancer.shouldSnowHere(world, biome, pos);
 	}
 
@@ -164,7 +165,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 
 						Vec3 vecPos = getRandomPosInStorm();
 
-						BlockPos blockPos = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.x, 0, vecPos.z));
+						BlockPos blockPos = WeatherUtilBlock.getPrecipitationHeightSafe(world, CoroUtilBlock.blockPos(vecPos.x, 0, vecPos.z));
 
 						//avoid unloaded areas
 						if (!world.hasChunkAt(blockPos)) continue;

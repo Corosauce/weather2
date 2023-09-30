@@ -80,7 +80,7 @@ public final class ClientWeatherProxy {
 			Minecraft client = Minecraft.getInstance();
 			Player player = client.player;
 			if (player == null) return false;
-			if (player.level.getGameTime() % cacheRate == 0) {
+			if (player.level().getGameTime() % cacheRate == 0) {
 				Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
 				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SANDSTORM);
 				cacheIsSandstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
@@ -97,7 +97,7 @@ public final class ClientWeatherProxy {
 			Minecraft client = Minecraft.getInstance();
 			Player player = client.player;
 			if (player == null) return false;
-			if (player.level.getGameTime() % cacheRate == 0) {
+			if (player.level().getGameTime() % cacheRate == 0) {
 				Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
 				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SNOWSTORM);
 				cacheIsSnowstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
@@ -110,7 +110,7 @@ public final class ClientWeatherProxy {
 		Minecraft client = Minecraft.getInstance();
 		Player player = client.player;
 		if (player == null) return false;
-		if (player.level.getGameTime() % cacheRate == 0) {
+		if (player.level().getGameTime() % cacheRate == 0) {
 			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
 			double maxStormDist = 512 / 4 * 3;
 			StormObject storm = ClientTickHandler.weatherManager.getClosestStorm(posPlayer, maxStormDist, StormObject.STATE_HAIL, StormObject.STATE_HAIL, false);

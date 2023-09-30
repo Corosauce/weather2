@@ -238,7 +238,12 @@ public class ShaderInstanceExtended implements Shader, AutoCloseable {
                     private final Set<String> importedPaths = Sets.newHashSet();
 
                     public String applyImport(boolean p_173374_, String p_173375_) {
-                        p_173375_ = FileUtil.normalizeResourcePath((p_173374_ ? s1 : "shaders/include/") + p_173375_);
+                        String str = "shaders/include/";
+                        if (p_173375_.contains("weather2:")) {
+                            str = "weather2:" + str;
+                            p_173375_ = p_173375_.replace("weather2:", "");
+                        }
+                        p_173375_ = FileUtil.normalizeResourcePath((p_173374_ ? s1 : str) + p_173375_);
                         if (!this.importedPaths.add(p_173375_)) {
                             return null;
                         } else {

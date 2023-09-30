@@ -1,5 +1,6 @@
 package extendedrenderer.particle.entity;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
@@ -15,14 +16,14 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import com.mojang.math.Quaternion;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import weather2.ClientTickHandler;
 import weather2.IWindHandler;
 import weather2.weathersystem.WeatherManagerClient;
@@ -305,7 +306,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
             }
 
-            BlockPos pos = new BlockPos(new BlockPos(this.x, this.y, this.z));
+            BlockPos pos = CoroUtilBlock.blockPos(this.x, this.y, this.z);
 
             if (killWhenUnderTopmostBlock) {
 
@@ -624,12 +625,12 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) + pivotedPosition.x - Vector3d.x());
         float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) + pivotedPosition.y - Vector3d.y());
         float f2 = (float)(Mth.lerp(partialTicks, this.zo, this.z) + pivotedPosition.z - Vector3d.z());
-        Quaternion quaternion;
+        Quaternionf quaternion;
         if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
             quaternion = renderInfo.rotation();
         } else {
             // override rotations
-            quaternion = new Quaternion(0, 0, 0, 1);
+            quaternion = new Quaternionf(0, 0, 0, 1);
             if (facePlayerYaw) {
                 quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
             } else {

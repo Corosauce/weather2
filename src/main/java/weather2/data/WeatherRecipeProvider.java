@@ -1,6 +1,7 @@
 package weather2.data;
 
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -13,12 +14,12 @@ import java.util.function.Consumer;
 
 public class WeatherRecipeProvider extends RecipeProvider {
 
-    public WeatherRecipeProvider(DataGenerator p_125973_) {
+    public WeatherRecipeProvider(PackOutput p_125973_) {
         super(p_125973_);
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
 
         ShapedRecipeBuilder.shaped(WeatherItems.WEATHER_ITEM.get(), 1)
                 .pattern("X X").pattern("DID").pattern("X X")

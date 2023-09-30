@@ -1,5 +1,6 @@
 package extendedrenderer.particle.entity;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilParticle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
@@ -7,10 +8,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import com.mojang.math.Quaternion;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
 import net.minecraft.world.level.levelgen.Heightmap;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import weather2.ClientTickHandler;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
@@ -80,12 +81,12 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 		//override rotations
         Vec3 Vector3d = renderInfo.getPosition();
-        Quaternion quaternion;
+        Quaternionf quaternion;
         if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
            quaternion = renderInfo.rotation();
         } else {
            // override rotations
-           quaternion = new Quaternion(0, 0, 0, 1);
+           quaternion = new Quaternionf(0, 0, 0, 1);
            quaternion.mul(Vector3f.YP.rotationDegrees(this.rotationYaw));
            quaternion.mul(Vector3f.XP.rotationDegrees(this.rotationPitch));
            if (extraRandomSecondaryYawRotation > 0) {
@@ -109,7 +110,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		float offset = 0;
 		float posBottom = (float)(this.y - 10D);
 
-		float height = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.x, this.y, this.z)).getY();
+		float height = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, CoroUtilBlock.blockPos(this.x, this.y, this.z)).getY();
 
 		if (posBottom < height) {
 			float diff = height - posBottom;
@@ -141,7 +142,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 
 				//prevent precip under overhangs/inside for extra render
 				if (this.isDontRenderUnderTopmostBlock()) {
-					int height2 = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.x + xx, this.y, this.z + zz)).getY();
+					int height2 = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, CoroUtilBlock.blockPos(this.x + xx, this.y, this.z + zz)).getY();
 					if (this.y + yy < height2) continue;
 				}
 

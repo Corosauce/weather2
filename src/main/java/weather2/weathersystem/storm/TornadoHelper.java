@@ -33,6 +33,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import weather2.ClientTickHandler;
 import weather2.Weather;
@@ -228,7 +229,7 @@ public class TornadoHelper {
 			int yStart = 0;
 			int yEnd = (int)storm.pos.y/* + 72*/;
 			int yInc = 1;
-			Biome bgb = parWorld.m_204166_(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).m_203334_();
+			Biome bgb = parWorld.getBiome(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).get();
 
 			//prevent grabbing in high areas (hills)
 			//TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
@@ -405,7 +406,7 @@ public class TornadoHelper {
 		if (!parWorld.isClientSide() && storm.isFirenado) {
 			if (storm.levelCurIntensityStage >= storm.STATE_STAGE1)
 				for (int i = 0; i < firesPerTickMax; i++) {
-					BlockPos posUp = new BlockPos(storm.posGround.x, storm.posGround.y + rand.nextInt(30), storm.posGround.z);
+					BlockPos posUp = CoroUtilBlock.blockPos(storm.posGround.x, storm.posGround.y + rand.nextInt(30), storm.posGround.z);
 					BlockState state = parWorld.getBlockState(posUp);
 					if (CoroUtilBlock.isAir(state.getBlock())) {
 						//parWorld.setBlockState(posUp, Blocks.FIRE.getDefaultState());
@@ -489,7 +490,7 @@ public class TornadoHelper {
         	int blockCount = 0;
 
 			//old per storm blockCount seems glitched... lets use a global we cache count of
-            if (parWorld.isLoaded(new BlockPos(storm.pos.x, 128, storm.pos.z)) &&
+            if (parWorld.isLoaded(CoroUtilBlock.blockPos(storm.pos.x, 128, storm.pos.z)) &&
 				lastGrabTime < System.currentTimeMillis() &&
 				tickGrabCount < ConfigTornado.Storm_Tornado_maxBlocksGrabbedPerTick) {
 
@@ -554,7 +555,7 @@ public class TornadoHelper {
 	}
 
     public boolean canGrabEntity(Entity ent) {
-		if (ent.level.isClientSide()) {
+		if (ent.level().isClientSide()) {
 			return canGrabEntityClient(ent);
 		} else {
 			if (ent instanceof Player) {

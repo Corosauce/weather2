@@ -61,6 +61,7 @@ public class SoundRegistry {
 	public static void register(String soundPath) {
 		ResourceLocation resLoc = new ResourceLocation(Weather.MODID, soundPath);
 		SoundEvent event = new SoundEvent(resLoc).setRegistryName(resLoc);
+		//TODO: WIP SoundEvent event = SoundEvent.createVariableRangeEvent(resLoc).setRegistryName(resLoc);
 		ForgeRegistries.SOUND_EVENTS.register(event);
 		if (lookupStringToEvent.containsKey(soundPath)) {
 			System.out.println("WEATHER SOUNDS WARNING: duplicate sound registration for " + soundPath);

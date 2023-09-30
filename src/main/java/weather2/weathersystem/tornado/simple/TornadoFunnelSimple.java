@@ -167,9 +167,9 @@ public class TornadoFunnelSimple {
 
         float adjustedRate = 1F;
         if (!isPet) {
-            if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+            if (Minecraft.getInstance().options.particles.get() == ParticleStatus.DECREASED) {
                 adjustedRate = 0.6F;
-            } else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+            } else if (Minecraft.getInstance().options.particles.get() == ParticleStatus.MINIMAL) {
                 adjustedRate = 0.3F;
             }
         }

@@ -2,6 +2,7 @@ package weather2.weathersystem.storm;
 
 import java.util.Random;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
@@ -107,14 +108,14 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 
 					Vec3 vecPos = getRandomPosInSandstorm();
 
-					int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(vecPos.x, 0, vecPos.z)).getY();
+					int y = WeatherUtilBlock.getPrecipitationHeightSafe(world, CoroUtilBlock.blockPos(vecPos.x, 0, vecPos.z)).getY();
 
-					BlockPos blockPos = new BlockPos(vecPos.x, y, vecPos.z);
+					BlockPos blockPos = CoroUtilBlock.blockPos(vecPos.x, y, vecPos.z);
 
 					//avoid unloaded areas
 					if (!world.hasChunkAt(blockPos)) continue;
 
-					Biome biomeIn = world.m_204166_(blockPos).m_203334_();
+					Biome biomeIn = world.getBiome(blockPos).get();
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
 						WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, WeatherBlocks.BLOCK_SAND_LAYER.get(), 3);

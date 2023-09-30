@@ -1,5 +1,6 @@
 package weather2.weathersystem.wind;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -360,7 +361,7 @@ public class WindManager {
 
 				if (so != null) {
 
-					windOriginEvent = new BlockPos(so.posGround.x, so.posGround.y, so.posGround.z);
+					windOriginEvent = CoroUtilBlock.blockPos(so.posGround.x, so.posGround.y, so.posGround.z);
 
 					setWindTimeEvent(80);
 

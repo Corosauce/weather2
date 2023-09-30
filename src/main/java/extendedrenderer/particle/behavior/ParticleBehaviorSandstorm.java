@@ -1,5 +1,6 @@
 package extendedrenderer.particle.behavior;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import extendedrenderer.particle.entity.EntityRotFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -125,7 +126,7 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 				}*/
 				
 				//get pos a bit under particle
-				BlockPos pos = new BlockPos(particle.getPosX(), particle.getPosY() - particle.aboveGroundHeight, particle.getPosZ());
+				BlockPos pos = CoroUtilBlock.blockPos(particle.getPosX(), particle.getPosY() - particle.aboveGroundHeight, particle.getPosZ());
 				BlockState state = particle.getWorld().getBlockState(pos);
 				//if particle is near ground, push it up to keep from landing
 				if (!state.isAir()) {
@@ -135,7 +136,7 @@ public class ParticleBehaviorSandstorm extends ParticleBehaviors {
 				//check ahead for better flowing over large cliffs
 				} else {
 					double aheadMultiplier = 20D;
-					BlockPos posAhead = new BlockPos(particle.getPosX() + (particle.getMotionX() * aheadMultiplier), particle.getPosY() - particle.aboveGroundHeight, particle.getPosZ() + (particle.getMotionZ() * aheadMultiplier));
+					BlockPos posAhead = CoroUtilBlock.blockPos((particle.getPosX() + (particle.getMotionX() * aheadMultiplier)), particle.getPosY() - particle.aboveGroundHeight, particle.getPosZ() + (particle.getMotionZ() * aheadMultiplier));
 					BlockState stateAhead = particle.getWorld().getBlockState(posAhead);
 					if (!stateAhead.isAir()) {
 						if (particle.getMotionY() < particle.bounceSpeedMaxAhead) {

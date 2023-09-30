@@ -1,5 +1,6 @@
 package weather2.util;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -62,7 +63,7 @@ public class WeatherUtilBlock {
 		 */
 
 		//fix for starting on a layerable block
-		BlockState stateTest = world.getBlockState(new BlockPos(posSource));
+		BlockState stateTest = world.getBlockState(CoroUtilBlock.blockPos(posSource));
 		if (stateTest.getBlock() == blockLayerable) {
 			int heightTest = getHeightForAnyBlock(stateTest);
 			if (heightTest < 8) {
@@ -70,7 +71,7 @@ public class WeatherUtilBlock {
 			}
 		}
 
-		BlockPos posSourcei = new BlockPos(posSource);
+		BlockPos posSourcei = CoroUtilBlock.blockPos(posSource);
 		//int ySource = world.getHeight(posSourcei).getY();
 		int y = posSourcei.getY();
 		float tickStep = 0.75F;
@@ -171,11 +172,11 @@ public class WeatherUtilBlock {
 			int amountWeHave = 1;
 			int amountToAddPerXZ = 1;
 
-			BlockState state = world.getBlockState(new BlockPos(posWall));
-			BlockState state1 = world.getBlockState(new BlockPos(posLastNonWall).offset(1, 0, 0));
-			BlockState state22 = world.getBlockState(new BlockPos(posLastNonWall).offset(-1, 0, 0));
-			BlockState state3 = world.getBlockState(new BlockPos(posLastNonWall).offset(0, 0, 1));
-			BlockState state4 = world.getBlockState(new BlockPos(posLastNonWall).offset(0, 0, -1));
+			BlockState state = world.getBlockState(CoroUtilBlock.blockPos(posWall));
+			BlockState state1 = world.getBlockState(CoroUtilBlock.blockPos(posLastNonWall).offset(1, 0, 0));
+			BlockState state22 = world.getBlockState(CoroUtilBlock.blockPos(posLastNonWall).offset(-1, 0, 0));
+			BlockState state3 = world.getBlockState(CoroUtilBlock.blockPos(posLastNonWall).offset(0, 0, 1));
+			BlockState state4 = world.getBlockState(CoroUtilBlock.blockPos(posLastNonWall).offset(0, 0, -1));
 
 			//check all around place spot for cactus and cancel if true, to prevent cactus pop off when we place next to it
 			if (state.getBlock() == Blocks.CACTUS || state1.getBlock() == Blocks.CACTUS ||
@@ -183,13 +184,13 @@ public class WeatherUtilBlock {
 				return;
 			}
 
-			BlockPos pos2 = new BlockPos(posLastNonWall.x, posLastNonWall.y, posLastNonWall.z);
+			BlockPos pos2 = CoroUtilBlock.blockPos(posLastNonWall.x, posLastNonWall.y, posLastNonWall.z);
 			BlockState state2 = world.getBlockState(pos2);
 			if (state2.getMaterial() == Material.WATER || state2.getMaterial() == Material.LAVA) {
 				return;
 			}
 
-			amountWeHave = trySpreadOnPos2(world, new BlockPos(posLastNonWall.x, posLastNonWall.y, posLastNonWall.z), amountWeHave, amountToAddPerXZ, 10, blockLayerable, maxBlockStackingAllowed);
+			amountWeHave = trySpreadOnPos2(world, CoroUtilBlock.blockPos(posLastNonWall.x, posLastNonWall.y, posLastNonWall.z), amountWeHave, amountToAddPerXZ, 10, blockLayerable, maxBlockStackingAllowed);
 		} else {
 			//System.out.println("no wall found");
 		}

@@ -1,8 +1,6 @@
 package weather2.util;
 
 import com.corosus.coroutil.util.CULog;
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -18,6 +16,8 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 import weather2.config.ConfigTornado;
 
 import java.util.*;
@@ -80,7 +80,7 @@ public class WeatherUtil {
         for (String str : listGrabBlockTags) {
             TagKey<Block> key = getTagKeyFor(str);
             if (key != null) {
-                if (state.m_204336_(key)) {
+                if (state.is(key)) {
                     return true;
                 }
             }
@@ -89,7 +89,7 @@ public class WeatherUtil {
     }
 
     public static TagKey<Block> getTagKeyFor(String str) {
-        return TagKey.m_203882_(Registry.BLOCK_REGISTRY, new ResourceLocation(str));
+        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(str));
     }
 
     public static boolean canGrabViaLists(BlockState state) {

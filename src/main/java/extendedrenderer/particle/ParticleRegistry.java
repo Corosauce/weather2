@@ -61,7 +61,7 @@ public class ParticleRegistry {
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public static void registerParticles(TextureStitchEvent.Pre event) {
+	public static void registerParticles(TextureStitchEvent. event) {
 
 		/**
 		 * avoid stitching to all maps

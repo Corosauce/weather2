@@ -1,7 +1,6 @@
 package weather2.weathersystem.fog;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 public class FogProfile {
 

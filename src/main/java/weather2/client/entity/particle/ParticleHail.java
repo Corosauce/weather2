@@ -1,5 +1,6 @@
 package weather2.client.entity.particle;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import extendedrenderer.particle.entity.ParticleCrossSection;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -23,7 +24,7 @@ public class ParticleHail extends ParticleCrossSection {
     public void onHit() {
         super.onHit();
         if (level.random.nextInt(30) == 0) {
-            level.playLocalSound(new BlockPos(x, y, z), SoundEvents.WOOD_BREAK, SoundSource.WEATHER, 0.2F, 2F, false);
+            level.playLocalSound(CoroUtilBlock.blockPos(x, y, z), SoundEvents.WOOD_BREAK, SoundSource.WEATHER, 0.2F, 2F, false);
         }
     }
 }

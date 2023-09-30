@@ -23,11 +23,12 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleGroup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -75,18 +76,18 @@ public class ParticleManagerExtended implements PreparableReloadListener {
    }
 
    public <T extends ParticleOptions> void register(ParticleType<T> p_107382_, ParticleProvider<T> p_107383_) {
-      this.providers.put(Registry.PARTICLE_TYPE.getKey(p_107382_), p_107383_);
+      this.providers.put(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107382_), p_107383_);
    }
 
    public <T extends ParticleOptions> void register(ParticleType<T> p_107379_, ParticleManagerExtended.SpriteParticleRegistration<T> p_107380_) {
       ParticleManagerExtended.MutableSpriteSet particleengine$mutablespriteset = new ParticleManagerExtended.MutableSpriteSet();
-      this.spriteSets.put(Registry.PARTICLE_TYPE.getKey(p_107379_), particleengine$mutablespriteset);
-      this.providers.put(Registry.PARTICLE_TYPE.getKey(p_107379_), p_107380_.create(particleengine$mutablespriteset));
+      this.spriteSets.put(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107379_), particleengine$mutablespriteset);
+      this.providers.put(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107379_), p_107380_.create(particleengine$mutablespriteset));
    }
 
    public CompletableFuture<Void> reload(PreparationBarrier p_107305_, ResourceManager p_107306_, ProfilerFiller p_107307_, ProfilerFiller p_107308_, Executor p_107309_, Executor p_107310_) {
       Map<ResourceLocation, List<ResourceLocation>> map = Maps.newConcurrentMap();
-      CompletableFuture<?>[] completablefuture = Registry.PARTICLE_TYPE.keySet().stream().map((p_107315_) -> {
+      CompletableFuture<?>[] completablefuture = BuiltInRegistries.PARTICLE_TYPE.keySet().stream().map((p_107315_) -> {
          return CompletableFuture.runAsync(() -> {
             this.loadParticleDescription(p_107306_, p_107315_, map);
          }, p_107309_);
@@ -199,7 +200,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
 
    @Nullable
    private <T extends ParticleOptions> Particle makeParticle(T p_107396_, double p_107397_, double p_107398_, double p_107399_, double p_107400_, double p_107401_, double p_107402_) {
-      ParticleProvider<T> particleprovider = (ParticleProvider<T>)this.providers.get(Registry.PARTICLE_TYPE.getKey(p_107396_.getType()));
+      ParticleProvider<T> particleprovider = (ParticleProvider<T>)this.providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107396_.getType()));
       return particleprovider == null ? null : particleprovider.createParticle(p_107396_, this.level, p_107397_, p_107398_, p_107399_, p_107400_, p_107401_, p_107402_);
    }
 

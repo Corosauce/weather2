@@ -2,8 +2,6 @@ package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CULog;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -20,6 +18,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,12 +72,12 @@ public class ParticleCube extends ParticleTexFX {
 		float f = (float)(Mth.lerp(partialTicks, this.xo, this.x) - Vector3d.x());
 		float f1 = (float)(Mth.lerp(partialTicks, this.yo, this.y) - Vector3d.y());
 		float f2 = (float)(Mth.lerp(partialTicks, this.zo, this.z) - Vector3d.z());
-		Quaternion quaternion;
+		Quaternionf quaternion;
 		if (this.facePlayer || (this.rotationPitch == 0 && this.rotationYaw == 0)) {
 			quaternion = renderInfo.rotation();
 		} else {
 			// override rotations
-			quaternion = new Quaternion(0, 0, 0, 1);
+			quaternion = new Quaternionf(0, 0, 0, 1);
 			if (facePlayerYaw) {
 				quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
 			} else {

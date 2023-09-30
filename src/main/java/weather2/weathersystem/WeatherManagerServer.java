@@ -1,8 +1,6 @@
 package weather2.weathersystem;
 
-import com.corosus.coroutil.util.CULog;
-import com.corosus.coroutil.util.CoroUtilCompatibility;
-import com.corosus.coroutil.util.CoroUtilEntity;
+import com.corosus.coroutil.util.*;
 import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -265,7 +263,7 @@ public class WeatherManagerServer extends WeatherManager {
 	public void tickStormBlockBuildup(StormState stormState, Block block) {
 		Level world = getWorld();
 		WindManager windMan = getWindManager();
-		Random rand = world.random;
+		Random rand = CoroUtilMisc.random();
 
 		float angle = windMan.getWindAngle(null);
 
@@ -371,10 +369,10 @@ public class WeatherManagerServer extends WeatherManager {
 
 	public boolean tryParticleStormForPlayer(Player player, long lastSandstormTime) {
 		boolean sandstormMade = false;
-		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level.getGameTime()) {
-			sandstormMade = trySpawnParticleStormNearPos(player.level, player.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
-		} else if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level.getGameTime()) {
-			sandstormMade = trySpawnParticleStormNearPos(player.level, player.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
+		if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level().getGameTime()) {
+			sandstormMade = trySpawnParticleStormNearPos(player.level(), player.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
+		} else if (lastSandstormTime == 0 || lastSandstormTime + ConfigSand.Sandstorm_TimeBetweenInTicks < player.level().getGameTime()) {
+			sandstormMade = trySpawnParticleStormNearPos(player.level(), player.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
 		}
 		return sandstormMade;
 	}
@@ -409,7 +407,7 @@ public class WeatherManagerServer extends WeatherManager {
 
 			if (!world.isLoaded(pos)) continue;
 			//Biome biomeIn = world.m_204166_ForCoordsBody(pos);
-			Biome biomeIn = world.m_204166_(pos).m_203334_();
+			Biome biomeIn = world.getBiome(pos).get();
 
 			if (WeatherObjectParticleStorm.canSpawnHere(world, pos, type, true)) {
 				//found
@@ -423,13 +421,13 @@ public class WeatherManagerServer extends WeatherManager {
 				double dirZRight = Math.cos(Math.toRadians(angle+90));
 
 				double distLeftRight = 20;
-				BlockPos posLeft = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight)));
+				BlockPos posLeft = WeatherUtilBlock.getPrecipitationHeightSafe(world, CoroUtilBlock.blockPos(foundPos.getX() + (dirXLeft * distLeftRight), 0, foundPos.getZ() + (dirZLeft * distLeftRight)));
 				if (!world.isLoaded(posLeft)) continue;
 				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posLeft))) continue;
 				if (!WeatherObjectParticleStorm.canSpawnHere(world, posLeft, type, false)) continue;
 				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_(posLeft).m_203334_())) continue;
 
-				BlockPos posRight = WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight)));
+				BlockPos posRight = WeatherUtilBlock.getPrecipitationHeightSafe(world, CoroUtilBlock.blockPos(foundPos.getX() + (dirXRight * distLeftRight), 0, foundPos.getZ() + (dirZRight * distLeftRight)));
 				if (!world.isLoaded(posRight)) continue;
 				//if (!WeatherObjectSandstorm.isDesert(world.m_204166_ForCoordsBody(posRight))) continue;
 				if (!WeatherObjectParticleStorm.canSpawnHere(world, posRight, type, false)) continue;
@@ -527,7 +525,7 @@ public class WeatherManagerServer extends WeatherManager {
 			spawnZ = (int) (entP.getZ() - vecZ + rand.nextInt(ConfigMisc.Misc_simBoxRadiusSpawn) - rand.nextInt(ConfigMisc.Misc_simBoxRadiusSpawn));
 			tryPos = new Vec3(spawnX, StormObject.layers.get(layer), spawnZ);
 			soClose = getClosestStormAny(tryPos, ConfigMisc.Cloud_Formation_MinDistBetweenSpawned);
-			playerClose = entP.level.getNearestPlayer(spawnX, 50, spawnZ, closestToPlayer, false);
+			playerClose = entP.level().getNearestPlayer(spawnX, 50, spawnZ, closestToPlayer, false);
 		}
 
 		if (soClose == null) {
@@ -727,7 +725,7 @@ public class WeatherManagerServer extends WeatherManager {
 				BlockPos pos = new BlockPos(posCenter.getX() + x, posCenter.getY(), posCenter.getZ() + z);
 				if (getWorld().isLoaded(pos)) {
 					pos = WeatherUtilBlock.getPrecipitationHeightSafe(getWorld(), pos);
-					Biome bgb = getWorld().m_204166_(pos).m_203334_();
+					Biome bgb = getWorld().getBiome(pos).get();
 					allTemperaturesAdded += StormObject.getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(getWorld(), bgb, pos));
 					samples++;
 				}

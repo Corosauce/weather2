@@ -1,20 +1,14 @@
 package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CoroUtilColor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ParticleTexLeafColor extends ParticleTexFX {
@@ -50,7 +44,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 			}*/
 		}
 		
-		BlockPos pos = new BlockPos(posXIn, posYIn, posZIn);
+		BlockPos pos = new BlockPos((int)Math.floor(posXIn), (int)Math.floor(posYIn), (int)Math.floor(posZIn));
 		BlockState state = worldIn.getBlockState(pos);
 
 	    // top of double plants doesn't have variant property

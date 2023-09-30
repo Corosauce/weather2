@@ -1,6 +1,7 @@
 #version 150
 
 #moj_import <fog.glsl>
+#moj_import <weather2:classicnoise3d.glsl>
 
 uniform sampler2D Sampler0;
 

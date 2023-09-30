@@ -16,6 +16,6 @@ description='''
 [[dependencies.weather2]]
 modId="coroutil"
 mandatory=true
-versionRange="[1.18.1-1.2.37,)"
+versionRange="[1.18.2-1.2.45,)"
 ordering="NONE"
 side="BOTH"

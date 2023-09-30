@@ -51,7 +51,7 @@ public class WeatherUtilEntity {
         {
         	LivingEntity livingEnt = (LivingEntity) entity1;
         	int airTime = livingEnt.getPersistentData().getInt("timeInAir");
-        	if (livingEnt.isOnGround() || livingEnt.isInWater())
+        	if (livingEnt.onGround() || livingEnt.isInWater())
             {
                 airTime = 0;
             }
@@ -65,7 +65,7 @@ public class WeatherUtilEntity {
 				if (((Player) entity1).abilities.instabuild) return 99999999F;
 				return 5.0F + airTime / 400.0F;
 			} else {
-				return 500.0F + (livingEnt.isOnGround() ? 2.0F : 0.0F) + (airTime / 400.0F);
+				return 500.0F + (livingEnt.onGround() ? 2.0F : 0.0F) + (airTime / 400.0F);
 			}
         }
 
@@ -111,7 +111,7 @@ public class WeatherUtilEntity {
 		{
 			LivingEntity livingEnt = (LivingEntity) entity1;
 			int airTime = livingEnt.getPersistentData().getInt("timeInAir");
-			if (livingEnt.isOnGround() || livingEnt.isInWater())
+			if (livingEnt.onGround() || livingEnt.isInWater())
 			{
 				airTime = 0;
 			}
@@ -125,7 +125,7 @@ public class WeatherUtilEntity {
 				if (((Player) entity1).abilities.instabuild) return 99999999F;
 				return 5.0F + airTime / 400.0F;
 			} else {
-				return 500.0F + (livingEnt.isOnGround() ? 2.0F : 0.0F) + (airTime / 400.0F);
+				return 500.0F + (livingEnt.onGround() ? 2.0F : 0.0F) + (airTime / 400.0F);
 			}
 		}
 
@@ -163,7 +163,7 @@ public class WeatherUtilEntity {
 	}
 
 	public static boolean isEntityOutside(Entity parEnt, boolean cheapCheck) {
-		return isPosOutside(parEnt.level, parEnt.position(), cheapCheck);
+		return isPosOutside(parEnt.level(), parEnt.position(), cheapCheck);
 	}
 
 	public static boolean isPosOutside(Level parWorld, Vec3 parPos) {
@@ -213,6 +213,6 @@ public class WeatherUtilEntity {
 		int x = Mth.floor(player.getX());
 		int y = Mth.floor(player.getY() + player.getEyeHeight());
 		int z = Mth.floor(player.getZ());
-		return player.level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) > y;
+		return player.level().getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) > y;
 	}
 }

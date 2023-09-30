@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
@@ -226,7 +227,7 @@ public class ParticleBehaviors {
 		particle.setMotionY(-0.5D);
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level().getBiome(new BlockPos(Mth.floor(entP.getX()), (int)Math.floor(entP.getY()), Mth.floor(entP.getZ()))).value();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;
@@ -262,7 +263,7 @@ public class ParticleBehaviors {
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F / 5F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level().getBiome(new BlockPos(Mth.floor(entP.getX()), Mth.floor(entP.getY()), Mth.floor(entP.getZ()))).value();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;
@@ -298,7 +299,7 @@ public class ParticleBehaviors {
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level.m_204166_(new BlockPos(Mth.floor(entP.getX()), entP.getY(), Mth.floor(entP.getZ()))).m_203334_();
+		Biome biome = entP.level().getBiome(CoroUtilBlock.blockPos(entP.getX(), entP.getY(), entP.getZ())).get();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;

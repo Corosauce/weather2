@@ -1,9 +1,5 @@
 package weather2.weathersystem.tornado;
 
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
 import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.ParticleTexFX;
 import net.minecraft.client.Minecraft;
@@ -12,6 +8,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
 import java.util.ArrayList;
@@ -269,12 +268,12 @@ public class TornadoManagerTodoRenameMe {
                                 //System.out.println(curvePointYawPitch.x + " - " + curvePointYawPitch.y);
                             }
 
-                            //Quaternion quaternionY = new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), -y, true);
-                            Quaternion quaternionY = new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), -curvePointYawPitch.x - 90, true);
+                            //Quaternionf quaternionY = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y, true);
+                            Quaternionf quaternionY = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -curvePointYawPitch.x - 90, true);
                             //adding quaternionY here cancels out the unwanted rotations from the bezier curve adjustments
-                            Quaternion quaternionYCircle = new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), -y2 + (curvePointYawPitch.x - 90), true);
+                            Quaternionf quaternionYCircle = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y2 + (curvePointYawPitch.x - 90), true);
 
-                            Quaternion quatPitch = new Quaternion(new Vector3f(1.0F, 0.0F, 0.0F), curvePointYawPitch.y, true);
+                            Quaternionf quatPitch = new Quaternionf(new Vector3f(1.0F, 0.0F, 0.0F), curvePointYawPitch.y, true);
                             //Vector3f vecNew = new Vector3f(1F, 1 + ((float)yDiff) * yDiffDist, 0);
                             //Vector3d vecCurve = bezierCurve.getValue(curvePoint);
                             Vector3f vecCurve = getCurveValue(curvePoint);

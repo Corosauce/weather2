@@ -2,12 +2,12 @@ package weather2.weathersystem.fog;
 
 import com.corosus.coroutil.util.CULog;
 import net.minecraft.util.Mth;
+import net.minecraftforge.client.event.ViewportEvent;
+import org.joml.Vector3f;
 import weather2.datatypes.WeatherEventType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.entity.player.Player;
-import com.mojang.math.Vector3f;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
 import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
@@ -137,7 +137,7 @@ public class FogAdjuster {
         }
     }
 
-    public void onFogColors(EntityViewRenderEvent.FogColors event) {
+    public void onFogColors(ViewportEvent.ComputeFogColor event) {
         updateWeatherState();
 
         //get vanilla settings
@@ -151,7 +151,7 @@ public class FogAdjuster {
         }
     }
 
-    public void onFogRender(EntityViewRenderEvent.RenderFogEvent event) {
+    public void onFogRender(ViewportEvent.RenderFog event) {
         updateWeatherState();
 
         //get vanilla settings

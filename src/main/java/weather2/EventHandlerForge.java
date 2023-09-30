@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,7 +36,7 @@ public class EventHandlerForge {
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-    public void onFogColors(FogColors event) {
+    public void onFogColors(ViewportEvent.ComputeFogColor event) {
         SceneEnhancer.getFogAdjuster().onFogColors(event);
 		
 	}

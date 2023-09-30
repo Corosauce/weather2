@@ -246,7 +246,7 @@ public class StormObject extends WeatherObject {
 	public void initFirstTime() {
 		super.initFirstTime();
 
-		Biome bgb = manager.getWorld().m_204166_(WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).m_203334_();
+		Biome bgb = manager.getWorld().getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).get();
 
 		float temp = 1;
 		
@@ -881,7 +881,7 @@ public class StormObject extends WeatherObject {
 		double scanX = this.pos.x + (-Math.sin(Math.toRadians(angle)) * scanDist);
 		double scanZ = this.pos.z + (Math.cos(Math.toRadians(angle)) * scanDist);
 
-		int height = WeatherUtilBlock.getPrecipitationHeightSafe(this.manager.getWorld(), new BlockPos(scanX, 0, scanZ)).getY();
+		int height = WeatherUtilBlock.getPrecipitationHeightSafe(this.manager.getWorld(), CoroUtilBlock.blockPos(scanX, 0, scanZ)).getY();
 
 		if (this.pos.y < height) {
 			float angleAdj = 45;
@@ -990,7 +990,7 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (levelCurIntensityStage >= STATE_FORMING) {
-			Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), new BlockPos(posGround), 128);
+			Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), CoroUtilBlock.blockPos(posGround), 128);
 			if (optional.isPresent()) {
 				isBeingDeflectedCached = true;
 				//CULog.dbg("optional.get(): " + optional.get());
@@ -1077,10 +1077,10 @@ public class StormObject extends WeatherObject {
 			//efficient caching
 			if ((manager.getWorld().getGameTime() + (ID * 20)) % ConfigStorm.Storm_Rain_TrackAndExtinguishEntitiesRate == 0) {
 				listEntitiesUnderClouds.clear();
-				BlockPos posBP = new BlockPos(posGround.x, posGround.y, posGround.z);
+				BlockPos posBP = CoroUtilBlock.blockPos(posGround.x, posGround.y, posGround.z);
 				List<LivingEntity> listEnts = manager.getWorld().getEntitiesOfClass(LivingEntity.class, new AABB(posBP).inflate(size));
 				for (LivingEntity ent : listEnts) {
-					if (ent.level.canSeeSky(ent.blockPosition())) {
+					if (ent.level().canSeeSky(ent.blockPosition())) {
 						listEntitiesUnderClouds.add(ent);
 					}
 				}
@@ -1139,7 +1139,7 @@ public class StormObject extends WeatherObject {
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 
 			//Biome bgb = null;
-			Biome bgb = world.m_204166_(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).m_203334_();
+			Biome bgb = world.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).get();
 
 			//temperature scan
 			if (bgb != null) {
@@ -3014,14 +3014,14 @@ public class StormObject extends WeatherObject {
 
 		//TODO: only recalc if pos x z changes
 		boolean filterOutLogs = true;
-		if (filterOutLogs && world.hasChunkAt(new BlockPos(pos))) {
+		if (filterOutLogs && world.hasChunkAt(CoroUtilBlock.blockPos(pos))) {
 			int y = calculatedYPos-1;
-			BlockState state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
+			BlockState state = world.getBlockState(CoroUtilBlock.blockPos(pos.x, y, pos.z));
 			//System.out.println("state: " + state);
 			int iter = 0;
-			while ((state.m_204336_(BlockTags.LOGS) || state.m_204336_(BlockTags.LEAVES) || state.m_204336_(BlockTags.CAVE_VINES) || state.m_204336_(BlockTags.REPLACEABLE_PLANTS) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
+			while ((state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES) || state.is(BlockTags.CAVE_VINES) || state.is(BlockTags.REPLACEABLE_PLANTS) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
 				y--;
-				state = world.getBlockState(new BlockPos(pos.x, y, pos.z));
+				state = world.getBlockState(CoroUtilBlock.blockPos(pos.x, y, pos.z));
 				//CULog.dbg("filter logs, found: " + state);
 				iter++;
 			}
@@ -3031,7 +3031,7 @@ public class StormObject extends WeatherObject {
 
 		//for survive the tide rising mechanic that doesnt update heightmap
 		if (Weather.isLoveTropicsInstalled()) {
-			while (world.getBlockState(new BlockPos(pos.x, calculatedYPos, pos.z)).getBlock() instanceof LiquidBlock && calculatedYPos < world.getMaxBuildHeight()) {
+			while (world.getBlockState(CoroUtilBlock.blockPos(pos.x, calculatedYPos, pos.z)).getBlock() instanceof LiquidBlock && calculatedYPos < world.getMaxBuildHeight()) {
 				calculatedYPos++;
 			}
 		}
@@ -3051,8 +3051,8 @@ public class StormObject extends WeatherObject {
 					if (calculatedYPos + 4 > entP.position().y) {
 						int y = (int) (entP.position().y + 2);
 						while (y > entP.position().y - 3) {
-							BlockPos blockPos = new BlockPos(pos.x, y, pos.z);
-							BlockPos blockPosUp = new BlockPos(pos.x, y+1, pos.z);
+							BlockPos blockPos = CoroUtilBlock.blockPos(pos.x, y, pos.z);
+							BlockPos blockPosUp = CoroUtilBlock.blockPos(pos.x, y+1, pos.z);
 							BlockState state = world.getBlockState(blockPos);
 							BlockState stateUp = world.getBlockState(blockPosUp);
 							if ((!state.isAir() && state.getCollisionShape(world, blockPosUp) != Shapes.empty()) && (stateUp.isAir() || stateUp.getCollisionShape(world, blockPosUp) == Shapes.empty())) {

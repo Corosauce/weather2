@@ -1,5 +1,6 @@
 package weather2.weathersystem.storm;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Optional;
@@ -75,9 +76,9 @@ public class LightningBoltWeather extends Entity {
 
    private void powerLightningRod() {
       BlockPos blockpos = this.getStrikePosition();
-      BlockState blockstate = this.level.getBlockState(blockpos);
+      BlockState blockstate = this.level().getBlockState(blockpos);
       if (blockstate.is(Blocks.LIGHTNING_ROD)) {
-         ((LightningRodBlock)blockstate.getBlock()).onLightningStrike(blockstate, this.level, blockpos);
+         ((LightningRodBlock)blockstate.getBlock()).onLightningStrike(blockstate, this.level(), blockpos);
       }
 
    }
@@ -93,17 +94,17 @@ public class LightningBoltWeather extends Entity {
    public void tick() {
       super.tick();
       if (this.life == 2) {
-         if (this.level.isClientSide()) {
-            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.WEATHER, 10000.0F, 0.8F + this.random.nextFloat() * 0.2F, false);
-            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.WEATHER, 2.0F, 0.5F + this.random.nextFloat() * 0.2F, false);
+         if (this.level().isClientSide()) {
+            this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.WEATHER, 10000.0F, 0.8F + this.random.nextFloat() * 0.2F, false);
+            this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.WEATHER, 2.0F, 0.5F + this.random.nextFloat() * 0.2F, false);
          } else {
-            Difficulty difficulty = this.level.getDifficulty();
+            Difficulty difficulty = this.level().getDifficulty();
             if (difficulty == Difficulty.NORMAL || difficulty == Difficulty.HARD) {
                this.spawnFire(4);
             }
 
             this.powerLightningRod();
-            clearCopperOnLightningStrike(this.level, this.getStrikePosition());
+            clearCopperOnLightningStrike(this.level(), this.getStrikePosition());
             this.gameEvent(GameEvent.LIGHTNING_STRIKE);
          }
       }
@@ -122,10 +123,10 @@ public class LightningBoltWeather extends Entity {
       }
 
       if (this.life >= 0) {
-         if (!(this.level instanceof ServerLevel)) {
-            this.level.setSkyFlashTime(2);
+         if (!(this.level() instanceof ServerLevel)) {
+            this.level().setSkyFlashTime(2);
          } else if (!this.visualOnly) {
-            List<Entity> list1 = this.level.getEntities(this, new AABB(this.getX() - 3.0D, this.getY() - 3.0D, this.getZ() - 3.0D, this.getX() + 3.0D, this.getY() + 6.0D + 3.0D, this.getZ() + 3.0D), Entity::isAlive);
+            List<Entity> list1 = this.level().getEntities(this, new AABB(this.getX() - 3.0D, this.getY() - 3.0D, this.getZ() - 3.0D, this.getX() + 3.0D, this.getY() + 6.0D + 3.0D, this.getZ() + 3.0D), Entity::isAlive);
 
             /*for(Entity entity : list1) {
                if (!net.minecraftforge.event.ForgeEventFactory.onEntityStruckByLightning(entity, this))
@@ -143,23 +144,23 @@ public class LightningBoltWeather extends Entity {
 
    private BlockPos getStrikePosition() {
       Vec3 vec3 = this.position();
-      return new BlockPos(vec3.x, vec3.y - 1.0E-6D, vec3.z);
+      return CoroUtilBlock.blockPos(vec3.x, vec3.y - 1.0E-6D, vec3.z);
    }
 
    private void spawnFire(int p_20871_) {
-      if (!this.visualOnly && !this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
+      if (!this.visualOnly && !this.level().isClientSide && this.level().getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
          BlockPos blockpos = this.blockPosition();
-         BlockState blockstate = BaseFireBlock.getState(this.level, blockpos);
-         if (this.level.getBlockState(blockpos).isAir() && blockstate.canSurvive(this.level, blockpos)) {
-            this.level.setBlockAndUpdate(blockpos, blockstate);
+         BlockState blockstate = BaseFireBlock.getState(this.level(), blockpos);
+         if (this.level().getBlockState(blockpos).isAir() && blockstate.canSurvive(this.level(), blockpos)) {
+            this.level().setBlockAndUpdate(blockpos, blockstate);
             ++this.blocksSetOnFire;
          }
 
          for(int i = 0; i < p_20871_; ++i) {
             BlockPos blockpos1 = blockpos.offset(this.random.nextInt(3) - 1, this.random.nextInt(3) - 1, this.random.nextInt(3) - 1);
-            blockstate = BaseFireBlock.getState(this.level, blockpos1);
-            if (this.level.getBlockState(blockpos1).isAir() && blockstate.canSurvive(this.level, blockpos1)) {
-               this.level.setBlockAndUpdate(blockpos1, blockstate);
+            blockstate = BaseFireBlock.getState(this.level(), blockpos1);
+            if (this.level().getBlockState(blockpos1).isAir() && blockstate.canSurvive(this.level(), blockpos1)) {
+               this.level().setBlockAndUpdate(blockpos1, blockstate);
                ++this.blocksSetOnFire;
             }
          }
