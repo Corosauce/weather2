@@ -4,10 +4,12 @@ import com.corosus.coroutil.util.CULog;
 import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
 import com.mojang.brigadier.CommandDispatcher;
+import extendedrenderer.ParticleRegistry2ElectricBubbleoo;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -19,7 +21,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
@@ -40,6 +41,8 @@ public class Weather
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
+    public static final DeferredHelper R = DeferredHelper.create(Weather.MODID);
+
     public static final String MODID = "weather2";
 
     public static boolean initProperNeededForWorld = true;
@@ -47,9 +50,12 @@ public class Weather
     public static List<IConfigCategory> listConfigs = new ArrayList<>();
     public static ConfigMisc configMisc = null;
 
-    public static final CreativeModeTab CREATIVE_TAB = new WeatherTab();
+    //public static final CreativeModeTab CREATIVE_TAB = new WeatherTab();
 
     public Weather() {
+
+        ParticleRegistry2ElectricBubbleoo.bootstrap();
+
         // Register the setup method for modloading
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::setup);
@@ -81,6 +87,8 @@ public class Weather
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigParticle()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigFoliage()));
         //WeatherUtilConfig.nbtLoadDataAll();
+
+        SoundRegistry.init();
     }
 
     public static IConfigCategory addConfig(IConfigCategory config) {
@@ -138,7 +146,8 @@ public class Weather
     private void gatherData(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
         if (event.includeServer()) {
-            gen.addProvider(new WeatherRecipeProvider(gen));
+            //TODO: 1.20
+            //gen.addProvider(new WeatherRecipeProvider(gen));
         }
     }
 }

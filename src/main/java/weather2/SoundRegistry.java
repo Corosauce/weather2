@@ -2,26 +2,14 @@ package weather2;
 
 import java.util.HashMap;
 
-import net.minecraft.world.level.block.Block;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class SoundRegistry {
 
 	private static HashMap<String, SoundEvent> lookupStringToEvent = new HashMap<String, SoundEvent>();
 
-	@Mod.EventBusSubscriber(modid = Weather.MODID,bus=Mod.EventBusSubscriber.Bus.MOD)
-	public static class RegistryEvents {
-		@SubscribeEvent(priority = EventPriority.HIGHEST)
-		public static void onBlocksRegistry(final RegistryEvent.Register<SoundEvent> event) {
-			SoundRegistry.init();
-		}
-	}
 
 	public static void init() {
 		register("env.waterfall");
@@ -60,9 +48,10 @@ public class SoundRegistry {
 
 	public static void register(String soundPath) {
 		ResourceLocation resLoc = new ResourceLocation(Weather.MODID, soundPath);
-		SoundEvent event = new SoundEvent(resLoc).setRegistryName(resLoc);
+		//SoundEvent event = new SoundEvent(resLoc).setRegistryName(resLoc);
+		SoundEvent event = SoundEvent.createVariableRangeEvent(resLoc);
 		//TODO: WIP SoundEvent event = SoundEvent.createVariableRangeEvent(resLoc).setRegistryName(resLoc);
-		ForgeRegistries.SOUND_EVENTS.register(event);
+		ForgeRegistries.SOUND_EVENTS.register(resLoc, event);
 		if (lookupStringToEvent.containsKey(soundPath)) {
 			System.out.println("WEATHER SOUNDS WARNING: duplicate sound registration for " + soundPath);
 		}

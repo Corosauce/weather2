@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -269,11 +270,11 @@ public class TornadoManagerTodoRenameMe {
                             }
 
                             //Quaternionf quaternionY = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y, true);
-                            Quaternionf quaternionY = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -curvePointYawPitch.x - 90, true);
+                            Quaternionf quaternionY = new Quaternionf(0.0F, 1.0F, 0.0F, Math.toRadians(-curvePointYawPitch.x - 90));
                             //adding quaternionY here cancels out the unwanted rotations from the bezier curve adjustments
-                            Quaternionf quaternionYCircle = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y2 + (curvePointYawPitch.x - 90), true);
+                            Quaternionf quaternionYCircle = new Quaternionf(0.0F, 1.0F, 0.0F, Math.toRadians(-y2 + (curvePointYawPitch.x - 90)));
 
-                            Quaternionf quatPitch = new Quaternionf(new Vector3f(1.0F, 0.0F, 0.0F), curvePointYawPitch.y, true);
+                            Quaternionf quatPitch = new Quaternionf(1.0F, 0.0F, 0.0F, Math.toRadians(curvePointYawPitch.y));
                             //Vector3f vecNew = new Vector3f(1F, 1 + ((float)yDiff) * yDiffDist, 0);
                             //Vector3d vecCurve = bezierCurve.getValue(curvePoint);
                             Vector3f vecCurve = getCurveValue(curvePoint);
@@ -291,11 +292,10 @@ public class TornadoManagerTodoRenameMe {
                             float rotAroundPosY = 0;
                             float rotAroundPosZ = 0;
                             Matrix3f matrix = new Matrix3f();
-                            matrix.setIdentity();
-                            matrix.mul(quaternionY);
-                            matrix.mul(quatPitch);
-                            matrix.mul(quaternionYCircle);
-                            vecNew.transform(matrix);
+                            matrix.rotation(quaternionY);
+                            matrix.rotation(quatPitch);
+                            matrix.rotation(quaternionYCircle);
+                            vecNew.mulTranspose(matrix);
 
                             rotAroundPosX = vecNew.x();
                             rotAroundPosY = vecNew.y();

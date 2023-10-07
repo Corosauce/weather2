@@ -7,7 +7,12 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 public class WeatherTab extends CreativeModeTab {
 	private ItemStack tabIcon;
 
-	WeatherTab() {
+	public WeatherTab(Builder builder, ItemStack tabIcon) {
+		super(builder);
+		this.tabIcon = tabIcon;
+	}
+
+	/*WeatherTab() {
 		super(Weather.MODID);
 	}
 
@@ -17,5 +22,5 @@ public class WeatherTab extends CreativeModeTab {
 			tabIcon = new ItemStack(WeatherItems.WEATHER_ITEM.get());
 		}
 		return tabIcon;
-	}
+	}*/
 }

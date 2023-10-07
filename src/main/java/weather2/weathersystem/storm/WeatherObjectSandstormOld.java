@@ -10,6 +10,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 import weather2.WeatherBlocks;
 import weather2.config.ConfigSand;
 import weather2.util.CachedNBTTagCompound;
@@ -41,7 +42,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
 		//TODO: make sure new comparison works
-		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || biome.getRegistryName().toString().toLowerCase().contains("desert");
+		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || ForgeRegistries.BIOMES.getKey(biome).toString().toLowerCase().contains("desert");
 	}
 
 	public int getSize() {

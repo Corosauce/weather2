@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -34,6 +33,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.minecraftforge.registries.ForgeRegistries;
 import weather2.EntityRegistry;
 import weather2.ServerTickHandler;
 import weather2.Weather;
@@ -990,7 +990,8 @@ public class StormObject extends WeatherObject {
 		}
 
 		if (levelCurIntensityStage >= STATE_FORMING) {
-			Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), CoroUtilBlock.blockPos(posGround), 128);
+			//TODO: 1.20
+			/*Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), CoroUtilBlock.blockPos(posGround), 128);
 			if (optional.isPresent()) {
 				isBeingDeflectedCached = true;
 				//CULog.dbg("optional.get(): " + optional.get());
@@ -998,7 +999,7 @@ public class StormObject extends WeatherObject {
 				((ServerLevel) this.manager.getWorld()).sendParticles(DustParticleOptions.REDSTONE, optional.get().getX() + 0.5D, optional.get().getY() + 0.5D, optional.get().getZ() + 0.5D, 1, 0.3D, 0D, 0.3D, 1D);
 			} else {
 				isBeingDeflectedCached = false;
-			}
+			}*/
 		} else {
 			isBeingDeflectedCached = false;
 		}
@@ -1035,7 +1036,7 @@ public class StormObject extends WeatherObject {
 						}
 					}
 
-					LightningBoltWeatherNew ent = new LightningBoltWeatherNew(EntityRegistry.lightning_bolt, world);
+					LightningBoltWeatherNew ent = new LightningBoltWeatherNew(EntityRegistry.LIGHTNING_BOLT.get(), world);
 					ent.setPos(x + 0.5, y, z + 0.5);
 					addWeatherEffectLightning(ent, false);
 				}
@@ -1144,7 +1145,7 @@ public class StormObject extends WeatherObject {
 			//temperature scan
 			if (bgb != null) {
 
-				isInOcean = bgb.getRegistryName().toString().toLowerCase().contains("ocean");
+				isInOcean = ForgeRegistries.BIOMES.getKey(bgb).toString().toLowerCase().contains("ocean");
 				
 				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
@@ -1173,7 +1174,7 @@ public class StormObject extends WeatherObject {
 				BlockState state = world.getBlockState(tryPos);
 				if (!CoroUtilBlock.isAir(state.getBlock())) {
 					//Block block = Block.blocksList[blockID];
-					if (state.getMaterial() == Material.WATER) {
+					if (state.liquid()) {
 						isOverWater = true;
 					}
 				}
@@ -1186,7 +1187,7 @@ public class StormObject extends WeatherObject {
 				}
 
 				if (bgb != null) {
-					String biomecat = bgb.getRegistryName().toString();
+					String biomecat = ForgeRegistries.BIOMES.getKey(bgb).toString().toLowerCase();
 
 					if (!performBuildup && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
 						performBuildup = true;
@@ -2339,7 +2340,7 @@ public class StormObject extends WeatherObject {
 				double scanX = pos.x + (-Math.sin(Math.toRadians(angle + scanAngle)) * scanDistRange);
 				double scanZ = pos.z + (Math.cos(Math.toRadians(angle + scanAngle)) * scanDistRange);
 
-				int height = WeatherUtilBlock.getPrecipitationHeightSafe(this.manager.getWorld(), new BlockPos(scanX, 0, scanZ)).getY();
+				int height = WeatherUtilBlock.getPrecipitationHeightSafe(this.manager.getWorld(), CoroUtilBlock.blockPos(scanX, 0, scanZ)).getY();
 
 				if (pos.y < height) {
 					if (scanAngle <= 0) {
@@ -2393,7 +2394,7 @@ public class StormObject extends WeatherObject {
 					entity.setYRot(rotationYaw);
 
 					if (player.position().distanceTo(entity.position()) < 3 && entity.isAlive()) {
-						player.hurt(DamageSource.CACTUS, 1.5F);
+						player.hurt(manager.getWorld().damageSources().cactus(), 1.5F);
 						entity.kill();
 					}
 
@@ -2773,7 +2774,7 @@ public class StormObject extends WeatherObject {
         //if player and not spout
         if (entity1 instanceof Player && conf.type != 0) {
         	//System.out.println("grab: " + f5);
-        	if (ent.isOnGround()) {
+        	if (ent.onGround()) {
         		f5 *= 10.5F;
         	} else {
         		f5 *= 5F;
@@ -3019,7 +3020,7 @@ public class StormObject extends WeatherObject {
 			BlockState state = world.getBlockState(CoroUtilBlock.blockPos(pos.x, y, pos.z));
 			//System.out.println("state: " + state);
 			int iter = 0;
-			while ((state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES) || state.is(BlockTags.CAVE_VINES) || state.is(BlockTags.REPLACEABLE_PLANTS) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
+			while ((state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES) || state.is(BlockTags.CAVE_VINES) || state.is(BlockTags.REPLACEABLE_BY_TREES) || state.is(Blocks.COCOA)  || state.is(Blocks.BAMBOO) || state.isAir()) && y > world.getMinBuildHeight()) {
 				y--;
 				state = world.getBlockState(CoroUtilBlock.blockPos(pos.x, y, pos.z));
 				//CULog.dbg("filter logs, found: " + state);

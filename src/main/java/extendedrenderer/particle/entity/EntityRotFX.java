@@ -3,6 +3,7 @@ package extendedrenderer.particle.entity;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Axis;
 import extendedrenderer.particle.behavior.ParticleBehaviors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -44,7 +45,8 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
         @Override
         public void end(Tesselator p_217599_1_) {
-            p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
+            //TODO: not possible in 1.20 now i guess, cant remember why this line was important
+            //p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
             ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.end(p_217599_1_);
         }
 
@@ -66,7 +68,8 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
         @Override
         public void end(Tesselator p_217599_1_) {
-            p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
+            //TODO: not possible in 1.20 now i guess, cant remember why this line was important
+            //p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
             ParticleRenderType.PARTICLE_SHEET_OPAQUE.end(p_217599_1_);
         }
 
@@ -632,11 +635,19 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
             // override rotations
             quaternion = new Quaternionf(0, 0, 0, 1);
             if (facePlayerYaw) {
-                quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
+                quaternion.mul(Axis.YP.rotationDegrees(-renderInfo.getYRot()));
             } else {
-                quaternion.mul(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
+                quaternion.mul(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
             }
-            quaternion.mul(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
+            quaternion.mul(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
+        }
+
+        Quaternionf quaternionf;
+        if (this.roll == 0.0F) {
+            quaternionf = renderInfo.rotation();
+        } else {
+            quaternionf = new Quaternionf(renderInfo.rotation());
+            quaternionf.rotateZ(Mth.lerp(partialTicks, this.oRoll, this.roll));
         }
 
         Vector3f[] avector3f = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
@@ -644,7 +655,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
         for(int i = 0; i < 4; ++i) {
             Vector3f vector3f = avector3f[i];
-            vector3f.transform(quaternion);
+            vector3f.rotate(quaternion);
             vector3f.mul(f4);
             vector3f.add(f, f1, f2);
         }

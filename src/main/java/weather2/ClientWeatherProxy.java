@@ -58,9 +58,9 @@ public final class ClientWeatherProxy {
 			return ClientWeatherIntegration.get().getPrecipitationType();
 		} else {
 			if (biome == null) return null;
-			if (biome.getPrecipitation() == Biome.Precipitation.RAIN) return PrecipitationType.NORMAL;
-			if (biome.getPrecipitation() == Biome.Precipitation.SNOW) return PrecipitationType.SNOW;
-			if (biome.getPrecipitation() == Biome.Precipitation.NONE) return null;
+			if (biome.hasPrecipitation() && biome.getModifiedClimateSettings().temperatureModifier() == Biome.TemperatureModifier.NONE) return PrecipitationType.NORMAL;
+			if (biome.hasPrecipitation() && biome.getModifiedClimateSettings().temperatureModifier() == Biome.TemperatureModifier.FROZEN) return PrecipitationType.SNOW;
+			if (!biome.hasPrecipitation()) return null;
 		}
 		return null;
 	}

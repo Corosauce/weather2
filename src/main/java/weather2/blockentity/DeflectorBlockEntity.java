@@ -30,7 +30,8 @@ public class DeflectorBlockEntity extends BlockEntity {
     public void init() {
         if (!level.isClientSide()) {
             CULog.dbg("adding weather deflector poi at " + getBlockPos());
-            ((ServerLevel)level).getPoiManager().add(getBlockPos(), WeatherBlocks.POI_DEFLECTOR);
+            //TODO: 1.20
+            //((ServerLevel)level).getPoiManager().add(getBlockPos(), () -> WeatherBlocks.POI_DEFLECTOR);
         }
     }
 }

@@ -11,7 +11,8 @@ public class WeatherItems {
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Weather.MODID);
 
-    public static final RegistryObject<Item> WEATHER_ITEM = ITEMS.register("weather_item", () -> new WeatherItem(new Item.Properties().stacksTo(64), Weather.CREATIVE_TAB));
+    //TODO: 1.20
+    //public static final RegistryObject<Item> WEATHER_ITEM = ITEMS.register("weather_item", () -> new WeatherItem(new Item.Properties().stacksTo(64), Weather.CREATIVE_TAB));
 
     public static void registerHandlers(IEventBus modBus) {
         ITEMS.register(modBus);

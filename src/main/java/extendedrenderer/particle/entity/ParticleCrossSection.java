@@ -1,6 +1,7 @@
 package extendedrenderer.particle.entity;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -32,11 +33,11 @@ public class ParticleCrossSection extends ParticleTexFX {
 			// override rotations
 			quaternion = new Quaternionf(0, 0, 0, 1);
 			if (facePlayerYaw) {
-				quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
+				quaternion.mul(Axis.YP.rotationDegrees(-renderInfo.getYRot()));
 			} else {
-				quaternion.mul(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
+				quaternion.mul(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
 			}
-			quaternion.mul(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
+			quaternion.mul(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
 		}
 
 		Vector3f[] avector3f = new Vector3f[]{
@@ -61,21 +62,21 @@ public class ParticleCrossSection extends ParticleTexFX {
 
 		for(int i = 0; i < 4; ++i) {
 			Vector3f vector3f = avector3f[i];
-			vector3f.transform(quaternion);
+			vector3f.rotate(quaternion);
 			vector3f.mul(f4);
 			vector3f.add(f, f1, f2);
 		}
 
 		for(int i = 0; i < 4; ++i) {
 			Vector3f vector3f = avector3f2[i];
-			vector3f.transform(quaternion);
+			vector3f.rotate(quaternion);
 			vector3f.mul(f4);
 			vector3f.add(f, f1, f2);
 		}
 
 		for(int i = 0; i < 4; ++i) {
 			Vector3f vector3f = avector3f3[i];
-			vector3f.transform(quaternion);
+			vector3f.rotate(quaternion);
 			vector3f.mul(f4);
 			vector3f.add(f, f1, f2);
 		}

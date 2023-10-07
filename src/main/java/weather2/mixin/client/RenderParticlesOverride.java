@@ -1,19 +1,16 @@
 package weather2.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraftforge.client.ICloudRenderHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import weather2.ClientTickHandler;
-import weather2.weathersystem.sky.CloudRenderHandler;
 
 import javax.annotation.Nullable;
 
@@ -38,7 +35,7 @@ public abstract class RenderParticlesOverride {
         //stopping vanilla from running renderRainSnow
     }
 
-    @Redirect(method = "renderLevel",
+    /*@Redirect(method = "renderLevel",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V"))
     public void renderClouds(LevelRenderer instance, PoseStack poseStack, Matrix4f l, float i1, double f1, double f2, double d0) {
@@ -50,5 +47,5 @@ public abstract class RenderParticlesOverride {
         } else {
             instance.renderClouds(poseStack, l, i1, f1, f2, d0);
         }
-    }
+    }*/
 }

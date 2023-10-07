@@ -1,12 +1,15 @@
 package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CULog;
+import com.corosus.coroutil.util.CoroUtilBlock;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -46,7 +49,7 @@ public class ParticleCube extends ParticleTexFX {
 				setSprite(sprite);
 			}
 		}
-		int multiplier = Minecraft.getInstance().getBlockColors().getColor(state, this.level, new BlockPos(posXIn, posYIn, posZIn), 0);
+		int multiplier = Minecraft.getInstance().getBlockColors().getColor(state, this.level, CoroUtilBlock.blockPos(posXIn, posYIn, posZIn), 0);
 		float mr = ((multiplier >>> 16) & 0xFF) / 255f;
 		float mg = ((multiplier >>> 8) & 0xFF) / 255f;
 		float mb = (multiplier & 0xFF) / 255f;
@@ -57,10 +60,11 @@ public class ParticleCube extends ParticleTexFX {
 		BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
 		BakedModel model = blockrenderdispatcher.getBlockModel(state);
 		for(Direction direction : Direction.values()) {
-			List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
+			//TODO: 1.20
+			/*List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.ModelData.EMPTY);
 			if (list.size() > 0) {
 				return list.get(0).getSprite();
-			}
+			}*/
 		}
 		return null;
 	}
@@ -79,11 +83,11 @@ public class ParticleCube extends ParticleTexFX {
 			// override rotations
 			quaternion = new Quaternionf(0, 0, 0, 1);
 			if (facePlayerYaw) {
-				quaternion.mul(Vector3f.YP.rotationDegrees(-renderInfo.getYRot()));
+				quaternion.mul(Axis.YP.rotationDegrees(-renderInfo.getYRot()));
 			} else {
-				quaternion.mul(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
+				quaternion.mul(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationYaw, rotationYaw)));
 			}
-			quaternion.mul(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
+			quaternion.mul(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, this.prevRotationPitch, rotationPitch)));
 		}
 
 		TextureAtlasSprite sprite = null;
@@ -144,7 +148,7 @@ public class ParticleCube extends ParticleTexFX {
 
 		for (Vector3f[] entryFace : faces) {
 			for(int i = 0; i < 4; ++i) {
-				entryFace[i].transform(quaternion);
+				entryFace[i].rotate(quaternion);
 				entryFace[i].mul(f4);
 				entryFace[i].add(f, f1, f2);
 			}

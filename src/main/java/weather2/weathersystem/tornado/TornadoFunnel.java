@@ -331,10 +331,10 @@ public class TornadoFunnel {
                     float yDiffDist = 2F;
                     float curveAmp = 1F;
 
-                    Quaternionf quaternionY = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y, true);
-                    Quaternionf quaternionYCircle = new Quaternionf(new Vector3f(0.0F, 1.0F, 0.0F), -y2, true);
+                    Quaternionf quaternionY = new Quaternionf(0.0F, 1.0F, 0.0F, Math.toRadians(-y));
+                    Quaternionf quaternionYCircle = new Quaternionf(0.0F, 1.0F, 0.0F, Math.toRadians(-y2));
 
-                    Quaternionf quatPitch = new Quaternionf(new Vector3f(1.0F, 0.0F, 0.0F), -pitchAngle, true);
+                    Quaternionf quatPitch = new Quaternionf(1.0F, 0.0F, 0.0F, Math.toRadians(-pitchAngle));
                     Vector3f vecCurve = piece.bezierCurve.getValue((float)curvePoint);
                     //Vector3f vecNew = new Vector3f((float)vecCurve.x * curveAmp, 1 + ((float)yDiff) * yDiffDist, (float)vecCurve.z * curveAmp);
                     Vector3f vecNew = new Vector3f((float)vecCurve.x() * curveAmp, 1 + ((float)yDiff) * yDiffDist, (float)vecCurve.z() * curveAmp);
@@ -344,12 +344,11 @@ public class TornadoFunnel {
                     float rotAroundPosY = 0;
                     float rotAroundPosZ = 0;
                     Matrix3f matrix = new Matrix3f();
-                    matrix.setIdentity();
-                    matrix.mul(quaternionY);
-                    matrix.mul(quatPitch);
+                    matrix.rotation(quaternionY);
+                    matrix.rotation(quatPitch);
                     //multiply in the radial shape of the tornado
-                    matrix.mul(quaternionYCircle);
-                    vecNew.transform(matrix);
+                    matrix.rotation(quaternionYCircle);
+                    vecNew.mulTranspose(matrix);
 
                     rotAroundPosX = vecNew.x();
                     rotAroundPosY = vecNew.y();

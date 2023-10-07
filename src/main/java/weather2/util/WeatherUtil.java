@@ -14,7 +14,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -54,7 +55,7 @@ public class WeatherUtil {
         //if (!ConfigTornado.Storm_Tornado_GrabList.equals(lastConfigChecked)) {
             lastConfigChecked = ConfigTornado.Storm_Tornado_GrabList;
             CULog.log("PRINTING OUT ALL WEATHER2 TORNADO GRABBABLE BLOCKS WITH CURRENT CONFIG: ");
-            Registry.BLOCK.forEach(block -> {
+            ForgeRegistries.BLOCKS.forEach(block -> {
                 List<BlockState> list = block.getStateDefinition().getPossibleStates();
                 for (BlockState state : list) {
                     boolean result = canGrabViaLists(state);
@@ -89,12 +90,12 @@ public class WeatherUtil {
     }
 
     public static TagKey<Block> getTagKeyFor(String str) {
-        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(str));
+        return TagKey.create(ForgeRegistries.BLOCKS.getRegistryKey(), new ResourceLocation(str));
     }
 
     public static boolean canGrabViaLists(BlockState state) {
         boolean returnVal = !ConfigTornado.Storm_Tornado_GrabListBlacklistMode;
-        ResourceLocation registeredName = state.getBlock().getRegistryName();
+        ResourceLocation registeredName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
         if (listGrabBlockCache.containsKey(registeredName)) {
             return listGrabBlockCache.get(registeredName);
         }
@@ -142,7 +143,7 @@ public class WeatherUtil {
     public static boolean shouldRemoveBlock(BlockState blockID)
     {
         //water no
-        if (blockID.getMaterial() == Material.WATER)
+        if (blockID.getBlock().defaultMapColor() == MapColor.WATER)
         {
             return false;
         }
@@ -198,9 +199,9 @@ public class WeatherUtil {
 
                         //System.out.println(strVsBlock);
                         if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||
-                                (state.getMaterial() == Material.WOOD) ||
-                                state.getMaterial() == Material.WOOL ||
-                                state.getMaterial() == Material.PLANT ||/*
+                                (state.getBlock().defaultMapColor() == MapColor.WOOD) ||
+                                state.getBlock().defaultMapColor() == MapColor.WOOL ||
+                                state.getBlock().defaultMapColor() == MapColor.PLANT ||/*
                                 state.getMaterial() == Material.VINE ||*/
                                 block instanceof TallGrassBlock) {
                             if (!safetyCheck(state)) {
@@ -214,7 +215,7 @@ public class WeatherUtil {
                 }
 
                 if (ConfigTornado.Storm_Tornado_RefinedGrabRules) {
-                    if (block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.ROOTED_DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.DIRT_PATH || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getMaterial() == Material.WOOD)) {
+                    if (block == Blocks.DIRT || block == Blocks.COARSE_DIRT || block == Blocks.ROOTED_DIRT || block == Blocks.GRASS_BLOCK || block == Blocks.DIRT_PATH || block == Blocks.SAND || block == Blocks.RED_SAND || (block instanceof RotatedPillarBlock && state.getBlock().defaultMapColor() == MapColor.WOOD)) {
                         result = false;
                     }
                     if (!canTornadoGrabBlockRefinedRules(state)) {
@@ -255,7 +256,7 @@ public class WeatherUtil {
     }
 
     public static boolean canTornadoGrabBlockRefinedRules(BlockState state) {
-        ResourceLocation registeredName = state.getBlock().getRegistryName();
+        ResourceLocation registeredName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
         if (registeredName.getNamespace().equals("dynamictrees")) {
             if (registeredName.getPath().contains("rooty") || registeredName.getPath().contains("branch")) {
                 return false;

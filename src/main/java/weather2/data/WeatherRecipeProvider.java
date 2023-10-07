@@ -21,7 +21,8 @@ public class WeatherRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
 
-        ShapedRecipeBuilder.shaped(WeatherItems.WEATHER_ITEM.get(), 1)
+        //TODO: 1.20
+        /*ShapedRecipeBuilder.shaped(WeatherItems.WEATHER_ITEM.get(), 1)
                 .pattern("X X").pattern("DID").pattern("X X")
                 .define('D', Items.REDSTONE)
                 .define('I', Items.GOLD_INGOT)
@@ -61,6 +62,6 @@ public class WeatherRecipeProvider extends RecipeProvider {
                 .pattern("DDD").pattern("D D").pattern("DDD")
                 .define('D', Items.SAND)
                 .unlockedBy("has_sand", has(Items.SAND))
-                .save(consumer);
+                .save(consumer);*/
     }
 }

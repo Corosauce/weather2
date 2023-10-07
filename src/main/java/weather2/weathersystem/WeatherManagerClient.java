@@ -1,10 +1,8 @@
 package weather2.weathersystem;
 
-import com.corosus.coroutil.util.CULog;
-import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.entity.ParticleCube;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
@@ -12,21 +10,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ICloudRenderHandler;
-import net.minecraftforge.client.IWeatherParticleRenderHandler;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.client.SceneEnhancer;
-import weather2.client.shaderstest.Cloud;
-import weather2.client.shaderstest.CloudManager;
-import weather2.weathersystem.sky.CloudRenderHandler;
-import weather2.weathersystem.sky.WeatherParticleRenderHandler;
-import weather2.weathersystem.storm.*;
+import weather2.weathersystem.storm.EnumWeatherObjectType;
+import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.storm.WeatherObject;
+import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 
 @OnlyIn(Dist.CLIENT)
 public class WeatherManagerClient extends WeatherManager {
 
-	public CloudManager cloudManager = new CloudManager();
+	//public CloudManager cloudManager = new CloudManager();
 
 	public WeatherManagerClient(ResourceKey<Level> dimension) {
 		super(dimension);
@@ -36,18 +31,19 @@ public class WeatherManagerClient extends WeatherManager {
 	public void tick() {
 		super.tick();
 		if (!Weather.isLoveTropicsInstalled()) {
-			ICloudRenderHandler cloudRenderHandler = ((ClientLevel) getWorld()).effects().getCloudRenderHandler();
+			//TODO: disabled for 1.20, might need to go mixin from here
+			/*ICloudRenderHandler cloudRenderHandler = ((ClientLevel) getWorld()).effects().getCloudRenderHandler();
 			if (cloudRenderHandler == null) {
 				((ClientLevel) getWorld()).effects().setCloudRenderHandler(new CloudRenderHandler());
 			}
 			IWeatherParticleRenderHandler handler = ((ClientLevel) getWorld()).effects().getWeatherParticleRenderHandler();
 			if (handler == null) {
 				((ClientLevel) getWorld()).effects().setWeatherParticleRenderHandler(new WeatherParticleRenderHandler());
-			}
+			}*/
 
 			boolean cloudTest = false;
 			if (cloudTest) {
-				cloudManager.tick();
+				//cloudManager.tick();
 			}
 		}
 		//((ClientLevel)getWorld()).effects().setCloudRenderHandler(null);
@@ -150,7 +146,7 @@ public class WeatherManagerClient extends WeatherManager {
 			int posY = nbt.getInt("posY") + 1;
 			int posZ = nbt.getInt("posZ");
 
-			BlockState state = NbtUtils.readBlockState(nbt.getCompound("blockstate"));
+			BlockState state = NbtUtils.readBlockState(getWorld().holderLookup(Registries.BLOCK), nbt.getCompound("blockstate"));
 
 			long ownerID = nbt.getLong("ownerID");
 

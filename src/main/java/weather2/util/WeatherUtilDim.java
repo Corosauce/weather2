@@ -16,7 +16,7 @@ public class WeatherUtilDim {
             } else {
                 for(BlockPos blockpos1 = blockpos.below(); blockpos1.getY() > pos.getY(); blockpos1 = blockpos1.below()) {
                     BlockState blockstate = world.getBlockState(blockpos1);
-                    if (blockstate.getLightBlock(world, blockpos1) > 0 && !blockstate.getMaterial().isLiquid()) {
+                    if (blockstate.getLightBlock(world, blockpos1) > 0 && !blockstate.liquid()) {
                         return false;
                     }
                 }

@@ -1,5 +1,6 @@
 package weather2.command;
 
+import com.corosus.coroutil.util.CoroUtilBlock;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -10,7 +11,6 @@ import net.minecraft.commands.arguments.RangeArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.InterModComms;
 import weather2.ServerTickHandler;
@@ -41,7 +41,7 @@ public class WeatherCommand {
 								}))
 								.then(literal("storm_chance").executes(c -> {
 									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
-									float chance = wm.getBiomeBasedStormSpawnChanceInArea(new BlockPos(c.getSource().getPosition().x, c.getSource().getPosition().y, c.getSource().getPosition().z));
+									float chance = wm.getBiomeBasedStormSpawnChanceInArea(CoroUtilBlock.blockPos(c.getSource().getPosition().x, c.getSource().getPosition().y, c.getSource().getPosition().z));
 
 									c.getSource().sendSuccess(() -> Component.literal("Likelyhood of storms to spawn here within 1024 blocks: " + (chance * 100)), true);
 									return Command.SINGLE_SUCCESS;

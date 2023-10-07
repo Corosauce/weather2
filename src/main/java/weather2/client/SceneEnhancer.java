@@ -9,6 +9,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.MapColor;
 import weather2.config.ConfigMisc;
 import weather2.datatypes.PrecipitationType;
 import weather2.datatypes.WeatherEventType;
@@ -16,7 +17,6 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorSandstorm;
 import extendedrenderer.particle.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.particle.Particle;
@@ -233,7 +233,8 @@ public class SceneEnhancer implements Runnable {
 
 	                    Block block = getBlock(worldRef, cCor.getX(), cCor.getY(), cCor.getZ());//Block.blocksList[id];
 
-	                    if (block == null || (block.defaultBlockState().getMaterial() != Material.WATER && block.defaultBlockState().getMaterial() != Material.LEAVES)) {
+						//if (block == null || (block.defaultBlockState().getMaterial() != Material.WATER && block.defaultBlockState().getMaterial() != Material.LEAVES)) {
+						if (block == null || (block.defaultMapColor() != MapColor.WATER && block.defaultMapColor() != MapColor.PLANT)) {
 	                    	soundLocations.remove(i);
 	                		soundTimeLocations.remove(cCor);
 	                    } else {
@@ -309,7 +310,7 @@ public class SceneEnhancer implements Runnable {
 			LevelReader levelreader = minecraft.level;
 			BlockPos blockpos = player.blockPosition();
 			BlockPos blockpos1 = null;
-			int i = (int)(100.0F * precipitationStrength * precipitationStrength) / (minecraft.options.particles == ParticleStatus.DECREASED ? 2 : 1);
+			int i = (int)(100.0F * precipitationStrength * precipitationStrength) / (minecraft.options.particles.get() == ParticleStatus.DECREASED ? 2 : 1);
 
 			for(int j = 0; j < i; ++j) {
 				int k = random.nextInt(21) - 10;
@@ -318,7 +319,7 @@ public class SceneEnhancer implements Runnable {
 				Biome biome = levelreader.getBiome(blockpos2).get();
 				if (blockpos2.getY() > levelreader.getMinBuildHeight() && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.getPrecipitationAt(blockpos2) == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockpos2)) {
 					blockpos1 = blockpos2.below();
-					if (minecraft.options.particles == ParticleStatus.MINIMAL) {
+					if (minecraft.options.particles.get() == ParticleStatus.MINIMAL) {
 						break;
 					}
 
@@ -378,7 +379,7 @@ public class SceneEnhancer implements Runnable {
                         Block block = getBlock(worldRef, xx, yy, zz);
 
                         if (block != null) {
-                        	if (((block.defaultBlockState().getMaterial() == Material.LEAVES))) {
+                        	if (((block.defaultMapColor() == MapColor.PLANT))) {
                             	boolean proxFail = false;
 								for (ChunkCoordinatesBlock soundLocation : soundLocations) {
 									if (Math.sqrt(soundLocation.distSqr(new Vec3i(xx, yy, zz))) < 15) {
@@ -512,9 +513,9 @@ public class SceneEnhancer implements Runnable {
 		}
 
 		float particleSettingsAmplifier = 1F;
-		if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+		if (Minecraft.getInstance().options.particles.get() == ParticleStatus.DECREASED) {
 			particleSettingsAmplifier = 0.5F;
-		} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+		} else if (Minecraft.getInstance().options.particles.get() == ParticleStatus.MINIMAL) {
 			particleSettingsAmplifier = 0.2F;
 		}
 
@@ -676,7 +677,7 @@ public class SceneEnhancer implements Runnable {
 							if (canPrecipitateAt(world, pos.above())) {
 
 								//fix for splash spawning invisibly 1 block underwater
-								if (world.getBlockState(pos).getMaterial() == Material.WATER) {
+								if (world.getBlockState(pos).getBlock().defaultMapColor() == MapColor.WATER) {
 									pos = pos.offset(0,1,0);
 								}
 
@@ -827,7 +828,7 @@ public class SceneEnhancer implements Runnable {
 						continue;
 
 					//block above topmost ground
-					if (canPrecipitateAt(world, pos.above()) && world.getBlockState(pos).getMaterial() != Material.WATER) {
+					if (canPrecipitateAt(world, pos.above()) && world.getBlockState(pos).getBlock().defaultMapColor() != MapColor.WATER) {
 
 						world.addParticle(ParticleTypes.SMOKE, pos.getX() + rand.nextFloat(), pos.getY() + 0.01D + maxY, pos.getZ() + rand.nextFloat(), 0.0D, 0.0D, 0.0D);
 						world.addParticle(ParticleTypes.FLAME, pos.getX() + rand.nextFloat(), pos.getY() + 0.01D + maxY, pos.getZ() + rand.nextFloat(), 0.0D, 0.0D, 0.0D);
@@ -906,7 +907,7 @@ public class SceneEnhancer implements Runnable {
 						Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
 						double upwindDistAdjust = -10D;
 						windForce = windForce.multiply(upwindDistAdjust, upwindDistAdjust, upwindDistAdjust);
-						pos = pos.offset(windForce.x, windForce.y, windForce.z);
+						pos = pos.offset(Mth.floor(windForce.x), Mth.floor(windForce.y), Mth.floor(windForce.z));
 
 						if (WeatherUtilEntity.getDistanceSqEntToPos(entP, pos) < closeDistCutoff * closeDistCutoff)
 							continue;
@@ -1151,9 +1152,9 @@ public class SceneEnhancer implements Runnable {
         spawnRateRandChanceOdds = (int) ((spawnRateRandChanceOdds / (scaleRate + 0.001F)) / (particleCreationRate + 0.001F));
 
 		float particleSettingsAmplifier = 1F;
-		if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+		if (Minecraft.getInstance().options.particles.get() == ParticleStatus.DECREASED) {
 			particleSettingsAmplifier = 0.5F;
-		} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+		} else if (Minecraft.getInstance().options.particles.get() == ParticleStatus.MINIMAL) {
 			particleSettingsAmplifier = 0.2F;
 		}
 
@@ -1186,9 +1187,7 @@ public class SceneEnhancer implements Runnable {
 
 					if (block != null) {
 						//leaf particle spawning
-						if ((block.defaultBlockState().getMaterial() == Material.LEAVES
-								|| block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
-								block.defaultBlockState().getMaterial() == Material.PLANT)) {
+						if ((block.defaultMapColor() == MapColor.PLANT)) {
 
 							lastTickFoundBlocks++;
 
@@ -1236,8 +1235,10 @@ public class SceneEnhancer implements Runnable {
 							}
 						}
 						if (windStr >= 0.1F) {
-							if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT || block.defaultBlockState().getMaterial() == Material.SAND || block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
-									block.defaultBlockState().getMaterial() == Material.PLANT) {
+							if (block instanceof GrassBlock
+									|| block.defaultMapColor() == MapColor.DIRT
+									|| block.defaultMapColor() == MapColor.SAND
+									|| block.defaultMapColor() == MapColor.PLANT) {
 
 								lastTickFoundBlocks++;
 
@@ -1246,13 +1247,14 @@ public class SceneEnhancer implements Runnable {
 								boolean spawnAboveSnow = false;
 
 								//boolean placeAbove = false;
-								if (block instanceof GrassBlock || block.defaultBlockState().getMaterial() == Material.DIRT || block.defaultBlockState().getMaterial() == Material.SAND) {
+								if (block instanceof GrassBlock
+										|| block.defaultMapColor() == MapColor.DIRT
+										|| block.defaultMapColor() == MapColor.SAND) {
 									spawnAbove = true;
 								}
 
 								int oddsTo1 = spawnRateRandChanceOdds;
-								if (block.defaultBlockState().getMaterial() == Material.REPLACEABLE_PLANT ||
-										block.defaultBlockState().getMaterial() == Material.PLANT) {
+								if (block.defaultMapColor() == MapColor.PLANT) {
 									oddsTo1 = spawnRateRandChanceOdds / 3;
 									spawnInside = true;
 								}
@@ -1432,7 +1434,7 @@ public class SceneEnhancer implements Runnable {
     public static boolean isFogOverridding() {
 		Minecraft client = Minecraft.getInstance();
 		BlockState blockAtCamera = client.gameRenderer.getMainCamera().getBlockAtCamera();
-		if (blockAtCamera.getMaterial().isLiquid()) return false;
+		if (blockAtCamera.getBlock().defaultMapColor() == MapColor.WATER) return false;
     	//return heatwaveIntensity > 0;
 		//return true;
 		return fogAdjuster.isFogOverriding();
@@ -1484,9 +1486,9 @@ public class SceneEnhancer implements Runnable {
 				adjustAmountSmooth75 *= 0.3F;
 			}
 
-			if (Minecraft.getInstance().options.particles == ParticleStatus.DECREASED) {
+			if (Minecraft.getInstance().options.particles.get() == ParticleStatus.DECREASED) {
 				adjustAmountSmooth75 *= 0.5F;
-			} else if (Minecraft.getInstance().options.particles == ParticleStatus.MINIMAL) {
+			} else if (Minecraft.getInstance().options.particles.get() == ParticleStatus.MINIMAL) {
 				adjustAmountSmooth75 *= 0.25F;
 			}
 

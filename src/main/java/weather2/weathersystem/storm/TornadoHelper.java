@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,7 +34,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.ClientConfigData;
@@ -510,7 +509,7 @@ public class TornadoHelper {
 						removeCount++;
 						boolean shouldEntityify = blockCount <= ConfigTornado.Storm_Tornado_maxFlyingEntityBlocks;
 						listBlockUpdateQueue.put(pos, new BlockUpdateSnapshot(parWorld.dimension(), Blocks.AIR.defaultBlockState(), state, pos, playerClose && shouldEntityify));
-						if (playerClose && shouldEntityify && (state.canOcclude() || state.getMaterial().equals(Material.LEAVES))) {
+						if (playerClose && shouldEntityify && (state.canOcclude() || state.getBlock().defaultMapColor() == MapColor.PLANT)) {
 							((WeatherManagerServer) this.storm.manager).syncBlockParticleNew(pos, state, storm);
 						}
 					}

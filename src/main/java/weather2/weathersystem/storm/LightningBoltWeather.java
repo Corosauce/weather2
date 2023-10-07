@@ -236,10 +236,6 @@ public class LightningBoltWeather extends Entity {
    protected void addAdditionalSaveData(CompoundTag p_20877_) {
    }
 
-   public Packet<?> getAddEntityPacket() {
-      return new ClientboundAddEntityPacket(this);
-   }
-
    public int getBlocksSetOnFire() {
       return this.blocksSetOnFire;
    }

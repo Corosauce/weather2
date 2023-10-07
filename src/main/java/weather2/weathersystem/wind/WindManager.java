@@ -478,11 +478,11 @@ public class WindManager {
 	 */
 	public Vec3 applyWindForceImpl(Vec3 pos, Vec3 motion, float weight, float multiplier, float maxSpeed) {
 		float windSpeed = 0;
-		if (pos != null && false) {
+		/*if (pos != null && false) {
 			windSpeed = getWindSpeedPerlinNoise(pos);
-		} else {
+		} else {*/
 			windSpeed = getWindSpeed();
-		}
+		//}
     	float windAngle = getWindAngle(pos);
 
     	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
@@ -610,10 +610,11 @@ public class WindManager {
 		return data;
 	}
 
-	public float getWindSpeedPerlinNoise(Vec3 pos) {
+	//TODO: 1.20
+	/*public float getWindSpeedPerlinNoise(Vec3 pos) {
 		PerlinNoise perlinNoise = ClientTickHandler.weatherManager.cloudManager.getPerlinNoise();
-		/*int indexX = index % xWide;
-		int indexZ = index / xWide;*/
+		*//*int indexX = index % xWide;
+		int indexZ = index / xWide;*//*
 		int indexX = (int)pos.x;
 		int indexZ = (int)pos.z;
 		double scale = 5;
@@ -621,6 +622,6 @@ public class WindManager {
 		double posYAdj = 0;
 		double noiseVal = perlinNoise.getValue(((indexX) * scale) + time, ((indexZ) * scale) + time, posYAdj) + 0.2F;
 		return (float) noiseVal * 2F;
-	}
+	}*/
 
 }

@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -122,12 +122,12 @@ public class WeatherUtilBlock {
 				}*/
 
 				//if solid ground we can place on
-				if (state.getMaterial() != Material.AIR && state.getMaterial() != Material.PLANT &&
+				if (!state.isAir() && state.getBlock().defaultMapColor() == MapColor.PLANT &&
 						/*(!state.getBlock().isReplaceable(world, pos) && */collided) {
 					BlockPos posUp = new BlockPos(x, y + 1, z);
 					BlockState stateUp = world.getBlockState(posUp);
 					//if above it is air
-					if (stateUp.getMaterial() == Material.AIR) {
+					if (stateUp.isAir()) {
 						int height = getHeightForAnyBlock(state);
 
 						//if height of block minus block we are on/comparing against is short enough, we can continue onto it
@@ -186,7 +186,7 @@ public class WeatherUtilBlock {
 
 			BlockPos pos2 = CoroUtilBlock.blockPos(posLastNonWall.x, posLastNonWall.y, posLastNonWall.z);
 			BlockState state2 = world.getBlockState(pos2);
-			if (state2.getMaterial() == Material.WATER || state2.getMaterial() == Material.LAVA) {
+			if (state2.getBlock().defaultMapColor() == MapColor.WATER || state2.getBlock().defaultMapColor() == MapColor.FIRE) {
 				return;
 			}
 
@@ -213,7 +213,7 @@ public class WeatherUtilBlock {
 
 		//must have clear air above first spots
 		//TODO: might need special case so we can fill up a partially layered snow block
-		if (world.getBlockState(posSpreadTo.offset(0, 1, 0)).getMaterial() != Material.AIR) {
+		if (!world.getBlockState(posSpreadTo.offset(0, 1, 0)).isAir()) {
 			return amount;
 		}
 
@@ -225,7 +225,7 @@ public class WeatherUtilBlock {
 		int depth = 0;
 
 		//find first non air
-		while (stateCheckNonAir.getMaterial() == Material.AIR) {
+		while (stateCheckNonAir.isAir()) {
 			posCheckNonAir = posCheckNonAir.offset(0, -1, 0);
 			stateCheckNonAir = world.getBlockState(posCheckNonAir);
 			depth++;
@@ -275,7 +275,7 @@ public class WeatherUtilBlock {
 
 			//TODO: isReplaceable would require a fake player, see if we can avoid using isReplaceable, it let us place into things like grass? maybe?
 
-			if (stateCheckPlaceable.getBlock() != blockLayerable && /*stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable) && */!collided && !stateCheckPlaceable.getMaterial().isLiquid()) {
+			if (stateCheckPlaceable.getBlock() != blockLayerable && /*stateCheckPlaceable.getBlock().isReplaceable(world, posCheckPlaceable) && */!collided && !stateCheckPlaceable.liquid()) {
 				posCheckPlaceable = posCheckPlaceable.offset(0, -1, 0);
 				stateCheckPlaceable = world.getBlockState(posCheckPlaceable);
 				distForPlaceableBlocks++;
@@ -320,7 +320,7 @@ public class WeatherUtilBlock {
 
 		//just place while stuff to add and air above
 
-		while (amountAllowedToAdd > 0 && world.getBlockState(posPlaceLayerable.offset(0, 1, 0)).getMaterial() == Material.AIR) {
+		while (amountAllowedToAdd > 0 && world.getBlockState(posPlaceLayerable.offset(0, 1, 0)).isAir()) {
 			//if no more layers to add
 			if (amountAllowedToAdd <= 0) {
 				break;
@@ -356,7 +356,7 @@ public class WeatherUtilBlock {
 				posPlaceLayerable = posPlaceLayerable.offset(0, 1, 0);
 				statePlaceLayerable = world.getBlockState(posPlaceLayerable);
 				//air
-			} else if (statePlaceLayerable.getMaterial() == Material.AIR) {
+			} else if (statePlaceLayerable.isAir()) {
 				//copypasta, refactor/reduce once things work
 				int height = amountAllowedToAdd;
 				if (height > layerableHeightPropMax) {

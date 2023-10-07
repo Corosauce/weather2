@@ -14,7 +14,7 @@ public class ClientRegistry {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void registerRenderers(FMLClientSetupEvent event) {
-        EntityRenderers.register(EntityRegistry.lightning_bolt, render -> new LightningBoltWeatherNewRenderer(render));
+        EntityRenderers.register(EntityRegistry.LIGHTNING_BOLT.get(), render -> new LightningBoltWeatherNewRenderer(render));
     }
 
 }

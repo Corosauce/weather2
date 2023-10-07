@@ -3,6 +3,7 @@ package extendedrenderer.particle.entity;
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilParticle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -87,10 +88,10 @@ public class ParticleTexExtraRender extends ParticleTexFX {
         } else {
            // override rotations
            quaternion = new Quaternionf(0, 0, 0, 1);
-           quaternion.mul(Vector3f.YP.rotationDegrees(this.rotationYaw));
-           quaternion.mul(Vector3f.XP.rotationDegrees(this.rotationPitch));
+           quaternion.mul(Axis.YP.rotationDegrees(this.rotationYaw));
+           quaternion.mul(Axis.XP.rotationDegrees(this.rotationPitch));
            if (extraRandomSecondaryYawRotation > 0) {
-			   quaternion.mul(Vector3f.YP.rotationDegrees(getEntityId() % extraRandomSecondaryYawRotation));
+			   quaternion.mul(Axis.YP.rotationDegrees(getEntityId() % extraRandomSecondaryYawRotation));
 		   }
         }
         
@@ -167,7 +168,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		        
 		        for(int v = 0; v < 4; ++v) {
 		           Vector3f vector3f = avector3f[v];
-		           vector3f.transform(quaternion);
+		           vector3f.rotate(quaternion);
 		           vector3f.mul(scale);
 		           vector3f.add(posX, posY, posZ);
 		        }

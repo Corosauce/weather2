@@ -249,7 +249,8 @@ public class WeatherManagerServer extends WeatherManager {
 		}
 	}
 
-	public Optional<BlockPos> findWeatherDeflector(ServerLevel level, BlockPos p_143249_, int range) {
+	//TODO: 1.20
+	/*public Optional<BlockPos> findWeatherDeflector(ServerLevel level, BlockPos p_143249_, int range) {
 		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) -> {
 			return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
 		}, (p_184055_) -> {
@@ -258,7 +259,7 @@ public class WeatherManagerServer extends WeatherManager {
 		return optional.map((p_184053_) -> {
 			return p_184053_.above(1);
 		});
-	}
+	}*/
 
 	public void tickStormBlockBuildup(StormState stormState, Block block) {
 		Level world = getWorld();
@@ -634,7 +635,7 @@ public class WeatherManagerServer extends WeatherManager {
 		if (entP == null) {
 			WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
 		} else {
-			WeatherNetworking.HANDLER.sendTo(new PacketNBTFromServer(data), entP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+			WeatherNetworking.HANDLER.sendTo(new PacketNBTFromServer(data), entP.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
 		}
 	}
 
