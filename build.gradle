@@ -61,6 +61,7 @@ minecraft {
         // applies to all the run configs below
         configureEach {
             workingDirectory project.file('run')
+            arg "-mixin.config=weather2.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.

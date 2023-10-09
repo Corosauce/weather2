@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.corosus.coroutil.util.CoroUtilBlock;
+import com.corosus.coroutil.util.CoroUtilMisc;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleTexExtraRender;
 import extendedrenderer.particle.entity.ParticleTexFX;
@@ -223,7 +224,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeOutMaxOnDeath(3);
 		particle.setFullAlphaTarget(0.6F);
 		particle.setAlpha(0);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		particle.setMotionY(-0.5D);
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 		Player entP = Minecraft.getInstance().player;
@@ -256,7 +257,7 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		particle.setTicksFadeOutMax(4);
 		particle.renderOrder = 2;
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		particle.rotationPitch = 90;
 		particle.setMotionY(0D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
@@ -293,7 +294,7 @@ public class ParticleBehaviors {
 		particle.setFullAlphaTarget(1F);
 		particle.setAlpha(0);
 		particle.setTicksFadeOutMax(10);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		particle.rotationPitch = 0;
 		particle.setMotionY(-0.3D);
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
@@ -331,7 +332,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeInMax(5);
 		particle.setAlphaF(0);
 		particle.setTicksFadeOutMax(20);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 	}
 
@@ -359,7 +360,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeOutMaxOnDeath(50);
 		particle.setFullAlphaTarget(1F);
 		particle.setAlpha(0);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		particle.setMotionY(-0.5D);
 		ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 		particle.rCol = 0.9F;
@@ -392,7 +393,7 @@ public class ParticleBehaviors {
 		particle.setTicksFadeOutMaxOnDeath(20);
 		particle.setFullAlphaTarget(1F);
 		particle.setAlpha(0);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		//particle.setMotionY(-0.5D);
 		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 1F, 0.5F);
 		/*float tempBrightness = 0.5F;
@@ -430,7 +431,7 @@ public class ParticleBehaviors {
 		particle.setAlpha(0);
 		float brightness = 0.5F + (rand.nextFloat() * 0.5F);
 		particle.setColor(particle.rCol * brightness, particle.gCol * brightness, particle.bCol * brightness);
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 		//ClientTickHandler.getClientWeather().getWindManager().applyWindForceNew(particle, 10F, 0.5F);
 	}
 
@@ -465,7 +466,7 @@ public class ParticleBehaviors {
 			float brightness = 0.5F;
 			particle.setColor(particle.rCol * brightness, particle.gCol * brightness, particle.bCol * brightness);
 		}
-		particle.rotationYaw = particle.getWorld().random.nextInt(360) - 180F;
+		particle.rotationYaw = CoroUtilMisc.random.nextInt(360) - 180F;
 	}
 
 	public void initParticleLeaf(EntityRotFX particle, float particleAABB) {

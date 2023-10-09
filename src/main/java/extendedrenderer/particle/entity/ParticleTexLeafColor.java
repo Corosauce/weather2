@@ -1,6 +1,7 @@
 package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CoroUtilColor;
+import com.corosus.coroutil.util.CoroUtilMisc;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
@@ -86,7 +87,7 @@ public class ParticleTexLeafColor extends ParticleTexFX {
 		
 		// Randomize the color with exponential decrease in likelihood. That is, the first color has a 50% chance, then 25%, etc.
 		int randMax = 1 << (colors.length - 1);
-		int choice = 32 - Integer.numberOfLeadingZeros(worldIn.random.nextInt(randMax));
+		int choice = 32 - Integer.numberOfLeadingZeros(CoroUtilMisc.random.nextInt(randMax));
 		int color = colors[choice];
 
 		float mr = ((multiplier >>> 16) & 0xFF) / 255f;

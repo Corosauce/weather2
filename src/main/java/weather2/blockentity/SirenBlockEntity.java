@@ -1,5 +1,6 @@
 package weather2.blockentity;
 
+import com.corosus.coroutil.util.CoroUtilMisc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,7 +59,7 @@ public class SirenBlockEntity extends BlockEntity {
 
                         if (pos.distanceTo(storm.pos) < storm.getSize()) {
                             String soundToPlay = "siren_sandstorm_5_extra";
-                            if (level.random.nextBoolean()) {
+                            if (CoroUtilMisc.random.nextBoolean()) {
                                 soundToPlay = "siren_sandstorm_6_extra";
                             }
 

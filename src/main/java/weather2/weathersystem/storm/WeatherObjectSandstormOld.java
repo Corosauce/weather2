@@ -42,6 +42,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
 		//TODO: make sure new comparison works
+		if (ForgeRegistries.BIOMES.getKey(biome) == null) return false;
 		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || ForgeRegistries.BIOMES.getKey(biome).toString().toLowerCase().contains("desert");
 	}
 

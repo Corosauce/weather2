@@ -5,10 +5,14 @@ import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
 import com.mojang.brigadier.CommandDispatcher;
 import extendedrenderer.ParticleRegistry2ElectricBubbleoo;
+import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ForgeSpriteSourceProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -149,5 +153,10 @@ public class Weather
             //TODO: 1.20
             //gen.addProvider(new WeatherRecipeProvider(gen));
         }
+
+        PackOutput packOutput = gen.getPackOutput();
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+
+        gen.addProvider(event.includeClient(), new ParticleRegistry(packOutput, existingFileHelper));
     }
 }

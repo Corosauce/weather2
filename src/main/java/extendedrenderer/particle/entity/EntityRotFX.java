@@ -1,6 +1,7 @@
 package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CoroUtilBlock;
+import com.corosus.coroutil.util.CoroUtilMisc;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -205,7 +206,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         //this.isImmuneToFire = true;
         //this.setMaxAge(100);
 
-        this.entityID = par1World.random.nextInt(100000);
+        this.entityID = CoroUtilMisc.random.nextInt(100000);
 
         //rotation = new Quaternion();
 

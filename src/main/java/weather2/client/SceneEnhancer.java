@@ -263,7 +263,7 @@ public class SceneEnhancer implements Runnable {
 									} else {
 										windSpeed = WindReader.getWindSpeed(client.level);
 										//if (windSpeed > 0.3F) {
-										if (client.level.random.nextInt(15) == 0) {
+										if (CoroUtilMisc.random.nextInt(15) == 0) {
 											soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
 											//client.getSoundHandler().playSound(Weather.modID + ":wind_calmfade", cCor.getPosX(), cCor.getPosY(), cCor.getPosZ(), (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F));
 											//client.world.playSound(cCor.getPosX(), cCor.getPosY(), cCor.getPosZ(), Weather.modID + ":env.wind_calmfade", (float)(windSpeed * 2F * ConfigMisc.volWindTreesScale), 0.70F + (rand.nextFloat() * 0.1F), false);
@@ -1191,7 +1191,7 @@ public class SceneEnhancer implements Runnable {
 
 							lastTickFoundBlocks++;
 
-							if (worldRef.random.nextInt(spawnRateRandChanceOdds) == 0) {
+							if (CoroUtilMisc.random.nextInt(spawnRateRandChanceOdds) == 0) {
 								//bottom of tree check || air beside vine check
 
 								//far out enough to avoid having the AABB already inside the block letting it phase through more
@@ -1261,7 +1261,7 @@ public class SceneEnhancer implements Runnable {
 
 								//oddsTo1 = (int) (oddsTo1 * (5F * windStr));
 
-								if (worldRef.random.nextInt(oddsTo1) == 0) {
+								if (CoroUtilMisc.random.nextInt(oddsTo1) == 0) {
 									BlockPos pos = new BlockPos(xx, yy, zz);
 									BlockPos posAbove = new BlockPos(xx, yy + 1, zz);
 									BlockState blockStateAbove = getBlockState(worldRef, posAbove);

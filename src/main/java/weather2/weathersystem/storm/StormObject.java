@@ -1143,7 +1143,8 @@ public class StormObject extends WeatherObject {
 			Biome bgb = world.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).get();
 
 			//temperature scan
-			if (bgb != null) {
+			//TODO: 1.20 check if this ever works
+			if (bgb != null && ForgeRegistries.BIOMES.getKey(bgb) != null) {
 
 				isInOcean = ForgeRegistries.BIOMES.getKey(bgb).toString().toLowerCase().contains("ocean");
 				
@@ -1186,7 +1187,8 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 
-				if (bgb != null) {
+				//TODO: 1.20 check if this ever works
+				if (bgb != null && ForgeRegistries.BIOMES.getKey(bgb) != null) {
 					String biomecat = ForgeRegistries.BIOMES.getKey(bgb).toString().toLowerCase();
 
 					if (!performBuildup && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
