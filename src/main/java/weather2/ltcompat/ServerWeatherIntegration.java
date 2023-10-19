@@ -1,6 +1,7 @@
 package weather2.ltcompat;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Tuple;
 import weather2.datatypes.StormState;
 
 public class ServerWeatherIntegration {

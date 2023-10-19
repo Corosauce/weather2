@@ -15,9 +15,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+//import net.tropicraft.core.common.entity.TropicraftEntities;
 import weather2.Weather;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
+//import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -123,9 +125,15 @@ public class TornadoFunnelSimple {
                 if (level.getGameTime() % 20 == 0) {
                     Entity ent = null;
                     if (Weather.isLoveTropicsInstalled()) {
-                        //for LT, reenable or make it a soft dependency somehow
+                        /**
+                         * turn back on when LT is needed, activates dependency on LTWeather / Tropicraft
+                         */
                         //ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
                     } else {
+                        ent = new Dolphin(EntityType.DOLPHIN, level);
+                    }
+                    if (ent == null) {
+                        CULog.log("SharkEntity not spawned, enable in weather mod");
                         ent = new Dolphin(EntityType.DOLPHIN, level);
                     }
                     Vec3 posRand = new Vec3(pos.x + 0, pos.y + 3, pos.z - 5);

@@ -158,5 +158,6 @@ public class Weather
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
         gen.addProvider(event.includeClient(), new ParticleRegistry(packOutput, existingFileHelper));
+        gen.addProvider(event.includeClient(), new BlockProvider(packOutput, existingFileHelper));
     }
 }

@@ -1,0 +1,36 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_siren"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_siren_manual"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_siren_manual_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_sensor"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/weather_deflector"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/weather_forecast"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/weather_machine"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/anemometer"
+    }
+  ]
+}
