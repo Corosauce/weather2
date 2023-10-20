@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import com.corosus.coroutil.util.CoroUtilMisc;
 import extendedrenderer.particle.entity.ParticleCube;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +18,8 @@ import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
+
+import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class WeatherManagerClient extends WeatherManager {
@@ -155,15 +158,20 @@ public class WeatherManagerClient extends WeatherManager {
 			StormObject storm = getStormObjectByID(ownerID);
 			if (storm != null) {
 
-				ParticleCube hail = new ParticleCube(getWorld(),
-						posX,
-						posY,
-						posZ,
-						0D, 0D, 0D, state);
-				SceneEnhancer.particleBehavior.initParticleCube(hail);
-				storm.listParticlesDebris.add(hail);
+				int extraCubes = 10;
+				Random rand = CoroUtilMisc.random();
+				float randRange = 3;
+				for (int i = 0; i < extraCubes; i++) {
+					ParticleCube hail = new ParticleCube(getWorld(),
+							posX + (rand.nextFloat() - rand.nextFloat()) * randRange,
+							posY + (rand.nextFloat() - rand.nextFloat()) * randRange,
+							posZ + (rand.nextFloat() - rand.nextFloat()) * randRange,
+							0D, 0D, 0D, state);
+					SceneEnhancer.particleBehavior.initParticleCube(hail);
+					storm.listParticlesDebris.add(hail);
 
-				hail.spawnAsWeatherEffect();
+					hail.spawnAsWeatherEffect();
+				}
 			}
 		}
 	}

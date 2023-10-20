@@ -2526,11 +2526,11 @@ public class StormObject extends WeatherObject {
 		float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
 
 		//more is tighter
-		angle += 20;
+		angle += ConfigTornado.Storm_Tornado_extraGrabAngle;
 		if (pet) angle += 50;
 
 		//TODO: test for particle cubes
-		angle += 20;
+		//angle += 20;
 
 		double entHeightFromBase = Math.max(0.1F, position.y - posBaseFormationPos.y);
 		double heightMathMax = 50 * 2.5;
