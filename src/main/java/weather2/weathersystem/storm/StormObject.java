@@ -6,6 +6,7 @@ import extendedrenderer.particle.ParticleRegistry;
 import extendedrenderer.particle.behavior.ParticleBehaviorFog;
 import extendedrenderer.particle.entity.EntityRotFX;
 import extendedrenderer.particle.entity.ParticleCrossSection;
+import extendedrenderer.particle.entity.ParticleCube;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
@@ -2051,7 +2052,7 @@ public class StormObject extends WeatherObject {
 
 					double speedXZ = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 					if (speedXZ < 30) {
-						Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.91F);
+						Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.91F, ent instanceof ParticleCube);
 						//Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.85F);
 						float damp = 1F;
 						motion = motion.multiply(damp, 1F, damp);
@@ -2407,7 +2408,7 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		} else {
-			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, 1F));
+			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, 1F, false));
 			/*Vec3 posCenter = getPosTop();
 			for (Layer layer : tornadoFunnelSimple.listLayers) {
 				if (entity.position().y - 1.5F < layer.getPos().y) {
@@ -2502,7 +2503,7 @@ public class StormObject extends WeatherObject {
 
 	}
 
-	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ) {
+	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ, boolean forCube) {
 		Vec3 posCenter = getPosTop();
 		for (Layer layer : tornadoFunnelSimple.listLayers) {
 			if (position.y - 1.5F < layer.getPos().y) {
@@ -2530,7 +2531,9 @@ public class StormObject extends WeatherObject {
 		if (pet) angle += 50;
 
 		//TODO: test for particle cubes
-		//angle += 20;
+		if (forCube) {
+			angle += 20;
+		}
 
 		double entHeightFromBase = Math.max(0.1F, position.y - posBaseFormationPos.y);
 		double heightMathMax = 50 * 2.5;
