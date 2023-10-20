@@ -991,7 +991,8 @@ public class StormObject extends WeatherObject {
 
 		if (levelCurIntensityStage >= STATE_FORMING) {
 			//TODO: 1.20
-			/*Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), CoroUtilBlock.blockPos(posGround), 128);
+			//Optional<BlockPos> optional = ((WeatherManagerServer) manager).findWeatherDeflector((ServerLevel) manager.getWorld(), CoroUtilBlock.blockPos(posGround), 128);
+			Optional<BlockPos> optional = Optional.empty();
 			if (optional.isPresent()) {
 				isBeingDeflectedCached = true;
 				//CULog.dbg("optional.get(): " + optional.get());
@@ -999,7 +1000,7 @@ public class StormObject extends WeatherObject {
 				((ServerLevel) this.manager.getWorld()).sendParticles(DustParticleOptions.REDSTONE, optional.get().getX() + 0.5D, optional.get().getY() + 0.5D, optional.get().getZ() + 0.5D, 1, 0.3D, 0D, 0.3D, 1D);
 			} else {
 				isBeingDeflectedCached = false;
-			}*/
+			}
 		} else {
 			isBeingDeflectedCached = false;
 		}

@@ -17,6 +17,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,10 +62,10 @@ public class ParticleCube extends ParticleTexFX {
 		BakedModel model = blockrenderdispatcher.getBlockModel(state);
 		for(Direction direction : Direction.values()) {
 			//TODO: 1.20
-			/*List<BakedQuad> list = model.getQuads(state, direction, new Random(), net.minecraftforge.client.model.data.ModelData.EMPTY);
+			List<BakedQuad> list = model.getQuads(state, direction, RandomSource.create());
 			if (list.size() > 0) {
 				return list.get(0).getSprite();
-			}*/
+			}
 		}
 		return null;
 	}
