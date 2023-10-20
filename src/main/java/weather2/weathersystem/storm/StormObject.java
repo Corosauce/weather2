@@ -2055,6 +2055,7 @@ public class StormObject extends WeatherObject {
 						Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.91F, ent instanceof ParticleCube);
 						//Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.85F);
 						float damp = 1F;
+						damp = ent.getWindWeight() / 5F;
 						motion = motion.multiply(damp, 1F, damp);
 						//System.out.println("motion: " + motion);
 						ent.setMotionX(motion.x);
@@ -2488,10 +2489,13 @@ public class StormObject extends WeatherObject {
 
 			if (entHeightFromBase > 90) {
 				if (Weather.isLoveTropicsInstalled()) {
-					//for LT, reenable or make it a soft dependency somehow
+					//TODO: 1.20 for LT, reenable or make it a soft dependency somehow
 					/*if (isSharknado() && entity instanceof SharkEntity) {
 						entity.getPersistentData().putBoolean("tornado_shoot", true);
 					}*/
+					if (isSharknado() && entity instanceof Dolphin) {
+						entity.getPersistentData().putBoolean("tornado_shoot", true);
+					}
 				} else {
 					if (isSharknado() && entity instanceof Dolphin) {
 						entity.getPersistentData().putBoolean("tornado_shoot", true);

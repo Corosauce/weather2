@@ -666,7 +666,6 @@ public class TornadoHelper {
 					if (getDistanceXZ(storm.posBaseFormationPos, entity1.getX(), entity1.getY(), entity1.getZ()) < dist)
 					{
 						if (!storm.isPet()) {
-							//TODO: 1.14 uncomment and remove false
 							if (false/* && (entity1 instanceof EntityMovingBlock && !((EntityMovingBlock)entity1).collideFalling)*/) {
 								storm.spinEntity(entity1);
 								//spin(entity, conf, entity1);

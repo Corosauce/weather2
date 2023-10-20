@@ -2,6 +2,7 @@ package extendedrenderer.particle.entity;
 
 import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilBlock;
+import com.corosus.coroutil.util.CoroUtilMisc;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import extendedrenderer.particle.ParticleRegistry;
@@ -46,6 +47,7 @@ public class ParticleCube extends ParticleTexFX {
 		} else {
 			CULog.dbg("unable to find sprite to use from block: " + state);
 			sprite = getSpriteFromState(Blocks.DIRT.defaultBlockState());
+			//if (CoroUtilMisc.random().nextBoolean()) sprite = getSpriteFromState(Blocks.GRASS.defaultBlockState());
 			if (sprite != null) {
 				setSprite(sprite);
 			}
@@ -61,10 +63,13 @@ public class ParticleCube extends ParticleTexFX {
 		BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
 		BakedModel model = blockrenderdispatcher.getBlockModel(state);
 		for(Direction direction : Direction.values()) {
-			//TODO: 1.20
 			List<BakedQuad> list = model.getQuads(state, direction, RandomSource.create());
 			if (list.size() > 0) {
 				return list.get(0).getSprite();
+			}
+			//plan b
+			if (model.getParticleIcon() != null) {
+				return model.getParticleIcon();
 			}
 		}
 		return null;

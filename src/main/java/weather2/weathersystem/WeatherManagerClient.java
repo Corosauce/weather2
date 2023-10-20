@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.client.SceneEnhancer;
+import weather2.config.ConfigParticle;
 import weather2.weathersystem.storm.EnumWeatherObjectType;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObject;
@@ -158,7 +159,7 @@ public class WeatherManagerClient extends WeatherManager {
 			StormObject storm = getStormObjectByID(ownerID);
 			if (storm != null) {
 
-				int extraCubes = 10;
+				int extraCubes = 1 + ConfigParticle.Particle_Tornado_extraParticleCubes;
 				Random rand = CoroUtilMisc.random();
 				float randRange = 3;
 				for (int i = 0; i < extraCubes; i++) {

@@ -380,7 +380,7 @@ public class ParticleBehaviors {
 		particle.rotationYaw = rand.nextInt(360);
 		particle.rotationPitch = rand.nextInt(360);
 		particle.fastLight = true;
-		particle.windWeight = 5F;
+		particle.windWeight = 5 + ((float)((Math.random() * 0.3) - (Math.random() * 0.3)));
 		particle.spinFast = true;
 		particle.spinFastRate = 1F;
 		particle.setFacePlayer(false);

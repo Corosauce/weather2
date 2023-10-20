@@ -32,7 +32,7 @@ public class ConfigSand implements IConfigCategory {
     public static boolean Sandstorm_Sand_Buildup_AllowOutsideDesert = true;
 
     public static double Sandstorm_Particle_Dust_effect_rate = 0.6D;
-    public static double Precipitation_Particle_effect_rate = 0.7D;
+    //public static double Precipitation_Particle_effect_rate = 0.7D;
     public static double Sandstorm_Particle_Debris_effect_rate = 0.6D;
 
     public static boolean Sandstorm_Siren_PleaseNoDarude = false;

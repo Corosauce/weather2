@@ -424,7 +424,7 @@ public class TornadoFunnelSimple {
 
         particle.setKillOnCollide(false);
 
-        particle.windWeight = 1F;
+        particle.windWeight = 5F;
         particle.setRenderDistanceCull(renderDistCutoff);
 
         return particle;
