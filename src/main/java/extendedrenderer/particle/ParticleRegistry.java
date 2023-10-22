@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ParticleRegistry extends SpriteSourceProvider {
 
 	public static TextureAtlasSprite squareGrey;
@@ -133,7 +132,6 @@ public class ParticleRegistry extends SpriteSourceProvider {
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public static void getRegisteredParticles(TextureStitchEvent.Post event) {
 
 		if (!event.getAtlas().location().equals(TextureAtlas.LOCATION_PARTICLES)) {

@@ -18,10 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class BlockProvider extends SpriteSourceProvider {
-
-	public static TextureAtlasSprite squareGrey;
 
 	public BlockProvider(PackOutput output, ExistingFileHelper fileHelper)
 	{

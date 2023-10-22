@@ -10,6 +10,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeSpriteSourceProvider;
@@ -25,6 +27,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
@@ -93,6 +96,10 @@ public class Weather
         //WeatherUtilConfig.nbtLoadDataAll();
 
         SoundRegistry.init();
+
+        if (FMLEnvironment.dist.isClient()) {
+            modBus.addListener(ParticleRegistry::getRegisteredParticles);
+        }
     }
 
     public static IConfigCategory addConfig(IConfigCategory config) {
@@ -148,15 +155,20 @@ public class Weather
     }
 
     private void gatherData(GatherDataEvent event) {
-        DataGenerator gen = event.getGenerator();
         if (event.includeServer()) {
             //TODO: 1.20
             //gen.addProvider(new WeatherRecipeProvider(gen));
         }
+        if (event.includeClient()) {
+            gatherClientData(event);
+        }
+    }
 
+    @OnlyIn(Dist.CLIENT)
+    private void gatherClientData(GatherDataEvent event) {
+        DataGenerator gen = event.getGenerator();
         PackOutput packOutput = gen.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-
         gen.addProvider(event.includeClient(), new ParticleRegistry(packOutput, existingFileHelper));
         gen.addProvider(event.includeClient(), new BlockProvider(packOutput, existingFileHelper));
     }
