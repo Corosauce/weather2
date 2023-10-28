@@ -16,7 +16,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 //import net.tropicraft.core.common.entity.TropicraftEntities;
-import net.tropicraft.core.common.entity.TropicraftEntities;
 import weather2.Weather;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
