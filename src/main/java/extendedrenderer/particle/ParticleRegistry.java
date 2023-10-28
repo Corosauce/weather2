@@ -6,14 +6,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.SpriteSourceProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import weather2.Weather;
 
 import java.util.ArrayList;
@@ -30,7 +26,7 @@ public class ParticleRegistry extends SpriteSourceProvider {
 	public static TextureAtlasSprite cloud256_fire;
 	public static TextureAtlasSprite cloud256_test;
 	//public static TextureAtlasSprite cloud256_2;
-	public static TextureAtlasSprite cloud256_6;
+	public static TextureAtlasSprite groundSplash;
 	//public static TextureAtlasSprite downfall2;
 	public static TextureAtlasSprite downfall3;
 	//public static TextureAtlasSprite downfall4;
@@ -75,12 +71,12 @@ public class ParticleRegistry extends SpriteSourceProvider {
 		//atlas(SpriteSourceProvider.PARTICLES_ATLAS).addSource(new SingleFile(new ResourceLocation(Weather.MODID + ":white"), Optional.empty()));
 
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_00"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_00"));
 		//smokeTest = event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_2"));
 		//cloud = event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud64"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_fire"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_test"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_test"));
 		//cloud256_2 = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_5"));
 		//ground splash
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_6"));
@@ -88,12 +84,14 @@ public class ParticleRegistry extends SpriteSourceProvider {
 		//downfall2 = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall2"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall3"));
 		//downfall4 = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall4"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/chicken"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/potato"));
+		if (!Weather.isLoveTropicsInstalled()) {
+			addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/chicken"));
+			addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/potato"));
+		}
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/leaf"));
 		//rain = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/test_texture"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white_square"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/test_texture"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white_square"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white"));
 		//rain_white_trans = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_trans"));
 		//rain_white_2 = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_2"));
@@ -114,13 +112,13 @@ public class ParticleRegistry extends SpriteSourceProvider {
 			listSeaweed.add(addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/seaweed_section_" + i)));
 		}*/
 		//used indirectly not via reference
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/grass"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/grass"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/hail"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
 
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white16"));
-		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white64"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white16"));
+		//addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white64"));
 
 		//TODO: 1.14 uncomment
 		/*MeshBufferManagerParticle.cleanup();
@@ -139,25 +137,27 @@ public class ParticleRegistry extends SpriteSourceProvider {
 		}
 
 		squareGrey = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white"));
-		smoke = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_00"));
+		//smoke = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_00"));
 		//smokeTest = event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/smoke_2"));
 		//cloud = event.addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud64"));
 		cloud256 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256"));
 		cloud256_fire = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_fire"));
-		cloud256_test = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_test"));
+		//cloud256_test = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_test"));
 		//cloud256_2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_5"));
 		//ground splash
-		cloud256_6 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_6"));
+		groundSplash = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_6"));
 		//cloud256_7 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256_7"));
 		//downfall2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall2"));
 		downfall3 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall3"));
 		//downfall4 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall4"));
-		chicken = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/chicken"));
-		potato = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/potato"));
+		if (!Weather.isLoveTropicsInstalled()) {
+			chicken = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/chicken"));
+			potato = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/potato"));
+		}
 		leaf = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/leaf"));
 		//rain = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain"));
-		test_texture = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/test_texture"));
-		white_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white_square"));
+		//test_texture = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/test_texture"));
+		//white_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white_square"));
 		rain_white = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white"));
 		//rain_white_trans = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_trans"));
 		//rain_white_2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/rain_white_2"));
@@ -178,13 +178,13 @@ public class ParticleRegistry extends SpriteSourceProvider {
 			listSeaweed.add(event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/seaweed_section_" + i)));
 		}*/
 		//used indirectly not via reference
-		grass = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/grass"));
+		//grass = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/grass"));
 		hail = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/hail"));
-		cloudNew = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
-		cloud_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
+		//cloudNew = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud"));
+		//cloud_square = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud_square"));
 
-		square16 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white16"));
-		square64 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white64"));
+		//square16 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white16"));
+		//square64 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/white64"));
 
 		//TODO: 1.14 uncomment
 		/*if (RotatingParticleManager.useShaders) {

@@ -35,6 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.EntityRegistry;
 import weather2.ServerTickHandler;
 import weather2.Weather;
@@ -1090,7 +1091,9 @@ public class StormObject extends WeatherObject {
 			}
 
 			for (LivingEntity ent : listEntitiesUnderClouds) {
-				ent.clearFire();
+				if (!isFirenado) {
+					ent.clearFire();
+				}
 			}
 		}
 	}
@@ -1832,7 +1835,7 @@ public class StormObject extends WeatherObject {
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						if (getAvoidAngleIfTerrainAtOrAheadOfPosition(getAdjustedAngle(), tryPos) == 0) {
 							EntityRotFX particle;
-							if (WeatherUtil.isAprilFoolsDay()) {
+							if (WeatherUtil.isAprilFoolsDay() && !Weather.isLoveTropicsInstalled()) {
 								particle = spawnFogParticle(tryPos.x, tryPos.y, tryPos.z, 0, ParticleRegistry.chicken);
 							} else {
 
@@ -1877,7 +1880,7 @@ public class StormObject extends WeatherObject {
 					if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 						int groundY = WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos((int)tryPos.x, 0, (int)tryPos.z)).getY();
 						EntityRotFX particle;
-						if (WeatherUtil.isAprilFoolsDay()) {
+						if (WeatherUtil.isAprilFoolsDay() && !Weather.isLoveTropicsInstalled()) {
 							particle = spawnFogParticle(tryPos.x, groundY + 3, tryPos.z, 0, ParticleRegistry.potato);
 						} else {
 							particle = spawnFogParticle(tryPos.x, groundY + 3, tryPos.z, 0);
@@ -1957,7 +1960,7 @@ public class StormObject extends WeatherObject {
 							if (tryPos.distanceTo(playerAdjPos) < maxSpawnDistFromPlayer) {
 								EntityRotFX particle;
 								if (!isFirenado/* && false*/) {
-									if (WeatherUtil.isAprilFoolsDay()) {
+									if (WeatherUtil.isAprilFoolsDay() && !Weather.isLoveTropicsInstalled()) {
 										particle = spawnFogParticle(tryPos.x, posBaseFormationPos.y, tryPos.z, 1, ParticleRegistry.potato);
 									} else {
 										particle = spawnFogParticle(tryPos.x, posBaseFormationPos.y, tryPos.z, 1);
@@ -2410,89 +2413,25 @@ public class StormObject extends WeatherObject {
 			}
 		} else {
 			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, 1F, false));
-			/*Vec3 posCenter = getPosTop();
-			for (Layer layer : tornadoFunnelSimple.listLayers) {
-				if (entity.position().y - 1.5F < layer.getPos().y) {
-					posCenter = layer.getPos();
-					break;
-				}
-			}
-
-			double vecx = posCenter.x - entity.position().x;
-			double vecz = posCenter.z - entity.position().z;
-
-			Vec3 vecXZ = new Vec3(posCenter.x, entity.getY(), posCenter.z);
-
-			double distXZMax = tornadoFunnelSimple.getConfig().getEntityPullDistXZ();
-			double distXZMaxForYGrab = tornadoFunnelSimple.getConfig().getEntityPullDistXZForY();
-			double distXZ = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMax);
-			double distXZForYGrab = Math.min(Math.sqrt(entity.distanceToSqr(vecXZ)), distXZMaxForYGrab);
-
-			double grabAmp = (float)(levelCurIntensityStage - STATE_FORMING) / (float)(STATE_STAGE5 - STATE_FORMING);
-
-			float angle = (float)(Mth.atan2(vecz, vecx) * 180.0D / Math.PI + 180F);
-
-			//more is tighter
-			angle += 20;
-			if (pet) angle += 50;
-
-			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
-			double heightMathMax = 50 * 2.5;
-			heightMathMax = 50 * 3.5;
-			//amp from new size here?
-			if (baby) heightMathMax = 15;
-			if (pet) heightMathMax = 4;
-			//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
-			double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
-			//CULog.dbg("heightAmp: " + heightAmp);
-
-			if (!pet) {
-				angle += (40 * heightAmp);
-			}
-
-			//wider grab as tornado gets bigger
-			angle -= 40 * grabAmp;
-
-			angle = (float) Math.toRadians(angle);
-			double pullStrength = 0.2;
-			double pullStrengthY = 0.2;
-			pullStrengthY += 0.2 * grabAmp;
-			double pullYAmp = 1D;
-			//as tornado shrinks to and from forming, adjust its pull power
-			if (levelCurIntensityStage == STATE_FORMING) {
-				pullYAmp = levelCurStagesIntensity;
-			}
-			pullStrengthY *= pullYAmp;
-			pullStrength *= pullYAmp;
-			if (pet) pullStrength = 0.05;
-			if (pet) pullStrengthY = 0.05;
-			if (sharknado && entity instanceof Player) pullStrength = 0.05;
-			if (sharknado && entity instanceof Player) pullStrengthY = 0.1;
-			double pullY = pullStrengthY * (distXZMaxForYGrab - distXZForYGrab) / distXZMaxForYGrab;
-			double pullXZ = pullStrength * (distXZMax - distXZ) / distXZMax;
-			double xx = -Math.sin(angle) * pullXZ;
-			double zz = Math.cos(angle) * pullXZ;
-			double yy = pullY;
-
-			if (!baby && entity.getDeltaMovement().y > 0.5F) {
-				yy = 0;
-			}
-
-			if (pet && entity.getDeltaMovement().y > 0.15F) {
-				yy = 0;
-			}
-
-			entity.setDeltaMovement(entity.getDeltaMovement().x + xx, entity.getDeltaMovement().y + yy, entity.getDeltaMovement().z + zz);*/
 
 			entity.fallDistance = 0;
 			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
 
+			if (isFirenado) {
+				Vec3 posEnt = entity.position();
+				Vec3 posFunnel = getFunnelCenter(posEnt);
+				double distXZ = entity.position().distanceTo(new Vec3(posFunnel.x, posEnt.y, posFunnel.z));
+				if (entHeightFromBase > 5 && entHeightFromBase < 70 && distXZ < (entHeightFromBase * 1.3)) {
+					entity.setSecondsOnFire(6);
+				}
+			}
+
 			if (entHeightFromBase > 90) {
 				if (Weather.isLoveTropicsInstalled()) {
 					//TODO: 1.20 for LT, reenable or make it a soft dependency somehow
-					/*if (isSharknado() && entity instanceof SharkEntity) {
+					if (isSharknado() && entity instanceof SharkEntity) {
 						entity.getPersistentData().putBoolean("tornado_shoot", true);
-					}*/
+					}
 					if (isSharknado() && entity instanceof Dolphin) {
 						entity.getPersistentData().putBoolean("tornado_shoot", true);
 					}
@@ -2507,7 +2446,7 @@ public class StormObject extends WeatherObject {
 
 	}
 
-	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ, boolean forCube) {
+	public Vec3 getFunnelCenter(Vec3 position) {
 		Vec3 posCenter = getPosTop();
 		for (Layer layer : tornadoFunnelSimple.listLayers) {
 			if (position.y - 1.5F < layer.getPos().y) {
@@ -2515,6 +2454,11 @@ public class StormObject extends WeatherObject {
 				break;
 			}
 		}
+		return posCenter;
+	}
+
+	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ, boolean forCube) {
+		Vec3 posCenter = getFunnelCenter(position);
 
 		double vecx = posCenter.x - position.x;
 		double vecz = posCenter.z - position.z;
@@ -2739,7 +2683,9 @@ public class StormObject extends WeatherObject {
             if (forTornado) ent.setOnGround(false);
 
             //its always raining during these, might as well extinguish them
-            ent.clearFire();
+			if (!isFirenado) {
+				ent.clearFire();
+			}
 
             //System.out.println(adjPull);
         }

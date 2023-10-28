@@ -16,10 +16,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 //import net.tropicraft.core.common.entity.TropicraftEntities;
+import net.tropicraft.core.common.entity.TropicraftEntities;
 import weather2.Weather;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
-//import net.tropicraft.core.common.entity.underdasea.SharkEntity;
+import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +41,9 @@ public class TornadoFunnelSimple {
     private float targetSizeRadius = 0;
     private float sizeRadiusRate = 0;
     private float renderDistCutoff = 50;
+
+    //hack to fix client data coming in late
+    private boolean wasFirenado = false;
 
     public TornadoFunnelSimple(ActiveTornadoConfig config, StormObject stormObject) {
         this.config = config;
@@ -128,7 +132,7 @@ public class TornadoFunnelSimple {
                         /**
                          * turn back on when LT is needed, activates dependency on LTWeather / Tropicraft
                          */
-                        //ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
+                        ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
                     } else {
                         ent = new Dolphin(EntityType.DOLPHIN, level);
                     }
@@ -284,6 +288,17 @@ public class TornadoFunnelSimple {
                     particle.setColor(1, 1, 1);
                 }*/
 
+                if (stormObject.isFirenado && !wasFirenado) {
+                    if (particle.getSprite() == ParticleRegistry.cloud256) {
+                        particle.setSprite(ParticleRegistry.cloud256_fire);
+                    }
+
+                    float baseBright = 0.8F;
+                    float randFloat = (level.random.nextFloat() * 0.2F);
+                    float finalBright = Math.min(1F, baseBright + randFloat);
+                    particle.setColor(finalBright, finalBright, finalBright);
+                }
+
                 index++;
             }
 
@@ -355,6 +370,8 @@ public class TornadoFunnelSimple {
         }
 
         //CULog.dbg(particleCount + "");
+
+        wasFirenado = stormObject.isFirenado;
     }
 
     public void cleanupList(List<PivotingParticle> list, int particlesPerLayer) {
@@ -374,7 +391,11 @@ public class TornadoFunnelSimple {
     @OnlyIn(Dist.CLIENT)
     private PivotingParticle createParticle(ClientLevel world, double x, double y, double z) {
         //ParticleTexFX particle = new ParticleTexFX(world, x, y, z, 0, 0, 0, ParticleRegistry.square16);
-        PivotingParticle particle = new PivotingParticle(world, x, y, z, 0, 0, 0, ParticleRegistry.cloud256);
+        TextureAtlasSprite sprite = ParticleRegistry.cloud256;
+        if (stormObject.isFirenado) {
+            sprite = ParticleRegistry.cloud256_fire;
+        }
+        PivotingParticle particle = new PivotingParticle(world, x, y, z, 0, 0, 0, sprite);
         particle.setMaxAge(300);
         particle.setTicksFadeInMax(80);
         //particle.setTicksFadeOutMax(20);
@@ -383,10 +404,17 @@ public class TornadoFunnelSimple {
         particle.setScale(5F);
         particle.setScale(15F);
         //particle.setColor(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat());
-        float baseBright = 0.3F;
-        float randFloat = (world.random.nextFloat() * 0.6F);
-        float finalBright = Math.min(1F, baseBright+randFloat);
-        particle.setColor(finalBright-0.2F, finalBright-0.2F, finalBright-0.2F);
+        if (!stormObject.isFirenado) {
+            float baseBright = 0.3F;
+            float randFloat = (world.random.nextFloat() * 0.6F);
+            float finalBright = Math.min(1F, baseBright + randFloat);
+            particle.setColor(finalBright - 0.2F, finalBright - 0.2F, finalBright - 0.2F);
+        } else {
+            float baseBright = 0.6F;
+            float randFloat = (world.random.nextFloat() * 0.3F);
+            float finalBright = Math.min(1F, baseBright + randFloat);
+            particle.setColor(finalBright - 0.2F, finalBright - 0.2F, finalBright - 0.2F);
+        }
         particle.setGravity(0);
         particle.rotationYaw = world.random.nextFloat() * 360;
         particle.setRenderDistanceCull(renderDistCutoff);

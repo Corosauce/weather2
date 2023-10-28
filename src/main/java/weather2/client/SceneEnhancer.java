@@ -685,7 +685,7 @@ public class SceneEnhancer implements Runnable {
 										pos.getX() + rand.nextFloat(),
 										pos.getY() + 0.01D + maxY,
 										pos.getZ() + rand.nextFloat(),
-										0D, 0D, 0D, ParticleRegistry.cloud256_6);
+										0D, 0D, 0D, ParticleRegistry.groundSplash);
 								particleBehavior.initParticleGroundSplash(rain);
 
 								rain.spawnAsWeatherEffect();

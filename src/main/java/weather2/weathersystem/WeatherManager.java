@@ -205,8 +205,10 @@ public abstract class WeatherManager implements IWorldData {
 				StormObject storm = (StormObject) wo;
 				if (storm == null || storm.isDead) continue;
 				double dist = storm.pos.distanceTo(parPos);
-				if (dist < closestDist && dist <= maxDist) {
-					if ((storm.attrib_precipitation && orRain) || ((severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin) && (severityFlagMax == -1 || storm.levelCurIntensityStage <= severityFlagMax))) {
+				if (dist < closestDist && dist <= maxDist && !storm.isFirenado) {
+					if ((storm.attrib_precipitation && orRain) ||
+							((severityFlagMin == -1 || storm.levelCurIntensityStage >= severityFlagMin) &&
+									(severityFlagMax == -1 || storm.levelCurIntensityStage <= severityFlagMax))) {
 						closestStorm = storm;
 						closestDist = dist;
 					}

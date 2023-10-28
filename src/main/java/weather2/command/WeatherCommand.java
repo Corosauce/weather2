@@ -166,6 +166,22 @@ public class WeatherCommand {
 									c.getSource().sendSuccess(() -> Component.literal("Summoned sharknado"), true);
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("firenado_f0").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_FORMING);
+									stormObject.levelStormIntensityMax = StormObject.STATE_STAGE4;
+									stormObject.isFirenado = true;
+
+									c.getSource().sendSuccess(() -> Component.literal("Summoned firenado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("firenado_f1").executes(c -> {
+									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
+									stormObject.levelStormIntensityMax = StormObject.STATE_STAGE4;
+									stormObject.isFirenado = true;
+
+									c.getSource().sendSuccess(() -> Component.literal("Summoned firenado"), true);
+									return Command.SINGLE_SUCCESS;
+								}))
 								/*.then(literal("tornado_player_baby").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 

@@ -103,6 +103,19 @@ public class ServerTickHandler {
 					wm.syncStormNew(stormObject);
 
 					CULog.dbg("processed imc message: " + tag);
+				} else if (msg.method().equals("firenado")) {
+					StormObject stormObject = new StormObject(wm);
+
+					stormObject.setupStorm(null);
+					stormObject.levelCurIntensityStage = StormObject.STATE_STAGE1;
+					stormObject.levelStormIntensityMax = StormObject.STATE_STAGE4;
+					stormObject.isFirenado = true;
+					stormObject.setupTornadoAwayFromPlayersAimAtPlayers();
+
+					wm.addStormObject(stormObject);
+					wm.syncStormNew(stormObject);
+
+					CULog.dbg("processed imc message: " + tag);
 				} else if (msg.method().equals("tornado")) {
 					StormObject stormObject = new StormObject(wm);
 

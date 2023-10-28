@@ -430,19 +430,27 @@ public class TornadoHelper {
 			int tryZ = (int)storm.pos.z + rand.nextInt(randSize) - randSize/2;
 			int tryY = parWorld.getHeight(Heightmap.Types.MOTION_BLOCKING, tryX, tryZ) - 1;
 
-			double d0 = storm.pos.x - tryX;
-			double d2 = storm.pos.z - tryZ;
-			double dist = Mth.sqrt((float) (d0 * d0 + d2 * d2));
+			int funnelBottomY = (int) storm.pos.y;
+			if (storm.getTornadoFunnelSimple().listLayers.size() > 0) {
+				Layer layer = storm.getTornadoFunnelSimple().listLayers.get(0);
+				funnelBottomY = (int) layer.getPos().y();
+			}
 
-			if (dist < tornadoBaseSize/2 + randSize/2 && tryRipCount < tryRipMax) {
-				BlockPos pos = new BlockPos(tryX, tryY, tryZ);
-				Block block = parWorld.getBlockState(pos).getBlock();
-				BlockPos posUp = new BlockPos(tryX, tryY+1, tryZ);
-				Block blockUp = parWorld.getBlockState(posUp).getBlock();
+			//if firenado funnel reached down enough to hit this y coord
+			if (tryY > funnelBottomY - 3) {
+				double d0 = storm.pos.x - tryX;
+				double d2 = storm.pos.z - tryZ;
+				double dist = Mth.sqrt((float) (d0 * d0 + d2 * d2));
 
-				if (!CoroUtilBlock.isAir(block) && CoroUtilBlock.isAir(blockUp))
-				{
-					parWorld.setBlock(posUp, Blocks.FIRE.defaultBlockState(), 3);
+				if (dist < tornadoBaseSize / 2 + randSize / 2 && tryRipCount < tryRipMax) {
+					BlockPos pos = new BlockPos(tryX, tryY, tryZ);
+					Block block = parWorld.getBlockState(pos).getBlock();
+					BlockPos posUp = new BlockPos(tryX, tryY + 1, tryZ);
+					Block blockUp = parWorld.getBlockState(posUp).getBlock();
+
+					if (!CoroUtilBlock.isAir(block) && CoroUtilBlock.isAir(blockUp)) {
+						parWorld.setBlock(posUp, Blocks.FIRE.defaultBlockState(), 3);
+					}
 				}
 			}
 		}
