@@ -35,7 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.tropicraft.core.common.entity.underdasea.SharkEntity;
+//import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.EntityRegistry;
 import weather2.ServerTickHandler;
 import weather2.Weather;
@@ -2429,9 +2429,9 @@ public class StormObject extends WeatherObject {
 			if (entHeightFromBase > 90) {
 				if (Weather.isLoveTropicsInstalled()) {
 					//TODO: 1.20 for LT, reenable or make it a soft dependency somehow
-					if (isSharknado() && entity instanceof SharkEntity) {
+					/*if (isSharknado() && entity instanceof SharkEntity) {
 						entity.getPersistentData().putBoolean("tornado_shoot", true);
-					}
+					}*/
 					if (isSharknado() && entity instanceof Dolphin) {
 						entity.getPersistentData().putBoolean("tornado_shoot", true);
 					}
