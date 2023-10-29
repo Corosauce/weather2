@@ -23,14 +23,15 @@ jobs:
 
     - name: Locate built JARfile
       id: jar
-      run: echo "jarfile=$(find build/libs/ -name "*.jar" -not -name "*slim*" -not -name "*source*")" >> $GITHUB_OUTPUT
+      run: jarfile=$(find build/libs/ -name "*-all.jar" -not -name "*slim*" -not -name "*source*" | tr '\n' ' '); echo "jarfile=$jarfile" >> $GITHUB_OUTPUT
 
     - name: Set Artifact name
       id: jarname
-      run: echo "jarname=$(find build/libs/ -name "*.jar" -not -name "*slim*" -not -name "*source*" | sed 's:.*/::')" >> $GITHUB_OUTPUT
+      run: jarname=$(find build/libs/ -name "*-all.jar" -not -name "*slim*" -not -name "*source*" | sed 's:.*/::' | tr '\n' ' '); echo "jarname=$jarname" >> $GITHUB_OUTPUT
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2.2.3
       with:
           name: ${{ steps.jarname.outputs.jarname }}
           path: ${{ steps.jar.outputs.jarfile }}
+
