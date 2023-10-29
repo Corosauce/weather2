@@ -1,5 +1,7 @@
 package weather2.ltcompat;
 
+import com.lovetropics.weather.ClientWeather;
+import com.lovetropics.weather.TypeBridge;
 import weather2.datatypes.PrecipitationType;
 
 public final class ClientWeatherIntegration {
@@ -16,7 +18,7 @@ public final class ClientWeatherIntegration {
 		instance = new ClientWeatherIntegration();
 	}
 
-	public float getRainAmount() {
+	/*public float getRainAmount() {
 		return 0;
 	}
 
@@ -46,12 +48,12 @@ public final class ClientWeatherIntegration {
 
 	public boolean hasWeather() {
 		return false;
-	}
+	}*/
 
 	/**
-	 * turn back on when LT is needed, activates dependency on LTWeather
+	 * TODO: for LT, turn back on when LT is needed, activates dependency on LTWeather
 	 */
-	/*public float getRainAmount() {
+	public float getRainAmount() {
 		return ClientWeather.get().getRainAmount();
 	}
 
@@ -81,5 +83,5 @@ public final class ClientWeatherIntegration {
 
 	public boolean hasWeather() {
 		return ClientWeather.get().hasWeather();
-	}*/
+	}
 }

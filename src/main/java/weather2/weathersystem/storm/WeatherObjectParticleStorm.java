@@ -2,6 +2,8 @@ package weather2.weathersystem.storm;
 
 import com.corosus.coroutil.util.CoroUtilBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -61,7 +63,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 	}
 
 	public static boolean canSpawnHere(Level world, BlockPos pos, StormType type, boolean forSpawn) {
-		Biome biomeIn = world.getBiome(pos).get();
+		Holder<Biome> biomeIn = world.getBiome(pos);
 		if (type == StormType.SANDSTORM) {
 			return isDesert(biomeIn, forSpawn);
 		} else if (type == StormType.SNOWSTORM) {
@@ -70,17 +72,15 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 		return false;
 	}
 
-	public static boolean isColdForStorm(Level world, Biome biome, boolean forSpawn, BlockPos pos) {
+	public static boolean isColdForStorm(Level world, Holder<Biome> biome, boolean forSpawn, BlockPos pos) {
 		//return biome.getPrecipitation() == Biome.Precipitation.SNOW;
 		//adjusted to this way to make it work with serene seasons
-		boolean canPrecip = biome.getPrecipitationAt(pos) == Biome.Precipitation.RAIN || biome.getPrecipitationAt(pos) == Biome.Precipitation.SNOW;
-		return canPrecip && SceneEnhancer.shouldSnowHere(world, biome, pos);
+		boolean canPrecip = biome.get().getPrecipitationAt(pos) == Biome.Precipitation.RAIN || biome.get().getPrecipitationAt(pos) == Biome.Precipitation.SNOW;
+		return canPrecip && SceneEnhancer.shouldSnowHere(world, biome.get(), pos);
 	}
 
-	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		//TODO: make sure new comparison works
-		if (ForgeRegistries.BIOMES.getKey(biome) == null) return false;
-		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || ForgeRegistries.BIOMES.getKey(biome).toString().toLowerCase().contains("desert");
+	public static boolean isDesert(Holder<Biome> biome, boolean forSpawn) {
+		return biome.get().equals(Biomes.DESERT) || (!forSpawn && biome.get().equals(Biomes.RIVER)) || biome.unwrap().left().toString().toLowerCase().contains("desert");
 	}
 
 	@Override

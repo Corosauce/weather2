@@ -129,7 +129,7 @@ public class TornadoFunnelSimple {
                     Entity ent = null;
                     if (Weather.isLoveTropicsInstalled()) {
                         /**
-                         * turn back on when LT is needed, activates dependency on LTWeather / Tropicraft
+                         * TODO: for LT, turn back on when LT is needed, activates dependency on LTWeather / Tropicraft
                          */
                         ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
                     } else {

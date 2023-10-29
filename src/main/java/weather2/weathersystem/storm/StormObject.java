@@ -10,6 +10,7 @@ import extendedrenderer.particle.entity.ParticleCube;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -1145,16 +1146,15 @@ public class StormObject extends WeatherObject {
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 
 			//Biome bgb = null;
-			Biome bgb = world.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).get();
+			Holder<Biome> bgb = world.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))));
 
 			//temperature scan
-			//TODO: 1.20 check if this ever works
-			if (bgb != null && ForgeRegistries.BIOMES.getKey(bgb) != null) {
+			if (bgb.get() != null) {
 
-				isInOcean = ForgeRegistries.BIOMES.getKey(bgb).toString().toLowerCase().contains("ocean");
+				isInOcean = bgb.unwrap().left().toString().toLowerCase().contains("ocean");
 				
 				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
-				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb, new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
+				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb.get(), new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				if (levelTemperature > biomeTempAdj) {
 					levelTemperature -= tempAdjustRate;
 				} else {
@@ -1192,9 +1192,8 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 
-				//TODO: 1.20 check if this ever works
-				if (bgb != null && ForgeRegistries.BIOMES.getKey(bgb) != null) {
-					String biomecat = ForgeRegistries.BIOMES.getKey(bgb).toString().toLowerCase();
+				if (bgb.get() != null) {
+					String biomecat = bgb.unwrap().left().toString().toLowerCase();
 
 					if (!performBuildup && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
 						performBuildup = true;

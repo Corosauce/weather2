@@ -554,7 +554,9 @@ public class SceneEnhancer implements Runnable {
 		boolean canPrecip = weather.getPrecipitationType(biome) == PrecipitationType.NORMAL || weather.getPrecipitationType(biome) == PrecipitationType.SNOW;
 
 		boolean isRain = canPrecip && shouldRainHere(world, biome, posPlayer);
+		if (Weather.isLoveTropicsInstalled() && ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) isRain = true;
 		boolean isHail = weather.isHail();
+		if (Weather.isLoveTropicsInstalled() && ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.HAIL) isHail = true;
 		boolean isSnowstorm = weather.isSnowstorm();
 		boolean isSandstorm = weather.isSandstorm();
 		boolean isSnow = canPrecip && !weather.isSnowstorm() && !isHail && shouldSnowHere(world, biome, posPlayer);
@@ -572,18 +574,36 @@ public class SceneEnhancer implements Runnable {
 			isRain_DownfallSheet = false;
 		}
 
+		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
+
 		float particleStormIntensity = 0;
 		if (isSandstorm) {
-			WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
-			if (storm != null) {
-				particleStormIntensity = storm.getIntensity();
+			if (Weather.isLoveTropicsInstalled()) {
+				if (getWeatherState() == WeatherEventType.SANDSTORM) {
+					particleStormIntensity = 1;
+				}
+			} else {
+				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
+				if (storm != null) {
+					particleStormIntensity = storm.getIntensity();
+				}
 			}
 		}
 		if (isSnowstorm) {
-			WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
-			if (storm != null) {
-				particleStormIntensity = storm.getIntensity();
+			if (Weather.isLoveTropicsInstalled()) {
+				if (getWeatherState() == WeatherEventType.SNOWSTORM) {
+					particleStormIntensity = 1;
+				}
+			} else {
+				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
+				if (storm != null) {
+					particleStormIntensity = storm.getIntensity();
+				}
 			}
+		}
+
+		if (Weather.isLoveTropicsInstalled() && farSpawn) {
+			particleStormIntensity *= 0.5F;
 		}
 
 		//dev testing
@@ -880,7 +900,6 @@ public class SceneEnhancer implements Runnable {
 			int spawnAreaSize = 20;
 			double closeDistCutoff = 7D;
 			float yetAnotherRateNumber = 120 * getParticleFadeInLerpForNewWeatherState();
-			boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 			if (farSpawn) {
 				safetyCutout = 20;
 				spawnAreaSize = 100;
@@ -963,8 +982,6 @@ public class SceneEnhancer implements Runnable {
 			Minecraft client = Minecraft.getInstance();
 			Player player = client.player;
 			ClientTickHandler.getClientWeather();
-
-			boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 
 			//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
 			if (particleStormIntensity >= 0.1F) {
