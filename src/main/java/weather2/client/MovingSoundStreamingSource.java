@@ -17,11 +17,13 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 	public float cutOffRange = 128;
 	public Vec3 realSource = null;
 	public boolean lockToPlayer = false;
+	private float extraVolumeAdjForDistScale = 1F;
 
 	public MovingSoundStreamingSource(Vec3 parPos, SoundEvent event, SoundSource category, float parVolume, float parPitch, boolean lockToPlayer) {
 		super(event, category, SoundInstance.createUnseededRandom());
 		this.looping = false;
 		this.volume = parVolume;
+		this.extraVolumeAdjForDistScale = parVolume;
 		this.pitch = parPitch;
 		this.realSource = parPos;
 
@@ -36,6 +38,7 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 		super(event, category, SoundInstance.createUnseededRandom());
 		this.looping = false;
 		this.volume = parVolume;
+		this.extraVolumeAdjForDistScale = parVolume;
 		this.pitch = parPitch;
 		cutOffRange = parCutOffRange;
 		realSource = parPos;
@@ -51,6 +54,7 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 		this.storm = parStorm;
 		this.looping = false;
 		this.volume = parVolume;
+		this.extraVolumeAdjForDistScale = parVolume;
 		this.pitch = parPitch;
 		cutOffRange = parCutOffRange;
 
@@ -78,7 +82,7 @@ public class MovingSoundStreamingSource extends AbstractTickableSoundInstance {
 			if (dist > cutOffRange) {
 				volume = 0;
 			} else {
-				volume = (float) (1F - (dist / cutOffRange));
+				volume = (float) (1F - (dist / cutOffRange)) * extraVolumeAdjForDistScale;
 			}
 			//CULog.dbg("sound: " + this.location + " vol: " + volume + " cutOffRange: " + cutOffRange + " dist: " + dist);
 		}

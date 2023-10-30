@@ -155,6 +155,14 @@ public class TornadoHelper {
 	
 	public int getTornadoBaseSize() {
         int sizeChange = 10;
+
+		//special love tropics overrides
+		if (storm.isPlayerControlled()) {
+			if (storm.isBaby()) {
+				return 8;
+			}
+		}
+
 		if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE5) {
         	return sizeChange * 9;
         } else if (storm.levelCurIntensityStage >= StormObject.STATE_STAGE4) {
@@ -753,11 +761,21 @@ public class TornadoHelper {
         	close = 200;
         }
         Vec3 plPos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
+
+		float quietTornadoTweak = 1F;
+		float quietAmbientTweak = 1F;
+		if (Weather.isLoveTropicsInstalled()) {
+			if (storm.isPlayerControlled()) {
+				quietTornadoTweak = 0.25F;
+				quietAmbientTweak = 0.1F;
+			}
+			close = 7;
+		}
         
         double distToPlayer = this.storm.posGround.distanceTo(plPos);
         
-        float volScaleFar = (float) ((far - distToPlayer/*this.getDistanceToEntity(mc.player)*/) / far);
-        float volScaleClose = (float) ((close - distToPlayer/*this.getDistanceToEntity(mc.player)*/) / close);
+        float volScaleFar = (float) ((far - distToPlayer) / far);
+        float volScaleClose = (float) ((close - distToPlayer) / close);
 
         if (volScaleFar < 0F)
         {
@@ -771,17 +789,7 @@ public class TornadoHelper {
 
         if (distToPlayer < close)
         {
-            if (!lastTickPlayerClose)
-            {
-                /*this.soundTimer[0] = System.currentTimeMillis();
-                this.soundTimer[1] = System.currentTimeMillis();
-                tryPlaySound(snd_dmg_close, 0, mc.player, volScaleClose);
-                tryPlaySound(snd_wind_close, 1, mc.player, volScaleClose);*/
-            }
-
             lastTickPlayerClose = true;
-            //tryPlaySound(snd_dmg_close[0], 0);
-            //tryPlaySound(snd_dmg_close[0], 0);
         }
         else
         {
@@ -796,22 +804,13 @@ public class TornadoHelper {
 							new Vec3(mc.player.getPosition(1).x()+0.5F, mc.player.getPosition(1).y()+0.5F, mc.player.getPosition(1).z()+0.5F));
 				}
 				if (isOutsideCached) {
-					tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, volScaleFar, far);
+					tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, volScaleFar * quietAmbientTweak, far);
 				}
-			}
-            //tryPlaySound(snd_dmg_close[0], 0);
-            //tryPlaySound(snd_dmg_close[0], 0);
-
-			float quietTornadoTweak = 1F;
-			if (Weather.isLoveTropicsInstalled()) {
-				/*quietTornadoTweak = 0.01F;
-				quietTornadoTweak = 0.0F;*/
-				close = 7;
 			}
 
             if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, volScaleClose * quietTornadoTweak, close);
 
-            if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND/*getStorm().type == getStorm().TYPE_TORNADO*/)
+            if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND)
             {
                 tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, volScaleClose * quietTornadoTweak, close);
             }
@@ -820,23 +819,12 @@ public class TornadoHelper {
 
     public boolean tryPlaySound(String[] sound, int arrIndex, Entity source, float vol, float parCutOffRange)
     {
-        Entity soundTarget = source;
-
         Random rand = new Random();
-        
-        // should i?
-        //soundTarget = this;
+
         if (WeatherUtilSound.soundTimer[arrIndex] <= System.currentTimeMillis())
         {
-
-			//CULog.dbg("sound: " + sound[0] + " vol: " + vol + " parCutOffRange: " + parCutOffRange);
-            //world.playSoundAtEntity(soundTarget, new StringBuilder().append("tornado."+sound).toString(), 1.0F, 1.0F);
-            //((IWorldAccess)this.worldAccesses.get(var5)).playSound(var2, var1.posX, var1.posY - (double)var1.yOffset, var1.posZ, var3, var4);
-        	/*WeatherUtilSound.soundID[arrIndex] = */WeatherUtilSound.playMovingSound(storm, new StringBuilder().append("streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
-            //this.soundID[arrIndex] = mod_EntMover.getLastSoundID();
-            //System.out.println(new StringBuilder().append("tornado."+sound[snd_rand[arrIndex]]).toString());
-            //System.out.println(soundToLength.get(sound[snd_rand[arrIndex]]));
-            int length = (Integer)WeatherUtilSound.soundToLength.get(sound[WeatherUtilSound.snd_rand[arrIndex]]);
+        	WeatherUtilSound.playMovingSound(storm, new StringBuilder().append("streaming." + sound[WeatherUtilSound.snd_rand[arrIndex]]).toString(), vol, 1.0F, parCutOffRange);
+            int length = WeatherUtilSound.soundToLength.get(sound[WeatherUtilSound.snd_rand[arrIndex]]);
             //-500L, for blending
             WeatherUtilSound.soundTimer[arrIndex] = System.currentTimeMillis() + length - 500L;
             WeatherUtilSound.snd_rand[arrIndex] = rand.nextInt(3);

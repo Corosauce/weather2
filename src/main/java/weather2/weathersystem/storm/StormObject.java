@@ -633,6 +633,7 @@ public class StormObject extends WeatherObject {
 		if (isPet()) {
 			activeTornadoConfig = new ActiveTornadoConfig()
 					.setHeight(1.7F)
+					//this is overwritten in TornadoFunnelSimple
 					.setRadiusOfBase(0.5F)
 					.setSpinSpeed(360F / 20F)
 					.setRadiusIncreasePerLayer(0.02F)
@@ -642,6 +643,7 @@ public class StormObject extends WeatherObject {
 		} else if (isBaby()) {
 			activeTornadoConfig = new ActiveTornadoConfig()
 					.setHeight(20)
+					//this is overwritten in TornadoFunnelSimple
 					.setRadiusOfBase(5F + 0F)
 					.setSpinSpeed(360F / 20F)
 					.setRadiusIncreasePerLayer(0.2F)
@@ -650,6 +652,7 @@ public class StormObject extends WeatherObject {
 		} else {
 			activeTornadoConfig = new ActiveTornadoConfig()
 					.setHeight(150)
+					//this is overwritten in TornadoFunnelSimple
 					.setRadiusOfBase(5F + 5F)
 					.setSpinSpeed(360F / 20F)
 					.setRadiusIncreasePerLayer(0.2F)
@@ -2477,7 +2480,6 @@ public class StormObject extends WeatherObject {
 		angle += ConfigTornado.Storm_Tornado_extraGrabAngle;
 		if (pet) angle += 50;
 
-		//TODO: test for particle cubes
 		if (forCube) {
 			angle += 20;
 		}
@@ -2488,6 +2490,7 @@ public class StormObject extends WeatherObject {
 		//amp from new size here?
 		if (baby) heightMathMax = 15;
 		if (pet) heightMathMax = 4;
+		if (playerControlled) heightMathMax = 40;
 		//double heightMathMax = tornadoFunnelSimple.getConfig().getHeight();
 		double heightAmp = (heightMathMax - entHeightFromBase) / heightMathMax;
 		//CULog.dbg("heightAmp: " + heightAmp);

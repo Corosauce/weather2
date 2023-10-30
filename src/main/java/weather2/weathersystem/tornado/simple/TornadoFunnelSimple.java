@@ -222,7 +222,12 @@ public class TornadoFunnelSimple {
             }
             //cleanupList(listLayer, (int)particlesPerLayer);
 
-            while (listLayer.size() < particlesPerLayer && i >= 6) {
+            int firstLayerForParticles = 6;
+            if (stormObject.isBaby()) {
+                firstLayerForParticles = 0;
+            }
+
+            while (listLayer.size() < particlesPerLayer && i >= firstLayerForParticles) {
                 PivotingParticle particle = createParticle((ClientLevel) level, pos.x, pos.y, pos.z);
                 particle.spawnAsWeatherEffect();
                 listLayer.add(particle);
@@ -314,7 +319,7 @@ public class TornadoFunnelSimple {
 
             //int particlesPerLayerDynamic = stormObject.getAgeSinceTornadoTouchdown()/20;
 
-            if (i <= layersWithDebris && i >= 7) {
+            if (i <= layersWithDebris && i >= firstLayerForParticles + 1) {
                 while (listLayerExtra.size() < particlesPerLayer) {
                     PivotingParticle particle = createParticleDebris((ClientLevel) level, pos.x, pos.y, pos.z);
                     particle.spawnAsWeatherEffect();
