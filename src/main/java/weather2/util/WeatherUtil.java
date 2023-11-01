@@ -38,15 +38,19 @@ public class WeatherUtil {
         listGrabBlockTags.clear();
         listGrabBlockCache.clear();
 
-        String[] splEnts = grabListStr.split(",");
+        try {
+            String[] splEnts = grabListStr.split(",");
 
-        for (String str : splEnts) {
-            str = str.trim();
-            if (str.contains("#")) {
-                listGrabBlockTags.add(addNamespaceIfMissing(str.substring(1)));
-            } else {
-                listGrabBlocks.add(addNamespaceIfMissing(str));
+            for (String str : splEnts) {
+                str = str.trim();
+                if (str.contains("#")) {
+                    listGrabBlockTags.add(addNamespaceIfMissing(str.substring(1)));
+                } else {
+                    listGrabBlocks.add(addNamespaceIfMissing(str));
+                }
             }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            ex.printStackTrace();
         }
     }
 
