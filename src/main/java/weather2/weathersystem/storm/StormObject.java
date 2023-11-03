@@ -672,7 +672,11 @@ public class StormObject extends WeatherObject {
 		//System.out.println("1gametime: " + manager.getWorld().getGameTime());
 		
 		//adjust posGround to be pos with the ground Y pos for convinient usage
-		posGround = new Vec3(pos.x, currentTopYBlock, pos.z);
+		if (!playerControlled) {
+			posGround = new Vec3(pos.x, currentTopYBlock, pos.z);
+		} else {
+			posGround = new Vec3(pos.x, pos.y, pos.z);
+		}
 		
 		LogicalSide side = EffectiveSide.get();
 		if (side == LogicalSide.CLIENT) {
@@ -831,7 +835,10 @@ public class StormObject extends WeatherObject {
 			Player entP = getPlayer();
 			if (entP != null) {
 				if (!isPet()) {
-					aimStormAtClosestOrProvidedPlayer(entP);
+					//aimStormAtClosestOrProvidedPlayer(entP);
+
+					this.pos = new Vec3(entP.position().x, entP.position().y, entP.position().z);
+					this.posGround = new Vec3(entP.position().x, entP.position().y, entP.position().z);
 				} else {
 					distToTarget = entP.position().distanceTo(posGround);
 					if (distToTarget > 5F) {
@@ -2057,7 +2064,7 @@ public class StormObject extends WeatherObject {
 
 					double speedXZ = Math.sqrt(ent.getMotionX() * ent.getMotionX() + ent.getMotionY() * ent.getMotionY() + ent.getMotionZ() * ent.getMotionZ());
 					if (speedXZ < 30) {
-						Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.91F, ent instanceof ParticleCube);
+						Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.91F, 1F, ent instanceof ParticleCube, 0);
 						//Vec3 motion = spinObject(ent.getPos(), new Vec3(ent.getMotionX(), ent.getMotionY(), ent.getMotionZ()), false, 0.85F);
 						float damp = 1F;
 						damp = ent.getWindWeight() / 5F;
@@ -2414,7 +2421,26 @@ public class StormObject extends WeatherObject {
 				}
 			}
 		} else {
-			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, 1F, false));
+			float dampenY = 1F;
+			float dampenXZ = 1F;
+			float grabAdj = 0F;
+			if (entity instanceof Player) {
+				if (((Player) entity).getMainHandItem().getItem().toString().contains("acid_repellent_umbrella") ||
+						((Player) entity).getOffhandItem().getItem().toString().contains("acid_repellent_umbrella")) {
+					dampenY = 0.8F;
+					dampenXZ = 1.4F;
+					grabAdj -= 20;
+				}
+
+				float weightAdj = WeatherUtilEntity.getWeightAdjFromEquipment(1F, (Player) entity);
+
+				dampenY /= weightAdj;
+				dampenXZ /= weightAdj;
+			}
+
+
+
+			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, dampenXZ, dampenY, false, grabAdj));
 
 			entity.fallDistance = 0;
 			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
@@ -2459,7 +2485,7 @@ public class StormObject extends WeatherObject {
 		return posCenter;
 	}
 
-	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ, boolean forCube) {
+	public Vec3 spinObject(Vec3 position, Vec3 motion, boolean forPlayer, float dampenXZ, float dampenY, boolean forCube, float grabAdj) {
 		Vec3 posCenter = getFunnelCenter(position);
 
 		double vecx = posCenter.x - position.x;
@@ -2483,6 +2509,8 @@ public class StormObject extends WeatherObject {
 		if (forCube) {
 			angle += 20;
 		}
+
+		angle += grabAdj;
 
 		double entHeightFromBase = Math.max(0.1F, position.y - posBaseFormationPos.y);
 		double heightMathMax = 50 * 2.5;
@@ -2531,7 +2559,7 @@ public class StormObject extends WeatherObject {
 			yy = 0;
 		}
 
-		return new Vec3(motion.x + (xx * dampenXZ), motion.y + yy, motion.z + (zz * dampenXZ));
+		return new Vec3(motion.x + (xx * dampenXZ), motion.y + (yy * dampenY), motion.z + (zz * dampenXZ));
 	}
 	
 	public void spinEntity(Object entity1) {

@@ -13,6 +13,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -21,6 +25,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+
+import java.util.HashMap;
 
 public class WeatherUtilEntity {
 	
@@ -82,7 +88,34 @@ public class WeatherUtilEntity {
         return 1F;
     }
 
+	public static HashMap<Item, Float> armorToWeight = new HashMap<>();
 
+	static {
+		armorToWeight.put(Items.IRON_HELMET, 0.1F);
+		armorToWeight.put(Items.IRON_CHESTPLATE, 0.2F);
+		armorToWeight.put(Items.IRON_LEGGINGS, 0.15F);
+		armorToWeight.put(Items.IRON_BOOTS, 0.1F);
+
+		armorToWeight.put(Items.GOLDEN_HELMET, 0.1F);
+		armorToWeight.put(Items.GOLDEN_CHESTPLATE, 0.2F);
+		armorToWeight.put(Items.GOLDEN_LEGGINGS, 0.15F);
+		armorToWeight.put(Items.GOLDEN_BOOTS, 0.1F);
+
+		armorToWeight.put(Items.DIAMOND_HELMET, 0.1F);
+		armorToWeight.put(Items.DIAMOND_CHESTPLATE, 0.2F);
+		armorToWeight.put(Items.DIAMOND_LEGGINGS, 0.15F);
+		armorToWeight.put(Items.DIAMOND_BOOTS, 0.1F);
+	}
+
+	public static float getWeightAdjFromEquipment(float weightIn, Player player) {
+		float influence = 1.3F;
+		for (ItemStack stack : player.getArmorSlots()) {
+			if (armorToWeight.containsKey(stack.getItem())) {
+				weightIn += armorToWeight.get(stack.getItem()) * influence;
+			}
+		}
+		return weightIn;
+	}
 
 	public static float getWeight(Object entity1)
 	{
@@ -214,5 +247,15 @@ public class WeatherUtilEntity {
 		int y = Mth.floor(player.getY() + player.getEyeHeight());
 		int z = Mth.floor(player.getZ());
 		return player.level().getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) > y;
+	}
+
+	public static boolean canPosSeePos(Level level, Vec3 pos1, Vec3 pos2) {
+		Vec3 vec3 = new Vec3(pos1.x(), pos1.y(), pos1.z());
+		Vec3 vec31 = new Vec3(pos2.x(), pos2.y(), pos2.z());
+		if (vec31.distanceTo(vec3) > 128.0D) {
+			return false;
+		} else {
+			return level.clip(new ClipContext(vec3, vec31, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null)).getType() == HitResult.Type.MISS;
+		}
 	}
 }

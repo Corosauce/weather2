@@ -204,7 +204,7 @@ public class WeatherCommand {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_STAGE1);
 
 									stormObject.setupPlayerControlledTornado(c.getSource().getEntity());
-									stormObject.setPlayerControlledTimeLeft(800);
+									stormObject.setPlayerControlledTimeLeft(600);
 
 									c.getSource().sendSuccess(() -> Component.literal("Summoned player tornado"), true);
 									return Command.SINGLE_SUCCESS;

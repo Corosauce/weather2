@@ -691,7 +691,7 @@ public class TornadoHelper {
 									//dont waste cpu on server side doing LOS checks, since player movement is client side only, in all situations ive seen
 									//actually we need to still change its motion var, otherwise weird things happen
 									//if (entity1.world.isClientSide()) {
-									if (WeatherUtilEntity.isEntityOutside(entity1)) {
+									if (WeatherUtilEntity.isEntityOutside(entity1) || (storm.isPlayerControlled() && WeatherUtilEntity.canPosSeePos(parWorld, entity1.position(), storm.posGround))) {
 										//Weather.dbg("entity1.motionY: " + entity1.motionY);
 										if (featherFallInstead) {
 											((Player) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 600, 0, false, true, true));
@@ -700,7 +700,7 @@ public class TornadoHelper {
 										}
 										foundEnt = true;
 									}
-								} else if ((entity1 instanceof LivingEntity) && WeatherUtilEntity.isEntityOutside(entity1, false)) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
+								} else if (entity1 instanceof LivingEntity && (WeatherUtilEntity.isEntityOutside(entity1, false) || (storm.isPlayerControlled() && WeatherUtilEntity.canPosSeePos(parWorld, entity1.position(), storm.posGround)))) {//OldUtil.canVecSeeCoords(parWorld, storm.pos, entity1.posX, entity1.posY, entity1.posZ)/*OldUtil.canEntSeeCoords(entity1, entity.posX, entity.posY + 80, entity.posZ)*/) {
 									//trying only server side to fix warp back issue (which might mean client and server are mismatching for some rules)
 									//if (!entity1.world.isClientSide()) {
 									if (featherFallInstead) {
