@@ -2424,10 +2424,15 @@ public class StormObject extends WeatherObject {
 			float dampenY = 1F;
 			float dampenXZ = 1F;
 			float grabAdj = 0F;
+
+			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
+
 			if (entity instanceof Player) {
 				if (((Player) entity).getMainHandItem().getItem().toString().contains("acid_repellent_umbrella") ||
 						((Player) entity).getOffhandItem().getItem().toString().contains("acid_repellent_umbrella")) {
-					dampenY = 0.8F;
+					if (entHeightFromBase > 80) {
+						dampenY = 0.7F;
+					}
 					dampenXZ = 1.4F;
 					grabAdj -= 20;
 				}
@@ -2443,7 +2448,6 @@ public class StormObject extends WeatherObject {
 			entity.setDeltaMovement(spinObject(entity.position(), entity.getDeltaMovement(), entity instanceof Player, dampenXZ, dampenY, false, grabAdj));
 
 			entity.fallDistance = 0;
-			double entHeightFromBase = Math.max(0.1F, entity.getY() - posBaseFormationPos.y);
 
 			if (isFirenado) {
 				Vec3 posEnt = entity.position();

@@ -108,7 +108,7 @@ public class WeatherUtilEntity {
 	}
 
 	public static float getWeightAdjFromEquipment(float weightIn, Player player) {
-		float influence = 1.3F;
+		float influence = 1.2F;
 		for (ItemStack stack : player.getArmorSlots()) {
 			if (armorToWeight.containsKey(stack.getItem())) {
 				weightIn += armorToWeight.get(stack.getItem()) * influence;
