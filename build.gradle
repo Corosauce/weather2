@@ -149,6 +149,20 @@ mixin {
     config 'weather2.mixins.json'
 }
 
+configurations {
+    modImpl
+    implementation.extendsFrom(modImpl)
+    testImplementation.extendsFrom(modImpl)
+
+    modRuntime
+    runtimeOnly.extendsFrom(modRuntime)
+    testRuntimeOnly.extendsFrom(modRuntime)
+
+    modCompile
+    compileOnly.extendsFrom(modCompile)
+    testCompileOnly.extendsFrom(modCompile)
+}
+
 repositories {
     // Put repositories for dependencies here
     // ForgeGradle automatically adds the Forge maven and Maven Central for you
@@ -177,9 +191,13 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
     implementation fg.deobf('com.lovetropics.ltweather:ltweather:1.20.1-1.0')
     implementation fg.deobf('com.lovetropics.minigames:LTMinigames:0.1.0-alpha+custom')
-    implementation fg.deobf('maven.modrinth:tropicraft:9.6.1-1.20.1')
-    jarJar(implementation(fg.deobf("com.tterrag.registrate:Registrate:MC1.20-${registrate_version}"))) {
+    modImpl fg.deobf('maven.modrinth:tropicraft:9.6.1-1.20.1')
+    //implementation fg.deobf("com.tterrag.registrate:Registrate:MC1.20-${registrate_version}")
+    /*jarJar(implementation(fg.deobf("com.tterrag.registrate:Registrate:MC1.20-${registrate_version}"))) {
         jarJar.ranged(it, "[MC1.20-${registrate_version},MC1.21)")
+    }*/
+    jarJar(modCompile(fg.deobf("com.tterrag.registrate:Registrate:$registrate_version"))) {
+        jarJar.ranged(it, "[$registrate_version,MC1.21)")
     }
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
@@ -252,6 +270,20 @@ publishing {
             url "file://${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+tasks.named('jarJar').configure {
+    archiveClassifier = ''
+    finalizedBy 'reobfJarJar'
+}
+
+reobf {
+    jarJar { }
+}
+
+task sourceJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.java
 }
 
 tasks.withType(JavaCompile).configureEach {

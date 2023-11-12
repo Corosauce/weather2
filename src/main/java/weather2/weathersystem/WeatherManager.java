@@ -34,7 +34,7 @@ public abstract class WeatherManager implements IWorldData {
 	public boolean isVanillaThunderActiveOnServer = false;
 	public int vanillaRainTimeOnServer = 0;
 
-	private HashSet<Long> listWeatherBlockDamageDeflector = new HashSet<>();
+	private HashMap<Long, BlockPos> listWeatherBlockDamageDeflector = new HashMap<>();
 
 	public WeatherManager(ResourceKey<Level> dimension) {
 		this.dimension = dimension;
@@ -452,11 +452,15 @@ public abstract class WeatherManager implements IWorldData {
 		return this.wind;
 	}
 
-	public HashSet<Long> getListWeatherBlockDamageDeflector() {
+	public HashMap<Long, BlockPos> getListWeatherBlockDamageDeflector() {
 		return listWeatherBlockDamageDeflector;
 	}
 
-	public void setListWeatherBlockDamageDeflector(HashSet<Long> listWeatherBlockDamageDeflector) {
-		this.listWeatherBlockDamageDeflector = listWeatherBlockDamageDeflector;
+	public void registerDeflector(BlockPos pos) {
+		long hash = BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ());
+		if (this.listWeatherBlockDamageDeflector.containsKey(hash)) {
+			this.listWeatherBlockDamageDeflector.put(hash, pos);
+		}
 	}
+
 }

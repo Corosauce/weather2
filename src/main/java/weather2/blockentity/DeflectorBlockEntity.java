@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import weather2.ServerTickHandler;
 import weather2.WeatherBlocks;
 
 public class DeflectorBlockEntity extends BlockEntity {
@@ -31,7 +32,7 @@ public class DeflectorBlockEntity extends BlockEntity {
         if (!level.isClientSide()) {
             CULog.dbg("adding weather deflector poi at " + getBlockPos());
             //TODO: 1.20
-            //((ServerLevel)level).getPoiManager().add(getBlockPos(), () -> WeatherBlocks.POI_DEFLECTOR);
+            ServerTickHandler.getWeatherManagerFor(level).registerDeflector(getBlockPos());
         }
     }
 }

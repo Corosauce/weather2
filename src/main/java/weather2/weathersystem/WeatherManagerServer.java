@@ -249,8 +249,28 @@ public class WeatherManagerServer extends WeatherManager {
 		}
 	}
 
+	public Optional<BlockPos> findWeatherDeflector(BlockPos pos, int range) {
+		double closestDist = Float.MAX_VALUE;
+		BlockPos closestPos = null;
+		for (Map.Entry<Long, BlockPos> entrySet : getListWeatherBlockDamageDeflector().entrySet()) {
+			double dist = pos.distSqr(entrySet.getValue());
+			if (dist < range * range) {
+				if (dist < closestDist) {
+					closestDist = dist;
+					closestPos = entrySet.getValue();
+				}
+			}
+		}
+		if (closestPos != null) {
+			return Optional.of(closestPos);
+		} else {
+			return Optional.empty();
+		}
+
+	}
+
 	//TODO: 1.20
-	/*public Optional<BlockPos> findWeatherDeflector(ServerLevel level, BlockPos p_143249_, int range) {
+	/*public Optional<BlockPos> findWeatherDeflector2(ServerLevel level, BlockPos p_143249_, int range) {
 		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) -> {
 			return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
 		}, (p_184055_) -> {

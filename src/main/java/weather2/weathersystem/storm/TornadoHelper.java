@@ -840,7 +840,7 @@ public class TornadoHelper {
 
 			isBlockGrabbingBlockedCached = false;
 
-			for (Long hash : storm.manager.getListWeatherBlockDamageDeflector()) {
+			for (Long hash : storm.manager.getListWeatherBlockDamageDeflector().keySet()) {
 				BlockPos posDeflect = BlockPos.of(hash);
 
 				if (pos.distSqr(posDeflect) < ConfigStorm.Storm_Deflector_RadiusOfStormRemoval * ConfigStorm.Storm_Deflector_RadiusOfStormRemoval) {

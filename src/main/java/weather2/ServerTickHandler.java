@@ -145,6 +145,10 @@ public class ServerTickHandler {
 		return MANAGERS.get(dimension);
 	}
 
+	public static WeatherManagerServer getWeatherManagerFor(Level level) {
+		return MANAGERS.get(level.dimension());
+	}
+
 	public static void playerClientRequestsFullSync(ServerPlayer entP) {
 		WeatherManagerServer wm = MANAGERS.get(entP.level().dimension());
 		if (wm != null) {
