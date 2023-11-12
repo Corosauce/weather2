@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:redstone"
+    },
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
+    "X": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "X X",
+    "DID",
+    "X X"
+  ],
+  "result": {
+    "item": "weather2:weather_item"
+  },
+  "show_notification": true
+}

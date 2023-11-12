@@ -31,6 +31,18 @@
     {
       "type": "minecraft:single",
       "resource": "weather2:blocks/anemometer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:items/weather_item"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:items/sand_layer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:items/sand_layer_placeable"
     }
   ]
 }

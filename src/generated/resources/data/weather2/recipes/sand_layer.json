@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:sand"
+    }
+  },
+  "pattern": [
+    "DDD",
+    "D D",
+    "DDD"
+  ],
+  "result": {
+    "count": 8,
+    "item": "weather2:sand_layer"
+  },
+  "show_notification": true
+}

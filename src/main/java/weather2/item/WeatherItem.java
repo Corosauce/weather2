@@ -6,7 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class WeatherItem extends Item {
-    public WeatherItem(Item.Properties properties, CreativeModeTab itemGroup) {
+    public WeatherItem(Item.Properties properties) {
         //TODO: 1.20
         super(properties/*.tab(itemGroup)*/);
     }

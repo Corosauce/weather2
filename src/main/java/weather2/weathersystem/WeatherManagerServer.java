@@ -399,6 +399,10 @@ public class WeatherManagerServer extends WeatherManager {
 	}
 
 	public boolean trySpawnParticleStormNearPos(Level world, Vec3 posIn, WeatherObjectParticleStorm.StormType type) {
+		return trySpawnParticleStormNearPos(world, posIn, type, false);
+	}
+
+	public boolean trySpawnParticleStormNearPos(Level world, Vec3 posIn, WeatherObjectParticleStorm.StormType type, boolean force) {
 		/**
 		 * 1. Start upwind
 		 * 2. Find random spot near there loaded and in desert
@@ -430,7 +434,7 @@ public class WeatherManagerServer extends WeatherManager {
 			//Biome biomeIn = world.m_204166_ForCoordsBody(pos);
 			Biome biomeIn = world.getBiome(pos).get();
 
-			if (WeatherObjectParticleStorm.canSpawnHere(world, pos, type, true)) {
+			if (force || WeatherObjectParticleStorm.canSpawnHere(world, pos, type, true)) {
 				//found
 				foundPos = pos;
 				//break;
@@ -491,16 +495,9 @@ public class WeatherManagerServer extends WeatherManager {
 				int minDistanceOfDesertStretchNeeded = 20;
 				double dist = posFindLastGoodUpwind.distSqr(posFindLastGoodDownwind);
 
-				if (dist >= minDistanceOfDesertStretchNeeded * minDistanceOfDesertStretchNeeded) {
+				if (force || dist >= minDistanceOfDesertStretchNeeded * minDistanceOfDesertStretchNeeded) {
 
-					WeatherObjectParticleStorm storm = new WeatherObjectParticleStorm(this);
-
-					storm.setType(type);
-					storm.initFirstTime();
-					BlockPos posSpawn = new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(world, posFindLastGoodUpwind)).above();
-					storm.initStormSpawn(new Vec3(posSpawn.getX(), posSpawn.getY(), posSpawn.getZ()));
-					addStormObject(storm);
-					syncStormNew(storm);
+					spawnParticleStorm(posFindLastGoodUpwind, type);
 
 					Weather.dbg("found decent spot and stretch for particle storm, stretch: " + dist + ", type: " + type);
 					return true;
@@ -510,13 +507,17 @@ public class WeatherManagerServer extends WeatherManager {
 
 		Weather.dbg("couldnt spawn particle storm");
 		return false;
+	}
 
-		/*if (foundPos != null) {
+	public void spawnParticleStorm(BlockPos pos, WeatherObjectParticleStorm.StormType type) {
+		WeatherObjectParticleStorm storm = new WeatherObjectParticleStorm(this);
 
-		} else {
-			System.out.println("couldnt spawn sandstorm");
-			return false;
-		}*/
+		storm.setType(type);
+		storm.initFirstTime();
+		BlockPos posSpawn = new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(world, pos)).above();
+		storm.initStormSpawn(new Vec3(posSpawn.getX(), posSpawn.getY(), posSpawn.getZ()));
+		addStormObject(storm);
+		syncStormNew(storm);
 	}
 
 	public void trySpawnStormCloudNearPlayerForLayer(Player entP, int layer) {

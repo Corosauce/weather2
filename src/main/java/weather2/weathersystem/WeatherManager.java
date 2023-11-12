@@ -458,9 +458,14 @@ public abstract class WeatherManager implements IWorldData {
 
 	public void registerDeflector(BlockPos pos) {
 		long hash = BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ());
-		if (this.listWeatherBlockDamageDeflector.containsKey(hash)) {
+		if (!this.listWeatherBlockDamageDeflector.containsKey(hash)) {
 			this.listWeatherBlockDamageDeflector.put(hash, pos);
 		}
+	}
+
+	public void removeDeflector(BlockPos pos) {
+		long hash = BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ());
+		this.listWeatherBlockDamageDeflector.remove(hash);
 	}
 
 }

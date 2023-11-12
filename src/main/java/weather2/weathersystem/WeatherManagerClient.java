@@ -168,6 +168,7 @@ public class WeatherManagerClient extends WeatherManager {
 							posY + (rand.nextFloat() - rand.nextFloat()) * randRange,
 							posZ + (rand.nextFloat() - rand.nextFloat()) * randRange,
 							0D, 0D, 0D, state);
+					SceneEnhancer.checkParticleBehavior();
 					SceneEnhancer.particleBehavior.initParticleCube(hail);
 					storm.listParticlesDebris.add(hail);
 

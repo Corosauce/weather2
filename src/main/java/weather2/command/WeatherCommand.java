@@ -284,6 +284,28 @@ public class WeatherCommand {
 
 									return Command.SINGLE_SUCCESS;
 								}))
+								.then(literal("sandstorm_force").executes(c -> {
+
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+
+									wm.spawnParticleStorm(CoroUtilBlock.blockPos(c.getSource().getPosition()), WeatherObjectParticleStorm.StormType.SANDSTORM);
+									wm.getWindManager().stopLowWindEvent();
+									wm.getWindManager().startHighWindEvent();
+									c.getSource().sendSuccess(() -> Component.literal("Summoned sandstorm"), true);
+
+									return Command.SINGLE_SUCCESS;
+								}))
+								.then(literal("snowstorm_force").executes(c -> {
+
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+
+									wm.spawnParticleStorm(CoroUtilBlock.blockPos(c.getSource().getPosition()), WeatherObjectParticleStorm.StormType.SNOWSTORM);
+									wm.getWindManager().stopLowWindEvent();
+									wm.getWindManager().startHighWindEvent();
+									c.getSource().sendSuccess(() -> Component.literal("Summoned snowstorm"), true);
+
+									return Command.SINGLE_SUCCESS;
+								}))
 
 						)
 		);

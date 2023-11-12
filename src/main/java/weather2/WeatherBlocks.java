@@ -16,7 +16,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import weather2.block.*;
 import weather2.blockentity.DeflectorBlockEntity;
+import weather2.blockentity.SensorBlockEntity;
 import weather2.blockentity.SirenBlockEntity;
+import weather2.item.WeatherItem;
 
 @Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WeatherBlocks {
@@ -42,16 +44,9 @@ public class WeatherBlocks {
     public static final RegistryObject<SandLayerBlock> BLOCK_SAND_LAYER = BLOCKS.register(SAND_LAYER, () -> new SandLayerBlock(BlockBehaviour.Properties.of().mapColor(MapColor.SAND).randomTicks().strength(0.1F).requiresCorrectToolForDrops().sound(SoundType.SAND)));
     public static final RegistryObject<DeflectorBlock> BLOCK_DEFLECTOR = BLOCKS.register(DEFLECTOR, () -> new DeflectorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<ForecastBlock> BLOCK_FORECAST = BLOCKS.register(WEATHER_FORECAST, () -> new ForecastBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
-    //public static final RegistryObject<SensorBlock> BLOCK_TORNADO_SENSOR = BLOCKS.register(TORNADO_SENSOR, () -> new SensorBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+    public static final RegistryObject<SensorBlock> BLOCK_TORNADO_SENSOR = BLOCKS.register(TORNADO_SENSOR, () -> new SensorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<SirenBlock> BLOCK_TORNADO_SIREN = BLOCKS.register(TORNADO_SIREN, () -> new SirenBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     //public static final RegistryObject<WeatherMachineBlock> BLOCK_WEATHER_MACHINE = BLOCKS.register(WEATHER_MACHINE, () -> new WeatherMachineBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
-
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Weather.MODID);
-    //TODO: 1.20 tabs
-    public static final RegistryObject<BlockItem> BLOCK_DEFLECTOR_ITEM = ITEMS.register(DEFLECTOR, () -> new BlockItem(BLOCK_DEFLECTOR.get(), new Item.Properties()/*.tab(Weather.CREATIVE_TAB)*/));
-    public static final RegistryObject<BlockItem> BLOCK_TORNADO_SIREN_ITEM = ITEMS.register(TORNADO_SIREN, () -> new BlockItem(BLOCK_TORNADO_SIREN.get(), new Item.Properties()/*.tab(Weather.CREATIVE_TAB)*/));
-    public static final RegistryObject<BlockItem> BLOCK_SAND_LAYER_ITEM = ITEMS.register(SAND_LAYER, () -> new BlockItem(BLOCK_SAND_LAYER.get(), new Item.Properties()/*.tab(Weather.CREATIVE_TAB)*/));
-    public static final RegistryObject<BlockItem> BLOCK_FORECAST_ITEM = ITEMS.register(WEATHER_FORECAST, () -> new BlockItem(BLOCK_FORECAST.get(), new Item.Properties()/*.tab(Weather.CREATIVE_TAB)*/));
 
     @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<BlockEntityType<DeflectorBlockEntity>> BLOCK_ENTITY_DEFLECTOR = BLOCK_ENTITIES.register(DEFLECTOR, () ->
@@ -61,26 +56,15 @@ public class WeatherBlocks {
     public static final RegistryObject<BlockEntityType<SirenBlockEntity>> BLOCK_ENTITY_TORNADO_SIREN = BLOCK_ENTITIES.register(TORNADO_SIREN, () ->
             BlockEntityType.Builder.of(SirenBlockEntity::new, BLOCK_TORNADO_SIREN.get()).build(null));
 
-    /*public static final RegistryObject<BlockEntityType<DeflectorBlockEntity>> BLOCK_ENTITY_TORNADO_SENSOR = BLOCK_ENTITIES.register(TORNADO_SENSOR, () ->
-            BlockEntityType.Builder.of(DeflectorBlockEntity::new, BLOCK_TORNADO_SENSOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<SensorBlockEntity>> BLOCK_ENTITY_TORNADO_SENSOR = BLOCK_ENTITIES.register(TORNADO_SENSOR, () ->
+            BlockEntityType.Builder.of(SensorBlockEntity::new, BLOCK_TORNADO_SENSOR.get()).build(null));
 
-    public static final RegistryObject<BlockEntityType<WeatherMachineBlockEntity>> BLOCK_ENTITY_WEATHER_MACHINE = BLOCK_ENTITIES.register(WEATHER_MACHINE, () ->
+    /*public static final RegistryObject<BlockEntityType<WeatherMachineBlockEntity>> BLOCK_ENTITY_WEATHER_MACHINE = BLOCK_ENTITIES.register(WEATHER_MACHINE, () ->
             BlockEntityType.Builder.of(WeatherMachineBlockEntity::new, BLOCK_WEATHER_MACHINE.get()).build(null));*/
-
-    public static PoiType POI_DEFLECTOR;
 
     public static void registerHandlers(IEventBus modBus) {
         BLOCKS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
-        ITEMS.register(modBus);
-    }/*
-
-    //TODO: 1.20
-    @SubscribeEvent
-    public static void registerBlocks(final RegistryEvent.Register<PoiType> event) {
-        String registryName = Weather.MODID + ":" + DEFLECTOR;
-        POI_DEFLECTOR = (new PoiType(registryName, PoiType.getBlockStates(BLOCK_DEFLECTOR.get()), 0, 1)).setRegistryName(registryName);
-        event.getRegistry().register(POI_DEFLECTOR);
-    }*/
+    }
 
 }

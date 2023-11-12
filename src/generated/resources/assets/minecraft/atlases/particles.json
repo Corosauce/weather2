@@ -6,19 +6,11 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "coroutil:particles/smoke_00"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "coroutil:particles/cloud256"
     },
     {
       "type": "minecraft:single",
       "resource": "coroutil:particles/cloud256_fire"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/cloud256_test"
     },
     {
       "type": "minecraft:single",
@@ -39,14 +31,6 @@
     {
       "type": "minecraft:single",
       "resource": "coroutil:particles/leaf"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/test_texture"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/white_square"
     },
     {
       "type": "minecraft:single",
@@ -74,27 +58,7 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "coroutil:particles/grass"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "coroutil:particles/hail"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/cloud"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/cloud_square"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/white16"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "coroutil:particles/white64"
     }
   ]
 }

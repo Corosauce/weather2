@@ -181,9 +181,7 @@ public class SceneEnhancer implements Runnable {
 			getFogAdjuster().tickGame(weather);
 			//tickHeatwave(weather);
 
-			if (particleBehavior == null) {
-				particleBehavior = new ParticleBehaviorSandstorm(null);
-			}
+			checkParticleBehavior();
 			particleBehavior.tickUpdateList();
 
 			if (client.player != null && client.level != null && client.level.getGameTime() % 10 == 0) {
@@ -1669,4 +1667,11 @@ public class SceneEnhancer implements Runnable {
 	public static boolean shouldSnowHere(Level level, Biome biome, BlockPos pos) {
 		return CoroUtilCompatibility.coldEnoughToSnow(biome, pos, level);
 	}
+
+	public static void checkParticleBehavior() {
+		if (particleBehavior == null) {
+			particleBehavior = new ParticleBehaviorSandstorm(null);
+		}
+	}
 }
+
