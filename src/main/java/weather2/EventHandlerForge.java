@@ -2,6 +2,7 @@ package weather2;
 
 import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilCompatibility;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -33,6 +34,8 @@ public class EventHandlerForge {
     {
 		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
 			ClientTickHandler.getClientWeather();
+		} else if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+			ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick(), event.getFrustum());
 		}
     }
 

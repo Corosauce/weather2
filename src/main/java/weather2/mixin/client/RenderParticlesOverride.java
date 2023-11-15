@@ -17,15 +17,15 @@ import javax.annotation.Nullable;
 @Mixin(LevelRenderer.class)
 public abstract class RenderParticlesOverride {
 
-    @Redirect(method = "renderLevel",
+    //replaced by RenderLevelStageEvent.Stage.AFTER_PARTICLES
+    /*@Redirect(method = "renderLevel",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/particle/ParticleEngine;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V"))
     public void render(ParticleEngine particleManager, PoseStack matrixStackIn, MultiBufferSource.BufferSource bufferIn, LightTexture lightTextureIn, Camera activeRenderInfoIn, float partialTicks, @Nullable net.minecraft.client.renderer.culling.Frustum clippingHelper) {
-        //CULog.dbg("ParticleEngine render hook");
         ClientTickHandler.particleManagerExtended().render(matrixStackIn, bufferIn, lightTextureIn, activeRenderInfoIn, partialTicks, clippingHelper);
         particleManager.render(matrixStackIn, bufferIn, lightTextureIn, activeRenderInfoIn, partialTicks, clippingHelper);
 
-    }
+    }*/
 
     @Redirect(method = "renderLevel",
             at = @At(value = "INVOKE",
