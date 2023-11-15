@@ -76,6 +76,8 @@ public class Weather
                 output.accept(WeatherItems.BLOCK_DEFLECTOR_ITEM.get());
                 output.accept(WeatherItems.BLOCK_FORECAST_ITEM.get());
                 output.accept(WeatherItems.BLOCK_SAND_LAYER_ITEM.get());
+                output.accept(WeatherItems.BLOCK_ANEMOMETER_ITEM.get());
+                output.accept(WeatherItems.BLOCK_WIND_VANE_ITEM.get());
             }).build());
 
     public Weather() {
@@ -109,13 +111,14 @@ public class Weather
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigStorm()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigTornado()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigParticle()));
-        ConfigMod.addConfigFile(MODID, addConfig(new ConfigFoliage()));
+        //ConfigMod.addConfigFile(MODID, addConfig(new ConfigFoliage()));
         //WeatherUtilConfig.nbtLoadDataAll();
 
         SoundRegistry.init();
 
         if (FMLEnvironment.dist.isClient()) {
             modBus.addListener(ParticleRegistry::getRegisteredParticles);
+            modBus.addListener(ClientRegistry::registerLayerDefinitions);
         }
     }
 

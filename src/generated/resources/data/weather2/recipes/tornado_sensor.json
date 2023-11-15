@@ -6,19 +6,19 @@
       "item": "minecraft:redstone"
     },
     "I": {
-      "item": "weather2:tornado_sensor"
+      "item": "weather2:weather_item"
     },
     "X": {
       "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
-    "XDX",
+    "X X",
     "DID",
-    "XDX"
+    "X X"
   ],
   "result": {
-    "item": "weather2:tornado_siren"
+    "item": "weather2:tornado_sensor"
   },
   "show_notification": true
 }

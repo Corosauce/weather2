@@ -61,12 +61,12 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Server_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3;
 
 	@ConfigComment("For areas without the right mix of hot and cold biomes")
-	public static int Player_Storm_Deadly_OddsTo1_Land_Based = 300;
+	public static int Player_Storm_Deadly_OddsTo1_Land_Based = 1200;
 	@ConfigComment("For areas without the right mix of hot and cold biomes")
 	public static int Player_Storm_Deadly_TimeBetweenInTicks_Land_Based = 20*60*20*10; //10 mc days
-	@ConfigComment("For areas without the right mix of hot and cold biomes")
-	public static int Server_Storm_Deadly_OddsTo1_Land_Based = 300;
-	@ConfigComment("For areas without the right mix of hot and cold biomes")
+	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, for areas without the right mix of hot and cold biomes")
+	public static int Server_Storm_Deadly_OddsTo1_Land_Based = 1200;
+	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, for areas without the right mix of hot and cold biomes")
 	public static int Server_Storm_Deadly_TimeBetweenInTicks_Land_Based = 20*60*20*10; //10 mc days
 
 	public static boolean preventServerThunderstorms = true;

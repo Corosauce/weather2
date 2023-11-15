@@ -22,7 +22,6 @@ public class WeatherRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
 
-        //TODO: 1.20
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.WEATHER_ITEM.get(), 1)
                 .pattern("X X").pattern("DID").pattern("X X")
                 .define('D', Items.REDSTONE)
@@ -47,15 +46,33 @@ public class WeatherRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
                 .save(consumer);
 
-        //if (!ConfigMisc.Block_WeatherForecastNoRecipe) GameRegistry.addShapedRecipe(new ResourceLocation(Weather.modID, weather_forecast), group,
-        //				new ItemStack(blockWeatherForecast, 1), new Object[] {"XDX", "DID", "XDX", 'D', Items.REDSTONE, 'I', Items.COMPASS, 'X', itemWeatherRecipe});
-
-        //TODO: change back to orig recipe once we add sensor block
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_TORNADO_SIREN_ITEM.get(), 1)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_TORNADO_SENSOR_ITEM.get(), 1)
                 .pattern("X X").pattern("DID").pattern("X X")
                 .define('D', Items.REDSTONE)
                 .define('I', WeatherItems.WEATHER_ITEM.get())
                 .define('X', Items.IRON_INGOT)
+                .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_TORNADO_SIREN_ITEM.get(), 1)
+                .pattern("XDX").pattern("DID").pattern("XDX")
+                .define('D', Items.REDSTONE)
+                .define('I', WeatherItems.BLOCK_TORNADO_SENSOR_ITEM.get())
+                .define('X', Items.IRON_INGOT)
+                .unlockedBy("has_sensor_item", has(WeatherItems.BLOCK_TORNADO_SENSOR_ITEM.get()))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_WIND_VANE_ITEM.get(), 1)
+                .pattern("X X").pattern("DXD").pattern("X X")
+                .define('D', Items.REDSTONE)
+                .define('X', WeatherItems.WEATHER_ITEM.get())
+                .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_ANEMOMETER_ITEM.get(), 1)
+                .pattern("X X").pattern("XDX").pattern("X X")
+                .define('D', Items.REDSTONE)
+                .define('X', WeatherItems.WEATHER_ITEM.get())
                 .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
                 .save(consumer);
 

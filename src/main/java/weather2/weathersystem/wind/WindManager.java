@@ -6,12 +6,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
+import weather2.PerlinNoiseHelper;
 import weather2.ServerWeatherProxy;
 import weather2.Weather;
 import weather2.config.ConfigMisc;
@@ -67,9 +69,13 @@ public class WindManager {
 		
 		windAngleGlobal = rand.nextInt(360);
 	}
-	
+
 	public float getWindSpeed() {
-		if (windTimeEvent > 0) {
+		return getWindSpeed(null);
+	}
+	
+	public float getWindSpeed(Vec3 pos) {
+		if (windTimeEvent > 0 && (windTimeEvent > windTimeGust && windTimeEvent > windSpeedGlobal)) {
 			return windSpeedEvent;
 		} else if (windTimeGust > 0) {
 			return windSpeedGust;
@@ -170,7 +176,6 @@ public class WindManager {
 		//debug
 		//Weather.dbg("wind angle: " + windAngleGlobal);
 		//windAngleGlobal = 90;
-		//TODO: TEMP!!!
 		//indSpeedGlobal = 0.71F;
 		//windAngleGlobal = 180;
 		//lowWindOddsTo1 = 20*200;
@@ -308,7 +313,7 @@ public class WindManager {
 								windAngleGust = windAngleGlobal + rand.nextInt(120) - 60;
 							}
 
-							setWindTimeGust(rand.nextInt(windGustEventTimeRand));
+							setWindTimeGust(rand.nextInt(windGustEventTimeRand * 3));
 							//windEventTime += windTime;
 							//unneeded since priority system determines wind to use
 							//directionBeforeGust = windAngleGlobal;
@@ -357,7 +362,8 @@ public class WindManager {
 		//event data
 		if (entP != null) {
 			if (manager.getWorld().getGameTime() % 10 == 0) {
-				StormObject so = manager.getClosestStorm(new Vec3(entP.getX(), StormObject.layers.get(0), entP.getZ()), 256, StormObject.STATE_HIGHWIND);
+				float maxDist = 256;
+				StormObject so = manager.getClosestStorm(new Vec3(entP.getX(), StormObject.layers.get(0), entP.getZ()), maxDist, StormObject.STATE_HIGHWIND);
 
 				if (so != null) {
 
@@ -373,9 +379,13 @@ public class WindManager {
 					float yaw = -((float)Math.atan2(var11, var15)) * 180.0F / (float)Math.PI;
 
 					windAngleEvent = yaw;
-					windSpeedEvent = 2F; //make dynamic?
 
-					//Weather.dbg("!!!!!!!!!!!!!!!!!!!storm event near: " + stormDist);
+					double dist = entP.position().distanceTo(so.posGround);
+
+					windSpeedEvent = (float) (1F - (dist / maxDist)) * 2F; //make dynamic?
+
+					//System.out.println(windSpeedEvent);
+					//Weather.dbg("!!!!!!!!!!!!!!!!!!!storm event near, wind speed: " + windSpeedEvent);
 				}
 			}
 		}
@@ -478,11 +488,15 @@ public class WindManager {
 	 */
 	public Vec3 applyWindForceImpl(Vec3 pos, Vec3 motion, float weight, float multiplier, float maxSpeed) {
 		float windSpeed = 0;
-		/*if (pos != null && false) {
-			windSpeed = getWindSpeedPerlinNoise(pos);
-		} else {*/
+		if (pos != null && ConfigWind.Wind_UsePerlinNoise) {
+			/*if (windTimeGust > 0) {
+				windSpeed = getWindSpeedPerlinNoise(pos);
+			} else */{
+				windSpeed = (getWindSpeed() * 0.5F) + (getWindSpeedPerlinNoise(pos) * 0.5F);
+			}
+		} else {
 			windSpeed = getWindSpeed();
-		//}
+		}
     	float windAngle = getWindAngle(pos);
 
     	float windX = (float) -Math.sin(Math.toRadians(windAngle)) * windSpeed;
@@ -610,18 +624,17 @@ public class WindManager {
 		return data;
 	}
 
-	//TODO: 1.20
-	/*public float getWindSpeedPerlinNoise(Vec3 pos) {
-		PerlinNoise perlinNoise = ClientTickHandler.weatherManager.cloudManager.getPerlinNoise();
-		*//*int indexX = index % xWide;
-		int indexZ = index / xWide;*//*
-		int indexX = (int)pos.x;
-		int indexZ = (int)pos.z;
-		double scale = 5;
-		long time = Minecraft.getInstance().level.getGameTime() * 1;
+	public float getWindSpeedPerlinNoise(Vec3 pos) {
+		PerlinNoise perlinNoise = PerlinNoiseHelper.get().getPerlinNoise();
+		/*int indexX = index % xWide;
+		int indexZ = index / xWide;*/
+		int indexX = (int) Math.floor(pos.x);
+		int indexZ = (int) Math.floor(pos.z);
+		double scale = 10;
+		long time = Minecraft.getInstance().level.getGameTime() * 2;
 		double posYAdj = 0;
-		double noiseVal = perlinNoise.getValue(((indexX) * scale) + time, ((indexZ) * scale) + time, posYAdj) + 0.2F;
-		return (float) noiseVal * 2F;
-	}*/
+		double noiseVal = perlinNoise.getValue(((indexX) * scale) + time, ((indexZ) * scale) + time, posYAdj)/* + 0.2F*/;
+		return (float) Math.max(-1.5F, Math.min(1.5F, noiseVal * 4F));
+	}
 
 }

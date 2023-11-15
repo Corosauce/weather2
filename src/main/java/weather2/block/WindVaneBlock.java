@@ -18,33 +18,39 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import weather2.WeatherBlocks;
-import weather2.blockentity.SensorBlockEntity;
+import weather2.blockentity.WindVaneBlockEntity;
 
 import java.util.List;
 
-public class SensorBlock extends BaseEntityBlock {
+public class WindVaneBlock extends BaseEntityBlock {
 
-	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+	public static final VoxelShape SHAPE = box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0);
 
     public static final void register() {}
 
-	public SensorBlock(Properties properties) {
+	public WindVaneBlock(Properties properties) {
 		super(properties);
-		this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, Boolean.valueOf(false)));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-		pBuilder.add(POWERED);
+
+	}
+
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return SHAPE;
 	}
 
 	@Override
 	public RenderShape getRenderShape(BlockState p_49232_) {
-		return RenderShape.MODEL;
+		return RenderShape.INVISIBLE;
 	}
 
 	@Override
@@ -57,46 +63,18 @@ public class SensorBlock extends BaseEntityBlock {
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-		return new SensorBlockEntity(p_153215_, p_153216_);
+		return new WindVaneBlockEntity(p_153215_, p_153216_);
 	}
 
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<T> p_153214_) {
-		return createTickerHelper(p_153214_, WeatherBlocks.BLOCK_ENTITY_TORNADO_SENSOR.get(), SensorBlockEntity::tick);
+		return createTickerHelper(p_153214_, WeatherBlocks.BLOCK_ENTITY_WIND_VANE.get(), WindVaneBlockEntity::tick);
 	}
 
 	@Nullable
 	@SuppressWarnings("unchecked")
 	private static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTicker(final BlockEntityType<A> type, final BlockEntityType<E> tickerType, final BlockEntityTicker<? super E> ticker) {
 		return tickerType == type ? (BlockEntityTicker<A>) ticker : null;
-	}
-
-	@Override
-	public int getSignal(BlockState pState, BlockGetter pLevel, BlockPos pPos, Direction pDirection) {
-		return pState.getValue(POWERED) ? 15 : 0;
-	}
-
-	@Override
-	public int getDirectSignal(BlockState pBlockState, BlockGetter pBlockAccess, BlockPos pPos, Direction pSide) {
-		return pBlockState.getValue(POWERED) ? 15 : 0;
-	}
-
-	@Override
-	public boolean isSignalSource(BlockState pState) {
-		return true;
-	}
-
-	public BlockState setPoweredState(BlockState pState, Level pLevel, BlockPos pPos, boolean state) {
-		pLevel.setBlock(pPos, pState.setValue(POWERED, Boolean.valueOf(state)), 3);
-		pLevel.updateNeighborsAt(pPos, this);
-		return pState;
-	}
-
-	public BlockState toggle(BlockState pState, Level pLevel, BlockPos pPos) {
-		pState = pState.cycle(POWERED);
-		pLevel.setBlock(pPos, pState, 3);
-		pLevel.updateNeighborsAt(pPos, this);
-		return pState;
 	}
 }

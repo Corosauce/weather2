@@ -229,7 +229,8 @@ public class WeatherManagerServer extends WeatherManager {
 						}
 					} else {
                      	world.players().stream().forEach(player -> {
-							CompoundTag playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(player));
+							//CompoundTag playerNBT = PlayerData.getPlayerNBT(CoroUtilEntity.getName(player));
+							CompoundTag playerNBT = player.getPersistentData();
 							boolean sandstormMade = tryParticleStormForPlayer(player, playerNBT.getLong("lastSandstormTime"));
 							if (sandstormMade) {
 								playerNBT.putLong("lastSandstormTime", world.getGameTime());
@@ -268,18 +269,6 @@ public class WeatherManagerServer extends WeatherManager {
 		}
 
 	}
-
-	//TODO: 1.20
-	/*public Optional<BlockPos> findWeatherDeflector2(ServerLevel level, BlockPos p_143249_, int range) {
-		Optional<BlockPos> optional = level.getPoiManager().findClosest((p_184069_) -> {
-			return p_184069_ == WeatherBlocks.POI_DEFLECTOR;
-		}, (p_184055_) -> {
-			return true;//p_184055_.getY() == level.getHeight(Heightmap.Types.WORLD_SURFACE, p_184055_.getX(), p_184055_.getZ()) - 1;
-		}, p_143249_, range, PoiManager.Occupancy.ANY);
-		return optional.map((p_184053_) -> {
-			return p_184053_.above(1);
-		});
-	}*/
 
 	public void tickStormBlockBuildup(StormState stormState, Block block) {
 		Level world = getWorld();

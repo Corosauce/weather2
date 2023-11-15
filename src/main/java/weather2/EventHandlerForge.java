@@ -3,6 +3,7 @@ package weather2;
 import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilCompatibility;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +15,7 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import weather2.client.SceneEnhancer;
@@ -62,6 +64,14 @@ public class EventHandlerForge {
 		/*if (!ent.level.isClientSide && ent instanceof Player) {
 			onServerPlayerUpdate(event);
 		}*/
+	}
+
+	@SubscribeEvent
+	public void onPlayerClone(PlayerEvent.Clone event) {
+		CompoundTag tag = event.getOriginal().getPersistentData();
+		CompoundTag tag2 = event.getEntity().getPersistentData();
+		tag2.putLong("lastSandstormTime", tag.getLong("lastSandstormTime"));
+		tag2.putLong("lastStormDeadlyTime", tag.getLong("lastStormDeadlyTime"));
 	}
 
 	public void onServerPlayerUpdate(LivingEvent.LivingTickEvent event) {

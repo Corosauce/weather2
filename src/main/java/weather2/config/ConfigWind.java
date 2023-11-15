@@ -11,6 +11,7 @@ public class ConfigWind implements IConfigCategory {
     public static boolean Misc_windOn = true;
     public static boolean Wind_LowWindEvents = true;
     public static boolean Wind_HighWindEvents = true;
+    public static boolean Wind_UsePerlinNoise = false;
 
     public static int lowWindTimerEnableAmountBase = 20*60*2;
     public static int lowWindTimerEnableAmountRnd = 20*60*10;

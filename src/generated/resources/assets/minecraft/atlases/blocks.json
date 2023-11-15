@@ -34,6 +34,10 @@
     },
     {
       "type": "minecraft:single",
+      "resource": "weather2:blocks/wind_vane"
+    },
+    {
+      "type": "minecraft:single",
       "resource": "weather2:items/weather_item"
     },
     {

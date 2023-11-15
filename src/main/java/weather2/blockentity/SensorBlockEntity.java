@@ -6,6 +6,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.WeatherBlocks;
@@ -30,7 +32,7 @@ public class SensorBlockEntity extends BlockEntity {
 			WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(level);
 			if (wm != null) {
 				Vec3 pos = new Vec3(pos2.getX(), pos2.getY(), pos2.getZ());
-				StormObject so = ClientTickHandler.weatherManager.getClosestStorm(pos, ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
+				StormObject so = wm.getClosestStorm(pos, ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
 				if (so != null) {
 					entity.setPoweredState(true);
 				} else {

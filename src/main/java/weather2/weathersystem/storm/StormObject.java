@@ -1147,7 +1147,15 @@ public class StormObject extends WeatherObject {
 		if (world.getGameTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
 
 			//boolean debug = false;
-			CompoundTag playerNBT = PlayerData.getPlayerNBT(spawnerUUID);
+			Player player = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
+			CompoundTag playerNBT = null;
+			if (player != null) {
+				playerNBT = player.getPersistentData();
+			} else {
+				Weather.dbg("this should never happen aaaaaaaaaaaaaaa");
+				playerNBT = new CompoundTag();
+			}
+			//CompoundTag playerNBT = PlayerData.getPlayerNBT(spawnerUUID);
 			
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");

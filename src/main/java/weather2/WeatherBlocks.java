@@ -15,9 +15,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import weather2.block.*;
-import weather2.blockentity.DeflectorBlockEntity;
-import weather2.blockentity.SensorBlockEntity;
-import weather2.blockentity.SirenBlockEntity;
+import weather2.blockentity.*;
 import weather2.item.WeatherItem;
 
 @Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -45,6 +43,8 @@ public class WeatherBlocks {
     public static final RegistryObject<DeflectorBlock> BLOCK_DEFLECTOR = BLOCKS.register(DEFLECTOR, () -> new DeflectorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<ForecastBlock> BLOCK_FORECAST = BLOCKS.register(WEATHER_FORECAST, () -> new ForecastBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<SensorBlock> BLOCK_TORNADO_SENSOR = BLOCKS.register(TORNADO_SENSOR, () -> new SensorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+    public static final RegistryObject<AnemometerBlock> BLOCK_ANEMOMETER = BLOCKS.register(ANEMOMETER, () -> new AnemometerBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+    public static final RegistryObject<WindVaneBlock> BLOCK_WIND_VANE = BLOCKS.register(WIND_VANE, () -> new WindVaneBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<SirenBlock> BLOCK_TORNADO_SIREN = BLOCKS.register(TORNADO_SIREN, () -> new SirenBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     //public static final RegistryObject<WeatherMachineBlock> BLOCK_WEATHER_MACHINE = BLOCKS.register(WEATHER_MACHINE, () -> new WeatherMachineBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
 
@@ -58,6 +58,12 @@ public class WeatherBlocks {
 
     public static final RegistryObject<BlockEntityType<SensorBlockEntity>> BLOCK_ENTITY_TORNADO_SENSOR = BLOCK_ENTITIES.register(TORNADO_SENSOR, () ->
             BlockEntityType.Builder.of(SensorBlockEntity::new, BLOCK_TORNADO_SENSOR.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<AnemometerBlockEntity>> BLOCK_ENTITY_ANEMOMETER = BLOCK_ENTITIES.register(ANEMOMETER, () ->
+            BlockEntityType.Builder.of(AnemometerBlockEntity::new, BLOCK_ANEMOMETER.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<WindVaneBlockEntity>> BLOCK_ENTITY_WIND_VANE = BLOCK_ENTITIES.register(WIND_VANE, () ->
+            BlockEntityType.Builder.of(WindVaneBlockEntity::new, BLOCK_WIND_VANE.get()).build(null));
 
     /*public static final RegistryObject<BlockEntityType<WeatherMachineBlockEntity>> BLOCK_ENTITY_WEATHER_MACHINE = BLOCK_ENTITIES.register(WEATHER_MACHINE, () ->
             BlockEntityType.Builder.of(WeatherMachineBlockEntity::new, BLOCK_WEATHER_MACHINE.get()).build(null));*/

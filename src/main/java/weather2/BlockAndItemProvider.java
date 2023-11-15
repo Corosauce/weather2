@@ -26,6 +26,7 @@ public class BlockAndItemProvider extends SpriteSourceProvider {
 		addSpriteBlock("weather_forecast");
 		addSpriteBlock("weather_machine");
 		addSpriteBlock("anemometer");
+		addSpriteBlock("wind_vane");
 		addSpriteItem("weather_item");
 		addSpriteItem("sand_layer");
 		addSpriteItem("sand_layer_placeable");

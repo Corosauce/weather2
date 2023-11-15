@@ -5,20 +5,17 @@
     "D": {
       "item": "minecraft:redstone"
     },
-    "I": {
-      "item": "weather2:tornado_sensor"
-    },
     "X": {
-      "item": "minecraft:iron_ingot"
+      "item": "weather2:weather_item"
     }
   },
   "pattern": [
-    "XDX",
-    "DID",
-    "XDX"
+    "X X",
+    "DXD",
+    "X X"
   ],
   "result": {
-    "item": "weather2:tornado_siren"
+    "item": "weather2:wind_vane"
   },
   "show_notification": true
 }

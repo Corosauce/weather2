@@ -323,7 +323,7 @@ public class ParticleBehaviors {
 		particle.killWhenFarFromCameraAtLeast = 15;
 		particle.setMotionX(0);
 		particle.setMotionZ(0);
-		//particle.setMotionY(-0.1D);
+		particle.setMotionY(0D);
 		particle.setScale(1.3F * 0.15F);
 		particle.setGravity(0.05F);
 		particle.windWeight = 5F;

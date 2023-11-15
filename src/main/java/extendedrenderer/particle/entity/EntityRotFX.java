@@ -741,12 +741,6 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         mesh.curBufferPos++;
     }*/
 
-    //TODO: 1.14 now sets depth buffer use in IParticleRenderType types
-    /*@Override
-    public boolean shouldDisableDepth() {
-    	return isTransparent;
-    }*/
-
     public void setKillOnCollide(boolean val) {
         this.killOnCollide = val;
     }
