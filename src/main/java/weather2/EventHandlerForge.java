@@ -17,6 +17,7 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import weather2.client.SceneEnhancer;
@@ -39,14 +40,14 @@ public class EventHandlerForge {
 		}
     }
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	@OnlyIn(Dist.CLIENT)
     public void onFogColors(ViewportEvent.ComputeFogColor event) {
         SceneEnhancer.getFogAdjuster().onFogColors(event);
 		
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	@OnlyIn(Dist.CLIENT)
 	public void onFogRender(ViewportEvent.RenderFog event) {
 		SceneEnhancer.getFogAdjuster().onFogRender(event);

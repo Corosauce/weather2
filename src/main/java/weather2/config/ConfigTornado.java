@@ -59,6 +59,8 @@ public class ConfigTornado implements IConfigCategory {
 	@ConfigComment("Extra bit of grab angle for the tornado, tweak for different grab shapes, higher = tigher grab, lower = wider grab, might toss them away")
 	public static int Storm_Tornado_extraGrabAngle = 20;
 
+	public static boolean Storm_Tornado_fallDamage = true;
+
 	//@ConfigComment("Experimental idea, places the WIP repairing block where a tornado does damage instead of removing the block, causes tornado damage to self repair, recommend setting Storm_Tornado_rarityOfBreakOnFall to 0 to avoid duplicated blocks")
 	//public static boolean Storm_Tornado_grabbedBlocksRepairOverTime = false;
 

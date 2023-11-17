@@ -35,6 +35,7 @@ public class WeatherBlocks {
     public static final String SAND_LAYER_PLACEABLE = "sand_layer_placeable";
     public static final String WEATHER_ITEM = "weather_item";
     public static final String POCKET_SAND = "pocket_sand";
+    public static final String WIND_TURBINE = "wind_turbine";
 
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Weather.MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Weather.MODID);
@@ -46,6 +47,7 @@ public class WeatherBlocks {
     public static final RegistryObject<AnemometerBlock> BLOCK_ANEMOMETER = BLOCKS.register(ANEMOMETER, () -> new AnemometerBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<WindVaneBlock> BLOCK_WIND_VANE = BLOCKS.register(WIND_VANE, () -> new WindVaneBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final RegistryObject<SirenBlock> BLOCK_TORNADO_SIREN = BLOCKS.register(TORNADO_SIREN, () -> new SirenBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+    public static final RegistryObject<WindTurbineBlock> BLOCK_WIND_TURBINE = BLOCKS.register(WIND_TURBINE, () -> new WindTurbineBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     //public static final RegistryObject<WeatherMachineBlock> BLOCK_WEATHER_MACHINE = BLOCKS.register(WEATHER_MACHINE, () -> new WeatherMachineBlock(BlockBehaviour.Properties.of(Material.STONE).randomTicks().strength(1.5F, 6F).requiresCorrectToolForDrops().sound(SoundType.STONE)));
 
     @SuppressWarnings("ConstantConditions")
@@ -64,6 +66,9 @@ public class WeatherBlocks {
 
     public static final RegistryObject<BlockEntityType<WindVaneBlockEntity>> BLOCK_ENTITY_WIND_VANE = BLOCK_ENTITIES.register(WIND_VANE, () ->
             BlockEntityType.Builder.of(WindVaneBlockEntity::new, BLOCK_WIND_VANE.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<WindTurbineBlockEntity>> BLOCK_ENTITY_WIND_TURBINE = BLOCK_ENTITIES.register(WIND_TURBINE, () ->
+            BlockEntityType.Builder.of(WindTurbineBlockEntity::new, BLOCK_WIND_TURBINE.get()).build(null));
 
     /*public static final RegistryObject<BlockEntityType<WeatherMachineBlockEntity>> BLOCK_ENTITY_WEATHER_MACHINE = BLOCK_ENTITIES.register(WEATHER_MACHINE, () ->
             BlockEntityType.Builder.of(WeatherMachineBlockEntity::new, BLOCK_WEATHER_MACHINE.get()).build(null));*/

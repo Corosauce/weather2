@@ -20,6 +20,7 @@ public class WeatherItems {
     public static final RegistryObject<BlockItem> BLOCK_FORECAST_ITEM = ITEMS.register(WeatherBlocks.WEATHER_FORECAST, () -> new BlockItem(WeatherBlocks.BLOCK_FORECAST.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> BLOCK_ANEMOMETER_ITEM = ITEMS.register(WeatherBlocks.ANEMOMETER, () -> new BlockItem(WeatherBlocks.BLOCK_ANEMOMETER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> BLOCK_WIND_VANE_ITEM = ITEMS.register(WeatherBlocks.WIND_VANE, () -> new BlockItem(WeatherBlocks.BLOCK_WIND_VANE.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> BLOCK_WIND_TURBINE_ITEM = ITEMS.register(WeatherBlocks.WIND_TURBINE, () -> new BlockItem(WeatherBlocks.BLOCK_WIND_TURBINE.get(), new Item.Properties()));
 
     public static void registerHandlers(IEventBus modBus) {
         ITEMS.register(modBus);

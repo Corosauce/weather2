@@ -38,6 +38,10 @@
     },
     {
       "type": "minecraft:single",
+      "resource": "weather2:blocks/wind_turbine"
+    },
+    {
+      "type": "minecraft:single",
       "resource": "weather2:items/weather_item"
     },
     {

@@ -78,6 +78,7 @@ public class Weather
                 output.accept(WeatherItems.BLOCK_SAND_LAYER_ITEM.get());
                 output.accept(WeatherItems.BLOCK_ANEMOMETER_ITEM.get());
                 output.accept(WeatherItems.BLOCK_WIND_VANE_ITEM.get());
+                output.accept(WeatherItems.BLOCK_WIND_TURBINE_ITEM.get());
             }).build());
 
     public Weather() {

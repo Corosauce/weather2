@@ -1,5 +1,6 @@
 package weather2.util;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,10 +18,15 @@ public class WindReader {
 		WeatherManager weather = getWeatherManagerFor(world);
 		return weather != null ? weather.getWindManager().getWindAngle(pos) : 0;
 	}
-	
+
 	public static float getWindSpeed(Level world) {
 		WeatherManager weather = getWeatherManagerFor(world);
 		return weather != null ? weather.getWindManager().getWindSpeed() : 0;
+	}
+
+	public static float getWindSpeed(Level world, BlockPos pos) {
+		WeatherManager weather = getWeatherManagerFor(world);
+		return weather != null ? weather.getWindManager().getWindSpeed(pos) : 0;
 	}
 
 	private static WeatherManager getWeatherManagerFor(Level world) {

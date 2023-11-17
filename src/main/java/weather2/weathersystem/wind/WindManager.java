@@ -2,17 +2,16 @@ package weather2.weathersystem.wind;
 
 import com.corosus.coroutil.util.CoroUtilBlock;
 import com.corosus.coroutil.util.CoroUtilEntOrParticle;
+import com.corosus.coroutil.util.CoroUtilMisc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import weather2.ClientTickHandler;
 import weather2.PerlinNoiseHelper;
 import weather2.ServerWeatherProxy;
 import weather2.Weather;
@@ -23,6 +22,7 @@ import weather2.weathersystem.WeatherManager;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class WindManager {
@@ -43,7 +43,9 @@ public class WindManager {
 	public float windAngleEvent = 0;
 	public BlockPos windOriginEvent = BlockPos.ZERO;
 	public float windSpeedEvent = 0;
-	public int windTimeEvent = 0; //its assumed this will get set by whatever initializes an event, and this class counts it down from a couple seconds, helps wind system know what takes priority
+	//client side only
+	//its assumed this will get set by whatever initializes an event, and this class counts it down from a couple seconds, helps wind system know what takes priority
+	public int windTimeEvent = 0;
 
 	//gusts
 	public float windAngleGust = 0;
@@ -61,6 +63,9 @@ public class WindManager {
 	public int highWindTimer = 0;
 
 	public static boolean FORCE_ON_DEBUG_TESTING = false;
+
+	public HashMap<Long, WindInfoCache> lookupChunkToWindInfo = new HashMap<>();
+	public int cachedWindInfoUpdateFrequency = 100;
 	
 	public WindManager(WeatherManager parManager) {
 		manager = parManager;
@@ -74,8 +79,12 @@ public class WindManager {
 		return getWindSpeed(null);
 	}
 	
-	public float getWindSpeed(Vec3 pos) {
-		if (windTimeEvent > 0 && (windTimeEvent > windTimeGust && windTimeEvent > windSpeedGlobal)) {
+	public float getWindSpeed(BlockPos pos) {
+		if (pos != null) {
+			float speed = getWindSpeedEventForChunkPos(pos);
+			return Math.max(speed, Math.max(windSpeedGlobal, windSpeedGust));
+		}
+		if (windTimeEvent > 0 && (windSpeedEvent > windSpeedGust && windSpeedEvent > windSpeedGlobal)) {
 			return windSpeedEvent;
 		} else if (windTimeGust > 0) {
 			return windSpeedGust;
@@ -171,16 +180,9 @@ public class WindManager {
 
 	public void tick() {
 
-		Random rand = new Random();
+		Random rand = CoroUtilMisc.random();
 
-		//debug
-		//Weather.dbg("wind angle: " + windAngleGlobal);
-		//windAngleGlobal = 90;
-		//indSpeedGlobal = 0.71F;
-		//windAngleGlobal = 180;
-		//lowWindOddsTo1 = 20*200;
-		//lowWindTimer = 0;
-		//windSpeedGlobalChangeRate = 0.05F;
+		//windSpeedGust = 0;
 
 		if (!ConfigWind.Misc_windOn) {
 			windSpeedGlobal = 0;
@@ -260,6 +262,7 @@ public class WindManager {
 					windTimeGust--;
 
 					if (windTimeGust == 0) {
+						windSpeedGust = 0;
 						syncData();
 					}
 				}
@@ -357,12 +360,15 @@ public class WindManager {
 
 		if (windTimeEvent > 0) {
 			windTimeEvent--;
+			if (windTimeEvent == 0) {
+				windTimeGust = 0;
+			}
 		}
 
 		//event data
 		if (entP != null) {
 			if (manager.getWorld().getGameTime() % 10 == 0) {
-				float maxDist = 256;
+				float maxDist = 512;
 				StormObject so = manager.getClosestStorm(new Vec3(entP.getX(), StormObject.layers.get(0), entP.getZ()), maxDist, StormObject.STATE_HIGHWIND);
 
 				if (so != null) {
@@ -382,7 +388,7 @@ public class WindManager {
 
 					double dist = entP.position().distanceTo(so.posGround);
 
-					windSpeedEvent = (float) (1F - (dist / maxDist)) * 2F; //make dynamic?
+					windSpeedEvent = (float) (1F - (dist / maxDist)) * 2F;
 
 					//System.out.println(windSpeedEvent);
 					//Weather.dbg("!!!!!!!!!!!!!!!!!!!storm event near, wind speed: " + windSpeedEvent);
@@ -391,74 +397,35 @@ public class WindManager {
 		}
 	}
 
-	/*public void tick(Level world) {
-		Random rand = new Random();
+	public float getWindSpeedEventForChunkPos(BlockPos blockPos) {
+		BlockPos chunkPos = new BlockPos(blockPos.getX() >> 4, 0, blockPos.getZ() >> 4);
 
-		FORCE_ON_DEBUG_TESTING = true;
-
-		// TODO: better merge this logic
-		if (world.isClientSide) {
-			windSpeedGlobal = ClientWeather.get().getWindSpeed();
-			if (windSpeedGlobal == 0) {
-				chanceOfWindGustEvent = 0;
-			} else {
-				chanceOfWindGustEvent = 0.5F;
-			}
-		} else {
-			WeatherController weatherController = WeatherControllerManager.forWorld((ServerLevel) world);
-			windSpeedGlobal = weatherController.getWindSpeed();
-			if (windSpeedGlobal == 0) {
-				chanceOfWindGustEvent = 0;
-			} else {
-				chanceOfWindGustEvent = 0.5F;
+		long hash = chunkPos.asLong();
+		if (lookupChunkToWindInfo.containsKey(hash)) {
+			WindInfoCache cache = lookupChunkToWindInfo.get(hash);
+			if (cache.cacheTime + cachedWindInfoUpdateFrequency > manager.getWorld().getGameTime()) {
+				return cache.windSpeed;
 			}
 		}
+		WindInfoCache cache = lookupChunkToWindInfo.get(hash);
+		if (cache == null) cache = new WindInfoCache();
+		cache.cacheTime = manager.getWorld().getGameTime();
+		cache.windSpeed = getWindSpeedEventForPosImpl(blockPos);
+		lookupChunkToWindInfo.put(hash, cache);
+		//System.out.println("wind: " + cache.windSpeed);
+		return cache.windSpeed;
+	}
 
-		if (windTimeGust > 0) {
-			windTimeGust--;
+	public float getWindSpeedEventForPosImpl(BlockPos pos) {
+		float maxDist = 512;
+		Vec3 posVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+		StormObject so = manager.getClosestStorm(posVec, maxDist, StormObject.STATE_HIGHWIND);
+		if (so != null) {
+			double dist = posVec.distanceTo(so.posGround);
+			return (float) (1F - (dist / maxDist)) * 2F;
 		}
-
-		float randGustWindFactor = 1F;
-
-		//gust data
-		if (this.windTimeGust == 0)
-		{
-			if (chanceOfWindGustEvent > 0F)
-			{
-				if (rand.nextInt((int)((100 - chanceOfWindGustEvent) * randGustWindFactor)) == 0)
-				{
-					windSpeedGust = windSpeedGlobal + rand.nextFloat() * 0.6F;
-					windAngleGust = windAngleGlobal + rand.nextInt(120) - 60;
-
-					setWindTimeGust(rand.nextInt(windGustEventTimeRand));
-				}
-			}
-		}
-
-		windAngleGlobal += rand.nextFloat() - rand.nextFloat();
-
-		if (FORCE_ON_DEBUG_TESTING) {
-			//windAngleGlobal += 1;
-			windAngleGlobal = 0;
-			windSpeedGlobal = 0.8F;
-			chanceOfWindGustEvent = 0;
-			chanceOfWindGustEvent = 0.5F;
-		}
-
-		//MORE TEST
-		if (!world.isClientSide) {
-			//windAngleGlobal += 0.25F;
-			//chanceOfWindGustEvent = 0;
-		}
-
-		if (windAngleGlobal < -180) {
-			windAngleGlobal += 360;
-		}
-
-		if (windAngleGlobal > 180) {
-			windAngleGlobal -= 360;
-		}
-	}*/
+		return 0;
+	}
 
 	/**
 	 * 
@@ -600,7 +567,6 @@ public class WindManager {
 
 		lowWindTimer = data.getInt("lowWindTimer");
 		highWindTimer = data.getInt("highWindTimer");
-
 	}
 
 	public CompoundTag write(CompoundTag data) {
@@ -617,9 +583,6 @@ public class WindManager {
 
 		data.putInt("lowWindTimer", lowWindTimer);
 		data.putInt("highWindTimer", highWindTimer);
-
-
-
 
 		return data;
 	}
