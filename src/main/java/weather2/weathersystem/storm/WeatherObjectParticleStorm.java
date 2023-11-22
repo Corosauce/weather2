@@ -155,6 +155,8 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 			maxBlockStackingAllowed = ConfigSnow.Snowstorm_Snow_Block_Max_Height;
 		}
 
+		//delay = 1;
+
 		//sand block buildup
 		if (!world.isClientSide) {
 			if (getBlockForBuildup() != null) {

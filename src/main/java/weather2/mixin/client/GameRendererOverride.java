@@ -11,6 +11,8 @@ public abstract class GameRendererOverride {
     /**
      * @author Corosus
      * @reason render particle clouds further
+     *
+     * UNUSED ATM
      */
     @Overwrite
     public float getDepthFar() {

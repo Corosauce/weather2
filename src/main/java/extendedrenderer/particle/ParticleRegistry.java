@@ -42,6 +42,7 @@ public class ParticleRegistry extends SpriteSourceProvider {
 	//public static TextureAtlasSprite rain_vanilla;
 	//public static TextureAtlasSprite snow_vanilla;
 	public static TextureAtlasSprite snow;
+	public static TextureAtlasSprite snow2;
 	//public static TextureAtlasSprite test;
 	//public static TextureAtlasSprite cloud256dark;
 	//public static TextureAtlasSprite cloudDownfall;
@@ -99,6 +100,7 @@ public class ParticleRegistry extends SpriteSourceProvider {
 		//rain_vanilla = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/rain"));
 		//snow_vanilla = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/snow"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/snow"));
+		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/snow2"));
 		//cloud256dark = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256dark"));
 		//cloudDownfall = addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall"));
 		addSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/tumbleweed"));
@@ -165,6 +167,7 @@ public class ParticleRegistry extends SpriteSourceProvider {
 		//rain_vanilla = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/rain"));
 		//snow_vanilla = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/vanilla/snow"));
 		snow = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/snow"));
+		snow2 = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/snow2"));
 		//cloud256dark = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/cloud256dark"));
 		//cloudDownfall = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/downfall"));
 		tumbleweed = event.getAtlas().getSprite(new ResourceLocation(ExtendedRenderer.modid + ":particles/tumbleweed"));

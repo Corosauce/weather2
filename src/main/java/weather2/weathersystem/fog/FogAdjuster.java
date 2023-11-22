@@ -87,13 +87,13 @@ public class FogAdjuster {
 
         boolean fogDisco = false;
         if (fogDisco) {
-            if (lastWeatherType != null) {
+            //if (lastWeatherType != null) {
                 if (randDelay <= 0) {
                     Random rand = new Random();
                     randDelay = 20 + rand.nextInt(5);
                     startRandom();
                 }
-            }
+            //}
 
             randDelay--;
         }
@@ -134,6 +134,8 @@ public class FogAdjuster {
             activeProfile.setFogEndSky(activeProfile.getFogEndSky() + activeProfileLerps.getFogEndSky());
 
             lerpTicksCur++;
+
+            //System.out.println(lerpTicksCur + " - " + activeProfile.getFogStart() + " - " + activeProfile.getFogEnd());
         }
     }
 
@@ -255,6 +257,22 @@ public class FogAdjuster {
      */
     public void updateWeatherState() {
         WeatherEventType curWeather = SceneEnhancer.getWeatherState();
+
+        //System.out.println("curWeather: " + curWeather);
+        //System.out.println("lastWeatherType: " + lastWeatherType);
+
+        /*if (curWeather != WeatherEventType.SANDSTORM &&
+                curWeather != WeatherEventType.SNOWSTORM &&
+                curWeather != WeatherEventType.HEATWAVE &&
+                curWeather != null) {
+            return;
+        }*/
+
+        //count ones we dont want fog for as null, to keep the transitions clean and less glitchy
+        if (curWeather == WeatherEventType.ACID_RAIN || curWeather == WeatherEventType.HEAVY_RAIN || curWeather == WeatherEventType.HAIL) {
+            curWeather = null;
+        }
+
         boolean match = false;
         if (curWeather != lastWeatherType) {
             if (curWeather == WeatherEventType.SANDSTORM) {
@@ -274,5 +292,15 @@ public class FogAdjuster {
         if (match) {
             lastWeatherType = curWeather;
         }
+    }
+
+    /**
+     * 0 = off
+     * 1 = max on
+     * @return
+     */
+    public float getLerpFraction() {
+        if (lerpTicksMax == 0) return 0;
+        return lerpTicksCur / lerpTicksMax;
     }
 }

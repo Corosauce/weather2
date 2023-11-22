@@ -22,9 +22,11 @@ public abstract class WeatherManager implements IWorldData {
 	private List<WeatherObject> listStormObjects = new ArrayList<>();
 	public HashMap<Long, WeatherObject> lookupStormObjectsByID = new HashMap<>();
 
+	//non particle storm
 	public long lastStormFormed = 0;
 
 	public long lastSandstormFormed = 0;
+	public long lastSnowstormFormed = 0;
 
 	//0 = none, 1 = usual max overcast
 	public float cloudIntensity = 1F;
@@ -33,6 +35,9 @@ public abstract class WeatherManager implements IWorldData {
 	public boolean isVanillaRainActiveOnServer = false;
 	public boolean isVanillaThunderActiveOnServer = false;
 	public int vanillaRainTimeOnServer = 0;
+
+	//going to vary the amount randomly over time like wind, for aesthetic only mode
+	public float vanillaRainAmountOnServer = 0;
 
 	private HashMap<Long, BlockPos> listWeatherBlockDamageDeflector = new HashMap<>();
 
@@ -380,6 +385,7 @@ public abstract class WeatherManager implements IWorldData {
 		data.putLong("lastStormFormed", lastStormFormed);
 
 		data.putLong("lastSandstormFormed", lastSandstormFormed);
+		data.putLong("lastSnowstormFormed", lastSnowstormFormed);
 
 		data.putFloat("cloudIntensity", this.cloudIntensity);
 
@@ -398,6 +404,7 @@ public abstract class WeatherManager implements IWorldData {
 
 		lastStormFormed = data.getLong("lastStormFormed");
 		lastSandstormFormed = data.getLong("lastSandstormFormed");
+		lastSnowstormFormed = data.getLong("lastSnowstormFormed");
 
 		//prevent setting to 0 for worlds updating to new weather version
 		if (data.contains("cloudIntensity")) {

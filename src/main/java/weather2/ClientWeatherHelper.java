@@ -4,6 +4,7 @@ import com.corosus.coroutil.util.CULog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import weather2.config.ConfigMisc;
 import weather2.config.ConfigStorm;
 import weather2.weathersystem.storm.StormObject;
 
@@ -72,7 +73,8 @@ public final class ClientWeatherHelper {
 
 		float overcastModeMinPrecip = 0.23F;
 		//overcastModeMinPrecip = 0.16F;
-		overcastModeMinPrecip = (float) ConfigStorm.Storm_Rain_Overcast_Amount;
+		//overcastModeMinPrecip = (float) ConfigStorm.Storm_Rain_Overcast_Amount;
+		overcastModeMinPrecip = ClientTickHandler.weatherManager.vanillaRainAmountOnServer;
 
 		//evaluate if storms size is big enough to be over player
 		if (storm != null) {
@@ -144,13 +146,13 @@ public final class ClientWeatherHelper {
 		}
 
 		if (forOvercast) {
-			if (curOvercastStr < 0.001 && curOvercastStr > -0.001F) {
+			if (curOvercastStr < 0.002 && curOvercastStr > -0.002F) {
 				return 0;
 			} else {
 				return curOvercastStr * tempAdj;
 			}
 		} else {
-			if (curPrecipStr < 0.001 && curPrecipStr > -0.001F) {
+			if (curPrecipStr < 0.002 && curPrecipStr > -0.002F) {
 				return 0;
 			} else {
 				return curPrecipStr * tempAdj;
@@ -167,22 +169,26 @@ public final class ClientWeatherHelper {
 		//using 1F to make shaders happy
 		visualDarknessAmplifier = 1F;
 		//CULog.dbg("rainAmount: " + rainAmount);
-		if (precipitating) {
-			mc.level.getLevelData().setRaining(rainAmount > 0);
-			mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
-			mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);
-		} else {
-			if (!ClientTickHandler.clientConfigData.overcastMode) {
-				mc.level.getLevelData().setRaining(false);
-				mc.level.setRainLevel(0);
-				mc.level.setThunderLevel(0);
-			} else {
-				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
-					mc.level.getLevelData().setRaining(true);
-					mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
-					mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);
-				} else {
+		if (!ConfigMisc.Aesthetic_Only_Mode) {
+			if (precipitating) {
+				mc.level.getLevelData().setRaining(rainAmount > 0);
+				mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
+				mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);
 
+			} else {
+				//TODO: i think these glitch out and trigger on world load if it was already raining, will think its false for a sec and lock sky visual to off
+				if (!ClientTickHandler.clientConfigData.overcastMode) {
+					mc.level.getLevelData().setRaining(false);
+					mc.level.setRainLevel(0);
+					mc.level.setThunderLevel(0);
+				} else {
+					if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+						mc.level.getLevelData().setRaining(true);
+						mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
+						mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);
+					} else {
+
+					}
 				}
 			}
 		}

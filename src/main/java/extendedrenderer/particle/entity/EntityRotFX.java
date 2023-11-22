@@ -368,7 +368,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
             if (ticksFadeInMax > 0 && this.getAge() < ticksFadeInMax) {
                 //System.out.println("this.getAge() / ticksFadeInMax: " + this.getAge() / ticksFadeInMax);
                 this.setAlpha((float)this.getAge() / ticksFadeInMax * getFullAlphaTarget());
-                //particle.setAlphaF(1);
+                //this.setAlphaF(0.15F);
             } else if (ticksFadeOutMax > 0 && this.getAge() > this.getLifetime() - ticksFadeOutMax) {
                 float count = this.getAge() - (this.getLifetime() - ticksFadeOutMax);
                 float val = (ticksFadeOutMax - (count)) / ticksFadeOutMax;

@@ -84,8 +84,8 @@ public class ConfigStorm implements IConfigCategory {
     public static boolean Storm_Deflector_RemoveRainstorms = false;
     public static boolean Storm_Deflector_RemoveSandstorms = true;
 
-	@ConfigComment("Minimum amount of visual rain shown when its raining globally during overcast mode")
-    public static double Storm_Rain_Overcast_Amount = 0.01D;
+	/*@ConfigComment("Minimum amount of visual rain shown when its raining globally during overcast mode")
+    public static double Storm_Rain_Overcast_Amount = 0.01D;*/
 	public static int Storm_Rain_Overcast_OddsTo1 = 50;
 
 	public static int Storm_Rain_OddsTo1 = 150;

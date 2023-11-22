@@ -135,10 +135,10 @@ public class WeatherManagerClient extends WeatherManager {
 
 			//NBTTagCompound nbt = parNBT.getCompound("data");
 
-			//TODO: do we need this?
-			/*isVanillaRainActiveOnServer = parNBT.getBoolean("isVanillaRainActiveOnServer");
+			isVanillaRainActiveOnServer = parNBT.getBoolean("isVanillaRainActiveOnServer");
 			isVanillaThunderActiveOnServer = parNBT.getBoolean("isVanillaThunderActiveOnServer");
-			vanillaRainTimeOnServer = parNBT.getInt("vanillaRainTimeOnServer");*/
+			vanillaRainTimeOnServer = parNBT.getInt("vanillaRainTimeOnServer");
+			vanillaRainAmountOnServer = parNBT.getFloat("vanillaRainAmountOnServer");
 
 			//windMan.nbtSyncFromServer(nbt);
 		} else if (command.equals("syncBlockParticleNew")) {

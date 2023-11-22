@@ -69,6 +69,16 @@ public class WeatherRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_weather_item", has(WeatherItems.WEATHER_ITEM.get()))
                 .save(consumer);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_WIND_TURBINE_ITEM.get(), 1)
+                .pattern("IDI").pattern("IVI").pattern("RGR")
+                .define('I', Items.IRON_BLOCK)
+                .define('D', Items.DIAMOND)
+                .define('V', WeatherItems.BLOCK_WIND_VANE_ITEM.get())
+                .define('R', Items.REDSTONE_BLOCK)
+                .define('G', Items.GOLD_INGOT)
+                .unlockedBy("has_wind_vane", has(WeatherItems.BLOCK_WIND_TURBINE_ITEM.get()))
+                .save(consumer);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_ANEMOMETER_ITEM.get(), 1)
                 .pattern("X X").pattern("XDX").pattern("X X")
                 .define('D', Items.REDSTONE)

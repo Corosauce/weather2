@@ -42,6 +42,10 @@
     },
     {
       "type": "minecraft:single",
+      "resource": "coroutil:particles/snow2"
+    },
+    {
+      "type": "minecraft:single",
       "resource": "coroutil:particles/tumbleweed"
     },
     {

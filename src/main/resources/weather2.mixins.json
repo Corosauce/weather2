@@ -3,7 +3,7 @@
   "package": "weather2.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "weather2.refmap.json",
-  "client": ["client.RenderParticlesOverride", "client.GameRendererOverride"],
+  "client": ["client.RenderParticlesOverride"],
   "injectors": {
     "defaultRequire": 1
   },

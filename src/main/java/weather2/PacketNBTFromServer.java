@@ -42,6 +42,10 @@ public class PacketNBTFromServer {
 
                         //this line still gets NPE's despite it checking if its null right before it, wtf
                         ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
+                    } else if (packetCommand.equals("ClientConfigData")) {
+                        if (command.equals("syncUpdate")) {
+                            ClientTickHandler.clientConfigData.readNBT(nbt);
+                        }
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();

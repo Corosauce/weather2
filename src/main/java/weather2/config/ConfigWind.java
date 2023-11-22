@@ -27,7 +27,7 @@ public class ConfigWind implements IConfigCategory {
     public static double windSpeedMax = 1D;
 
     @ConfigComment("Min wind speed to maintain if its raining with global overcast mode on, overrides low wind events and windSpeedMin")
-    public static double windSpeedMinGlobalOvercastRaining = 0.3D;
+    public static double windSpeedMinGlobalOvercastRaining = 0.01D;
 
     @Override
     public String getName() {

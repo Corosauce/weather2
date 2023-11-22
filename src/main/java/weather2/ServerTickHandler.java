@@ -1,6 +1,7 @@
 package weather2;
 
 import com.corosus.coroutil.util.CULog;
+import com.corosus.modconfig.ConfigMod;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,12 +11,18 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.PacketDistributor;
+import weather2.config.ClientConfigData;
+import weather2.config.ConfigMisc;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
+import weather2.weathersystem.wind.WindManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +65,28 @@ public class ServerTickHandler {
 
 			processIMCMessages();
 		}
+	}
+
+	@SubscribeEvent
+	public static void tickServer(TickEvent.LevelTickEvent event) {
+
+		if (event.level.dimension() == Level.OVERWORLD && event.phase == TickEvent.Phase.END && !event.level.isClientSide()) {
+			if (ConfigMisc.Aesthetic_Only_Mode) {
+				if (!ConfigMisc.overcastMode) {
+					ConfigMisc.overcastMode = true;
+					CULog.dbg("detected Aesthetic_Only_Mode on, setting overcast mode on");
+					//WeatherUtilConfig.setOvercastModeServerSide(ConfigMisc.overcastMode);
+					ConfigMod.forceSaveAllFilesFromRuntimeSettings();
+					syncServerConfigToClient(null);
+				}
+			}
+
+			//TODO: only sync when things change? is now sent via PlayerLoggedInEvent at least
+			/*if (event.level.getGameTime() % 200 == 0) {
+				syncServerConfigToClient(null);
+			}*/
+		}
+
 	}
 
 	public static void processIMCMessages() {
@@ -138,6 +167,12 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public static void tickPlayer(TickEvent.PlayerTickEvent event) {
+		if (!event.player.level().isClientSide()) {
+			syncServerConfigToClient(event.player);
+		}
+	}
+
+	public static void joinPlayer(PlayerEvent.PlayerLoggedInEvent event) {
 
 	}
 
@@ -153,6 +188,18 @@ public class ServerTickHandler {
 		WeatherManagerServer wm = MANAGERS.get(entP.level().dimension());
 		if (wm != null) {
 			wm.playerJoinedWorldSyncFull(entP);
+		}
+	}
+
+	public static void syncServerConfigToClient(Player player) {
+		CompoundTag data = new CompoundTag();
+		data.putString("packetCommand", "ClientConfigData");
+		data.putString("command", "syncUpdate");
+		ClientConfigData.writeNBT(data);
+		if (player != null) {
+			WeatherNetworking.HANDLER.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new PacketNBTFromServer(data));
+		} else {
+			WeatherNetworking.HANDLER.send(PacketDistributor.ALL.noArg(), new PacketNBTFromServer(data));
 		}
 	}
 }

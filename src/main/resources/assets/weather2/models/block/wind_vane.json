@@ -2,7 +2,6 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
-		"particle": "weather2:blocks/wind_vane",
 		"0": "weather2:blocks/wind_vane"
 	},
 	"elements": [

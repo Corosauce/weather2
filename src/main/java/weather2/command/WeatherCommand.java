@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.InterModComms;
 import weather2.ServerTickHandler;
+import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.WeatherManagerServer;
@@ -86,6 +87,19 @@ public class WeatherCommand {
 									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
 									wm.getWindManager().windSpeedGlobal = speed;
 									c.getSource().sendSuccess(() -> Component.literal("Set wind speed for clouds to " + speed), true);
+									return Command.SINGLE_SUCCESS;
+								}))
+						)
+						.then(literal("server_precipitation").requires(s -> s.hasPermission(2))
+								.then(argument("amount", FloatArgumentType.floatArg(0, 1.0F)).executes(c -> {
+									float amount = FloatArgumentType.getFloat(c, "amount");
+									WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(c.getSource().getLevel().dimension());
+									wm.vanillaRainAmountOnServer = amount;
+									if (ConfigMisc.overcastMode) {
+										c.getSource().sendSuccess(() -> Component.literal("Server precipitation amount set to " + amount), true);
+									} else {
+										c.getSource().sendSuccess(() -> Component.literal("overcastMode not on, this will change nothing"), true);
+									}
 									return Command.SINGLE_SUCCESS;
 								}))
 						)

@@ -1,7 +1,6 @@
 {
   "credit": "Made with Blockbench",
   "textures": {
-    "particle": "weather2:blocks/anemometer",
     "0": "weather2:blocks/anemometer"
   },
   "elements": [

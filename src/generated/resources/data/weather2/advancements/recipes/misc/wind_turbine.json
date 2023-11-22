@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "weather2:wind_turbine"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_wind_vane": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "weather2:wind_turbine"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_wind_vane",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "weather2:wind_turbine"
+    ]
+  },
+  "sends_telemetry_event": false
+}

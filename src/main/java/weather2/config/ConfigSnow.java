@@ -9,7 +9,14 @@ import java.io.File;
 
 public class ConfigSnow implements IConfigCategory {
 
-    @ConfigComment("Amount of game ticks between sand buildup iterations, keep it high to prevent client side chunk tick spam that destroys FPS")
+    public static boolean Storm_NoSnowstorms = false;
+
+    public static boolean Snowstorm_UseGlobalServerRate = false;
+    public static int Snowstorm_OddsTo1 = 30;
+    @ConfigComment("Time between snowstorms for either each player or entire server depending on if global rate is on, default: 3 client days")
+    public static int Snowstorm_TimeBetweenInTicks = 20*60*20*3;
+
+    @ConfigComment("Amount of game ticks between snow buildup iterations, keep it high to prevent client side chunk tick spam that destroys FPS")
     public static int Snowstorm_Snow_Buildup_TickRate = 40;
 
     @ConfigComment("Base amount of loops done per iteration, scaled by the snowstorms intensity (value given here is the max possible), eg: at max storm intensity, every 40th tick, itll try to build up snow in 800 places around the storm")

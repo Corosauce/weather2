@@ -100,6 +100,9 @@ public class ConfigMisc implements IConfigCategory {
 	@ConfigComment("Server and client side, Locks down the mod to only do wind, leaves, foliage shader if on, etc. No weather systems, turns overcast mode on")
 	public static boolean Aesthetic_Only_Mode = false;
 
+	@ConfigComment("Runs regardless of Aesthetic_Only_Mode, makes snowstorms possible everywhere")
+	public static boolean Winter_Wonderland = false;
+
 	public ConfigMisc() {
 		
 	}

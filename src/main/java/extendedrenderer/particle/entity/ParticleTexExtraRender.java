@@ -78,6 +78,16 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		windMan.applyWindForceNew(this, 1F / 2F, 0.5F);
 	}
 
+	/**
+	 * make sure extra renderings arent culled out
+	 *
+	 * @return
+	 */
+	@Override
+	public boolean shouldCull() {
+		return false;
+	}
+
 	@Override
 	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
 		//override rotations

@@ -122,7 +122,7 @@ public class WeatherUtilBlock {
 				}*/
 
 				//if solid ground we can place on
-				if (!state.isAir() && state.getBlock().defaultMapColor() == MapColor.PLANT &&
+				if (!state.isAir() && state.getBlock().defaultMapColor() != MapColor.PLANT &&
 						/*(!state.getBlock().isReplaceable(world, pos) && */collided) {
 					BlockPos posUp = new BlockPos(x, y + 1, z);
 					BlockState stateUp = world.getBlockState(posUp);

@@ -102,6 +102,8 @@ public class SceneEnhancer implements Runnable {
 
 	private static Biome lastBiomeIn = null;
 
+	public static float downfallSheetThreshold = 0.32F;
+
 	public SceneEnhancer() {
 		listPosRandom.clear();
 		listPosRandom.add(new BlockPos(0, -1, 0));
@@ -475,9 +477,10 @@ public class SceneEnhancer implements Runnable {
 
 		//returns 0 to 1 now
 		float curPrecipVal = weather.getRainAmount();
+		//System.out.println("curPrecipVal: " + curPrecipVal);
 
 		if (FORCE_ON_DEBUG_TESTING) {
-			curPrecipVal = 1F;
+			curPrecipVal = 0.3F;
 			//curPrecipVal = (float)((entP.getLevel().getGameTime() / 10) % 100) / 100F;
 			//curPrecipVal = 0F;
 		}
@@ -557,7 +560,6 @@ public class SceneEnhancer implements Runnable {
 		if (Weather.isLoveTropicsInstalled() && ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.HAIL) isHail = true;
 		boolean isSnowstorm = weather.isSnowstorm();
 		boolean isSandstorm = weather.isSandstorm();
-		boolean isSnow = canPrecip && !weather.isSnowstorm() && !isHail && shouldSnowHere(world, biome, posPlayer);
 		boolean isRain_WaterParticle = true;
 		boolean isRain_GroundSplash = true;
 		boolean isRain_DownfallSheet = true;
@@ -604,6 +606,11 @@ public class SceneEnhancer implements Runnable {
 			particleStormIntensity *= 0.5F;
 		}
 
+		//let snowstorm buildup a bit before turning off regular snow
+		boolean isSnow = canPrecip && (!weather.isSnowstorm() || particleStormIntensity < 0.1) && !isHail && shouldSnowHere(world, biome, posPlayer);
+
+		//System.out.println("particleStormIntensity: " + particleStormIntensity);
+
 		//dev testing
 		boolean devTest = false;
 		if (devTest) {
@@ -638,7 +645,7 @@ public class SceneEnhancer implements Runnable {
 
 					int spawnNeed = (int) (spawnNeedBase * 300);
 					if (entP.level().getGameTime() % 40 == 0) {
-						CULog.dbg("rain spawnNeed: " + spawnNeed);
+						//CULog.dbg("rain spawnNeed: " + spawnNeed);
 					}
 
 					if (isRain_WaterParticle && spawnNeed > 0) {
@@ -713,7 +720,7 @@ public class SceneEnhancer implements Runnable {
 
 					spawnAreaSize = 30;
 					//downfall - at just above 0.3 cause rainstorms lock at 0.3 but flicker a bit above and below
-					if (isRain_DownfallSheet && curPrecipVal > 0.32) {
+					if (isRain_DownfallSheet && curPrecipVal > downfallSheetThreshold) {
 
 						int scanAheadRange = 0;
 						//quick is outside check, prevent them spawning right near ground
@@ -753,7 +760,7 @@ public class SceneEnhancer implements Runnable {
 					int spawnAreaSize = 50;
 					int spawnNeed = (int) (spawnNeedBase * 80);
 					if (entP.level().getGameTime() % 40 == 0) {
-						CULog.dbg("rain spawnNeed: " + spawnNeed);
+						//CULog.dbg("snow spawnNeed: " + spawnNeed);
 					}
 
 					if (spawnNeed > 0) {
@@ -765,9 +772,9 @@ public class SceneEnhancer implements Runnable {
 
 							if (canPrecipitateAt(world, pos)) {
 								ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level(), pos.getX(), pos.getY(), pos.getZ(),
-										0D, 0D, 0D, ParticleRegistry.snow);
+										0D, 0D, 0D, ParticleRegistry.snow2);
 
-								particleBehavior.initParticleSnow(snow, extraRenderCount);
+								particleBehavior.initParticleSnow(snow, extraRenderCount, windMan.getWindSpeed());
 								snow.spawnAsWeatherEffect();
 
 								spawnCount++;
@@ -904,7 +911,7 @@ public class SceneEnhancer implements Runnable {
 				yetAnotherRateNumber = 40 * getParticleFadeInLerpForNewWeatherState();
 			}
 
-			if (particleStormIntensity >= 0.1F) {
+			if (particleStormIntensity >= 0.01F) {
 
 				if (spawnNeed > 0) {
 
@@ -913,6 +920,8 @@ public class SceneEnhancer implements Runnable {
 					} else {
 						particleSettingsAmplifierExtra = 0;
 					}
+
+					//System.out.println("particleSettingsAmplifierExtra: " + particleSettingsAmplifierExtra);
 
 					//snow
 					for (int i = 0; i < Math.max(1, safetyCutout * particleSettingsAmplifierExtra)/*curPrecipVal * 20F * PRECIPITATION_PARTICLE_EFFECT_RATE*/; i++) {
@@ -933,7 +942,7 @@ public class SceneEnhancer implements Runnable {
 							ParticleTexExtraRender snow = new ParticleTexExtraRender((ClientLevel) entP.level(), pos.getX(), pos.getY(), pos.getZ(),
 									0D, 0D, 0D, ParticleRegistry.snow);
 
-							particleBehavior.initParticleSnow(snow, (int)(10 * particleStormIntensity));
+							particleBehavior.initParticleSnowstorm(snow, (int)(10 * particleStormIntensity));
 							snow.spawnAsWeatherEffect();
 						}
 					}
@@ -982,7 +991,7 @@ public class SceneEnhancer implements Runnable {
 			ClientTickHandler.getClientWeather();
 
 			//enhance the scene further with particles around player, check for sandstorm to account for pocket sand modifying adjustAmountTarget
-			if (particleStormIntensity >= 0.1F) {
+			if (particleStormIntensity >= 0.01F) {
 
 				rand = CoroUtilMisc.random();
 				int spawnAreaSize = 60;
