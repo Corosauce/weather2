@@ -1,0 +1,9 @@
+// 1.20.1	2023-11-23T22:56:39.0222298	Loot Tables
+c8c5ce560e926e54e54807bfa8292631975278c8 data/weather2/loot_tables/blocks/anemometer.json
+c8c3920b1604bd0d96bb0f2fe36af5bec0d17a68 data/weather2/loot_tables/blocks/sand_layer.json
+110f066250df5b3b40a1ab65f5db0e42b149bfc0 data/weather2/loot_tables/blocks/tornado_sensor.json
+dab63dc3440645fa945cceb5bf0e90e65617307c data/weather2/loot_tables/blocks/tornado_siren.json
+52d48e562562111bcbc28c4d88000e7f53be2c23 data/weather2/loot_tables/blocks/weather_deflector.json
+c0a4e2a903db1b6c8a509f541f413283c73e4905 data/weather2/loot_tables/blocks/weather_forecast.json
+5144ca5845a17038ade0ad75085ec40b1fe313d8 data/weather2/loot_tables/blocks/wind_turbine.json
+9844b43ed3b5bdcf2cb5caa511707ef6bf53a3f9 data/weather2/loot_tables/blocks/wind_vane.json

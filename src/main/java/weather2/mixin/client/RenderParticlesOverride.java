@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import weather2.ClientTickHandler;
+import weather2.config.ConfigParticle;
 
 import javax.annotation.Nullable;
 
@@ -33,6 +34,9 @@ public abstract class RenderParticlesOverride {
     public void renderSnowAndRain(LevelRenderer worldRenderer, LightTexture lightmapIn, float partialTicks, double xIn, double yIn, double zIn) {
         //CULog.dbg("renderSnowAndRain hook");
         //stopping vanilla from running renderRainSnow
+        if (ConfigParticle.Particle_vanilla_precipitation) {
+            worldRenderer.renderSnowAndRain(lightmapIn, partialTicks, xIn, yIn, zIn);
+        }
     }
 
     /*@Redirect(method = "renderLevel",

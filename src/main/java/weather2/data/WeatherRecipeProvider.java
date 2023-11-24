@@ -70,8 +70,9 @@ public class WeatherRecipeProvider extends RecipeProvider {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, WeatherItems.BLOCK_WIND_TURBINE_ITEM.get(), 1)
-                .pattern("IDI").pattern("IVI").pattern("RGR")
+                .pattern("ODO").pattern("IVI").pattern("RGR")
                 .define('I', Items.IRON_BLOCK)
+                .define('O', Items.IRON_INGOT)
                 .define('D', Items.DIAMOND)
                 .define('V', WeatherItems.BLOCK_WIND_VANE_ITEM.get())
                 .define('R', Items.REDSTONE_BLOCK)

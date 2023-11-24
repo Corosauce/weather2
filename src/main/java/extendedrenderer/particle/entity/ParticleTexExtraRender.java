@@ -83,10 +83,10 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 	 *
 	 * @return
 	 */
-	@Override
+	/*@Override
 	public boolean shouldCull() {
 		return false;
-	}
+	}*/
 
 	@Override
 	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {

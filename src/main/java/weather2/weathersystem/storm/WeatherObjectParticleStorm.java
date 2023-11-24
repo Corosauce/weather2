@@ -102,6 +102,11 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 			if (getIntensity() > 0.2D) {
 				tickBlockSandBuildup();
 			}
+
+			if (manager != null && manager.getWindManager() != null && !manager.getWindManager().isHighWindEventActive()) {
+				manager.getWindManager().stopLowWindEvent();
+				manager.getWindManager().startHighWindEvent();
+			}
 		}
 
 		posGround = pos;

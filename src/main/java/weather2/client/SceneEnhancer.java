@@ -520,6 +520,8 @@ public class SceneEnhancer implements Runnable {
 			particleSettingsAmplifier = 0.2F;
 		}
 
+		particleSettingsAmplifier *= ConfigParticle.Particle_effect_rate;
+
 		/**
 		 * we set the spawn amount for actual particles up to 0.5 intensity
 		 * then after 0.5, we up the extra render amount
@@ -870,6 +872,9 @@ public class SceneEnhancer implements Runnable {
 			spawnCount = 0;
 
 			for (int i = 0; i < safetyCutout; i++) {
+				if (spawnCount >= spawnNeed) {
+					break;
+				}
 				if (windMan.getWindSpeed() >= 0.1F/* && rand.nextInt(1) == 0*/) {
 					BlockPos pos = CoroUtilBlock.blockPos(
 							entP.getX() + rand.nextInt(spawnAreaSize) - (spawnAreaSize / 2),
@@ -887,9 +892,6 @@ public class SceneEnhancer implements Runnable {
 						dust.spawnAsWeatherEffect();
 
 						spawnCount++;
-						if (spawnCount >= spawnNeed) {
-							break;
-						}
 					}
 				}
 			}
@@ -899,8 +901,9 @@ public class SceneEnhancer implements Runnable {
 			spawnCount = 0;
 			//less for snow, since it falls slower so more is on screen longer
 			float particleSettingsAmplifierExtra = particleSettingsAmplifier;
+			//spawnNeedBase = Math.max(1, ConfigParticle.Precipitation_Particle_effect_rate * particleSettingsAmplifierExtra);
 			spawnNeedBase = ConfigParticle.Precipitation_Particle_effect_rate * particleSettingsAmplifierExtra;
-			int spawnNeed = (int) Math.max(1, spawnNeedBase * 5);
+			int spawnNeed = (int) Math.max(0, spawnNeedBase * 5);
 			safetyCutout = 60;
 			int spawnAreaSize = 20;
 			double closeDistCutoff = 7D;
@@ -1181,6 +1184,8 @@ public class SceneEnhancer implements Runnable {
 		} else if (Minecraft.getInstance().options.particles.get() == ParticleStatus.MINIMAL) {
 			particleSettingsAmplifier = 0.2F;
 		}
+
+		particleSettingsAmplifier *= ConfigParticle.Particle_effect_rate;
 
         //spawnRate *= (client.options.particles.getId()+1);
         spawnRateRandChanceOdds /= particleSettingsAmplifier;

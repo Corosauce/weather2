@@ -1,5 +1,6 @@
 package weather2;
 
+import com.corosus.coroutil.util.CULog;
 import extendedrenderer.ParticleManagerExtended;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import weather2.client.SceneEnhancer;
 import weather2.config.ClientConfigData;
+import weather2.config.ConfigDebug;
 import weather2.util.WeatherUtil;
 import weather2.util.WindReader;
 import weather2.weathersystem.WeatherManagerClient;
@@ -37,6 +39,8 @@ public class ClientTickHandler
 	public float smoothAngleAdj = 0.1F;
 
 	public int prevDir = 0;
+
+	public long lastParticleResetTime = 0;
 
 	private static ParticleManagerExtended particleManagerExtended;
 
@@ -62,12 +66,6 @@ public class ClientTickHandler
         Minecraft mc = Minecraft.getInstance();
         Level world = mc.level;
 
-		//System.out.println(mc.currentScreen);
-
-		if (mc.screen instanceof BackupConfirmScreen) {
-
-		}
-
 		if (world != null) {
 			getClientWeather();
 
@@ -75,7 +73,15 @@ public class ClientTickHandler
 			sceneEnhancer.tickClient();
 
 			if (!WeatherUtil.isPausedForClient()) {
-				particleManagerExtended().tick();
+				if (ConfigDebug.Particle_engine_tick) {
+					particleManagerExtended().tick();
+				}
+			}
+
+			if (ConfigDebug.Particle_Reset_Frequency > 0 && lastParticleResetTime + ConfigDebug.Particle_Reset_Frequency < world.getGameTime()) {
+				CULog.log("clearing vanilla particles, set Weather2 Debug Particle_Reset_Frequency to 0 to disable");
+				lastParticleResetTime = world.getGameTime();
+				mc.particleEngine.clearParticles();
 			}
 
 			//TODO: evaluate if best here
@@ -83,7 +89,7 @@ public class ClientTickHandler
 			float windSpeed = WindReader.getWindSpeed(world);
 
 			//windDir = 0;
-
+			//TODO: ???????????? what is all this even affecting now
 			float diff = Math.abs(windDir - smoothAngle)/* - 180*/;
 
 			if (true && diff > 10/* && (smoothAngle > windDir - give || smoothAngle < windDir + give)*/) {

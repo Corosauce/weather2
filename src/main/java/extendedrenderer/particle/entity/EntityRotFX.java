@@ -28,6 +28,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import weather2.ClientTickHandler;
 import weather2.IWindHandler;
+import weather2.config.ConfigParticle;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
 
@@ -41,6 +42,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
         @Override
         public void begin(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
+            RenderSystem.disableCull();
             ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.begin(p_217600_1_, p_217600_2_);
         }
 
@@ -453,8 +455,11 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
     public void spawnAsWeatherEffect()
     {
         weatherEffect = true;
-        //Minecraft.getInstance().particles.addEffect(this);
-        ClientTickHandler.particleManagerExtended().add(this);
+        if (ConfigParticle.Particle_engine_weather2) {
+            ClientTickHandler.particleManagerExtended().add(this);
+        } else {
+            Minecraft.getInstance().particleEngine.add(this);
+        }
     }
 
     public int getAge()

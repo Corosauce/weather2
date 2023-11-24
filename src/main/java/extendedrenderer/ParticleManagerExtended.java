@@ -80,35 +80,6 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       this.textureManager = p_107300_;
    }
 
-   /** @deprecated Register via {@link net.minecraftforge.client.event.RegisterParticleProvidersEvent} */
-   @Deprecated
-   public <T extends ParticleOptions> void register(ParticleType<T> p_107382_, ParticleProvider<T> p_107383_) {
-      this.providers.put(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107382_), p_107383_);
-   }
-
-   /** @deprecated Register via {@link net.minecraftforge.client.event.RegisterParticleProvidersEvent} */
-   @Deprecated
-   public <T extends ParticleOptions> void register(ParticleType<T> p_273423_, ParticleProvider.Sprite<T> p_273134_) {
-      this.register(p_273423_, (p_272320_) -> {
-         return (p_272323_, p_272324_, p_272325_, p_272326_, p_272327_, p_272328_, p_272329_, p_272330_) -> {
-            TextureSheetParticle texturesheetparticle = p_273134_.createParticle(p_272323_, p_272324_, p_272325_, p_272326_, p_272327_, p_272328_, p_272329_, p_272330_);
-            if (texturesheetparticle != null) {
-               texturesheetparticle.pickSprite(p_272320_);
-            }
-
-            return texturesheetparticle;
-         };
-      });
-   }
-
-   /** @deprecated Register via {@link net.minecraftforge.client.event.RegisterParticleProvidersEvent} */
-   @Deprecated
-   public <T extends ParticleOptions> void register(ParticleType<T> p_107379_, ParticleManagerExtended.SpriteParticleRegistration<T> p_107380_) {
-      ParticleManagerExtended.MutableSpriteSet particleengine$mutablespriteset = new ParticleManagerExtended.MutableSpriteSet();
-      this.spriteSets.put(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107379_), particleengine$mutablespriteset);
-      this.providers.put(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107379_), p_107380_.create(particleengine$mutablespriteset));
-   }
-
    public CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier p_107305_, ResourceManager p_107306_, ProfilerFiller p_107307_, ProfilerFiller p_107308_, Executor p_107309_, Executor p_107310_) {
       @OnlyIn(Dist.CLIENT)
       record ParticleDefinition(ResourceLocation id, Optional<List<ResourceLocation>> sprites) {
@@ -184,25 +155,6 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       }
    }
 
-   public void createTrackingEmitter(Entity p_107330_, ParticleOptions p_107331_) {
-      this.trackingEmitters.add(new TrackingEmitter(this.level, p_107330_, p_107331_));
-   }
-
-   public void createTrackingEmitter(Entity p_107333_, ParticleOptions p_107334_, int p_107335_) {
-      this.trackingEmitters.add(new TrackingEmitter(this.level, p_107333_, p_107334_, p_107335_));
-   }
-
-   @Nullable
-   public Particle createParticle(ParticleOptions p_107371_, double p_107372_, double p_107373_, double p_107374_, double p_107375_, double p_107376_, double p_107377_) {
-      Particle particle = this.makeParticle(p_107371_, p_107372_, p_107373_, p_107374_, p_107375_, p_107376_, p_107377_);
-      if (particle != null) {
-         this.add(particle);
-         return particle;
-      } else {
-         return null;
-      }
-   }
-
    @Nullable
    private <T extends ParticleOptions> Particle makeParticle(T p_107396_, double p_107397_, double p_107398_, double p_107399_, double p_107400_, double p_107401_, double p_107402_) {
       ParticleProvider<T> particleprovider = (ParticleProvider<T>)this.providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(p_107396_.getType()));
@@ -223,8 +175,9 @@ public class ParticleManagerExtended implements PreparableReloadListener {
    }
 
    public void tick() {
+      this.level.getProfiler().push("weather2_particle_tick");
       this.particles.forEach((p_288249_, p_288250_) -> {
-         this.level.getProfiler().push(p_288249_.toString());
+         this.level.getProfiler().push("weather2_particle_tick_" + p_288249_.toString());
          this.tickParticleList(p_288250_);
          this.level.getProfiler().pop();
       });
@@ -249,7 +202,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
             }).add(particle);
          }
       }
-
+      this.level.getProfiler().pop();
    }
 
    private void tickParticleList(Collection<Particle> p_107385_) {
@@ -293,7 +246,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
    }
 
    public void render(PoseStack p_107337_, MultiBufferSource.BufferSource p_107338_, LightTexture p_107339_, Camera p_107340_, float p_107341_, @Nullable net.minecraft.client.renderer.culling.Frustum clippingHelper) {
-
+      this.level.getProfiler().push("weather2_particle_render");
       //if (true) return;
       float fogStart = RenderSystem.getShaderFogStart();
       float fogEnd = RenderSystem.getShaderFogEnd();
@@ -316,6 +269,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       int particleCount = 0;
 
       for(ParticleRenderType particlerendertype : this.particles.keySet()) { // Forge: allow custom IParticleRenderType's
+         this.level.getProfiler().push(particlerendertype.toString());
          if (particlerendertype == ParticleRenderType.NO_RENDER) continue;
          Iterable<Particle> iterable = this.particles.get(particlerendertype);
          if (iterable != null) {
@@ -347,6 +301,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
 
             particlerendertype.end(tesselator);
          }
+         this.level.getProfiler().pop();
       }
 
       posestack.popPose();
@@ -357,81 +312,13 @@ public class ParticleManagerExtended implements PreparableReloadListener {
 
       RenderSystem.setShaderFogStart(fogStart);
       RenderSystem.setShaderFogEnd(fogEnd);
+      this.level.getProfiler().pop();
    }
 
    public void setLevel(@Nullable ClientLevel p_107343_) {
       this.level = p_107343_;
       this.clearParticles();
       this.trackingEmitters.clear();
-   }
-
-   public void destroy(BlockPos p_107356_, BlockState p_107357_) {
-      if (!p_107357_.isAir()) {
-         VoxelShape voxelshape = p_107357_.getShape(this.level, p_107356_);
-         double d0 = 0.25D;
-         voxelshape.forAllBoxes((p_172273_, p_172274_, p_172275_, p_172276_, p_172277_, p_172278_) -> {
-            double d1 = Math.min(1.0D, p_172276_ - p_172273_);
-            double d2 = Math.min(1.0D, p_172277_ - p_172274_);
-            double d3 = Math.min(1.0D, p_172278_ - p_172275_);
-            int i = Math.max(2, Mth.ceil(d1 / 0.25D));
-            int j = Math.max(2, Mth.ceil(d2 / 0.25D));
-            int k = Math.max(2, Mth.ceil(d3 / 0.25D));
-
-            for(int l = 0; l < i; ++l) {
-               for(int i1 = 0; i1 < j; ++i1) {
-                  for(int j1 = 0; j1 < k; ++j1) {
-                     double d4 = ((double)l + 0.5D) / (double)i;
-                     double d5 = ((double)i1 + 0.5D) / (double)j;
-                     double d6 = ((double)j1 + 0.5D) / (double)k;
-                     double d7 = d4 * d1 + p_172273_;
-                     double d8 = d5 * d2 + p_172274_;
-                     double d9 = d6 * d3 + p_172275_;
-                     this.add(new TerrainParticle(this.level, (double)p_107356_.getX() + d7, (double)p_107356_.getY() + d8, (double)p_107356_.getZ() + d9, d4 - 0.5D, d5 - 0.5D, d6 - 0.5D, p_107357_, p_107356_).updateSprite(p_107357_, p_107356_));
-                  }
-               }
-            }
-
-         });
-      }
-   }
-
-   public void crack(BlockPos p_107368_, Direction p_107369_) {
-      BlockState blockstate = this.level.getBlockState(p_107368_);
-      if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
-         int i = p_107368_.getX();
-         int j = p_107368_.getY();
-         int k = p_107368_.getZ();
-         float f = 0.1F;
-         AABB aabb = blockstate.getShape(this.level, p_107368_).bounds();
-         double d0 = (double)i + this.random.nextDouble() * (aabb.maxX - aabb.minX - (double)0.2F) + (double)0.1F + aabb.minX;
-         double d1 = (double)j + this.random.nextDouble() * (aabb.maxY - aabb.minY - (double)0.2F) + (double)0.1F + aabb.minY;
-         double d2 = (double)k + this.random.nextDouble() * (aabb.maxZ - aabb.minZ - (double)0.2F) + (double)0.1F + aabb.minZ;
-         if (p_107369_ == Direction.DOWN) {
-            d1 = (double)j + aabb.minY - (double)0.1F;
-         }
-
-         if (p_107369_ == Direction.UP) {
-            d1 = (double)j + aabb.maxY + (double)0.1F;
-         }
-
-         if (p_107369_ == Direction.NORTH) {
-            d2 = (double)k + aabb.minZ - (double)0.1F;
-         }
-
-         if (p_107369_ == Direction.SOUTH) {
-            d2 = (double)k + aabb.maxZ + (double)0.1F;
-         }
-
-         if (p_107369_ == Direction.WEST) {
-            d0 = (double)i + aabb.minX - (double)0.1F;
-         }
-
-         if (p_107369_ == Direction.EAST) {
-            d0 = (double)i + aabb.maxX + (double)0.1F;
-         }
-
-         this.add((new TerrainParticle(this.level, d0, d1, d2, 0.0D, 0.0D, 0.0D, blockstate, p_107368_).updateSprite(blockstate, p_107368_)).setPower(0.2F).scale(0.6F));
-      }
    }
 
    public String countParticles() {
@@ -442,7 +329,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       return this.trackedParticleCounts.getInt(p_172280_) < p_172280_.getLimit();
    }
 
-   private void clearParticles() {
+   public void clearParticles() {
       this.particles.clear();
       this.particlesToAdd.clear();
       this.trackingEmitters.clear();
@@ -466,9 +353,7 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       }
    }
 
-   @FunctionalInterface
-   @OnlyIn(Dist.CLIENT)
-   public interface SpriteParticleRegistration<T extends ParticleOptions> {
-      ParticleProvider<T> create(SpriteSet p_107420_);
+   public Map<ParticleRenderType, Queue<Particle>> getParticles() {
+      return particles;
    }
 }

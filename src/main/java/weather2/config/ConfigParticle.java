@@ -28,6 +28,14 @@ public class ConfigParticle implements IConfigCategory {
 	//public static double Sandstorm_Particle_Debris_effect_rate = 0.6D;
 	//public static double Sandstorm_Particle_Dust_effect_rate = 0.6D;
 
+    public static double Particle_effect_rate = 1D;
+
+    @ConfigComment("If true, uses vanilla rain/snow non particle precipitation")
+    public static boolean Particle_vanilla_precipitation = false;
+
+    @ConfigComment("If set to false, particles are spawned in using the vanilla particle renderer, may cause issues")
+    public static boolean Particle_engine_weather2 = true;
+
     @ConfigComment("Extra flying block particles to spawn when the tornado rips up a block")
     public static int Particle_Tornado_extraParticleCubes = 2;
 

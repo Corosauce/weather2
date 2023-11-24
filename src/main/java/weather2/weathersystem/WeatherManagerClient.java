@@ -159,20 +159,22 @@ public class WeatherManagerClient extends WeatherManager {
 			StormObject storm = getStormObjectByID(ownerID);
 			if (storm != null) {
 
-				int extraCubes = 1 + ConfigParticle.Particle_Tornado_extraParticleCubes;
-				Random rand = CoroUtilMisc.random();
-				float randRange = 3;
-				for (int i = 0; i < extraCubes; i++) {
-					ParticleCube hail = new ParticleCube(getWorld(),
-							posX + (rand.nextFloat() - rand.nextFloat()) * randRange,
-							posY + (rand.nextFloat() - rand.nextFloat()) * randRange,
-							posZ + (rand.nextFloat() - rand.nextFloat()) * randRange,
-							0D, 0D, 0D, state);
-					SceneEnhancer.checkParticleBehavior();
-					SceneEnhancer.particleBehavior.initParticleCube(hail);
-					storm.listParticlesDebris.add(hail);
+				if (ConfigParticle.Particle_effect_rate > 0) {
+					int extraCubes = (int) (1 + ConfigParticle.Particle_Tornado_extraParticleCubes * ConfigParticle.Particle_effect_rate);
+					Random rand = CoroUtilMisc.random();
+					float randRange = 3;
+					for (int i = 0; i < extraCubes; i++) {
+						ParticleCube hail = new ParticleCube(getWorld(),
+								posX + (rand.nextFloat() - rand.nextFloat()) * randRange,
+								posY + (rand.nextFloat() - rand.nextFloat()) * randRange,
+								posZ + (rand.nextFloat() - rand.nextFloat()) * randRange,
+								0D, 0D, 0D, state);
+						SceneEnhancer.checkParticleBehavior();
+						SceneEnhancer.particleBehavior.initParticleCube(hail);
+						storm.listParticlesDebris.add(hail);
 
-					hail.spawnAsWeatherEffect();
+						hail.spawnAsWeatherEffect();
+					}
 				}
 			}
 		}

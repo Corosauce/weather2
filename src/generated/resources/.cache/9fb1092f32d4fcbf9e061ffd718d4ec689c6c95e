@@ -1,4 +1,4 @@
-// 1.20.1	2023-11-19T01:33:45.5962984	Recipes
+// 1.20.1	2023-11-23T15:40:45.726425	Recipes
 a6fcf55b00f782cb61ea7ff8c36947cc71d1b6eb data/weather2/advancements/recipes/misc/anemometer.json
 f05e205a927078351fb102a2efb42abb0b621702 data/weather2/advancements/recipes/misc/sand_layer.json
 1628c853ad5eb3f28a2183446344bc04891eb91c data/weather2/advancements/recipes/misc/tornado_sensor.json
@@ -15,5 +15,5 @@ bedb68269184b52e111d66ab1a430f50f74b2c1f data/weather2/recipes/sand_layer.json
 fa3fbf7a57f04cd6bafe3d294d99e0359c3c1aae data/weather2/recipes/weather_deflector.json
 5465cb6ea0be946f98da47fedcd7d4328a61a1ee data/weather2/recipes/weather_forecast.json
 fc16ba8ec6cae16f7a3c29bba99215b13a13ef97 data/weather2/recipes/weather_item.json
-3a544346544ee6bdc97285a554ba8526a3fc802c data/weather2/recipes/wind_turbine.json
+e79f45df5a4ad54d1d56b36885e6be58135475d3 data/weather2/recipes/wind_turbine.json
 fc56b6dad0bb7d6b22ae4b95d8c69cbcd964b4fa data/weather2/recipes/wind_vane.json

@@ -2914,9 +2914,11 @@ public class StormObject extends WeatherObject {
 		entityfx.setTicksFadeOutMax(20);
 		entityfx.setTicksFadeOutMaxOnDeath(20);
 
-		entityfx.spawnAsWeatherEffect();
-		//Minecraft.getInstance().particleEngine.add(entityfx);
-		particleBehaviorFog.particles.add(entityfx);
+		if (ConfigParticle.Particle_effect_rate != 0) {
+			entityfx.spawnAsWeatherEffect();
+			//Minecraft.getInstance().particleEngine.add(entityfx);
+			particleBehaviorFog.particles.add(entityfx);
+		}
 		return entityfx;
     }
 

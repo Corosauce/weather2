@@ -10,9 +10,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -37,12 +39,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
 import weather2.config.*;
+import weather2.data.BlockAndItemProvider;
+import weather2.data.BlockLootTables;
 import weather2.data.WeatherRecipeProvider;
 import weather2.util.WeatherUtilSound;
 
-import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,6 +116,7 @@ public class Weather
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigStorm()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigTornado()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigParticle()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigDebug()));
         //ConfigMod.addConfigFile(MODID, addConfig(new ConfigFoliage()));
         //WeatherUtilConfig.nbtLoadDataAll();
 
@@ -186,6 +191,8 @@ public class Weather
         DataGenerator gen = event.getGenerator();
         if (event.includeServer()) {
             gen.addProvider(event.includeServer(), new WeatherRecipeProvider(gen.getPackOutput()));
+            gen.addProvider(event.includeServer(), new LootTableProvider(gen.getPackOutput(), Collections.emptySet(),
+                    List.of(new LootTableProvider.SubProviderEntry(BlockLootTables::new, LootContextParamSets.BLOCK))));
         }
         if (event.includeClient()) {
             gatherClientData(event);

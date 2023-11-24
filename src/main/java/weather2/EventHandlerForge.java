@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
@@ -21,6 +22,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import weather2.client.SceneEnhancer;
+import weather2.command.CommandWeather2Client;
+import weather2.config.ConfigDebug;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerClient;
@@ -36,7 +39,9 @@ public class EventHandlerForge {
 		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
 			ClientTickHandler.getClientWeather();
 		} else if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-			ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick(), event.getFrustum());
+			if (ConfigDebug.Particle_engine_render) {
+				ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick(), event.getFrustum());
+			}
 		}
     }
 
@@ -136,5 +141,10 @@ public class EventHandlerForge {
 			}
 		}
 
+	}
+
+	@SubscribeEvent
+	public void registerCommandsClient(RegisterClientCommandsEvent event) {
+		CommandWeather2Client.register(event.getDispatcher());
 	}
 }
