@@ -1,8 +1,6 @@
 package weather2;
 
-import de.maxhenkel.pipez.ClientConfig;
 import net.minecraft.world.level.biome.Biome;
-import weather2.config.ClientConfigData;
 import weather2.datatypes.PrecipitationType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
