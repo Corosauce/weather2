@@ -38,7 +38,7 @@ public class WindVaneBlockEntity extends BlockEntity {
 
 		} else {
 			if (level.getGameTime() % 40 == 0) {
-				isOutsideCached = WeatherUtilEntity.isPosOutside(level, new Vec3(getBlockPos().getX()+0.5F, getBlockPos().getY()+0.5F, getBlockPos().getZ()+0.5F));
+				isOutsideCached = WeatherUtilEntity.isPosOutside(level, new Vec3(getBlockPos().getX()+0.5F, getBlockPos().getY()+0.5F, getBlockPos().getZ()+0.5F), false, true);
 			}
 
 			if (isOutsideCached) {

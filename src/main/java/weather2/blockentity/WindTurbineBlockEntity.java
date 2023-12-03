@@ -29,6 +29,8 @@ public class WindTurbineBlockEntity extends BlockEntity {
 
 	public boolean isOutsideCached = false;
 
+	private boolean needsInit = true;
+
 	//private final EnergyManager energyManager;
 	private LazyOptional<EnergyManager> energy;
 	private EnergyManager energyManager;
@@ -64,10 +66,13 @@ public class WindTurbineBlockEntity extends BlockEntity {
 			this.energyManager.addEnergy((int) (maxNormalGenerated * lastWindSpeed));
 			outputEnergy();
 		} else {
-			if (level.getGameTime() % 40 == 0) {
-				isOutsideCached = WeatherUtilEntity.isPosOutside(level, new Vec3(getBlockPos().getX()+0.5F, getBlockPos().getY()+0.5F, getBlockPos().getZ()+0.5F));
+			if (needsInit) {
+				needsInit = false;
+				updateIsOutside();
 			}
-
+			if (level.getGameTime() % 100 == 0) {
+				updateIsOutside();
+			}
 			if (isOutsideCached) {
 				float windSpeed = WindReader.getWindSpeed(level);
 				float rotMax = 100F;
@@ -87,6 +92,10 @@ public class WindTurbineBlockEntity extends BlockEntity {
 
 			if (smoothAngleRotationalVel <= 0) smoothAngleRotationalVel = 0;
 		}
+	}
+
+	public void updateIsOutside() {
+		isOutsideCached = WeatherUtilEntity.isPosOutside(level, new Vec3(getBlockPos().getX()+0.5F, getBlockPos().getY()+0.5F, getBlockPos().getZ()+0.5F), false, true);
 	}
 
 	public void outputEnergy() {

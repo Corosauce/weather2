@@ -196,39 +196,65 @@ public class WeatherUtilEntity {
 	}
 
 	public static boolean isEntityOutside(Entity parEnt, boolean cheapCheck) {
-		return isPosOutside(parEnt.level(), parEnt.position(), cheapCheck);
+		return isPosOutside(parEnt.level(), parEnt.position(), cheapCheck, false);
 	}
 
 	public static boolean isPosOutside(Level parWorld, Vec3 parPos) {
-		return isPosOutside(parWorld, parPos, false);
+		return isPosOutside(parWorld, parPos, false, false);
 	}
 
-	public static boolean isPosOutside(Level parWorld, Vec3 parPos, boolean cheapCheck) {
-		int rangeCheck = 5;
-		int yOffset = 1;
+	public static boolean isPosOutside(Level parWorld, Vec3 parPos, boolean cheapCheck, boolean eachSideClearCheck) {
 
 		if (WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(parPos.x), 0, Mth.floor(parPos.z))).getY() < parPos.y+1) return true;
-
 		if (cheapCheck) return false;
 
+		int rangeCheck = 5;
+		int yOffset = 0;
+		//start 1 block away from start position to avoid colliding with self when used for a block
+		int xzInitialOffset = 1;
+
+		boolean nsCheck = false;
+
 		Vec3 vecTry = new Vec3(parPos.x + Direction.NORTH.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.NORTH.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) {
-			return true;
+		Vec3 parPosTry = new Vec3(parPos.x + Direction.NORTH.getStepX()*xzInitialOffset, parPos.y+yOffset, parPos.z + Direction.NORTH.getStepZ()*xzInitialOffset);
+		if (checkVecOutside(parWorld, parPosTry, vecTry)) {
+			if (eachSideClearCheck) {
+				nsCheck = true;
+			} else {
+				return true;
+			}
 		}
 
 		vecTry = new Vec3(parPos.x + Direction.SOUTH.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.SOUTH.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) {
-			return true;
+		parPosTry = new Vec3(parPos.x + Direction.SOUTH.getStepX()*xzInitialOffset, parPos.y+yOffset, parPos.z + Direction.SOUTH.getStepZ()*xzInitialOffset);
+		if (checkVecOutside(parWorld, parPosTry, vecTry)) {
+			if (eachSideClearCheck) {
+				return nsCheck;
+			} else {
+				return true;
+			}
 		}
 
+		nsCheck = false;
+
 		vecTry = new Vec3(parPos.x + Direction.EAST.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.EAST.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) {
-			return true;
+		parPosTry = new Vec3(parPos.x + Direction.EAST.getStepX()*xzInitialOffset, parPos.y+yOffset, parPos.z + Direction.EAST.getStepZ()*xzInitialOffset);
+		if (checkVecOutside(parWorld, parPosTry, vecTry)) {
+			if (eachSideClearCheck) {
+				nsCheck = true;
+			} else {
+				return true;
+			}
 		}
 
 		vecTry = new Vec3(parPos.x + Direction.WEST.getStepX()*rangeCheck, parPos.y+yOffset, parPos.z + Direction.WEST.getStepZ()*rangeCheck);
-		if (checkVecOutside(parWorld, parPos, vecTry)) {
-			return true;
+		parPosTry = new Vec3(parPos.x + Direction.WEST.getStepX()*xzInitialOffset, parPos.y+yOffset, parPos.z + Direction.WEST.getStepZ()*xzInitialOffset);
+		if (checkVecOutside(parWorld, parPosTry, vecTry)) {
+			if (eachSideClearCheck) {
+				return nsCheck;
+			} else {
+				return true;
+			}
 		}
 
 		return false;
