@@ -96,6 +96,8 @@ public class WeatherManagerServer extends WeatherManager {
 			//sim box work
 			int rate = 20;
 			if (world.getGameTime() % rate == 0) {
+
+				//removal pass
 				for (int i = 0; i < getStormObjects().size(); i++) {
 					WeatherObject so = getStormObjects().get(i);
 					Player closestPlayer = world.getNearestPlayer(so.posGround.x, so.posGround.y, so.posGround.z, ConfigMisc.Misc_simBoxRadiusCutoff, EntitySelector.ENTITY_STILL_ALIVE);

@@ -20,6 +20,7 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 import weather2.config.ClientConfigData;
 import weather2.config.ConfigMisc;
+import weather2.config.WeatherUtilConfig;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.wind.WindManager;
@@ -40,7 +41,9 @@ public class ServerTickHandler {
 			ServerLevel serverWorld = (ServerLevel) world;
 			ResourceKey<Level> dimension = serverWorld.dimension();
 			WeatherManagerServer weatherManagerServer = new WeatherManagerServer(serverWorld);
-			weatherManagerServer.read();
+			if (WeatherUtilConfig.listDimensionsWeather.contains(weatherManagerServer.getWorld().dimension().location().toString())) {
+				weatherManagerServer.read();
+			}
 			MANAGERS.put(dimension, weatherManagerServer);
 			MANAGERSLOOKUP.put(dimension.location().toString(), weatherManagerServer);
 		}
@@ -60,7 +63,10 @@ public class ServerTickHandler {
 	public static void tickServer(TickEvent.ServerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
 			for (WeatherManagerServer manager : MANAGERS.values()) {
-				manager.tick();
+				//for non whitelisted dimensions i chose to still tick the manager, and also register it, so it can get cleaned up if people spawn stuff or change config
+				//if (WeatherUtilConfig.listDimensionsWeather.contains(manager.getWorld().dimension().location().toString())) {
+					manager.tick();
+				//}
 			}
 
 			processIMCMessages();
@@ -69,9 +75,6 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public static void tickServer(TickEvent.LevelTickEvent event) {
-
-		//System.out.println("tick ConfigMisc.Aesthetic_Only_Mode: " + ConfigMisc.Aesthetic_Only_Mode);
-		//System.out.println("tick ConfigMisc.overcastMode: " + ConfigMisc.overcastMode);
 
 		//TODO: TEMPPPPPPPPPPPP
 		//ConfigMisc.Aesthetic_Only_Mode = true;

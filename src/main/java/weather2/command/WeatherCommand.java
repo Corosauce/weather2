@@ -16,6 +16,7 @@ import net.minecraftforge.fml.InterModComms;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;
+import weather2.config.WeatherUtilConfig;
 import weather2.util.WeatherUtil;
 import weather2.weathersystem.WeatherManagerServer;
 import weather2.weathersystem.storm.StormObject;
@@ -103,7 +104,7 @@ public class WeatherCommand {
 									return Command.SINGLE_SUCCESS;
 								}))
 						)
-						.then(literal("summon").requires(s -> s.hasPermission(2))
+						.then(literal("summon").requires(s -> s.hasPermission(2)).requires(s -> WeatherUtilConfig.listDimensionsWeather.contains(s.getLevel().dimension().location().toString()))
 								.then(literal("storm_rain").executes(c -> {
 									StormObject stormObject = summonStorm(c, StormObject.STATE_NORMAL);
 

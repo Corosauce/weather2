@@ -16,8 +16,7 @@ public class WeatherUtilConfig {
 	public static List<String> listDimensionsWindEffects = new ArrayList<>();
 
 	public static boolean shouldTickClouds(String levelResourceKey) {
-		return true;
-		//return listDimensionsClouds.contains(levelResourceKey);
+		return listDimensionsClouds.contains(levelResourceKey);
 	}
 
 	public static void processLists() {

@@ -11,6 +11,7 @@ import weather2.IWorldData;
 import weather2.Weather;
 import weather2.WorldNBTData;
 import weather2.config.ConfigStorm;
+import weather2.config.WeatherUtilConfig;
 import weather2.weathersystem.storm.*;
 import weather2.weathersystem.wind.WindManager;
 
@@ -71,7 +72,9 @@ public abstract class WeatherManager implements IWorldData {
 			}
 
 			//tick wind
-			wind.tick();
+			if (WeatherUtilConfig.listDimensionsWindEffects.contains(getWorld().dimension().location().toString())) {
+				wind.tick();
+			}
 		}
 	}
 
