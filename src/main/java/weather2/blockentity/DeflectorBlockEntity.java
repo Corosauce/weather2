@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import weather2.ServerTickHandler;
 import weather2.WeatherBlocks;
+import weather2.weathersystem.WeatherManagerServer;
 
 public class DeflectorBlockEntity extends BlockEntity {
 
@@ -38,6 +39,7 @@ public class DeflectorBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         super.setRemoved();
-        ServerTickHandler.getWeatherManagerFor(level).removeDeflector(getBlockPos());
+        WeatherManagerServer weatherManagerServer = ServerTickHandler.getWeatherManagerFor(level);
+        if (weatherManagerServer != null) weatherManagerServer.removeDeflector(getBlockPos());
     }
 }
