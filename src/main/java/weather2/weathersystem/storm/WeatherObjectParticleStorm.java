@@ -1,9 +1,9 @@
 package weather2.weathersystem.storm;
 
 import com.corosus.coroutil.util.CoroUtilBlock;
+import com.corosus.coroutil.util.CoroUtilCompatibility;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -12,12 +12,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
 import weather2.WeatherBlocks;
-import weather2.client.SceneEnhancer;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigSnow;
-import weather2.datatypes.PrecipitationType;
 import weather2.util.CachedNBTTagCompound;
 import weather2.util.WeatherUtilBlock;
 import weather2.weathersystem.WeatherManager;
@@ -76,7 +73,7 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 		//return biome.getPrecipitation() == Biome.Precipitation.SNOW;
 		//adjusted to this way to make it work with serene seasons
 		boolean canPrecip = biome.get().getPrecipitationAt(pos) == Biome.Precipitation.RAIN || biome.get().getPrecipitationAt(pos) == Biome.Precipitation.SNOW;
-		return canPrecip && SceneEnhancer.shouldSnowHere(world, biome.get(), pos);
+		return canPrecip && CoroUtilCompatibility.coldEnoughToSnow(biome.get(), pos, world);
 	}
 
 	public static boolean isDesert(Holder<Biome> biome, boolean forSpawn) {

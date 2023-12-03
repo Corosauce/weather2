@@ -37,13 +37,11 @@ public class CommandWeather2Client {
 											float value = FloatArgumentType.getFloat(c, "value");
 											ConfigParticle.Particle_effect_rate = value;
 											c.getSource().sendSuccess(() -> Component.literal("Set weather2 particle effect rate to " + value), true);
-											//why 2? sometimes it doesnt take, wtf lol
-											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											return Command.SINGLE_SUCCESS;
 										}))
 								)
-								.then(literal("particle_reset_frequency")
+								/*.then(literal("particle_reset_frequency")
 										.then(argument("seconds", IntegerArgumentType.integer(0, 20*60*24)).executes(c -> {
 											int value = IntegerArgumentType.getInteger(c, "seconds");
 											ConfigDebug.Particle_Reset_Frequency = value * 20;
@@ -52,13 +50,12 @@ public class CommandWeather2Client {
 											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											return Command.SINGLE_SUCCESS;
 										}))
-								)
+								)*/
 								.then(literal("particle_vanilla_precipitation")
 										.then(argument("value", BoolArgumentType.bool()).executes(c -> {
 											boolean value = BoolArgumentType.getBool(c, "value");
 											ConfigParticle.Particle_vanilla_precipitation = value;
 											c.getSource().sendSuccess(() -> Component.literal("Set weather2 to use vanilla particles?: " + value), true);
-											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											return Command.SINGLE_SUCCESS;
 										}))
@@ -68,14 +65,12 @@ public class CommandWeather2Client {
 											ConfigParticle.Particle_engine_weather2 = true;
 											c.getSource().sendSuccess(() -> Component.literal("Set particle engine to weather2"), true);
 											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
-											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											return Command.SINGLE_SUCCESS;
 										}))
 										.then(literal("vanilla").executes(c -> {
 											ConfigParticle.Particle_engine_weather2 = false;
 											ClientTickHandler.particleManagerExtended().clearParticles();
 											c.getSource().sendSuccess(() -> Component.literal("Set particle engine to vanilla"), true);
-											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 											return Command.SINGLE_SUCCESS;
 										}))
@@ -139,7 +134,6 @@ public class CommandWeather2Client {
 												ConfigDebug.Particle_engine_render = value;
 												c.getSource().sendSuccess(() -> Component.literal("ConfigParticle.Particle_engine_render: " + value), true);
 												ConfigMod.forceSaveAllFilesFromRuntimeSettings();
-												ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 												return Command.SINGLE_SUCCESS;
 											}))
 									)
@@ -148,7 +142,6 @@ public class CommandWeather2Client {
 												boolean value = BoolArgumentType.getBool(c, "value");
 												ConfigDebug.Particle_engine_tick = value;
 												c.getSource().sendSuccess(() -> Component.literal("ConfigParticle.Particle_engine_tick: " + value), true);
-												ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 												ConfigMod.forceSaveAllFilesFromRuntimeSettings();
 												return Command.SINGLE_SUCCESS;
 											}))

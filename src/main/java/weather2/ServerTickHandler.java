@@ -70,6 +70,13 @@ public class ServerTickHandler {
 	@SubscribeEvent
 	public static void tickServer(TickEvent.LevelTickEvent event) {
 
+		//System.out.println("tick ConfigMisc.Aesthetic_Only_Mode: " + ConfigMisc.Aesthetic_Only_Mode);
+		//System.out.println("tick ConfigMisc.overcastMode: " + ConfigMisc.overcastMode);
+
+		//TODO: TEMPPPPPPPPPPPP
+		//ConfigMisc.Aesthetic_Only_Mode = true;
+		//ConfigMisc.overcastMode = true;
+
 		if (event.level.dimension() == Level.OVERWORLD && event.phase == TickEvent.Phase.END && !event.level.isClientSide()) {
 			if (ConfigMisc.Aesthetic_Only_Mode) {
 				if (!ConfigMisc.overcastMode) {
