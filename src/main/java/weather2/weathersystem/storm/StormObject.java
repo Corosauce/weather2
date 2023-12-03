@@ -1147,12 +1147,12 @@ public class StormObject extends WeatherObject {
 		if (world.getGameTime() % ConfigStorm.Storm_AllTypes_TickRateDelay == 0) {
 
 			//boolean debug = false;
-			Player player = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
+			//can be null if spawned via server console
+			Player player = getPlayer();
 			CompoundTag playerNBT = null;
 			if (player != null) {
 				playerNBT = player.getPersistentData();
 			} else {
-				Weather.dbg("this should never happen aaaaaaaaaaaaaaa");
 				playerNBT = new CompoundTag();
 			}
 			//CompoundTag playerNBT = PlayerData.getPlayerNBT(spawnerUUID);
@@ -1297,7 +1297,7 @@ public class StormObject extends WeatherObject {
 				}
 
 				if (isInOcean && (ConfigStorm.Storm_OddsTo1OfOceanBasedStorm > 0 && rand.nextInt(ConfigStorm.Storm_OddsTo1OfOceanBasedStorm) == 0)) {
-					Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
+					Player entP = getPlayer();
 
 					if (entP != null) {
 						initRealStorm(entP, null);
@@ -1311,7 +1311,7 @@ public class StormObject extends WeatherObject {
 						playerNBT.putLong("lastStormDeadlyTime", world.getGameTime());
 					}
 				} else if ((!isInOcean && randomChanceOfCollideLand > 0 && rand.nextInt(randomChanceOfCollideLand) == 0)) {
-					Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
+					Player entP = getPlayer();
 
 					if (entP != null) {
 						initRealStorm(entP, null);
@@ -1356,7 +1356,7 @@ public class StormObject extends WeatherObject {
 								playerNBT.putLong("lastStormDeadlyTime", world.getGameTime());
 
 								//EntityPlayer entP = manager.getWorld().getClosestPlayer(pos.x, pos.y, pos.z, -1);
-								Player entP = world.getPlayerByUUID(UUID.fromString(spawnerUUID));
+								Player entP = getPlayer();
 
 								if (entP != null) {
 									initRealStorm(entP, so);
