@@ -117,6 +117,7 @@ public class Weather
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigTornado()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigParticle()));
         ConfigMod.addConfigFile(MODID, addConfig(new ConfigDebug()));
+        ConfigMod.addConfigFile(MODID, addConfig(new ConfigSound()));
         //ConfigMod.addConfigFile(MODID, addConfig(new ConfigFoliage()));
         //WeatherUtilConfig.nbtLoadDataAll();
 

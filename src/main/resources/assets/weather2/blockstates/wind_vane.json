@@ -1,6 +1,6 @@
 {
   "variants": {
-    "normal": {
+    "": {
       "model": "weather2:block/wind_vane"
     }
   }

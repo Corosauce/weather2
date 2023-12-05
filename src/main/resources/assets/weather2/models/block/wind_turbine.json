@@ -1,7 +1,16 @@
 {
+	"parent": "forge:item/default",
+	"display": {
+		"gui": {
+			"rotation": [ 30, 225, 0 ],
+			"translation": [ 0, -3, 0],
+			"scale":[ 0.425, 0.425, 0.425 ]
+		}
+	},
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
 	"textures": {
+		"particle": "block/stone",
 		"2": "weather2:blocks/wind_turbine"
 	},
 	"elements": [

@@ -36,10 +36,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.level.BlockEvent;
 import weather2.ClientTickHandler;
 import weather2.Weather;
-import weather2.config.ClientConfigData;
-import weather2.config.ConfigMisc;
-import weather2.config.ConfigStorm;
-import weather2.config.ConfigTornado;
+import weather2.config.*;
 import weather2.util.WeatherUtil;
 import weather2.util.WeatherUtilBlock;
 import weather2.util.WeatherUtilEntity;
@@ -804,15 +801,15 @@ public class TornadoHelper {
 							new Vec3(mc.player.getPosition(1).x()+0.5F, mc.player.getPosition(1).y()+0.5F, mc.player.getPosition(1).z()+0.5F));
 				}
 				if (isOutsideCached) {
-					tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, volScaleFar * quietAmbientTweak, far);
+					tryPlaySound(WeatherUtilSound.snd_wind_far, 2, mc.player, (float)(volScaleFar * quietAmbientTweak * ConfigSound.windyStormVolume), far);
 				}
 			}
 
-            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, volScaleClose * quietTornadoTweak, close);
+            if (playNearSound) tryPlaySound(WeatherUtilSound.snd_wind_close, 1, mc.player, (float)(volScaleClose * quietTornadoTweak * ConfigSound.tornadoWindVolume), close);
 
             if (storm.levelCurIntensityStage >= storm.STATE_FORMING && storm.stormType == storm.TYPE_LAND)
             {
-                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, volScaleClose * quietTornadoTweak, close);
+                tryPlaySound(WeatherUtilSound.snd_tornado_dmg_close, 0, mc.player, (float)(volScaleClose * quietTornadoTweak * ConfigSound.tornadoDamageVolume), close);
             }
         }
     }

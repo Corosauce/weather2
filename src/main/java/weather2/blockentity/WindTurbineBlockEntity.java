@@ -3,7 +3,6 @@ package weather2.blockentity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,12 +12,12 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import weather2.Weather;
 import weather2.WeatherBlocks;
-import weather2.WeatherItems;
+import weather2.config.ConfigWind;
 import weather2.energy.EnergyManager;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WindReader;
+import weather2.weathersystem.WeatherManager;
 
 public class WindTurbineBlockEntity extends BlockEntity {
 
@@ -36,7 +35,7 @@ public class WindTurbineBlockEntity extends BlockEntity {
 	private EnergyManager energyManager;
 
 	//amount generated at windspeed of 1, theoretical max windspeed is 2 when tornado right on top of it
-	private int maxNormalGenerated = 10;
+	private int maxNormalGenerated = ConfigWind.Wind_Turbine_FE_Generated_Per_Tick;
 	private int capacity = maxNormalGenerated * 2;
 	private int maxTransfer = capacity;
 
@@ -59,22 +58,29 @@ public class WindTurbineBlockEntity extends BlockEntity {
 	}
 
 	public void tick(Level level, BlockPos pos, BlockState state) {
+		if (needsInit) {
+			needsInit = false;
+			updateIsOutside();
+		}
+		if (level.getGameTime() % 100 == 0) {
+			updateIsOutside();
+		}
+		if (isOutsideCached) {
+			if (level.getGameTime() % 20 == 0) {
+				WeatherManager weatherManager = WindReader.getWeatherManagerFor(level);
+				if (weatherManager != null) {
+					lastWindSpeed = weatherManager.getWindManager().getWindSpeedPositional(getBlockPos(), 2, false);
+				}
+			}
+		}
 		if (!level.isClientSide) {
-			if (level.getGameTime() % 100 == 0) {
-				lastWindSpeed = WindReader.getWindSpeed(level, getBlockPos());
-			}
-			this.energyManager.addEnergy((int) (maxNormalGenerated * lastWindSpeed));
-			outputEnergy();
-		} else {
-			if (needsInit) {
-				needsInit = false;
-				updateIsOutside();
-			}
-			if (level.getGameTime() % 100 == 0) {
-				updateIsOutside();
-			}
 			if (isOutsideCached) {
-				float windSpeed = WindReader.getWindSpeed(level);
+				this.energyManager.addEnergy((int) (maxNormalGenerated * lastWindSpeed));
+				outputEnergy();
+			}
+		} else {
+			if (isOutsideCached) {
+				float windSpeed = lastWindSpeed;//WindReader.getWindSpeed(level);
 				float rotMax = 100F;
 				float maxSpeed = (windSpeed / 2F) * rotMax;
 				if (smoothAngleRotationalVel < maxSpeed) {

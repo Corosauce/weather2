@@ -6,11 +6,14 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 
+import com.corosus.coroutil.util.CoroUtilEntOrParticle;
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import extendedrenderer.particle.entity.EntityRotFX;
@@ -106,6 +109,10 @@ public class WeatherUtilParticle {
         }
 
         return -1;
+    }
+
+    public static BlockPos getPos(Particle particle) {
+        return new BlockPos(Mth.floor(particle.x), Mth.floor(particle.y), Mth.floor(Mth.floor(particle.z)));
     }
     
     /*@SideOnly(Side.CLIENT)

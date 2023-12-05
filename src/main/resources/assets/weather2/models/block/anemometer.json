@@ -1,6 +1,15 @@
 {
+  "parent": "forge:item/default",
+  "display": {
+    "gui": {
+      "rotation": [ 30, 225, 0 ],
+      "translation": [ 0, 0, 0],
+      "scale":[ 0.725, 0.725, 0.725 ]
+    }
+  },
   "credit": "Made with Blockbench",
   "textures": {
+    "particle": "block/stone",
     "0": "weather2:blocks/anemometer"
   },
   "elements": [
@@ -288,6 +297,18 @@
         "west": {"uv": [6, 3, 7, 4], "texture": "#0"},
         "up": {"uv": [6, 3, 3, 2], "texture": "#0"},
         "down": {"uv": [9, 2, 6, 3], "texture": "#0"}
+      }
+    },
+    {
+      "from": [6.5, 0, 6.5],
+      "to": [9.5, 1, 9.5],
+      "faces": {
+        "north": {"uv": [3, 3, 6, 4], "texture": "#0"},
+        "east": {"uv": [0, 3, 3, 4], "texture": "#0"},
+        "south": {"uv": [9, 3, 12, 4], "texture": "#0"},
+        "west": {"uv": [6, 3, 9, 4], "texture": "#0"},
+        "up": {"uv": [6, 3, 3, 0], "texture": "#0"},
+        "down": {"uv": [9, 0, 6, 3], "texture": "#0"}
       }
     }
   ],

@@ -77,7 +77,9 @@ public class WindVaneEntityRenderer<T extends BlockEntity> implements BlockEntit
         root.xRot += Math.toRadians(180);
         root.yRot += Math.toRadians(180);
 
-        root.y += 16;
+        root.y += 28;
+        float scale = 0.5F;
+        root.offsetScale(new Vector3f(scale, scale, scale));
 
         ModelPart top = this.model.root().getChild("root").getChild("base").getChild("middle").getChild("top");
         if (top != null) {
@@ -91,7 +93,7 @@ public class WindVaneEntityRenderer<T extends BlockEntity> implements BlockEntit
 
             top.yRot = (float) Math.toRadians(renderAngle);
 
-            boolean shaking = windMan.getWindSpeed() >= 1.5;
+            boolean shaking = windMan.getWindSpeed(te.getBlockPos()) >= 1.5;
             if (shaking) {
                 Random rand = new Random(te.getLevel().getGameTime());
                 top.yRot += (float) ((rand.nextFloat() - rand.nextFloat()) * Math.toRadians(2));

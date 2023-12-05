@@ -1160,6 +1160,15 @@ public class StormObject extends WeatherObject {
 			long lastStormDeadlyTime = playerNBT.getLong("lastStormDeadlyTime");
 			//long lastStormRainTime = playerNBT.getLong("lastStormRainTime");
 
+			//set it up so that theres an initial delay before first deadly storm on first world load
+			if (lastStormDeadlyTime == 0) {
+				lastStormDeadlyTime = world.getGameTime();
+			}
+			WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(world.dimension());
+			if (wm.lastStormFormed == 0) {
+				wm.lastStormFormed = world.getGameTime();
+			}
+
 			//Biome bgb = null;
 			Holder<Biome> bgb = world.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))));
 
@@ -1256,8 +1265,6 @@ public class StormObject extends WeatherObject {
 			}
 			
 			//actual storm formation chance
-			
-			WeatherManagerServer wm = ServerTickHandler.getWeatherManagerFor(world.dimension());
 
 			boolean tempAlwaysFormStorm = false;
 			
@@ -2913,6 +2920,8 @@ public class StormObject extends WeatherObject {
 		entityfx.setTicksFadeInMax(20);
 		entityfx.setTicksFadeOutMax(20);
 		entityfx.setTicksFadeOutMaxOnDeath(20);
+
+		entityfx.setUseDynamicWindSpeed(false);
 
 		if (ConfigParticle.Particle_effect_rate != 0) {
 			entityfx.spawnAsWeatherEffect();

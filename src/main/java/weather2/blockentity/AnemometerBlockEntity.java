@@ -43,7 +43,8 @@ public class AnemometerBlockEntity extends BlockEntity {
 			}
 
 			if (isOutsideCached) {
-				float windSpeed = WindReader.getWindSpeed(level);
+				//do not cache for this, the amp value used will mess with the turbines amp, design oversight
+				float windSpeed = WindReader.getWindSpeed(level, pos, 1);
 				float rotMax = 50F;
 				float maxSpeed = (windSpeed / 1.2F) * rotMax;
 				if (smoothAngleRotationalVel < maxSpeed) {

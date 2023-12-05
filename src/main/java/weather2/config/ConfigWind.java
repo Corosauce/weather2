@@ -21,13 +21,16 @@ public class ConfigWind implements IConfigCategory {
     public static int highWindTimerEnableAmountRnd = 20*60*10;
     public static int highWindOddsTo1 = 20*400;
 
-    public static double globalWindChangeAmountRate = 1F;
+    public static double globalWindAngleChangeAmountRate = 1F;
 
     public static double windSpeedMin = 0.00001D;
     public static double windSpeedMax = 1D;
 
     @ConfigComment("Min wind speed to maintain if its raining with global overcast mode on, overrides low wind events and windSpeedMin")
     public static double windSpeedMinGlobalOvercastRaining = 0.01D;
+
+
+    public static int Wind_Turbine_FE_Generated_Per_Tick = 10;
 
     @Override
     public String getName() {

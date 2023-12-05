@@ -81,18 +81,18 @@ public class WeatherUtilSound {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void playNonMovingSound(Vec3 parPos, String var1, float var5, float var6, float parCutOffRange)
+    public static void playNonMovingSound(Vec3 parPos, String var1, float parVolume, float parPitch, float parCutOffRange)
     {
         //String prefix = "streaming.";
         String affix = ".ogg";
         //ResourceLocation res = new ResourceLocation(var1);
         SoundEvent event = SoundRegistry.get(var1);
-        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundSource.WEATHER, var5, var6, parCutOffRange);
+        MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parPos, event, SoundSource.WEATHER, parVolume, parPitch, parCutOffRange);
         Minecraft.getInstance().getSoundManager().play(sound);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void playMovingSound(StormObject parStorm, String var1, float var5, float var6, float parCutOffRange)
+    public static void playMovingSound(StormObject parStorm, String var1, float parVolume, float parPitch, float parCutOffRange)
     {
         //String prefix = "streaming.";
         String affix = ".ogg";
@@ -101,7 +101,7 @@ public class WeatherUtilSound {
         SoundEvent event = SoundRegistry.get(var1);
 
         try {
-            MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parStorm, event, SoundSource.WEATHER, var5, var6, parCutOffRange);
+            MovingSoundStreamingSource sound = new MovingSoundStreamingSource(parStorm, event, SoundSource.WEATHER, parVolume, parPitch, parCutOffRange);
 
             Minecraft.getInstance().getSoundManager().play(sound);
         } catch (Exception ex) {

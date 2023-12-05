@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "weather2:block/wind_turbine"
+    }
+  }
+}

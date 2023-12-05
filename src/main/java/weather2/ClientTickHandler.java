@@ -86,7 +86,7 @@ public class ClientTickHandler
 
 			//TODO: evaluate if best here
 			float windDir = WindReader.getWindAngle(world);
-			float windSpeed = WindReader.getWindSpeed(world);
+			float windSpeed = WindReader.getWindSpeed(world, mc.player != null ? mc.player.blockPosition() : null);
 
 			//windDir = 0;
 			//TODO: ???????????? what is all this even affecting now

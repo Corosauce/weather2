@@ -12,6 +12,7 @@ import weather2.ClientTickHandler;
 import weather2.WeatherBlocks;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSand;
+import weather2.config.ConfigSound;
 import weather2.util.WeatherUtilSound;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
@@ -47,7 +48,7 @@ public class SirenBlockEntity extends BlockEntity {
             if (so != null)
             {
                 this.lastPlayTime = System.currentTimeMillis() + 13000L;
-                WeatherUtilSound.playNonMovingSound(pos, "streaming.siren", 1.0F, 1.0F, 120);
+                WeatherUtilSound.playNonMovingSound(pos, "streaming.siren", (float) ConfigSound.sirenVolume, 1.0F, 120);
             } else {
                 if (!ConfigSand.Sandstorm_Siren_PleaseNoDarude) {
                     WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(pos, WeatherObjectParticleStorm.StormType.SANDSTORM);
@@ -63,10 +64,10 @@ public class SirenBlockEntity extends BlockEntity {
                                 soundToPlay = "siren_sandstorm_6_extra";
                             }
 
-                            float distScale = Math.max(0.1F, 1F - (float) ((pos.distanceTo(storm.pos)) / storm.getSize()));
+                            float distScaleFunnyPitchChangeHaha = Math.max(0.1F, 1F - (float) ((pos.distanceTo(storm.pos)) / storm.getSize()));
 
                             this.lastPlayTime = System.currentTimeMillis() + 15000L;//WeatherUtilSound.soundToLength.get(soundToPlay) - 500L;
-                            WeatherUtilSound.playNonMovingSound(pos, "streaming." + soundToPlay, 1F, distScale, storm.getSize());
+                            WeatherUtilSound.playNonMovingSound(pos, "streaming." + soundToPlay, (float) ConfigSound.sirenVolume, distScaleFunnyPitchChangeHaha, storm.getSize());
                         }
                     }
                 }

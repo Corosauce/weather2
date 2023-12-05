@@ -2,7 +2,13 @@ package weather2.weathersystem.wind;
 
 public class WindInfoCache {
 
-    public long cacheTime;
-    public float windSpeed;
+    public long cacheTimeWindSpeedEvent;
+    public float windSpeedEvent;
+
+    public long cacheTimeChunkHeight;
+    public int averageChunkHeightAround;
+
+    public long cacheTimeWindSpeedAtChunkHeight;
+    public float windSpeedAtChunkHeight;
 
 }

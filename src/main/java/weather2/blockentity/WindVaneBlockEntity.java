@@ -43,7 +43,8 @@ public class WindVaneBlockEntity extends BlockEntity {
 
 			if (isOutsideCached) {
 				float targetAngle = WindReader.getWindAngle(level, new Vec3(getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ()));
-				float windSpeed = WindReader.getWindSpeed(level);
+				//do not cache for this, the amp value used will mess with the turbines amp, design oversight
+				float windSpeed = WindReader.getWindSpeed(level, pos, 1);
 				if (smoothAngle > 180) smoothAngle -= 360;
 				if (smoothAngle < -180) smoothAngle += 360;
 

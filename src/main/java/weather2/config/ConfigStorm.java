@@ -54,7 +54,7 @@ public class ConfigStorm implements IConfigCategory {
 	public static int Player_Storm_Deadly_TimeBetweenInTicks = 20*60*20*3; //3 mc days
 	
 	//per server storm settings
-	public static boolean Server_Storm_Deadly_UseGlobalRate = false;
+	public static boolean Server_Storm_Deadly_UseGlobalRate = true;
 	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, replaces use of Player_Storm_Deadly_OddsTo1")
 	public static int Server_Storm_Deadly_OddsTo1 = 30;
 	@ConfigComment("Used if Server_Storm_Deadly_UseGlobalRate is on, replaces use of Player_Storm_Deadly_TimeBetweenInTicks")

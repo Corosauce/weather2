@@ -25,6 +25,7 @@ import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
 import weather2.datatypes.PrecipitationType;
+import weather2.util.WeatherUtilParticle;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleBehaviors {
@@ -498,7 +499,7 @@ public class ParticleBehaviors {
 	}
 
 	public void initParticleLeaf(EntityRotFX particle, float particleAABB) {
-		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce(WeatherUtilParticle.getPos(particle));
 		particle.setMotionX(windForce.x / 2);
 		particle.setMotionZ(windForce.z / 2);
 		particle.setMotionY(windForce.y / 2);
@@ -516,7 +517,7 @@ public class ParticleBehaviors {
 
 	public void initParticleSnowstormCloudDust(EntityRotFX particle) {
 		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !SceneEnhancer.isPlayerOutside;
-		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce(null);
 		particle.setMotionX(windForce.x * 0.3);
 		particle.setMotionZ(windForce.z * 0.3);
 		particle.setFacePlayer(false);
@@ -541,7 +542,7 @@ public class ParticleBehaviors {
 	}
 
 	public void initParticleSandstormDust(EntityRotFX particle) {
-		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce(null);
 		particle.setMotionX(windForce.x);
 		particle.setMotionZ(windForce.z);
 		particle.setFacePlayer(false);
@@ -564,7 +565,7 @@ public class ParticleBehaviors {
 	}
 
 	public void initParticleSandstormTumbleweed(EntityRotFX particle) {
-		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce(null);
 		particle.setMotionX(windForce.x);
 		particle.setMotionZ(windForce.z);
 		particle.setFacePlayer(false);
@@ -592,7 +593,7 @@ public class ParticleBehaviors {
 	}
 
 	public void initParticleSandstormDebris(EntityRotFX particle) {
-		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce();
+		Vec3 windForce = ClientTickHandler.getClientWeather().getWindManager().getWindForce(null);
 		particle.setMotionX(windForce.x);
 		particle.setMotionZ(windForce.z);
 		particle.setFacePlayer(false);

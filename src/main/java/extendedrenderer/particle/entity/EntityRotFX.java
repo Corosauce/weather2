@@ -200,6 +200,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
     private static final AABB INITIAL_AABB = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
     private AABB bbRender = INITIAL_AABB;
     private float renderDistanceCull = -1;
+    private boolean useDynamicWindSpeed = true;
 
     public EntityRotFX(ClientLevel par1World, double par2, double par4, double par6, double par8, double par10, double par12)
     {
@@ -419,9 +420,9 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         if (this instanceof PivotingParticle) return;
         //particles on ground shouldnt get blown as hard (idea for hail)
         if (onGround) {
-            windMan.applyWindForceNew(this, (1F / 20F) * 0.3F, 0.5F);
+            windMan.applyWindForceNew(this, (1F / 20F) * 0.3F, 0.5F, useDynamicWindSpeed);
         } else {
-            windMan.applyWindForceNew(this, 1F / 20F, 0.5F);
+            windMan.applyWindForceNew(this, 1F / 20F, 0.5F, useDynamicWindSpeed);
         }
 
         /*if (!quatControl) {
@@ -982,5 +983,13 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
 
     public void setRenderDistanceCull(float renderDistanceCull) {
         this.renderDistanceCull = renderDistanceCull;
+    }
+
+    public boolean isUseDynamicWindSpeed() {
+        return useDynamicWindSpeed;
+    }
+
+    public void setUseDynamicWindSpeed(boolean useDynamicWindSpeed) {
+        this.useDynamicWindSpeed = useDynamicWindSpeed;
     }
 }

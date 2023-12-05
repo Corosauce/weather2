@@ -9,6 +9,8 @@ import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.weathersystem.WeatherManager;
 
+import javax.annotation.Nullable;
+
 public class WindReader {
 	public static float getWindAngle(Level world) {
 		return getWindAngle(world,null);
@@ -20,16 +22,24 @@ public class WindReader {
 	}
 
 	public static float getWindSpeed(Level world) {
-		WeatherManager weather = getWeatherManagerFor(world);
-		return weather != null ? weather.getWindManager().getWindSpeed() : 0;
+		return getWindSpeed(world, null);
 	}
 
-	public static float getWindSpeed(Level world, BlockPos pos) {
-		WeatherManager weather = getWeatherManagerFor(world);
-		return weather != null ? weather.getWindManager().getWindSpeed(pos) : 0;
+	public static float getWindSpeed(Level world, @Nullable BlockPos pos) {
+		return getWindSpeed(world, pos, 1);
 	}
 
-	private static WeatherManager getWeatherManagerFor(Level world) {
+	public static float getWindSpeed(Level world, @Nullable BlockPos pos, float extraHeightAmpMax) {
+		WeatherManager weather = getWeatherManagerFor(world);
+		return weather != null ? weather.getWindManager().getWindSpeed(pos, extraHeightAmpMax) : 0;
+	}
+
+	public static float getWindSpeedCached(Level world, @Nullable BlockPos pos, float extraHeightAmpMax) {
+		WeatherManager weather = getWeatherManagerFor(world);
+		return weather != null ? weather.getWindManager().getCachedWindSpeedForHeight(pos, extraHeightAmpMax) : 0;
+	}
+
+	public static WeatherManager getWeatherManagerFor(Level world) {
 		if (world.isClientSide) {
 			return getWeatherManagerClient();
 		} else {
