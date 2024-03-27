@@ -1,0 +1,16 @@
+{
+  "itemGroup.weather2": "Погода 2: предметы",
+  "block.weather2.tornado_sensor": "Датчик торнадо",
+  "block.weather2.tornado_siren": "Погодная сирена",
+  "block.weather2.tornado_siren_manual": "Ручная редстоуновая сирена",
+  "block.weather2.wind_vane": "Флюгер",
+  "block.weather2.wind_turbine": "Ветряная турбина",
+  "block.weather2.weather_forecast": "Ппрогноз погоды",
+  "block.weather2.weather_machine": "Погодная машина (ПКМ, чтобы выполнить цикл)",
+  "block.weather2.weather_deflector": "Погодный отражатель",
+  "block.weather2.anemometer": "Анемометр",
+  "block.weather2.sand_layer": "Слой песка",
+  "item.weather2.weather_item": "Погодный предмет",
+  "item.weather2.sand_layer_placeable": "Слой песка",
+  "item.weather2.pocket_sand": "Карманный песок"
+}
