@@ -50,6 +50,7 @@ import weather2.weathersystem.tornado.simple.Layer;
 import weather2.weathersystem.tornado.simple.TornadoFunnelSimple;
 
 import java.util.*;
+import java.lang.ref.WeakReference;
 
 public class StormObject extends WeatherObject {
 
@@ -209,7 +210,7 @@ public class StormObject extends WeatherObject {
 
 	public boolean isFirenado = false;
 
-	public List<LivingEntity> listEntitiesUnderClouds = new ArrayList<>();
+	public List<WeakReference<LivingEntity>> listEntitiesUnderClouds = new ArrayList<>();
 
 	private boolean playerControlled = false;
 	private int playerControlledTimeLeft = 20;
@@ -1093,14 +1094,16 @@ public class StormObject extends WeatherObject {
 				List<LivingEntity> listEnts = manager.getWorld().getEntitiesOfClass(LivingEntity.class, new AABB(posBP).inflate(size));
 				for (LivingEntity ent : listEnts) {
 					if (ent.level().canSeeSky(ent.blockPosition())) {
-						listEntitiesUnderClouds.add(ent);
+						listEntitiesUnderClouds.add(new WeakReference<>(ent));
 					}
 				}
 			}
 
-			for (LivingEntity ent : listEntitiesUnderClouds) {
+			for (WeakReference<LivingEntity> ent : listEntitiesUnderClouds) {
+				if (ent.get() == null)
+					continue;
 				if (!isFirenado) {
-					ent.clearFire();
+					ent.get().clearFire();
 				}
 			}
 		}
