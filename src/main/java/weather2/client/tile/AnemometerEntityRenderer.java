@@ -54,7 +54,7 @@ public class AnemometerEntityRenderer<T extends BlockEntity> implements BlockEnt
     }
 
     public static void renderModel(final Material material, final Model model, PoseStack stack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
-        model.renderToBuffer(stack, buffer.getBuffer(model.renderType(material.texture())), combinedLightIn, combinedOverlayIn, 1);
+        model.renderToBuffer(stack, buffer.getBuffer(model.renderType(material.texture())), combinedLightIn, combinedOverlayIn, -1);
     }
 
     private final Block block;
