@@ -131,6 +131,7 @@ public final class ClientWeatherProxy {
 	}
 
 	public boolean isWeatherEffectsServerSideControlled() {
-		return Weather.isLoveTropicsInstalled();
+		Minecraft mc = Minecraft.getInstance();
+		return mc.getConnection() != null || mc.hasSingleplayerServer() || Weather.isLoveTropicsInstalled();
 	}
 }
