@@ -83,7 +83,7 @@ public class WindVaneEntityRenderer<T extends BlockEntity> implements BlockEntit
 
         ModelPart top = this.model.root().getChild("root").getChild("base").getChild("middle").getChild("top");
         if (top != null) {
-            WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
+            WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
             if (weatherMan == null) return;
             WindManager windMan = weatherMan.getWindManager();
             if (windMan == null) return;

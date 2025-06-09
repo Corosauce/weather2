@@ -147,9 +147,7 @@ public class ClientTickHandler
     			init(world);
         	}
     	} catch (Exception ex) {
-    		//Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
-    		Weather.dbg("Weather2: Warning, weather tried to init before world was loaded");
-			//ex.printStackTrace();
+    		Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
     	}
 		return weatherManager;
     }

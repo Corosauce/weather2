@@ -63,7 +63,7 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 	public void tickExtraRotations() {
 		//super.tickExtraRotations();
 
-		WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
+		WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
 		if (weatherMan == null) return;
 		WindManager windMan = weatherMan.getWindManager();
 		if (windMan == null) return;

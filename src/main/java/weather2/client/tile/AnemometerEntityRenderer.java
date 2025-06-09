@@ -81,7 +81,7 @@ public class AnemometerEntityRenderer<T extends BlockEntity> implements BlockEnt
 
         ModelPart top = this.model.root().getChild("base").getChild("top");
         if (top != null) {
-            WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
+            WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
             if (weatherMan == null) return;
             WindManager windMan = weatherMan.getWindManager();
             if (windMan == null) return;
