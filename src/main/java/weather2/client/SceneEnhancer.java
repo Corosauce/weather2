@@ -149,7 +149,7 @@ public class SceneEnhancer implements Runnable {
 				playerManagerClient.tick(client.level);
 			}
 
-			WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
+			WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
 			if (weatherMan == null) return;
 			WindManager windMan = weatherMan.getWindManager();
 			if (windMan == null) return;
@@ -470,7 +470,7 @@ public class SceneEnhancer implements Runnable {
 		FORCE_ON_DEBUG_TESTING = false;
 
 		Player entP = Minecraft.getInstance().player;
-		WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
+		WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
 		if (weatherMan == null) return;
 		WindManager windMan = weatherMan.getWindManager();
 		if (windMan == null) return;
@@ -552,7 +552,7 @@ public class SceneEnhancer implements Runnable {
 		int safetyCutout = 100;
 
 		if (world.getGameTime() % 20 == 0) {
-			StormObject stormObject = ClientTickHandler.weatherManager.getClosestStorm(entP.position(), ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
+			StormObject stormObject = ClientTickHandler.getClientWeather().getClosestStorm(entP.position(), ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
 			if (stormObject != null && entP.position().distanceTo(stormObject.pos) < stormObject.getSize()) {
 				isPlayerNearTornadoCached = true;
 			} else {
@@ -592,7 +592,7 @@ public class SceneEnhancer implements Runnable {
 					particleStormIntensity = 1;
 				}
 			} else {
-				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
+				WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
 				if (storm != null) {
 					particleStormIntensity = storm.getIntensity();
 				}
@@ -604,7 +604,7 @@ public class SceneEnhancer implements Runnable {
 					particleStormIntensity = 1;
 				}
 			} else {
-				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
+				WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(entP.position(), WeatherObjectParticleStorm.StormType.SNOWSTORM);
 				if (storm != null) {
 					particleStormIntensity = storm.getIntensity();
 				}
@@ -1140,7 +1140,7 @@ public class SceneEnhancer implements Runnable {
     	Minecraft client = Minecraft.getInstance();
     	ClientLevel worldRef = lastWorldDetected;
     	Player player = Minecraft.getInstance().player;
-        WeatherManagerClient manager = ClientTickHandler.weatherManager;
+        WeatherManagerClient manager = ClientTickHandler.getClientWeather();
 
         if (worldRef == null || player == null || manager == null || manager.getWindManager() == null || (manager.getWindManager() != null && manager.getWindManager().cachedWindSpeedClient == 0))
         {
@@ -1378,7 +1378,7 @@ public class SceneEnhancer implements Runnable {
             return;
         }
 
-        WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
+        WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
         if (weatherMan == null) return;
         WindManager windMan = weatherMan.getWindManager();
         if (windMan == null) return;
@@ -1484,14 +1484,14 @@ public class SceneEnhancer implements Runnable {
 		Minecraft client = Minecraft.getInstance();
 		Player player = client.player;
 		Level world = client.level;
-		WindManager windMan = ClientTickHandler.weatherManager.getWindManager();
+		WindManager windMan = ClientTickHandler.getClientWeather().getWindManager();
 		ClientTickHandler.getClientWeather();
 
 		boolean farSpawn = Minecraft.getInstance().player.isSpectator() || !isPlayerOutside;
 
 		float adjustAmountSmooth = 0;
 
-		WeatherObjectParticleStorm sandstorm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(player.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
+		WeatherObjectParticleStorm sandstorm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(player.position(), WeatherObjectParticleStorm.StormType.SANDSTORM);
 		if (sandstorm != null) {
 			adjustAmountSmooth = sandstorm.getIntensity();
 			//CULog.dbg("sandstorm: " + adjustAmountSmooth);

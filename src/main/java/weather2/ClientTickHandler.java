@@ -27,7 +27,7 @@ public class ClientTickHandler
 
 	public static Level lastWorld;
 	
-	public static WeatherManagerClient weatherManager;
+	private static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
 
 	public static ClientConfigData clientConfigData;

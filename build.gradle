@@ -138,10 +138,10 @@ dependencies {
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
 
-    implementation ('com.lovetropics.ltweather:ltweather-neoforge:1.21-1.0')
-    implementation ('com.lovetropics.ltextras:LTExtras:1.3.0-release+248-gha')
-    implementation ('com.tropicraft:Tropicraft:9.7.3-beta+688-gha')
-    implementation ("com.lovetropics.minigames:LTMinigames:${ltminigames_version}")
+    //implementation ('com.lovetropics.ltweather:ltweather-neoforge:1.21-1.0')
+    //implementation ('com.lovetropics.ltextras:LTExtras:1.3.0-release+248-gha')
+    //implementation ('com.tropicraft:Tropicraft:9.7.3-beta+688-gha')
+    //implementation ("com.lovetropics.minigames:LTMinigames:${ltminigames_version}")
     //implementation ('maven.modrinth:tropicraft:9.7.3-1.21')
 
     implementation ("com.corosus.coroutil:coroutil-neoforge:${project.minecraft_version}.0-${project.coroutil_version}")

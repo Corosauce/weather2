@@ -90,7 +90,7 @@ public final class ClientWeatherProxy {
 			if (player == null) return false;
 			if (player.level().getGameTime() % cacheRate == 0) {
 				Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
-				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SANDSTORM);
+				WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SANDSTORM);
 				cacheIsSandstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
 			}
 			return cacheIsSandstorm;
@@ -107,7 +107,7 @@ public final class ClientWeatherProxy {
 			if (player == null) return false;
 			if (player.level().getGameTime() % cacheRate == 0) {
 				Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
-				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SNOWSTORM);
+				WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SNOWSTORM);
 				cacheIsSnowstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
 			}
 			return cacheIsSnowstorm;
@@ -121,7 +121,7 @@ public final class ClientWeatherProxy {
 		if (player.level().getGameTime() % cacheRate == 0) {
 			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
 			double maxStormDist = 512 / 4 * 3;
-			StormObject storm = ClientTickHandler.weatherManager.getClosestStorm(posPlayer, maxStormDist, StormObject.STATE_HAIL, StormObject.STATE_HAIL, false);
+			StormObject storm = ClientTickHandler.getClientWeather().getClosestStorm(posPlayer, maxStormDist, StormObject.STATE_HAIL, StormObject.STATE_HAIL, false);
 			cacheIsHail = storm != null && posPlayer.distanceTo(storm.posGround) < storm.getSize();
 		}
 		return cacheIsHail;

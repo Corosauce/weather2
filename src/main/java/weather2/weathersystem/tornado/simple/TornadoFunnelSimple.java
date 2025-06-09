@@ -18,8 +18,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
-import net.tropicraft.core.common.entity.TropicraftEntities;
-import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.Weather;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
@@ -131,10 +129,10 @@ public class TornadoFunnelSimple {
                 if (level.getGameTime() % 20 == 0) {
                     Entity ent = null;
                     if (Weather.isLoveTropicsInstalled()) {
-                        EntityType type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse("tropicraft:hammerhead"));
+                        /*EntityType type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse("tropicraft:hammerhead"));
                         if (type != null) {
                             ent = new SharkEntity(type, level);
-                        }
+                        }*/
 
                     }
                     if (ent == null) {

@@ -43,7 +43,7 @@ public class SirenBlockEntity extends BlockEntity {
         {
             Vec3 pos = new Vec3(getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ());
 
-            StormObject so = ClientTickHandler.weatherManager.getClosestStorm(pos, ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
+            StormObject so = ClientTickHandler.getClientWeather().getClosestStorm(pos, ConfigMisc.sirenActivateDistance, StormObject.STATE_FORMING);
 
             if (so != null)
             {
@@ -51,9 +51,9 @@ public class SirenBlockEntity extends BlockEntity {
                 WeatherUtilSound.playNonMovingSound(pos, "streaming.siren", (float) ConfigSound.sirenVolume, 1.0F, 120);
             } else {
                 if (!ConfigSand.Sandstorm_Siren_PleaseNoDarude) {
-                    WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(pos, WeatherObjectParticleStorm.StormType.SANDSTORM);
+                    WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(pos, WeatherObjectParticleStorm.StormType.SANDSTORM);
                     if (storm == null) {
-                        storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(pos, WeatherObjectParticleStorm.StormType.SNOWSTORM);
+                        storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(pos, WeatherObjectParticleStorm.StormType.SNOWSTORM);
                     }
 
                     if (storm != null) {

@@ -63,7 +63,7 @@ public final class ClientWeatherHelper {
 
 		ClientTickHandler.getClientWeather();
 
-		storm = ClientTickHandler.weatherManager.getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, -1, true);
+		storm = ClientTickHandler.getClientWeather().getClosestStorm(plPos, maxStormDist, StormObject.STATE_FORMING, -1, true);
 
 		boolean closeEnough = false;
 		double stormDist = 9999;
@@ -74,7 +74,7 @@ public final class ClientWeatherHelper {
 		float overcastModeMinPrecip = 0.23F;
 		//overcastModeMinPrecip = 0.16F;
 		//overcastModeMinPrecip = (float) ConfigStorm.Storm_Rain_Overcast_Amount;
-		overcastModeMinPrecip = ClientTickHandler.weatherManager.vanillaRainAmountOnServer;
+		overcastModeMinPrecip = ClientTickHandler.getClientWeather().vanillaRainAmountOnServer;
 
 		//evaluate if storms size is big enough to be over player
 		if (storm != null) {
@@ -129,7 +129,7 @@ public final class ClientWeatherHelper {
 					curPrecipStrTarget = 0;
 				}
 			} else {
-				if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+				if (ClientTickHandler.getClientWeather().isVanillaRainActiveOnServer) {
 					if (forOvercast) {
 						curOvercastStrTarget = overcastModeMinPrecip;
 					} else {
@@ -182,7 +182,7 @@ public final class ClientWeatherHelper {
 					mc.level.setRainLevel(0);
 					mc.level.setThunderLevel(0);
 				} else {
-					if (ClientTickHandler.weatherManager.isVanillaRainActiveOnServer) {
+					if (ClientTickHandler.getClientWeather().isVanillaRainActiveOnServer) {
 						mc.level.getLevelData().setRaining(true);
 						mc.level.setRainLevel(rainAmount * visualDarknessAmplifier);
 						mc.level.setThunderLevel(rainAmount * visualDarknessAmplifier);

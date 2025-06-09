@@ -49,6 +49,6 @@ public class WindReader {
 
 	@OnlyIn(Dist.CLIENT)
 	private static WeatherManager getWeatherManagerClient() {
-		return ClientTickHandler.weatherManager;
+		return ClientTickHandler.getClientWeather();
 	}
 }

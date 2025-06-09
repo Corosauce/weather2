@@ -429,7 +429,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
             rotationPitch = (float)Math.atan2(yd, motionXZ);
         }
 
-        WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;
+        WeatherManagerClient weatherMan = ClientTickHandler.getClientWeather();
         if (weatherMan == null) return;
         WindManager windMan = weatherMan.getWindManager();
         if (windMan == null) return;
