@@ -27,7 +27,7 @@ public class ClientTickHandler
 
 	public static Level lastWorld;
 	
-	private static WeatherManagerClient weatherManager;
+	public static WeatherManagerClient weatherManager;
 	public static SceneEnhancer sceneEnhancer;
 
 	public static ClientConfigData clientConfigData;
@@ -147,7 +147,9 @@ public class ClientTickHandler
     			init(world);
         	}
     	} catch (Exception ex) {
-    		Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
+    		//Weather.dbg("Weather2: Warning, client received packet before it was ready to use, and failed to init client weather due to null world");
+    		Weather.dbg("Weather2: Warning, weather tried to init before world was loaded");
+			//ex.printStackTrace();
     	}
 		return weatherManager;
     }
