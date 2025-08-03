@@ -13,7 +13,6 @@
   ],
   "result": {
     "count": 8,
-    "item": "weather2:sand_layer"
-  },
-  "show_notification": true
+    "id": "weather2:sand_layer"
+  }
 }

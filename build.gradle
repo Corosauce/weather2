@@ -152,6 +152,8 @@ dependencies {
     implementation 'com.electronwill.night-config:core:3.6.5'
     implementation 'com.electronwill.night-config:toml:3.6.5'
 
+    //implementation ('maven.modrinth:tropicraft:9.7.3-1.21')
+
     // Example mod dependency using a file as dependency
     // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
 

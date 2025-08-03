@@ -3,17 +3,15 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "weather2:weather_forecast"
+        "recipe": "weather2:wind_turbine"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_weather_item": {
+    "has_wind_vane": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "weather2:weather_item"
-            ]
+            "items": "weather2:wind_turbine"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_weather_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_wind_vane"
     ]
   ],
   "rewards": {
     "recipes": [
-      "weather2:weather_forecast"
+      "weather2:wind_turbine"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

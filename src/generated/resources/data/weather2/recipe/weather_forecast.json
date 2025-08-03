@@ -18,7 +18,7 @@
     "XDX"
   ],
   "result": {
-    "item": "weather2:weather_forecast"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "weather2:weather_forecast"
+  }
 }

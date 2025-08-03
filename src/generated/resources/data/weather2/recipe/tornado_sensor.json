@@ -13,12 +13,12 @@
     }
   },
   "pattern": [
-    "XDX",
+    "X X",
     "DID",
-    "XDX"
+    "X X"
   ],
   "result": {
-    "item": "weather2:weather_deflector"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "weather2:tornado_sensor"
+  }
 }

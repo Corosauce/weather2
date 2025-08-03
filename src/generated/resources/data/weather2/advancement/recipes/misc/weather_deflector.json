@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "weather2:anemometer"
+        "recipe": "weather2:weather_deflector"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
@@ -11,9 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "weather2:weather_item"
-            ]
+            "items": "weather2:weather_item"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_weather_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_weather_item"
     ]
   ],
   "rewards": {
     "recipes": [
-      "weather2:anemometer"
+      "weather2:weather_deflector"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

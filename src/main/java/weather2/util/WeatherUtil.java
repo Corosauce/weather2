@@ -199,6 +199,8 @@ public class WeatherUtil {
                         return result; //force return false to prevent unchecked future code outside scope
                     } else {
 
+                        System.out.println(state.getDestroySpeed(parWorld, new BlockPos(0, 0, 0)) + " test " + block + " - " + itemStr.getDestroySpeed(block.defaultBlockState()));
+
                         //float strVsBlock = block.getBlockHardness(block.defaultBlockState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.defaultBlockState()) - 1) / 4F));
                         float strVsBlock = state.getDestroySpeed(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getDestroySpeed(block.defaultBlockState()) - 1) / 4F));
 

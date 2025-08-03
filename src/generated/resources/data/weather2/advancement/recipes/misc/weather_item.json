@@ -1,13 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_sand": {
+    "has_redstone": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:sand"
-            ]
+            "items": "minecraft:redstone"
           }
         ]
       },
@@ -15,21 +13,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "weather2:sand_layer"
+        "recipe": "weather2:weather_item"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_sand",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_redstone"
     ]
   ],
   "rewards": {
     "recipes": [
-      "weather2:sand_layer"
+      "weather2:weather_item"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

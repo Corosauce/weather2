@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "weather2:tornado_sensor"
-            ]
+            "items": "weather2:tornado_sensor"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_sensor_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_sensor_item"
     ]
   ],
   "rewards": {
     "recipes": [
       "weather2:tornado_siren"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

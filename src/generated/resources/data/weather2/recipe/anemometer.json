@@ -5,20 +5,17 @@
     "D": {
       "item": "minecraft:redstone"
     },
-    "I": {
-      "item": "minecraft:gold_ingot"
-    },
     "X": {
-      "item": "minecraft:iron_ingot"
+      "item": "weather2:weather_item"
     }
   },
   "pattern": [
     "X X",
-    "DID",
+    "XDX",
     "X X"
   ],
   "result": {
-    "item": "weather2:weather_item"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "weather2:anemometer"
+  }
 }

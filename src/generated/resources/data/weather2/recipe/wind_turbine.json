@@ -27,7 +27,7 @@
     "RGR"
   ],
   "result": {
-    "item": "weather2:wind_turbine"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "weather2:wind_turbine"
+  }
 }
