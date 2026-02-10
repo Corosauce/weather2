@@ -199,10 +199,11 @@ public class WeatherUtil {
                     } else {
 
                         //float strVsBlock = block.getBlockHardness(block.defaultBlockState(), parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getStrVsBlock(block.defaultBlockState()) - 1) / 4F));
-                        float strVsBlock = state.getDestroySpeed(parWorld, new BlockPos(0, 0, 0)) - (((itemStr.getDestroySpeed(block.defaultBlockState()) - 1) / 4F));
+                        float hardness = state.getDestroySpeed(parWorld, new BlockPos(0, 0, 0));
+                        float strVsBlock = hardness - ((itemStr.getDestroySpeed(block.defaultBlockState()) - 1) / 4F);
 
                         //System.out.println(strVsBlock);
-                        if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && strVsBlock >= strMin) ||
+                        if (/*block.getHardness() <= 10000.6*/ (strVsBlock <= strMax && hardness >= 0.0F) ||
                                 (state.getBlock().defaultMapColor() == MapColor.WOOD) ||
                                 state.getBlock().defaultMapColor() == MapColor.WOOL ||
                                 state.getBlock().defaultMapColor() == MapColor.PLANT ||/*
