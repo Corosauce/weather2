@@ -26,8 +26,8 @@ import java.util.*;
 public class WeatherUtil {
 
     public static HashMap<ResourceLocation, Boolean> listGrabBlockCache = new HashMap<>();
-    public static List<String> listGrabBlocks = new ArrayList<>();
-    public static List<String> listGrabBlockTags = new ArrayList<>();
+    public static Set<String> listGrabBlocks = new HashSet<>();
+    public static Set<String> listGrabBlockTags = new HashSet<>();
 
     public static String lastConfigChecked = "";
 

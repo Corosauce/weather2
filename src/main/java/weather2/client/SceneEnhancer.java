@@ -5,6 +5,7 @@ import com.corosus.coroutil.util.*;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
@@ -75,8 +76,6 @@ public class SceneEnhancer implements Runnable {
     public static ArrayList<ChunkCoordinatesBlock> soundLocations = new ArrayList<>();
     public static HashMap<ChunkCoordinatesBlock, Long> soundTimeLocations = new HashMap<>();
 
-    public static List<Block> LEAVES_BLOCKS = new ArrayList<>();
-
 	private static final List<BlockPos> listPosRandom = new ArrayList<>();
 
 	public static final ResourceLocation RAIN_TEXTURES_GREEN = ResourceLocation.fromNamespaceAndPath(Weather.MODID, "textures/environment/rain_green.png");
@@ -112,9 +111,6 @@ public class SceneEnhancer implements Runnable {
 		listPosRandom.add(new BlockPos(-1, 0, 0));
 		listPosRandom.add(new BlockPos(0, 0, 1));
 		listPosRandom.add(new BlockPos(0, 0, -1));
-
-		//TODO: tags bruh
-		Collections.addAll(LEAVES_BLOCKS, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.BIRCH_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.CHERRY_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES);
 	}
 
 	@Override
@@ -260,7 +256,7 @@ public class SceneEnhancer implements Runnable {
 
 		            		//System.out.println(Math.sqrt(cCor.getDistanceSquared(curX, curY, curZ)));
 							if (lastPlayTime < System.currentTimeMillis()) {
-								if (LEAVES_BLOCKS.contains(cCor.block)) {
+								if (cCor.block.defaultBlockState().is(BlockTags.LEAVES)) {
 									float windSpeed = WindReader.getWindSpeed(client.level, cur);
 									if (windSpeed > 0.2F) {
 										soundTimeLocations.put(cCor, System.currentTimeMillis() + 12000 + rand.nextInt(50));
