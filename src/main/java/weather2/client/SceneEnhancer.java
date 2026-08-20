@@ -2,6 +2,7 @@ package weather2.client;
 
 import com.corosus.coroutil.config.ConfigCoroUtil;
 import com.corosus.coroutil.util.*;
+import net.minecraft.client.particle.BlockMarker;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvents;
@@ -1389,21 +1390,21 @@ public class SceneEnhancer implements Runnable {
         if (WeatherUtilParticle.fxLayers != null && windMan.getWindSpeed(player.blockPosition()) >= 0.10) {
 			for (Queue<Particle> type : WeatherUtilParticle.fxLayers.values()) {
 				for (Particle particle : type) {
-	                    if (particle instanceof SuspendedParticle) {
-	                    	continue;
+					if (particle instanceof SuspendedParticle || particle instanceof BlockMarker) {
+						continue;
+					}
+
+					if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, WeatherUtilParticle.getPos(particle)).getY() - 1 < (int)Mth.floor(particle.y) + 1) || (particle instanceof ParticleTexFX))
+					{
+						if ((particle instanceof FlameParticle))
+						{
+							if (windMan.getWindSpeed(player.blockPosition()) >= 0.20) {
+								particle.age += 1;
+							}
 						}
 
-	                    if ((WeatherUtilBlock.getPrecipitationHeightSafe(world, WeatherUtilParticle.getPos(particle)).getY() - 1 < (int)Mth.floor(particle.y) + 1) || (particle instanceof ParticleTexFX))
-	                    {
-	                        if ((particle instanceof FlameParticle))
-	                        {
-	                        	if (windMan.getWindSpeed(player.blockPosition()) >= 0.20) {
-									particle.age += 1;
-								}
-	                        }
-
-							windMan.applyWindForceNew(particle, 1F/20F, 0.5F, true);
-	                    }
+						windMan.applyWindForceNew(particle, 1F/20F, 0.5F, true);
+					}
 
                 }
             }
