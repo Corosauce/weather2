@@ -208,7 +208,7 @@ public class StormObject extends WeatherObject {
 
 	public boolean isFirenado = false;
 
-	public List<LivingEntity> listEntitiesUnderClouds = new ArrayList<>();
+	public Set<LivingEntity> listEntitiesUnderClouds = new HashSet<>();
 
 	private boolean playerControlled = false;
 	private int playerControlledTimeLeft = 20;
