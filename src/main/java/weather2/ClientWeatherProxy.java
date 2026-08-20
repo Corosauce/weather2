@@ -61,15 +61,20 @@ public final class ClientWeatherProxy {
 
 	@Nullable
 	public PrecipitationType getPrecipitationType(Biome biome) {
-		if (Weather.isLoveTropicsInstalled()) {
+		if (Weather.isLoveTropicsInstalled())
 			return ClientWeatherIntegration.get().getPrecipitationType();
-		} else {
-			if (biome == null) return null;
-			if (biome.hasPrecipitation() && biome.getModifiedClimateSettings().temperatureModifier() == Biome.TemperatureModifier.NONE) return PrecipitationType.NORMAL;
-			if (biome.hasPrecipitation() && biome.getModifiedClimateSettings().temperatureModifier() == Biome.TemperatureModifier.FROZEN) return PrecipitationType.SNOW;
-			if (!biome.hasPrecipitation()) return null;
-		}
-		return null;
+
+		if (biome == null || !biome.hasPrecipitation())
+			return null;
+
+		var temperatureModifier = biome.getModifiedClimateSettings().temperatureModifier();
+
+		if (temperatureModifier == Biome.TemperatureModifier.NONE)
+			return PrecipitationType.NORMAL;
+		if (temperatureModifier == Biome.TemperatureModifier.FROZEN)
+			return PrecipitationType.SNOW;
+
+        return null;
 	}
 
 	public float getWindSpeed() {
@@ -82,36 +87,34 @@ public final class ClientWeatherProxy {
 	}
 
 	public boolean isSandstorm() {
-		if (isWeatherEffectsServerSideControlled()) {
+		if (isWeatherEffectsServerSideControlled())
 			return ClientWeatherIntegration.get().isSandstorm();
-		} else {
-			Minecraft client = Minecraft.getInstance();
-			Player player = client.player;
-			if (player == null) return false;
-			if (player.level().getGameTime() % cacheRate == 0) {
-				Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
-				WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SANDSTORM);
-				cacheIsSandstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
-			}
-			return cacheIsSandstorm;
+
+		Minecraft client = Minecraft.getInstance();
+		Player player = client.player;
+		if (player == null) return false;
+		if (player.level().getGameTime() % cacheRate == 0) {
+			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
+			WeatherObjectParticleStorm storm = ClientTickHandler.getClientWeather().getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SANDSTORM);
+			cacheIsSandstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
 		}
+		return cacheIsSandstorm;
 	}
 
 	public boolean isSnowstorm() {
 		//return ClientWeatherIntegration.get().isSnowstorm();
-		if (isWeatherEffectsServerSideControlled()) {
+		if (isWeatherEffectsServerSideControlled())
 			return ClientWeatherIntegration.get().isSnowstorm();
-		} else {
-			Minecraft client = Minecraft.getInstance();
-			Player player = client.player;
-			if (player == null) return false;
-			if (player.level().getGameTime() % cacheRate == 0) {
-				Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
-				WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SNOWSTORM);
-				cacheIsSnowstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
-			}
-			return cacheIsSnowstorm;
+
+		Minecraft client = Minecraft.getInstance();
+		Player player = client.player;
+		if (player == null) return false;
+		if (player.level().getGameTime() % cacheRate == 0) {
+			Vec3 posPlayer = new Vec3(client.player.getX(), 0, client.player.getZ());
+			WeatherObjectParticleStorm storm = ClientTickHandler.weatherManager.getClosestParticleStormByIntensity(posPlayer, WeatherObjectParticleStorm.StormType.SNOWSTORM);
+			cacheIsSnowstorm = storm != null && posPlayer.distanceTo(storm.pos) < storm.getSize();
 		}
+		return cacheIsSnowstorm;
 	}
 
 	public boolean isHail() {

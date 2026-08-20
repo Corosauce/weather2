@@ -15,6 +15,7 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -1173,9 +1174,8 @@ public class StormObject extends WeatherObject {
 
 			//temperature scan
 			if (bgb.value() != null) {
+				isInOcean = bgb.is(BiomeTags.IS_OCEAN);
 
-				isInOcean = bgb.unwrap().left().toString().toLowerCase().contains("ocean");
-				
 				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb.value(), new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				if (levelTemperature > biomeTempAdj) {
@@ -1210,18 +1210,15 @@ public class StormObject extends WeatherObject {
 			}
 			
 			//water scan - dont build up if raining already
-			if (!performBuildup && !isPrecipitating() && rand.nextInt(randomChanceOfWaterBuildFromWater) == 0) {
-				if (isOverWater) {
-					performBuildup = true;
-				}
-
-				if (bgb.value() != null) {
-					String biomecat = bgb.unwrap().left().toString().toLowerCase();
-
-					if (!performBuildup && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
-						performBuildup = true;
-					}
-				}
+			if (!performBuildup
+					&& !isPrecipitating()
+					&& rand.nextInt(randomChanceOfWaterBuildFromWater) == 0
+					&& (isOverWater
+						|| (bgb.value() != null
+							&& (isInOcean
+								|| bgb.is(BiomeTags.WATER_ON_MAP_OUTLINES)
+								|| bgb.is(BiomeTags.IS_JUNGLE))))) {
+				performBuildup = true;
 			}
 			
 			if (performBuildup) {
