@@ -315,7 +315,7 @@ public class TornadoHelper {
 						}
 
 						int bottomY = (int) Math.max(parWorld.getMinBuildHeight(), storm.posBaseFormationPos.y - 10);
-						int topY = (int) Math.max(parWorld.getMaxBuildHeight(), storm.getPosTop().y);
+						int topY = (int) Math.min(parWorld.getMaxBuildHeight(), storm.getPosTop().y);
 						if (bottomY >= topY) bottomY = topY - 1;
 						int tryY = rand.nextInt(bottomY, topY);
 
